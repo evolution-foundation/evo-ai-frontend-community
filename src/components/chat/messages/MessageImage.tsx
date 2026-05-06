@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@evoapi/design-system/button';
-import { Download, ZoomIn, ZoomOut, X } from 'lucide-react';
-import { toast } from 'sonner';
+import { Download, ImageOff, ZoomIn, ZoomOut, X } from 'lucide-react';
 import { Attachment } from '@/types/chat/api';
 import { useLanguage } from '@/hooks/useLanguage';
 import { openAttachmentInNewTab } from '@/components/chat/messages/utils/openAttachmentInNewTab';
@@ -14,9 +13,15 @@ const MessageImage: React.FC<MessageImageProps> = ({ attachments }) => {
   const { t } = useLanguage('chat');
   const [selectedImage, setSelectedImage] = useState<Attachment | null>(null);
   const [imageZoom, setImageZoom] = useState(1);
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
   const resolveImageSrc = (attachment: Attachment): string | null => {
     const src = attachment.thumb_url || attachment.data_url;
+    return src && src.trim() !== '' ? src : null;
+  };
+
+  const resolveModalImageSrc = (attachment: Attachment): string | null => {
+    const src = attachment.data_url || attachment.thumb_url;
     return src && src.trim() !== '' ? src : null;
   };
 
@@ -28,16 +33,24 @@ const MessageImage: React.FC<MessageImageProps> = ({ attachments }) => {
     return orderedSources[nextIndex] || null;
   };
 
-  const downloadFile = (attachment: Attachment) => {
-    const result = openAttachmentInNewTab({
-      url: attachment.data_url,
-      filename: attachment.fallback_title || t('messages.messageImage.imageFallback'),
-    });
+  const downloadFile = async (attachment: Attachment) => {
+    const url = attachment.data_url?.trim();
+    if (!url) return;
 
-    if (result === 'download-fallback') {
-      toast.success(t('messages.messageImage.downloadStarted'), {
-        description: attachment.fallback_title || t('messages.messageImage.imageFallback'),
-      });
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('fetch failed');
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = attachment.fallback_title || t('messages.messageImage.imageFallback');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch {
+      openAttachmentInNewTab({ url, filename: attachment.fallback_title || t('messages.messageImage.imageFallback') });
     }
   };
 
@@ -68,7 +81,9 @@ const MessageImage: React.FC<MessageImageProps> = ({ attachments }) => {
     <>
       <div className="space-y-2">
         {attachments.map((attachment, index) => {
+            const attachmentKey = String(attachment.id || index);
             const imageSrc = resolveImageSrc(attachment);
+            const hasFailed = failedImages.has(attachmentKey);
             return (
           <div key={attachment.id || index} className="space-y-1">
             {/* Container da imagem com hover isolado */}
@@ -83,7 +98,12 @@ const MessageImage: React.FC<MessageImageProps> = ({ attachments }) => {
                   aspectRatio: '16/9', // ✅ Proporção consistente
                 }}
               >
-                {imageSrc ? (
+                {hasFailed ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs text-destructive/70 px-3 text-center">
+                    <ImageOff className="h-5 w-5" />
+                    <span>{t('messages.messageImage.loadError')}</span>
+                  </div>
+                ) : imageSrc ? (
                   <img
                     src={imageSrc}
                     alt={attachment.fallback_title || t('messages.messageImage.imageFallback')}
@@ -97,7 +117,7 @@ const MessageImage: React.FC<MessageImageProps> = ({ attachments }) => {
                         img.src = nextSrc;
                         return;
                       }
-                      img.style.display = 'none';
+                      setFailedImages(prev => new Set(prev).add(attachmentKey));
                     }}
                     style={{
                       objectFit: 'cover',
@@ -127,9 +147,9 @@ const MessageImage: React.FC<MessageImageProps> = ({ attachments }) => {
                   <Button
                     size="sm"
                     variant="secondary"
-                    onClick={e => {
+                    onClick={async e => {
                       e.stopPropagation();
-                      downloadFile(attachment);
+                      await downloadFile(attachment);
                     }}
                     className="bg-white/95 text-black hover:bg-white shadow-lg"
                   >
@@ -165,15 +185,7 @@ const MessageImage: React.FC<MessageImageProps> = ({ attachments }) => {
         >
           {/* Header com controles */}
           <div className="flex items-center justify-between p-4 bg-black/50 backdrop-blur-sm">
-            <div className="text-white">
-              <h3 className="font-medium">{selectedImage.fallback_title || t('messages.messageImage.imageFallback')}</h3>
-              <div className="flex items-center gap-4 text-sm text-white/70">
-                {selectedImage.file_size && <span>{formatFileSize(selectedImage.file_size)}</span>}
-                {selectedImage.extension && (
-                  <span className="uppercase">{selectedImage.extension}</span>
-                )}
-              </div>
-            </div>
+            <div />
 
             <div className="flex items-center gap-2">
               {/* Controles de zoom */}
@@ -211,9 +223,9 @@ const MessageImage: React.FC<MessageImageProps> = ({ attachments }) => {
               <Button
                 size="sm"
                 variant="secondary"
-                onClick={e => {
+                onClick={async e => {
                   e.stopPropagation();
-                  downloadFile(selectedImage);
+                  await downloadFile(selectedImage);
                 }}
                 className="bg-white/10 border-white/20 text-white hover:bg-white/20"
               >
@@ -237,9 +249,9 @@ const MessageImage: React.FC<MessageImageProps> = ({ attachments }) => {
 
           {/* Container da imagem */}
           <div className="flex-1 flex items-center justify-center p-4 overflow-auto">
-            {resolveImageSrc(selectedImage) && (
+            {resolveModalImageSrc(selectedImage) && (
               <img
-                src={resolveImageSrc(selectedImage) || undefined}
+                src={resolveModalImageSrc(selectedImage) || undefined}
                 alt={selectedImage.fallback_title || t('messages.messageImage.imageZoomedAlt')}
                 className="max-w-full max-h-full object-contain transition-transform duration-200"
                 style={{

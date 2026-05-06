@@ -343,10 +343,36 @@
     "saving": "Enregistrement...",
     "save": "Enregistrer les Modifications"
   },
+  "stageAutomation": {
+    "title": "Règles d'Automatisation",
+    "description": "Définissez des règles qui déclenchent des actions automatiquement lorsque des événements se produisent dans cette étape.",
+    "noRules": "Aucune règle configurée. Cliquez sur \"Ajouter une règle\" pour commencer.",
+    "addRule": "Ajouter une règle",
+    "rule": "Règle",
+    "when": "Quand",
+    "then": "Alors",
+    "anyValue": "Tout",
+    "labelNamePlaceholder": "Nom de l'étiquette...",
+    "selectStage": "Sélectionner une étape...",
+    "selectAgent": "Sélectionner un agent...",
+    "noOtherStages": "Aucune autre étape disponible",
+    "noAgents": "Aucun agent disponible",
+    "triggers": {
+      "label_added": "Étiquette ajoutée",
+      "conversation_status_changed": "Statut de conversation modifié",
+      "custom_attribute_updated": "Attribut personnalisé mis à jour"
+    },
+    "actions": {
+      "move_to_stage": "Déplacer vers l'étape",
+      "assign_agent": "Assigner un agent",
+      "apply_label": "Appliquer une étiquette"
+    }
+  },
   "editStage": {
     "title": "Modifier l'Étape",
     "description": "Modifiez les informations de cette étape du pipeline.",
     "details": "Détails",
+    "automation": "Automatisation",
     "customAttributes": "Attributs",
     "attributesDescription": "Configurez les attributs pour cette étape",
     "name": "Nom de l'Étape",
@@ -505,6 +531,27 @@
     "save": "Enregistrer l'Ordre"
   },
   "kanban": {
+    "search": {
+      "placeholder": "Rechercher par nom, téléphone, email...",
+      "assigneeFilter": "Responsable",
+      "clearFilters": "Effacer les filtres",
+      "noResults": "Aucune carte ne correspond aux filtres",
+      "resultsCount": "Affichage de {{count}} sur {{total}} cartes dans {{stages}} étape(s)",
+      "loadingAgents": "Chargement de l'équipe...",
+      "noAgents": "Aucun membre de l'équipe trouvé",
+      "statusFilter": "Statut",
+      "dateRangeFilter": "Plage de dates",
+      "dateFrom": "Du",
+      "dateTo": "Au",
+      "labelFilter": "Étiquette",
+      "globalNoResults": "Aucune carte ne correspond aux filtres actifs",
+      "status": {
+        "open": "Ouvert",
+        "resolved": "Résolu",
+        "pending": "En attente",
+        "snoozed": "Reporté"
+      }
+    },
     "copyId": "Copier l'ID",
     "idCopied": "ID copié dans le presse-papiers",
     "header": {
@@ -575,7 +622,9 @@
       "conversationRemoved": "Élément retiré du pipeline avec succès",
       "conversationRemoveError": "Erreur lors du retrait de l'élément du pipeline",
       "conversationUpdated": "Élément mis à jour avec succès",
-      "conversationUpdateError": "Erreur lors de la mise à jour de l'élément"
+      "conversationUpdateError": "Erreur lors de la mise à jour de l'élément",
+      "itemHiddenByFilter": "Carte déplacée — elle peut être masquée par les filtres actifs",
+      "newItemMayBeHidden": "Carte ajoutée — elle peut être masquée par les filtres actifs"
     },
     "tasks": {
       "pending": "en attente",
@@ -634,7 +683,6 @@
       "assignedTo": "Assigné à",
       "assignedToPlaceholder": "Sélectionnez un responsable",
       "none": "Aucun",
-      "unassigned": "Non assigné",
       "cancel": "Annuler",
       "create": "Créer une tâche",
       "update": "Mettre à jour la tâche",

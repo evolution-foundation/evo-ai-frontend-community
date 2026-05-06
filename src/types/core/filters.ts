@@ -476,6 +476,20 @@ export const CONVERSATION_FILTER_TYPES: FilterType[] = [
     attribute_type: 'standard',
     options: [], // Will be populated dynamically
   },
+  {
+    attributeKey: 'contact_id',
+    attributeI18nKey: 'conversationsFilter.attributes.contact_id',
+    inputType: 'search_select',
+    dataType: 'text',
+    filterOperators: [
+      { key: 'equal_to', label: 'conversationsFilter.operators.equal_to', value: 'equal_to' },
+      { key: 'not_equal_to', label: 'conversationsFilter.operators.not_equal_to', value: 'not_equal_to' },
+      { key: 'is_present', label: 'conversationsFilter.operators.is_present', value: 'is_present' },
+      { key: 'is_not_present', label: 'conversationsFilter.operators.is_not_present', value: 'is_not_present' },
+    ],
+    attribute_type: 'standard',
+    options: [], // Will be populated dynamically from the first 100 contacts by last_activity_at
+  },
   // Removido temporariamente: API GET não suporta filtro por priority
   // {
   //   attributeKey: 'priority',

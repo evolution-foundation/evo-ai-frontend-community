@@ -4,8 +4,7 @@ import { createCallbackPage } from '@/utils/createCallbackPage';
 const HubSpotCallback = createCallbackPage({
   integrationName: 'HubSpot',
   service: HubSpotService,
-  iconPath: '/integrations/hubspot.png',
-  iconPathDark: '/integrations/hubspot-dark.png',
+  integrationId: 'hubspot',
 });
 
 export default HubSpotCallback;

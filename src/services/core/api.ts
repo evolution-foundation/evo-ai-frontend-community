@@ -11,6 +11,18 @@ const api = axios.create({
   },
 });
 
+// Mirrors the auth-invalidation codes declared in
+// app/models/concerns/api_error_codes.rb on the backend. Only these warrant
+// killing the session on a 401 response.
+const AUTH_INVALIDATION_ERROR_CODES = new Set<string>([
+  'UNAUTHORIZED',
+  'INVALID_TOKEN',
+  'TOKEN_EXPIRED',
+  'MISSING_TOKEN',
+  'INVALID_CREDENTIALS',
+  'SESSION_EXPIRED',
+]);
+
 let isRefreshing = false;
 let isTerminatingSession = false;
 let failedQueue: Array<{
@@ -137,6 +149,23 @@ api.interceptors.response.use(
       const isUnreadCountEndpoint = error.config?.url?.includes('/unread_count');
 
       if (isUnreadCountEndpoint) {
+        return Promise.reject(error);
+      }
+
+      // The backend uses ApiErrorCodes (see app/models/concerns/api_error_codes.rb)
+      // and returns business-logic errors with their own code even when the HTTP
+      // status is 401. Only treat the response as a session-invalidation 401 when
+      // the body is missing a code or carries a known auth-invalidation code —
+      // otherwise the global interceptor would log the user out on validation /
+      // permission errors that mistakenly use 401.
+      const errorCode = (
+        error.response?.data as { error?: { code?: string } } | undefined
+      )?.error?.code;
+      const isAuthInvalidationCode =
+        !errorCode ||
+        AUTH_INVALIDATION_ERROR_CODES.has(errorCode);
+
+      if (!isAuthInvalidationCode) {
         return Promise.reject(error);
       }
 

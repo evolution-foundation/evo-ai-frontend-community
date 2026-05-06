@@ -24,12 +24,16 @@
       "noAssignee": "NA",
       "noContent": "No content"
     },
+    "push": {
+      "fallbackTitle": "New notification",
+      "bodyWithAssignee": "Assigned to {{name}}"
+    },
     "panel": {
-      "title": "Unread notifications",
+      "title": "Notifications",
       "markAllAsRead": "Mark all as read",
       "loading": "Loading notifications...",
       "emptyTitle": "You're all caught up!",
-      "emptyDescription": "You don't have any unread notifications at the moment.",
+      "emptyDescription": "You don't have any notifications at the moment.",
       "pagination": {
         "separator": " - "
       },

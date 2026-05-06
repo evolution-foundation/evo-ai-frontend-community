@@ -1,5 +1,6 @@
 import { cn } from '@/utils/cn';
 import { useLanguage } from '@/hooks/useLanguage';
+import { getBrandIcon, getBrandColor } from '@/components/BrandIcon';
 
 interface ChannelIconProps {
   channelType?: string;
@@ -7,6 +8,53 @@ interface ChannelIconProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   fallbackIcon?: React.ReactNode;
+}
+
+function getChannelBrandId(channelType?: string, provider?: string): string | undefined {
+  if (!channelType) return undefined;
+
+  const keyRaw = channelType.replace('Channel::', '').toLowerCase();
+  const key = keyRaw.replace(/\s|_/g, '');
+  const prov = (provider || '').toLowerCase();
+
+  // WhatsApp
+  if (key.includes('whatsapp')) {
+    return 'whatsapp';
+  }
+
+  // Facebook / Messenger
+  if (key.includes('facebook') || key === 'facebookpage') {
+    return 'facebook';
+  }
+
+  // Instagram
+  if (key.includes('instagram')) {
+    return 'instagram';
+  }
+
+  // Telegram
+  if (key.includes('telegram')) {
+    return 'telegram';
+  }
+
+  // Twitter
+  if (key.includes('twitter')) {
+    return 'twitter';
+  }
+
+  // Line
+  if (key.includes('line')) {
+    return 'line';
+  }
+
+  // Email by provider
+  if (key.includes('email')) {
+    if (prov === 'google') {
+      return 'google';
+    }
+  }
+
+  return undefined;
 }
 
 function getChannelIconSrc(channelType?: string, provider?: string): string | undefined {
@@ -17,7 +65,7 @@ function getChannelIconSrc(channelType?: string, provider?: string): string | un
   const prov = (provider || '').toLowerCase();
 
   try {
-    // WhatsApp by provider
+    // WhatsApp by provider (fallback for non-brand icons)
     if (key.includes('whatsapp')) {
       if (prov === 'whatsapp_cloud') {
         return new URL('@/assets/channels/whatsapp-cloud.svg', import.meta.url).toString();
@@ -37,7 +85,8 @@ function getChannelIconSrc(channelType?: string, provider?: string): string | un
       if (prov === 'default' || prov === 'twilio') {
         return new URL('@/assets/channels/twilio.png', import.meta.url).toString();
       }
-      return new URL('@/assets/channels/whatsapp.png', import.meta.url).toString();
+      // whatsapp brand icon is handled by getChannelBrandId
+      return undefined;
     }
 
     // SMS by provider and type
@@ -55,7 +104,8 @@ function getChannelIconSrc(channelType?: string, provider?: string): string | un
     // Email by provider
     if (key.includes('email')) {
       if (prov === 'google') {
-        return new URL('@/assets/channels/google.png', import.meta.url).toString();
+        // google brand icon is handled by getChannelBrandId
+        return undefined;
       }
       if (prov === 'microsoft') {
         return new URL('@/assets/channels/microsoft.png', import.meta.url).toString();
@@ -75,27 +125,32 @@ function getChannelIconSrc(channelType?: string, provider?: string): string | un
 
     // Facebook / Messenger
     if (key.includes('facebook') || key === 'facebookpage') {
-      return new URL('@/assets/channels/facebook.png', import.meta.url).toString();
+      // facebook brand icon is handled by getChannelBrandId
+      return undefined;
     }
 
     // Instagram
     if (key.includes('instagram')) {
-      return new URL('@/assets/channels/instagram.png', import.meta.url).toString();
+      // instagram brand icon is handled by getChannelBrandId
+      return undefined;
     }
 
     // Telegram
     if (key.includes('telegram')) {
-      return new URL('@/assets/channels/telegram.png', import.meta.url).toString();
+      // telegram brand icon is handled by getChannelBrandId
+      return undefined;
     }
 
     // Twitter
     if (key.includes('twitter')) {
-      return new URL('@/assets/channels/twitter.png', import.meta.url).toString();
+      // twitter brand icon is handled by getChannelBrandId
+      return undefined;
     }
 
     // Line
     if (key.includes('line')) {
-      return new URL('@/assets/channels/line.png', import.meta.url).toString();
+      // line brand icon is handled by getChannelBrandId
+      return undefined;
     }
 
     return undefined;
@@ -109,6 +164,13 @@ const sizeClasses = {
   md: 'w-8 h-8',
   lg: 'w-12 h-12',
   xl: 'w-16 h-16'
+};
+
+const iconSizes = {
+  sm: 20,
+  md: 28,
+  lg: 40,
+  xl: 56
 };
 
 const containerSizeClasses = {
@@ -126,7 +188,51 @@ export default function ChannelIcon({
   fallbackIcon
 }: ChannelIconProps) {
   const { t } = useLanguage('channels');
+  const brandId = getChannelBrandId(channelType, provider);
+  const BrandIconComponent = brandId ? getBrandIcon(brandId) : undefined;
+  const brandColor = brandId ? getBrandColor(brandId) : undefined;
   const iconSrc = getChannelIconSrc(channelType, provider);
+
+  // Prefer provider-specific image (Evolution API, Evolution Go, Z-API, Notificame,
+  // Twilio, etc.) over the generic brand glyph. Only fall back to the brand icon
+  // when no provider-specific asset exists for this combination — that way the
+  // provider grid keeps each provider's own logo instead of showing the parent
+  // channel brand for all of them.
+  if (iconSrc) {
+    return (
+      <div
+        className={cn(
+          'rounded-lg bg-slate-100 dark:bg-slate-900 flex items-center justify-center overflow-hidden',
+          containerSizeClasses[size],
+          className
+        )}
+      >
+        <img
+          src={iconSrc}
+          alt={channelType || ''}
+          className={cn('object-contain', sizeClasses[size])}
+        />
+      </div>
+    );
+  }
+
+  if (BrandIconComponent) {
+    return (
+      <div
+        className={cn(
+          'rounded-lg bg-slate-100 dark:bg-slate-900 flex items-center justify-center overflow-hidden',
+          containerSizeClasses[size],
+          className
+        )}
+      >
+        <BrandIconComponent
+          size={iconSizes[size]}
+          className={sizeClasses[size]}
+          color={brandColor}
+        />
+      </div>
+    );
+  }
 
   if (!iconSrc && !fallbackIcon) {
     return (

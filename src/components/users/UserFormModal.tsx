@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -32,9 +32,29 @@ export default function UserFormModal({ isOpen, onClose, user, onSuccess }: User
   const { t } = useLanguage('users');
 
   // Buscar system roles
-  const { roles: systemRoles } = useRoles({
-    loadFull: true,
-  });
+  const { roles: systemRoles, error: rolesError } = useRoles();
+
+  // Deduplicar roles por chave para evitar que apareçam duplicados ou que a seleção marque múltiplos
+  const uniqueRoles = useMemo(() => {
+    // Definimos os papéis básicos que devem estar sempre disponíveis
+    const baseRoles = [
+      { id: 'role-agent', key: 'agent', name: 'Agent', type: 'user' },
+      { id: 'role-account-owner', key: 'account_owner', name: 'Account Owner', type: 'user' },
+    ];
+
+    // Filtramos os papéis vindos do sistema
+    const userRoleTypes = ['user', null, undefined];
+    const filteredSystemRoles = systemRoles.filter(
+      role => !!role.key && (userRoleTypes.includes(role.type as any) || !role.type)
+    );
+
+    // Combinamos e removemos duplicatas (dando preferência ao que vem do sistema se existir)
+    return Array.from(
+      new Map(
+        [...baseRoles, ...filteredSystemRoles].map(role => [role.key, role])
+      ).values()
+    );
+  }, [systemRoles]);
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<UserFormData>({
@@ -89,6 +109,10 @@ export default function UserFormModal({ isOpen, onClose, user, onSuccess }: User
 
     if (!formData.name.trim()) {
       newErrors.name = t('form.validation.nameRequired');
+    }
+
+    if (!formData.role) {
+      newErrors.role = t('form.validation.roleRequired');
     }
 
     if (!formData.email.trim()) {
@@ -218,16 +242,22 @@ export default function UserFormModal({ isOpen, onClose, user, onSuccess }: User
               disabled={loading}
             >
               <SelectTrigger className="bg-sidebar border-sidebar-border text-sidebar-foreground">
-                <SelectValue />
+                <SelectValue placeholder={t('form.fields.role.placeholder')} />
               </SelectTrigger>
               <SelectContent>
-                {systemRoles.map(role => (
-                  <SelectItem key={role.key} value={role.key}>
+                {uniqueRoles.length === 0 && (
+                  <div className="px-2 py-4 text-sm text-center text-sidebar-foreground/60">
+                    {rolesError ? rolesError : t('form.messages.loading')}
+                  </div>
+                )}
+                {uniqueRoles.map(role => (
+                  <SelectItem key={role.id} value={role.key}>
                     {role.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {errors.role && <p className="text-sm text-red-500">{errors.role}</p>}
           </div>
 
           <div className="space-y-2">

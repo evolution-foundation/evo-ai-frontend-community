@@ -630,6 +630,24 @@
       "noChannels": "Ningún canal disponible para este contacto"
     },
     "unavailable": "No disponible",
+    "templates": {
+      "noneForInbox": "No hay plantillas registradas para este inbox. Crea una en la configuración del inbox.",
+      "noApproved": "Aún no hay plantillas aprobadas por Meta. Las plantillas listadas están esperando aprobación y no pueden enviarse.",
+      "pendingSelectedHint": "Esta plantilla aún no ha sido aprobada por Meta y no puede usarse para iniciar la conversación.",
+      "statusBadge": {
+        "approved": "Aprobada",
+        "pending": "Pendiente",
+        "rejected": "Rechazada",
+        "paused": "Pausada",
+        "inactive": "Inactiva",
+        "unknown": "Desconocido"
+      }
+    },
+    "toggle": {
+      "label": "Usar Plantilla",
+      "cloudRequires": "WhatsApp Cloud requiere una plantilla para iniciar la conversación",
+      "using": "Usando Plantilla"
+    },
     "actions": {
       "cancel": "Cancelar",
       "send": "Iniciar Conversación",

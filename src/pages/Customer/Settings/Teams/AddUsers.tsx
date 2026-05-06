@@ -1,15 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
-import { Button, Checkbox, Avatar, AvatarFallback, AvatarImage } from '@evoapi/design-system';
-import { ArrowLeft, Users, UserPlus } from 'lucide-react';
+import { Badge, Button, Checkbox, Avatar, AvatarFallback, AvatarImage } from '@evoapi/design-system';
+import { ArrowLeft, Users, Save } from 'lucide-react';
 import BaseHeader from '@/components/base/BaseHeader';
 import BaseTable, { TableColumn } from '@/components/base/BaseTable';
 import TeamsService from '@/services/teams/teamsService';
 import type { Team } from '@/types/users';
 import { usersService } from '@/services/users';
 import type { User } from '@/types/users';
+
+// The team_members payload shape varies depending on which endpoint serialized
+// it (user_id is the canonical field, user.id and id show up in legacy
+// responses). Accept all three so the page works regardless of backend version.
+type TeamMembershipRow = { user_id?: string; user?: { id?: string }; id?: string };
+
+const extractMemberId = (row: TeamMembershipRow): string | undefined =>
+  row.user_id || row.user?.id || row.id;
 
 const AddUsers: React.FC = () => {
   const { t } = useLanguage('teams');
@@ -18,8 +26,8 @@ const AddUsers: React.FC = () => {
 
   const [team, setTeam] = useState<Team | null>(null);
   const [users, setUsers] = useState<User[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [savedUsers, setSavedUsers] = useState<string[]>([]);
+  const [originalMemberIds, setOriginalMemberIds] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -42,8 +50,11 @@ const AddUsers: React.FC = () => {
 
       setTeam(teamResponse);
       setUsers(usersResponse.data || []);
-      const existingMemberIds = membersResponse.map((m: any) => m.user_id || m.user?.id || m.id).filter(Boolean);
-      setSavedUsers(existingMemberIds);
+      const existingMemberIds = (membersResponse as unknown as TeamMembershipRow[])
+        .map(extractMemberId)
+        .filter((id): id is string => Boolean(id));
+      setOriginalMemberIds(existingMemberIds);
+      setSelectedIds(existingMemberIds);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
       toast.error(t('messages.loadDataError'));
@@ -54,37 +65,69 @@ const AddUsers: React.FC = () => {
   };
 
   const handleUserToggle = (userId: string) => {
-    setSelectedUsers(prev => {
-      if (prev.includes(userId)) {
-        return prev.filter(id => id !== userId);
-      } else {
-        return [...prev, userId];
-      }
-    });
+    setSelectedIds(prev =>
+      prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId],
+    );
   };
 
-  const handleSaveUsers = async () => {
-    if (!teamId || selectedUsers.length === 0) {
-      toast.error(t('messages.selectAtLeastOne'));
-      return;
-    }
+  const { addedIds, removedIds, hasPendingChanges } = useMemo(() => {
+    const original = new Set(originalMemberIds);
+    const selected = new Set(selectedIds);
+    const added = selectedIds.filter(id => !original.has(id));
+    const removed = originalMemberIds.filter(id => !selected.has(id));
+    return {
+      addedIds: added,
+      removedIds: removed,
+      hasPendingChanges: added.length > 0 || removed.length > 0,
+    };
+  }, [originalMemberIds, selectedIds]);
+
+  const handleSave = async () => {
+    if (!teamId || !hasPendingChanges) return;
 
     try {
       setIsSaving(true);
-      await TeamsService.addUsersToTeam(teamId, selectedUsers);
-      setSavedUsers(prev => [...new Set([...prev, ...selectedUsers])]);
-      setSelectedUsers([]);
-      toast.success(t('messages.usersAddedSuccess'));
+
+      const operations: Promise<unknown>[] = [];
+      if (addedIds.length > 0) {
+        operations.push(TeamsService.addUsersToTeam(teamId, addedIds));
+      }
+      if (removedIds.length > 0) {
+        operations.push(TeamsService.removeUsersFromTeam(teamId, removedIds));
+      }
+      await Promise.all(operations);
+
+      const refreshed = await TeamsService.getTeamMembers(teamId);
+      const refreshedMemberIds = (refreshed as unknown as TeamMembershipRow[])
+        .map(extractMemberId)
+        .filter((id): id is string => Boolean(id));
+      setOriginalMemberIds(refreshedMemberIds);
+      setSelectedIds(refreshedMemberIds);
+
+      // Toast tailored to which operation(s) ran. Both → membersUpdated.
+      if (addedIds.length > 0 && removedIds.length > 0) {
+        toast.success(t('messages.membersUpdated'));
+      } else if (addedIds.length > 0) {
+        toast.success(t('messages.usersAddedSuccess'));
+      } else {
+        toast.success(t('messages.removeUsersSuccess'));
+      }
     } catch (error) {
-      console.error('Erro ao adicionar usuários:', error);
-      toast.error(t('messages.addUsersError'));
+      console.error('Erro ao salvar membros:', error);
+      // Pick a contextual error label; falls back to add-error to keep parity
+      // with the previous behaviour when both operations were attempted.
+      if (removedIds.length > 0 && addedIds.length === 0) {
+        toast.error(t('messages.removeUsersError'));
+      } else {
+        toast.error(t('messages.addUsersError'));
+      }
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleGoBack = () => {
-    navigate('/settings/teams'); // Navigate back to teams list
+    navigate('/settings/teams');
   };
 
   const getUserInitials = (name: string) => {
@@ -122,13 +165,11 @@ const AddUsers: React.FC = () => {
     }
   };
 
-  const availableUsers = users.filter(u => !savedUsers.includes(u.id));
-
   const handleSelectAll = () => {
-    if (selectedUsers.length === availableUsers.length) {
-      setSelectedUsers([]);
+    if (selectedIds.length === users.length) {
+      setSelectedIds([]);
     } else {
-      setSelectedUsers(availableUsers.map(user => user.id));
+      setSelectedIds(users.map(user => user.id));
     }
   };
 
@@ -137,46 +178,52 @@ const AddUsers: React.FC = () => {
       key: 'select',
       label: t('addUsers.table.select'),
       width: '60px',
-      render: user => {
-        const alreadySaved = savedUsers.includes(user.id);
-        return (
-          <Checkbox
-            checked={alreadySaved || selectedUsers.includes(user.id)}
-            disabled={alreadySaved}
-            onCheckedChange={() => handleUserToggle(user.id)}
-            aria-label={`Selecionar ${user.name}`}
-          />
-        );
-      },
+      render: user => (
+        <Checkbox
+          checked={selectedIds.includes(user.id)}
+          onCheckedChange={() => handleUserToggle(user.id)}
+          aria-label={`Selecionar ${user.name}`}
+        />
+      ),
     },
     {
       key: 'user',
       label: t('addUsers.table.user'),
-      render: user => (
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Avatar className="h-8 w-8">
-              {user.avatar_url || user.thumbnail ? (
-                <AvatarImage src={user.avatar_url || user.thumbnail} />
-              ) : null}
-              <AvatarFallback className="text-xs font-medium">
-                {getUserInitials(user.name)}
-              </AvatarFallback>
-            </Avatar>
-            <div
-              className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background ${getStatusColor(
-                user.availability,
-              )}`}
-            />
+      render: user => {
+        const isMember = originalMemberIds.includes(user.id);
+        return (
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Avatar className="h-8 w-8">
+                {user.avatar_url || user.thumbnail ? (
+                  <AvatarImage src={user.avatar_url || user.thumbnail} />
+                ) : null}
+                <AvatarFallback className="text-xs font-medium">
+                  {getUserInitials(user.name)}
+                </AvatarFallback>
+              </Avatar>
+              <div
+                className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background ${getStatusColor(
+                  user.availability,
+                )}`}
+              />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="font-medium">{user.name}</p>
+                {isMember && (
+                  <Badge variant="secondary" className="text-xs">
+                    {t('addUsers.alreadyMemberBadge')}
+                  </Badge>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground capitalize">
+                {getStatusLabel(user.availability)}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="font-medium">{user.name}</p>
-            <p className="text-sm text-muted-foreground capitalize">
-              {getStatusLabel(user.availability)}
-            </p>
-          </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       key: 'email',
@@ -237,30 +284,30 @@ const AddUsers: React.FC = () => {
         <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
           <div className="flex items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              {t('addUsers.summary', { selected: selectedUsers.length, total: users.length })}
+              {t('addUsers.summary', { selected: selectedIds.length, total: users.length })}
             </p>
             <Button
               variant="outline"
               size="sm"
               onClick={handleSelectAll}
-              disabled={availableUsers.length === 0}
+              disabled={users.length === 0}
             >
-              {selectedUsers.length === availableUsers.length
+              {selectedIds.length === users.length
                 ? t('actions.deselectAll')
                 : t('actions.selectAll')}
             </Button>
           </div>
           <Button
-            onClick={handleSaveUsers}
-            disabled={selectedUsers.length === 0 || isSaving}
+            onClick={handleSave}
+            disabled={!hasPendingChanges || isSaving}
             className="min-w-[140px]"
           >
             {isSaving ? (
               t('actions.saving')
             ) : (
               <>
-                <UserPlus className="h-4 w-4 mr-2" />
-                {t('actions.addUsers')}
+                <Save className="h-4 w-4 mr-2" />
+                {t('actions.save')}
               </>
             )}
           </Button>

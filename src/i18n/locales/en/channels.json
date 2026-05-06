@@ -710,11 +710,12 @@
       },
       "status": {
         "approved": "Approved",
-        "pending": "Pending",
+        "pending": "Awaiting approval",
         "rejected": "Rejected",
         "paused": "Paused",
         "active": "Active",
-        "inactive": "Inactive"
+        "inactive": "Inactive",
+        "unknown": "Unknown status"
       },
       "preview": {
         "title": "Preview",
@@ -905,6 +906,22 @@
             "errors": {
               "loadError": "Error loading privacy settings",
               "updateError": "Error updating {{setting}}"
+            }
+          },
+          "connection": {
+            "title": "Connection Settings",
+            "description": "Update the Base URL and API Key of the instance after channel creation",
+            "apiUrlLabel": "Base URL",
+            "apiUrlPlaceholder": "https://api.evolution.com",
+            "adminTokenLabel": "API Key",
+            "adminTokenPlaceholder": "Enter the new API Key",
+            "saveButton": "Save Connection Settings",
+            "success": {
+              "updated": "Connection settings updated successfully!"
+            },
+            "errors": {
+              "apiUrlRequired": "Base URL is required",
+              "updateError": "Error updating connection settings"
             }
           },
           "actions": {

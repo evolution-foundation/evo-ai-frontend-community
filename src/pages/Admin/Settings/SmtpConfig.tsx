@@ -297,6 +297,14 @@ export default function SmtpConfig() {
         <p className="text-sm text-sidebar-foreground/70 mt-1">{t('email.description')}</p>
       </div>
 
+      {/* Runtime-not-applied warning — see Linear EVO-1049. Until that ships,
+          values saved here are persisted but the Rails apps continue reading
+          SMTP_* from ENV at boot time. */}
+      <div className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+        <strong className="font-semibold">{t('email.envWarning.title')}</strong>{' '}
+        {t('email.envWarning.body')}
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t('email.provider.label')}</CardTitle>

@@ -66,7 +66,8 @@
     "messageImage": {
       "downloadStarted": "Download iniciado",
       "imageFallback": "Imagem",
-      "imageZoomedAlt": "Imagem ampliada"
+      "imageZoomedAlt": "Imagem ampliada",
+      "loadError": "Imagem indisponível"
     },
     "messageList": {
       "loadingConversation": "Carregando conversa...",
@@ -95,7 +96,8 @@
       "fileAttachment": "📎 Arquivo",
       "locationAttachment": "📍 Localização",
       "noContent": "Mensagem sem conteúdo",
-      "userFallback": "Usuário"
+      "userFallback": "Usuário",
+      "previousMessage": "Mensagem anterior"
     }
   },
   "assignment": {
@@ -221,7 +223,11 @@
     "noOptions": "Nenhuma opção disponível",
     "cancel": "Cancelar",
     "applying": "Aplicando...",
-    "apply": "Aplicar"
+    "apply": "Aplicar",
+    "createLabel": "Criar etiqueta: \"{{name}}\"",
+    "creating": "Criando...",
+    "newLabel": "Criar nova etiqueta",
+    "createLabelError": "Não foi possível criar a etiqueta. Tente novamente."
   },
   "audioRecorder": {
     "notSupported": "Gravação de áudio não suportada neste navegador",
@@ -734,8 +740,8 @@
       "equal_to": "É igual a",
       "not_equal_to": "É diferente de",
       "contains": "Contém",
-      "is_present": "Tem labels",
-      "is_not_present": "Não tem labels",
+      "is_present": "Possui valor",
+      "is_not_present": "Sem valor",
       "is_greater_than": "É posterior a",
       "is_less_than": "É anterior a",
       "days_before": "Dias atrás"
@@ -750,7 +756,8 @@
       "created_at": "Data de Criação",
       "last_activity_at": "Última Atividade",
       "priority": "Prioridade",
-      "pipeline_id": "Pipeline"
+      "pipeline_id": "Pipeline",
+      "contact_id": "Contato"
     },
     "options": {
       "status": {
@@ -784,6 +791,12 @@
         "sms": "SMS",
         "twilio": "Twilio SMS",
         "twitter": "Twitter"
+      }
+    },
+    "errors": {
+      "assigneeMeNoSession": {
+        "title": "Filtro 'Minhas conversas' não aplicado",
+        "description": "Sua sessão expirou. Faça login novamente para usar este filtro."
       }
     }
   },
@@ -910,6 +923,15 @@
         "language": "Idioma",
         "templateBody": "Conteúdo do Template",
         "category": "Categoria"
+      },
+      "status": {
+        "approved": "Aprovado",
+        "pending": "Aguardando aprovação",
+        "rejected": "Reprovado",
+        "paused": "Pausado",
+        "inactive": "Inativo",
+        "unknown": "Status desconhecido",
+        "disabledTooltip": "Templates precisam ser aprovados pela Meta antes de serem enviados. Acesse as configurações do inbox para sincronizar."
       }
     },
     "parser": {

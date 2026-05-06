@@ -46,6 +46,7 @@ import MessageTemplateService, {
 } from '@/services/channels/messageTemplatesService';
 import { TemplatePreview } from './TemplatePreview';
 import { MessageTemplate, TemplateFormData } from '@/types';
+import { getStatusBadgeKey } from '@/components/chat/message-template/templateStatus';
 
 interface MessageTemplateFormProps {
   inboxId: string;
@@ -636,36 +637,24 @@ const MessageTemplateForm: React.FC<MessageTemplateFormProps> = ({
     setShowDeleteConfirm(true);
   };
 
-  const getStatusBadge = (status?: string) => {
-    const statusConfig: Record<string, { color: string; text: string }> = {
-      APPROVED: {
-        color: 'bg-green-600 dark:bg-green-500 text-white',
-        text: t('settings.messageTemplates.status.approved'),
-      },
-      PENDING: {
-        color: 'bg-yellow-600 dark:bg-yellow-500 text-white',
-        text: t('settings.messageTemplates.status.pending'),
-      },
-      REJECTED: {
-        color: 'bg-red-600 dark:bg-red-500 text-white',
-        text: t('settings.messageTemplates.status.rejected'),
-      },
-      PAUSED: {
-        color: 'bg-gray-600 dark:bg-gray-500 text-white',
-        text: t('settings.messageTemplates.status.paused'),
-      },
-      ACTIVE: {
-        color: 'bg-green-600 dark:bg-green-500 text-white',
-        text: t('settings.messageTemplates.status.active'),
-      },
-      INACTIVE: {
-        color: 'bg-gray-600 dark:bg-gray-500 text-white',
-        text: t('settings.messageTemplates.status.inactive'),
-      },
+  const getStatusBadge = (template: MessageTemplate) => {
+    // Read from the canonical top-level `status` field, falling back to
+    // `settings.status` (populated by Meta sync on WhatsApp Cloud). Missing
+    // status means the template was created locally and never submitted
+    // upstream — render as "Aguardando aprovação", never as "Ativo" (which
+    // would reflect `active` — a different field).
+    const key = getStatusBadgeKey(template);
+    const styleByKey: Record<string, string> = {
+      approved: 'bg-green-600 dark:bg-green-500 text-white',
+      pending: 'bg-yellow-600 dark:bg-yellow-500 text-white',
+      rejected: 'bg-red-600 dark:bg-red-500 text-white',
+      paused: 'bg-gray-600 dark:bg-gray-500 text-white',
+      inactive: 'bg-gray-600 dark:bg-gray-500 text-white',
+      unknown: 'bg-gray-400 dark:bg-gray-600 text-white',
     };
-
-    const config = statusConfig[status || 'ACTIVE'] || statusConfig.ACTIVE;
-    return <Badge className={config.color}>{config.text}</Badge>;
+    const text = t(`settings.messageTemplates.status.${key}`);
+    const color = styleByKey[key] ?? styleByKey.unknown;
+    return <Badge className={color}>{text}</Badge>;
   };
 
   const getCategoryBadge = (category?: string) => {
@@ -821,7 +810,7 @@ const MessageTemplateForm: React.FC<MessageTemplateFormProps> = ({
                 <TableRow key={template.id}>
                   <TableCell className="font-medium">{template.name}</TableCell>
                   <TableCell>{getCategoryBadge(template.category)}</TableCell>
-                  <TableCell>{getStatusBadge(template.status)}</TableCell>
+                  <TableCell>{getStatusBadge(template)}</TableCell>
                   <TableCell>{template.language}</TableCell>
                   <TableCell>
                     {template.created_at

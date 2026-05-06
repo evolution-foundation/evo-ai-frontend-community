@@ -53,7 +53,6 @@ export const setupService = {
         main_channel_other: form.mainChannelOther,
         uses_ai:            form.usesAI,
         biggest_pain:       form.biggestPain,
-        crm_experience:     form.crmExperience,
         main_goal:          form.mainGoal,
       },
       { headers: { 'X-Survey-Token': surveyToken } },

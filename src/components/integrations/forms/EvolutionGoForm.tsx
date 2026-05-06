@@ -28,21 +28,6 @@ export function EvolutionGoForm({ config, onConfigChange }: IntegrationFormProps
         placeholder={t('integrations.evolutionGo.placeholders.adminToken')}
         type="password"
       />
-      <FormField
-        id="EVOLUTION_GO_INSTANCE_ID"
-        label={t('integrations.evolutionGo.instanceId')}
-        value={getValue('evolutionGoInstanceId')}
-        onChange={(value) => onConfigChange('evolutionGoInstanceId', value)}
-        placeholder={t('integrations.evolutionGo.placeholders.instanceId')}
-      />
-      <FormField
-        id="EVOLUTION_GO_INSTANCE_TOKEN"
-        label={t('integrations.evolutionGo.instanceToken')}
-        value={getValue('evolutionGoInstanceToken')}
-        onChange={(value) => onConfigChange('evolutionGoInstanceToken', value)}
-        placeholder={t('integrations.evolutionGo.placeholders.instanceToken')}
-        type="password"
-      />
     </div>
   );
 }

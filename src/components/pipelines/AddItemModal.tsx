@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { getContactColor } from '@/utils/avatar';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   Dialog,
@@ -171,14 +172,6 @@ export default function AddItemModal({
     } finally {
       setIsAdding(false);
     }
-  };
-
-  // Get contact color for avatar
-  const getContactColor = (name?: string) => {
-    if (!name) return '#6B7280';
-    const colors = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#F97316'];
-    const index = name.charCodeAt(0) % colors.length;
-    return colors[index];
   };
 
   // Get item display name

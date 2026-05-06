@@ -4,7 +4,7 @@ import { createCallbackPage } from '@/utils/createCallbackPage';
 const AsanaCallback = createCallbackPage({
   integrationName: 'Asana',
   service: AsanaService,
-  iconPath: '/integrations/asana.png',
+  integrationId: 'asana',
 });
 
 export default AsanaCallback;

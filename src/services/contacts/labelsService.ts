@@ -3,8 +3,8 @@ import { extractData, extractResponse } from '@/utils/apiHelpers';
 import { LabelsResponse, LabelResponse, LabelDeleteResponse, Label } from '@/types/settings';
 
 class LabelsService {
-  async getLabels(): Promise<LabelsResponse> {
-    const response = await api.get('/labels');
+  async getLabels(params?: { per_page?: number; page?: number }): Promise<LabelsResponse> {
+    const response = await api.get('/labels', { params });
     return extractResponse<Label>(response) as LabelsResponse;
   }
 

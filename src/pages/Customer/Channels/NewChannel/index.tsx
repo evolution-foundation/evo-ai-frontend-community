@@ -118,12 +118,8 @@ export default function NewChannel() {
       if (provider.id === 'whatsapp_cloud' && !canWpCloud) {
         return toast.error(t('newChannel.messages.whatsappCloudConfigMissing'));
       }
-      if (provider.id === 'evolution' && !hasEvolutionConfig) {
-        return toast.error(t('newChannel.channelGrid.notConfiguredTooltip'));
-      }
-      if (provider.id === 'evolution_go' && !hasEvolutionGoConfig) {
-        return toast.error(t('newChannel.channelGrid.notConfiguredTooltip'));
-      }
+      // Evolution e Evolution Go: sempre permitidos. Quando o admin não tem
+      // config global, o próprio formulário do canal coleta URL + token.
     }
     if (selectedChannel?.type === 'email') {
       if (provider.id === 'google' && !canEmailGoogle) {
@@ -371,8 +367,6 @@ export default function NewChannel() {
               isDisabled={providerId => {
                 if (selectedChannel?.type === 'whatsapp') {
                   if (providerId === 'whatsapp_cloud') return !canWpCloud;
-                  if (providerId === 'evolution') return !hasEvolutionConfig;
-                  if (providerId === 'evolution_go') return !hasEvolutionGoConfig;
                 }
                 if (selectedChannel?.type === 'email') {
                   if (providerId === 'google') return !canEmailGoogle;
@@ -383,9 +377,8 @@ export default function NewChannel() {
               disabledTooltip={providerId => {
                 const gated =
                   (selectedChannel?.type === 'whatsapp' &&
-                    ((providerId === 'whatsapp_cloud' && !canWpCloud) ||
-                      (providerId === 'evolution' && !hasEvolutionConfig) ||
-                      (providerId === 'evolution_go' && !hasEvolutionGoConfig))) ||
+                    providerId === 'whatsapp_cloud' &&
+                    !canWpCloud) ||
                   (selectedChannel?.type === 'email' &&
                     ((providerId === 'google' && !canEmailGoogle) ||
                       (providerId === 'microsoft' && !canEmailMicrosoft)));

@@ -4,8 +4,7 @@ import { createCallbackPage } from '@/utils/createCallbackPage';
 const GoogleCalendarCallback = createCallbackPage({
   integrationName: 'Google Calendar',
   service: GoogleCalendarService,
-  iconPath: '/integrations/google-calendar.png',
-  iconPathDark: '/integrations/google-calendar.png',
+  integrationId: 'google-calendar',
   onSuccess: async (response, agentId) => {
     await GoogleCalendarService.saveConfiguration(agentId, {
       provider: 'google_calendar',

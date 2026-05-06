@@ -119,6 +119,9 @@
     "selectAtLeastOne": "Sélectionnez au moins un utilisateur",
     "usersAddedSuccess": "Utilisateurs ajoutés avec succès !",
     "addUsersError": "Erreur lors de l'ajout des utilisateurs",
+    "removeUsersSuccess": "Utilisateurs supprimés avec succès !",
+    "removeUsersError": "Erreur lors de la suppression des utilisateurs",
+    "membersUpdated": "Membres de l'équipe mis à jour avec succès !",
     "permissionDenied": {
       "read": "Pas de permission pour visualiser les équipes",
       "create": "Pas de permission pour créer des équipes",
@@ -138,6 +141,7 @@
     "title": "Ajouter des Utilisateurs - {{name}}",
     "subtitle": "Sélectionnez les utilisateurs que vous souhaitez ajouter à l'équipe",
     "summary": "{{selected}} sur {{total}} utilisateurs sélectionnés",
+    "alreadyMemberBadge": "Membre",
     "table": {
       "select": "Sélectionner",
       "user": "Utilisateur",
@@ -179,6 +183,7 @@
     "selectAll": "Tout Sélectionner",
     "deselectAll": "Tout Désélectionner",
     "saving": "Enregistrement en cours...",
+    "save": "Enregistrer",
     "addUsers": "Ajouter des Utilisateurs"
   }
 }

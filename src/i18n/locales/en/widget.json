@@ -42,7 +42,8 @@
     "replyingTo": "Replying to {{name}}",
     "cancelReply": "Cancel reply",
     "you": "You",
-    "agent": "Team Member"
+    "agent": "Team Member",
+    "previousMessage": "↩ Previous message"
   },
   "messageList": {
     "loadingOld": "Loading old messages...",

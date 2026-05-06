@@ -4,8 +4,7 @@ import { createCallbackPage } from '@/utils/createCallbackPage';
 const GoogleSheetsCallback = createCallbackPage({
   integrationName: 'Google Sheets',
   service: GoogleSheetsService,
-  iconPath: '/integrations/google-sheets.png',
-  iconPathDark: '/integrations/google-sheets.png',
+  integrationId: 'google-sheets',
   onSuccess: async (response, agentId) => {
     await GoogleSheetsService.saveConfiguration(agentId, {
       provider: 'google_sheets',

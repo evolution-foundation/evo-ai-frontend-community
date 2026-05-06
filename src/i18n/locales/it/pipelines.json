@@ -342,10 +342,36 @@
     "saving": "Salvataggio...",
     "save": "Salva Modifiche"
   },
+  "stageAutomation": {
+    "title": "Regole di Automazione",
+    "description": "Definisci regole che attivano azioni automaticamente quando si verificano eventi in questa fase.",
+    "noRules": "Nessuna regola configurata. Clicca su \"Aggiungi Regola\" per iniziare.",
+    "addRule": "Aggiungi Regola",
+    "rule": "Regola",
+    "when": "Quando",
+    "then": "Allora",
+    "anyValue": "Qualsiasi",
+    "labelNamePlaceholder": "Nome dell'etichetta...",
+    "selectStage": "Seleziona fase...",
+    "selectAgent": "Seleziona agente...",
+    "noOtherStages": "Nessun'altra fase disponibile",
+    "noAgents": "Nessun agente disponibile",
+    "triggers": {
+      "label_added": "Etichetta aggiunta",
+      "conversation_status_changed": "Stato conversazione modificato",
+      "custom_attribute_updated": "Attributo personalizzato aggiornato"
+    },
+    "actions": {
+      "move_to_stage": "Sposta alla fase",
+      "assign_agent": "Assegna agente",
+      "apply_label": "Applica etichetta"
+    }
+  },
   "editStage": {
     "title": "Modifica Fase",
     "description": "Modifica le informazioni di questa fase della pipeline.",
     "details": "Dettagli",
+    "automation": "Automazione",
     "customAttributes": "Attributi",
     "attributesDescription": "Configura attributi per questa fase",
     "name": "Nome della Fase",
@@ -501,6 +527,27 @@
     "save": "Salva Ordine"
   },
   "kanban": {
+    "search": {
+      "placeholder": "Cerca per nome, telefono, email...",
+      "assigneeFilter": "Responsabile",
+      "clearFilters": "Cancella i filtri",
+      "noResults": "Nessuna scheda corrisponde ai filtri",
+      "resultsCount": "Visualizzazione di {{count}} su {{total}} schede in {{stages}} fase/i",
+      "loadingAgents": "Caricamento del team...",
+      "noAgents": "Nessun membro del team trovato",
+      "statusFilter": "Stato",
+      "dateRangeFilter": "Intervallo di date",
+      "dateFrom": "Dal",
+      "dateTo": "Al",
+      "labelFilter": "Etichetta",
+      "globalNoResults": "Nessuna scheda corrisponde ai filtri attivi",
+      "status": {
+        "open": "Aperto",
+        "resolved": "Risolto",
+        "pending": "In attesa",
+        "snoozed": "Posticipato"
+      }
+    },
     "copyId": "Copia ID",
     "idCopied": "ID copiato negli appunti",
     "header": {
@@ -571,7 +618,9 @@
       "conversationRemoved": "Elemento rimosso dalla pipeline con successo",
       "conversationRemoveError": "Errore nella rimozione dell'elemento dalla pipeline",
       "conversationUpdated": "Elemento aggiornato con successo",
-      "conversationUpdateError": "Errore nell'aggiornamento dell'elemento"
+      "conversationUpdateError": "Errore nell'aggiornamento dell'elemento",
+      "itemHiddenByFilter": "Scheda spostata — potrebbe essere nascosta dai filtri attivi",
+      "newItemMayBeHidden": "Scheda aggiunta — potrebbe essere nascosta dai filtri attivi"
     },
     "tasks": {
       "pending": "in sospeso",
@@ -630,7 +679,6 @@
       "assignedTo": "Assegnato a",
       "assignedToPlaceholder": "Seleziona un responsabile",
       "none": "Nessuno",
-      "unassigned": "Non assegnato",
       "cancel": "Annulla",
       "create": "Crea Attività",
       "update": "Aggiorna Attività",

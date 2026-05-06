@@ -66,7 +66,8 @@
     "messageImage": {
       "downloadStarted": "Download started",
       "imageFallback": "Image",
-      "imageZoomedAlt": "Zoomed image"
+      "imageZoomedAlt": "Zoomed image",
+      "loadError": "Image unavailable"
     },
     "messageList": {
       "loadingConversation": "Loading conversation...",
@@ -87,6 +88,16 @@
       "retryInDevelopment": "Retry functionality in development",
       "sendFailed": "Send failed - Click to try again",
       "tryAgain": "Try again"
+    },
+    "replyPreview": {
+      "imageAttachment": "📷 Image",
+      "audioAttachment": "🎵 Audio",
+      "videoAttachment": "🎥 Video",
+      "fileAttachment": "📎 File",
+      "locationAttachment": "📍 Location",
+      "noContent": "Message with no content",
+      "userFallback": "User",
+      "previousMessage": "Previous message"
     }
   },
   "assignment": {
@@ -212,7 +223,11 @@
     "noOptions": "No options available",
     "cancel": "Cancel",
     "applying": "Applying...",
-    "apply": "Apply"
+    "apply": "Apply",
+    "createLabel": "Create label: \"{{name}}\"",
+    "creating": "Creating...",
+    "newLabel": "Create new label",
+    "createLabelError": "Could not create label. Please try again."
   },
   "audioRecorder": {
     "notSupported": "Audio recording not supported in this browser",
@@ -696,7 +711,11 @@
       "asPrivateNote": "(as private note)",
       "fileAttachment": "📎 {{fileType}}",
       "fileFallback": "File",
-      "noContent": "Message with no content"
+      "noContent": "Message with no content",
+      "imageAttachment": "📷 Image",
+      "videoAttachment": "🎥 Video",
+      "audioAttachment": "🎵 Audio",
+      "locationAttachment": "📍 Location"
     },
     "signature": {
       "enable": "Enable signature",
@@ -718,8 +737,8 @@
       "equal_to": "Equal to",
       "not_equal_to": "Not equal to",
       "contains": "Contains",
-      "is_present": "Has labels",
-      "is_not_present": "Does not have labels",
+      "is_present": "Has value",
+      "is_not_present": "Has no value",
       "is_greater_than": "Is after",
       "is_less_than": "Is before",
       "days_before": "Days ago"
@@ -734,7 +753,8 @@
       "created_at": "Creation Date",
       "last_activity_at": "Last Activity",
       "priority": "Priority",
-      "pipeline_id": "Pipeline"
+      "pipeline_id": "Pipeline",
+      "contact_id": "Contact"
     },
     "options": {
       "status": {
@@ -768,6 +788,12 @@
         "sms": "SMS",
         "twilio": "Twilio SMS",
         "twitter": "Twitter"
+      }
+    },
+    "errors": {
+      "assigneeMeNoSession": {
+        "title": "'My conversations' filter not applied",
+        "description": "Your session has expired. Sign in again to use this filter."
       }
     }
   },
@@ -894,6 +920,15 @@
         "language": "Language",
         "templateBody": "Template Body",
         "category": "Category"
+      },
+      "status": {
+        "approved": "Approved",
+        "pending": "Awaiting approval",
+        "rejected": "Rejected",
+        "paused": "Paused",
+        "inactive": "Inactive",
+        "unknown": "Unknown status",
+        "disabledTooltip": "Templates must be approved by Meta before they can be sent. Open the inbox settings to sync."
       }
     },
     "parser": {

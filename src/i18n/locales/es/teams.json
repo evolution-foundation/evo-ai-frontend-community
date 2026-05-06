@@ -119,6 +119,9 @@
     "selectAtLeastOne": "Seleccione al menos un usuario",
     "usersAddedSuccess": "¡Usuarios agregados con éxito!",
     "addUsersError": "Error al agregar usuarios",
+    "removeUsersSuccess": "¡Usuarios eliminados con éxito!",
+    "removeUsersError": "Error al eliminar usuarios",
+    "membersUpdated": "¡Miembros del equipo actualizados con éxito!",
     "permissionDenied": {
       "read": "Sin permiso para visualizar equipos",
       "create": "Sin permiso para crear equipos",
@@ -138,6 +141,7 @@
     "title": "Agregar Usuarios - {{name}}",
     "subtitle": "Seleccione los usuarios que desea agregar al equipo",
     "summary": "{{selected}} de {{total}} usuarios seleccionados",
+    "alreadyMemberBadge": "Miembro",
     "table": {
       "select": "Seleccionar",
       "user": "Usuario",
@@ -179,6 +183,7 @@
     "selectAll": "Seleccionar Todos",
     "deselectAll": "Desmarcar Todos",
     "saving": "Guardando...",
+    "save": "Guardar",
     "addUsers": "Agregar Usuarios"
   }
 }

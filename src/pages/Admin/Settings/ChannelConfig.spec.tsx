@@ -100,8 +100,6 @@ const EMPTY_EVOLUTION = {
 const EMPTY_EVOLUTION_GO = {
   EVOLUTION_GO_API_URL: '',
   EVOLUTION_GO_ADMIN_SECRET: null,
-  EVOLUTION_GO_INSTANCE_ID: '',
-  EVOLUTION_GO_INSTANCE_SECRET: null,
 };
 
 const EMPTY_TWITTER = {
@@ -119,8 +117,6 @@ const CONFIGURED_EVOLUTION = {
 const CONFIGURED_EVOLUTION_GO = {
   EVOLUTION_GO_API_URL: 'https://evo-go.test.com',
   EVOLUTION_GO_ADMIN_SECRET: '••••masked',
-  EVOLUTION_GO_INSTANCE_ID: 'test-instance-id',
-  EVOLUTION_GO_INSTANCE_SECRET: '••••masked',
 };
 
 const CONFIGURED_TWITTER = {
@@ -473,8 +469,6 @@ describe('ChannelConfig', () => {
       expect(screen.getByLabelText('channels.evolutionGo.fields.apiUrl')).toBeInTheDocument();
     });
     expect(screen.getByLabelText('channels.evolutionGo.fields.adminSecret')).toBeInTheDocument();
-    expect(screen.getByLabelText('channels.evolutionGo.fields.instanceId')).toBeInTheDocument();
-    expect(screen.getByLabelText('channels.evolutionGo.fields.instanceSecret')).toBeInTheDocument();
   });
 
   it('saves Evolution Go tab independently via evolution_go config type', async () => {
@@ -493,7 +487,6 @@ describe('ChannelConfig', () => {
     await waitFor(() => {
       expect(mockSaveConfig).toHaveBeenCalledWith('evolution_go', expect.objectContaining({
         EVOLUTION_GO_API_URL: 'https://evo-go.test.com',
-        EVOLUTION_GO_INSTANCE_ID: 'test-instance-id',
       }));
     });
   });
@@ -551,7 +544,6 @@ describe('ChannelConfig', () => {
     await waitFor(() => {
       expect(mockSaveConfig).toHaveBeenCalledWith('evolution_go', expect.objectContaining({
         EVOLUTION_GO_ADMIN_SECRET: null,
-        EVOLUTION_GO_INSTANCE_SECRET: null,
       }));
     });
   });

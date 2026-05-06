@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Badge } from '@evoapi/design-system/badge';
 import {
   ContextMenu,
@@ -24,6 +24,7 @@ import MessageText from '@/components/chat/messages/MessageText';
 import MessageImage from '@/components/chat/messages/MessageImage';
 import MessageFile from '@/components/chat/messages/MessageFile';
 import MessageAudio from '@/components/chat/messages/MessageAudio';
+import MessageVideo from '@/components/chat/messages/MessageVideo';
 import MessageLocation from '@/components/chat/messages/MessageLocation';
 import MessageStatus from '@/components/chat/messages/MessageStatus';
 import SystemMessage from '@/components/chat/messages/SystemMessage';
@@ -83,16 +84,22 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  // 🔧 REPLY TO: Buscar mensagem original quando content_attributes.in_reply_to ou in_reply_to_external_id existe
   const replyToMessageId = message.content_attributes?.in_reply_to;
   const replyToExternalId = message.content_attributes?.in_reply_to_external_id;
+  const hasReplyReference = Boolean(replyToMessageId || replyToExternalId);
 
-  // Tentar encontrar mensagem pai usando in_reply_to (ID interno) ou in_reply_to_external_id (source_id)
-  const replyToMessage = replyToMessageId
-    ? allMessages.find(msg => String(msg.id) === String(replyToMessageId))
-    : replyToExternalId
-      ? allMessages.find(msg => msg.source_id && String(msg.source_id) === String(replyToExternalId))
-      : null;
+  const replyToMessage = useMemo(() => {
+    if (!hasReplyReference) return null;
+    if (replyToMessageId) {
+      return allMessages.find(msg => String(msg.id) === String(replyToMessageId)) ?? null;
+    }
+    if (replyToExternalId) {
+      return allMessages.find(
+        msg => msg.source_id && String(msg.source_id) === String(replyToExternalId),
+      ) ?? null;
+    }
+    return null;
+  }, [hasReplyReference, replyToMessageId, replyToExternalId, allMessages]);
 
   const handleCopyMessage = () => {
     if (message.content) {
@@ -204,7 +211,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           </>
         );
       } else if (fileType === 'video' || fileType.includes('video/')) {
-        // 🔧 Vídeos são tratados como arquivos por enquanto (pode criar MessageVideo depois)
         return (
           <>
             {message.content && (
@@ -215,7 +221,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 contentAttributes={message.content_attributes}
               />
             )}
-            <MessageFile attachments={message.attachments} />
+            <MessageVideo attachments={message.attachments} />
           </>
         );
       } else {
@@ -254,8 +260,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       case 'audio':
         return <MessageAudio attachments={message.attachments || []} />;
       case 'video':
-        // 🔧 Vídeos são tratados como arquivos por enquanto
-        return <MessageFile attachments={message.attachments || []} />;
+        return <MessageVideo attachments={message.attachments || []} />;
       default:
         return (
           <MessageText
@@ -319,8 +324,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 </div>
               )}
 
-              {/* 🔧 REPLY TO: Exibir preview da mensagem reply */}
-              {replyToMessage && !isPrivate && (
+              {hasReplyReference && !isPrivate && (
                 <ReplyPreview message={replyToMessage} isOwn={false} />
               )}
 
@@ -397,10 +401,19 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       )}
 
       <div className={`${isThreadReply ? 'max-w-[calc(70%-2rem)]' : 'max-w-[70%]'} ${isOwn ? 'ml-auto' : ''}`}>
-        {/* 📛 Nome: mostrar apenas para contatos (lado esquerdo) - sempre mostrar em replies */}
-        {!isOwn && (isThreadReply || !showAvatar) && (
-          <div className="text-xs mb-1 flex items-center gap-1.5 text-muted-foreground">
-            {message.sender?.name || t('messages.messageBubble.userFallback')}
+        {/* Em conversa de grupo o backend anexa content_attributes.sender_name por mensagem;
+            destaca o participante acima da bolha. Em 1:1, mantém o comportamento antigo. */}
+        {!isOwn && (message.content_attributes?.sender_name || isThreadReply || !showAvatar) && (
+          <div
+            className={`text-xs mb-1 flex items-center gap-1.5 ${
+              message.content_attributes?.sender_name
+                ? 'font-medium text-primary'
+                : 'text-muted-foreground'
+            }`}
+          >
+            {message.content_attributes?.sender_name ||
+              message.sender?.name ||
+              t('messages.messageBubble.userFallback')}
           </div>
         )}
 
@@ -472,8 +485,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               </div>
             )}
 
-            {/* 🔧 REPLY TO: Exibir preview da mensagem reply */}
-            {replyToMessage && !isPrivate && (
+            {hasReplyReference && !isPrivate && (
               <ReplyPreview message={replyToMessage} isOwn={isOwn} />
             )}
 

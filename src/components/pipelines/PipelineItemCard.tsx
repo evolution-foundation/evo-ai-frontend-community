@@ -2,6 +2,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { Button, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@evoapi/design-system';
 import { Edit, Trash2, MoreVertical, Phone, Mail, MessageSquare, User, Clock, AlertCircle, ListTodo, CheckCircle2, GripVertical, GitBranch } from 'lucide-react';
 import { PipelineItem, Pipeline, PipelineStage } from '@/types/analytics';
+import { getContactColor } from '@/utils/avatar';
 
 interface PipelineItemCardProps {
   item: PipelineItem;
@@ -21,15 +22,6 @@ const stripHtml = (html: string): string => {
   return (tempDiv.textContent || tempDiv.innerText || '').trim();
 };
 
-const getContactColor = (name?: string) => {
-  if (!name) return '#6B7280';
-  const colors = [
-    '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899',
-    '#06B6D4', '#84CC16', '#F97316', '#6366F1', '#14B8A6', '#A855F7',
-  ];
-  const index = name.charCodeAt(0) % colors.length;
-  return colors[index];
-};
 
 export default function PipelineItemCard({
   item,

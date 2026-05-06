@@ -3,7 +3,7 @@
   "navigation": {
     "email": "Correo electronico",
     "storage": "Almacenamiento",
-    "socialLogin": "Inicio de Sesion Social",
+    "socialLogin": "Proveedores de Autenticación",
     "channels": "Canales",
     "openai": "OpenAI",
     "integrations": "Integraciones",
@@ -61,7 +61,11 @@
     "testConnection": "Probar Conexion",
     "testing": "Probando...",
     "testFailed": "La prueba de conexion fallo",
-    "testError": "Error al ejecutar la prueba de conexion"
+    "testError": "Error al ejecutar la prueba de conexion",
+    "envWarning": {
+      "title": "Atención:",
+      "body": "Guardar aquí persiste los valores, pero el servicio de email aún lee las credenciales SMTP de las variables de entorno al arrancar. Hasta que EVO-1049 se entregue, configure SMTP vía env vars para que surta efecto."
+    }
   },
   "storage": {
     "title": "Configuracion de Almacenamiento",
@@ -105,11 +109,15 @@
     "testConnection": "Probar Conexion",
     "testing": "Probando...",
     "testFailed": "La prueba de conexion fallo",
-    "testError": "Error al ejecutar la prueba de conexion"
+    "testError": "Error al ejecutar la prueba de conexion",
+    "envWarning": {
+      "title": "Atención:",
+      "body": "Guardar aquí persiste la elección, pero el servicio de archivos aún lee ACTIVE_STORAGE_SERVICE de las variables de entorno al arrancar. Hasta que EVO-1050 se entregue, configure storage vía env vars para que surta efecto."
+    }
   },
   "socialLogin": {
-    "title": "Configuracion de Inicio de Sesion Social",
-    "description": "Configure las credenciales OAuth de los proveedores de inicio de sesion social para que los usuarios puedan iniciar sesion con Google o Microsoft.",
+    "title": "Proveedores de Autenticación",
+    "description": "Configure las credenciales OAuth de los proveedores de autenticación SSO para que los usuarios puedan iniciar sesion con Google o Microsoft.",
     "google": {
       "cardTitle": "Google OAuth",
       "fields": {
@@ -224,11 +232,11 @@
       "tabTitle": "Evolution",
       "fields": {
         "apiUrl": "URL de API",
-        "adminSecret": "Secreto de Admin"
+        "adminSecret": "Token Admin"
       },
       "placeholders": {
         "apiUrl": "https://evolution-api.ejemplo.com",
-        "adminSecret": "Ingrese el nuevo secreto de admin"
+        "adminSecret": "Ingrese el nuevo token admin"
       },
       "saveSuccess": "Configuracion de Evolution guardada exitosamente",
       "saveError": "Error al guardar la configuracion de Evolution"
@@ -237,15 +245,11 @@
       "tabTitle": "Evolution Go",
       "fields": {
         "apiUrl": "URL de API",
-        "adminSecret": "Secreto de Admin",
-        "instanceId": "ID de Instancia",
-        "instanceSecret": "Secreto de Instancia"
+        "adminSecret": "Token Admin"
       },
       "placeholders": {
         "apiUrl": "https://evolution-go.ejemplo.com",
-        "adminSecret": "Ingrese el nuevo secreto de admin",
-        "instanceId": "Su Evolution Go Instance ID",
-        "instanceSecret": "Ingrese el nuevo secreto de instancia"
+        "adminSecret": "Ingrese el nuevo token admin"
       },
       "saveSuccess": "Configuracion de Evolution Go guardada exitosamente",
       "saveError": "Error al guardar la configuracion de Evolution Go"

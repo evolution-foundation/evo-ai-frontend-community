@@ -8,6 +8,9 @@ import {
   Label,
   Button,
   Select,
+} from '@evoapi/design-system';
+import BrandIcon from '@/components/BrandIcon';
+import {
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -165,11 +168,7 @@ const GoogleSheetsConfigDialog = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <img
-              src="/integrations/google-sheets.png"
-              alt="Google Sheets"
-              className="h-5 w-5 object-contain"
-            />
+            <BrandIcon id="google-sheets" size={20} className="h-5 w-5" />
             {t('edit.integrations.googleSheets.configTitle') || 'Configurar Google Sheets'}
           </DialogTitle>
         </DialogHeader>
@@ -180,11 +179,7 @@ const GoogleSheetsConfigDialog = ({
             <div className="text-center space-y-4">
               <div className="flex justify-center">
                 <div className="p-4 bg-primary/10 rounded-full">
-                  <img
-                    src="/integrations/google-sheets.png"
-                    alt="Google Sheets"
-                    className="h-12 w-12 object-contain"
-                  />
+                  <BrandIcon id="google-sheets" size={48} className="h-12 w-12" />
                 </div>
               </div>
               <div>

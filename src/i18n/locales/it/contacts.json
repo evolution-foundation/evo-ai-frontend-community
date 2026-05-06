@@ -630,6 +630,24 @@
       "noChannels": "Nessun canale disponibile per questo contatto"
     },
     "unavailable": "Non disponibile",
+    "templates": {
+      "noneForInbox": "Nessun modello registrato per questa inbox. Creane uno nelle impostazioni dell'inbox.",
+      "noApproved": "Nessun modello approvato da Meta. I modelli elencati sono in attesa di approvazione e non possono essere inviati.",
+      "pendingSelectedHint": "Questo modello non è ancora stato approvato da Meta e non può essere usato per avviare la conversazione.",
+      "statusBadge": {
+        "approved": "Approvato",
+        "pending": "In attesa",
+        "rejected": "Rifiutato",
+        "paused": "In pausa",
+        "inactive": "Inattivo",
+        "unknown": "Sconosciuto"
+      }
+    },
+    "toggle": {
+      "label": "Usa Modello",
+      "cloudRequires": "WhatsApp Cloud richiede un modello per avviare la conversazione",
+      "using": "Modello in Uso"
+    },
     "actions": {
       "cancel": "Annulla",
       "send": "Avvia Conversazione",

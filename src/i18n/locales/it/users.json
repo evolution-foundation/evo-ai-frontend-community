@@ -86,7 +86,8 @@
         "cannotChange": "L'email non può essere modificata dopo la creazione"
       },
       "role": {
-        "label": "Ruolo *"
+        "label": "Ruolo *",
+        "placeholder": "Seleziona un ruolo"
       },
       "availability": {
         "label": "Stato di Disponibilità",
@@ -107,6 +108,7 @@
     },
     "validation": {
       "nameRequired": "Il nome è obbligatorio",
+      "roleRequired": "Il ruolo è obbligatorio",
       "emailRequired": "L'email è obbligatoria",
       "emailInvalid": "Email non valida",
       "passwordRequired": "La password è obbligatoria",
@@ -122,7 +124,8 @@
     "messages": {
       "createSuccess": "Agente creato con successo",
       "updateSuccess": "Agente aggiornato con successo",
-      "saveError": "Errore durante il salvataggio dell'agente"
+      "saveError": "Errore durante il salvataggio dell'agente",
+      "loading": "Caricamento ruoli..."
     }
   },
   "bulkInvite": {

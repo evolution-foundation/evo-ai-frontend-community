@@ -4,7 +4,7 @@ import { createCallbackPage } from '@/utils/createCallbackPage';
 const SupabaseCallback = createCallbackPage({
   integrationName: 'Supabase',
   service: SupabaseService,
-  iconPath: '/integrations/supabase.png',
+  integrationId: 'supabase',
 });
 
 export default SupabaseCallback;

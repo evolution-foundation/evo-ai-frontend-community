@@ -613,6 +613,19 @@ const Profile = () => {
       return;
     }
 
+    // Auto-request browser permission on first push enable.
+    // If the user denies the prompt, abort: saving push=true while permission is
+    // 'denied' would silently store an unreachable subscription on the backend.
+    if (type === 'push' && value && 'Notification' in window) {
+      if (Notification.permission === 'default') {
+        await requestNotificationPermission();
+      }
+      if (Notification.permission !== 'granted') {
+        toast.error(t('notifications.browserPermission.denied'));
+        return;
+      }
+    }
+
     // Atualizar estado local primeiro (otimistic update)
     const notificationType = `${type}_notifications` as keyof typeof notificationSettings;
     const currentNotifications = notificationSettings[notificationType] as Record<string, boolean> | undefined;
@@ -644,13 +657,6 @@ const Profile = () => {
 
       const emailFlags = settingsToFlags(updatedSettings.email_notifications, 'email');
       const pushFlags = settingsToFlags(updatedSettings.push_notifications, 'push');
-
-      console.log('📧 [Profile] Updating notification settings:', {
-        emailFlags,
-        pushFlags,
-        setting,
-        value,
-      });
 
       await notificationSettingsService.updateSettings({
         selected_email_flags: emailFlags,

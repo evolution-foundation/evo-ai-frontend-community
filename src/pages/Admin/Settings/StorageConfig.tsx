@@ -301,6 +301,14 @@ export default function StorageConfig() {
         <p className="text-sm text-sidebar-foreground/70 mt-1">{t('storage.description')}</p>
       </div>
 
+      {/* Runtime-not-applied warning — see Linear EVO-1050. Until that ships,
+          values saved here are persisted but the Rails apps continue reading
+          ACTIVE_STORAGE_SERVICE / provider env vars at boot time. */}
+      <div className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+        <strong className="font-semibold">{t('storage.envWarning.title')}</strong>{' '}
+        {t('storage.envWarning.body')}
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t('storage.provider.label')}</CardTitle>

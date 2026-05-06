@@ -381,10 +381,36 @@
     "saving": "Saving...",
     "save": "Save Changes"
   },
+  "stageAutomation": {
+    "title": "Automation Rules",
+    "description": "Define rules that automatically trigger actions when specific events occur in this stage.",
+    "noRules": "No automation rules configured. Click \"Add Rule\" to get started.",
+    "addRule": "Add Rule",
+    "rule": "Rule",
+    "when": "When",
+    "then": "Then",
+    "anyValue": "Any",
+    "labelNamePlaceholder": "Label name...",
+    "selectStage": "Select stage...",
+    "selectAgent": "Select agent...",
+    "noOtherStages": "No other stages available",
+    "noAgents": "No agents available",
+    "triggers": {
+      "label_added": "Label added",
+      "conversation_status_changed": "Conversation status changed",
+      "custom_attribute_updated": "Custom attribute updated"
+    },
+    "actions": {
+      "move_to_stage": "Move to stage",
+      "assign_agent": "Assign agent",
+      "apply_label": "Apply label"
+    }
+  },
   "editStage": {
     "title": "Edit Stage",
     "description": "Edit the information of this stage of the pipeline.",
     "details": "Details",
+    "automation": "Automation",
     "customAttributes": "Attributes",
     "attributesDescription": "Configure attributes for this stage",
     "name": "Stage Name",
@@ -542,6 +568,27 @@
     "save": "Save Order"
   },
   "kanban": {
+    "search": {
+      "placeholder": "Search by name, phone, email...",
+      "assigneeFilter": "Assignee",
+      "clearFilters": "Clear filters",
+      "noResults": "No cards match the filters",
+      "resultsCount": "Showing {{count}} of {{total}} cards across {{stages}} stage(s)",
+      "loadingAgents": "Loading team...",
+      "noAgents": "No team members found",
+      "statusFilter": "Status",
+      "dateRangeFilter": "Date range",
+      "dateFrom": "From",
+      "dateTo": "To",
+      "labelFilter": "Label",
+      "globalNoResults": "No cards match the current filters",
+      "status": {
+        "open": "Open",
+        "resolved": "Resolved",
+        "pending": "Pending",
+        "snoozed": "Snoozed"
+      }
+    },
     "copyId": "Copy ID",
     "idCopied": "ID copied to clipboard",
     "header": {
@@ -615,7 +662,9 @@
       "conversationRemoved": "Item removed from pipeline successfully",
       "conversationRemoveError": "Error removing item from pipeline",
       "conversationUpdated": "Item updated successfully",
-      "conversationUpdateError": "Error updating item"
+      "conversationUpdateError": "Error updating item",
+      "itemHiddenByFilter": "Card moved — it may be hidden by the active filters",
+      "newItemMayBeHidden": "Card added — it may be hidden by the active filters"
     },
     "tasks": {
       "pending": "pending",
@@ -674,7 +723,6 @@
       "assignedTo": "Assigned to",
       "assignedToPlaceholder": "Select an assignee",
       "none": "None",
-      "unassigned": "Unassigned",
       "cancel": "Cancel",
       "create": "Create Task",
       "update": "Update Task",

@@ -122,6 +122,24 @@ const TeamsService = {
       throw error;
     }
   },
+
+  /**
+   * Remove users from team
+   *
+   * The collection-level DELETE consumes a `user_ids` body, mirroring the
+   * shape used by addUsersToTeam(POST). axios moves the body to `data` for
+   * DELETE requests.
+   */
+  async removeUsersFromTeam(teamId: string, userIds: string[]): Promise<void> {
+    try {
+      await api.delete(`/teams/${teamId}/team_members`, {
+        data: { user_ids: userIds },
+      });
+    } catch (error) {
+      console.error('TeamsService.removeUsersFromTeam error:', error);
+      throw error;
+    }
+  },
 };
 
 export default TeamsService;

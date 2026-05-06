@@ -512,6 +512,41 @@ const EvolutionWhatsAppConfig: React.FC<{
   const [instanceStatus, setInstanceStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [connectionSettings, setConnectionSettings] = useState({
+    apiUrl: (inbox?.provider_config?.api_url as string) || '',
+    // Never pre-populate adminToken — avoids exposing the secret in the DOM value attribute.
+    // The field is only sent if the user explicitly types a new value.
+    adminToken: '',
+  });
+  const [isUpdatingConnection, setIsUpdatingConnection] = useState(false);
+
+  const handleUpdateConnectionSettings = async () => {
+    if (!connectionSettings.apiUrl.trim()) {
+      toast.error(t('settings.configuration.whatsapp.instance.connection.errors.apiUrlRequired'));
+      return;
+    }
+    setIsUpdatingConnection(true);
+    try {
+      await onUpdate({
+        channel: {
+          provider_config: {
+            ...inbox.provider_config,
+            api_url: connectionSettings.apiUrl.trim(),
+            ...(connectionSettings.adminToken.trim()
+              ? { admin_token: connectionSettings.adminToken.trim() }
+              : {}),
+          },
+        },
+      });
+      toast.success(t('settings.configuration.whatsapp.instance.connection.success.updated'));
+    } catch (error) {
+      console.error('Erro ao atualizar configurações de conexão:', error);
+      toast.error(t('settings.configuration.whatsapp.instance.connection.errors.updateError'));
+    } finally {
+      setIsUpdatingConnection(false);
+    }
+  };
+
   const getIdentifier = () => {
     const providerConfig = inbox?.provider_config || {};
     if (inbox?.provider === 'evolution_go') {
@@ -1223,6 +1258,64 @@ const EvolutionWhatsAppConfig: React.FC<{
           </CardContent>
         </Card>
       )}
+
+      {/* Connection Settings */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-start gap-4">
+            <Key className="w-5 h-5 text-blue-600 mt-1 shrink-0" />
+            <div className="flex-1 space-y-4">
+              <div>
+                <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+                  {t('settings.configuration.whatsapp.instance.connection.title')}
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                  {t('settings.configuration.whatsapp.instance.connection.description')}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t('settings.configuration.whatsapp.instance.connection.apiUrlLabel')}
+                </label>
+                <Input
+                  value={connectionSettings.apiUrl}
+                  onChange={e =>
+                    setConnectionSettings(prev => ({ ...prev, apiUrl: e.target.value }))
+                  }
+                  placeholder={t('settings.configuration.whatsapp.instance.connection.apiUrlPlaceholder')}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t('settings.configuration.whatsapp.instance.connection.adminTokenLabel')}
+                </label>
+                <Input
+                  type="password"
+                  value={connectionSettings.adminToken}
+                  onChange={e =>
+                    setConnectionSettings(prev => ({ ...prev, adminToken: e.target.value }))
+                  }
+                  placeholder={t('settings.configuration.whatsapp.instance.connection.adminTokenPlaceholder')}
+                />
+                {inbox?.provider_config?.admin_token && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {t('settings.configuration.whatsapp.instance.connection.adminTokenSet', 'A key is already configured. Leave blank to keep it.')}
+                  </p>
+                )}
+              </div>
+
+              <Button
+                onClick={handleUpdateConnectionSettings}
+                loading={isUpdatingConnection}
+              >
+                {t('settings.configuration.whatsapp.instance.connection.saveButton')}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Instance Actions */}
       <Card>

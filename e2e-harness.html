@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>audio-recorder e2e harness</title>
+  </head>
+  <body>
+    <h1>audio-recorder e2e harness</h1>
+    <p>For Playwright only. Not part of the user-facing app.</p>
+    <button id="run">Run</button>
+    <pre id="result">idle</pre>
+
+    <script type="module">
+      import { recordPttOgg } from '/src/hooks/chat/recordPttOgg.ts';
+
+      window.__e2e = {
+        ready: true,
+        async recordPtt(durationMs) {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+              channelCount: 1,
+              sampleRate: 48000,
+            },
+          });
+          try {
+            const { blob, durationMs: elapsed } = await recordPttOgg(stream, durationMs);
+            const buf = new Uint8Array(await blob.arrayBuffer());
+            const magic = String.fromCharCode(buf[0], buf[1], buf[2], buf[3]);
+            return {
+              ok: true,
+              size: blob.size,
+              type: blob.type,
+              magic,
+              elapsed,
+            };
+          } finally {
+            stream.getTracks().forEach(t => t.stop());
+          }
+        },
+      };
+
+      document.getElementById('run').addEventListener('click', async () => {
+        const out = document.getElementById('result');
+        out.textContent = 'recording…';
+        try {
+          out.textContent = JSON.stringify(await window.__e2e.recordPtt(1500), null, 2);
+        } catch (e) {
+          out.textContent = 'ERROR: ' + (e && e.stack ? e.stack : String(e));
+        }
+      });
+    </script>
+  </body>
+</html>

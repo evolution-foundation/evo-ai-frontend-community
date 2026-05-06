@@ -81,6 +81,8 @@ export interface Conversation {
     message_type: MessageTypeValue;
     created_at: string;
     processed_message_content: string;
+    content_attributes?: MessageContentAttributes;
+    attachments?: Array<{ file_type: string }>;
     sender: {
       id: string;
       name: string;
@@ -184,11 +186,25 @@ export interface Attachment {
   meta?: Record<string, any>;
 }
 
+// Known fields the backend tags on `Message.content_attributes`. The shape stays
+// open (`Record<string, unknown>`) for forward compatibility, but these named
+// fields let consumers read them without unsafe `as string` casts.
+export interface MessageContentAttributes extends Record<string, unknown> {
+  sender_name?: string;
+  media_type?: 'image' | 'video' | 'audio' | 'file' | 'sticker' | 'location' | 'contact';
+  in_reply_to?: string | number;
+  in_reply_to_external_id?: string;
+  is_reaction?: boolean;
+  is_unsupported?: boolean;
+  deleted?: boolean;
+  external_created_at?: number;
+}
+
 // ===== MESSAGE =====
 export interface Message {
   id: string;
   content: string;
-  content_attributes: Record<string, unknown>;
+  content_attributes: MessageContentAttributes;
   content_type:
     | 'text'
     | 'input_email'

@@ -4,7 +4,7 @@ import { createCallbackPage } from '@/utils/createCallbackPage';
 const StripeCallback = createCallbackPage({
   integrationName: 'Stripe',
   service: StripeService,
-  iconPath: '/integrations/stripe.png',
+  integrationId: 'stripe',
 });
 
 export default StripeCallback;

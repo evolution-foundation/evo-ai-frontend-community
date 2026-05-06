@@ -692,11 +692,12 @@
       },
       "status": {
         "approved": "Aprobado",
-        "pending": "Pendiente",
+        "pending": "Esperando aprobación",
         "rejected": "Rechazado",
         "paused": "Pausado",
         "active": "Activo",
-        "inactive": "Inactivo"
+        "inactive": "Inactivo",
+        "unknown": "Estado desconocido"
       },
       "preview": {
         "title": "Vista Previa",
@@ -887,6 +888,22 @@
             "errors": {
               "loadError": "Error al cargar configuraciones de privacidad",
               "updateError": "Error al actualizar {{setting}}"
+            }
+          },
+          "connection": {
+            "title": "Configuración de Conexión",
+            "description": "Actualice la URL Base y la API Key de la instancia después de crear el canal",
+            "apiUrlLabel": "URL Base",
+            "apiUrlPlaceholder": "https://api.evolution.com",
+            "adminTokenLabel": "API Key",
+            "adminTokenPlaceholder": "Ingrese la nueva API Key",
+            "saveButton": "Guardar Configuración de Conexión",
+            "success": {
+              "updated": "¡Configuración de conexión actualizada con éxito!"
+            },
+            "errors": {
+              "apiUrlRequired": "La URL Base es obligatoria",
+              "updateError": "Error al actualizar la configuración de conexión"
             }
           },
           "actions": {

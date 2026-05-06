@@ -25,6 +25,11 @@ import { conversationAPI } from '@/services/conversations';
 import MessageTemplateService from '@/services/channels/messageTemplatesService';
 import { MessageTemplate } from '@/types/channels/inbox';
 import { ConversationCreateData } from '@/types/chat/api';
+import {
+  getStatusBadgeKey,
+  hasUnsupportedFormat,
+  isTemplateSendable,
+} from '../chat/message-template/templateStatus';
 
 interface StartConversationModalProps {
   open: boolean;
@@ -95,45 +100,37 @@ export default function StartConversationModal({
     }
   }, [contact.id]);
 
-  const loadMessageTemplate = useCallback(async () => {
-    if (!selectedInboxId) return;
+  const loadMessageTemplate = useCallback(
+    async (inboxId: string, cloudInbox: boolean, isCancelled: () => boolean) => {
+      setLoadingTemplates(true);
+      try {
+        const response = await MessageTemplateService.getTemplates(inboxId);
 
-    setLoadingTemplates(true);
-    try {
-      const response = await MessageTemplateService.getTemplates(selectedInboxId);
+        if (isCancelled()) return;
 
-      const templates = response?.data || [];
+        const templates = response?.data || [];
 
-      if (!isWhatsAppCloud) {
-        setMessageTemplate(templates);
-        return;
-      }
-
-      // Filter approved templates without unsupported formats
-      const UNSUPPORTED_FORMATS = ['DOCUMENT', 'IMAGE', 'VIDEO'];
-      const approvedTemplates = templates.filter((template: MessageTemplate) => {
-        const status = template?.settings?.status;
-        if (!status) return false;
-
-        if ((status as string).toLowerCase() !== 'approved') return false;
-        if (template.components) {
-          // Handle both object format (WhatsApp Cloud) and array format (legacy)
-          const hasUnsupportedFormat = Array.isArray(template.components)
-            ? template.components.some(c => c.format && UNSUPPORTED_FORMATS.includes(c.format))
-            : (template.components?.header?.format && UNSUPPORTED_FORMATS.includes(template.components.header.format)) || false;
-          if (hasUnsupportedFormat) return false;
+        if (!cloudInbox) {
+          setMessageTemplate(templates);
+          return;
         }
-        return true;
-      });
 
-      setMessageTemplate(approvedTemplates);
-    } catch (error) {
-      console.error('Error loading templates:', error);
-      setMessageTemplate([]);
-    } finally {
-      setLoadingTemplates(false);
-    }
-  }, [selectedInboxId, isWhatsAppCloud]);
+        // Keep pending/unknown templates visible so the user can see why the flow
+        // is blocked. Submit-time guard still requires isTemplateSendable(t).
+        const visible = templates.filter(template => !hasUnsupportedFormat(template));
+        setMessageTemplate(visible);
+      } catch (error) {
+        if (isCancelled()) return;
+        console.error('Error loading templates:', error);
+        setMessageTemplate([]);
+      } finally {
+        if (!isCancelled()) {
+          setLoadingTemplates(false);
+        }
+      }
+    },
+    [],
+  );
 
   // Load available inboxes when modal opens
   useEffect(() => {
@@ -144,21 +141,23 @@ export default function StartConversationModal({
 
   // Load templates when inbox is selected
   useEffect(() => {
-    if (selectedInboxId) {
-      loadMessageTemplate();
-      // Only auto-enable template if it's WhatsApp Cloud (requires template)
-      if (isWhatsAppCloud) {
-        setUseTemplate(true);
-      } else {
-        // For other channels, start with template disabled to allow free message
-        setUseTemplate(false);
-      }
-    } else {
-      setUseTemplate(false);
-    }
-
     setMessageTemplate([]);
     setSelectedTemplate(null);
+
+    if (!selectedInboxId) {
+      setUseTemplate(false);
+      return;
+    }
+
+    // Only auto-enable template if it's WhatsApp Cloud (requires template)
+    setUseTemplate(isWhatsAppCloud);
+
+    let cancelled = false;
+    loadMessageTemplate(selectedInboxId, isWhatsAppCloud, () => cancelled);
+
+    return () => {
+      cancelled = true;
+    };
   }, [selectedInboxId, loadMessageTemplate, isWhatsAppCloud]);
 
   const getChannelIcon = (channelType: string) => {
@@ -212,8 +211,8 @@ export default function StartConversationModal({
     // Validate based on mode
     if (!selectedInboxId) return;
 
-    // WhatsApp Cloud requires template
-    if (isWhatsAppCloud && !selectedTemplate) return;
+    // WhatsApp Cloud requires a Meta-approved template.
+    if (isWhatsAppCloud && !(selectedTemplate && isTemplateSendable(selectedTemplate))) return;
 
     // WhatsApp with template mode requires template selected
     if (isWhatsAppInbox && useTemplate && !selectedTemplate) return;
@@ -405,15 +404,24 @@ export default function StartConversationModal({
             )}
           </div>
 
-          {/* WhatsApp Cloud requires template */}
-          {isWhatsAppCloud && messageTemplates.length === 0 && !loadingTemplates && (
+          {/* WhatsApp Cloud requires a Meta-approved template. Two warning states. */}
+          {isWhatsAppCloud && !loadingTemplates && messageTemplates.length === 0 && (
             <div className="p-3 rounded-md border border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800">
               <p className="text-sm text-orange-700 dark:text-orange-400">
-                ⚠️ WhatsApp Cloud requer um template aprovado para iniciar a conversa. Nenhum
-                template disponível foi encontrado.
+                ⚠️ {t('startConversation.templates.noneForInbox')}
               </p>
             </div>
           )}
+          {isWhatsAppCloud &&
+            !loadingTemplates &&
+            messageTemplates.length > 0 &&
+            messageTemplates.every(tpl => !isTemplateSendable(tpl)) && (
+              <div className="p-3 rounded-md border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
+                <p className="text-sm text-amber-700 dark:text-amber-400">
+                  ⚠️ {t('startConversation.templates.noApproved')}
+                </p>
+              </div>
+            )}
 
           {/* Template Selection */}
           {/* Always show template toggle for non-WhatsApp Cloud, even if no templates */}
@@ -421,10 +429,10 @@ export default function StartConversationModal({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <Label>{'Usar Template'}</Label>
+                  <Label>{t('startConversation.toggle.label')}</Label>
                   {isWhatsAppCloud && (
                     <p className="text-xs text-muted-foreground mt-1">
-                      WhatsApp Cloud Requer template para iniciar conversa
+                      {t('startConversation.toggle.cloudRequires')}
                     </p>
                   )}
                 </div>
@@ -442,7 +450,9 @@ export default function StartConversationModal({
                     }}
                     disabled={loadingTemplates}
                   >
-                    {useTemplate ? 'Usando Template' : 'Usar Template'}
+                    {useTemplate
+                      ? t('startConversation.toggle.using')
+                      : t('startConversation.toggle.label')}
                   </Button>
                 )}
               </div>
@@ -452,8 +462,7 @@ export default function StartConversationModal({
                   {messageTemplates.length === 0 ? (
                     <div className="p-3 rounded-md border border-yellow-200 bg-yellow-50 dark:bg-yellow-950/20 dark:border-yellow-800">
                       <p className="text-sm text-yellow-700 dark:text-yellow-400">
-                        ⚠️ Nenhum template disponível. Desative "Usar Template" para enviar uma
-                        mensagem livre.
+                        ⚠️ {t('startConversation.templates.noneForInbox')}
                       </p>
                     </div>
                   ) : !selectedTemplate ? (
@@ -503,6 +512,12 @@ export default function StartConversationModal({
                             previewText = bodyComponent?.text || template.content || '';
                           }
 
+                          const cloudBadgeKey = isWhatsAppCloud
+                            ? getStatusBadgeKey(template)
+                            : null;
+                          const showCloudBadge =
+                            cloudBadgeKey !== null && cloudBadgeKey !== 'approved';
+
                           return (
                             <div
                               key={template.id}
@@ -519,7 +534,16 @@ export default function StartConversationModal({
                                 setTemplateParams(params);
                               }}
                             >
-                              <div className="font-medium text-sm">{template.name}</div>
+                              <div className="flex items-center gap-2">
+                                <div className="font-medium text-sm">{template.name}</div>
+                                {showCloudBadge && (
+                                  <Badge variant="outline" className="text-xs">
+                                    {t(
+                                      `startConversation.templates.statusBadge.${cloudBadgeKey}`,
+                                    )}
+                                  </Badge>
+                                )}
+                              </div>
                               <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
                                 {previewText}
                               </div>
@@ -544,6 +568,12 @@ export default function StartConversationModal({
                           Trocar Template
                         </Button>
                       </div>
+
+                      {isWhatsAppCloud && !isTemplateSendable(selectedTemplate) && (
+                        <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
+                          {t('startConversation.templates.pendingSelectedHint')}
+                        </p>
+                      )}
 
                       {/* Template Variables */}
                       {Object.keys(templateParams).length > 0 && (
@@ -678,8 +708,9 @@ export default function StartConversationModal({
                 loading ||
                   !selectedInboxId ||
                   availableInboxes.length === 0 ||
-                  // WhatsApp Cloud requires template
-                  (isWhatsAppCloud && !selectedTemplate) ||
+                  // WhatsApp Cloud requires a Meta-approved template
+                  (isWhatsAppCloud &&
+                    !(selectedTemplate && isTemplateSendable(selectedTemplate))) ||
                   // WhatsApp with template mode requires template selected
                   (isWhatsAppInbox && useTemplate && !selectedTemplate) ||
                   // WhatsApp with template and variables requires all params filled

@@ -19,7 +19,7 @@ import { Loader2, Lock, LockOpen, X } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { adminConfigService } from '@/services/admin/adminConfigService';
 import { extractError } from '@/utils/apiHelpers';
-import { clearGlobalConfigCache } from '@/contexts/GlobalConfigContext';
+import { refreshGlobalConfig } from '@/contexts/GlobalConfigContext';
 import type { AdminConfigData } from '@/types/admin/adminConfig';
 
 // Sentinel used when the backend reports a secret as "configured" (masked).
@@ -78,8 +78,6 @@ function createEvolutionGoSchema(t: T) {
   return z.object({
     EVOLUTION_GO_API_URL: required(t),
     EVOLUTION_GO_ADMIN_SECRET: required(t),
-    EVOLUTION_GO_INSTANCE_ID: z.string().optional(),
-    EVOLUTION_GO_INSTANCE_SECRET: z.string().optional().nullable(),
   });
 }
 
@@ -132,8 +130,6 @@ const EVOLUTION_DEFAULTS: EvolutionFormData = {
 const EVOLUTION_GO_DEFAULTS: EvolutionGoFormData = {
   EVOLUTION_GO_API_URL: '',
   EVOLUTION_GO_ADMIN_SECRET: '',
-  EVOLUTION_GO_INSTANCE_ID: '',
-  EVOLUTION_GO_INSTANCE_SECRET: null,
 };
 
 const TWITTER_DEFAULTS: TwitterFormData = {
@@ -148,7 +144,7 @@ const FACEBOOK_SECRET_FIELDS = ['FB_APP_SECRET'];
 const WHATSAPP_SECRET_FIELDS = ['WP_APP_SECRET'];
 const INSTAGRAM_SECRET_FIELDS = ['INSTAGRAM_APP_SECRET'];
 const EVOLUTION_SECRET_FIELDS = ['EVOLUTION_ADMIN_SECRET'];
-const EVOLUTION_GO_SECRET_FIELDS = ['EVOLUTION_GO_ADMIN_SECRET', 'EVOLUTION_GO_INSTANCE_SECRET'];
+const EVOLUTION_GO_SECRET_FIELDS = ['EVOLUTION_GO_ADMIN_SECRET'];
 const TWITTER_SECRET_FIELDS = ['TWITTER_CONSUMER_SECRET'];
 
 const FACEBOOK_BOOLEAN_FIELDS = ['ENABLE_MESSENGER_CHANNEL_HUMAN_AGENT', 'FB_FEED_COMMENTS_ENABLED'];
@@ -542,7 +538,7 @@ export default function ChannelConfig() {
       setFbSecretConfigured(updateSecretStatus(data, FACEBOOK_SECRET_FIELDS));
       setFbSecretModified({});
       facebookForm.reset(buildFormValues(data, FACEBOOK_DEFAULTS, FACEBOOK_SECRET_FIELDS, FACEBOOK_BOOLEAN_FIELDS));
-      clearGlobalConfigCache();
+      await refreshGlobalConfig();
       toast.success(t('channels.facebook.saveSuccess'));
     } catch (error) {
       const errorInfo = extractError(error);
@@ -561,7 +557,7 @@ export default function ChannelConfig() {
       setWpSecretConfigured(updateSecretStatus(data, WHATSAPP_SECRET_FIELDS));
       setWpSecretModified({});
       whatsappForm.reset(buildFormValues(data, WHATSAPP_DEFAULTS, WHATSAPP_SECRET_FIELDS, []));
-      clearGlobalConfigCache();
+      await refreshGlobalConfig();
       toast.success(t('channels.whatsapp.saveSuccess'));
     } catch (error) {
       const errorInfo = extractError(error);
@@ -580,7 +576,7 @@ export default function ChannelConfig() {
       setIgSecretConfigured(updateSecretStatus(data, INSTAGRAM_SECRET_FIELDS));
       setIgSecretModified({});
       instagramForm.reset(buildFormValues(data, INSTAGRAM_DEFAULTS, INSTAGRAM_SECRET_FIELDS, INSTAGRAM_BOOLEAN_FIELDS));
-      clearGlobalConfigCache();
+      await refreshGlobalConfig();
       toast.success(t('channels.instagram.saveSuccess'));
     } catch (error) {
       const errorInfo = extractError(error);
@@ -599,7 +595,7 @@ export default function ChannelConfig() {
       setEvoSecretConfigured(updateSecretStatus(data, EVOLUTION_SECRET_FIELDS));
       setEvoSecretModified({});
       evolutionForm.reset(buildFormValues(data, EVOLUTION_DEFAULTS, EVOLUTION_SECRET_FIELDS, []));
-      clearGlobalConfigCache();
+      await refreshGlobalConfig();
       toast.success(t('channels.evolution.saveSuccess'));
     } catch (error) {
       const errorInfo = extractError(error);
@@ -618,7 +614,7 @@ export default function ChannelConfig() {
       setEvoGoSecretConfigured(updateSecretStatus(data, EVOLUTION_GO_SECRET_FIELDS));
       setEvoGoSecretModified({});
       evolutionGoForm.reset(buildFormValues(data, EVOLUTION_GO_DEFAULTS, EVOLUTION_GO_SECRET_FIELDS, []));
-      clearGlobalConfigCache();
+      await refreshGlobalConfig();
       toast.success(t('channels.evolutionGo.saveSuccess'));
     } catch (error) {
       const errorInfo = extractError(error);
@@ -637,7 +633,7 @@ export default function ChannelConfig() {
       setTwSecretConfigured(updateSecretStatus(data, TWITTER_SECRET_FIELDS));
       setTwSecretModified({});
       twitterForm.reset(buildFormValues(data, TWITTER_DEFAULTS, TWITTER_SECRET_FIELDS, []));
-      clearGlobalConfigCache();
+      await refreshGlobalConfig();
       toast.success(t('channels.twitter.saveSuccess'));
     } catch (error) {
       const errorInfo = extractError(error);
@@ -714,7 +710,9 @@ export default function ChannelConfig() {
           <TabsTrigger value="instagram">{t('channels.instagram.tabTitle')}</TabsTrigger>
           <TabsTrigger value="evolution">{t('channels.evolution.tabTitle')}</TabsTrigger>
           <TabsTrigger value="evolution_go">{t('channels.evolutionGo.tabTitle')}</TabsTrigger>
-          <TabsTrigger value="twitter">{t('channels.twitter.tabTitle')}</TabsTrigger>
+          {/* Twitter tab intentionally hidden — channel deprecated in customer-facing flow.
+              Form, schema and submit handler are kept below so any installation that already
+              has Twitter credentials configured can still load the page without runtime errors. */}
         </TabsList>
 
         {/* Facebook Tab */}
@@ -958,24 +956,6 @@ export default function ChannelConfig() {
               t={t}
               required
               error={evoGoShowErrors ? evoGoErrors.EVOLUTION_GO_ADMIN_SECRET?.message : undefined}
-            />
-            <TextField
-              id="EVOLUTION_GO_INSTANCE_ID"
-              label={t('channels.evolutionGo.fields.instanceId')}
-              placeholder={t('channels.evolutionGo.placeholders.instanceId')}
-              register={evolutionGoForm.register('EVOLUTION_GO_INSTANCE_ID')}
-              error={evoGoShowErrors ? evoGoErrors.EVOLUTION_GO_INSTANCE_ID : undefined}
-            />
-            <SecretField<EvolutionGoFormData>
-              fieldName="EVOLUTION_GO_INSTANCE_SECRET"
-              label={t('channels.evolutionGo.fields.instanceSecret')}
-              placeholder={t('channels.evolutionGo.placeholders.instanceSecret')}
-              register={evolutionGoForm.register}
-              secretModified={evoGoSecretModified}
-              onSecretModifiedChange={setEvoGoSecretModified}
-              secretConfigured={evoGoSecretConfigured}
-              onClear={() => handleClearEvoGoSecret('EVOLUTION_GO_INSTANCE_SECRET')}
-              t={t}
             />
           </ChannelFormCard>
         </TabsContent>

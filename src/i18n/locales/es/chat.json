@@ -65,7 +65,8 @@
     "messageImage": {
       "downloadStarted": "Descarga iniciada",
       "imageFallback": "Imagen",
-      "imageZoomedAlt": "Imagen ampliada"
+      "imageZoomedAlt": "Imagen ampliada",
+      "loadError": "Imagen no disponible"
     },
     "messageList": {
       "loadingConversation": "Cargando conversación...",
@@ -86,6 +87,16 @@
       "retryInDevelopment": "Funcionalidad de reintento en desarrollo",
       "sendFailed": "Envío fallido - Haga clic para intentar de nuevo",
       "tryAgain": "Intentar de nuevo"
+    },
+    "replyPreview": {
+      "imageAttachment": "📷 Imagen",
+      "audioAttachment": "🎵 Audio",
+      "videoAttachment": "🎥 Video",
+      "fileAttachment": "📎 Archivo",
+      "locationAttachment": "📍 Ubicación",
+      "noContent": "Mensaje sin contenido",
+      "userFallback": "Usuario",
+      "previousMessage": "Mensaje anterior"
     }
   },
   "assignment": {
@@ -211,7 +222,11 @@
     "noOptions": "No hay opciones disponibles",
     "cancel": "Cancelar",
     "applying": "Aplicando...",
-    "apply": "Aplicar"
+    "apply": "Aplicar",
+    "createLabel": "Crear etiqueta: \"{{name}}\"",
+    "creating": "Creando...",
+    "newLabel": "Crear nueva etiqueta",
+    "createLabelError": "No se pudo crear la etiqueta. Inténtalo de nuevo."
   },
   "audioRecorder": {
     "notSupported": "Grabación de audio no compatible con este navegador",
@@ -659,7 +674,11 @@
       "asPrivateNote": "(como nota privada)",
       "fileAttachment": "📎 {{fileType}}",
       "fileFallback": "Archivo",
-      "noContent": "Mensaje sin contenido"
+      "noContent": "Mensaje sin contenido",
+      "imageAttachment": "📷 Imagen",
+      "videoAttachment": "🎥 Vídeo",
+      "audioAttachment": "🎵 Audio",
+      "locationAttachment": "📍 Ubicación"
     },
     "signature": {
       "enable": "Habilitar firma",
@@ -852,6 +871,15 @@
         "language": "Idioma",
         "templateBody": "Contenido de la Plantilla",
         "category": "Categoría"
+      },
+      "status": {
+        "approved": "Aprobada",
+        "pending": "Esperando aprobación",
+        "rejected": "Rechazada",
+        "paused": "Pausada",
+        "inactive": "Inactiva",
+        "unknown": "Estado desconocido",
+        "disabledTooltip": "Las plantillas deben ser aprobadas por Meta antes de poder enviarse. Abre la configuración del inbox para sincronizar."
       }
     },
     "parser": {

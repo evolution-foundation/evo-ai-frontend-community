@@ -65,7 +65,8 @@
     "messageImage": {
       "downloadStarted": "Téléchargement démarré",
       "imageFallback": "Image",
-      "imageZoomedAlt": "Image agrandie"
+      "imageZoomedAlt": "Image agrandie",
+      "loadError": "Image indisponible"
     },
     "messageList": {
       "loadingConversation": "Chargement de la conversation...",
@@ -86,6 +87,16 @@
       "retryInDevelopment": "Fonctionnalité de nouvelle tentative en développement",
       "sendFailed": "Échec de l'envoi - Cliquez pour réessayer",
       "tryAgain": "Réessayer"
+    },
+    "replyPreview": {
+      "imageAttachment": "📷 Image",
+      "audioAttachment": "🎵 Audio",
+      "videoAttachment": "🎥 Vidéo",
+      "fileAttachment": "📎 Fichier",
+      "locationAttachment": "📍 Localisation",
+      "noContent": "Message sans contenu",
+      "userFallback": "Utilisateur",
+      "previousMessage": "Message précédent"
     }
   },
   "assignment": {
@@ -211,7 +222,11 @@
     "noOptions": "Aucune option disponible",
     "cancel": "Annuler",
     "applying": "Application...",
-    "apply": "Appliquer"
+    "apply": "Appliquer",
+    "createLabel": "Créer l'étiquette : \"{{name}}\"",
+    "creating": "Création...",
+    "newLabel": "Créer une nouvelle étiquette",
+    "createLabelError": "Impossible de créer l'étiquette. Veuillez réessayer."
   },
   "audioRecorder": {
     "notSupported": "Enregistrement audio non pris en charge dans ce navigateur",
@@ -659,7 +674,11 @@
       "asPrivateNote": "(comme note privée)",
       "fileAttachment": "📎 {{fileType}}",
       "fileFallback": "Fichier",
-      "noContent": "Message sans contenu"
+      "noContent": "Message sans contenu",
+      "imageAttachment": "📷 Image",
+      "videoAttachment": "🎥 Vidéo",
+      "audioAttachment": "🎵 Audio",
+      "locationAttachment": "📍 Emplacement"
     },
     "signature": {
       "enable": "Activer la signature",
@@ -852,6 +871,15 @@
         "language": "Langue",
         "templateBody": "Contenu du Modèle",
         "category": "Catégorie"
+      },
+      "status": {
+        "approved": "Approuvé",
+        "pending": "En attente d'approbation",
+        "rejected": "Rejeté",
+        "paused": "En pause",
+        "inactive": "Inactif",
+        "unknown": "Statut inconnu",
+        "disabledTooltip": "Les modèles doivent être approuvés par Meta avant d'être envoyés. Ouvrez les paramètres de la boîte de réception pour synchroniser."
       }
     },
     "parser": {

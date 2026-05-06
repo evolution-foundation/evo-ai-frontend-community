@@ -24,12 +24,16 @@
       "noAssignee": "NA",
       "noContent": "Nessun contenuto"
     },
+    "push": {
+      "fallbackTitle": "Nuova notifica",
+      "bodyWithAssignee": "Assegnata a {{name}}"
+    },
     "panel": {
-      "title": "Notifiche non lette",
+      "title": "Notifiche",
       "markAllAsRead": "Segna tutte come lette",
       "loading": "Caricamento notifiche...",
       "emptyTitle": "Tutto a posto!",
-      "emptyDescription": "Non hai notifiche non lette al momento.",
+      "emptyDescription": "Non hai notifiche al momento.",
       "pagination": {
         "separator": " - "
       },

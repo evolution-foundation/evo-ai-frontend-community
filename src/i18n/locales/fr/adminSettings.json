@@ -3,7 +3,7 @@
   "navigation": {
     "email": "E-mail",
     "storage": "Stockage",
-    "socialLogin": "Connexion Sociale",
+    "socialLogin": "Fournisseurs d'authentification",
     "channels": "Canaux",
     "openai": "OpenAI",
     "integrations": "Integrations",
@@ -61,7 +61,11 @@
     "testConnection": "Tester la Connexion",
     "testing": "Test en cours...",
     "testFailed": "Le test de connexion a echoue",
-    "testError": "Impossible d'executer le test de connexion"
+    "testError": "Impossible d'executer le test de connexion",
+    "envWarning": {
+      "title": "Avertissement :",
+      "body": "Enregistrer ici conserve les valeurs, mais le service email lit toujours les identifiants SMTP des variables d'environnement au démarrage. Jusqu'à ce que EVO-1049 soit livré, configurez SMTP via env vars pour prendre effet."
+    }
   },
   "storage": {
     "title": "Configuration du Stockage",
@@ -105,11 +109,15 @@
     "testConnection": "Tester la Connexion",
     "testing": "Test en cours...",
     "testFailed": "Le test de connexion a echoue",
-    "testError": "Impossible d'executer le test de connexion"
+    "testError": "Impossible d'executer le test de connexion",
+    "envWarning": {
+      "title": "Avertissement :",
+      "body": "Enregistrer ici conserve le choix, mais le service de fichiers lit toujours ACTIVE_STORAGE_SERVICE des variables d'environnement au démarrage. Jusqu'à ce que EVO-1050 soit livré, configurez storage via env vars pour prendre effet."
+    }
   },
   "socialLogin": {
-    "title": "Configuration de Connexion Sociale",
-    "description": "Configurez les identifiants OAuth des fournisseurs de connexion sociale pour que les utilisateurs puissent se connecter avec Google ou Microsoft.",
+    "title": "Fournisseurs d'authentification",
+    "description": "Configurez les identifiants OAuth des fournisseurs d'authentification SSO pour que les utilisateurs puissent se connecter avec Google ou Microsoft.",
     "google": {
       "cardTitle": "Google OAuth",
       "fields": {
@@ -224,11 +232,11 @@
       "tabTitle": "Evolution",
       "fields": {
         "apiUrl": "URL de l'API",
-        "adminSecret": "Secret Admin"
+        "adminSecret": "Token Admin"
       },
       "placeholders": {
         "apiUrl": "https://evolution-api.exemple.com",
-        "adminSecret": "Entrez le nouveau secret admin"
+        "adminSecret": "Entrez le nouveau token admin"
       },
       "saveSuccess": "Configuration Evolution enregistree avec succes",
       "saveError": "Echec de l'enregistrement de la configuration Evolution"
@@ -237,15 +245,11 @@
       "tabTitle": "Evolution Go",
       "fields": {
         "apiUrl": "URL de l'API",
-        "adminSecret": "Secret Admin",
-        "instanceId": "ID d'Instance",
-        "instanceSecret": "Secret d'Instance"
+        "adminSecret": "Token Admin"
       },
       "placeholders": {
         "apiUrl": "https://evolution-go.exemple.com",
-        "adminSecret": "Entrez le nouveau secret admin",
-        "instanceId": "Votre Evolution Go Instance ID",
-        "instanceSecret": "Entrez le nouveau secret d'instance"
+        "adminSecret": "Entrez le nouveau token admin"
       },
       "saveSuccess": "Configuration Evolution Go enregistree avec succes",
       "saveError": "Echec de l'enregistrement de la configuration Evolution Go"

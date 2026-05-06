@@ -119,6 +119,9 @@
     "selectAtLeastOne": "Select at least one user",
     "usersAddedSuccess": "Users added successfully!",
     "addUsersError": "Error adding users",
+    "removeUsersSuccess": "Users removed successfully!",
+    "removeUsersError": "Error removing users",
+    "membersUpdated": "Team members updated successfully!",
     "permissionDenied": {
       "read": "No permission to view teams",
       "create": "No permission to create teams",
@@ -138,6 +141,7 @@
     "title": "Add Users - {{name}}",
     "subtitle": "Select the users you want to add to the team",
     "summary": "{{selected}} of {{total}} users selected",
+    "alreadyMemberBadge": "Member",
     "table": {
       "select": "Select",
       "user": "User",
@@ -179,6 +183,7 @@
     "selectAll": "Select All",
     "deselectAll": "Deselect All",
     "saving": "Saving...",
+    "save": "Save",
     "addUsers": "Add Users"
   }
 }

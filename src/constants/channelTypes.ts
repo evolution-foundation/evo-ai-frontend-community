@@ -7,14 +7,12 @@ export const getChannelTypes = (): ChannelType[] => [
     id: 'website',
     name: i18n.t('channels:newChannel.channelTypes.website.name'),
     description: i18n.t('channels:newChannel.channelTypes.website.description'),
-    icon: '/src/assets/channels/website.png',
     type: 'web_widget',
   },
   {
     id: 'whatsapp',
     name: i18n.t('channels:newChannel.channelTypes.whatsapp.name'),
     description: i18n.t('channels:newChannel.channelTypes.whatsapp.description'),
-    icon: '/src/assets/channels/whatsapp.png',
     type: 'whatsapp',
     providers: [
       {
@@ -56,28 +54,24 @@ export const getChannelTypes = (): ChannelType[] => [
     id: 'instagram',
     name: i18n.t('channels:newChannel.channelTypes.instagram.name'),
     description: i18n.t('channels:newChannel.channelTypes.instagram.description'),
-    icon: '/src/assets/channels/instagram.png',
     type: 'instagram',
   },
   {
     id: 'facebook',
     name: i18n.t('channels:newChannel.channelTypes.facebook.name'),
     description: i18n.t('channels:newChannel.channelTypes.facebook.description'),
-    icon: '/src/assets/channels/facebook.png',
     type: 'facebook',
   },
   {
     id: 'telegram',
     name: i18n.t('channels:newChannel.channelTypes.telegram.name'),
     description: i18n.t('channels:newChannel.channelTypes.telegram.description'),
-    icon: '/src/assets/channels/telegram.png',
     type: 'telegram',
   },
   {
     id: 'sms',
     name: i18n.t('channels:newChannel.channelTypes.sms.name'),
     description: i18n.t('channels:newChannel.channelTypes.sms.description'),
-    icon: '/src/assets/channels/sms.png',
     type: 'sms',
     providers: [
       {
@@ -98,7 +92,6 @@ export const getChannelTypes = (): ChannelType[] => [
     id: 'email',
     name: i18n.t('channels:newChannel.channelTypes.email.name'),
     description: i18n.t('channels:newChannel.channelTypes.email.description'),
-    icon: '/src/assets/channels/email.png',
     type: 'email',
     providers: [
       {
@@ -125,7 +118,6 @@ export const getChannelTypes = (): ChannelType[] => [
     id: 'api',
     name: i18n.t('channels:newChannel.channelTypes.api.name'),
     description: i18n.t('channels:newChannel.channelTypes.api.description'),
-    icon: '/src/assets/channels/api.png',
     type: 'api',
   },
 ];

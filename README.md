@@ -1,215 +1,218 @@
-# EvoCloud Frontend - Evolution Interface
+<p align="center">
+  <a href="https://evolutionfoundation.com.br">
+    <img src="./public/hover-evolution.png" alt="Evolution Foundation" />
+  </a>
+</p>
 
-Nova interface frontend do Evolution desenvolvida com React, TypeScript e tecnologias modernas.
+<h1 align="center">Evo CRM Frontend</h1>
 
-## Tecnologias
+<p align="center">
+  Modern web interface for the Evo CRM Community — built with React, TypeScript and Vite.
+</p>
 
-- **React 19** - Biblioteca UI
-- **TypeScript** - Linguagem de tipagem estática
-- **Vite** - Build tool e dev server
-- **React Router 7** - Roteamento
-- **TailwindCSS 4** - Framework CSS
-- **@evoapi/design-system** - Sistema de design customizado
-- **React Hook Form** - Gerenciamento de formulários
-- **Zod** - Validação de schemas
-- **Axios** - Cliente HTTP
-- **ActionCable** - WebSocket (Rails)
-- **date-fns** - Manipulação de datas
-- **Zustand** - Gerenciamento de estado
-- **i18next** - Internacionalização
+<p align="center">
+  <a href="https://github.com/evolution-foundation/evo-ai-frontend-community/releases/latest"><img src="https://img.shields.io/github/v/release/evolution-foundation/evo-ai-frontend-community?include_prereleases&label=version&color=00ffa7" alt="Latest version" /></a>
+  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache 2.0" /></a>
+  <a href="https://docs.evolutionfoundation.com.br"><img src="https://img.shields.io/badge/Docs-evolutionfoundation.com.br-00ffa7" alt="Documentation" /></a>
+  <a href="https://evolutionfoundation.com.br/community"><img src="https://img.shields.io/badge/Community-Join%20us-white" alt="Community" /></a>
+</p>
 
-## Estrutura do Projeto
+<p align="center">
+  <a href="https://evolutionfoundation.com.br">Website</a> &middot;
+  <a href="https://docs.evolutionfoundation.com.br">Documentation</a> &middot;
+  <a href="https://evolutionfoundation.com.br/community">Community</a> &middot;
+  <a href="mailto:suporte@evofoundation.com.br">Support</a>
+</p>
+
+---
+
+## About
+
+**Evo CRM Frontend** is the web interface of the Evo CRM Community — a modern React application providing the full user experience for conversations, contacts, agents, channels, automations, reports, and settings.
+
+Built with React 19, TypeScript, Vite, TailwindCSS 4 and an in-house design system, it delivers a fast, accessible, dark-mode-first experience aligned with the Evo CRM visual identity.
+
+## Part of the Evo CRM Community
+
+Evo CRM Frontend is part of the [Evo CRM Community](https://github.com/evolution-foundation/evo-crm-community) ecosystem maintained by Evolution Foundation. To use the full stack, clone the umbrella repository with submodules:
+
+```bash
+git clone --recurse-submodules git@github.com:evolution-foundation/evo-crm-community.git
+```
+
+The Community Edition is **single-tenant** by design — one account, no multi-tenancy overhead, no super-admin, no billing or plans. All limits are removed and features are unlocked by default.
+
+---
+
+## Tech Stack
+
+| Component | Technology |
+|---|---|
+| Framework | React 19 |
+| Language | TypeScript |
+| Build | Vite |
+| Routing | React Router 7 |
+| Styling | TailwindCSS 4 |
+| Design system | `@evoapi/design-system` |
+| Forms | React Hook Form + Zod |
+| HTTP | Axios |
+| WebSocket | ActionCable |
+| State | Zustand |
+| i18n | i18next |
+| Dates | date-fns |
+
+---
+
+## Quick Start
+
+### Prerequisites
+
+- **Node.js** 18+
+- **pnpm** 8+
+- **Evo CRM Backend** (`evo-ai-crm-community`) running
+
+### Installation
+
+```bash
+git clone git@github.com:evolution-foundation/evo-ai-frontend-community.git
+cd evo-ai-frontend-community
+
+# Install dependencies
+pnpm install
+
+# Configure environment
+cp .env.example .env.local
+# Edit .env.local with your settings
+```
+
+Set the API URL in `.env.local`:
+
+```env
+VITE_API_URL=http://localhost:3000
+```
+
+### Running
+
+```bash
+pnpm run dev          # Dev server with hot reload
+pnpm run build        # Production build
+pnpm run preview      # Preview the production build
+```
+
+The development server runs on `http://localhost:5173`.
+
+---
+
+## Available Scripts
+
+| Script | Description |
+|---|---|
+| `pnpm run dev` | Development server with hot reload |
+| `pnpm run build` | Production build |
+| `pnpm run preview` | Preview production build |
+| `pnpm run test` | Run tests with Vitest |
+| `pnpm run test:watch` | Tests in watch mode |
+| `pnpm run test:coverage` | Tests with coverage report |
+| `pnpm run eslint` | Run ESLint |
+| `pnpm run eslint:fix` | Auto-fix ESLint issues |
+
+---
+
+## Architecture
+
+### Project structure
 
 ```
 src/
-  ├── assets/           # Recursos estáticos (imagens, ícones, etc.)
-  ├── components/       # Componentes reutilizáveis
-  │   ├── base/         # Componentes base (badges, buttons customizados)
-  │   ├── layout/       # Layout principal, headers, sidebars, notificações
-  │   └── ui/           # Componentes básicos do design system
-  ├── contexts/         # Contextos React para estado global
-  │   ├── AuthContext.tsx           # Autenticação OAuth Bearer tokens
-  │   ├── OrganizationsContext.tsx  # Multi-tenancy (accounts)
-  │   ├── NotificationsContext.tsx  # Sistema de notificações
-  │   ├── ThemeContext.tsx          # Dark/Light mode
-  │   └── GlobalConfigContext.tsx   # Configurações globais
-  ├── hooks/            # Hooks personalizados
-  │   ├── useDarkMode.ts            # Gerenciamento de tema
-  │   ├── useLanguage.ts            # Internacionalização
-  │   └── useNotificationWebSocket.ts # WebSocket notificações
-  ├── pages/            # Componentes de página organizados por domínio
-  │   ├── Auth/         # Login, registro, recuperação de senha
-  │   ├── Customer/     # Área do cliente
-  │   │   ├── Contacts/ # Gerenciamento de contatos
-  │   │   └── Conversations/ # Conversas e chat
-  │   ├── Admin/        # Área administrativa
-  │   └── Settings/     # Configurações do sistema
-  ├── routes/           # Configuração de rotas
-  ├── services/         # Serviços organizados por funcionalidade
-  │   ├── core/         # Configuração base da API
-  │   ├── channels/     # Serviços de canais (WhatsApp, Email, etc.)
-  │   ├── contacts/     # Gerenciamento de contatos
-  │   ├── conversations/ # Conversas e mensagens
-  │   ├── notifications/ # Sistema de notificações
-  │   └── teams/        # Gerenciamento de equipes
-  ├── styles/           # Estilos globais e configurações CSS
-  ├── types/            # Tipos e interfaces TypeScript
-  ├── utils/            # Funções utilitárias
-  └── constants/        # Constantes e configurações
+├── assets/           # Static resources (images, icons)
+├── components/       # Reusable components
+│   ├── base/         # Custom components (badges, buttons)
+│   ├── layout/       # Headers, sidebars, notifications
+│   └── ui/           # Design system primitives
+├── contexts/         # React contexts (auth, notifications, theme)
+├── hooks/            # Custom hooks
+├── pages/            # Page components organized by domain
+│   ├── Auth/         # Login, registration, recovery
+│   ├── Customer/     # Contacts, conversations
+│   ├── Admin/        # Administrative area
+│   └── Settings/     # System settings
+├── routes/           # Route configuration
+├── services/         # API services by feature
+├── styles/           # Global styles
+├── types/            # TypeScript types
+├── utils/            # Utilities
+└── constants/        # Constants and configuration
 ```
 
-## Funcionalidades Implementadas
+### Path aliases
 
-### ✅ Autenticação & Multi-tenancy
-- Sistema completo de autenticação com OAuth Bearer tokens
-- Multi-tenancy com organizações/accounts
-- Proteção de rotas e middleware de autenticação
-- Sistema de permissões por usuário/organização
-
-### ✅ Interface & UX
-- Layout responsivo com sidebar colapsível
-- Sistema de navegação com submenus (Settings, Reports)
-- Dark/Light mode completo
-- Internacionalização (i18n) configurada
-- Sistema de toast notifications
-- Loading states e feedback visual
-
-### ✅ Gerenciamento de Dados
-- CRUD completo de contatos com filtros e busca
-- Sistema de conversas integrado
-- Gerenciamento de canais (WhatsApp, Email, SMS, etc.)
-- Paginação e infinite scroll implementados
-
-### ✅ Notificações em Tempo Real
-- Sistema de notificações WebSocket integrado
-- Bell notification com contador
-- Panel de notificações com paginação
-- Marca como lida/não lida
-- Navegação para conversas a partir das notificações
-
-### ✅ Componentes & Design System
-- Componentes reutilizáveis baseados no @evoapi/design-system
-- Status badges customizados
-- Empty states padronizados
-- Scrollbars customizadas para tema escuro
-- Componentes de formulário com validação
-
-## Como Executar
-
-1. **Clone e navegue para o diretório:**
-   ```bash
-   cd evocloud-frontend
-   ```
-
-2. **Instale as dependências:**
-   ```bash
-   pnpm install
-   ```
-
-3. **Configure as variáveis de ambiente:**
-   ```bash
-   cp .env.example .env.local
-   ```
-   Edite `.env.local` com suas configurações:
-   ```
-   VITE_API_URL=http://localhost:3000
-   ```
-
-4. **Execute o servidor de desenvolvimento:**
-   ```bash
-   pnpm run dev
-   ```
-
-## Scripts Disponíveis
-
-- `pnpm run dev` - Servidor de desenvolvimento com hot reload
-- `pnpm run build` - Build de produção
-- `pnpm run preview` - Preview da build de produção
-- `pnpm run test` - Executa testes com Vitest
-- `pnpm run test:watch` - Testes em modo watch
-- `pnpm run test:coverage` - Testes com coverage
-- `pnpm run eslint` - Linting com ESLint
-- `pnpm run eslint:fix` - Fix automático de problemas ESLint
-
-## Estrutura de Rotas
-
-```
-/auth                    # Login e autenticação
-/conversations           # Lista e chat de conversas
-/contacts               # Gerenciamento de contatos
-/channels               # Configuração de canais
-/agents                 # Gerenciamento de agentes
-/pipelines              # Pipelines de vendas
-/campaigns              # Campanhas de marketing
-/automation             # Automações e bots
-/reports                # Relatórios e analytics
-  ├── /overview         # Visão geral
-  ├── /conversations    # Relatório de conversas
-  ├── /users           # Relatório de usuários
-  └── /labels          # Relatório de etiquetas
-/settings               # Configurações
-  ├── /account          # Configurações da conta
-  ├── /users           # Gerenciamento de usuários
-  ├── /teams           # Gerenciamento de equipes
-  └── /integrations    # Integrações
-```
-
-## Principais Arquivos de Configuração
-
-- `vite.config.ts` - Configuração do Vite com path aliases
-- `tailwind.config.js` - Configuração do TailwindCSS
-- `tsconfig.json` - Configuração do TypeScript com path mapping
-- `.eslintrc.js` - Regras do ESLint
-- `src/styles/globals.css` - Estilos globais
-- `src/services/core/api.ts` - Configuração base da API
-
-## Convenções de Código
-
-### Path Aliases
-O projeto utiliza path aliases configurados no TypeScript e Vite para imports limpos:
+Configured in TypeScript and Vite for clean imports:
 
 ```typescript
-// ❌ Evite paths relativos
-import { Button } from '../../../components/ui/Button';
-import { useAuth } from '../../contexts/AuthContext';
-
-// ✅ Use path aliases com @/
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 ```
 
-**Aliases configurados:**
-- `@/` → `src/` (diretório raiz do código)
-- `@/components` → `src/components`
-- `@/contexts` → `src/contexts`
-- `@/hooks` → `src/hooks`
-- `@/services` → `src/services`
-- `@/pages` → `src/pages`
-- `@/types` → `src/types`
-- `@/utils` → `src/utils`
-- `@/styles` → `src/styles`
-- `@/assets` → `src/assets`
+Aliases: `@/components`, `@/contexts`, `@/hooks`, `@/services`, `@/pages`, `@/types`, `@/utils`, `@/styles`, `@/assets`.
 
-## Sistema de Autenticação
+For full code conventions, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-O projeto utiliza OAuth Bearer tokens integrado com o backend Rails:
-- Headers de autenticação automáticos
-- Gerenciamento automático de tokens
-- Redirecionamento automático para login quando expirado
-- Contexto React para estado de autenticação
+---
 
-## Notificações WebSocket
+## Features
 
-Sistema completo de notificações em tempo real:
-- Conexão WebSocket com ActionCable
-- Notificações de novas conversas, menções, etc.
-- Interface visual com sino e painel
-- Integração com contexto de notificações
+- Bearer token authentication integrated with `evo-auth-service-community`
+- Real-time WebSocket notifications via ActionCable
+- Dark/light theme with full design system
+- Internationalization (i18n) — EN, PT-BR
+- Conversations and chat with WhatsApp, Email, Web Widget channels
+- Contacts management with filters, search and infinite scroll
+- Channels configuration (WhatsApp, Email, SMS, etc.)
+- Reports and analytics dashboards
+- Toast notifications and loading states
+- Responsive layout with collapsible sidebar
 
-## Contribuição
+---
 
-1. Siga os padrões de nomenclatura estabelecidos
-2. Use TypeScript para todas as novas funcionalidades
-3. Implemente testes para componentes críticos
-4. Mantenha consistência com o design system
-5. Documente APIs e componentes complexos
+## Documentation
+
+| Resource | Link |
+|---|---|
+| Website | [evolutionfoundation.com.br](https://evolutionfoundation.com.br) |
+| Documentation | [docs.evolutionfoundation.com.br](https://docs.evolutionfoundation.com.br) |
+| Community | [evolutionfoundation.com.br/community](https://evolutionfoundation.com.br/community) |
+| Changelog | [CHANGELOG.md](./CHANGELOG.md) |
+| Contributing | [CONTRIBUTING.md](./CONTRIBUTING.md) |
+| Security | [SECURITY.md](./SECURITY.md) |
+
+---
+
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to submit issues, propose features, and open pull requests.
+
+Join our [community](https://evolutionfoundation.com.br/community) to discuss ideas and collaborate.
+
+---
+
+## Security
+
+For security issues, **do not open a public issue**. Email **suporte@evofoundation.com.br** or use GitHub's private vulnerability reporting. See [SECURITY.md](./SECURITY.md) for details.
+
+---
+
+## License
+
+Evo CRM Frontend is licensed under the Apache License 2.0, with additional brand-protection conditions. See [LICENSE](./LICENSE) for details.
+
+## Trademarks
+
+"Evolution Foundation", "Evolution" and "Evo CRM Frontend" are trademarks of Evolution Foundation. See [TRADEMARKS.md](./TRADEMARKS.md) for the brand assets policy.
+
+Third-party attributions are documented in [NOTICE](./NOTICE).
+
+---
+
+<p align="center">
+  Made by <a href="https://evolutionfoundation.com.br">Evolution Foundation</a> · © 2026
+</p>

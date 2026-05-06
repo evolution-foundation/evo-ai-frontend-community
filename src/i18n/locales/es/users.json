@@ -86,7 +86,8 @@
         "cannotChange": "El email no puede ser cambiado después de la creación"
       },
       "role": {
-        "label": "Función *"
+        "label": "Función *",
+        "placeholder": "Seleccione una función"
       },
       "availability": {
         "label": "Estado de Disponibilidad",
@@ -107,6 +108,7 @@
     },
     "validation": {
       "nameRequired": "El nombre es obligatorio",
+      "roleRequired": "La función es obligatoria",
       "emailRequired": "El email es obligatorio",
       "emailInvalid": "Email inválido",
       "passwordRequired": "La contraseña es obligatoria",
@@ -122,7 +124,8 @@
     "messages": {
       "createSuccess": "Agente creado con éxito",
       "updateSuccess": "Agente actualizado con éxito",
-      "saveError": "Error al guardar agente"
+      "saveError": "Error al guardar agente",
+      "loading": "Cargando funciones..."
     }
   },
   "bulkInvite": {

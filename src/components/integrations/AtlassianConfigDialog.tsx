@@ -8,6 +8,7 @@ import {
   Checkbox,
   Label,
 } from '@evoapi/design-system';
+import BrandIcon from '@/components/BrandIcon';
 import { Loader2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
@@ -195,7 +196,7 @@ const AtlassianConfigDialog = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <img src="/integrations/atlassian.png" alt="Atlassian" className="h-5 w-5" />
+            <BrandIcon id="atlassian" size={20} className="h-5 w-5" />
             {t('edit.integrations.atlassian.configTitle') || 'Configurar Atlassian'}
           </DialogTitle>
         </DialogHeader>
@@ -206,7 +207,7 @@ const AtlassianConfigDialog = ({
             <div className="text-center space-y-4">
               <div className="flex justify-center">
                 <div className="p-4 bg-primary/10 rounded-full">
-                  <img src="/integrations/atlassian.png" alt="Atlassian" className="h-12 w-12" />
+                  <BrandIcon id="atlassian" size={48} className="h-12 w-12" />
                 </div>
               </div>
               <div>
@@ -233,7 +234,7 @@ const AtlassianConfigDialog = ({
                 </>
               ) : (
                 <>
-                  <img src="/integrations/atlassian.png" alt="Atlassian" className="mr-2 h-4 w-4" />
+                  <BrandIcon id="atlassian" size={16} className="mr-2 h-4 w-4" />
                   {t('edit.integrations.atlassian.connectButton') || 'Conectar com Atlassian'}
                 </>
               )}

@@ -8,6 +8,7 @@ import {
   Checkbox,
   Label,
 } from '@evoapi/design-system';
+import BrandIcon from '@/components/BrandIcon';
 import { Loader2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
@@ -195,12 +196,7 @@ const HubSpotConfigDialog = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <img src="/integrations/hubspot.png" alt="HubSpot" className="h-5 w-5 dark:hidden" />
-            <img
-              src="/integrations/hubspot-dark.png"
-              alt="HubSpot"
-              className="h-5 w-5 hidden dark:block"
-            />
+            <BrandIcon id="hubspot" size={20} className="h-5 w-5" />
             {t('edit.integrations.hubspot.configTitle') || 'Configurar HubSpot'}
           </DialogTitle>
         </DialogHeader>
@@ -211,16 +207,7 @@ const HubSpotConfigDialog = ({
             <div className="text-center space-y-4">
               <div className="flex justify-center">
                 <div className="p-4 bg-primary/10 rounded-full">
-                  <img
-                    src="/integrations/hubspot.png"
-                    alt="HubSpot"
-                    className="h-12 w-12 dark:hidden"
-                  />
-                  <img
-                    src="/integrations/hubspot-dark.png"
-                    alt="HubSpot"
-                    className="h-12 w-12 hidden dark:block"
-                  />
+                  <BrandIcon id="hubspot" size={48} className="h-12 w-12" />
                 </div>
               </div>
               <div>

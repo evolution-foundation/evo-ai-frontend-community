@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
+import { setupService } from '@/services/setup/setupService';
 import {
   GlobalConfigProvider,
   useGlobalConfig,
@@ -99,6 +100,28 @@ describe('GlobalConfigContext', () => {
 
       expect(parsed).toHaveProperty('setupRequired');
       expect(parsed).toHaveProperty('setupLoading');
+    });
+  });
+
+  // EVO-971: when the /setup/status call fails (e.g. auth-service still warming
+  // up on first `docker compose up`), the frontend must default to showing the
+  // setup wizard rather than stranding the user on /login with no way to
+  // bootstrap. Bootstrap itself rejects double-init, so this is safe.
+  it('defaults setupRequired=true when /setup/status fails', async () => {
+    vi.mocked(setupService.getStatus).mockRejectedValueOnce(new Error('ECONNREFUSED'));
+    mockApi.get.mockResolvedValueOnce({ data: {} });
+
+    render(
+      <GlobalConfigProvider>
+        <ConfigDisplay />
+      </GlobalConfigProvider>,
+    );
+
+    await waitFor(() => {
+      const configEl = screen.getByTestId('config');
+      const parsed = JSON.parse(configEl.textContent || '{}');
+      expect(parsed.setupRequired).toBe(true);
+      expect(parsed.setupLoading).toBe(false);
     });
   });
 });

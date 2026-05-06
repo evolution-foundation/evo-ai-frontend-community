@@ -36,6 +36,7 @@ export interface MessageItem {
     text: string;
     sender?: string;
     type?: 'in' | 'out';
+    unresolved?: boolean;
   };
   contentType?: string;
   submittedEmail?: string;

@@ -119,6 +119,9 @@
     "selectAtLeastOne": "Seleziona almeno un utente",
     "usersAddedSuccess": "Utenti aggiunti con successo!",
     "addUsersError": "Errore durante l'aggiunta degli utenti",
+    "removeUsersSuccess": "Utenti rimossi con successo!",
+    "removeUsersError": "Errore durante la rimozione degli utenti",
+    "membersUpdated": "Membri del team aggiornati con successo!",
     "permissionDenied": {
       "read": "Permesso negato per visualizzare i team",
       "create": "Permesso negato per creare team",
@@ -138,6 +141,7 @@
     "title": "Aggiungi Utenti - {{name}}",
     "subtitle": "Seleziona gli utenti che desideri aggiungere al team",
     "summary": "{{selected}} di {{total}} utenti selezionati",
+    "alreadyMemberBadge": "Membro",
     "table": {
       "select": "Seleziona",
       "user": "Utente",
@@ -179,6 +183,7 @@
     "selectAll": "Seleziona Tutti",
     "deselectAll": "Deseleziona Tutti",
     "saving": "Salvataggio...",
+    "save": "Salva",
     "addUsers": "Aggiungi Utenti"
   }
 }

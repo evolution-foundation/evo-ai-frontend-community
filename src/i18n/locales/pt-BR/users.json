@@ -86,7 +86,8 @@
         "cannotChange": "O email não pode ser alterado após a criação"
       },
       "role": {
-        "label": "Função *"
+        "label": "Função *",
+        "placeholder": "Selecione uma função"
       },
       "availability": {
         "label": "Status de Disponibilidade",
@@ -107,6 +108,7 @@
     },
     "validation": {
       "nameRequired": "Nome é obrigatório",
+      "roleRequired": "Função é obrigatória",
       "emailRequired": "Email é obrigatório",
       "emailInvalid": "Email inválido",
       "passwordRequired": "Senha é obrigatória",
@@ -122,7 +124,8 @@
     "messages": {
       "createSuccess": "Atendente criado com sucesso",
       "updateSuccess": "Atendente atualizado com sucesso",
-      "saveError": "Erro ao salvar atendente"
+      "saveError": "Erro ao salvar atendente",
+      "loading": "Carregando funções..."
     }
   },
   "bulkInvite": {

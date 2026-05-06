@@ -22,6 +22,7 @@ interface LabelModalProps {
   label?: Label;
   isNew: boolean;
   loading: boolean;
+  initialTitle?: string;
   onSubmit: (data: {
     title: string;
     description?: string;
@@ -46,6 +47,7 @@ export default function LabelModal({
   label,
   isNew,
   loading,
+  initialTitle,
   onSubmit,
 }: LabelModalProps) {
   const { t } = useLanguage('labels');
@@ -70,7 +72,7 @@ export default function LabelModal({
         });
       } else {
         setFormData({
-          title: '',
+          title: initialTitle || '',
           description: '',
           color: getRandomColor(),
           show_on_sidebar: true,

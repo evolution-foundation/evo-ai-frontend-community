@@ -16,13 +16,14 @@ export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
   const { state, actions } = useNotifications();
 
-
-  // Fetch notifications when dropdown is opened
+  // Fetch notifications every time the dropdown opens.
+  // `actions` is now memoized in the provider (deps=[]), so it's stable across
+  // renders and safe to include here without causing re-fetch loops.
   useEffect(() => {
-    if (isOpen && state.notifications.length === 0) {
+    if (isOpen) {
       actions.fetchNotifications({ page: 1 });
     }
-  }, [isOpen]); // Remover dependencies que causam loop
+  }, [isOpen, actions]);
 
   const unreadCount = state.meta.unreadCount;
 

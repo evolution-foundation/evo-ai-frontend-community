@@ -4,6 +4,7 @@ import { Button, Card, CardContent } from '@evoapi/design-system';
 import { Settings, Power } from 'lucide-react';
 import { Integration } from '@/types/integrations';
 import BaseStatusBadge from '@/components/base/BaseStatusBadge';
+import BrandIcon, { getBrandIcon } from '@/components/BrandIcon';
 
 interface IntegrationCardProps {
   integration: Integration;
@@ -27,6 +28,8 @@ export default function IntegrationCard({
 
   const logoPath = `/integrations/${integration.id}.png`;
   const logoPathDark = `/integrations/${integration.id}-dark.png`;
+
+  const hasBrandIcon = Boolean(getBrandIcon(integration.id));
 
   const handleImageError = () => setImageError(true);
   const handleDarkImageError = () => setDarkImageError(true);
@@ -59,38 +62,44 @@ export default function IntegrationCard({
         {/* Header with logo, name and status */}
         <div className="flex items-center gap-3 p-4 border-b border-sidebar-border">
           <div className="w-10 h-10 rounded-lg overflow-hidden bg-sidebar-accent/20 flex items-center justify-center flex-shrink-0 relative">
-            {/* Logo padrão:
-                - no light sempre aparece
-                - no dark só some se existir um dark logo carregado com sucesso */}
-            {!imageError && (
-              <img
-                src={logoPath}
-                alt={integration.name}
-                className={[
-                  'w-full h-full object-contain',
-                  // se o dark logo NÃO falhou, então esconde no dark (porque o dark logo vai aparecer)
-                  // se o dark logo falhou, não esconde -> vira fallback no dark
-                  !darkImageError ? 'dark:hidden' : '',
-                ].join(' ')}
-                onError={handleImageError}
-              />
-            )}
+            {hasBrandIcon ? (
+              <BrandIcon id={integration.id} size={28} className="w-7 h-7" />
+            ) : (
+              <>
+                {/* Logo padrão:
+                    - no light sempre aparece
+                    - no dark só some se existir um dark logo carregado com sucesso */}
+                {!imageError && (
+                  <img
+                    src={logoPath}
+                    alt={integration.name}
+                    className={[
+                      'w-full h-full object-contain',
+                      // se o dark logo NÃO falhou, então esconde no dark (porque o dark logo vai aparecer)
+                      // se o dark logo falhou, não esconde -> vira fallback no dark
+                      !darkImageError ? 'dark:hidden' : '',
+                    ].join(' ')}
+                    onError={handleImageError}
+                  />
+                )}
 
-            {/* Logo dark (opcional) */}
-            {!darkImageError && (
-              <img
-                src={logoPathDark}
-                alt={integration.name}
-                className="w-full h-full object-contain hidden dark:block"
-                onError={handleDarkImageError}
-              />
-            )}
+                {/* Logo dark (opcional) */}
+                {!darkImageError && (
+                  <img
+                    src={logoPathDark}
+                    alt={integration.name}
+                    className="w-full h-full object-contain hidden dark:block"
+                    onError={handleDarkImageError}
+                  />
+                )}
 
-            {/* Fallback final: se o normal falhar, não tem imagem nenhuma pra mostrar */}
-            {imageError && (
-              <div className="w-6 h-6 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-semibold">
-                {getInitials(integration.name)}
-              </div>
+                {/* Fallback final: se o normal falhar, não tem imagem nenhuma pra mostrar */}
+                {imageError && (
+                  <div className="w-6 h-6 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-semibold">
+                    {getInitials(integration.name)}
+                  </div>
+                )}
+              </>
             )}
           </div>
 

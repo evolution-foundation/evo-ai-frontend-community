@@ -6,7 +6,7 @@ export interface ChannelType {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  icon?: string;
   type: 'web_widget' | 'whatsapp' | 'facebook' | 'instagram' | 'telegram' | 'sms' | 'email' | 'api';
   providers?: ProviderType[];
 }

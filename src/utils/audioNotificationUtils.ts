@@ -17,39 +17,125 @@ const TONE_FILES: Record<NotificationTone, string> = {
   ding: '/audio/notifications/ding.mp3',
   chime: '/audio/notifications/chime.mp3',
   bell: '/audio/notifications/bell.mp3',
-  notification: '/audio/notifications/ping.mp3', // Use ping.mp3 as default notification sound
+  notification: '/audio/notifications/ping.mp3',
   magic: '/audio/notifications/magic.mp3',
 };
 
-// Fallback: Use Web Audio API to generate simple tones if files don't exist
-const generateTone = (tone: NotificationTone): string => {
-  const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-  const audioContext = new AudioContextClass();
-  const oscillator = audioContext.createOscillator();
-  const gainNode = audioContext.createGain();
+type AudioContextClass = typeof AudioContext;
 
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
+const getAudioContextClass = (): AudioContextClass | null => {
+  if (typeof window === 'undefined') return null;
+  return window.AudioContext || (window as unknown as { webkitAudioContext: AudioContextClass }).webkitAudioContext || null;
+};
 
-  // Different frequencies for different tones
-  const frequencies: Record<NotificationTone, number> = {
-    ding: 800,
-    chime: 600,
-    bell: 400,
-    notification: 500,
-    magic: 700,
-  };
+// Shared AudioContext — created once and reused to survive browser autoplay restrictions.
+// The "unlocked" flag lives on the context itself (not module-global) so that recreating
+// the context after close() / HMR / suspend automatically requires a fresh unlock.
+type UnlockableAudioContext = AudioContext & { __unlocked?: boolean };
+let sharedAudioContext: UnlockableAudioContext | null = null;
 
-  oscillator.frequency.value = frequencies[tone];
-  oscillator.type = tone === 'bell' ? 'sine' : 'sine';
+const getOrCreateAudioContext = (): UnlockableAudioContext | null => {
+  const Ctx = getAudioContextClass();
+  if (!Ctx) return null;
+  if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
+    sharedAudioContext = new Ctx() as UnlockableAudioContext;
+  }
+  return sharedAudioContext;
+};
 
-  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+/**
+ * Must be called inside a user-gesture event handler (click, keydown, etc.).
+ * Resumes the shared AudioContext so that subsequent notification sounds are
+ * allowed by the browser's autoplay policy even when the tab is inactive.
+ */
+export const unlockAudioContext = (): void => {
+  const ctx = getOrCreateAudioContext();
+  if (!ctx || ctx.__unlocked) return;
+  if (ctx.state === 'suspended') {
+    ctx.resume().then(() => {
+      ctx.__unlocked = true;
+    }).catch(() => {
+      // Ignore — will retry on next user gesture
+    });
+  } else {
+    ctx.__unlocked = true;
+  }
+};
 
-  oscillator.start(audioContext.currentTime);
-  oscillator.stop(audioContext.currentTime + 0.5);
+const playToneWithAudioContext = (tone: NotificationTone): void => {
+  const ctx = getOrCreateAudioContext();
+  if (!ctx) return;
 
-  return ''; // Return empty string as we're using Web Audio API directly
+  const resume = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve();
+  resume.then(() => {
+    const frequencies: Record<NotificationTone, number> = {
+      ding: 800,
+      chime: 600,
+      bell: 400,
+      notification: 500,
+      magic: 700,
+    };
+
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    oscillator.frequency.value = frequencies[tone];
+    oscillator.type = 'sine';
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.5);
+  }).catch(() => {
+    // AudioContext could not be resumed — browser is blocking audio
+  });
+};
+
+const playFileWithAudioContext = async (toneFile: string, tone: NotificationTone): Promise<void> => {
+  const ctx = getOrCreateAudioContext();
+  if (!ctx) {
+    playToneWithAudioContext(tone);
+    return;
+  }
+
+  try {
+    if (ctx.state === 'suspended') {
+      await ctx.resume();
+    }
+
+    const response = await fetch(toneFile);
+    if (!response.ok) {
+      throw new Error(`Audio file fetch failed: ${response.status} ${toneFile}`);
+    }
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+
+    const source = ctx.createBufferSource();
+    const gainNode = ctx.createGain();
+    source.buffer = audioBuffer;
+    // Match oscillator fallback volume so user perception stays stable when the
+    // .mp3 path falls back to the synthesized tone.
+    gainNode.gain.value = 0.3;
+    source.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    source.start(0);
+  } catch (error) {
+    console.error('Error playing notification sound, falling back to oscillator tone:', error);
+    playToneWithAudioContext(tone);
+  }
+};
+
+/**
+ * Close and reset the shared AudioContext. Useful for tests and hot-reload.
+ */
+export const closeSharedAudioContext = (): void => {
+  if (sharedAudioContext && sharedAudioContext.state !== 'closed') {
+    sharedAudioContext.close().catch(() => {
+      // Ignore — context may already be closing
+    });
+  }
+  sharedAudioContext = null;
 };
 
 let audioSettingsCache: AudioSettings | null = null;
@@ -72,7 +158,6 @@ export const getAudioSettings = (): AudioSettings => {
     console.error('Error loading audio settings:', error);
   }
 
-  // Default settings
   const defaults: AudioSettings = {
     enable_audio_alerts: false,
     notification_tone: 'ding',
@@ -115,64 +200,25 @@ export const playNotificationSound = async (
 ): Promise<void> => {
   const audioSettings = settings ? { ...getAudioSettings(), ...settings } : getAudioSettings();
 
-  // Check if audio alerts are enabled
   if (!audioSettings.enable_audio_alerts) {
     return;
   }
 
-  // Check condition: play only when tab is inactive
-  // If always_play_audio_alert is true, play regardless of tab state
   // If always_play_audio_alert is false, only play when tab is inactive
   if (!audioSettings.always_play_audio_alert && isTabActive()) {
     return;
   }
 
-  // Check condition: alert if unread assigned conversations exist
-  // This is an ADDITIONAL condition - if enabled, it requires unread conversations
-  // If disabled, it doesn't block the sound
   if (audioSettings.alert_if_unread_assigned_conversation_exist) {
     if (checkUnreadConversations) {
-      const hasUnread = checkUnreadConversations();
-      if (!hasUnread) {
-        return;
-      }
+      if (!checkUnreadConversations()) return;
     } else {
-      // If checkUnreadConversations is not provided but condition is enabled, don't play
       return;
     }
   }
 
   const toneFile = TONE_FILES[audioSettings.notification_tone];
-
-  try {
-    // Try to play audio file first
-    if (toneFile) {
-      const audio = new Audio(toneFile);
-      audio.volume = 0.5;
-
-      // Handle errors (file might not exist)
-      audio.onerror = () => {
-        // Fallback to generated tone
-        generateTone(audioSettings.notification_tone);
-      };
-
-      await audio.play().catch(() => {
-        // If play fails, try generated tone
-        generateTone(audioSettings.notification_tone);
-      });
-    } else {
-      // Use generated tone
-      generateTone(audioSettings.notification_tone);
-    }
-  } catch (error) {
-    console.error('Error playing notification sound:', error);
-    // Fallback to generated tone
-    try {
-      generateTone(audioSettings.notification_tone);
-    } catch (fallbackError) {
-      console.error('Error generating fallback tone:', fallbackError);
-    }
-  }
+  await playFileWithAudioContext(toneFile, audioSettings.notification_tone);
 };
 
 /**
@@ -180,36 +226,7 @@ export const playNotificationSound = async (
  */
 export const playNotificationSoundPreview = async (tone: NotificationTone): Promise<void> => {
   const toneFile = TONE_FILES[tone];
-
-  try {
-    // Try to play audio file first
-    if (toneFile) {
-      const audio = new Audio(toneFile);
-      audio.volume = 0.5;
-
-      // Handle errors (file might not exist)
-      audio.onerror = () => {
-        // Fallback to generated tone
-        generateTone(tone);
-      };
-
-      await audio.play().catch(() => {
-        // If play fails, try generated tone
-        generateTone(tone);
-      });
-    } else {
-      // Use generated tone
-      generateTone(tone);
-    }
-  } catch (error) {
-    console.error('Error playing notification sound preview:', error);
-    // Fallback to generated tone
-    try {
-      generateTone(tone);
-    } catch (fallbackError) {
-      console.error('Error generating fallback tone:', fallbackError);
-    }
-  }
+  await playFileWithAudioContext(toneFile, tone);
 };
 
 /**
@@ -218,4 +235,3 @@ export const playNotificationSoundPreview = async (tone: NotificationTone): Prom
 export const clearAudioSettingsCache = (): void => {
   audioSettingsCache = null;
 };
-

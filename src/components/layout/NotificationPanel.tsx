@@ -29,23 +29,20 @@ export default function NotificationPanel({
   const { state, actions } = useNotifications();
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Filter unread notifications
-  const unreadNotifications = useMemo(
-    () => state.notifications.filter(n => !n.read_at),
-    [state.notifications]
-  );
-
   const totalUnreadCount = state.meta.unreadCount;
+  const totalCount = state.meta.count;
 
-  // Paginate unread notifications
+  // Show all notifications (read + unread); the visual unread indicator is
+  // rendered by NotificationItem so the user can see history after marking
+  // everything as read (EVO-977 AC2).
   const paginatedNotifications = useMemo(() => {
     const startIndex = (currentPage - 1) * PAGE_SIZE;
     const endIndex = startIndex + PAGE_SIZE;
-    return unreadNotifications.slice(startIndex, endIndex);
-  }, [unreadNotifications, currentPage]);
+    return state.notifications.slice(startIndex, endIndex);
+  }, [state.notifications, currentPage]);
 
   // Pagination helpers
-  const totalPages = Math.ceil(totalUnreadCount / PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const isFirstPage = currentPage === 1;
   const isLastPage = currentPage >= totalPages;
 
@@ -138,13 +135,22 @@ export default function NotificationPanel({
       </div>
 
       {/* Notifications List */}
-      <div className="flex-1 overflow-y-auto">
-        {state.uiFlags.isFetching ? (
+      <div className="flex-1 overflow-y-auto relative">
+        {/* Stale-while-revalidate: keep showing the cached list while refetch
+            happens in the background. Only show full-screen loader when there
+            is no cached data yet. */}
+        {state.uiFlags.isFetching && paginatedNotifications.length > 0 && (
+          <div
+            className="absolute top-2 right-3 w-4 h-4 animate-spin rounded-full border-2 border-primary border-t-transparent z-10"
+            aria-label={t('notifications.panel.loading')}
+          />
+        )}
+        {state.uiFlags.isFetching && paginatedNotifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <div className="w-8 h-8 animate-spin rounded-full border-2 border-primary border-t-transparent mb-4" />
             <p className="text-muted-foreground">{t('notifications.panel.loading')}</p>
           </div>
-        ) : totalUnreadCount === 0 ? (
+        ) : paginatedNotifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
               <ListCheck className="h-8 w-8 text-muted-foreground" />
@@ -167,7 +173,7 @@ export default function NotificationPanel({
       </div>
 
       {/* Pagination */}
-      {totalUnreadCount > 0 && totalPages > 1 && (
+      {totalCount > 0 && totalPages > 1 && (
         <div className="flex items-center justify-between p-4 border-t border-border">
           <div className="flex items-center gap-1">
             <Button

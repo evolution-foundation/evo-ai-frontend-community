@@ -22,8 +22,10 @@ import {
   TabsTrigger,
 } from '@evoapi/design-system';
 import { PipelineStage } from '@/types/analytics';
+import type { StageAutomationRule } from '@/types/analytics/pipelines';
 import { LocalAttributeDefinition, LocalAttributeDefinitionPayload } from '@/types/pipelines/localAttributeDefinition';
 import PipelineStageCustomAttributes from './PipelineStageCustomAttributes';
+import StageAutomationRules from './StageAutomationRules';
 
 // Cores predefinidas para as etapas
 const getStageColors = (t: (key: string) => string) => [
@@ -39,6 +41,11 @@ const getStageColors = (t: (key: string) => string) => [
   { value: '#6B7280', label: t('editStage.colors.gray') },
 ];
 
+interface Agent {
+  id: string;
+  name: string;
+}
+
 interface EditStageModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -47,12 +54,14 @@ interface EditStageModalProps {
     name: string;
     color: string;
     stage_type: string;
-    automation_rules?: { description?: string };
+    automation_rules?: { description?: string; rules?: StageAutomationRule[] };
     custom_fields?: Record<string, unknown> & {
       attributes?: string[];
     };
   }) => void;
   loading: boolean;
+  stages?: PipelineStage[];
+  agents?: Agent[];
 }
 
 export default function EditStageModal({
@@ -61,6 +70,8 @@ export default function EditStageModal({
   stage,
   onSubmit,
   loading,
+  stages = [],
+  agents = [],
 }: EditStageModalProps) {
   const { t } = useLanguage('pipelines');
   const [name, setName] = useState('');
@@ -68,6 +79,7 @@ export default function EditStageModal({
   const [stageType, setStageType] = useState('active');
   const [description, setDescription] = useState('');
   const [customAttributes, setCustomAttributes] = useState<Record<string, unknown>>({});
+  const [automationRules, setAutomationRules] = useState<StageAutomationRule[]>([]);
 
   const stageColors = getStageColors(t);
 
@@ -78,6 +90,7 @@ export default function EditStageModal({
       setColor(stage.color);
       setStageType(stage.stage_type || 'active');
       setDescription(stage.automation_rules?.description || stage.description || '');
+      setAutomationRules(stage.automation_rules?.rules || []);
       // Load attributes array from custom_fields.attributes
       // Structure: custom_fields = { attributes: ["key1", "key2", ...] }
       const attributesArray = (stage.custom_fields?.attributes as string[]) || [];
@@ -108,10 +121,9 @@ export default function EditStageModal({
   const handleSubmit = () => {
     if (!name.trim() || !stage) return;
     
-    const automationRules: { description?: string } = {};
-    if (description) {
-      automationRules.description = description;
-    }
+    const automationRulesPayload: { description?: string; rules?: StageAutomationRule[] } = {};
+    if (description) automationRulesPayload.description = description;
+    if (automationRules.length > 0) automationRulesPayload.rules = automationRules;
     
     const attributeKeys = Object.keys(customAttributes);
     const attributeDefinitions = Object.entries(customAttributes).reduce(
@@ -139,7 +151,7 @@ export default function EditStageModal({
       name: name.trim(),
       color,
       stage_type: stageType,
-      automation_rules: Object.keys(automationRules).length > 0 ? automationRules : undefined,
+      automation_rules: Object.keys(automationRulesPayload).length > 0 ? automationRulesPayload : undefined,
       custom_fields: attributeKeys.length > 0
         ? {
             ...existingCustomFields,
@@ -167,8 +179,9 @@ export default function EditStageModal({
         </DialogHeader>
 
         <Tabs defaultValue="details" className="flex-1 flex flex-col min-h-0">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="details">{t('editStage.details')}</TabsTrigger>
+            <TabsTrigger value="automation">{t('editStage.automation')}</TabsTrigger>
             <TabsTrigger value="attributes">{t('editStage.customAttributes')}</TabsTrigger>
           </TabsList>
 
@@ -269,6 +282,17 @@ export default function EditStageModal({
               </div>
             </div>
           </div>
+          </TabsContent>
+
+          <TabsContent value="automation" className="py-4 overflow-y-auto flex-1">
+            <StageAutomationRules
+              rules={automationRules}
+              onChange={setAutomationRules}
+              disabled={loading}
+              currentStageId={stage?.id}
+              stages={stages}
+              agents={agents}
+            />
           </TabsContent>
 
           <TabsContent value="attributes" className="py-4 overflow-y-auto flex-1">

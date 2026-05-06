@@ -4,7 +4,7 @@ import { createCallbackPage } from '@/utils/createCallbackPage';
 const GitHubCallback = createCallbackPage({
   integrationName: 'GitHub',
   service: GitHubService,
-  iconPath: '/integrations/github.png',
+  integrationId: 'github',
 });
 
 export default GitHubCallback;

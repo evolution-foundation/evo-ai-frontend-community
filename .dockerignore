@@ -13,3 +13,10 @@ coverage
 .idea
 *.md
 
+
+# Playwright e2e (not part of runtime image)
+/e2e
+/e2e-harness.html
+/playwright.config.ts
+/test-results
+/playwright-report

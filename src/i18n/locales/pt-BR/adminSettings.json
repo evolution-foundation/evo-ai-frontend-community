@@ -3,7 +3,7 @@
   "navigation": {
     "email": "E-mail",
     "storage": "Armazenamento",
-    "socialLogin": "Login Social",
+    "socialLogin": "Provedores de Autenticação",
     "channels": "Canais",
     "openai": "OpenAI",
     "integrations": "Integracoes",
@@ -61,7 +61,11 @@
     "testConnection": "Testar Conexao",
     "testing": "Testando...",
     "testFailed": "Teste de conexao falhou",
-    "testError": "Falha ao executar teste de conexao"
+    "testError": "Falha ao executar teste de conexao",
+    "envWarning": {
+      "title": "Atenção:",
+      "body": "Salvar aqui persiste os valores, mas o serviço de email ainda lê as credenciais SMTP das variáveis de ambiente no boot. Até a EVO-1049 ser entregue, configure SMTP via env vars para fazer efeito."
+    }
   },
   "storage": {
     "title": "Configuracao de Armazenamento",
@@ -105,11 +109,15 @@
     "testConnection": "Testar Conexao",
     "testing": "Testando...",
     "testFailed": "Teste de conexao falhou",
-    "testError": "Falha ao executar teste de conexao"
+    "testError": "Falha ao executar teste de conexao",
+    "envWarning": {
+      "title": "Atenção:",
+      "body": "Salvar aqui persiste a escolha, mas o serviço de arquivos ainda lê ACTIVE_STORAGE_SERVICE das variáveis de ambiente no boot. Até a EVO-1050 ser entregue, configure storage via env vars para fazer efeito."
+    }
   },
   "socialLogin": {
-    "title": "Configuracao de Login Social",
-    "description": "Configure as credenciais OAuth dos provedores de login social para que os usuarios possam entrar com Google ou Microsoft.",
+    "title": "Provedores de Autenticação",
+    "description": "Configure as credenciais OAuth dos provedores de autenticação SSO para que os usuarios possam entrar com Google ou Microsoft.",
     "google": {
       "cardTitle": "Google OAuth",
       "fields": {
@@ -224,11 +232,11 @@
       "tabTitle": "Evolution",
       "fields": {
         "apiUrl": "URL da API",
-        "adminSecret": "Segredo do Admin"
+        "adminSecret": "Token Admin"
       },
       "placeholders": {
         "apiUrl": "https://evolution-api.exemplo.com",
-        "adminSecret": "Digite o novo segredo do admin"
+        "adminSecret": "Digite o novo token admin"
       },
       "saveSuccess": "Configuracao do Evolution salva com sucesso",
       "saveError": "Falha ao salvar configuracao do Evolution"
@@ -237,15 +245,11 @@
       "tabTitle": "Evolution Go",
       "fields": {
         "apiUrl": "URL da API",
-        "adminSecret": "Segredo do Admin",
-        "instanceId": "ID da Instancia",
-        "instanceSecret": "Segredo da Instancia"
+        "adminSecret": "Token Admin"
       },
       "placeholders": {
         "apiUrl": "https://evolution-go.exemplo.com",
-        "adminSecret": "Digite o novo segredo do admin",
-        "instanceId": "Seu Evolution Go Instance ID",
-        "instanceSecret": "Digite o novo segredo da instancia"
+        "adminSecret": "Digite o novo token admin"
       },
       "saveSuccess": "Configuracao do Evolution Go salva com sucesso",
       "saveError": "Falha ao salvar configuracao do Evolution Go"

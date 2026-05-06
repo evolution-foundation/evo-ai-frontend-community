@@ -81,9 +81,15 @@ export const fetchSetupStatus = async (): Promise<boolean> => {
     const status = await setupService.getStatus();
     setupRequiredCache = status.status === 'inactive';
     return setupRequiredCache;
-  } catch {
-    setupRequiredCache = false;
-    return false;
+  } catch (e) {
+    // Fail open to the setup wizard so a transient backend outage during
+    // first boot (auth-service still warming up, migrations running, etc.)
+    // doesn't strand the user on /login with no way to bootstrap.
+    // The bootstrap endpoint itself rejects with AlreadyBootstrappedError
+    // if setup was already completed, so this is safe for healthy installs.
+    // Do not cache the failure — the next render retries.
+    console.warn('[GlobalConfig] /setup/status failed, defaulting setupRequired=true', e);
+    return true;
   }
 };
 
@@ -97,6 +103,18 @@ export const clearGlobalConfigCache = () => {
   // Notificar listeners para re-fetch (ex.: após admin salvar uma config, os
   // booleans `hasXxxConfig` mudam e o fluxo de criação de canal precisa refletir)
   globalConfigListeners.forEach(listener => listener());
+};
+
+// Versão await-able: invalida o cache e aguarda o próximo fetch terminar.
+// Usado pelo admin após salvar uma config para garantir que `hasXxxConfig`
+// já está atualizado antes da UI prosseguir (sem janela de race entre o
+// success toast e a próxima ação do usuário).
+export const refreshGlobalConfig = async (): Promise<GlobalConfig> => {
+  globalConfigCache = null;
+  globalConfigPromise = null;
+  const data = await fetchGlobalConfig();
+  globalConfigListeners.forEach(listener => listener());
+  return data;
 };
 
 export const clearSetupCache = () => {

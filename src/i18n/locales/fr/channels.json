@@ -669,11 +669,12 @@
       },
       "status": {
         "approved": "Approuvé",
-        "pending": "En Attente",
+        "pending": "En attente d'approbation",
         "rejected": "Rejeté",
         "paused": "En Pause",
         "active": "Actif",
-        "inactive": "Inactif"
+        "inactive": "Inactif",
+        "unknown": "Statut inconnu"
       },
       "preview": {
         "title": "Aperçu",
@@ -847,6 +848,22 @@
             "errors": {
               "loadError": "Erreur lors du chargement des paramètres de confidentialité",
               "updateError": "Erreur lors de la mise à jour de {{setting}}"
+            }
+          },
+          "connection": {
+            "title": "Paramètres de Connexion",
+            "description": "Mettez à jour l'URL de base et la clé API de l'instance après la création du canal",
+            "apiUrlLabel": "URL de Base",
+            "apiUrlPlaceholder": "https://api.evolution.com",
+            "adminTokenLabel": "Clé API",
+            "adminTokenPlaceholder": "Entrez la nouvelle clé API",
+            "saveButton": "Enregistrer les Paramètres de Connexion",
+            "success": {
+              "updated": "Paramètres de connexion mis à jour avec succès !"
+            },
+            "errors": {
+              "apiUrlRequired": "L'URL de base est obligatoire",
+              "updateError": "Erreur lors de la mise à jour des paramètres de connexion"
             }
           },
           "actions": {

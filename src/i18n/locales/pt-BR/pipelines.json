@@ -381,10 +381,36 @@
     "saving": "Salvando...",
     "save": "Salvar Alterações"
   },
+  "stageAutomation": {
+    "title": "Regras de Automação",
+    "description": "Defina regras que disparam ações automaticamente quando eventos ocorrem nesta etapa.",
+    "noRules": "Nenhuma regra configurada. Clique em \"Adicionar Regra\" para começar.",
+    "addRule": "Adicionar Regra",
+    "rule": "Regra",
+    "when": "Quando",
+    "then": "Então",
+    "anyValue": "Qualquer",
+    "labelNamePlaceholder": "Nome da etiqueta...",
+    "selectStage": "Selecionar etapa...",
+    "selectAgent": "Selecionar agente...",
+    "noOtherStages": "Nenhuma outra etapa disponível",
+    "noAgents": "Nenhum agente disponível",
+    "triggers": {
+      "label_added": "Etiqueta adicionada",
+      "conversation_status_changed": "Status da conversa alterado",
+      "custom_attribute_updated": "Atributo personalizado atualizado"
+    },
+    "actions": {
+      "move_to_stage": "Mover para etapa",
+      "assign_agent": "Atribuir agente",
+      "apply_label": "Aplicar etiqueta"
+    }
+  },
   "editStage": {
     "title": "Editar Etapa",
     "description": "Edite as informações desta etapa do pipeline.",
     "details": "Detalhes",
+    "automation": "Automação",
     "customAttributes": "Atributos",
     "attributesDescription": "Configure atributos para este estágio",
     "name": "Nome da Etapa",
@@ -542,6 +568,27 @@
     "save": "Salvar Ordem"
   },
   "kanban": {
+    "search": {
+      "placeholder": "Buscar por nome, telefone, email...",
+      "assigneeFilter": "Responsável",
+      "clearFilters": "Limpar filtros",
+      "noResults": "Nenhum card corresponde aos filtros",
+      "resultsCount": "Mostrando {{count}} de {{total}} cards em {{stages}} etapa(s)",
+      "loadingAgents": "Carregando equipe...",
+      "noAgents": "Nenhum membro da equipe encontrado",
+      "statusFilter": "Status",
+      "dateRangeFilter": "Período",
+      "dateFrom": "De",
+      "dateTo": "Até",
+      "labelFilter": "Etiqueta",
+      "globalNoResults": "Nenhum card corresponde aos filtros ativos",
+      "status": {
+        "open": "Aberto",
+        "resolved": "Resolvido",
+        "pending": "Pendente",
+        "snoozed": "Adiado"
+      }
+    },
     "copyId": "Copiar ID",
     "idCopied": "ID copiado para a área de transferência",
     "header": {
@@ -616,7 +663,9 @@
       "conversationRemoved": "Item removido do pipeline com sucesso",
       "conversationRemoveError": "Erro ao remover item do pipeline",
       "conversationUpdated": "Item atualizado com sucesso",
-      "conversationUpdateError": "Erro ao atualizar item"
+      "conversationUpdateError": "Erro ao atualizar item",
+      "itemHiddenByFilter": "Card movido — pode estar oculto pelos filtros ativos",
+      "newItemMayBeHidden": "Card adicionado — pode estar oculto pelos filtros ativos"
     },
     "tasks": {
       "pending": "pendentes",
@@ -675,7 +724,6 @@
       "assignedTo": "Atribuído a",
       "assignedToPlaceholder": "Selecione um responsável",
       "none": "Nenhum",
-      "unassigned": "Não atribuído",
       "cancel": "Cancelar",
       "create": "Criar Tarefa",
       "update": "Atualizar Tarefa",

@@ -15,24 +15,10 @@ const EvolutionService = {
    */
   async healthCheck(apiUrl: string): Promise<boolean> {
     try {
-      // Remove trailing slash e adiciona apenas se necessário
-      const baseUrl = apiUrl.replace(/\/$/, '');
-      const healthUrl = `${baseUrl}/`;
-
-      const response = await fetch(healthUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
+      const response = await api.get('/evolution/health', {
+        params: { api_url: apiUrl },
       });
-
-      if (!response.ok) {
-        return false;
-      }
-
-      const data = await response.json();
-      // Evolution API retorna {"status":200,...}
-      return data.status === 200;
+      return response.data?.status === 200;
     } catch (error) {
       console.error('Evolution API health check failed:', error);
       return false;

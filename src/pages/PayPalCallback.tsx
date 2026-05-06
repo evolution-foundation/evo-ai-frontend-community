@@ -4,7 +4,7 @@ import { createCallbackPage } from '@/utils/createCallbackPage';
 const PayPalCallback = createCallbackPage({
   integrationName: 'PayPal',
   service: PayPalService,
-  iconPath: '/integrations/paypal.png',
+  integrationId: 'paypal',
 });
 
 export default PayPalCallback;

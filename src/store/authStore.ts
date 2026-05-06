@@ -3,6 +3,7 @@ import { UserResponse, UISettings, UserTour } from '@/types/auth';
 import { validateToken } from '@/services/auth/authService';
 import { tourService } from '@/services/tours/tourService';
 import { useAppDataStore } from './appDataStore';
+import { normalizeAvatarUrl } from '@/utils/avatarUrl';
 
 interface ImpersonationData {
   adminUser: UserResponse;
@@ -110,7 +111,10 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
         const isLoggedIn = checkIsLoggedIn(userData);
         set({
-          currentUser: userData,
+          currentUser: {
+            ...userData,
+            avatar_url: normalizeAvatarUrl(userData.avatar_url) || userData.avatar_url,
+          },
           isLoggedIn: isLoggedIn,
           isFetching: false,
         });

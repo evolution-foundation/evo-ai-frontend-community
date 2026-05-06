@@ -2,6 +2,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { Button, Badge } from '@evoapi/design-system';
 import { ArrowLeft, ExternalLink, AlertCircle, CheckCircle } from 'lucide-react';
 import { Integration } from '@/types/integrations';
+import BrandIcon from '@/components/BrandIcon';
 
 interface IntegrationHeaderProps {
   integration: Integration;
@@ -42,17 +43,10 @@ export default function IntegrationHeader({
         <div className="flex items-start gap-4">
           {/* Logo */}
           <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
-            <img
-              src={`/integrations/${integration.id}.png`}
-              alt={integration.name}
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement?.classList.add('p-3');
-                const icon = document.createElement('div');
-                icon.innerHTML = '<svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>';
-                e.currentTarget.parentElement?.appendChild(icon.firstChild as Node);
-              }}
+            <BrandIcon
+              id={integration.id}
+              size={40}
+              className="w-10 h-10"
             />
           </div>
 

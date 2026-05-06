@@ -119,6 +119,9 @@
     "selectAtLeastOne": "Selecione pelo menos um usuário",
     "usersAddedSuccess": "Usuários adicionados com sucesso!",
     "addUsersError": "Erro ao adicionar usuários",
+    "removeUsersSuccess": "Usuários removidos com sucesso!",
+    "removeUsersError": "Erro ao remover usuários",
+    "membersUpdated": "Membros do time atualizados com sucesso!",
     "permissionDenied": {
       "read": "Sem permissão para visualizar equipes",
       "create": "Sem permissão para criar equipes",
@@ -138,6 +141,7 @@
     "title": "Adicionar Usuários - {{name}}",
     "subtitle": "Selecione os usuários que deseja adicionar à equipe",
     "summary": "{{selected}} de {{total}} usuários selecionados",
+    "alreadyMemberBadge": "Membro",
     "table": {
       "select": "Selecionar",
       "user": "Usuário", 
@@ -179,6 +183,7 @@
     "selectAll": "Selecionar Todos",
     "deselectAll": "Desmarcar Todos",
     "saving": "Salvando...",
+    "save": "Salvar",
     "addUsers": "Adicionar Usuários"
   }
 }

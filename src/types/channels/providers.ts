@@ -32,7 +32,7 @@ export interface ChannelType {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  icon?: string;
   type: ChannelTypeId;
   providers?: Provider[];
 }

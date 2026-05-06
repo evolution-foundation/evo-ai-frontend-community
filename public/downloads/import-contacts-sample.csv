@@ -1,6 +1,6 @@
-id,name,email,identifier,phone_number,ip_address,custom_attribute_1,custom_attribute_2
-1,João Silva,joao@exemplo.com,bb4e11cd-0f23-49da-a123-dcc1fec6852c,+5511999999999,192.168.1.1,Cliente Premium,Vendas
-2,Maria Santos,maria@exemplo.com,e60bab4c-9fbb-47eb-8f75-42025b789c47,+5511888888888,192.168.1.2,Cliente Basic,Suporte
-3,Pedro Costa,pedro@exemplo.com,f793e813-4210-4bf3-a812-711418de25d2,+5511777777777,192.168.1.3,Cliente VIP,Marketing
-4,Ana Oliveira,ana@exemplo.com,d6e35a2d-d093-4437-a577-7df76316b937,+5511666666666,192.168.1.4,Cliente Standard,Vendas
-5,Carlos Pereira,carlos@exemplo.com,3540d40a-5567-4f28-af98-5583a7ddbc56,+5511555555555,192.168.1.5,Cliente Premium,Suporte
+tipo,nome,primeiro_nome,sobrenome,email,telefone,cpf_cnpj,website,segmento_industria,cidade,pais,codigo_pais,linkedin,facebook,instagram,twitter,github,descricao,empresas_vinculadas,custom_attribute_1,custom_attribute_2
+person,João Silva,João,Silva,joao@example.com,5511999999999,12345678901,,,São Paulo,Brasil,BR,https://linkedin.com/in/joaosilva,,,,https://github.com/joaosilva,Engenheiro de Software,Empresa X|Outra Empresa,,Outro atributo
+company,Empresa X,,,,5511888888888,12345678000190,https://empresa-x.com,Tecnologia,São Paulo,Brasil,BR,https://linkedin.com/company/empresax,,,,,Empresa de tecnologia,,,
+company,Tech Solutions Ltda,Empresa,,,5511877777777,12345678000191,https://tech.com,Tecnologia,Rio de Janeiro,Brasil,BR,,,,,,,,Consultoria,
+person,Maria Santos,Maria,Santos,maria@example.com,5511977777777,12345678902,,,São Paulo,Brasil,BR,,,,,,Gerente de Projetos,Empresa X,,
+person,Pedro Costa,Pedro,Costa,pedro@example.com,5511966666666,12345678903,,,Campinas,Brasil,BR,https://linkedin.com/in/pedrocosta,,,,https://github.com/pedrocosta,Desenvolvedor Fullstack,Empresa X|Tech Solutions Ltda,,

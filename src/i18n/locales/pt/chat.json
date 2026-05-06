@@ -65,7 +65,8 @@
     "messageImage": {
       "downloadStarted": "Download iniciado",
       "imageFallback": "Imagem",
-      "imageZoomedAlt": "Imagem ampliada"
+      "imageZoomedAlt": "Imagem ampliada",
+      "loadError": "Imagem indisponível"
     },
     "messageList": {
       "loadingConversation": "Carregando conversa...",
@@ -94,7 +95,8 @@
       "fileAttachment": "📎 Arquivo",
       "locationAttachment": "📍 Localização",
       "noContent": "Mensagem sem conteúdo",
-      "userFallback": "Usuário"
+      "userFallback": "Usuário",
+      "previousMessage": "Mensagem anterior"
     }
   },
   "assignment": {
@@ -220,7 +222,11 @@
     "noOptions": "Nenhuma opção disponível",
     "cancel": "Cancelar",
     "applying": "Aplicando...",
-    "apply": "Aplicar"
+    "apply": "Aplicar",
+    "createLabel": "Criar etiqueta: \"{{name}}\"",
+    "creating": "A criar...",
+    "newLabel": "Criar nova etiqueta",
+    "createLabelError": "Não foi possível criar a etiqueta. Tente novamente."
   },
   "audioRecorder": {
     "notSupported": "Gravação de áudio não suportada neste navegador",
@@ -868,6 +874,15 @@
         "language": "Idioma",
         "templateBody": "Conteúdo do Template",
         "category": "Categoria"
+      },
+      "status": {
+        "approved": "Aprovado",
+        "pending": "A aguardar aprovação",
+        "rejected": "Rejeitado",
+        "paused": "Pausado",
+        "inactive": "Inativo",
+        "unknown": "Estado desconhecido",
+        "disabledTooltip": "Os templates precisam de ser aprovados pela Meta antes de serem enviados. Aceda às definições da caixa de entrada para sincronizar."
       }
     },
     "parser": {

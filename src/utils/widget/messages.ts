@@ -2,6 +2,7 @@
 // src/utils/widget/messages.ts
 import type { MessageItem } from '@/components/widget/MessageList';
 import { wdebug } from '@/utils/widget/debug';
+import { stripHtml } from '@/utils/stripHtml';
 
 type RawMessage = any;
 
@@ -18,20 +19,34 @@ export function transformMessage(
   const messageId = String(m.id ?? Math.random());
   const isSystemMessage = m.message_type === 2 || m.message_type === 3;
 
-  // reply-to
+  // reply-to: resolve by internal id first, then by external id (parity with MessageBubble)
   let replyTo: MessageItem['replyTo'] = undefined;
-  if (m.content_attributes?.in_reply_to) {
-    const replyToId = m.content_attributes.in_reply_to;
-    const originalMessage = list.find((msg: any) => msg.id === replyToId);
+  const replyToId = m.content_attributes?.in_reply_to;
+  const replyToExternalId = m.content_attributes?.in_reply_to_external_id;
+
+  if (replyToId || replyToExternalId) {
+    const originalMessage = replyToId
+      ? list.find((msg: any) => msg.id === replyToId)
+      : list.find((msg: any) => msg.source_id && msg.source_id === replyToExternalId);
+
     if (originalMessage) {
       replyTo = {
-        id: replyToId,
-        text: originalMessage.content || '',
+        id: originalMessage.id,
+        text: stripHtml(originalMessage.content || ''),
         sender:
           originalMessage.message_type === 0
             ? originalMessage.sender?.name || t('chat.user')
             : t('chat.agent'),
         type: originalMessage.message_type === 0 ? ('out' as const) : ('in' as const),
+      };
+    } else {
+      // Parent not yet loaded — keep a placeholder so the user still sees this is a reply.
+      replyTo = {
+        id: replyToId ?? replyToExternalId,
+        text: t('replyTo.previousMessage'),
+        sender: undefined,
+        type: 'in' as const,
+        unresolved: true,
       };
     }
   }

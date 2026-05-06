@@ -638,6 +638,24 @@
       "noChannels": "Nenhum canal disponível para este contato"
     },
     "unavailable": "Indisponível",
+    "templates": {
+      "noneForInbox": "Não há templates registados para esta caixa de entrada. Crie um nas definições da caixa de entrada.",
+      "noApproved": "Nenhum template aprovado pela Meta. Os templates listados aguardam aprovação e não podem ser enviados ainda.",
+      "pendingSelectedHint": "Este template ainda não foi aprovado pela Meta e não pode ser usado para iniciar a conversa.",
+      "statusBadge": {
+        "approved": "Aprovado",
+        "pending": "Pendente",
+        "rejected": "Rejeitado",
+        "paused": "Pausado",
+        "inactive": "Inativo",
+        "unknown": "Desconhecido"
+      }
+    },
+    "toggle": {
+      "label": "Usar Template",
+      "cloudRequires": "WhatsApp Cloud requer template para iniciar conversa",
+      "using": "A usar Template"
+    },
     "actions": {
       "cancel": "Cancelar",
       "send": "Iniciar Conversa",

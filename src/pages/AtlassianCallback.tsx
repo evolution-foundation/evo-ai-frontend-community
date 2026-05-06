@@ -4,7 +4,7 @@ import { createCallbackPage } from '@/utils/createCallbackPage';
 const AtlassianCallback = createCallbackPage({
   integrationName: 'Atlassian',
   service: AtlassianService,
-  iconPath: '/integrations/atlassian.png',
+  integrationId: 'atlassian',
 });
 
 export default AtlassianCallback;

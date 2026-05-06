@@ -24,12 +24,16 @@
       "noAssignee": "NA",
       "noContent": "Sans contenu"
     },
+    "push": {
+      "fallbackTitle": "Nouvelle notification",
+      "bodyWithAssignee": "Assignée à {{name}}"
+    },
     "panel": {
-      "title": "Notifications non lues",
+      "title": "Notifications",
       "markAllAsRead": "Tout marquer comme lu",
       "loading": "Chargement des notifications...",
       "emptyTitle": "Tout est à jour !",
-      "emptyDescription": "Vous n'avez aucune notification non lue pour le moment.",
+      "emptyDescription": "Vous n'avez aucune notification pour le moment.",
       "pagination": {
         "separator": " - "
       },

@@ -34,24 +34,30 @@ function LinkPreview({ url }: { url: string }) {
   );
 }
 
+// `email` is the only nested attribute MessageText reads — but `Message.content_attributes`
+// is typed as `MessageContentAttributes` (an open `Record<string, unknown>` plus a few
+// known fields). Accept the open shape so callers passing `message.content_attributes`
+// type-check, and narrow internally when reading `email`.
+interface MessageContentEmail {
+  email?: {
+    html_content?: {
+      full?: string;
+      reply?: string;
+      quoted?: string;
+    };
+    text_content?: {
+      full?: string;
+      reply?: string;
+      quoted?: string;
+    };
+  };
+}
+
 interface MessageTextProps {
   content: string;
   isPrivateNote?: boolean;
   contentType?: string;
-  contentAttributes?: {
-    email?: {
-      html_content?: {
-        full?: string;
-        reply?: string;
-        quoted?: string;
-      };
-      text_content?: {
-        full?: string;
-        reply?: string;
-        quoted?: string;
-      };
-    };
-  };
+  contentAttributes?: Record<string, unknown> & MessageContentEmail;
 }
 
 const MessageText: React.FC<MessageTextProps> = ({

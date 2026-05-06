@@ -13,6 +13,7 @@ interface CallbackConfig {
   service: IntegrationService;
   iconPath?: string;
   iconPathDark?: string;
+  integrationId?: string;
   onSuccess?: (response: any, agentId: string) => Promise<void> | void;
   redirectPath?: string | ((agentId: string) => string);
 }
@@ -21,7 +22,7 @@ interface CallbackConfig {
  * Helper function to create a callback page component
  * This eliminates code duplication across all callback pages
  */
-export function createCallbackPage({ integrationName, service, iconPath, iconPathDark, onSuccess, redirectPath }: CallbackConfig) {
+export function createCallbackPage({ integrationName, service, iconPath, iconPathDark, integrationId, onSuccess, redirectPath }: CallbackConfig) {
   function CallbackComponent() {
     return (
       <CallbackPage
@@ -37,6 +38,7 @@ export function createCallbackPage({ integrationName, service, iconPath, iconPat
         redirectPath={redirectPath}
         iconPath={iconPath}
         iconPathDark={iconPathDark}
+        integrationId={integrationId}
       />
     );
   }

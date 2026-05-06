@@ -24,12 +24,16 @@
       "noAssignee": "NA",
       "noContent": "Sem conteúdo"
     },
+    "push": {
+      "fallbackTitle": "Nova notificação",
+      "bodyWithAssignee": "Atribuída a {{name}}"
+    },
     "panel": {
-      "title": "Notificações não lidas",
+      "title": "Notificações",
       "markAllAsRead": "Marcar todas como lidas",
       "loading": "Carregando notificações...",
       "emptyTitle": "Tudo em dia!",
-      "emptyDescription": "Você não tem notificações não lidas no momento.",
+      "emptyDescription": "Você não tem notificações no momento.",
       "pagination": {
         "separator": " - "
       },

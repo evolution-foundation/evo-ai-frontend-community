@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { UserResponse } from '@/types/auth';
 import { useAuthStore } from '@/store/authStore';
+import { normalizeAvatarUrl } from '@/utils/avatarUrl';
 import { useAppDataStore } from '@/store/appDataStore';
 import { getReconnectService } from '@/services/core';
 import { verifyMfa, logout as authServiceLogout } from '@/services/auth/authService';
@@ -168,6 +169,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const updatedUser: UserResponse = {
           ...currentUserData,
           ...profileData.user,
+          avatar_url: normalizeAvatarUrl(profileData.user.avatar_url) || currentUserData.avatar_url,
         };
 
         setUser(updatedUser);

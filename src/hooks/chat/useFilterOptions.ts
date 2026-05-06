@@ -1,14 +1,24 @@
 import { useState, useEffect } from 'react';
 import InboxesService from '@/services/channels/inboxesService';
 import chatService from '@/services/chat/chatService';
+import { contactsService } from '@/services/contacts/contactsService';
+import { labelsService } from '@/services/contacts/labelsService';
 import { Inbox } from '@/types/channels/inbox';
 import type { Pipeline } from '@/types/chat/api';
+import type { Contact } from '@/types/contacts/contact';
+import type { Label } from '@/types/settings';
+
+interface FilterOption {
+  label: string;
+  value: string;
+}
 
 interface FilterOptions {
-  inboxes: Array<{ label: string; value: string }>;
-  teams: Array<{ label: string; value: string }>;
-  labels: Array<{ label: string; value: string }>;
-  pipelines: Array<{ label: string; value: string }>;
+  inboxes: FilterOption[];
+  teams: FilterOption[];
+  labels: FilterOption[];
+  pipelines: FilterOption[];
+  contacts: FilterOption[];
   loading: boolean;
   error: string | null;
 }
@@ -30,6 +40,7 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
     teams: [],
     labels: [],
     pipelines: [],
+    contacts: [],
     loading: false,
     error: null,
   });
@@ -41,11 +52,16 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
       setOptions(prev => ({ ...prev, loading: true, error: null }));
 
       try {
-        // ✅ Carregar inboxes e pipelines
-        const [inboxesResponse, pipelinesResponse] = await Promise.allSettled([
-          InboxesService.list(),
-          chatService.getAvailablePipelines(),
-        ]);
+        // ✅ Carregar inboxes, pipelines, contatos e labels em paralelo.
+        // Labels: per_page: 200 evita truncamento silencioso para contas com
+        // mais de 20 labels (default da paginação do /labels endpoint).
+        const [inboxesResponse, pipelinesResponse, contactsResponse, labelsResponse] =
+          await Promise.allSettled([
+            InboxesService.list(),
+            chatService.getAvailablePipelines(),
+            contactsService.getContacts({ per_page: 100, sort: 'last_activity_at', order: 'desc' }),
+            labelsService.getLabels({ per_page: 200 }),
+          ]);
 
         // ✅ Processar inboxes
         const inboxes: Array<{ label: string; value: string }> = [];
@@ -81,15 +97,45 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
           }
         }
 
-        // ❌ Teams e Labels temporariamente vazios (APIs não implementadas no chatService)
-        const teams: Array<{ label: string; value: string }> = [];
-        const labels: Array<{ label: string; value: string }> = [];
+        const teams: FilterOption[] = [];
+        const labels: FilterOption[] = [];
+        if (labelsResponse.status === 'fulfilled') {
+          const labelsData = labelsResponse.value?.data ?? [];
+          if (Array.isArray(labelsData)) {
+            // Value = label.title to match filter_service#tag_filter_query, which
+            // compares against tags.name. Using label.id (UUID) here would never hit.
+            labels.push(
+              ...labelsData.map((label: Label) => ({
+                label: label.title,
+                value: label.title,
+              })),
+            );
+          }
+        }
+
+        const contacts: FilterOption[] = [];
+        if (contactsResponse.status === 'fulfilled') {
+          const contactsData = contactsResponse.value?.data ?? [];
+          if (Array.isArray(contactsData)) {
+            contacts.push(
+              ...contactsData.map((contact: Contact) => {
+                const identifier = contact.email || contact.phone_number || contact.identifier || '';
+                const label = identifier ? `${contact.name} (${identifier})` : contact.name;
+                return {
+                  label,
+                  value: String(contact.id),
+                };
+              }),
+            );
+          }
+        }
 
         setOptions({
           inboxes,
           teams,
           labels,
           pipelines,
+          contacts,
           loading: false,
           error: null,
         });
@@ -100,6 +146,12 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
         }
         if (pipelinesResponse.status === 'rejected') {
           console.warn('Erro ao carregar pipelines:', pipelinesResponse.reason);
+        }
+        if (contactsResponse.status === 'rejected') {
+          console.warn('Erro ao carregar contatos:', contactsResponse.reason);
+        }
+        if (labelsResponse.status === 'rejected') {
+          console.warn('Erro ao carregar labels:', labelsResponse.reason);
         }
       } catch (error) {
         console.error('Erro ao carregar opções de filtro:', error);

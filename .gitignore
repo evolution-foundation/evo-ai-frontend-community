@@ -39,3 +39,10 @@ yalc.lock
 .env.test.local
 .env.test.development
 .env.test.production
+yarn.lock
+
+# Playwright e2e
+/e2e/test-results/
+/e2e/playwright-report/
+/playwright-report/
+/test-results/

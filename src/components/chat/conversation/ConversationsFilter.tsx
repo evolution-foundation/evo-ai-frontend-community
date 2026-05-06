@@ -54,11 +54,22 @@ export default function ConversationsFilter({
             ...filterType,
             options: filterOptions.pipelines,
           };
+        case 'contact_id':
+          return {
+            ...filterType,
+            options: filterOptions.contacts,
+          };
         default:
           return filterType;
       }
     });
-  }, [filterOptions.inboxes, filterOptions.teams, filterOptions.labels, filterOptions.pipelines]);
+  }, [
+    filterOptions.inboxes,
+    filterOptions.teams,
+    filterOptions.labels,
+    filterOptions.pipelines,
+    filterOptions.contacts,
+  ]);
 
   return (
     <BaseFilter

@@ -15,6 +15,7 @@ import {
 import { useLanguage } from '@/hooks/useLanguage';
 import { getProfileMenuItems } from '../config/menuItems';
 import { Role } from '@/types/auth';
+import { normalizeAvatarUrl } from '@/utils/avatarUrl';
 
 interface User {
   id: string;
@@ -96,6 +97,7 @@ export default function ProfileMenu({
   const userName = getUserDisplayName();
   const userEmail = user.email;
   const userInitials = getUserInitials(userName);
+  const avatarSrc = normalizeAvatarUrl(user.avatar_url);
 
   const profileMenuItems = getProfileMenuItems(
     t,
@@ -108,7 +110,7 @@ export default function ProfileMenu({
       <div className="p-4 border-t border-sidebar-border bg-sidebar">
         <div className="flex items-center gap-3 p-3 rounded-md bg-sidebar-accent/50">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user.avatar_url} alt={userName} />
+            <AvatarImage src={avatarSrc} alt={userName} />
             <AvatarFallback className="bg-sidebar-primary/20 text-sidebar-primary font-medium">
               {userInitials}
             </AvatarFallback>
@@ -152,7 +154,7 @@ export default function ProfileMenu({
           className="h-10 w-auto px-2 py-2 gap-2 text-sidebar-foreground hover:bg-sidebar-accent cursor-pointer"
         >
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user.avatar_url} alt={userName} />
+            <AvatarImage src={avatarSrc} alt={userName} />
             <AvatarFallback className="bg-sidebar-primary/20 text-sidebar-primary font-medium">
               {userInitials}
             </AvatarFallback>
@@ -163,7 +165,7 @@ export default function ProfileMenu({
         <DropdownMenuLabel>
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user.avatar_url} alt={userName} />
+              <AvatarImage src={avatarSrc} alt={userName} />
               <AvatarFallback className="bg-primary/20 text-primary font-medium">
                 {userInitials}
               </AvatarFallback>

@@ -42,7 +42,8 @@
     "replyingTo": "In risposta a {{name}}",
     "cancelReply": "Annulla risposta",
     "you": "Tu",
-    "agent": "Operatore"
+    "agent": "Operatore",
+    "previousMessage": "↩ Messaggio precedente"
   },
   "messageList": {
     "loadingOld": "Caricamento messaggi precedenti...",
