@@ -122,8 +122,11 @@ export interface AutomationFlowContext {
 export type AutomationEventType =
   | 'conversation_created'
   | 'conversation_updated'
-  | 'message_created'
   | 'conversation_opened'
+  | 'message_created'
+  | 'pipeline_stage_updated'
+  | 'contact_created'
+  | 'contact_updated'
   | 'conversation_resolved'
   | 'conversation_status_changed';
 
@@ -138,6 +141,8 @@ export type AutomationFilterOperator =
   | 'is_greater_than'
   | 'is_less_than'
   | 'days_before'
+  | 'starts_with'
+  | 'attribute_changed'
   | 'is_in'
   | 'is_not_in';
 
@@ -158,7 +163,8 @@ export type AutomationActionType =
   | 'change_priority'
   | 'send_email_transcript'
   | 'assign_to_pipeline'
-  | 'update_pipeline_stage';
+  | 'update_pipeline_stage'
+  | 'create_pipeline_task';
 
 // Flow builder state interface
 export interface AutomationFlowBuilderState {
