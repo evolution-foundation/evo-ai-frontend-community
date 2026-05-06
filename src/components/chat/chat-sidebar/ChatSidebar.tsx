@@ -125,9 +125,14 @@ const ChatSidebar = ({
   const [conversationFilters, setConversationFilters] = useState<BaseFilter[]>([]);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [isLoadingMoreConversations, setIsLoadingMoreConversations] = useState(false);
-  const [showArchived, setShowArchived] = useState(false);
+  const [activeTab, setActiveTab] = useState<'open' | 'pending' | 'resolved'>('open');
   const sidebarScrollRef = useRef<HTMLDivElement | null>(null);
   const loadingMoreRef = useRef(false);
+
+  // Carregar conversas quando a aba muda
+  useEffect(() => {
+    conversations.loadConversations({ status: activeTab, page: 1 });
+  }, [activeTab]);
 
   // ðŸŽ¯ SYNC: Sincronizar local state com FiltersContext para compatibilidade com o modal
   useEffect(() => {
@@ -272,8 +277,8 @@ const ChatSidebar = ({
 
   const visibleConversations = useMemo(() => {
     const filtered = conversations.state.conversations.filter(conversation => {
-      const isArchived = Boolean(conversation.custom_attributes?.archived);
-      return showArchived ? isArchived : !isArchived;
+      // Exibe apenas as conversas que batem com a aba atual
+      return conversation.status === activeTab;
     });
 
     const getSortTimestamp = (conversation: Conversation) => {
@@ -303,7 +308,7 @@ const ChatSidebar = ({
       }
       return getSortTimestamp(b) - getSortTimestamp(a);
     });
-  }, [conversations.state.conversations, showArchived]);
+  }, [conversations.state.conversations, activeTab]);
 
   const stripHtml = (html: string): string => {
     if (!html) return '';
@@ -594,23 +599,33 @@ const ChatSidebar = ({
         <div className="flex items-center gap-2">
           <Button
             type="button"
-            variant={showArchived ? 'ghost' : 'secondary'}
+            variant={activeTab === 'open' ? 'secondary' : 'ghost'}
             size="sm"
             className="h-8 cursor-pointer"
-            aria-pressed={!showArchived}
-            onClick={() => setShowArchived(false)}
+            aria-pressed={activeTab === 'open'}
+            onClick={() => setActiveTab('open')}
           >
-            {t('chatSidebar.view.active')}
+            Atendendo
           </Button>
           <Button
             type="button"
-            variant={showArchived ? 'secondary' : 'ghost'}
+            variant={activeTab === 'pending' ? 'secondary' : 'ghost'}
             size="sm"
             className="h-8 cursor-pointer"
-            aria-pressed={showArchived}
-            onClick={() => setShowArchived(true)}
+            aria-pressed={activeTab === 'pending'}
+            onClick={() => setActiveTab('pending')}
           >
-            {t('chatSidebar.view.archived')}
+            Aguardando
+          </Button>
+          <Button
+            type="button"
+            variant={activeTab === 'resolved' ? 'secondary' : 'ghost'}
+            size="sm"
+            className="h-8 cursor-pointer"
+            aria-pressed={activeTab === 'resolved'}
+            onClick={() => setActiveTab('resolved')}
+          >
+            Fechados
           </Button>
         </div>
 
@@ -647,8 +662,8 @@ const ChatSidebar = ({
             </Button>
           </div>
         </div>
-        {showArchived && (
-          <p className="text-xs text-muted-foreground">{t('chatSidebar.archivedNotice')}</p>
+        {activeTab === 'resolved' && (
+          <p className="text-xs text-muted-foreground">Mostrando conversas fechadas.</p>
         )}
       </div>
 
@@ -684,13 +699,17 @@ const ChatSidebar = ({
               <div className="py-8">
                 <div className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">
-                  {showArchived
+                  {activeTab === 'resolved'
                     ? t('chatSidebar.emptyArchived.title')
+                    : activeTab === 'pending'
+                    ? 'Nenhuma conversa aguardando'
                     : t('chatSidebar.empty.title')}
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  {showArchived
+                  {activeTab === 'resolved'
                     ? t('chatSidebar.emptyArchived.description')
+                    : activeTab === 'pending'
+                    ? 'Não há conversas com status pendente no momento.'
                     : t('chatSidebar.empty.description')}
                 </p>
               </div>

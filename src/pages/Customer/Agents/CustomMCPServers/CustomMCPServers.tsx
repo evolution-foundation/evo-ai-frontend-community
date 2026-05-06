@@ -251,7 +251,7 @@ export default function CustomMCPServers() {
     try {
       const result = await testCustomMcpServer(server.id);
       if (result.test_result.success) {
-        toast.success(t('success.testSuccess', { count: result.server.tools.length || 0 }));
+        toast.success(t('success.testSuccess', { count: result.server.tools?.length || 0 }));
         // Update server with latest tools
         setState(prev => ({
           ...prev,
