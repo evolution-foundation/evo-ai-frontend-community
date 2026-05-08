@@ -288,7 +288,8 @@
     "contactNoName": "Contact without name",
     "status": "Status:",
     "openConversation": "Open Conversation",
-    "closeConversation": "Close conversation"
+    "closeConversation": "Close conversation",
+    "whatsappNumber": "WhatsApp number"
   },
   "chatSidebar": {
     "searchPlaceholder": "Search conversations...",
@@ -318,7 +319,8 @@
       "noMessages": "No messages",
       "noContent": "Message without content"
     },
-    "contactNoName": "Contact without name"
+    "contactNoName": "Contact without name",
+    "whatsappNumber": "WhatsApp number"
   },
   "chatTabs": {
     "chat": "Chat"

@@ -88,6 +88,12 @@ const ChatHeader = ({
   const isArchived = Boolean(conversation.custom_attributes?.archived);
 
   const inboxName = conversation.inbox?.name || '';
+  const rawPhone = conversation.contact?.phone_number;
+  const phoneDisplay = rawPhone
+    ? rawPhone.startsWith('+')
+      ? rawPhone
+      : `+${rawPhone}`
+    : null;
 
   const renderConversationStatusDropdown = () => {
     return (
@@ -288,9 +294,19 @@ const ChatHeader = ({
             <ContactAvatar contact={conversation.contact} />
           </div>
           <div>
-            <h3 className="font-semibold">
-              {conversation.contact?.name || t('chatHeader.contactNoName')}
-            </h3>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-semibold">
+                {conversation.contact?.name || t('chatHeader.contactNoName')}
+              </h3>
+              {phoneDisplay && (
+                <span
+                  className="text-sm text-muted-foreground"
+                  title={t('chatHeader.whatsappNumber')}
+                >
+                  {phoneDisplay}
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               {inboxName && (
                 <>

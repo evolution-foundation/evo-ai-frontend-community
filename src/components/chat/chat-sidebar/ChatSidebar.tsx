@@ -725,6 +725,12 @@ const ChatSidebar = ({
               const channelType =
                 conversation.inbox?.channel_type || conversation.inbox?.channel_type;
               const channelProvider = conversation.inbox?.provider;
+              const rawPhone = conversation.contact?.phone_number;
+              const phoneDisplay = rawPhone
+                ? rawPhone.startsWith('+')
+                  ? rawPhone
+                  : `+${rawPhone}`
+                : null;
 
               return renderConversationContextMenu(
                 conversation,
@@ -775,6 +781,15 @@ const ChatSidebar = ({
                             </span>
                           </div>
                         </div>
+
+                        {phoneDisplay && (
+                          <p
+                            className="text-xs text-muted-foreground truncate"
+                            title={t('chatSidebar.whatsappNumber')}
+                          >
+                            {phoneDisplay}
+                          </p>
+                        )}
 
                         <p className="text-sm text-muted-foreground truncate">
                           {getLastMessage(conversation)}
