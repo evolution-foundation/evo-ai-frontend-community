@@ -306,6 +306,11 @@ export default function OnboardingPage() {
               }}
             >
               <div
+                role="progressbar"
+                aria-valuenow={filledCount}
+                aria-valuemin={0}
+                aria-valuemax={totalSteps}
+                data-testid="progress-bar-fill"
                 style={{
                   height: '3px',
                   background: '#00ffa7',
@@ -315,7 +320,12 @@ export default function OnboardingPage() {
                 }}
               />
             </div>
-            <span style={{ fontSize: '11px', color: '#52525b', whiteSpace: 'nowrap' }}>
+            <span
+              style={{ fontSize: '11px', color: '#52525b', whiteSpace: 'nowrap' }}
+              data-testid="progress-text"
+              data-filled={filledCount}
+              data-total={totalSteps}
+            >
               {filledCount} {t('survey.progress.of')} {totalSteps}
             </span>
           </div>

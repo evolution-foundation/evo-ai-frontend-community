@@ -86,13 +86,25 @@ describe('OnboardingPage', () => {
     return render(<MemoryRouter>{component}</MemoryRouter>);
   };
 
+  /**
+   * Helper para obter os valores de progresso via data-testid
+   * Isso desacopla os testes do texto traduzido
+   */
+  const getProgressValues = () => {
+    const progressText = screen.getByTestId('progress-text');
+    const filled = parseInt(progressText.getAttribute('data-filled') || '0', 10);
+    const total = parseInt(progressText.getAttribute('data-total') || '0', 10);
+    return { filled, total };
+  };
+
   it('calcula total de etapas dinamicamente (não deve ser hardcoded)', async () => {
     renderWithRouter(<OnboardingPage />);
 
     await waitFor(() => {
-      // Verifica que o progresso mostra o total correto (7 etapas)
-      // Se o valor fosse hardcoded como 6, este teste falharia
-      expect(screen.getByText(/de 7$/i)).toBeTruthy();
+      const { total } = getProgressValues();
+      // Verifica que o total é 7 (calculado dinamicamente)
+      // Se fosse hardcoded como 6, este teste falharia
+      expect(total).toBe(7);
     });
   });
 
@@ -100,7 +112,9 @@ describe('OnboardingPage', () => {
     renderWithRouter(<OnboardingPage />);
 
     await waitFor(() => {
-      expect(screen.getByText(/0 de 7$/i)).toBeTruthy();
+      const { filled, total } = getProgressValues();
+      expect(filled).toBe(0);
+      expect(total).toBe(7);
     });
 
     // Preenche o primeiro campo
@@ -108,7 +122,8 @@ describe('OnboardingPage', () => {
     fireEvent.change(teamSizeSelect, { target: { value: '1-10' } });
 
     await waitFor(() => {
-      expect(screen.getByText(/1 de 7$/i)).toBeTruthy();
+      const { filled } = getProgressValues();
+      expect(filled).toBe(1);
     });
 
     // Preenche mais campos
@@ -119,7 +134,8 @@ describe('OnboardingPage', () => {
     fireEvent.change(aiSelect, { target: { value: 'Sim' } });
 
     await waitFor(() => {
-      expect(screen.getByText(/3 de 7$/i)).toBeTruthy();
+      const { filled } = getProgressValues();
+      expect(filled).toBe(3);
     });
   });
 
@@ -127,7 +143,8 @@ describe('OnboardingPage', () => {
     renderWithRouter(<OnboardingPage />);
 
     await waitFor(() => {
-      expect(screen.getByText(/0 de 7$/i)).toBeTruthy();
+      const { filled } = getProgressValues();
+      expect(filled).toBe(0);
     });
 
     // Preenche alguns campos
@@ -141,8 +158,9 @@ describe('OnboardingPage', () => {
     fireEvent.change(channelSelect, { target: { value: 'Outro' } });
 
     await waitFor(() => {
+      const { filled } = getProgressValues();
       // Canal "Outro" sem especificação não conta como preenchido
-      expect(screen.getByText(/2 de 7$/i)).toBeTruthy();
+      expect(filled).toBe(2);
     });
 
     // Preenche o campo "Outro"
@@ -150,12 +168,13 @@ describe('OnboardingPage', () => {
     fireEvent.change(otherInput, { target: { value: 'Telegram' } });
 
     await waitFor(() => {
+      const { filled } = getProgressValues();
       // Agora o canal conta como preenchido
-      expect(screen.getByText(/3 de 7$/i)).toBeTruthy();
+      expect(filled).toBe(3);
     });
   });
 
-  it('calcula percentual de progresso corretamente', async () => {
+  it('calcula percentual de progresso corretamente usando atributos ARIA', async () => {
     renderWithRouter(<OnboardingPage />);
 
     // Preenche 7 de 7 campos
@@ -181,12 +200,16 @@ describe('OnboardingPage', () => {
     fireEvent.change(goalSelect, { target: { value: 'Vendas' } });
 
     await waitFor(() => {
-      // Verifica que o texto mostra 7 de 7
-      expect(screen.getByText(/7 de 7$/i)).toBeTruthy();
-      // Verifica que a barra de progresso está 100% preenchida (width: 100% no style inline)
-      const progressContainer = screen.getByText(/7 de 7$/i).parentElement?.parentElement;
-      const progressBar = progressContainer?.querySelector('div[style*="width: 100%"]');
-      expect(progressBar).toBeTruthy();
+      // Usa atributos ARIA para verificar o progresso
+      const progressBar = screen.getByRole('progressbar');
+      expect(progressBar).toHaveAttribute('aria-valuenow', '7');
+      expect(progressBar).toHaveAttribute('aria-valuemin', '0');
+      expect(progressBar).toHaveAttribute('aria-valuemax', '7');
+
+      // Verifica também os valores via data-testid
+      const { filled, total } = getProgressValues();
+      expect(filled).toBe(total);
+      expect(total).toBe(7);
     });
   });
 
