@@ -49,6 +49,7 @@ import ptBRInstagram from './locales/pt-BR/instagram.json';
 import ptBRMessenger from './locales/pt-BR/messenger.json';
 import ptBRCustomerDashboard from './locales/pt-BR/customerDashboard.json';
 import ptBRAdminSettings from './locales/pt-BR/adminSettings.json';
+import ptBRRoles from './locales/pt-BR/roles.json';
 import ptBRTutorials from './locales/pt-BR/tutorials.json';
 import ptAuth from './locales/pt/auth.json';
 import ptChangePassword from './locales/pt/changePassword.json';
@@ -97,6 +98,7 @@ import ptInstagram from './locales/pt/instagram.json';
 import ptMessenger from './locales/pt/messenger.json';
 import ptCustomerDashboard from './locales/pt/customerDashboard.json';
 import ptAdminSettings from './locales/pt/adminSettings.json';
+import ptRoles from './locales/pt/roles.json';
 import ptTutorials from './locales/pt/tutorials.json';
 import enAuth from './locales/en/auth.json';
 import enChangePassword from './locales/en/changePassword.json';
@@ -146,6 +148,7 @@ import enInstagram from './locales/en/instagram.json';
 import enMessenger from './locales/en/messenger.json';
 import enCustomerDashboard from './locales/en/customerDashboard.json';
 import enAdminSettings from './locales/en/adminSettings.json';
+import enRoles from './locales/en/roles.json';
 import enTutorials from './locales/en/tutorials.json';
 import esAuth from './locales/es/auth.json';
 import esChangePassword from './locales/es/changePassword.json';
@@ -194,6 +197,7 @@ import esInstagram from './locales/es/instagram.json';
 import esMessenger from './locales/es/messenger.json';
 import esCustomerDashboard from './locales/es/customerDashboard.json';
 import esAdminSettings from './locales/es/adminSettings.json';
+import esRoles from './locales/es/roles.json';
 import esTutorials from './locales/es/tutorials.json';
 import frAuth from './locales/fr/auth.json';
 import frChangePassword from './locales/fr/changePassword.json';
@@ -242,6 +246,7 @@ import frInstagram from './locales/fr/instagram.json';
 import frMessenger from './locales/fr/messenger.json';
 import frCustomerDashboard from './locales/fr/customerDashboard.json';
 import frAdminSettings from './locales/fr/adminSettings.json';
+import frRoles from './locales/fr/roles.json';
 import frTutorials from './locales/fr/tutorials.json';
 import itAuth from './locales/it/auth.json';
 import itChangePassword from './locales/it/changePassword.json';
@@ -290,6 +295,7 @@ import itInstagram from './locales/it/instagram.json';
 import itMessenger from './locales/it/messenger.json';
 import itCustomerDashboard from './locales/it/customerDashboard.json';
 import itAdminSettings from './locales/it/adminSettings.json';
+import itRoles from './locales/it/roles.json';
 import ptBRTours from './locales/pt-BR/tours.json';
 import ptTours from './locales/pt/tours.json';
 import enTours from './locales/en/tours.json';
@@ -381,6 +387,7 @@ const resources = {
     messenger: ptBRMessenger,
     customerDashboard: ptBRCustomerDashboard,
     adminSettings: ptBRAdminSettings,
+    roles: ptBRRoles,
     tours: ptBRTours,
     tutorials: ptBRTutorials,
   },
@@ -432,6 +439,7 @@ const resources = {
     messenger: ptMessenger,
     customerDashboard: ptCustomerDashboard,
     adminSettings: ptAdminSettings,
+    roles: ptRoles,
     tours: ptTours,
     tutorials: ptTutorials,
   },
@@ -484,6 +492,7 @@ const resources = {
     messenger: enMessenger,
     customerDashboard: enCustomerDashboard,
     adminSettings: enAdminSettings,
+    roles: enRoles,
     tours: enTours,
     tutorials: enTutorials,
   },
@@ -535,6 +544,7 @@ const resources = {
     messenger: esMessenger,
     customerDashboard: esCustomerDashboard,
     adminSettings: esAdminSettings,
+    roles: esRoles,
     tours: esTours,
     tutorials: esTutorials,
   },
@@ -586,6 +596,7 @@ const resources = {
     messenger: frMessenger,
     customerDashboard: frCustomerDashboard,
     adminSettings: frAdminSettings,
+    roles: frRoles,
     tours: frTours,
     tutorials: frTutorials,
   },
@@ -637,6 +648,7 @@ const resources = {
     messenger: itMessenger,
     customerDashboard: itCustomerDashboard,
     adminSettings: itAdminSettings,
+    roles: itRoles,
     tours: itTours,
     tutorials: itTutorials,
   },

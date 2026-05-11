@@ -1,0 +1,71 @@
+{
+  "title": "Roles & Permissions",
+  "description": "Manage roles and their permissions. System roles cannot be deleted, but their permissions can be edited.",
+  "header": {
+    "subtitle": "{{count}} role(s) configured",
+    "searchPlaceholder": "Search roles..."
+  },
+  "addRole": "New Role",
+  "editRole": "Edit Role",
+  "deleteRole": "Delete Role",
+  "backToList": "Back to Roles",
+  "savePermissions": "Save Permissions",
+  "saving": "Saving...",
+  "noRoles": "No roles found",
+  "noRolesDescription": "Create a custom role to get started.",
+  "table": {
+    "name": "Name",
+    "description": "Description",
+    "type": "Type",
+    "permissions": "Permissions",
+    "users": "Users",
+    "actions": "Actions"
+  },
+  "type": {
+    "user": "User",
+    "account": "Account"
+  },
+  "badges": {
+    "system": "System",
+    "custom": "Custom"
+  },
+  "detail": {
+    "permissionsTitle": "Permissions",
+    "permissionsDescription": "Check the permissions this role should have. Changes take effect on the user's next session refresh.",
+    "permissionsSelected": "permissions selected",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "noPermissions": "No permissions available."
+  },
+  "createModal": {
+    "title": "Create Role",
+    "description": "Define a name and optional description for the new role. You can configure permissions after creation.",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Support Agent",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Brief description of this role",
+    "cancel": "Cancel",
+    "create": "Create Role",
+    "creating": "Creating..."
+  },
+  "deleteDialog": {
+    "title": "Delete Role",
+    "description": "Are you sure you want to delete the role \"{{name}}\"? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete",
+    "deleting": "Deleting..."
+  },
+  "messages": {
+    "createSuccess": "Role created successfully",
+    "createError": "Failed to create role",
+    "updateSuccess": "Role updated successfully",
+    "updateError": "Failed to update role",
+    "deleteSuccess": "Role deleted successfully",
+    "deleteError": "Failed to delete role",
+    "permissionsSuccess": "Permissions saved successfully",
+    "permissionsError": "Failed to save permissions",
+    "loadError": "Failed to load roles",
+    "systemRoleCannotDelete": "System roles cannot be deleted",
+    "roleHasUsers": "Cannot delete a role that has assigned users"
+  }
+}

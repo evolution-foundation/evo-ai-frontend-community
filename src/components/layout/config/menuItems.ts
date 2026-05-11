@@ -23,6 +23,7 @@ import {
   GraduationCap,
   Shield,
   Package,
+  ShieldCheck,
 } from 'lucide-react';
 
 export interface MenuItem {
@@ -232,6 +233,13 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         href: '/settings/access-tokens',
         icon: Key,
         resource: 'access_tokens',
+        action: 'read',
+      },
+      {
+        name: t('menu.settings.roles'),
+        href: '/settings/roles',
+        icon: ShieldCheck,
+        resource: 'roles',
         action: 'read',
       },
       {
