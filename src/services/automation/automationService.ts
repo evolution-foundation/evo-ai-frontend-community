@@ -24,10 +24,10 @@ class AutomationService {
     }
   }
 
-  async getAutomation(id: string): Promise<AutomationResponse> {
+  async getAutomation(id: string): Promise<AutomationRule> {
     try {
       const response = await api.get(`/automation_rules/${id}`);
-      return extractData<AutomationResponse>(response);
+      return extractData<AutomationRule>(response);
     } catch (error: any) {
       console.error('Erro ao buscar automação:', error);
       throw new Error(error?.response?.data?.message || 'Erro ao buscar automação');
