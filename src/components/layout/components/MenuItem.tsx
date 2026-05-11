@@ -69,21 +69,26 @@ export default function MenuItem({
         <TooltipTrigger asChild>
           {menuItem}
         </TooltipTrigger>
-        <TooltipContent side="right">
-          <div>
-            <p className="font-medium">{item.name}</p>
-            {hasSubItems && (
-              <div className="mt-1 space-y-1">
+        <TooltipContent side="right" className={cn(hasSubItems ? 'p-0 overflow-hidden' : '')}>
+          {hasSubItems ? (
+            <div className="min-w-[180px]">
+              <p className="font-semibold text-sm px-3 pt-2.5 pb-1.5 text-primary-foreground">{item.name}</p>
+              <div className="border-t border-primary-foreground/20">
                 {item.subItems?.map(subItem => (
-                  <div key={subItem.href} className="flex items-center gap-2">
-                    <p className="text-xs text-muted-foreground">
-                      {subItem.name}
-                    </p>
-                  </div>
+                  <Link
+                    key={subItem.href}
+                    to={subItem.href}
+                    className="flex items-center gap-2.5 px-3 py-2 text-sm text-primary-foreground hover:bg-primary-foreground/15 transition-colors"
+                  >
+                    <subItem.icon className="h-4 w-4 flex-shrink-0 text-primary-foreground/70" />
+                    <span>{subItem.name}</span>
+                  </Link>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <p className="font-medium">{item.name}</p>
+          )}
         </TooltipContent>
       </Tooltip>
     );

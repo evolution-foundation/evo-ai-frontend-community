@@ -121,8 +121,17 @@ export default function Sidebar({
       </div>
 
       {/* Second Sidebar for Submenus */}
-      {activeSubmenu && !isCollapsed && (
-        <div className="hidden md:flex w-64 bg-sidebar text-sidebar-foreground flex-col border-r border-sidebar-border">
+      {activeSubmenu && isCollapsed && (
+        <div
+          className="hidden md:block absolute inset-0 z-40"
+          onClick={() => setActiveSubmenu(null)}
+        />
+      )}
+      {activeSubmenu && (
+        <div className={cn(
+          'hidden md:flex w-64 bg-sidebar text-sidebar-foreground flex-col border-r border-sidebar-border',
+          isCollapsed && 'absolute left-16 top-0 h-full z-50 shadow-xl',
+        )}>
           {/* Submenu Header */}
           <div className="flex items-center gap-3 p-4 border-b border-sidebar-border">
             <activeSubmenu.icon className="h-5 w-5 text-primary" />

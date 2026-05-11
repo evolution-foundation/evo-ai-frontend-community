@@ -126,7 +126,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       />
 
       {/* Main Layout Container */}
-      <div className="flex flex-1 min-h-0 transition-colors duration-150 ease-in-out">
+      <div className="flex flex-1 min-h-0 relative transition-colors duration-150 ease-in-out">
         {/* Sidebar */}
         <Sidebar
           isCollapsed={isCollapsed}
