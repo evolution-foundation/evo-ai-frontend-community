@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
@@ -46,15 +46,16 @@ export default function AutomationForm({ mode }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [loadingExisting, setLoadingExisting] = useState(mode === 'edit');
 
+  const methods = useForm<AutomationRuleFormData>({
+    resolver: zodResolver(automationRuleSchema),
+    defaultValues: DEFAULTS,
+  });
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<AutomationRuleFormData>({
-    resolver: zodResolver(automationRuleSchema),
-    defaultValues: DEFAULTS,
-  });
+  } = methods;
 
   useEffect(() => {
     if (mode !== 'edit' || !id) return;
@@ -120,6 +121,7 @@ export default function AutomationForm({ mode }: Props) {
   }
 
   return (
+    <FormProvider {...methods}>
     <div className="h-full flex flex-col p-4 max-w-4xl mx-auto w-full">
       <div className="flex items-center gap-2 mb-4">
         <Button variant="ghost" size="icon" onClick={() => navigate('/automation')}>
@@ -212,5 +214,6 @@ export default function AutomationForm({ mode }: Props) {
         </div>
       </form>
     </div>
+    </FormProvider>
   );
 }

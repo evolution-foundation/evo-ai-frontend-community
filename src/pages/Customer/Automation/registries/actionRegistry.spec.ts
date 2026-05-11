@@ -49,7 +49,8 @@ describe('actionRegistry', () => {
           (issue) =>
             issue.code === 'too_small' ||
             issue.code === 'invalid_string' ||
-            issue.code === 'invalid_type',
+            issue.code === 'invalid_type' ||
+            issue.code === 'invalid_union',
         );
         expect(allFailuresAreContent).toBe(true);
       }

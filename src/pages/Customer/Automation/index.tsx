@@ -78,8 +78,9 @@ export default function AutomationsListPage() {
         automations: dataArray,
         meta: {
           pagination: {
-            page: meta?.pagination?.page ?? 1,
-            page_size: meta?.pagination?.page_size ?? DEFAULT_PAGE_SIZE,
+            // Preserve the user's current page across refetches — pagination is client-side.
+            page: prev.meta.pagination.page,
+            page_size: prev.meta.pagination.page_size,
             total: meta?.pagination?.total ?? dataArray.length,
             total_pages: meta?.pagination?.total_pages ?? 1,
           },
@@ -165,16 +166,25 @@ export default function AutomationsListPage() {
     if (state.selectedIds.length === 0) return;
     setState((prev) => ({ ...prev, loading: { ...prev.loading, delete: true } }));
     try {
-      for (const id of state.selectedIds) {
-        await automationService.deleteAutomation(id);
+      const results = await Promise.allSettled(
+        state.selectedIds.map((id) => automationService.deleteAutomation(id)),
+      );
+      const successCount = results.filter((r) => r.status === 'fulfilled').length;
+      const failedCount = results.length - successCount;
+
+      if (failedCount === 0) {
+        toast.success(t('messages.bulkDeleteSuccess', { count: successCount }));
+      } else if (successCount === 0) {
+        toast.error(t('messages.bulkDeleteError'));
+      } else {
+        toast.warning(
+          t('messages.bulkDeletePartial', { success: successCount, failed: failedCount }),
+        );
       }
-      toast.success(t('messages.bulkDeleteSuccess', { count: state.selectedIds.length }));
+
       setState((prev) => ({ ...prev, selectedIds: [] }));
       loadAutomations();
       setBulkDeleteOpen(false);
-    } catch (error) {
-      console.error('Error bulk deleting automations:', error);
-      toast.error(t('messages.bulkDeleteError'));
     } finally {
       setState((prev) => ({ ...prev, loading: { ...prev.loading, delete: false } }));
     }
@@ -186,15 +196,30 @@ export default function AutomationsListPage() {
       )
     : state.automations;
 
+  const { page, page_size } = state.meta.pagination;
+  const totalFiltered = filteredAutomations.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / page_size));
+  const safePage = Math.min(page, totalPages);
+  const paginatedAutomations = filteredAutomations.slice(
+    (safePage - 1) * page_size,
+    safePage * page_size,
+  );
+
   const selected = state.automations.filter((rule) => state.selectedIds.includes(rule.id));
 
   return (
     <div className="h-full flex flex-col p-4">
       <AutomationsHeader
-        totalCount={state.meta.pagination.total}
+        totalCount={totalFiltered}
         selectedCount={state.selectedIds.length}
         searchValue={state.searchQuery}
-        onSearchChange={(v) => setState((prev) => ({ ...prev, searchQuery: v }))}
+        onSearchChange={(v) =>
+          setState((prev) => ({
+            ...prev,
+            searchQuery: v,
+            meta: { pagination: { ...prev.meta.pagination, page: 1 } },
+          }))
+        }
         onNewAutomation={handleCreate}
         onBulkDelete={() => setBulkDeleteOpen(true)}
         onClearSelection={() => setState((prev) => ({ ...prev, selectedIds: [] }))}
@@ -204,7 +229,7 @@ export default function AutomationsListPage() {
 
       <div className="flex-1 overflow-auto mt-6">
         <AutomationsTable
-          automations={filteredAutomations}
+          automations={paginatedAutomations}
           selected={selected}
           loading={state.loading.list}
           onSelectionChange={(items) =>
@@ -220,13 +245,13 @@ export default function AutomationsListPage() {
         />
       </div>
 
-      {state.meta.pagination.total > 0 && (
+      {totalFiltered > 0 && (
         <div className="mt-auto pt-4 border-t">
           <AutomationsPagination
-            currentPage={state.meta.pagination.page}
-            totalPages={state.meta.pagination.total_pages}
-            totalCount={state.meta.pagination.total}
-            perPage={state.meta.pagination.page_size}
+            currentPage={safePage}
+            totalPages={totalPages}
+            totalCount={totalFiltered}
+            perPage={page_size}
             onPageChange={(page) =>
               setState((prev) => ({
                 ...prev,

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { useForm } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   automationRuleSchema,
@@ -22,18 +22,20 @@ const emptyFormData: AutomationFormData = {
 };
 
 function Wrapper({ defaultValues }: { defaultValues: AutomationRuleFormData }) {
-  const { control } = useForm<AutomationRuleFormData>({
+  const methods = useForm<AutomationRuleFormData>({
     resolver: zodResolver(automationRuleSchema),
     defaultValues,
   });
   return (
-    <ActionRow
-      control={control}
-      index={0}
-      formData={emptyFormData}
-      onRemove={() => {}}
-      onActionChange={() => {}}
-    />
+    <FormProvider {...methods}>
+      <ActionRow
+        control={methods.control}
+        index={0}
+        formData={emptyFormData}
+        onRemove={() => {}}
+        onActionChange={() => {}}
+      />
+    </FormProvider>
   );
 }
 

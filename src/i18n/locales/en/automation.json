@@ -89,7 +89,8 @@
         "attribute": "Attribute",
         "operator": "Operator",
         "value": "Value",
-        "remove": "Remove condition"
+        "remove": "Remove condition",
+        "noValueNeeded": "No value needed"
       },
       "actionRow": {
         "action": "Action",
@@ -110,7 +111,13 @@
           "update_pipeline_stage": "Pick a pipeline stage",
           "send_email_to_team": "Email body",
           "create_pipeline_task": "Task title",
-          "send_attachment_pending": "Attachment selection coming soon"
+          "create_pipeline_task_description": "Description (optional)",
+          "create_pipeline_task_type": "Type (optional)",
+          "create_pipeline_task_priority": "Priority (optional)",
+          "create_pipeline_task_assignee": "Assignee user ID (optional)",
+          "create_pipeline_task_due_in": "Due in (e.g., 2d, 1w)",
+          "send_attachment_ids": "Attachment IDs (comma-separated)",
+          "send_attachment_inbox": "Inbox ID (optional)"
         }
       },
       "operators": {
@@ -178,6 +185,7 @@
   },
   "messages": {
     "loadError": "Failed to load automations",
+    "bulkDeletePartial": "{{success}} deleted, {{failed}} failed",
     "ruleNotFound": "Automation rule not found",
     "createSuccess": "Automation created",
     "createError": "Failed to create automation",

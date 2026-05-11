@@ -221,12 +221,55 @@ function ActionParamsRenderer({ control, index, actionName, formData, t }: Param
             const current = (field.value as Array<Record<string, unknown>>)?.[0] ?? {
               title: '',
             };
+            const setField = (key: string, value: unknown) =>
+              field.onChange([{ ...current, [key]: value }]);
             return (
-              <Input
-                value={(current.title as string) ?? ''}
-                onChange={(e) => field.onChange([{ ...current, title: e.target.value }])}
-                placeholder={t('form.fields.actionRow.params.create_pipeline_task')}
-              />
+              <div className="space-y-2">
+                <Input
+                  value={(current.title as string) ?? ''}
+                  onChange={(e) => setField('title', e.target.value)}
+                  placeholder={t('form.fields.actionRow.params.create_pipeline_task')}
+                />
+                <Textarea
+                  value={(current.description as string) ?? ''}
+                  onChange={(e) => setField('description', e.target.value)}
+                  placeholder={t('form.fields.actionRow.params.create_pipeline_task_description')}
+                  rows={2}
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    value={(current.task_type as string) ?? ''}
+                    onChange={(e) => setField('task_type', e.target.value)}
+                    placeholder={t('form.fields.actionRow.params.create_pipeline_task_type')}
+                  />
+                  <Input
+                    value={(current.priority as string) ?? ''}
+                    onChange={(e) => setField('priority', e.target.value)}
+                    placeholder={t('form.fields.actionRow.params.create_pipeline_task_priority')}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    type="number"
+                    value={
+                      current.assigned_to_id != null && current.assigned_to_id !== ''
+                        ? String(current.assigned_to_id)
+                        : ''
+                    }
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      const num = raw === '' ? undefined : Number(raw);
+                      setField('assigned_to_id', Number.isNaN(num) ? undefined : num);
+                    }}
+                    placeholder={t('form.fields.actionRow.params.create_pipeline_task_assignee')}
+                  />
+                  <Input
+                    value={(current.due_in as string) ?? ''}
+                    onChange={(e) => setField('due_in', e.target.value)}
+                    placeholder={t('form.fields.actionRow.params.create_pipeline_task_due_in')}
+                  />
+                </div>
+              </div>
             );
           }}
         />
@@ -239,9 +282,58 @@ function ActionParamsRenderer({ control, index, actionName, formData, t }: Param
 
     case 'send_attachment':
       return (
-        <div className="text-xs text-muted-foreground">
-          {t('form.fields.actionRow.params.send_attachment_pending')}
-        </div>
+        <Controller
+          control={control}
+          name={`actions.${index}.action_params`}
+          render={({ field }) => {
+            const current = (field.value as Array<Record<string, unknown>>)?.[0] ?? {
+              attachment_ids: [] as Array<string | number>,
+            };
+            const ids = (current.attachment_ids as Array<string | number>) ?? [];
+            const inboxId = current.inbox_id;
+            const idsAsText = ids.join(', ');
+
+            const setIdsFromText = (raw: string) => {
+              const parsed = raw
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean)
+                .map((s) => (Number.isNaN(Number(s)) ? s : Number(s)));
+              field.onChange([{ ...current, attachment_ids: parsed }]);
+            };
+            const setInbox = (raw: string) => {
+              if (raw === '') {
+                const next = { ...current };
+                delete (next as Record<string, unknown>).inbox_id;
+                field.onChange([{ ...next, attachment_ids: ids }]);
+              } else {
+                const num = Number(raw);
+                field.onChange([
+                  {
+                    ...current,
+                    attachment_ids: ids,
+                    inbox_id: Number.isNaN(num) ? undefined : num,
+                  },
+                ]);
+              }
+            };
+            return (
+              <div className="space-y-2">
+                <Input
+                  value={idsAsText}
+                  onChange={(e) => setIdsFromText(e.target.value)}
+                  placeholder={t('form.fields.actionRow.params.send_attachment_ids')}
+                />
+                <Input
+                  type="number"
+                  value={inboxId != null ? String(inboxId) : ''}
+                  onChange={(e) => setInbox(e.target.value)}
+                  placeholder={t('form.fields.actionRow.params.send_attachment_inbox')}
+                />
+              </div>
+            );
+          }}
+        />
       );
 
     default:
@@ -281,10 +373,15 @@ function SelectParam({ control, index, options, placeholder, coerce = 'single' }
           <Select
             value={selectedValue}
             onValueChange={(value) => {
+              if (value === '') {
+                field.onChange(coerce === 'array' ? [] : [null]);
+                return;
+              }
               if (coerce === 'array') {
                 field.onChange([value]);
               } else {
-                const parsed = Number.isNaN(Number(value)) ? value : Number(value);
+                const asNumber = Number(value);
+                const parsed = Number.isFinite(asNumber) && value.trim() !== '' ? asNumber : value;
                 field.onChange([parsed]);
               }
             }}

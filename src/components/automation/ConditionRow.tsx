@@ -1,4 +1,5 @@
-import { Controller, type Control, useWatch } from 'react-hook-form';
+import { useEffect } from 'react';
+import { Controller, type Control, useWatch, useFormContext } from 'react-hook-form';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   Select,
@@ -39,9 +40,20 @@ const optionLoaderToData: Record<string, keyof AutomationFormData> = {
 
 export default function ConditionRow({ control, index, formData, onRemove }: Props) {
   const { t } = useLanguage('automation');
+  const formCtx = useFormContext<AutomationRuleFormData>();
 
   const eventName = useWatch({ control, name: 'event_name' });
   const attributeKey = useWatch({ control, name: `conditions.${index}.attribute_key` });
+  const operator = useWatch({ control, name: `conditions.${index}.filter_operator` });
+  const currentValues = useWatch({ control, name: `conditions.${index}.values` });
+  const valueless = operator === 'is_present' || operator === 'is_not_present';
+
+  // Clear values when the operator goes valueless (avoids stale values being sent to the backend).
+  useEffect(() => {
+    if (valueless && Array.isArray(currentValues) && currentValues.length > 0) {
+      formCtx?.setValue(`conditions.${index}.values`, [], { shouldDirty: true });
+    }
+  }, [valueless, currentValues, index, formCtx]);
 
   const availableAttributes = eventName
     ? getAttributesForEvent(eventName)
@@ -103,6 +115,13 @@ export default function ConditionRow({ control, index, formData, onRemove }: Pro
           control={control}
           name={`conditions.${index}.values`}
           render={({ field }) => {
+            if (valueless) {
+              return (
+                <div className="flex items-center text-xs text-muted-foreground italic">
+                  {t('form.fields.conditionRow.noValueNeeded')}
+                </div>
+              );
+            }
             if (!descriptor || options.length === 0) {
               return (
                 <Input

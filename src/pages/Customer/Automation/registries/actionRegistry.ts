@@ -35,9 +35,14 @@ const changePrioritySchema = z.tuple([z.union([z.string(), z.null()])]);
 
 const sendEmailTranscriptSchema = z.tuple([z.string().email()]);
 
-const assignToPipelineSchema = z.tuple([idValueSchema]);
+const requiredIdSchema = z.union([
+  z.string().min(1),
+  z.number().refine((n) => Number.isFinite(n), { message: 'invalid_id' }),
+]);
 
-const updatePipelineStageSchema = z.tuple([idValueSchema]);
+const assignToPipelineSchema = z.tuple([requiredIdSchema]);
+
+const updatePipelineStageSchema = z.tuple([requiredIdSchema]);
 
 const createPipelineTaskSchema = z.tuple([
   z.object({
@@ -145,13 +150,13 @@ export const actionRegistry: Record<AutomationActionType, ActionDescriptor> = {
   assign_to_pipeline: {
     actionName: 'assign_to_pipeline',
     schema: assignToPipelineSchema,
-    defaultParams: [''],
+    defaultParams: [null],
     i18nKey: 'form.fields.actions.assign_to_pipeline',
   },
   update_pipeline_stage: {
     actionName: 'update_pipeline_stage',
     schema: updatePipelineStageSchema,
-    defaultParams: [''],
+    defaultParams: [null],
     i18nKey: 'form.fields.actions.update_pipeline_stage',
   },
   create_pipeline_task: {

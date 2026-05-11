@@ -89,7 +89,8 @@
         "attribute": "Atributo",
         "operator": "Operador",
         "value": "Valor",
-        "remove": "Remover condição"
+        "remove": "Remover condição",
+        "noValueNeeded": "Nenhum valor necessário"
       },
       "actionRow": {
         "action": "Ação",
@@ -110,7 +111,13 @@
           "update_pipeline_stage": "Escolha um estágio",
           "send_email_to_team": "Corpo do email",
           "create_pipeline_task": "Título da tarefa",
-          "send_attachment_pending": "Seleção de anexo em breve"
+          "create_pipeline_task_description": "Descrição (opcional)",
+          "create_pipeline_task_type": "Tipo (opcional)",
+          "create_pipeline_task_priority": "Prioridade (opcional)",
+          "create_pipeline_task_assignee": "ID do responsável (opcional)",
+          "create_pipeline_task_due_in": "Vencimento (ex.: 2d, 1w)",
+          "send_attachment_ids": "IDs dos anexos separados por vírgula",
+          "send_attachment_inbox": "ID da caixa (opcional)"
         }
       },
       "operators": {
@@ -178,6 +185,7 @@
   },
   "messages": {
     "loadError": "Falha ao carregar automações",
+    "bulkDeletePartial": "{{success}} excluídas, {{failed}} falharam",
     "ruleNotFound": "Automação não encontrada",
     "createSuccess": "Automação criada",
     "createError": "Falha ao criar automação",
