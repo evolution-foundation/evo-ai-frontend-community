@@ -8,36 +8,81 @@
     },
     "teamSize": {
       "label": "Combien de personnes gèrent le service client dans votre équipe ?",
-      "options": ["Juste moi", "2 à 5 personnes", "5 à 10 personnes", "10 à 20 personnes", "Plus de 20 personnes"]
+      "options": [
+        "Juste moi",
+        "2 à 5 personnes",
+        "5 à 10 personnes",
+        "10 à 20 personnes",
+        "Plus de 20 personnes"
+      ]
     },
     "dailyVolume": {
       "label": "Combien d'interactions gérez-vous par jour, en moyenne ?",
-      "options": ["Moins de 20", "20 à 100", "100 à 500", "Plus de 500"]
+      "options": [
+        "Moins de 20",
+        "20 à 100",
+        "100 à 500",
+        "Plus de 500"
+      ]
     },
     "channel": {
       "label": "Quel est votre principal canal de service client ?",
       "other": "Autre",
       "otherPlaceholder": "Décrivez le canal que vous utilisez...",
-      "options": ["WhatsApp", "Instagram", "Facebook", "Telegram", "E-mail", "Chat du site", "SMS", "API", "Twitter / X", "LINE", "Autre"]
+      "options": [
+        "WhatsApp",
+        "Instagram",
+        "Facebook",
+        "Telegram",
+        "E-mail",
+        "Chat du site",
+        "SMS",
+        "API",
+        "Twitter / X",
+        "LINE",
+        "Autre"
+      ]
     },
     "ai": {
       "label": "Utilisez-vous déjà l'intelligence artificielle dans le service client ?",
-      "options": ["Pas encore", "Chatbot basique", "Agent IA", "IA avec intégrations avancées"]
+      "options": [
+        "Pas encore",
+        "Chatbot basique",
+        "Agent IA",
+        "IA avec intégrations avancées"
+      ]
     },
     "pain": {
       "label": "Quel est votre principal problème dans le service client aujourd'hui ?",
-      "options": ["Temps de réponse élevé", "Service désorganisé", "Manque de visibilité de l'équipe", "Trop de canaux sans intégration", "Coût élevé du support"]
+      "options": [
+        "Temps de réponse élevé",
+        "Service désorganisé",
+        "Manque de visibilité de l'équipe",
+        "Trop de canaux sans intégration",
+        "Coût élevé du support"
+      ]
     },
     "crm": {
       "label": "Avez-vous déjà utilisé un CRM ou un système de service client ?",
-      "options": ["Jamais utilisé", "Utilisé, mais difficile", "J'ai de l'expérience CRM", "Je migre depuis un autre système"]
+      "options": [
+        "Jamais utilisé",
+        "Utilisé, mais difficile",
+        "J'ai de l'expérience CRM",
+        "Je migre depuis un autre système"
+      ]
     },
     "goal": {
-      "label": "Quel est votre principal objectif avec Evo CRM ?",
-      "options": ["Organiser le service client", "Automatiser avec l'IA", "Faire évoluer l'équipe", "Centraliser les canaux", "Suivre les métriques"]
+      "label": "Quel est votre principal objectif avec Zapflow CRM ?",
+      "options": [
+        "Organiser le service client",
+        "Automatiser avec l'IA",
+        "Faire évoluer l'équipe",
+        "Centraliser les canaux",
+        "Suivre les métriques"
+      ]
     },
     "submit": {
-      "idle": "Commencer à utiliser Evo CRM",
+      "idle": "Commencer à utiliser Zapflow CRM",
       "loading": "Enregistrement..."
     },
     "footer": "Prend moins d'1 minute · Vous pouvez modifier cela plus tard dans les paramètres"
@@ -66,7 +111,7 @@
         "label": "Email",
         "helper": "C'est l'email utilisé pour créer votre compte"
       },
-      "support_email": { 
+      "support_email": {
         "label": "Email de Support",
         "helper": "Ceci est l'email de support de votre compte",
         "errors": {

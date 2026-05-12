@@ -72,7 +72,7 @@
     "collapse": "Collapse sidebar",
     "closeSubmenu": "Close submenu",
     "footer": {
-      "brand": "Evo CRM",
+      "brand": "Zapflow CRM",
       "copyright": "© {{year}} Evolution Foundation. All rights reserved.",
       "documentation": "Documentation",
       "support": "I need support"

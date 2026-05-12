@@ -56,7 +56,7 @@
     "generic": "An error occurred during setup. Please try again.",
     "alreadySetup": "This instance has already been set up."
   },
-  "footer": "This will create the administrator account for your EVO CRM instance.",
+  "footer": "This will create the administrator account for your Zapflow CRM instance.",
   "language": {
     "portuguese": "Portugues",
     "english": "English",

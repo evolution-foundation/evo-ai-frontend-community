@@ -189,13 +189,13 @@ export default function OnboardingPage() {
     }
   };
 
-  const teamSizeOptions   = t('survey.teamSize.options', { returnObjects: true }) as unknown as string[];
+  const teamSizeOptions = t('survey.teamSize.options', { returnObjects: true }) as unknown as string[];
   const dailyVolumeOptions = t('survey.dailyVolume.options', { returnObjects: true }) as unknown as string[];
-  const channelOptions    = t('survey.channel.options', { returnObjects: true }) as unknown as string[];
-  const aiOptions         = t('survey.ai.options', { returnObjects: true }) as unknown as string[];
-  const painOptions       = t('survey.pain.options', { returnObjects: true }) as unknown as string[];
-  const crmOptions        = t('survey.crm.options', { returnObjects: true }) as unknown as string[];
-  const goalOptions       = t('survey.goal.options', { returnObjects: true }) as unknown as string[];
+  const channelOptions = t('survey.channel.options', { returnObjects: true }) as unknown as string[];
+  const aiOptions = t('survey.ai.options', { returnObjects: true }) as unknown as string[];
+  const painOptions = t('survey.pain.options', { returnObjects: true }) as unknown as string[];
+  const crmOptions = t('survey.crm.options', { returnObjects: true }) as unknown as string[];
+  const goalOptions = t('survey.goal.options', { returnObjects: true }) as unknown as string[];
 
   return (
     <>
@@ -280,7 +280,7 @@ export default function OnboardingPage() {
         >
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.75rem' }}>
-            <AppLogo alt="Evo CRM" style={{ height: '30px' }} forceTheme="dark" />
+            <AppLogo alt="Zapflow CRM" style={{ height: '30px' }} forceTheme="dark" />
           </div>
 
           {/* Title */}

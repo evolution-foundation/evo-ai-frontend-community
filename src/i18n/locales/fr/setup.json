@@ -56,7 +56,7 @@
     "generic": "Une erreur s'est produite lors de la configuration. Veuillez réessayer.",
     "alreadySetup": "Cette instance a déjà été configurée."
   },
-  "footer": "Ceci créera le compte administrateur pour votre instance EVO CRM.",
+  "footer": "Ceci créera le compte administrateur pour votre instance Zapflow CRM.",
   "language": {
     "portuguese": "Português",
     "english": "English",

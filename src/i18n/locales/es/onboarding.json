@@ -8,36 +8,81 @@
     },
     "teamSize": {
       "label": "¿Cuántas personas atienden clientes en tu equipo?",
-      "options": ["Solo yo", "2 a 5 personas", "5 a 10 personas", "10 a 20 personas", "Más de 20 personas"]
+      "options": [
+        "Solo yo",
+        "2 a 5 personas",
+        "5 a 10 personas",
+        "10 a 20 personas",
+        "Más de 20 personas"
+      ]
     },
     "dailyVolume": {
       "label": "¿Cuántas atenciones hacen por día, en promedio?",
-      "options": ["Menos de 20", "20 a 100", "100 a 500", "Más de 500"]
+      "options": [
+        "Menos de 20",
+        "20 a 100",
+        "100 a 500",
+        "Más de 500"
+      ]
     },
     "channel": {
       "label": "¿Cuál es tu principal canal de atención?",
       "other": "Otro",
       "otherPlaceholder": "Describe el canal que usas...",
-      "options": ["WhatsApp", "Instagram", "Facebook", "Telegram", "E-mail", "Chat del sitio", "SMS", "API", "Twitter / X", "LINE", "Otro"]
+      "options": [
+        "WhatsApp",
+        "Instagram",
+        "Facebook",
+        "Telegram",
+        "E-mail",
+        "Chat del sitio",
+        "SMS",
+        "API",
+        "Twitter / X",
+        "LINE",
+        "Otro"
+      ]
     },
     "ai": {
       "label": "¿Ya usas inteligencia artificial en la atención?",
-      "options": ["Todavía no", "Uso chatbot básico", "Uso agente de IA", "Uso IA con integraciones avanzadas"]
+      "options": [
+        "Todavía no",
+        "Uso chatbot básico",
+        "Uso agente de IA",
+        "Uso IA con integraciones avanzadas"
+      ]
     },
     "pain": {
       "label": "¿Cuál es tu mayor problema en la atención hoy?",
-      "options": ["Tiempo de respuesta alto", "Atención desorganizada", "Falta de visibilidad del equipo", "Muchos canales sin integración", "Alto costo de soporte"]
+      "options": [
+        "Tiempo de respuesta alto",
+        "Atención desorganizada",
+        "Falta de visibilidad del equipo",
+        "Muchos canales sin integración",
+        "Alto costo de soporte"
+      ]
     },
     "crm": {
       "label": "¿Ya usaste algún CRM o sistema de atención?",
-      "options": ["Nunca usé", "Ya usé, pero era difícil", "Tengo experiencia con CRM", "Estoy migrando de otro sistema"]
+      "options": [
+        "Nunca usé",
+        "Ya usé, pero era difícil",
+        "Tengo experiencia con CRM",
+        "Estoy migrando de otro sistema"
+      ]
     },
     "goal": {
-      "label": "¿Cuál es tu principal objetivo con Evo CRM?",
-      "options": ["Organizar la atención", "Automatizar con IA", "Escalar el equipo", "Centralizar los canales", "Monitorear métricas"]
+      "label": "¿Cuál es tu principal objetivo con Zapflow CRM?",
+      "options": [
+        "Organizar la atención",
+        "Automatizar con IA",
+        "Escalar el equipo",
+        "Centralizar los canales",
+        "Monitorear métricas"
+      ]
     },
     "submit": {
-      "idle": "Empezar a usar Evo CRM",
+      "idle": "Empezar a usar Zapflow CRM",
       "loading": "Guardando..."
     },
     "footer": "Tarda menos de 1 minuto · Puedes cambiarlo después en la configuración"
