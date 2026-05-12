@@ -19,35 +19,48 @@ const automationEventNames = [
 const valuesArraySchema = z.array(z.union([z.string(), z.number()]));
 
 // attribute_changed uses a structured payload: { from: [...], to: [...] }.
-// Other operators keep the flat array shape. The two branches share the rest
-// of the condition fields.
+// Other operators keep the flat array shape.
 export const fromToValuesSchema = z.object({
   from: valuesArraySchema,
   to: valuesArraySchema,
 });
 
-const conditionSchema = z.union([
-  z.object({
+const valuesUnionSchema = z.union([valuesArraySchema, fromToValuesSchema]);
+
+// Single base schema with a superRefine that branches the shape of `values`
+// by `filter_operator`. Using z.union of two full object schemas (previous
+// approach) made Zod accumulate errors from both branches on a single
+// failure, producing confusing messages like "Expected object" alongside the
+// real cause. With superRefine the user gets ONE coherent message.
+const conditionSchema = z
+  .object({
     attribute_key: z.string().min(1),
-    filter_operator: z.literal('attribute_changed'),
+    filter_operator: z.string().min(1),
     query_operator: z.enum(['AND', 'OR', 'and', 'or']).optional(),
-    values: fromToValuesSchema,
+    values: valuesUnionSchema,
     custom_attribute_type: z.string().optional(),
-  }),
-  z.object({
-    attribute_key: z.string().min(1),
-    // Reject 'attribute_changed' here so its from/to shape cannot be
-    // accidentally accepted under the flat-array branch when the form sends
-    // a malformed values payload.
-    filter_operator: z
-      .string()
-      .min(1)
-      .refine((op) => op !== 'attribute_changed', { message: 'invalid_values_shape' }),
-    query_operator: z.enum(['AND', 'OR', 'and', 'or']).optional(),
-    values: valuesArraySchema,
-    custom_attribute_type: z.string().optional(),
-  }),
-]);
+  })
+  .superRefine((data, ctx) => {
+    const isAttributeChanged = data.filter_operator === 'attribute_changed';
+    const isFromToShape =
+      data.values !== null &&
+      typeof data.values === 'object' &&
+      !Array.isArray(data.values);
+
+    if (isAttributeChanged && !isFromToShape) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['values'],
+        message: 'attribute_changed_requires_from_to',
+      });
+    } else if (!isAttributeChanged && isFromToShape) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['values'],
+        message: 'values_must_be_array_for_this_operator',
+      });
+    }
+  });
 
 const actionUnionSchema = z.discriminatedUnion('action_name', [
   z.object({ action_name: z.literal('send_message'), action_params: actionRegistry.send_message.schema }),
