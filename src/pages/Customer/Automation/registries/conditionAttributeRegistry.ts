@@ -32,7 +32,7 @@ export const conditionAttributeRegistry: Record<string, ConditionAttributeDescri
   status: {
     attributeKey: 'status',
     dataType: 'text',
-    operators: fromType('text', ['equal_to', 'not_equal_to']),
+    operators: fromType('text', ['equal_to', 'not_equal_to', 'attribute_changed']),
     optionLoaderKey: 'statuses',
     validFor: ['conversation', 'pipeline'],
     i18nKey: 'form.fields.attributes.status',
@@ -40,7 +40,7 @@ export const conditionAttributeRegistry: Record<string, ConditionAttributeDescri
   assignee_id: {
     attributeKey: 'assignee_id',
     dataType: 'text',
-    operators: fromType('text', ['equal_to', 'not_equal_to', 'is_present', 'is_not_present']),
+    operators: fromType('text', ['equal_to', 'not_equal_to', 'is_present', 'is_not_present', 'attribute_changed']),
     optionLoaderKey: 'agents',
     validFor: ['conversation', 'pipeline'],
     i18nKey: 'form.fields.attributes.assignee_id',
@@ -56,7 +56,7 @@ export const conditionAttributeRegistry: Record<string, ConditionAttributeDescri
   team_id: {
     attributeKey: 'team_id',
     dataType: 'number',
-    operators: fromType('number', ['equal_to', 'not_equal_to', 'is_present', 'is_not_present']),
+    operators: fromType('number', ['equal_to', 'not_equal_to', 'is_present', 'is_not_present', 'attribute_changed']),
     optionLoaderKey: 'teams',
     validFor: ['conversation', 'pipeline'],
     i18nKey: 'form.fields.attributes.team_id',
@@ -64,7 +64,7 @@ export const conditionAttributeRegistry: Record<string, ConditionAttributeDescri
   priority: {
     attributeKey: 'priority',
     dataType: 'text',
-    operators: fromType('text', ['equal_to', 'not_equal_to']),
+    operators: fromType('text', ['equal_to', 'not_equal_to', 'attribute_changed']),
     optionLoaderKey: 'priorities',
     validFor: ['conversation', 'pipeline'],
     i18nKey: 'form.fields.attributes.priority',
@@ -72,7 +72,7 @@ export const conditionAttributeRegistry: Record<string, ConditionAttributeDescri
   labels: {
     attributeKey: 'labels',
     dataType: 'labels',
-    operators: fromType('labels'),
+    operators: [...fromType('labels'), 'attribute_changed'],
     optionLoaderKey: 'labels',
     validFor: ['conversation', 'contact', 'pipeline'],
     i18nKey: 'form.fields.attributes.labels',
@@ -158,7 +158,7 @@ export const conditionAttributeRegistry: Record<string, ConditionAttributeDescri
   blocked: {
     attributeKey: 'blocked',
     dataType: 'boolean',
-    operators: fromType('boolean'),
+    operators: [...fromType('boolean'), 'attribute_changed'],
     validFor: ['contact'],
     i18nKey: 'form.fields.attributes.blocked',
   },
@@ -173,12 +173,22 @@ export const conditionAttributeRegistry: Record<string, ConditionAttributeDescri
   pipeline_stage_id: {
     attributeKey: 'pipeline_stage_id',
     dataType: 'pipeline',
-    operators: fromType('pipeline'),
+    operators: [...fromType('pipeline'), 'attribute_changed'],
     optionLoaderKey: 'pipeline_stages',
     validFor: ['conversation', 'pipeline'],
     i18nKey: 'form.fields.attributes.pipeline_stage_id',
   },
 };
+
+// Events that represent a record being created or first-opened. The
+// attribute_changed operator requires a previous value, so it is filtered
+// out for these events at the UI layer.
+const eventsWithoutPreviousValue: ReadonlySet<AutomationEventType> = new Set([
+  'conversation_created',
+  'conversation_opened',
+  'message_created',
+  'contact_created',
+]);
 
 const eventContextMap: Record<AutomationEventType, EventContext[]> = {
   conversation_created: ['conversation', 'message'],
@@ -201,4 +211,16 @@ export function getAttributesForEvent(eventName: AutomationEventType): Condition
 
 export function getAttributeDescriptor(attributeKey: string): ConditionAttributeDescriptor | undefined {
   return conditionAttributeRegistry[attributeKey];
+}
+
+export function getOperatorsForAttributeInEvent(
+  attributeKey: string,
+  eventName: AutomationEventType | undefined,
+): AutomationFilterOperator[] {
+  const descriptor = conditionAttributeRegistry[attributeKey];
+  if (!descriptor) return [];
+  if (eventName && eventsWithoutPreviousValue.has(eventName)) {
+    return descriptor.operators.filter((op) => op !== 'attribute_changed');
+  }
+  return descriptor.operators;
 }

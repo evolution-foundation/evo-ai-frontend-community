@@ -45,7 +45,7 @@
       "event": {
         "label": "Trigger event",
         "placeholder": "Select an event",
-        "hint": "Tip: To react to a status change, pick \"Conversation updated\" and add a Status condition.",
+        "hint": "Tip: to react to a transition (e.g. status moved from Open to Resolved, or a label was added), use the \"Attribute changed\" operator. Plain \"Equals\" re-fires on every update while the value stays the same.",
         "options": {
           "conversation_created": "Conversation created",
           "conversation_updated": "Conversation updated",
@@ -89,8 +89,14 @@
         "attribute": "Attribute",
         "operator": "Operator",
         "value": "Value",
+        "from": "From",
+        "to": "To",
         "remove": "Remove condition",
         "noValueNeeded": "No value needed"
+      },
+      "boolean": {
+        "true": "Yes",
+        "false": "No"
       },
       "actionRow": {
         "action": "Action",

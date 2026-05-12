@@ -16,6 +16,7 @@ import {
   conditionAttributeRegistry,
   getAttributeDescriptor,
   getAttributesForEvent,
+  getOperatorsForAttributeInEvent,
 } from '@/pages/Customer/Automation/registries';
 import type { AutomationFormData } from '@/hooks/automation/useAutomationFormData';
 
@@ -47,13 +48,36 @@ export default function ConditionRow({ control, index, formData, onRemove }: Pro
   const operator = useWatch({ control, name: `conditions.${index}.filter_operator` });
   const currentValues = useWatch({ control, name: `conditions.${index}.values` });
   const valueless = operator === 'is_present' || operator === 'is_not_present';
+  const isAttributeChanged = operator === 'attribute_changed';
 
-  // Clear values when the operator goes valueless (avoids stale values being sent to the backend).
+  // Reset values when the values-shape requirement changes:
+  // - valueless operators must hold an empty array
+  // - attribute_changed must hold { from: [], to: [] }
+  // - other operators must hold an array
   useEffect(() => {
-    if (valueless && Array.isArray(currentValues) && currentValues.length > 0) {
-      formCtx?.setValue(`conditions.${index}.values`, [], { shouldDirty: true });
+    if (!formCtx) return;
+    if (valueless) {
+      if (!Array.isArray(currentValues) || currentValues.length > 0) {
+        formCtx.setValue(`conditions.${index}.values`, [], { shouldDirty: true });
+      }
+      return;
     }
-  }, [valueless, currentValues, index, formCtx]);
+    if (isAttributeChanged) {
+      const isFromToShape =
+        currentValues != null &&
+        typeof currentValues === 'object' &&
+        !Array.isArray(currentValues) &&
+        'from' in (currentValues as object) &&
+        'to' in (currentValues as object);
+      if (!isFromToShape) {
+        formCtx.setValue(`conditions.${index}.values`, { from: [], to: [] }, { shouldDirty: true });
+      }
+      return;
+    }
+    if (!Array.isArray(currentValues)) {
+      formCtx.setValue(`conditions.${index}.values`, [], { shouldDirty: true });
+    }
+  }, [valueless, isAttributeChanged, currentValues, index, formCtx]);
 
   const availableAttributes = eventName
     ? getAttributesForEvent(eventName)
@@ -61,10 +85,76 @@ export default function ConditionRow({ control, index, formData, onRemove }: Pro
 
   const descriptor = getAttributeDescriptor(attributeKey);
 
+  const availableOperators = attributeKey
+    ? getOperatorsForAttributeInEvent(attributeKey, eventName)
+    : (descriptor?.operators ?? []);
+
+  // When the event_name (or attribute) changes and the current operator is no
+  // longer in the allowed list, clear it. Without this, a user that switches
+  // from `conversation_updated` to `conversation_created` after picking
+  // `attribute_changed` would save a rule whose operator can never match.
+  useEffect(() => {
+    if (!formCtx) return;
+    if (!operator) return;
+    if (availableOperators.includes(operator as (typeof availableOperators)[number])) return;
+    formCtx.setValue(`conditions.${index}.filter_operator`, '', { shouldDirty: true });
+    formCtx.setValue(`conditions.${index}.values`, [], { shouldDirty: true });
+  }, [availableOperators, operator, index, formCtx]);
+
   const optionsKey = descriptor?.optionLoaderKey
     ? optionLoaderToData[descriptor.optionLoaderKey]
     : undefined;
   const options = optionsKey ? formData[optionsKey] : [];
+
+  const renderSingleValuePicker = (
+    currentValue: unknown,
+    onChange: (next: (string | number)[]) => void,
+    placeholderKey: string,
+  ) => {
+    if (descriptor?.dataType === 'boolean') {
+      return (
+        <Select
+          value={currentValue != null ? String(currentValue) : ''}
+          onValueChange={(v) => onChange([v])}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder={t(placeholderKey)} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="true">{t('form.fields.boolean.true')}</SelectItem>
+            <SelectItem value="false">{t('form.fields.boolean.false')}</SelectItem>
+          </SelectContent>
+        </Select>
+      );
+    }
+    if (options.length === 0) {
+      return (
+        <Input
+          type={descriptor?.dataType === 'number' ? 'number' : 'text'}
+          value={currentValue != null ? String(currentValue) : ''}
+          onChange={(e) => onChange([e.target.value])}
+          placeholder={t(placeholderKey)}
+        />
+      );
+    }
+    return (
+      <Select
+        value={currentValue != null ? String(currentValue) : ''}
+        onValueChange={(v) => onChange([v])}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder={t(placeholderKey)} />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((opt) => (
+            <SelectItem key={String(opt.id)} value={String(opt.id)}>
+              {opt.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  };
 
   return (
     <div className="flex items-start gap-2 p-3 border rounded-md">
@@ -101,7 +191,7 @@ export default function ConditionRow({ control, index, formData, onRemove }: Pro
                 <SelectValue placeholder={t('form.fields.conditionRow.operator')} />
               </SelectTrigger>
               <SelectContent>
-                {descriptor?.operators.map((op) => (
+                {availableOperators.map((op) => (
                   <SelectItem key={op} value={op}>
                     {t(`form.fields.operators.${op}`)}
                   </SelectItem>
@@ -122,32 +212,40 @@ export default function ConditionRow({ control, index, formData, onRemove }: Pro
                 </div>
               );
             }
-            if (!descriptor || options.length === 0) {
+            if (isAttributeChanged) {
+              const fromTo =
+                field.value && typeof field.value === 'object' && !Array.isArray(field.value)
+                  ? (field.value as { from?: (string | number)[]; to?: (string | number)[] })
+                  : { from: [], to: [] };
               return (
-                <Input
-                  type={descriptor?.dataType === 'number' ? 'number' : 'text'}
-                  value={Array.isArray(field.value) ? String(field.value[0] ?? '') : ''}
-                  onChange={(e) => field.onChange([e.target.value])}
-                  placeholder={t('form.fields.conditionRow.value')}
-                />
+                <div className="grid grid-cols-2 gap-2 col-span-1">
+                  <div className="space-y-1">
+                    <label className="text-xs text-muted-foreground">
+                      {t('form.fields.conditionRow.from')}
+                    </label>
+                    {renderSingleValuePicker(
+                      fromTo.from?.[0],
+                      (next) => field.onChange({ from: next, to: fromTo.to ?? [] }),
+                      'form.fields.conditionRow.from',
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-muted-foreground">
+                      {t('form.fields.conditionRow.to')}
+                    </label>
+                    {renderSingleValuePicker(
+                      fromTo.to?.[0],
+                      (next) => field.onChange({ from: fromTo.from ?? [], to: next }),
+                      'form.fields.conditionRow.to',
+                    )}
+                  </div>
+                </div>
               );
             }
-            return (
-              <Select
-                value={Array.isArray(field.value) ? String(field.value[0] ?? '') : ''}
-                onValueChange={(v) => field.onChange([v])}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('form.fields.conditionRow.value')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {options.map((opt) => (
-                    <SelectItem key={String(opt.id)} value={String(opt.id)}>
-                      {opt.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            return renderSingleValuePicker(
+              Array.isArray(field.value) ? field.value[0] : undefined,
+              (next) => field.onChange(next),
+              'form.fields.conditionRow.value',
             );
           }}
         />

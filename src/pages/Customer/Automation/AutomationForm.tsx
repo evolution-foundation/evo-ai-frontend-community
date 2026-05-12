@@ -62,17 +62,16 @@ export default function AutomationForm({ mode }: Props) {
     let cancelled = false;
     (async () => {
       try {
-        const response = await automationService.getAutomation(id);
-        const rule = (response as unknown as { data?: AutomationRuleFormData }).data;
+        const rule = await automationService.getAutomation(id);
         if (!cancelled && rule) {
           reset({
             name: rule.name,
             description: rule.description ?? '',
-            event_name: rule.event_name,
+            event_name: rule.event_name as AutomationRuleFormData['event_name'],
             active: rule.active ?? true,
             mode: 'simple',
-            conditions: rule.conditions ?? [],
-            actions: rule.actions ?? DEFAULTS.actions,
+            conditions: (rule.conditions ?? []) as AutomationRuleFormData['conditions'],
+            actions: (rule.actions ?? DEFAULTS.actions) as AutomationRuleFormData['actions'],
           });
         }
       } catch (error) {

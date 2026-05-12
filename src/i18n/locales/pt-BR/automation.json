@@ -45,7 +45,7 @@
       "event": {
         "label": "Evento gatilho",
         "placeholder": "Selecione um evento",
-        "hint": "Dica: Para reagir a uma mudança de status, escolha \"Conversa atualizada\" e adicione uma condição em Status.",
+        "hint": "Dica: para reagir a uma transição (ex.: status saiu de Aberto para Resolvido, ou uma etiqueta foi adicionada), use o operador \"Atributo mudou\". O operador \"Igual a\" dispara a cada nova atualização enquanto o valor continuar o mesmo.",
         "options": {
           "conversation_created": "Conversa criada",
           "conversation_updated": "Conversa atualizada",
@@ -89,8 +89,14 @@
         "attribute": "Atributo",
         "operator": "Operador",
         "value": "Valor",
+        "from": "De",
+        "to": "Para",
         "remove": "Remover condição",
         "noValueNeeded": "Nenhum valor necessário"
+      },
+      "boolean": {
+        "true": "Sim",
+        "false": "Não"
       },
       "actionRow": {
         "action": "Ação",
