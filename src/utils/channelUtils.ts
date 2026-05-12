@@ -37,10 +37,16 @@ const CHANNEL_TYPE_TRANSLATIONS: Record<string, string> = {
 // so we never render a phone field for website/email/API contacts.
 const PHONE_BEARING_CHANNEL_TYPES = new Set<string>([
   'Channel::Whatsapp',
+  'Channel::WhatsappCloud',
+  'Channel::Whatsapp360Dialog',
   'Channel::TwilioSms',
   'Channel::Sms',
   'Channel::Telegram',
   'whatsapp',
+  'whatsappcloud',
+  'whatsapp_cloud',
+  'whatsapp360dialog',
+  'whatsapp_360dialog',
   'twiliosms',
   'twilio_sms',
   'sms',

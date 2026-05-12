@@ -9,6 +9,15 @@ describe('isPhoneBearingChannel', () => {
     expect(isPhoneBearingChannel('Channel::Telegram')).toBe(true);
   });
 
+  it('returns true for all WhatsApp variants (legacy, Cloud, 360Dialog)', () => {
+    expect(isPhoneBearingChannel('Channel::WhatsappCloud')).toBe(true);
+    expect(isPhoneBearingChannel('Channel::Whatsapp360Dialog')).toBe(true);
+    expect(isPhoneBearingChannel('whatsapp_cloud')).toBe(true);
+    expect(isPhoneBearingChannel('whatsappcloud')).toBe(true);
+    expect(isPhoneBearingChannel('whatsapp_360dialog')).toBe(true);
+    expect(isPhoneBearingChannel('whatsapp360dialog')).toBe(true);
+  });
+
   it('returns true for lowercase channel type aliases the API can return', () => {
     expect(isPhoneBearingChannel('whatsapp')).toBe(true);
     expect(isPhoneBearingChannel('twiliosms')).toBe(true);
