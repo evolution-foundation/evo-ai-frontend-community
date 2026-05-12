@@ -3,8 +3,10 @@
  *
  * Returns null for empty input so callers can use `phone && ...` to hide the
  * element entirely. The formatter targets Brazilian E.164 numbers (the common
- * case in Evolution) but falls back to `+digits` for anything it does not
- * recognise, so an unexpected shape never blanks the UI silently.
+ * case in Evolution). For anything else the original string is returned
+ * untouched — guessing country code from digit count produced misleading
+ * displays for legacy contacts saved without a DDI (e.g. `(11) 99999-9999`
+ * was being shown as `+11999999999`, which suggests US dialing).
  */
 export function formatContactPhone(raw: string | null | undefined): string | null {
   if (!raw) return null;
@@ -22,5 +24,5 @@ export function formatContactPhone(raw: string | null | undefined): string | nul
     return `+55 ${digits.slice(2, 4)} ${digits.slice(4, 8)}-${digits.slice(8)}`;
   }
 
-  return `+${digits}`;
+  return raw;
 }

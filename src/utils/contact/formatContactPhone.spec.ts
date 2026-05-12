@@ -23,24 +23,26 @@ describe('formatContactPhone', () => {
     expect(formatContactPhone('+551133334444')).toBe('+55 11 3333-4444');
   });
 
-  it('strips non-digit punctuation before formatting', () => {
-    // Without country code the 11 digits fall through to the generic +digits
-    // branch since we cannot safely infer BR vs. US from length alone.
-    expect(formatContactPhone('(11) 99999-9999')).toBe('+11999999999');
+  it('strips non-digit punctuation only when the resulting digits match a BR E.164 pattern', () => {
+    // Already in E.164 with BR DDI → formatted.
     expect(formatContactPhone('+55 (11) 99999-9999')).toBe('+55 11 99999-9999');
+    // Local number without DDI → returned as-is. Guessing the country from
+    // length produced misleading displays (e.g. `+11999999999` suggests US),
+    // so we leave the original string untouched.
+    expect(formatContactPhone('(11) 99999-9999')).toBe('(11) 99999-9999');
   });
 
-  it('falls back to a plain +digits string for non-BR numbers', () => {
-    expect(formatContactPhone('12155551234')).toBe('+12155551234');
+  it('returns the original string for non-BR numbers (no automatic + prefix)', () => {
+    expect(formatContactPhone('12155551234')).toBe('12155551234');
     expect(formatContactPhone('+12155551234')).toBe('+12155551234');
   });
 
-  it('preserves the leading + when input is already prefixed', () => {
+  it('preserves the leading + when input is already prefixed and BR-formatted', () => {
     expect(formatContactPhone('+5511999999999')).toBe('+55 11 99999-9999');
   });
 
-  it('prepends + when missing', () => {
+  it('leaves short or unrecognised digit strings untouched', () => {
+    expect(formatContactPhone('12345')).toBe('12345');
     expect(formatContactPhone('5511999999999')).toBe('+55 11 99999-9999');
-    expect(formatContactPhone('12345')).toBe('+12345');
   });
 });
