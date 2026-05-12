@@ -45,20 +45,23 @@ const contactsItem: MenuItemType = {
   icon: Cog,
 };
 
-const defaultProps = {
-  isCollapsed: true,
-  menuItems: [settingsItem, contactsItem],
-  activeSubmenu: null,
-  activeMenu: null,
-  isMenuWithSubItemsActive: () => false,
-  handleMenuClick: vi.fn(),
-  setActiveSubmenu: vi.fn(),
-};
+function makeProps(overrides = {}) {
+  return {
+    isCollapsed: true,
+    menuItems: [settingsItem, contactsItem],
+    activeSubmenu: null as MenuItemType | null,
+    activeMenu: null,
+    isMenuWithSubItemsActive: () => false,
+    handleMenuClick: vi.fn(),
+    setActiveSubmenu: vi.fn(),
+    ...overrides,
+  };
+}
 
-function renderSidebar(props = {}) {
+function renderSidebar(overrides = {}) {
   return render(
     <MemoryRouter>
-      <Sidebar {...defaultProps} {...props} />
+      <Sidebar {...makeProps(overrides)} />
     </MemoryRouter>,
   );
 }
@@ -80,10 +83,25 @@ describe('Sidebar — collapsed + activeSubmenu', () => {
     expect(screen.getByText('Security')).toBeInTheDocument();
   });
 
-  it('does not apply absolute positioning when sidebar is expanded', () => {
-    renderSidebar({ isCollapsed: false, activeSubmenu: settingsItem });
-    const flyout = screen.getByText('General').closest('nav')?.parentElement;
-    expect(flyout?.className).not.toMatch(/absolute/);
+  it('flyout container is always mounted when collapsed (for CSS transitions)', () => {
+    const { container } = renderSidebar({ activeSubmenu: null });
+    // The flyout container must exist in DOM even when inactive so transitions work
+    const flyout = container.querySelector('.absolute.left-16');
+    expect(flyout).toBeInTheDocument();
+    expect(flyout?.className).toMatch(/opacity-0/);
+    expect(flyout?.className).toMatch(/pointer-events-none/);
+  });
+
+  it('flyout container shows with opacity-100 when activeSubmenu is set', () => {
+    const { container } = renderSidebar({ activeSubmenu: settingsItem });
+    const flyout = container.querySelector('.absolute.left-16');
+    expect(flyout?.className).toMatch(/opacity-100/);
+    expect(flyout?.className).not.toMatch(/pointer-events-none/);
+  });
+
+  it('does not render collapsed flyout container when sidebar is expanded', () => {
+    const { container } = renderSidebar({ isCollapsed: false, activeSubmenu: settingsItem });
+    expect(container.querySelector('.absolute.left-16')).not.toBeInTheDocument();
   });
 
   it('calls setActiveSubmenu(null) when Escape is pressed with flyout open', () => {
@@ -103,9 +121,26 @@ describe('Sidebar — collapsed + activeSubmenu', () => {
   it('calls setActiveSubmenu(null) when close button is clicked', () => {
     const setActiveSubmenu = vi.fn();
     renderSidebar({ activeSubmenu: settingsItem, setActiveSubmenu });
-    const closeBtn = screen.getAllByRole('button').find(btn => btn.querySelector('svg'));
-    fireEvent.click(closeBtn!);
+    const closeBtn = screen.getByRole('button', { name: 'sidebar.closeSubmenu' });
+    fireEvent.click(closeBtn);
     expect(setActiveSubmenu).toHaveBeenCalledWith(null);
+  });
+
+  it('close button has accessible aria-label', () => {
+    renderSidebar({ activeSubmenu: settingsItem });
+    const closeBtn = screen.getByRole('button', { name: 'sidebar.closeSubmenu' });
+    expect(closeBtn).toBeInTheDocument();
+  });
+
+  it('Tab key cycles focus within flyout and does not escape to main content', () => {
+    renderSidebar({ activeSubmenu: settingsItem });
+    const focusable = screen.getAllByRole('link');
+    const lastLink = focusable[focusable.length - 1];
+    lastLink.focus();
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: false });
+    // Focus should cycle back to first focusable (close button)
+    const closeBtn = screen.getByRole('button', { name: 'sidebar.closeSubmenu' });
+    expect(document.activeElement).toBe(closeBtn);
   });
 
   it('switching between submenus: handleMenuClick is called for each icon', () => {
