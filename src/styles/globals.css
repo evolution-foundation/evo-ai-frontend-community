@@ -42,35 +42,33 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@layer base {
-  :root {
-    --primary: #183729;
-    --primary-foreground: #EBEBEB;
-    --secondary: #BEA588;
-    --secondary-foreground: #183729;
-    --accent: #BEA588;
-    --accent-foreground: #183729;
-    --sidebar-primary: #183729;
-    --sidebar-primary-foreground: #EBEBEB;
-    --sidebar-accent: #3E564F;
-    --sidebar-accent-foreground: #ffffff;
-    --ring: #183729;
-  }
+:root {
+  --primary: #183729;
+  --primary-foreground: #EBEBEB;
+  --secondary: #BEA588;
+  --secondary-foreground: #183729;
+  --accent: #BEA588;
+  --accent-foreground: #183729;
+  --sidebar-primary: #183729;
+  --sidebar-primary-foreground: #EBEBEB;
+  --sidebar-accent: #3E564F;
+  --sidebar-accent-foreground: #ffffff;
+  --ring: #183729;
+}
 
-  .dark {
-    --primary: #BEA588;
-    --primary-foreground: #183729;
-    --secondary: #3E564F;
-    --secondary-foreground: #EBEBEB;
-    --accent: #3E564F;
-    --accent-foreground: #ffffff;
-    --sidebar-primary: #BEA588;
-    --sidebar-primary-foreground: #183729;
-    --sidebar-accent: #3E564F;
-    --sidebar-accent-foreground: #EBEBEB;
-    --sidebar-ring: #BEA588;
-    --ring: #BEA588;
-  }
+.dark {
+  --primary: #BEA588;
+  --primary-foreground: #183729;
+  --secondary: #3E564F;
+  --secondary-foreground: #EBEBEB;
+  --accent: #3E564F;
+  --accent-foreground: #ffffff;
+  --sidebar-primary: #BEA588;
+  --sidebar-primary-foreground: #183729;
+  --sidebar-accent: #3E564F;
+  --sidebar-accent-foreground: #EBEBEB;
+  --sidebar-ring: #BEA588;
+  --ring: #BEA588;
 }
 
 @layer base {
