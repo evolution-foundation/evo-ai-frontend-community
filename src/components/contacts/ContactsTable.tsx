@@ -3,6 +3,7 @@ import { MessageSquare, Edit, Users, Activity } from 'lucide-react';
 import { Contact } from '@/types/contacts';
 import { BaseTable, TableColumn, TableAction } from '@/components/base';
 import ContactAvatar from '@/components/chat/contact/ContactAvatar';
+import { formatContactPhone } from '@/utils/contact/formatContactPhone';
 import ContactStatusBadge from './ContactStatusBadge';
 import ContactTagsList from './ContactTagsList';
 import ContactTypeBadge from './ContactTypeBadge';
@@ -73,7 +74,7 @@ export default function ContactsTable({
                 <span className="text-muted-foreground/50">|</span>
               )}
               {contact.phone_number && (
-                <span className="whitespace-nowrap">{contact.phone_number}</span>
+                <span className="whitespace-nowrap">{formatContactPhone(contact.phone_number)}</span>
               )}
             </div>
           </div>

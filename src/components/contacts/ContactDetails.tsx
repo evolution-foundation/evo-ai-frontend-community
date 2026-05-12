@@ -41,6 +41,7 @@ import {
 // import { ScheduledActionsList } from '@/components/scheduledActions';
 import { Contact } from '@/types/contacts';
 import ContactAvatar from '@/components/chat/contact/ContactAvatar';
+import { formatContactPhone } from '@/utils/contact/formatContactPhone';
 import ContactPipelineItem from '@/components/pipelines/ContactPipelineItem';
 import { toast } from 'sonner';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
@@ -248,7 +249,7 @@ export default function ContactDetails({
               {contact.phone_number && (
                 <div className="flex items-center flex-wrap gap-2 mb-2">
                   <Phone className="h-4 w-4" />
-                  <span>{contact.phone_number}</span>
+                  <span>{formatContactPhone(contact.phone_number)}</span>
                 </div>
               )}
             </div>
@@ -348,7 +349,7 @@ export default function ContactDetails({
                                 </div>
                                 <div className="text-sm text-muted-foreground space-y-1">
                                   {company.email && <div className="truncate">{company.email}</div>}
-                                  {company.phone_number && <div>{company.phone_number}</div>}
+                                  {company.phone_number && <div>{formatContactPhone(company.phone_number)}</div>}
                                 </div>
                               </div>
                               <ContactTypeBadge type="company" />
@@ -407,7 +408,7 @@ export default function ContactDetails({
                                 </div>
                                 <div className="text-sm text-muted-foreground space-y-1">
                                   {person.email && <div className="truncate">{person.email}</div>}
-                                  {person.phone_number && <div>{person.phone_number}</div>}
+                                  {person.phone_number && <div>{formatContactPhone(person.phone_number)}</div>}
                                 </div>
                               </div>
                               <ContactTypeBadge type="person" />

@@ -2,6 +2,7 @@ import React from 'react';
 import { Phone, Mail, MapPin, Hash } from 'lucide-react';
 import { Contact } from '@/types/chat/api';
 import ContactAvatar from '@/components/chat/contact/ContactAvatar';
+import { formatContactPhone } from '@/utils/contact/formatContactPhone';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface ContactHeaderProps {
@@ -34,7 +35,7 @@ const ContactHeader: React.FC<ContactHeaderProps> = ({ contact }) => {
             {contact?.phone_number && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="h-3 w-3 flex-shrink-0" />
-                <span className="truncate">{contact.phone_number}</span>
+                <span className="truncate">{formatContactPhone(contact.phone_number)}</span>
               </div>
             )}
             {contact?.identifier && (

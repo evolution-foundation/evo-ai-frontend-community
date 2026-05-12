@@ -17,6 +17,7 @@ import {
 import { Contact } from '@/types/contacts';
 import { contactsService } from '@/services/contacts/contactsService';
 import { Search, Mail, Phone, Building2, User, Loader2 } from 'lucide-react';
+import { formatContactPhone } from '@/utils/contact/formatContactPhone';
 import { toast } from 'sonner';
 
 interface ContactMergeSelectorModalProps {
@@ -158,7 +159,7 @@ export default function ContactMergeSelectorModal({
                       {contact.phone_number && (
                         <div className="flex items-center gap-2">
                           <Phone className="h-3 w-3 shrink-0" />
-                          <span>{contact.phone_number}</span>
+                          <span>{formatContactPhone(contact.phone_number)}</span>
                         </div>
                       )}
                     </div>

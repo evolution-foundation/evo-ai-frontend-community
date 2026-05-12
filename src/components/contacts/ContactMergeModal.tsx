@@ -18,6 +18,7 @@ import {
 } from '@evoapi/design-system';
 import { Contact } from '@/types/contacts';
 import { Mail, Phone, Building2, User, Calendar } from 'lucide-react';
+import { formatContactPhone } from '@/utils/contact/formatContactPhone';
 
 interface ContactMergeModalProps {
   open: boolean;
@@ -121,7 +122,7 @@ export default function ContactMergeModal({
                           {contact.phone_number && (
                             <div className="flex items-center gap-2">
                               <Phone className="h-3 w-3" />
-                              <span>{contact.phone_number}</span>
+                              <span>{formatContactPhone(contact.phone_number)}</span>
                             </div>
                           )}
 

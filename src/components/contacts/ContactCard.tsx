@@ -3,6 +3,7 @@ import { Button, Card, CardContent } from '@evoapi/design-system';
 import { Edit, MessageSquare, Activity, Eye } from 'lucide-react';
 import { Contact } from '@/types/contacts';
 import ContactAvatar from '@/components/chat/contact/ContactAvatar';
+import { formatContactPhone } from '@/utils/contact/formatContactPhone';
 import ContactStatusBadge from './ContactStatusBadge';
 import ContactTagsList from './ContactTagsList';
 import ContactTypeBadge from './ContactTypeBadge';
@@ -54,7 +55,7 @@ export default function ContactCard({
           </div>
           <div className="flex items-center justify-between">
             <span>{t('card.phone')}</span>
-            <span className="font-mono">{contact.phone_number}</span>
+            <span className="font-mono">{formatContactPhone(contact.phone_number)}</span>
           </div>
           {contact.labels && contact.labels.length > 0 && (
             <div className="pt-2">

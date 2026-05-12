@@ -5,6 +5,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useConversations } from '@/hooks/chat/useConversations';
 
 import { contactsService } from '@/services/contacts/contactsService';
+import { formatContactPhone } from '@/utils/contact/formatContactPhone';
 
 import { Button } from '@evoapi/design-system/button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@evoapi/design-system/card';
@@ -136,7 +137,7 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({ contact }) => {
           {contact?.phone_number && (
             <InfoField
               label={t('contactSidebar.contactDetails.fields.phone')}
-              value={contact.phone_number}
+              value={formatContactPhone(contact.phone_number) ?? contact.phone_number}
               icon={<Phone className="h-4 w-4" />}
               copyable
             />
