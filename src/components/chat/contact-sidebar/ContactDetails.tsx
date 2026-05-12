@@ -137,7 +137,8 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({ contact }) => {
           {contact?.phone_number && (
             <InfoField
               label={t('contactSidebar.contactDetails.fields.phone')}
-              value={formatContactPhone(contact.phone_number) ?? contact.phone_number}
+              value={formatContactPhone(contact.phone_number)}
+              copyValue={contact.phone_number}
               icon={<Phone className="h-4 w-4" />}
               copyable
             />
@@ -300,14 +301,26 @@ interface InfoFieldProps {
   value?: string | null;
   icon?: React.ReactNode;
   copyable?: boolean;
+  // Optional override for what `handleCopy` writes to the clipboard. Use this
+  // when `value` is a presentation-only string (e.g. a formatted phone) and
+  // the unformatted raw should be copied so integrations like `wa.me/<digits>`
+  // keep working.
+  copyValue?: string | null;
 }
 
-const InfoField: React.FC<InfoFieldProps> = ({ label, value, icon, copyable = false }) => {
+const InfoField: React.FC<InfoFieldProps> = ({
+  label,
+  value,
+  icon,
+  copyable = false,
+  copyValue,
+}) => {
   const { t } = useLanguage('chat');
 
   const handleCopy = () => {
-    if (value) {
-      navigator.clipboard.writeText(value);
+    const target = copyValue ?? value;
+    if (target) {
+      navigator.clipboard.writeText(target);
       toast.success(t('contactSidebar.contactDetails.copiedToClipboard'));
     }
   };
