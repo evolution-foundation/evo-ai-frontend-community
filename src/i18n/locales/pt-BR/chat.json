@@ -290,7 +290,10 @@
       "assignAgent": "Atribuir Atendente",
       "assignTeam": "Atribuir time",
       "assignTag": "Atribuir etiqueta",
-      "deleteConversation": "Deletar conversa"
+      "deleteConversation": "Deletar conversa",
+      "bulkResolveSuccess": "{{count}} conversa(s) resolvida(s)",
+      "bulkResolvePartialSuccess": "{{success}} resolvida(s), {{failed}} falhada(s)",
+      "bulkResolveError": "Erro ao resolver conversas em lote"
     },
     "contactNoName": "Contato sem nome",
     "status": "Status:",
@@ -303,6 +306,7 @@
     "conversation": "conversa",
     "conversations": "conversas",
     "selected": "selecionada(s)",
+    "selectConversation": "Selecionar conversa",
     "filter": "filtro",
     "filters": "filtros",
     "filtersButton": "Filtros",

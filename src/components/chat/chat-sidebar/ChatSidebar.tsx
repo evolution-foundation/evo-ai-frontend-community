@@ -158,8 +158,7 @@ const ChatSidebar = ({
 
   useEffect(() => {
     onClearSelection();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showArchived]);
+  }, [showArchived, onClearSelection]);
 
   // Pipeline state
   const [allPipelines, setAllPipelines] = useState<Pipeline[]>([]);
@@ -901,7 +900,7 @@ const ChatSidebar = ({
       data-tour="chat-sidebar"
       className={`
         ${mobileView === 'list' ? 'flex' : 'hidden'} md:flex
-        w-full md:w-96 border-r bg-card/50 flex-col h-full
+        w-full ${selectedConversationIds.size > 0 ? 'md:w-96' : 'md:w-80'} border-r bg-card/50 flex-col h-full
       `}
     >
       {/* Search and Filter Header */}
@@ -997,7 +996,8 @@ const ChatSidebar = ({
               {selectedConversationIds.size}{' '}
               {selectedConversationIds.size === 1
                 ? t('chatSidebar.conversation')
-                : t('chatSidebar.conversations')}
+                : t('chatSidebar.conversations')}{' '}
+              {t('chatSidebar.selected')}
             </span>
             <Button
               variant="ghost"
@@ -1097,7 +1097,13 @@ const ChatSidebar = ({
                       >
                         <Checkbox
                           checked={selectedConversationIds.has(String(conversation.display_id))}
-                          onCheckedChange={() => onToggleSelect(String(conversation.display_id))}
+                          onCheckedChange={(checked: boolean | 'indeterminate') => {
+                            const isSelected = selectedConversationIds.has(String(conversation.display_id));
+                            if ((checked === true && !isSelected) || (checked === false && isSelected)) {
+                              onToggleSelect(String(conversation.display_id));
+                            }
+                          }}
+                          aria-label={t('chatSidebar.selectConversation')}
                           className="bg-white dark:bg-zinc-700 border-2 border-zinc-400 dark:border-zinc-500 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                         />
                       </div>

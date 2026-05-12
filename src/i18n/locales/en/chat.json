@@ -290,7 +290,10 @@
       "assignAgent": "Assign Team Member",
       "assignTeam": "Assign Team",
       "assignTag": "Assign Label",
-      "deleteConversation": "Delete conversation"
+      "deleteConversation": "Delete conversation",
+      "bulkResolveSuccess": "{{count}} conversation(s) resolved",
+      "bulkResolvePartialSuccess": "{{success}} resolved, {{failed}} failed",
+      "bulkResolveError": "Error resolving conversations"
     },
     "contactNoName": "Contact without name",
     "status": "Status:",
@@ -303,6 +306,7 @@
     "conversation": "conversation",
     "conversations": "conversations",
     "selected": "selected",
+    "selectConversation": "Select conversation",
     "filter": "filter",
     "filters": "filters",
     "filtersButton": "Filters",

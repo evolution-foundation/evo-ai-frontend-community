@@ -285,7 +285,10 @@
       "assignAgent": "Assigner un Agent",
       "assignTeam": "Assigner une Équipe",
       "assignTag": "Assigner une Étiquette",
-      "deleteConversation": "Supprimer la conversation"
+      "deleteConversation": "Supprimer la conversation",
+      "bulkResolveSuccess": "{{count}} conversation(s) résolue(s)",
+      "bulkResolvePartialSuccess": "{{success}} résolue(s), {{failed}} échouée(s)",
+      "bulkResolveError": "Erreur lors de la résolution des conversations"
     },
     "contactNoName": "Contact sans nom",
     "status": "Statut :",
@@ -298,6 +301,7 @@
     "conversation": "conversation",
     "conversations": "conversations",
     "selected": "sélectionnée(s)",
+    "selectConversation": "Sélectionner la conversation",
     "filter": "filtre",
     "filters": "filtres",
     "filtersButton": "Filtres",

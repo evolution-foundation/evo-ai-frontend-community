@@ -46,7 +46,7 @@ import type { AssignmentOption, AssignmentType } from '@/components/chat/assignm
 import { labelsService } from '@/services/contacts/labelsService';
 import { useAppDataStore } from '@/store/appDataStore';
 import type { Label } from '@/types/settings';
-import { conversationAPI } from '@/services/conversations/conversationService';
+import chatService from '@/services/chat/chatService';
 
 const ContactSidebar = React.lazy(() => import('@/components/chat/contact-sidebar/ContactSidebar'));
 
@@ -194,12 +194,14 @@ const Chat = () => {
     await filterHandlers.reloadCurrentFilters();
   }, [filterHandlers]);
 
+  const MAX_BULK_SELECTION = 200;
+
   const handleToggleConversationSelection = useCallback((displayId: string) => {
     setSelectedConversationIds(prev => {
       const next = new Set(prev);
       if (next.has(displayId)) {
         next.delete(displayId);
-      } else {
+      } else if (next.size < MAX_BULK_SELECTION) {
         next.add(displayId);
       }
       return next;
@@ -212,24 +214,33 @@ const Chat = () => {
 
   const handleBulkResolve = useCallback(async () => {
     if (selectedConversationIds.size === 0) return;
+    if (!can('conversations', 'update')) {
+      toast.error(t('messages.noPermissionSend'));
+      return;
+    }
     const displayIds = Array.from(selectedConversationIds);
-    const resolvedConversations = conversations.state.conversations
-      .filter(c => selectedConversationIds.has(String(c.display_id)));
     setIsBulkResolving(true);
     try {
-      await conversationAPI.bulkResolve(displayIds);
-      toast.success(`${displayIds.length} conversa(s) resolvida(s)`);
+      const result = await chatService.bulkResolve(displayIds);
       setSelectedConversationIds(new Set());
-      for (const conv of resolvedConversations) {
-        conversations.updateConversation({ ...conv, status: 'resolved' });
+      if (result.failed_ids.length === 0) {
+        toast.success(t('chatHeader.actions.bulkResolveSuccess', { count: result.success_ids.length }));
+      } else if (result.success_ids.length > 0) {
+        toast.warning(t('chatHeader.actions.bulkResolvePartialSuccess', {
+          success: result.success_ids.length,
+          failed: result.failed_ids.length,
+        }));
+      } else {
+        toast.error(t('chatHeader.actions.bulkResolveError'));
       }
+      await reloadCurrentFilters();
     } catch (error) {
       console.error('Bulk resolve error:', error);
-      toast.error('Erro ao resolver conversas em lote');
+      toast.error(t('chatHeader.actions.bulkResolveError'));
     } finally {
       setIsBulkResolving(false);
     }
-  }, [selectedConversationIds, conversations]);
+  }, [selectedConversationIds, can, reloadCurrentFilters, t]);
 
   // 🔄 CARREGAMENTO SIMPLES: Apenas carregar mensagens quando conversa muda
   useEffect(() => {
@@ -698,6 +709,8 @@ const Chat = () => {
     if (currentSelectedStr === conversationIdStr) {
       return;
     }
+
+    setSelectedConversationIds(new Set());
 
     // 🔒 MARCAR NAVEGAÇÃO MANUAL para evitar URL sync
     isManualNavigationRef.current = true;
