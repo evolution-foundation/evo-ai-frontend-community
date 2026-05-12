@@ -160,6 +160,10 @@ export default function UserFormModal({ isOpen, onClose, user, onSuccess }: User
           role: formData.role,
           availability: formData.availability,
         };
+        
+        if (formData.password) {
+          updateData.password = formData.password;
+        }
 
         await usersService.updateUser(user.id, updateData);
         toast.success(t('form.messages.updateSuccess'));
@@ -278,7 +282,7 @@ export default function UserFormModal({ isOpen, onClose, user, onSuccess }: User
             </Select>
           </div>
 
-          {(!user || formData.password) && (
+          {(true) && (
             <>
               <div className="space-y-2">
                 <Label htmlFor="password">
