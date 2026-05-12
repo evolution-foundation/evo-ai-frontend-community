@@ -150,6 +150,7 @@ const ChatSidebar = ({
   const [isPipelinesLoaded, setIsPipelinesLoaded] = useState(false);
   const [pipelinesLoadFailed, setPipelinesLoadFailed] = useState(false);
   const [convPipelineStates, setConvPipelineStates] = useState<Map<string, Pipeline[]>>(new Map());
+  const [loadingConvPipelines, setLoadingConvPipelines] = useState<Set<string>>(new Set());
   const pipelineFetchCountRef = useRef<Map<string, number>>(new Map());
 
   useEffect(() => {
@@ -173,6 +174,7 @@ const ChatSidebar = ({
     const fetchId = current + 1;
     pipelineFetchCountRef.current.set(convId, fetchId);
 
+    setLoadingConvPipelines(prev => new Set([...prev, convId]));
     try {
       const pipelines = await pipelinesService.getPipelinesByConversation(convId);
       if (pipelineFetchCountRef.current.get(convId) !== fetchId) return;
@@ -186,6 +188,14 @@ const ChatSidebar = ({
         setConvPipelineStates(prev => {
           const next = new Map(prev);
           next.set(convId, []);
+          return next;
+        });
+      }
+    } finally {
+      if (pipelineFetchCountRef.current.get(convId) === fetchId) {
+        setLoadingConvPipelines(prev => {
+          const next = new Set(prev);
+          next.delete(convId);
           return next;
         });
       }
@@ -316,6 +326,7 @@ const ChatSidebar = ({
       }
 
       const convId = String(conversation.id);
+      const isConvLoading = loadingConvPipelines.has(convId);
       const currentPipelines = convPipelineStates.get(convId) ?? [];
 
       return (
@@ -327,41 +338,47 @@ const ChatSidebar = ({
                 {pipeline.name}
               </ContextMenuSubTrigger>
               <ContextMenuSubContent>
-                {(pipeline.stages ?? []).map(stage => {
-                  const convInThisPipeline = currentPipelines.find(p => p.id === pipeline.id);
-                  const currentItem = convInThisPipeline?.items?.find(
-                    i => String(i.item_id) === convId,
-                  );
-                  const isCurrentStage = currentItem?.stage_id === stage.id;
-
-                  return (
-                    <ContextMenuItem
-                      key={stage.id}
-                      onClick={e => {
-                        e.stopPropagation();
-                        handlePipelineStageSelect(conversation, pipeline, stage);
-                      }}
-                      className="flex items-center gap-2"
-                    >
-                      {isCurrentStage && <Check className="h-3 w-3 text-primary" />}
-                      {!isCurrentStage && <span className="w-3" />}
-                      {stage.name}
-                    </ContextMenuItem>
-                  );
-                })}
-                {currentPipelines.some(p => p.id === pipeline.id) && (
+                {isConvLoading ? (
+                  <ContextMenuLabel className="text-xs">{t('pipeline.loading')}</ContextMenuLabel>
+                ) : (
                   <>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem
-                      onClick={e => {
-                        e.stopPropagation();
-                        handleRemoveFromPipeline(conversation, pipeline);
-                      }}
-                      className="flex items-center gap-2 text-destructive focus:text-destructive"
-                    >
-                      <X className="h-4 w-4" />
-                      {t('pipeline.removeFrom')}
-                    </ContextMenuItem>
+                    {(pipeline.stages ?? []).map(stage => {
+                      const convInThisPipeline = currentPipelines.find(p => p.id === pipeline.id);
+                      const currentItem = convInThisPipeline?.items?.find(
+                        i => String(i.item_id) === convId,
+                      );
+                      const isCurrentStage = currentItem?.stage_id === stage.id;
+
+                      return (
+                        <ContextMenuItem
+                          key={stage.id}
+                          onClick={e => {
+                            e.stopPropagation();
+                            handlePipelineStageSelect(conversation, pipeline, stage);
+                          }}
+                          className="flex items-center gap-2"
+                        >
+                          {isCurrentStage && <Check className="h-3 w-3 text-primary" />}
+                          {!isCurrentStage && <span className="w-3" />}
+                          {stage.name}
+                        </ContextMenuItem>
+                      );
+                    })}
+                    {currentPipelines.some(p => p.id === pipeline.id) && (
+                      <>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleRemoveFromPipeline(conversation, pipeline);
+                          }}
+                          className="flex items-center gap-2 text-destructive focus:text-destructive"
+                        >
+                          <X className="h-4 w-4" />
+                          {t('pipeline.removeFrom')}
+                        </ContextMenuItem>
+                      </>
+                    )}
                   </>
                 )}
               </ContextMenuSubContent>
@@ -375,6 +392,7 @@ const ChatSidebar = ({
       isPipelinesLoaded,
       allPipelines,
       convPipelineStates,
+      loadingConvPipelines,
       t,
       handlePipelineStageSelect,
       handleRemoveFromPipeline,

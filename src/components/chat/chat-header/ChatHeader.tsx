@@ -115,6 +115,7 @@ const ChatHeader = ({
   const [pipelinesLoaded, setPipelinesLoaded] = useState(false);
   const [pipelinesLoadFailed, setPipelinesLoadFailed] = useState(false);
   const [convPipelineData, setConvPipelineData] = useState<ConvPipelineData | null>(null);
+  const [isLoadingConvPipelines, setIsLoadingConvPipelines] = useState(false);
   const pipelineFetchCountRef = useRef(0);
 
   useEffect(() => {
@@ -137,6 +138,7 @@ const ChatHeader = ({
     if (!menuOpen) return;
 
     const fetchId = ++pipelineFetchCountRef.current;
+    setIsLoadingConvPipelines(true);
     (async () => {
       try {
         const pipelines = await pipelinesService.getPipelinesByConversation(
@@ -147,6 +149,10 @@ const ChatHeader = ({
       } catch {
         if (pipelineFetchCountRef.current === fetchId) {
           setConvPipelineData({ pipelines: [] });
+        }
+      } finally {
+        if (pipelineFetchCountRef.current === fetchId) {
+          setIsLoadingConvPipelines(false);
         }
       }
     })();
@@ -282,35 +288,41 @@ const ChatHeader = ({
               {pipeline.name}
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
-              {(pipeline.stages ?? []).map(stage => {
-                const convInThisPipeline = currentPipelines.find(p => p.id === pipeline.id);
-                const currentItem = convInThisPipeline?.items?.find(
-                  i => String(i.item_id) === String(conversation.id),
-                );
-                const isCurrentStage = currentItem?.stage_id === stage.id;
-
-                return (
-                  <DropdownMenuItem
-                    key={stage.id}
-                    onClick={() => handlePipelineStageSelect(pipeline, stage)}
-                    className="flex items-center gap-2"
-                  >
-                    {isCurrentStage && <Check className="h-3 w-3 text-primary" />}
-                    {!isCurrentStage && <span className="w-3" />}
-                    {stage.name}
-                  </DropdownMenuItem>
-                );
-              })}
-              {currentPipelines.some(p => p.id === pipeline.id) && (
+              {isLoadingConvPipelines ? (
+                <DropdownMenuLabel className="text-xs">{t('pipeline.loading')}</DropdownMenuLabel>
+              ) : (
                 <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => handleRemoveFromPipeline(pipeline)}
-                    className="flex items-center gap-2 text-destructive focus:text-destructive"
-                  >
-                    <X className="h-4 w-4" />
-                    {t('pipeline.removeFrom')}
-                  </DropdownMenuItem>
+                  {(pipeline.stages ?? []).map(stage => {
+                    const convInThisPipeline = currentPipelines.find(p => p.id === pipeline.id);
+                    const currentItem = convInThisPipeline?.items?.find(
+                      i => String(i.item_id) === String(conversation.id),
+                    );
+                    const isCurrentStage = currentItem?.stage_id === stage.id;
+
+                    return (
+                      <DropdownMenuItem
+                        key={stage.id}
+                        onClick={() => handlePipelineStageSelect(pipeline, stage)}
+                        className="flex items-center gap-2"
+                      >
+                        {isCurrentStage && <Check className="h-3 w-3 text-primary" />}
+                        {!isCurrentStage && <span className="w-3" />}
+                        {stage.name}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                  {currentPipelines.some(p => p.id === pipeline.id) && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => handleRemoveFromPipeline(pipeline)}
+                        className="flex items-center gap-2 text-destructive focus:text-destructive"
+                      >
+                        <X className="h-4 w-4" />
+                        {t('pipeline.removeFrom')}
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </>
               )}
             </DropdownMenuSubContent>
