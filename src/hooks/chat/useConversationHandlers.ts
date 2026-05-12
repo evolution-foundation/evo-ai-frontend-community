@@ -37,6 +37,7 @@ export const useConversationHandlers = () => {
         await conversations.updateConversationStatus(conversation.id, 'resolved', onReload);
       } catch (error) {
         console.error('❌ Error marking as resolved:', error);
+        throw error;
       }
     },
     [conversations],

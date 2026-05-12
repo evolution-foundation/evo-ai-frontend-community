@@ -377,11 +377,31 @@ const Chat = () => {
     [conversationHandlers],
   );
 
+  const clearSelectionAndGoToList = useCallback(async () => {
+    isManualNavigationRef.current = true;
+    await conversations.selectConversation(null);
+    setMobileView('list');
+    setIsContactSidebarOpen(false);
+    navigate('/conversations', { replace: true });
+    setTimeout(() => {
+      isManualNavigationRef.current = false;
+    }, 100);
+  }, [conversations, navigate]);
+
   const handleMarkAsResolved = useCallback(
     async (conversation: Conversation) => {
-      await conversationHandlers.handleMarkAsResolved(conversation, reloadCurrentFilters);
+      const resolvedId = String(conversation.uuid || conversation.id);
+      try {
+        await conversationHandlers.handleMarkAsResolved(conversation, reloadCurrentFilters);
+        const liveSelected = conversations.state.selectedConversationId;
+        if (liveSelected != null && String(liveSelected) === resolvedId) {
+          await clearSelectionAndGoToList();
+        }
+      } catch {
+        // error already toasted by updateConversationStatus
+      }
     },
-    [conversationHandlers, reloadCurrentFilters],
+    [conversationHandlers, reloadCurrentFilters, conversations, clearSelectionAndGoToList],
   );
 
   const handlePostpone = useCallback(
@@ -496,13 +516,7 @@ const Chat = () => {
       await conversations.deleteConversation(String(conversationToDelete.id));
       setShowDeleteDialog(false);
       setConversationToDelete(null);
-      setMobileView('list');
-      setIsContactSidebarOpen(false);
-      isManualNavigationRef.current = true;
-      navigate('/conversations', { replace: true });
-      setTimeout(() => {
-        isManualNavigationRef.current = false;
-      }, 100);
+      await clearSelectionAndGoToList();
     } catch (error) {
       console.error('Error deleting conversation:', error);
       // Error is already handled in the context with toast
@@ -667,21 +681,9 @@ const Chat = () => {
     }, 100);
   };
 
-  const handleCloseConversation = () => {
-    // 🔒 MARCAR NAVEGAÇÃO MANUAL para evitar URL sync
-    isManualNavigationRef.current = true;
-
-    conversations.selectConversation(null);
-    setMobileView('list');
-    setIsContactSidebarOpen(false); // Fechar sidebar se estiver aberto
-    // Voltar para a lista geral de conversas
-    navigate('/conversations', { replace: true });
-
-    // 🔒 RESET flag após navegação
-    setTimeout(() => {
-      isManualNavigationRef.current = false;
-    }, 100);
-  };
+  const handleCloseConversation = useCallback(async () => {
+    await clearSelectionAndGoToList();
+  }, [clearSelectionAndGoToList]);
 
   return (
     <ErrorBoundary>
