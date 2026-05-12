@@ -965,5 +965,19 @@
       "contactsEmpty": "Nenhum contato encontrado",
       "messagesEmpty": "Nenhuma mensagem encontrada"
     }
+  },
+  "pipeline": {
+    "section": "Pipeline",
+    "addTo": "Adicionar ao pipeline",
+    "removeFrom": "Remover do pipeline",
+    "loading": "Carregando pipelines...",
+    "noPipelines": "Nenhum pipeline disponível",
+    "loadError": "Erro ao carregar pipelines. Clique para tentar novamente.",
+    "addSuccess": "Adicionado ao pipeline",
+    "moveSuccess": "Movido para o estágio",
+    "removeSuccess": "Removido do pipeline",
+    "addError": "Erro ao adicionar ao pipeline",
+    "moveError": "Erro ao mover para o estágio",
+    "removeError": "Erro ao remover do pipeline"
   }
 }

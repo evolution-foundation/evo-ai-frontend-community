@@ -959,5 +959,19 @@
       "contactsEmpty": "No contacts found",
       "messagesEmpty": "No messages found"
     }
+  },
+  "pipeline": {
+    "section": "Pipeline",
+    "addTo": "Add to pipeline",
+    "removeFrom": "Remove from pipeline",
+    "loading": "Loading pipelines...",
+    "noPipelines": "No pipelines available",
+    "loadError": "Error loading pipelines. Click to retry.",
+    "addSuccess": "Added to pipeline",
+    "moveSuccess": "Moved to stage",
+    "removeSuccess": "Removed from pipeline",
+    "addError": "Error adding to pipeline",
+    "moveError": "Error moving to stage",
+    "removeError": "Error removing from pipeline"
   }
 }

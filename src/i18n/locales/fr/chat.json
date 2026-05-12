@@ -894,5 +894,19 @@
     "success": {
       "sent": "Modèle envoyé avec succès !"
     }
+  },
+  "pipeline": {
+    "section": "Pipeline",
+    "addTo": "Ajouter au pipeline",
+    "removeFrom": "Retirer du pipeline",
+    "loading": "Chargement des pipelines...",
+    "noPipelines": "Aucun pipeline disponible",
+    "loadError": "Erreur lors du chargement. Cliquez pour réessayer.",
+    "addSuccess": "Ajouté au pipeline",
+    "moveSuccess": "Déplacé vers l'étape",
+    "removeSuccess": "Retiré du pipeline",
+    "addError": "Erreur lors de l'ajout au pipeline",
+    "moveError": "Erreur lors du déplacement vers l'étape",
+    "removeError": "Erreur lors de la suppression du pipeline"
   }
 }

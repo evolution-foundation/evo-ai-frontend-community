@@ -894,5 +894,19 @@
     "success": {
       "sent": "Modello inviato con successo!"
     }
+  },
+  "pipeline": {
+    "section": "Pipeline",
+    "addTo": "Aggiungi al pipeline",
+    "removeFrom": "Rimuovi dal pipeline",
+    "loading": "Caricamento pipeline...",
+    "noPipelines": "Nessun pipeline disponibile",
+    "loadError": "Errore nel caricamento. Clicca per riprovare.",
+    "addSuccess": "Aggiunto al pipeline",
+    "moveSuccess": "Spostato nella fase",
+    "removeSuccess": "Rimosso dal pipeline",
+    "addError": "Errore nell'aggiunta al pipeline",
+    "moveError": "Errore nello spostamento nella fase",
+    "removeError": "Errore nella rimozione dal pipeline"
   }
 }

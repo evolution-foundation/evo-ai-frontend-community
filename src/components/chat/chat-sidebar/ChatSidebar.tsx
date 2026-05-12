@@ -8,6 +8,10 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuLabel,
 } from '@evoapi/design-system/context-menu';
 import {
   Search,
@@ -30,10 +34,13 @@ import {
   FileText,
   Pin,
   Archive,
+  GitBranch,
+  Check,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useChatContext } from '@/contexts/chat/ChatContext';
 import { Conversation, ConversationFilter } from '@/types/chat/api';
+import type { Pipeline, PipelineStage } from '@/types/analytics';
 import {
   attachmentLabel,
   mediaTypeFromAttributes,
@@ -52,6 +59,8 @@ import { BaseFilter } from '@/types/core';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useDebounce } from '@/hooks/useDebounce';
 import chatService from '@/services/chat/chatService';
+import { pipelinesService } from '@/services/pipelines/pipelinesService';
+import { toast } from 'sonner';
 import type {
   SearchConversationResult,
   SearchContactResult,
@@ -135,6 +144,242 @@ const ChatSidebar = ({
   const [showArchived, setShowArchived] = useState(false);
   const sidebarScrollRef = useRef<HTMLDivElement | null>(null);
   const loadingMoreRef = useRef(false);
+
+  // Pipeline state
+  const [allPipelines, setAllPipelines] = useState<Pipeline[]>([]);
+  const [isPipelinesLoaded, setIsPipelinesLoaded] = useState(false);
+  const [pipelinesLoadFailed, setPipelinesLoadFailed] = useState(false);
+  const [convPipelineStates, setConvPipelineStates] = useState<Map<string, Pipeline[]>>(new Map());
+  const pipelineFetchCountRef = useRef<Map<string, number>>(new Map());
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const resp = await pipelinesService.getPipelines({ is_active: true });
+        if (!cancelled) {
+          setAllPipelines(resp.data ?? []);
+          setIsPipelinesLoaded(true);
+        }
+      } catch {
+        if (!cancelled) setPipelinesLoadFailed(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const loadConversationPipelineState = useCallback(async (convId: string) => {
+    const current = pipelineFetchCountRef.current.get(convId) ?? 0;
+    const fetchId = current + 1;
+    pipelineFetchCountRef.current.set(convId, fetchId);
+
+    try {
+      const pipelines = await pipelinesService.getPipelinesByConversation(convId);
+      if (pipelineFetchCountRef.current.get(convId) !== fetchId) return;
+      setConvPipelineStates(prev => {
+        const next = new Map(prev);
+        next.set(convId, pipelines);
+        return next;
+      });
+    } catch {
+      if (pipelineFetchCountRef.current.get(convId) === fetchId) {
+        setConvPipelineStates(prev => {
+          const next = new Map(prev);
+          next.set(convId, []);
+          return next;
+        });
+      }
+    }
+  }, []);
+
+  const handlePipelineStageSelect = useCallback(
+    async (conversation: Conversation, pipeline: Pipeline, stage: PipelineStage) => {
+      const convId = String(conversation.id);
+      const currentPipelines = convPipelineStates.get(convId) ?? [];
+      const existingInSamePipeline = currentPipelines.find(p => p.id === pipeline.id);
+      const existingInOtherPipeline = currentPipelines.find(p => p.id !== pipeline.id);
+
+      if (existingInSamePipeline) {
+        const item = existingInSamePipeline.items?.find(
+          i => String(i.item_id) === convId,
+        );
+        const itemId = item?.id;
+        if (!itemId) return;
+        try {
+          await pipelinesService.moveItem({
+            pipeline_id: pipeline.id,
+            item_id: itemId,
+            from_stage_id: item.stage_id,
+            to_stage_id: stage.id,
+          });
+          toast.success(t('pipeline.moveSuccess'));
+          setConvPipelineStates(prev => {
+            const next = new Map(prev);
+            next.delete(convId);
+            return next;
+          });
+          await loadConversationPipelineState(convId);
+        } catch {
+          toast.error(t('pipeline.moveError'));
+        }
+      } else {
+        if (existingInOtherPipeline) {
+          const otherItem = existingInOtherPipeline.items?.find(
+            i => String(i.item_id) === convId,
+          );
+          const otherItemId = otherItem?.id;
+          if (otherItemId) {
+            try {
+              await pipelinesService.removeItemFromPipeline(
+                existingInOtherPipeline.id,
+                otherItemId,
+              );
+            } catch {
+              toast.error(t('pipeline.removeError'));
+              return;
+            }
+          }
+        }
+        try {
+          await pipelinesService.addItemToPipeline(pipeline.id, {
+            item_id: convId,
+            type: 'conversation',
+            pipeline_stage_id: stage.id,
+          });
+          toast.success(t('pipeline.addSuccess'));
+          setConvPipelineStates(prev => {
+            const next = new Map(prev);
+            next.delete(convId);
+            return next;
+          });
+          await loadConversationPipelineState(convId);
+        } catch {
+          toast.error(t('pipeline.addError'));
+        }
+      }
+    },
+    [convPipelineStates, t, loadConversationPipelineState],
+  );
+
+  const handleRemoveFromPipeline = useCallback(
+    async (conversation: Conversation, pipeline: Pipeline) => {
+      const convId = String(conversation.id);
+      const item = pipeline.items?.find(i => String(i.item_id) === convId);
+      const itemId = item?.id;
+      if (!itemId) return;
+      try {
+        await pipelinesService.removeItemFromPipeline(pipeline.id, itemId);
+        toast.success(t('pipeline.removeSuccess'));
+        setConvPipelineStates(prev => {
+          const next = new Map(prev);
+          next.delete(convId);
+          return next;
+        });
+        await loadConversationPipelineState(convId);
+      } catch {
+        toast.error(t('pipeline.removeError'));
+      }
+    },
+    [t, loadConversationPipelineState],
+  );
+
+  const renderPipelineSubContent = useCallback(
+    (conversation: Conversation) => {
+      if (pipelinesLoadFailed) {
+        return (
+          <ContextMenuLabel
+            className="text-destructive text-xs cursor-pointer"
+            onClick={async () => {
+              setPipelinesLoadFailed(false);
+              try {
+                const resp = await pipelinesService.getPipelines({ is_active: true });
+                setAllPipelines(resp.data ?? []);
+                setIsPipelinesLoaded(true);
+              } catch {
+                setPipelinesLoadFailed(true);
+              }
+            }}
+          >
+            {t('pipeline.loadError')}
+          </ContextMenuLabel>
+        );
+      }
+
+      if (!isPipelinesLoaded) {
+        return <ContextMenuLabel className="text-xs">{t('pipeline.loading')}</ContextMenuLabel>;
+      }
+
+      if (allPipelines.length === 0) {
+        return (
+          <ContextMenuLabel className="text-xs">{t('pipeline.noPipelines')}</ContextMenuLabel>
+        );
+      }
+
+      const convId = String(conversation.id);
+      const currentPipelines = convPipelineStates.get(convId) ?? [];
+
+      return (
+        <>
+          {allPipelines.map(pipeline => (
+            <ContextMenuSub key={pipeline.id}>
+              <ContextMenuSubTrigger className="flex items-center gap-2">
+                <GitBranch className="h-4 w-4" />
+                {pipeline.name}
+              </ContextMenuSubTrigger>
+              <ContextMenuSubContent>
+                {(pipeline.stages ?? []).map(stage => {
+                  const convInThisPipeline = currentPipelines.find(p => p.id === pipeline.id);
+                  const currentItem = convInThisPipeline?.items?.find(
+                    i => String(i.item_id) === convId,
+                  );
+                  const isCurrentStage = currentItem?.stage_id === stage.id;
+
+                  return (
+                    <ContextMenuItem
+                      key={stage.id}
+                      onClick={e => {
+                        e.stopPropagation();
+                        handlePipelineStageSelect(conversation, pipeline, stage);
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      {isCurrentStage && <Check className="h-3 w-3 text-primary" />}
+                      {!isCurrentStage && <span className="w-3" />}
+                      {stage.name}
+                    </ContextMenuItem>
+                  );
+                })}
+                {currentPipelines.some(p => p.id === pipeline.id) && (
+                  <>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleRemoveFromPipeline(conversation, pipeline);
+                      }}
+                      className="flex items-center gap-2 text-destructive focus:text-destructive"
+                    >
+                      <X className="h-4 w-4" />
+                      {t('pipeline.removeFrom')}
+                    </ContextMenuItem>
+                  </>
+                )}
+              </ContextMenuSubContent>
+            </ContextMenuSub>
+          ))}
+        </>
+      );
+    },
+    [
+      pipelinesLoadFailed,
+      isPipelinesLoaded,
+      allPipelines,
+      convPipelineStates,
+      t,
+      handlePipelineStageSelect,
+      handleRemoveFromPipeline,
+    ],
+  );
 
   // ðŸŽ¯ SYNC: Sincronizar local state com FiltersContext para compatibilidade com o modal
   useEffect(() => {
@@ -348,7 +593,12 @@ const ChatSidebar = ({
     const isArchived = Boolean(conversation.custom_attributes?.archived);
 
     return (
-      <ContextMenu key={conversation.id}>
+      <ContextMenu
+        key={conversation.id}
+        onOpenChange={open => {
+          if (open) loadConversationPipelineState(String(conversation.id));
+        }}
+      >
         <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
         <ContextMenuContent className="w-56">
           {/* Read/Unread Actions */}
@@ -526,6 +776,19 @@ const ChatSidebar = ({
               ? t('chatHeader.actions.unarchiveConversation')
               : t('chatHeader.actions.archiveConversation')}
           </ContextMenuItem>
+
+          <ContextMenuSeparator />
+
+          {/* Pipeline Actions */}
+          <ContextMenuSub>
+            <ContextMenuSubTrigger className="flex items-center gap-2">
+              <GitBranch className="h-4 w-4" />
+              {t('pipeline.addTo')}
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent className="w-48">
+              {renderPipelineSubContent(conversation)}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
 
           <ContextMenuSeparator />
 
@@ -758,7 +1021,7 @@ const ChatSidebar = ({
                             {Boolean(conversation.custom_attributes?.pinned) && (
                               <Pin className="h-3.5 w-3.5 text-primary flex-shrink-0" />
                             )}
-                            {/* ðŸ“Œ Indicador de Post do Facebook */}
+                            {/* ðŸ"Œ Indicador de Post do Facebook */}
                             {conversation.additional_attributes?.conversation_type === 'post' && (
                               <Badge
                                 variant="outline"
@@ -816,7 +1079,7 @@ const ChatSidebar = ({
                     </div>
                     <div className="flex flex-col items-end gap-1 flex-shrink-0">
                       {(() => {
-                        // ðŸ”µ INDICADOR PADRÃƒO: Bolinha pequena seguindo padrÃ£o do sistema
+                        // ðŸ"µ INDICADOR PADRÃƒO: Bolinha pequena seguindo padrÃ£o do sistema
                         const hasUnreadMessages =
                           (conversations.getUnreadCount(conversation.id) || 0) > 0;
 
@@ -866,5 +1129,3 @@ const ChatSidebar = ({
 };
 
 export default ChatSidebar;
-
-

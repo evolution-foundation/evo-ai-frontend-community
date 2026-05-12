@@ -894,5 +894,19 @@
     "success": {
       "sent": "¡Plantilla enviada con éxito!"
     }
+  },
+  "pipeline": {
+    "section": "Pipeline",
+    "addTo": "Agregar al pipeline",
+    "removeFrom": "Quitar del pipeline",
+    "loading": "Cargando pipelines...",
+    "noPipelines": "No hay pipelines disponibles",
+    "loadError": "Error al cargar pipelines. Haz clic para reintentar.",
+    "addSuccess": "Agregado al pipeline",
+    "moveSuccess": "Movido a la etapa",
+    "removeSuccess": "Quitado del pipeline",
+    "addError": "Error al agregar al pipeline",
+    "moveError": "Error al mover a la etapa",
+    "removeError": "Error al quitar del pipeline"
   }
 }
