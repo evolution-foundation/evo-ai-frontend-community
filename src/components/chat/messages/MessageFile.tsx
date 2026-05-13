@@ -20,14 +20,20 @@ const MessageFile: React.FC<MessageFileProps> = ({ attachments }) => {
 
     try {
       const response = await fetch(url, { mode: 'cors' });
+      if (!response.ok) {
+        console.warn('[MessageFile] non-ok response:', response.status, url);
+        openAttachmentInNewTab({ url, filename });
+        return;
+      }
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = blobUrl;
       link.download = filename;
       link.click();
-      URL.revokeObjectURL(blobUrl);
-    } catch {
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 0);
+    } catch (err) {
+      console.warn('[MessageFile] download fallback after fetch error:', err);
       openAttachmentInNewTab({ url, filename });
     }
   };
