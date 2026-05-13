@@ -50,6 +50,7 @@ import { BaseFilter } from '@/types/core';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useDebounce } from '@/hooks/useDebounce';
 import chatService from '@/services/chat/chatService';
+import api from '@/services/core/api';
 import type {
   SearchConversationResult,
   SearchContactResult,
@@ -615,6 +616,31 @@ const ChatSidebar = ({
           />
         </div>
 
+  const [tabCounts, setTabCounts] = useState({ open: 0, pending: 0, resolved: 0 });
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const [openRes, pendingRes, resolvedRes] = await Promise.all([
+          api.get('/conversations/meta', { params: { status: 'open' } }),
+          api.get('/conversations/meta', { params: { status: 'pending' } }),
+          api.get('/conversations/meta', { params: { status: 'resolved' } })
+        ]);
+        
+        setTabCounts({
+          open: openRes.data?.data?.count || openRes.data?.meta?.total_count || 0,
+          pending: pendingRes.data?.data?.count || pendingRes.data?.meta?.total_count || 0,
+          resolved: resolvedRes.data?.data?.count || resolvedRes.data?.meta?.total_count || 0
+        });
+      } catch (err) {
+        console.error('Failed to fetch conversation counts:', err);
+      }
+    };
+    
+    fetchCounts();
+    // Re-fetch when conversations change (like when one is resolved or new one arrives)
+  }, [conversations.state.conversations]);
+
         <div className="flex items-center gap-2">
           <Button
             type="button"
@@ -624,7 +650,7 @@ const ChatSidebar = ({
             aria-pressed={activeTab === 'open'}
             onClick={() => setActiveTab('open')}
           >
-            Atendendo
+            Atendendo {tabCounts.open > 0 ? `(${tabCounts.open})` : ''}
           </Button>
           <Button
             type="button"
@@ -634,7 +660,7 @@ const ChatSidebar = ({
             aria-pressed={activeTab === 'pending'}
             onClick={() => setActiveTab('pending')}
           >
-            Aguardando
+            Aguardando {tabCounts.pending > 0 ? `(${tabCounts.pending})` : ''}
           </Button>
           <Button
             type="button"
@@ -644,7 +670,7 @@ const ChatSidebar = ({
             aria-pressed={activeTab === 'resolved'}
             onClick={() => setActiveTab('resolved')}
           >
-            Fechados
+            Fechados {tabCounts.resolved > 0 ? `(${tabCounts.resolved})` : ''}
           </Button>
         </div>
 
