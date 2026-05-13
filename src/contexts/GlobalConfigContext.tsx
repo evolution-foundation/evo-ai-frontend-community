@@ -82,14 +82,18 @@ export const fetchSetupStatus = async (): Promise<boolean> => {
     setupRequiredCache = status.status === 'inactive';
     return setupRequiredCache;
   } catch (e) {
-    // Fail open to the setup wizard so a transient backend outage during
-    // first boot (auth-service still warming up, migrations running, etc.)
-    // doesn't strand the user on /login with no way to bootstrap.
-    // The bootstrap endpoint itself rejects with AlreadyBootstrappedError
-    // if setup was already completed, so this is safe for healthy installs.
+    // Fail closed: when /setup/status errors transiently (network hiccup,
+    // auth-service restart) we do NOT push the user to the bootstrap wizard.
+    // Fresh installs are already handled correctly by the auth-service
+    // (commit 2c7e6b8, EVO-971): /setup/status now reports `inactive`
+    // whenever User.exists? is false, so a wiped install reaches /setup
+    // through the success path, not through this fallback. The previous
+    // fail-open default sent every logged-in user to the wizard on any
+    // transient outage, where an operator could re-run bootstrap by
+    // mistake.
     // Do not cache the failure — the next render retries.
-    console.warn('[GlobalConfig] /setup/status failed, defaulting setupRequired=true', e);
-    return true;
+    console.warn('[GlobalConfig] /setup/status failed, defaulting setupRequired=false', e);
+    return false;
   }
 };
 

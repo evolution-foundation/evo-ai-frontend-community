@@ -103,11 +103,13 @@ describe('GlobalConfigContext', () => {
     });
   });
 
-  // EVO-971: when the /setup/status call fails (e.g. auth-service still warming
-  // up on first `docker compose up`), the frontend must default to showing the
-  // setup wizard rather than stranding the user on /login with no way to
-  // bootstrap. Bootstrap itself rejects double-init, so this is safe.
-  it('defaults setupRequired=true when /setup/status fails', async () => {
+  // EVO-1046: a transient /setup/status failure (network hiccup, auth-service
+  // restart) must NOT push a logged-in user to the bootstrap wizard. Fresh
+  // installs are already handled by the auth-service /setup/status reporting
+  // `inactive` when User.exists? is false (commit 2c7e6b8, EVO-971), so the
+  // fail-open path is no longer needed and was actively harmful (operators
+  // could re-run bootstrap by accident on a healthy install).
+  it('defaults setupRequired=false when /setup/status fails (no fail-open to wizard)', async () => {
     vi.mocked(setupService.getStatus).mockRejectedValueOnce(new Error('ECONNREFUSED'));
     mockApi.get.mockResolvedValueOnce({ data: {} });
 
@@ -120,7 +122,7 @@ describe('GlobalConfigContext', () => {
     await waitFor(() => {
       const configEl = screen.getByTestId('config');
       const parsed = JSON.parse(configEl.textContent || '{}');
-      expect(parsed.setupRequired).toBe(true);
+      expect(parsed.setupRequired).toBe(false);
       expect(parsed.setupLoading).toBe(false);
     });
   });
