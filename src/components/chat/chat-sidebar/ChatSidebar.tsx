@@ -238,6 +238,31 @@ const ChatSidebar = ({
     onFilterClear();
   };
 
+  const [tabCounts, setTabCounts] = useState({ open: 0, pending: 0, resolved: 0 });
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const [openRes, pendingRes, resolvedRes] = await Promise.all([
+          api.get('/conversations/meta', { params: { status: 'open' } }),
+          api.get('/conversations/meta', { params: { status: 'pending' } }),
+          api.get('/conversations/meta', { params: { status: 'resolved' } })
+        ]);
+        
+        setTabCounts({
+          open: openRes.data?.data?.count || openRes.data?.meta?.total_count || 0,
+          pending: pendingRes.data?.data?.count || pendingRes.data?.meta?.total_count || 0,
+          resolved: resolvedRes.data?.data?.count || resolvedRes.data?.meta?.total_count || 0
+        });
+      } catch (err) {
+        console.error('Failed to fetch conversation counts:', err);
+      }
+    };
+    
+    fetchCounts();
+    // Re-fetch when conversations change (like when one is resolved or new one arrives)
+  }, [conversations.state.conversations]);
+
   const pagination = conversations.state.conversationsPagination;
   const currentPage = pagination?.page || 1;
   const totalPages = pagination?.total_pages || 1;
@@ -615,31 +640,6 @@ const ChatSidebar = ({
             onSelectMessage={handleSelectMessage}
           />
         </div>
-
-  const [tabCounts, setTabCounts] = useState({ open: 0, pending: 0, resolved: 0 });
-
-  useEffect(() => {
-    const fetchCounts = async () => {
-      try {
-        const [openRes, pendingRes, resolvedRes] = await Promise.all([
-          api.get('/conversations/meta', { params: { status: 'open' } }),
-          api.get('/conversations/meta', { params: { status: 'pending' } }),
-          api.get('/conversations/meta', { params: { status: 'resolved' } })
-        ]);
-        
-        setTabCounts({
-          open: openRes.data?.data?.count || openRes.data?.meta?.total_count || 0,
-          pending: pendingRes.data?.data?.count || pendingRes.data?.meta?.total_count || 0,
-          resolved: resolvedRes.data?.data?.count || resolvedRes.data?.meta?.total_count || 0
-        });
-      } catch (err) {
-        console.error('Failed to fetch conversation counts:', err);
-      }
-    };
-    
-    fetchCounts();
-    // Re-fetch when conversations change (like when one is resolved or new one arrives)
-  }, [conversations.state.conversations]);
 
         <div className="flex items-center gap-2">
           <Button
