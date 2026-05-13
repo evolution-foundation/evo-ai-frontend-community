@@ -67,5 +67,6 @@
     "loadError": "Failed to load roles",
     "systemRoleCannotDelete": "System roles cannot be deleted",
     "roleHasUsers": "Cannot delete a role that has assigned users"
-  }
+  },
+  "saveChanges": "Save Changes"
 }

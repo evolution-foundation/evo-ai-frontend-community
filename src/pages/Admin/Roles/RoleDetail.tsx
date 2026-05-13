@@ -4,14 +4,17 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
 import {
   Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   Checkbox,
+  Input,
   Label,
+  Textarea,
 } from '@evoapi/design-system';
-import { ArrowLeft, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Loader2, Pencil, Save, X } from 'lucide-react';
 import BaseHeader from '@/components/base/BaseHeader';
 import { rolesService, type Role } from '@/services/roles/rolesService';
 import { permissionsService } from '@/services/permissions';
@@ -29,6 +32,9 @@ export default function RoleDetail() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [editingMeta, setEditingMeta] = useState(false);
+  const [metaForm, setMetaForm] = useState({ name: '', description: '' });
+  const [savingMeta, setSavingMeta] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!id) return;
@@ -83,11 +89,40 @@ export default function RoleDetail() {
     try {
       const updated = await rolesService.bulkUpdatePermissions(role.id, Array.from(selected));
       setRole(updated);
+      permissionsService.clearPermissionsCache();
       toast.success(t('messages.permissionsSuccess'));
     } catch {
       toast.error(t('messages.permissionsError'));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const startEditMeta = () => {
+    if (!role) return;
+    setMetaForm({ name: role.name, description: role.description ?? '' });
+    setEditingMeta(true);
+  };
+
+  const cancelEditMeta = () => {
+    setEditingMeta(false);
+  };
+
+  const handleSaveMeta = async () => {
+    if (!role || !metaForm.name.trim()) return;
+    setSavingMeta(true);
+    try {
+      const updated = await rolesService.update(role.id, {
+        name: metaForm.name.trim(),
+        description: metaForm.description.trim() || undefined,
+      });
+      setRole(updated);
+      toast.success(t('messages.updateSuccess'));
+      setEditingMeta(false);
+    } catch {
+      toast.error(t('messages.updateError'));
+    } finally {
+      setSavingMeta(false);
     }
   };
 
@@ -102,6 +137,7 @@ export default function RoleDetail() {
   if (!role || !resourceActions) return null;
 
   const canEdit = can('roles', 'bulk_update_permissions');
+  const canUpdate = can('roles', 'update');
   const resources = resourceActions.resources;
 
   return (
@@ -134,8 +170,53 @@ export default function RoleDetail() {
           <span className="text-sm text-sidebar-foreground/60">
             {selected.size} {t('detail.permissionsSelected')}
           </span>
+          {canUpdate && !role.system && !editingMeta && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-sidebar-foreground/60 hover:text-sidebar-foreground"
+              onClick={startEditMeta}
+            >
+              <Pencil className="h-3.5 w-3.5 mr-1" />
+              {t('editRole')}
+            </Button>
+          )}
         </div>
       </BaseHeader>
+
+      {editingMeta && (
+        <div className="mt-4 mb-2 rounded-md border border-sidebar-border bg-sidebar p-4 space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="meta-name">{t('createModal.nameLabel')}</Label>
+            <Input
+              id="meta-name"
+              value={metaForm.name}
+              onChange={e => setMetaForm(prev => ({ ...prev, name: e.target.value }))}
+              disabled={savingMeta}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="meta-description">{t('createModal.descriptionLabel')}</Label>
+            <Textarea
+              id="meta-description"
+              value={metaForm.description}
+              onChange={e => setMetaForm(prev => ({ ...prev, description: e.target.value }))}
+              rows={2}
+              disabled={savingMeta}
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={handleSaveMeta} disabled={savingMeta || !metaForm.name.trim()}>
+              {savingMeta ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Save className="h-3.5 w-3.5 mr-1" />}
+              {t('saveChanges')}
+            </Button>
+            <Button variant="outline" size="sm" onClick={cancelEditMeta} disabled={savingMeta}>
+              <X className="h-3.5 w-3.5 mr-1" />
+              {t('createModal.cancel')}
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 overflow-auto mt-6">
         {Object.keys(resources).length === 0 ? (

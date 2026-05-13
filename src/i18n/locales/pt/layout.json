@@ -111,6 +111,7 @@
       "templates": "Templates",
       "integrations": "Integrações",
       "accessTokens": "Tokens de Acesso",
+      "roles": "Perfis e Permissões",
       "admin": "Configurações Admin"
     }
   }

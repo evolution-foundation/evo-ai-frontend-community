@@ -19,6 +19,7 @@ import { Plus, Pencil, Trash2, Loader2, ShieldCheck } from 'lucide-react';
 import BaseHeader from '@/components/base/BaseHeader';
 import EmptyState from '@/components/base/EmptyState';
 import { rolesService, type Role } from '@/services/roles/rolesService';
+import { permissionsService } from '@/services/permissions';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 export default function RolesList() {
@@ -83,6 +84,7 @@ export default function RolesList() {
     setDeleteDialog(prev => ({ ...prev, deleting: true }));
     try {
       await rolesService.destroy(deleteDialog.role.id);
+      permissionsService.clearPermissionsCache();
       toast.success(t('messages.deleteSuccess'));
       setRoles(prev => prev.filter(r => r.id !== deleteDialog.role?.id));
       setDeleteDialog({ open: false, role: null, deleting: false });

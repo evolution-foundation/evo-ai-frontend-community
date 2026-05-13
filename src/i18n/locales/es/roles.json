@@ -1,71 +1,72 @@
 {
-  "title": "Roles & Permissions",
-  "description": "Manage roles and their permissions. System roles cannot be deleted, but their permissions can be edited.",
+  "title": "Perfiles y Permisos",
+  "description": "Gestione perfiles y sus permisos. Los perfiles del sistema no pueden eliminarse, pero sus permisos pueden editarse.",
   "header": {
-    "subtitle": "{{count}} role(s) configured",
-    "searchPlaceholder": "Search roles..."
+    "subtitle": "{{count}} perfil(es) configurado(s)",
+    "searchPlaceholder": "Buscar perfiles..."
   },
-  "addRole": "New Role",
-  "editRole": "Edit Role",
-  "deleteRole": "Delete Role",
-  "backToList": "Back to Roles",
-  "savePermissions": "Save Permissions",
-  "saving": "Saving...",
-  "noRoles": "No roles found",
-  "noRolesDescription": "Create a custom role to get started.",
+  "addRole": "Nuevo Perfil",
+  "editRole": "Editar Perfil",
+  "deleteRole": "Eliminar Perfil",
+  "backToList": "Volver a Perfiles",
+  "savePermissions": "Guardar Permisos",
+  "saving": "Guardando...",
+  "noRoles": "No se encontraron perfiles",
+  "noRolesDescription": "Crea un perfil personalizado para empezar.",
   "table": {
-    "name": "Name",
-    "description": "Description",
-    "type": "Type",
-    "permissions": "Permissions",
-    "users": "Users",
-    "actions": "Actions"
+    "name": "Nombre",
+    "description": "Descripción",
+    "type": "Tipo",
+    "permissions": "Permisos",
+    "users": "Usuarios",
+    "actions": "Acciones"
   },
   "type": {
-    "user": "User",
-    "account": "Account"
+    "user": "Usuario",
+    "account": "Cuenta"
   },
   "badges": {
-    "system": "System",
-    "custom": "Custom"
+    "system": "Sistema",
+    "custom": "Personalizado"
   },
   "detail": {
-    "permissionsTitle": "Permissions",
-    "permissionsDescription": "Check the permissions this role should have. Changes take effect on the user's next session refresh.",
-    "permissionsSelected": "permissions selected",
-    "selectAll": "Select all",
-    "deselectAll": "Deselect all",
-    "noPermissions": "No permissions available."
+    "permissionsTitle": "Permisos",
+    "permissionsDescription": "Marca los permisos que debe tener este perfil. Los cambios tienen efecto en el próximo acceso del usuario.",
+    "permissionsSelected": "permisos seleccionados",
+    "selectAll": "Seleccionar todos",
+    "deselectAll": "Deseleccionar todos",
+    "noPermissions": "No hay permisos disponibles."
   },
   "createModal": {
-    "title": "Create Role",
-    "description": "Define a name and optional description for the new role. You can configure permissions after creation.",
-    "nameLabel": "Name",
-    "namePlaceholder": "e.g. Support Agent",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "Brief description of this role",
-    "cancel": "Cancel",
-    "create": "Create Role",
-    "creating": "Creating..."
+    "title": "Crear Perfil",
+    "description": "Define un nombre y descripción opcional para el nuevo perfil. Puedes configurar los permisos después de crearlo.",
+    "nameLabel": "Nombre",
+    "namePlaceholder": "ej. Agente de Soporte",
+    "descriptionLabel": "Descripción",
+    "descriptionPlaceholder": "Breve descripción de este perfil",
+    "cancel": "Cancelar",
+    "create": "Crear Perfil",
+    "creating": "Creando..."
   },
   "deleteDialog": {
-    "title": "Delete Role",
-    "description": "Are you sure you want to delete the role \"{{name}}\"? This action cannot be undone.",
-    "cancel": "Cancel",
-    "confirm": "Delete",
-    "deleting": "Deleting..."
+    "title": "Eliminar Perfil",
+    "description": "¿Estás seguro de que quieres eliminar el perfil \"{{name}}\"? Esta acción no se puede deshacer.",
+    "cancel": "Cancelar",
+    "confirm": "Eliminar",
+    "deleting": "Eliminando..."
   },
   "messages": {
-    "createSuccess": "Role created successfully",
-    "createError": "Failed to create role",
-    "updateSuccess": "Role updated successfully",
-    "updateError": "Failed to update role",
-    "deleteSuccess": "Role deleted successfully",
-    "deleteError": "Failed to delete role",
-    "permissionsSuccess": "Permissions saved successfully",
-    "permissionsError": "Failed to save permissions",
-    "loadError": "Failed to load roles",
-    "systemRoleCannotDelete": "System roles cannot be deleted",
-    "roleHasUsers": "Cannot delete a role that has assigned users"
-  }
+    "createSuccess": "Perfil creado exitosamente",
+    "createError": "Error al crear el perfil",
+    "updateSuccess": "Perfil actualizado exitosamente",
+    "updateError": "Error al actualizar el perfil",
+    "deleteSuccess": "Perfil eliminado exitosamente",
+    "deleteError": "Error al eliminar el perfil",
+    "permissionsSuccess": "Permisos guardados exitosamente",
+    "permissionsError": "Error al guardar los permisos",
+    "loadError": "Error al cargar los perfiles",
+    "systemRoleCannotDelete": "Los perfiles del sistema no pueden eliminarse",
+    "roleHasUsers": "No se puede eliminar un perfil con usuarios asignados"
+  },
+  "saveChanges": "Guardar Cambios"
 }

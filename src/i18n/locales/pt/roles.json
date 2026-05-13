@@ -67,5 +67,6 @@
     "loadError": "Falha ao carregar perfis",
     "systemRoleCannotDelete": "Perfis do sistema não podem ser excluídos",
     "roleHasUsers": "Não é possível excluir um perfil com usuários atribuídos"
-  }
+  },
+  "saveChanges": "Guardar Alterações"
 }
