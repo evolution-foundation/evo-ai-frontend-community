@@ -429,40 +429,6 @@
         "execute": "Eseguire Macro"
       }
     },
-    "pipeline": {
-      "loading": "Errore nel caricamento dei dati della pipeline",
-      "noPipelines": "Nessuna pipeline configurata",
-      "current": "Pipeline Attuale",
-      "label": "Pipeline",
-      "selectPipeline": "Seleziona una pipeline",
-      "selectStage": "Seleziona uno stadio",
-      "stage": "Stadio",
-      "saving": "Salvataggio...",
-      "save": "Salva",
-      "saveSuccess": "Pipeline aggiornata con successo",
-      "saveError": "Errore nell'aggiornamento della pipeline",
-      "selectError": "Seleziona una pipeline e uno stadio",
-      "removeSuccess": "Conversazione rimossa dalla pipeline",
-      "removeError": "Errore nella rimozione dalla pipeline",
-      "dialogs": {
-        "update": {
-          "title": "Aggiorna Pipeline",
-          "description": "Sei sicuro di voler spostare questa conversazione a {{pipelineName}} nello stadio {{stageName}}?",
-          "confirm": "Aggiorna"
-        },
-        "add": {
-          "title": "Aggiungi alla Pipeline",
-          "description": "Sei sicuro di voler aggiungere questa conversazione alla pipeline {{pipelineName}} nello stadio {{stageName}}?",
-          "confirm": "Aggiungi"
-        },
-        "remove": {
-          "title": "Rimuovi dalla Pipeline",
-          "description": "Sei sicuro di voler rimuovere questa conversazione dalla pipeline {{pipelineName}}? Questa azione non può essere annullata.",
-          "cancel": "Annulla",
-          "confirm": "Rimuovi"
-        }
-      }
-    },
     "filters": {
       "assignee": {
         "title": "Assegnazione Conversazione",

@@ -456,40 +456,6 @@
         "execute": "Executar Macro"
       }
     },
-    "pipeline": {
-      "loading": "Erro ao carregar dados do pipeline",
-      "noPipelines": "Nenhum pipeline configurado",
-      "current": "Pipeline Atual",
-      "label": "Pipeline",
-      "selectPipeline": "Selecione um pipeline",
-      "selectStage": "Selecione um estágio",
-      "stage": "Estágio",
-      "saving": "Salvando...",
-      "save": "Salvar",
-      "saveSuccess": "Pipeline atualizado com sucesso",
-      "saveError": "Erro ao atualizar pipeline",
-      "selectError": "Selecione um pipeline e um estágio",
-      "removeSuccess": "Conversa removida do pipeline",
-      "removeError": "Erro ao remover do pipeline",
-      "dialogs": {
-        "update": {
-          "title": "Atualizar Pipeline",
-          "description": "Você tem certeza que deseja mover esta conversa para {{pipelineName}} no estágio {{stageName}}?",
-          "confirm": "Atualizar"
-        },
-        "add": {
-          "title": "Adicionar ao Pipeline",
-          "description": "Você tem certeza que deseja adicionar esta conversa ao pipeline {{pipelineName}} no estágio {{stageName}}?",
-          "confirm": "Adicionar"
-        },
-        "remove": {
-          "title": "Remover do Pipeline",
-          "description": "Você tem certeza que deseja remover esta conversa do pipeline {{pipelineName}}? Esta ação não pode ser desfeita.",
-          "cancel": "Cancelar",
-          "confirm": "Remover"
-        }
-      }
-    },
     "filters": {
       "assignee": {
         "title": "Atribuição de Conversa",

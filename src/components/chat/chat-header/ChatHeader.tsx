@@ -42,6 +42,7 @@ import { getStatusLabel, isPendingStatus } from '@/utils/chat/conversationStatus
 import { isPhoneBearingChannel } from '@/utils/channelUtils';
 import { formatContactPhone } from '@/utils/contact/formatContactPhone';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useChatContext } from '@/contexts/chat/ChatContext';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import chatService from '@/services/chat/chatService';
 import { toast } from 'sonner';
@@ -99,6 +100,7 @@ const ChatHeader = ({
   unreadCount,
 }: ChatHeaderProps) => {
   const { t } = useLanguage('chat');
+  const chatContext = useChatContext();
   const currentStatus = conversation.status;
   const hasUnreadMessages = unreadCount > 0;
   const isPinned = Boolean(conversation.custom_attributes?.pinned);
@@ -135,6 +137,10 @@ const ChatHeader = ({
   }, []);
 
   useEffect(() => {
+    setConvPipelineData(null);
+  }, [conversation.id]);
+
+  useEffect(() => {
     if (!menuOpen) return;
 
     const fetchId = ++pipelineFetchCountRef.current;
@@ -164,6 +170,7 @@ const ChatHeader = ({
       const envelope = raw as unknown as { data?: Conversation } | null;
       const updated: Conversation | null = envelope?.data ?? (raw as unknown as Conversation);
       if (updated) {
+        chatContext.conversations.updateConversation(updated);
         const pipelines = await pipelinesService.getPipelinesByConversation(
           String(conversation.id),
         );
@@ -172,13 +179,13 @@ const ChatHeader = ({
     } catch {
       // badge refresh is best-effort
     }
-  }, [conversation.id]);
+  }, [conversation.id, chatContext]);
 
   const handlePipelineStageSelect = useCallback(
     async (pipeline: Pipeline, stage: PipelineStage) => {
       const currentPipelines = convPipelineData?.pipelines ?? [];
       const existingInSamePipeline = currentPipelines.find(p => p.id === pipeline.id);
-      const existingInOtherPipeline = currentPipelines.find(p => p.id !== pipeline.id);
+      const existingInOtherPipelines = currentPipelines.filter(p => p.id !== pipeline.id);
 
       if (existingInSamePipeline) {
         const item = existingInSamePipeline.items?.find(
@@ -199,18 +206,19 @@ const ChatHeader = ({
           toast.error(t('pipeline.moveError'));
         }
       } else {
-        if (existingInOtherPipeline) {
-          const otherItem = existingInOtherPipeline.items?.find(
-            i => String(i.item_id) === String(conversation.id),
-          );
-          const otherItemId = otherItem?.id;
-          if (otherItemId) {
-            try {
-              await pipelinesService.removeItemFromPipeline(existingInOtherPipeline.id, otherItemId);
-            } catch {
-              toast.error(t('pipeline.removeError'));
-              return;
-            }
+        if (existingInOtherPipelines.length > 0) {
+          try {
+            await Promise.all(
+              existingInOtherPipelines.map(p => {
+                const item = p.items?.find(i => String(i.item_id) === String(conversation.id));
+                return item?.id
+                  ? pipelinesService.removeItemFromPipeline(p.id, item.id)
+                  : Promise.resolve();
+              }),
+            );
+          } catch {
+            toast.error(t('pipeline.removeError'));
+            return;
           }
         }
         try {

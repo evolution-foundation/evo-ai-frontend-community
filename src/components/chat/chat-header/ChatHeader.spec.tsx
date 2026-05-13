@@ -22,6 +22,13 @@ vi.mock('@/services/chat/chatService', () => ({
   },
 }));
 
+const mockUpdateConversation = vi.fn();
+vi.mock('@/contexts/chat/ChatContext', () => ({
+  useChatContext: () => ({
+    conversations: { updateConversation: mockUpdateConversation },
+  }),
+}));
+
 vi.mock('sonner', () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
@@ -240,6 +247,92 @@ describe('ChatHeader pipeline', () => {
         type: 'conversation',
         pipeline_stage_id: 'stage-B',
       });
+    });
+  });
+
+  it('dispatches updateConversation after pipeline action to refresh badge (C1)', async () => {
+    const pipeline = makePipeline('p1', [{ id: 'stage-1', name: 'Lead' }]);
+    vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [pipeline] } as never);
+    vi.mocked(pipelinesService.getPipelinesByConversation).mockResolvedValue([]);
+    vi.mocked(pipelinesService.addItemToPipeline).mockResolvedValue({} as never);
+    const updatedConv = makeConversation('42');
+    vi.mocked(chatService.getConversation).mockResolvedValue({ data: updatedConv } as never);
+
+    render(<ChatHeader {...defaultProps} />);
+    await waitFor(() => expect(pipelinesService.getPipelines).toHaveBeenCalled());
+
+    const user = userEvent.setup();
+    await openPipelineAndSelectStage(user, 'Pipeline p1', 'Lead');
+
+    await waitFor(() => {
+      expect(mockUpdateConversation).toHaveBeenCalledWith(updatedConv);
+    });
+  });
+
+  it('removes ALL pipelines when conversation is in 2+ pipelines before adding to new one (H1)', async () => {
+    const makeItem = (id: string, pipelineId: string) => ({
+      id,
+      item_id: '42',
+      stage_id: `stage-${pipelineId}`,
+      pipeline_id: pipelineId,
+      type: 'conversation',
+      is_lead: false,
+      created_at: '',
+      updated_at: '',
+    });
+    const pOld1 = makePipeline('p-old1', [{ id: 'stage-p-old1', name: 'StageA' }], [makeItem('item-1', 'p-old1')]);
+    const pOld2 = makePipeline('p-old2', [{ id: 'stage-p-old2', name: 'StageB' }], [makeItem('item-2', 'p-old2')]);
+    const pNew  = makePipeline('p-new',  [{ id: 'stage-new',    name: 'StageC' }]);
+
+    vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [pOld1, pOld2, pNew] } as never);
+    vi.mocked(pipelinesService.getPipelinesByConversation).mockResolvedValue([pOld1, pOld2]);
+    vi.mocked(pipelinesService.removeItemFromPipeline).mockResolvedValue({ success: true, message: '' });
+    vi.mocked(pipelinesService.addItemToPipeline).mockResolvedValue({} as never);
+
+    render(<ChatHeader {...defaultProps} />);
+    await waitFor(() => expect(pipelinesService.getPipelines).toHaveBeenCalled());
+
+    const user = userEvent.setup();
+    await openPipelineAndSelectStage(user, 'Pipeline p-new', 'StageC');
+
+    await waitFor(() => {
+      expect(pipelinesService.removeItemFromPipeline).toHaveBeenCalledWith('p-old1', 'item-1');
+      expect(pipelinesService.removeItemFromPipeline).toHaveBeenCalledWith('p-old2', 'item-2');
+      expect(pipelinesService.removeItemFromPipeline).toHaveBeenCalledTimes(2);
+      expect(pipelinesService.addItemToPipeline).toHaveBeenCalledWith('p-new', {
+        item_id: '42',
+        type: 'conversation',
+        pipeline_stage_id: 'stage-new',
+      });
+    });
+  });
+
+  it('shows loading label in stage submenu while getPipelinesByConversation is pending (isLoadingConvPipelines guard)', async () => {
+    const pipeline = makePipeline('p1', [{ id: 'stage-1', name: 'Lead' }]);
+    vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [pipeline] } as never);
+    vi.mocked(pipelinesService.getPipelinesByConversation).mockReturnValue(new Promise(() => {}));
+
+    render(<ChatHeader {...defaultProps} />);
+    await waitFor(() => expect(pipelinesService.getPipelines).toHaveBeenCalled());
+
+    const user = userEvent.setup();
+    const menuTrigger = document.querySelector<HTMLElement>('[data-slot="dropdown-menu-trigger"]')!;
+    await user.click(menuTrigger);
+
+    const addToTrigger = await screen.findByText('pipeline.addTo');
+    const addToSubTrigger = (addToTrigger.closest('[data-slot="dropdown-menu-sub-trigger"]') ?? addToTrigger) as HTMLElement;
+    addToSubTrigger.focus();
+    await user.keyboard('{ArrowRight}');
+
+    await waitFor(() => screen.getByText('Pipeline p1'), { timeout: 2000 });
+    const pipelineEl = screen.getByText('Pipeline p1');
+    const pipelineSubTrigger = (pipelineEl.closest('[data-slot="dropdown-menu-sub-trigger"]') ?? pipelineEl) as HTMLElement;
+    pipelineSubTrigger.focus();
+    await user.keyboard('{ArrowRight}');
+
+    await waitFor(() => {
+      expect(screen.getByText('pipeline.loading')).toBeInTheDocument();
+      expect(screen.queryByText('Lead')).not.toBeInTheDocument();
     });
   });
 

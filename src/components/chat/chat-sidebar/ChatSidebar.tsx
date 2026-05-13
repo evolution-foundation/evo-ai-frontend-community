@@ -207,7 +207,7 @@ const ChatSidebar = ({
       const convId = String(conversation.id);
       const currentPipelines = convPipelineStates.get(convId) ?? [];
       const existingInSamePipeline = currentPipelines.find(p => p.id === pipeline.id);
-      const existingInOtherPipeline = currentPipelines.find(p => p.id !== pipeline.id);
+      const existingInOtherPipelines = currentPipelines.filter(p => p.id !== pipeline.id);
 
       if (existingInSamePipeline) {
         const item = existingInSamePipeline.items?.find(
@@ -233,21 +233,19 @@ const ChatSidebar = ({
           toast.error(t('pipeline.moveError'));
         }
       } else {
-        if (existingInOtherPipeline) {
-          const otherItem = existingInOtherPipeline.items?.find(
-            i => String(i.item_id) === convId,
-          );
-          const otherItemId = otherItem?.id;
-          if (otherItemId) {
-            try {
-              await pipelinesService.removeItemFromPipeline(
-                existingInOtherPipeline.id,
-                otherItemId,
-              );
-            } catch {
-              toast.error(t('pipeline.removeError'));
-              return;
-            }
+        if (existingInOtherPipelines.length > 0) {
+          try {
+            await Promise.all(
+              existingInOtherPipelines.map(p => {
+                const item = p.items?.find(i => String(i.item_id) === convId);
+                return item?.id
+                  ? pipelinesService.removeItemFromPipeline(p.id, item.id)
+                  : Promise.resolve();
+              }),
+            );
+          } catch {
+            toast.error(t('pipeline.removeError'));
+            return;
           }
         }
         try {

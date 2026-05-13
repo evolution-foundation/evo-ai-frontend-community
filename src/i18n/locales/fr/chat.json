@@ -429,40 +429,6 @@
         "execute": "Exécuter la Macro"
       }
     },
-    "pipeline": {
-      "loading": "Erreur lors du chargement des données du pipeline",
-      "noPipelines": "Aucun pipeline configuré",
-      "current": "Pipeline Actuel",
-      "label": "Pipeline",
-      "selectPipeline": "Sélectionnez un pipeline",
-      "selectStage": "Sélectionnez une étape",
-      "stage": "Étape",
-      "saving": "Enregistrement...",
-      "save": "Enregistrer",
-      "saveSuccess": "Pipeline mis à jour avec succès",
-      "saveError": "Erreur lors de la mise à jour du pipeline",
-      "selectError": "Sélectionnez un pipeline et une étape",
-      "removeSuccess": "Conversation supprimée du pipeline",
-      "removeError": "Erreur lors de la suppression du pipeline",
-      "dialogs": {
-        "update": {
-          "title": "Mettre à jour le Pipeline",
-          "description": "Êtes-vous sûr de vouloir déplacer cette conversation vers {{pipelineName}} à l'étape {{stageName}} ?",
-          "confirm": "Mettre à jour"
-        },
-        "add": {
-          "title": "Ajouter au Pipeline",
-          "description": "Êtes-vous sûr de vouloir ajouter cette conversation au pipeline {{pipelineName}} à l'étape {{stageName}} ?",
-          "confirm": "Ajouter"
-        },
-        "remove": {
-          "title": "Retirer du Pipeline",
-          "description": "Êtes-vous sûr de vouloir retirer cette conversation du pipeline {{pipelineName}} ? Cette action ne peut pas être annulée.",
-          "cancel": "Annuler",
-          "confirm": "Retirer"
-        }
-      }
-    },
     "filters": {
       "assignee": {
         "title": "Attribution de Conversation",
