@@ -1,0 +1,88 @@
+{
+  "page": {
+    "title": "Modèles",
+    "subtitle": "Exportez et importez des configurations de workspace sous forme de paquets portables.",
+    "empty": "Vous n'avez encore créé ni importé aucun modèle.",
+    "actions": {
+      "export": "Exporter la configuration",
+      "import": "Importer un modèle"
+    }
+  },
+  "export": {
+    "title": "Exporter la configuration en tant que modèle",
+    "stepHint": "Suivant : {{nextStep}} · {{remaining}} étape(s) restante(s)",
+    "stepProgress": "Étape {{current}} sur {{total}}",
+    "step1": {
+      "title": "Détails du modèle",
+      "shortTitle": "Détails",
+      "name": "Nom du modèle",
+      "namePlaceholder": "ex : Clinique — configuration complète",
+      "description": "Description",
+      "descriptionPlaceholder": "Que configure ce modèle ?",
+      "author": "Auteur",
+      "next": "Suivant"
+    },
+    "step2": {
+      "title": "Sélectionnez ce qu'il faut inclure",
+      "shortTitle": "Sélectionner",
+      "subtitle": "Choisissez les éléments à inclure dans le paquet. Vous pouvez combiner des catégories.",
+      "selectAll": "Tout sélectionner dans cette catégorie",
+      "noItems": "Rien à exporter dans cette catégorie.",
+      "back": "Retour",
+      "next": "Vérifier"
+    },
+    "step3": {
+      "title": "Vérifier et télécharger",
+      "shortTitle": "Vérifier",
+      "summary": "Votre paquet contiendra {{count}} éléments dans {{categoryCount}} catégories.",
+      "credentialsWarning": "Les identifiants (clés d'API, jetons, mots de passe) NE seront PAS inclus. Les importeurs devront reconfigurer canaux et agents IA.",
+      "back": "Retour",
+      "download": "Télécharger le paquet",
+      "downloading": "Génération du paquet..."
+    },
+    "success": "Paquet téléchargé avec succès.",
+    "errors": {
+      "noSelection": "Sélectionnez au moins un élément à exporter.",
+      "failed": "Impossible d'exporter le paquet."
+    }
+  },
+  "import": {
+    "title": "Importer un modèle",
+    "subtitle": "Déposez un paquet .evotpl.zip ici, ou cliquez pour parcourir.",
+    "selectFile": "Sélectionner un paquet",
+    "fileSelected": "Sélectionné : {{name}} ({{size}})",
+    "submit": "Importer",
+    "importing": "Importation du modèle...",
+    "report": {
+      "title": "Importation terminée",
+      "subtitle": "Vérifiez ce qui a été créé.",
+      "warningsTitle": "Éléments nécessitant attention",
+      "createdCount": "{{count}} créés",
+      "renamedCount": "{{count}} renommés",
+      "skippedCount": "{{count}} ignorés",
+      "close": "Fermer"
+    },
+    "errors": {
+      "invalidBundle": "Le paquet est corrompu ou mal formé.",
+      "unsupportedSchema": "Version de schéma non prise en charge par cette version.",
+      "fileTooLarge": "Le paquet dépasse la taille maximale (50 Mo).",
+      "invalidType": "Seuls les fichiers .zip sont acceptés.",
+      "missingFile": "Choisissez un paquet à importer."
+    },
+    "warnings": {
+      "channelRequiresCredentials": "Canal importé sans identifiants. Reconnectez-le dans Paramètres → Canaux.",
+      "agentRequiresApiKey": "Agent importé sans clé d'API. Reconfigurez-le dans Paramètres → Agents IA."
+    }
+  },
+  "categories": {
+    "pipelines": "Pipelines",
+    "agents": "Agents IA",
+    "teams": "Équipes",
+    "labels": "Étiquettes",
+    "custom_attributes": "Attributs personnalisés",
+    "canned_responses": "Réponses prédéfinies",
+    "macros": "Macros",
+    "inboxes": "Canaux",
+    "message_templates": "Modèles de message"
+  }
+}

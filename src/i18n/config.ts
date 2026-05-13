@@ -606,6 +606,7 @@ const resources = {
     accountSettings: itAccountSettings,
     cannedResponses: itCannedResponses,
     products: itProducts,
+    templates: itTemplates,
     customAttributes: itCustomAttributes,
     labels: itLabels,
     macros: itMacros,

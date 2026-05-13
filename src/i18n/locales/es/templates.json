@@ -1,0 +1,88 @@
+{
+  "page": {
+    "title": "Plantillas",
+    "subtitle": "Exporta e importa configuraciones del workspace como paquetes portables.",
+    "empty": "Aún no has creado ni importado ninguna plantilla.",
+    "actions": {
+      "export": "Exportar configuración",
+      "import": "Importar plantilla"
+    }
+  },
+  "export": {
+    "title": "Exportar configuración como plantilla",
+    "stepHint": "Siguiente: {{nextStep}} · quedan {{remaining}} paso(s)",
+    "stepProgress": "Paso {{current}} de {{total}}",
+    "step1": {
+      "title": "Detalles de la plantilla",
+      "shortTitle": "Detalles",
+      "name": "Nombre de la plantilla",
+      "namePlaceholder": "ej: Clínica — configuración completa",
+      "description": "Descripción",
+      "descriptionPlaceholder": "¿Qué configura esta plantilla?",
+      "author": "Autor",
+      "next": "Siguiente"
+    },
+    "step2": {
+      "title": "Selecciona qué incluir",
+      "shortTitle": "Seleccionar elementos",
+      "subtitle": "Elige los elementos que van en el paquete. Puedes combinar categorías.",
+      "selectAll": "Seleccionar todos de esta categoría",
+      "noItems": "Nada que exportar en esta categoría.",
+      "back": "Atrás",
+      "next": "Revisar"
+    },
+    "step3": {
+      "title": "Revisar y descargar",
+      "shortTitle": "Revisar",
+      "summary": "Tu paquete incluirá {{count}} elementos en {{categoryCount}} categorías.",
+      "credentialsWarning": "Las credenciales (claves de API, tokens, contraseñas) NO se incluirán. Quien importe deberá reconfigurar canales y agentes de IA.",
+      "back": "Atrás",
+      "download": "Descargar paquete",
+      "downloading": "Generando paquete..."
+    },
+    "success": "Paquete descargado con éxito.",
+    "errors": {
+      "noSelection": "Selecciona al menos un elemento para exportar.",
+      "failed": "No se pudo exportar el paquete."
+    }
+  },
+  "import": {
+    "title": "Importar plantilla",
+    "subtitle": "Arrastra un paquete .evotpl.zip aquí, o haz clic para elegir.",
+    "selectFile": "Seleccionar paquete",
+    "fileSelected": "Seleccionado: {{name}} ({{size}})",
+    "submit": "Importar",
+    "importing": "Importando plantilla...",
+    "report": {
+      "title": "Importación completada",
+      "subtitle": "Revisa lo que se creó.",
+      "warningsTitle": "Elementos que requieren atención",
+      "createdCount": "{{count}} creados",
+      "renamedCount": "{{count}} renombrados",
+      "skippedCount": "{{count}} omitidos",
+      "close": "Cerrar"
+    },
+    "errors": {
+      "invalidBundle": "El paquete está corrupto o malformado.",
+      "unsupportedSchema": "La versión del esquema no es compatible con esta versión.",
+      "fileTooLarge": "El paquete excede el tamaño máximo (50MB).",
+      "invalidType": "Solo se aceptan archivos .zip.",
+      "missingFile": "Elige un paquete para importar."
+    },
+    "warnings": {
+      "channelRequiresCredentials": "Canal importado sin credenciales. Reconéctalo en Ajustes → Canales.",
+      "agentRequiresApiKey": "Agente importado sin clave de API. Reconfigúralo en Ajustes → Agentes de IA."
+    }
+  },
+  "categories": {
+    "pipelines": "Pipelines",
+    "agents": "Agentes de IA",
+    "teams": "Equipos",
+    "labels": "Etiquetas",
+    "custom_attributes": "Atributos personalizados",
+    "canned_responses": "Respuestas predefinidas",
+    "macros": "Macros",
+    "inboxes": "Canales",
+    "message_templates": "Plantillas de mensaje"
+  }
+}
