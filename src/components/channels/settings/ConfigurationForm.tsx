@@ -506,6 +506,7 @@ const EvolutionWhatsAppConfig: React.FC<{
     !inbox?.provider_config?.api_url &&
     !inbox?.provider_config?.admin_token;
 
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const [instanceSettings, setInstanceSettings] = useState({
     rejectCall: true,
     msgCall: 'Não aceito chamadas',
@@ -653,16 +654,23 @@ const EvolutionWhatsAppConfig: React.FC<{
     loadProfileSettings();
   }, [inbox.provider, inbox.provider_config, inbox.name]);
 
-  // Load instance status on mount and poll while modal is open
+  // Load instance status on mount and poll
   useEffect(() => {
+    let cancelled = false;
+
     const loadInstanceStatus = async () => {
       try {
         const provider = inbox.provider;
         const identifier = getIdentifier();
 
-        if (!identifier) return;
+        if (!identifier) {
+          setIsLoadingSettings(false);
+          return;
+        }
 
         const response = await EvolutionApiService.getInstances(identifier, provider);
+        if (cancelled) return;
+
         if (response?.data?.instance?.state) {
           const newStatus = response.data.instance.state;
           setInstanceStatus(newStatus);
@@ -675,22 +683,28 @@ const EvolutionWhatsAppConfig: React.FC<{
           }
         }
       } catch (error) {
-        console.error('Erro ao carregar status da instância:', error);
+        if (!cancelled) {
+          console.error('Erro ao carregar status da instância:', error);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingSettings(false);
+        }
       }
     };
 
     loadInstanceStatus();
 
-    // Poll status every 3 seconds while QR modal is open
-    let interval: NodeJS.Timeout | null = null;
-    if (showQrModal) {
-      interval = setInterval(loadInstanceStatus, 3000);
-    }
+    // Poll faster while QR modal is open, slower otherwise
+    const pollInterval = showQrModal ? 3000 : 15000;
+    const interval = setInterval(loadInstanceStatus, pollInterval);
 
     return () => {
-      if (interval) clearInterval(interval);
+      cancelled = true;
+      clearInterval(interval);
     };
-  }, [inbox.provider, inbox.provider_config, inbox.name, showQrModal, t]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inbox.provider, inbox.provider_config, inbox.name, showQrModal]);
 
   const handleGenerateQR = async () => {
     setIsLoading(true);
@@ -930,6 +944,29 @@ const EvolutionWhatsAppConfig: React.FC<{
       setIsLoading(false);
     }
   };
+
+  if (isLoadingSettings && !instanceStatus) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-5 w-5 rounded" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </div>
+            <div className="mt-4 space-y-3">
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-8 w-1/2" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
