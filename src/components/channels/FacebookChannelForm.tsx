@@ -221,10 +221,14 @@ export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookCha
     try {
       const fbPages = await ChannelsService.fetchFacebookPages(accessToken);
 
-      const pageDetails = fbPages?.data?.page_details || [];
+      // Devido à função extractData, fbPages já é o objeto interno.
+      // Adicionamos fallback para as duas estruturas por segurança.
+      const payload = fbPages?.page_details ? fbPages : fbPages?.data || {};
+      
+      const pageDetails = payload?.page_details || [];
       const availablePages = pageDetails.filter((p: any) => !p.exists);
 
-      setUserAccessToken(fbPages?.data?.user_access_token || accessToken);
+      setUserAccessToken(payload?.user_access_token || accessToken);
       setPages(availablePages);
       setIsLoading(false);
 
