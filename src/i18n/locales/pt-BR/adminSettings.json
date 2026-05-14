@@ -61,11 +61,7 @@
     "testConnection": "Testar Conexao",
     "testing": "Testando...",
     "testFailed": "Teste de conexao falhou",
-    "testError": "Falha ao executar teste de conexao",
-    "envWarning": {
-      "title": "Atenção:",
-      "body": "Salvar aqui persiste os valores, mas o serviço de email ainda lê as credenciais SMTP das variáveis de ambiente no boot. Até a EVO-1049 ser entregue, configure SMTP via env vars para fazer efeito."
-    }
+    "testError": "Falha ao executar teste de conexao"
   },
   "storage": {
     "title": "Configuracao de Armazenamento",

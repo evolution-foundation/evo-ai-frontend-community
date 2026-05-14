@@ -171,7 +171,7 @@ export default function SmtpConfig() {
       const type = (data.MAILER_TYPE as MailerType) || 'smtp';
       updateSecretStatus(data);
       reset(buildFormValues(data, type));
-    } catch (error) {
+    } catch {
       toast.error(t('email.messages.loadError'));
     } finally {
       setLoading(false);
@@ -226,7 +226,7 @@ export default function SmtpConfig() {
       } else {
         toast.error(t('email.testFailed'), { description: result.message });
       }
-    } catch (error) {
+    } catch {
       toast.error(t('email.testError'));
     } finally {
       setTesting(false);
@@ -296,14 +296,6 @@ export default function SmtpConfig() {
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-sidebar-foreground">{t('email.title')}</h2>
         <p className="text-sm text-sidebar-foreground/70 mt-1">{t('email.description')}</p>
-      </div>
-
-      {/* Runtime-not-applied warning — see Linear EVO-1049. Until that ships,
-          values saved here are persisted but the Rails apps continue reading
-          SMTP_* from ENV at boot time. */}
-      <div className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
-        <strong className="font-semibold">{t('email.envWarning.title')}</strong>{' '}
-        {t('email.envWarning.body')}
       </div>
 
       <Card>
