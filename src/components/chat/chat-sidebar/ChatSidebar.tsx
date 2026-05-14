@@ -646,31 +646,46 @@ const ChatSidebar = ({
             type="button"
             variant={activeTab === 'open' ? 'secondary' : 'ghost'}
             size="sm"
-            className="h-8 cursor-pointer"
+            className="h-8 cursor-pointer flex items-center gap-1.5 px-3"
             aria-pressed={activeTab === 'open'}
             onClick={() => setActiveTab('open')}
           >
-            Atendendo {tabCounts.open > 0 ? `(${tabCounts.open})` : ''}
+            Atendendo
+            {tabCounts.open > 0 && (
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold min-w-[20px] flex items-center justify-center ${activeTab === 'open' ? 'bg-primary/20 text-primary' : 'bg-muted-foreground/20 text-muted-foreground'}`}>
+                {tabCounts.open > 999 ? '999+' : tabCounts.open}
+              </span>
+            )}
           </Button>
           <Button
             type="button"
             variant={activeTab === 'pending' ? 'secondary' : 'ghost'}
             size="sm"
-            className="h-8 cursor-pointer"
+            className="h-8 cursor-pointer flex items-center gap-1.5 px-3"
             aria-pressed={activeTab === 'pending'}
             onClick={() => setActiveTab('pending')}
           >
-            Aguardando {tabCounts.pending > 0 ? `(${tabCounts.pending})` : ''}
+            Aguardando
+            {tabCounts.pending > 0 && (
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold min-w-[20px] flex items-center justify-center ${activeTab === 'pending' ? 'bg-primary/20 text-primary' : 'bg-muted-foreground/20 text-muted-foreground'}`}>
+                {tabCounts.pending > 999 ? '999+' : tabCounts.pending}
+              </span>
+            )}
           </Button>
           <Button
             type="button"
             variant={activeTab === 'resolved' ? 'secondary' : 'ghost'}
             size="sm"
-            className="h-8 cursor-pointer"
+            className="h-8 cursor-pointer flex items-center gap-1.5 px-3"
             aria-pressed={activeTab === 'resolved'}
             onClick={() => setActiveTab('resolved')}
           >
-            Fechados {tabCounts.resolved > 0 ? `(${tabCounts.resolved})` : ''}
+            Fechados
+            {tabCounts.resolved > 0 && (
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold min-w-[20px] flex items-center justify-center ${activeTab === 'resolved' ? 'bg-primary/20 text-primary' : 'bg-muted-foreground/20 text-muted-foreground'}`}>
+                {tabCounts.resolved > 999 ? '999+' : tabCounts.resolved}
+              </span>
+            )}
           </Button>
         </div>
 
