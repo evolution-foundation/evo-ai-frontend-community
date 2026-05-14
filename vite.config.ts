@@ -83,6 +83,28 @@ export default defineConfig({
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
     },
+    proxy: {
+      '/proxy-crm': {
+        target: 'https://crm.kaiabi.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/proxy-crm/, '')
+      },
+      '/proxy-auth': {
+        target: 'https://auth.kaiabi.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/proxy-auth/, '')
+      },
+      '/proxy-core': {
+        target: 'https://core.kaiabi.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/proxy-core/, '')
+      },
+      '/proxy-bot': {
+        target: 'https://bot.kaiabi.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/proxy-bot/, '')
+      }
+    },
     hmr: {
       // Reduce HMR overhead via ngrok
       overlay: false, // Disable error overlay

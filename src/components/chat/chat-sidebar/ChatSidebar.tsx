@@ -243,16 +243,32 @@ const ChatSidebar = ({
   useEffect(() => {
     const fetchCounts = async () => {
       try {
+        const assigneeFilter = filters.state.activeFilters.find(f => f.attribute_key === 'assignee_id');
+        const assigneeType = assigneeFilter?.values?.[0] === 'me' ? 'me'
+                           : assigneeFilter?.values?.[0] === 'unassigned' ? 'unassigned'
+                           : 'all';
+
+        const extractCount = (countData: any): number => {
+          if (typeof countData === 'number') return countData;
+          if (!countData || typeof countData !== 'object') return 0;
+          
+          if (assigneeType === 'me') return countData.mine_count || 0;
+          if (assigneeType === 'unassigned') return countData.unassigned_count || 0;
+          return countData.all_count || 0;
+        };
+
+        const extraParams = { assignee_type: assigneeType };
+
         const [openRes, pendingRes, resolvedRes] = await Promise.all([
-          api.get('/conversations/meta', { params: { status: 'open' } }),
-          api.get('/conversations/meta', { params: { status: 'pending' } }),
-          api.get('/conversations/meta', { params: { status: 'resolved' } })
+          api.get('/conversations/meta', { params: { status: 'open', ...extraParams } }),
+          api.get('/conversations/meta', { params: { status: 'pending', ...extraParams } }),
+          api.get('/conversations/meta', { params: { status: 'resolved', ...extraParams } })
         ]);
         
         setTabCounts({
-          open: openRes.data?.data?.count || openRes.data?.meta?.total_count || 0,
-          pending: pendingRes.data?.data?.count || pendingRes.data?.meta?.total_count || 0,
-          resolved: resolvedRes.data?.data?.count || resolvedRes.data?.meta?.total_count || 0
+          open: extractCount(openRes.data?.data?.count || openRes.data?.meta),
+          pending: extractCount(pendingRes.data?.data?.count || pendingRes.data?.meta),
+          resolved: extractCount(resolvedRes.data?.data?.count || resolvedRes.data?.meta)
         });
       } catch (err) {
         console.error('Failed to fetch conversation counts:', err);
@@ -260,8 +276,7 @@ const ChatSidebar = ({
     };
     
     fetchCounts();
-    // Re-fetch when conversations change (like when one is resolved or new one arrives)
-  }, [conversations.state.conversations]);
+  }, [conversations.state.conversations, filters.state.activeFilters]);
 
   const pagination = conversations.state.conversationsPagination;
   const currentPage = pagination?.page || 1;
@@ -641,51 +656,45 @@ const ChatSidebar = ({
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <Button
             type="button"
             variant={activeTab === 'open' ? 'secondary' : 'ghost'}
             size="sm"
-            className="h-8 cursor-pointer flex items-center gap-1.5 px-3"
+            className="h-8 cursor-pointer flex items-center gap-1 px-1.5 flex-shrink-0 text-xs"
             aria-pressed={activeTab === 'open'}
             onClick={() => setActiveTab('open')}
           >
             Atendendo
-            {tabCounts.open > 0 && (
-              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold min-w-[20px] flex items-center justify-center ${activeTab === 'open' ? 'bg-primary/20 text-primary' : 'bg-muted-foreground/20 text-muted-foreground'}`}>
-                {tabCounts.open > 999 ? '999+' : tabCounts.open}
-              </span>
-            )}
+            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold min-w-[20px] flex items-center justify-center ${activeTab === 'open' ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
+              {tabCounts.open > 999 ? '999+' : tabCounts.open || 0}
+            </span>
           </Button>
           <Button
             type="button"
             variant={activeTab === 'pending' ? 'secondary' : 'ghost'}
             size="sm"
-            className="h-8 cursor-pointer flex items-center gap-1.5 px-3"
+            className="h-8 cursor-pointer flex items-center gap-1 px-1.5 flex-shrink-0 text-xs"
             aria-pressed={activeTab === 'pending'}
             onClick={() => setActiveTab('pending')}
           >
             Aguardando
-            {tabCounts.pending > 0 && (
-              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold min-w-[20px] flex items-center justify-center ${activeTab === 'pending' ? 'bg-primary/20 text-primary' : 'bg-muted-foreground/20 text-muted-foreground'}`}>
-                {tabCounts.pending > 999 ? '999+' : tabCounts.pending}
-              </span>
-            )}
+            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold min-w-[20px] flex items-center justify-center ${activeTab === 'pending' ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
+              {tabCounts.pending > 999 ? '999+' : tabCounts.pending || 0}
+            </span>
           </Button>
           <Button
             type="button"
             variant={activeTab === 'resolved' ? 'secondary' : 'ghost'}
             size="sm"
-            className="h-8 cursor-pointer flex items-center gap-1.5 px-3"
+            className="h-8 cursor-pointer flex items-center gap-1 px-1.5 flex-shrink-0 text-xs"
             aria-pressed={activeTab === 'resolved'}
             onClick={() => setActiveTab('resolved')}
           >
             Fechados
-            {tabCounts.resolved > 0 && (
-              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold min-w-[20px] flex items-center justify-center ${activeTab === 'resolved' ? 'bg-primary/20 text-primary' : 'bg-muted-foreground/20 text-muted-foreground'}`}>
-                {tabCounts.resolved > 999 ? '999+' : tabCounts.resolved}
-              </span>
-            )}
+            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold min-w-[20px] flex items-center justify-center ${activeTab === 'resolved' ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
+              {tabCounts.resolved > 999 ? '999+' : tabCounts.resolved || 0}
+            </span>
           </Button>
         </div>
 
