@@ -369,7 +369,10 @@
     },
     "contactHeader": {
       "contactNoName": "Contatto senza nome",
-      "online": "Online"
+      "online": "Online",
+      "away": "Assente",
+      "busy": "Occupato",
+      "offline": "Offline"
     },
     "contactDetails": {
       "actions": {

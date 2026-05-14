@@ -182,7 +182,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
       >
         {/* Header com Avatar e Info Básica + Close Button */}
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative">
-          <ContactHeader contact={contact} />
+          <ContactHeader contact={contact} channelType={conversation?.inbox?.channel_type} />
 
           {/* Close Button */}
           <Button
