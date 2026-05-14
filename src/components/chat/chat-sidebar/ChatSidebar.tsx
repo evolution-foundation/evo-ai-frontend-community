@@ -555,16 +555,34 @@ const ChatSidebar = ({
 
     loadingMoreRef.current = true;
     setIsLoadingMoreConversations(true);
+
+    // Save scroll position before loading — the re-sort in visibleConversations
+    // causes a DOM restructure that resets scrollTop to 0.
+    const scrollTop = container.scrollTop;
+    const scrollHeight = container.scrollHeight;
+
     try {
       await conversations.loadMoreConversations();
     } finally {
       setIsLoadingMoreConversations(false);
       loadingMoreRef.current = false;
+
+      // Restore scroll position after React re-renders the appended list
+      requestAnimationFrame(() => {
+        if (sidebarScrollRef.current) {
+          const newScrollHeight = sidebarScrollRef.current.scrollHeight;
+          sidebarScrollRef.current.scrollTop = scrollTop + (newScrollHeight - scrollHeight);
+        }
+      });
     }
   }, [conversations]);
 
   const handleLoadMoreClick = useCallback(async () => {
     if (loadingMoreRef.current || isLoadingMoreConversations || !hasNextPage) return;
+
+    const container = sidebarScrollRef.current;
+    const savedScrollTop = container?.scrollTop ?? 0;
+    const savedScrollHeight = container?.scrollHeight ?? 0;
 
     loadingMoreRef.current = true;
     setIsLoadingMoreConversations(true);
@@ -573,6 +591,13 @@ const ChatSidebar = ({
     } finally {
       setIsLoadingMoreConversations(false);
       loadingMoreRef.current = false;
+
+      requestAnimationFrame(() => {
+        if (sidebarScrollRef.current) {
+          const newScrollHeight = sidebarScrollRef.current.scrollHeight;
+          sidebarScrollRef.current.scrollTop = savedScrollTop + (newScrollHeight - savedScrollHeight);
+        }
+      });
     }
   }, [conversations, hasNextPage, isLoadingMoreConversations]);
 
