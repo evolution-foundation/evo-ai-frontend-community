@@ -160,7 +160,7 @@ const ChatSidebar = ({
 
   useEffect(() => {
     onClearSelection();
-  }, [showArchived, onClearSelection]);
+  }, [activeTab, onClearSelection]);
 
   // Pipeline state
   const [allPipelines, setAllPipelines] = useState<Pipeline[]>([]);
