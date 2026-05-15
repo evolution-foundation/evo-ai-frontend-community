@@ -60,6 +60,7 @@ import { BaseFilter } from '@/types/core';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useDebounce } from '@/hooks/useDebounce';
 import chatService from '@/services/chat/chatService';
+import api from '@/services/core/api';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import { toast } from 'sonner';
 import type {
