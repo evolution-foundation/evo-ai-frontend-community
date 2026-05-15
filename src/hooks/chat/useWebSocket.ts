@@ -110,6 +110,15 @@ export const useWebSocket = (
         setIsConnected(false);
         originalOnDisconnected();
       };
+
+      // Sobrescrever onReconnected para atualizar estado React
+      const originalOnReconnected = connectorRef.current['onReconnected'].bind(
+        connectorRef.current,
+      );
+      connectorRef.current['onReconnected'] = () => {
+        setIsConnected(true);
+        originalOnReconnected();
+      };
     } catch (error) {
       console.error('❌ Erro ao conectar WebSocket:', error);
       setIsConnected(false);

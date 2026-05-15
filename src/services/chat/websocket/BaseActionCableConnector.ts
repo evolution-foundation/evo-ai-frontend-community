@@ -1,7 +1,9 @@
 import { createConsumer, Consumer, Subscription } from '@rails/actioncable';
 
 const PRESENCE_INTERVAL = 20000; // 20 segundos
-const RECONNECT_INTERVAL = 1000; // 1 segundo
+const INITIAL_RECONNECT_INTERVAL = 1000; // 1 segundo
+const MAX_RECONNECT_INTERVAL = 30000; // 30 segundos (teto do backoff)
+const MAX_RECONNECT_ATTEMPTS = 50; // desiste após 50 tentativas (~5 min com backoff)
 
 export interface WebSocketEvent {
   event: string;
@@ -31,6 +33,7 @@ export class BaseActionCableConnector {
   protected presenceTimer: NodeJS.Timeout | null = null;
   protected connectionParams: ConnectionParams;
   protected websocketURL?: string;
+  protected reconnectAttempts = 0;
 
   static isDisconnected = false;
 
@@ -69,10 +72,15 @@ export class BaseActionCableConnector {
 
           // Conectado com sucesso
           connected: () => {
+            const wasReconnecting = this.reconnectAttempts > 0;
             BaseActionCableConnector.isDisconnected = false;
+            this.reconnectAttempts = 0;
             this.onConnected();
             this.startPresenceInterval();
             this.clearReconnectTimer();
+            if (wasReconnecting) {
+              this.onReconnected();
+            }
           },
 
           // Desconectado
@@ -145,35 +153,78 @@ export class BaseActionCableConnector {
   }
 
   /**
-   * Verificar status da conexão e tentar reconectar
+   * Tentar reconectar ativamente ao WebSocket.
+   * Remove a subscription stale e chama connect() para criar nova.
+   * Usa backoff exponencial: 1s → 2s → 4s → 8s → ... → 30s (teto).
    */
-  protected checkConnection(): void {
+  protected attemptReconnect(): void {
     if (!this.consumer) {
       console.warn('⚠️ Consumer não disponível');
+      return;
+    }
+
+    // Incrementar tentativas ANTES do check de visibilidade para que
+    // o backoff funcione mesmo com tab em background (evita loop de 1s).
+    this.reconnectAttempts += 1;
+
+    // Não tentar reconectar com tab oculta — agendar para quando voltar
+    if (typeof document !== 'undefined' && document.hidden) {
       this.initReconnectTimer();
       return;
     }
 
-    const isReconnected = BaseActionCableConnector.isDisconnected && this.subscription;
-
-    if (isReconnected) {
-      this.clearReconnectTimer();
-      this.onReconnected();
-      BaseActionCableConnector.isDisconnected = false;
-    } else if (BaseActionCableConnector.isDisconnected) {
-      this.initReconnectTimer();
+    if (this.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+      console.error(`❌ WebSocket: desistiu após ${MAX_RECONNECT_ATTEMPTS} tentativas de reconexão`);
+      return;
     }
+
+    console.info(`🔄 WebSocket: tentativa de reconexão ${this.reconnectAttempts}...`);
+
+    // Remover subscription antiga antes de criar nova
+    if (this.subscription) {
+      try {
+        this.consumer.subscriptions.remove(this.subscription);
+      } catch {
+        // Ignorar erros ao remover subscription stale
+      }
+      this.subscription = null;
+    }
+
+    // Reconectar ativamente
+    this.connect();
   }
 
   /**
-   * Iniciar timer de reconexão
+   * Verificar status e decidir próxima ação.
+   * Chamado pelo timer de reconexão.
+   */
+  protected checkConnection(): void {
+    if (!BaseActionCableConnector.isDisconnected) {
+      // Conexão restaurada — nada a fazer (onReconnected já foi chamado
+      // pelo callback connected: via wasReconnecting)
+      this.clearReconnectTimer();
+      return;
+    }
+
+    // Ainda desconectado — tentar reconexão ativa
+    this.attemptReconnect();
+  }
+
+  /**
+   * Agendar tentativa de reconexão com backoff exponencial.
+   * Intervalo dobra a cada tentativa: 1s → 2s → 4s → ... → 30s (teto).
    */
   protected initReconnectTimer(): void {
     this.clearReconnectTimer();
 
+    const backoffInterval = Math.min(
+      INITIAL_RECONNECT_INTERVAL * Math.pow(2, this.reconnectAttempts),
+      MAX_RECONNECT_INTERVAL,
+    );
+
     this.reconnectTimer = setTimeout(() => {
       this.checkConnection();
-    }, RECONNECT_INTERVAL);
+    }, backoffInterval);
   }
 
   /**
