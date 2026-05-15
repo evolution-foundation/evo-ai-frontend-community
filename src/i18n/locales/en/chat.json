@@ -40,7 +40,8 @@
         "description": "Are you sure you want to delete this message? This action cannot be undone and the message will be permanently removed from the conversation.",
         "cancel": "Cancel",
         "confirm": "Delete message"
-      }
+      },
+      "deletedPlaceholder": "This message was deleted"
     },
     "moderation": {
       "banner": {

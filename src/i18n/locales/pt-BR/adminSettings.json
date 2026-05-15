@@ -271,6 +271,16 @@
       "saveSuccess": "Configuracao do Twitter salva com sucesso",
       "saveError": "Falha ao salvar configuracao do Twitter"
     },
+    "clearConfig": {
+      "button": "Limpar Configuração",
+      "dialogTitle": "Limpar Configuração",
+      "dialogDescription": "Tem certeza? Isso removerá todas as credenciais deste provedor. O provedor deixará de funcionar até que você o reconfigure.",
+      "cancel": "Cancelar",
+      "confirm": "Limpar",
+      "clearing": "Limpando...",
+      "success": "Configuração limpa com sucesso",
+      "error": "Falha ao limpar configuração"
+    },
     "messages": {
       "loadError": "Falha ao carregar configuracao dos canais"
     }

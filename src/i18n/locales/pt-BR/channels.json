@@ -848,7 +848,10 @@
           "callRejectionMessage": "Mensagem de rejeição de chamada",
           "callRejectionPlaceholder": "Mensagem quando rejeitar chamadas",
           "saveSettings": "Salvar Configurações",
+          "loading": "Carregando configurações da instância...",
           "errors": {
+            "title": "Erro de Configuração",
+            "loadFailed": "Falha ao carregar status da instância. Verifique suas configurações de conexão.",
             "nameNotFound": "Nome da instância não encontrado",
             "qrCodeError": "Erro ao gerar QR Code",
             "updateError": "Erro ao atualizar configurações da instância"
@@ -919,6 +922,10 @@
             "apiUrlPlaceholder": "https://api.evolution.com",
             "adminTokenLabel": "API Key",
             "adminTokenPlaceholder": "Insira a nova API Key",
+            "usingGlobalConfig": "Usando configurações globais do Admin",
+            "usingGlobalConfigHint": "A URL da API e o Token estão configurados globalmente nas Configurações de Admin. Preencha os campos abaixo apenas para substituir os valores globais para este canal.",
+            "apiUrlGlobalPlaceholder": "Usando config global — preencha para substituir",
+            "adminTokenGlobalPlaceholder": "Usando config global — preencha para substituir",
             "saveButton": "Salvar Configurações de Conexão",
             "success": {
               "updated": "Configurações de conexão atualizadas com sucesso!"

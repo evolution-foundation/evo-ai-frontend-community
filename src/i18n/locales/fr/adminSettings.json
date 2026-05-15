@@ -271,6 +271,16 @@
       "saveSuccess": "Configuration Twitter enregistree avec succes",
       "saveError": "Echec de l'enregistrement de la configuration Twitter"
     },
+    "clearConfig": {
+      "button": "Effacer la Configuration",
+      "dialogTitle": "Effacer la Configuration",
+      "dialogDescription": "Êtes-vous sûr ? Cela supprimera toutes les identifiants de ce fournisseur. Le fournisseur cessera de fonctionner jusqu'à ce que vous le reconfiguriez.",
+      "cancel": "Annuler",
+      "confirm": "Effacer",
+      "clearing": "Effacement...",
+      "success": "Configuration effacée avec succès",
+      "error": "Échec de l'effacement de la configuration"
+    },
     "messages": {
       "loadError": "Echec du chargement de la configuration des canaux"
     }

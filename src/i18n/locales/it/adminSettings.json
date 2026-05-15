@@ -271,6 +271,16 @@
       "saveSuccess": "Configurazione Twitter salvata con successo",
       "saveError": "Salvataggio della configurazione Twitter non riuscito"
     },
+    "clearConfig": {
+      "button": "Cancella Configurazione",
+      "dialogTitle": "Cancella Configurazione",
+      "dialogDescription": "Sei sicuro? Questo rimuoverà tutte le credenziali per questo provider. Il provider smetterà di funzionare fino a quando non lo riconfigurerai.",
+      "cancel": "Annulla",
+      "confirm": "Cancella",
+      "clearing": "Cancellazione...",
+      "success": "Configurazione cancellata con successo",
+      "error": "Impossibile cancellare la configurazione"
+    },
     "messages": {
       "loadError": "Caricamento della configurazione dei canali non riuscito"
     }

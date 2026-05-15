@@ -708,16 +708,31 @@ const EvolutionWhatsAppConfig: React.FC<{
 
     loadInstanceStatus();
 
-    // Poll faster while QR modal is open, slower otherwise
+    // Poll faster while QR modal is open, slower otherwise.
+    // Skip polling when tab is hidden (Page Visibility API) to avoid
+    // wasted requests — pattern from reconnectService.ts:42-47.
     const pollInterval = showQrModal ? 3000 : 15000;
-    const interval = setInterval(loadInstanceStatus, pollInterval);
+    const interval = setInterval(() => {
+      if (!document.hidden) {
+        loadInstanceStatus();
+      }
+    }, pollInterval);
+
+    // Resume polling immediately when tab becomes visible again
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadInstanceStatus();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       cancelled = true;
       clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inbox.provider, inbox.provider_config, inbox.name, showQrModal]);
+  }, [inbox.provider, inbox.name, showQrModal]);
 
   const handleGenerateQR = async () => {
     setIsLoading(true);

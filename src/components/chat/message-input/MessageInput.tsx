@@ -775,7 +775,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
               {/* File Upload Button */}
               <FileUpload
                 onFilesSelected={handleFilesSelected}
-                maxFileSize={10}
+                maxFileSize={100}
                 multiple={true}
                 disabled={isDisabled || isSending || isPendingConversation || hasCannedMedia}
               />

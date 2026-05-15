@@ -1,7 +1,9 @@
 import { createConsumer, Consumer, Subscription } from '@rails/actioncable';
 
 const PRESENCE_INTERVAL = 20000; // 20 segundos
-const RECONNECT_INTERVAL = 1000; // 1 segundo
+const INITIAL_RECONNECT_INTERVAL = 1000; // 1 segundo
+const MAX_RECONNECT_INTERVAL = 30000; // 30 segundos (backoff cap)
+const MAX_RECONNECT_ATTEMPTS = 50; // give up after 50 attempts (~5 min with backoff)
 
 export interface WebSocketEvent {
   event: string;
@@ -31,6 +33,7 @@ export class BaseActionCableConnector {
   protected presenceTimer: NodeJS.Timeout | null = null;
   protected connectionParams: ConnectionParams;
   protected websocketURL?: string;
+  protected reconnectAttempts = 0;
 
   static isDisconnected = false;
 
@@ -70,6 +73,7 @@ export class BaseActionCableConnector {
           // Conectado com sucesso
           connected: () => {
             BaseActionCableConnector.isDisconnected = false;
+            this.reconnectAttempts = 0;
             this.onConnected();
             this.startPresenceInterval();
             this.clearReconnectTimer();
@@ -145,35 +149,76 @@ export class BaseActionCableConnector {
   }
 
   /**
-   * Verificar status da conexão e tentar reconectar
+   * Actively attempt to reconnect the WebSocket subscription.
+   * Called from the disconnected callback and from the reconnect timer.
+   * Uses exponential backoff: 1s → 2s → 4s → 8s → ... → 30s cap.
    */
-  protected checkConnection(): void {
+  protected attemptReconnect(): void {
     if (!this.consumer) {
       console.warn('⚠️ Consumer não disponível');
+      return;
+    }
+
+    // Don't reconnect if tab is hidden — will reconnect on visibility change
+    if (typeof document !== 'undefined' && document.hidden) {
       this.initReconnectTimer();
       return;
     }
 
-    const isReconnected = BaseActionCableConnector.isDisconnected && this.subscription;
-
-    if (isReconnected) {
-      this.clearReconnectTimer();
-      this.onReconnected();
-      BaseActionCableConnector.isDisconnected = false;
-    } else if (BaseActionCableConnector.isDisconnected) {
-      this.initReconnectTimer();
+    if (this.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+      console.error(`❌ WebSocket: gave up after ${MAX_RECONNECT_ATTEMPTS} reconnect attempts`);
+      return;
     }
+
+    this.reconnectAttempts += 1;
+    console.info(`🔄 WebSocket: reconnect attempt ${this.reconnectAttempts}...`);
+
+    // Remove old subscription before creating a new one
+    if (this.subscription) {
+      try {
+        this.consumer.subscriptions.remove(this.subscription);
+      } catch {
+        // Ignore errors removing stale subscription
+      }
+      this.subscription = null;
+    }
+
+    // Actively re-establish the connection
+    this.connect();
   }
 
   /**
-   * Iniciar timer de reconexão
+   * Check if connection was restored (called from timer).
+   * If still disconnected, schedule another attempt with backoff.
+   */
+  protected checkConnection(): void {
+    if (!BaseActionCableConnector.isDisconnected) {
+      // Connection restored — reset attempts and notify
+      this.reconnectAttempts = 0;
+      this.clearReconnectTimer();
+      this.onReconnected();
+      return;
+    }
+
+    // Still disconnected — attempt active reconnection
+    this.attemptReconnect();
+  }
+
+  /**
+   * Schedule a reconnection attempt with exponential backoff.
+   * Interval doubles each attempt: 1s → 2s → 4s → 8s → ... → 30s cap.
    */
   protected initReconnectTimer(): void {
     this.clearReconnectTimer();
 
+    const backoffInterval = Math.min(
+      INITIAL_RECONNECT_INTERVAL * Math.pow(2, this.reconnectAttempts),
+      MAX_RECONNECT_INTERVAL,
+    );
+
     this.reconnectTimer = setTimeout(() => {
       this.checkConnection();
-    }, RECONNECT_INTERVAL);
+    }, backoffInterval);
   }
 
   /**

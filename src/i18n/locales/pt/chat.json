@@ -39,7 +39,8 @@
         "description": "Tem certeza de que deseja excluir esta mensagem? Esta ação não pode ser desfeita e a mensagem será permanentemente removida da conversa.",
         "cancel": "Cancelar",
         "confirm": "Excluir mensagem"
-      }
+      },
+      "deletedPlaceholder": "Esta mensagem foi eliminada"
     },
     "moderation": {
       "banner": {
