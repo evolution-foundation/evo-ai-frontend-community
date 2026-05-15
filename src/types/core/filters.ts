@@ -367,6 +367,15 @@ export const CONVERSATION_FILTER_TYPES: FilterType[] = [
     ],
   },
   {
+    attributeKey: 'assignee_id',
+    attributeI18nKey: 'conversationsFilter.attributes.assignee_id',
+    inputType: 'search_select',
+    dataType: 'text',
+    filterOperators: [{ key: 'equal_to', label: 'conversationsFilter.operators.equal_to', value: 'equal_to' }],
+    attribute_type: 'standard',
+    options: [], // Will be populated dynamically
+  },
+  {
     attributeKey: 'inbox_id',
     attributeI18nKey: 'conversationsFilter.attributes.inbox_id',
     inputType: 'search_select',

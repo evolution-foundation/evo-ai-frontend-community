@@ -24,11 +24,6 @@ interface FilterOptions {
 }
 
 interface UseFilterOptionsParams {
-  /**
-   * Se false, não carrega dados automaticamente
-   * Útil para carregar apenas quando modal é aberto
-   * @default true
-   */
   enabled?: boolean;
 }
 
@@ -52,9 +47,6 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
       setOptions(prev => ({ ...prev, loading: true, error: null }));
 
       try {
-        // ✅ Carregar inboxes, pipelines, contatos e labels em paralelo.
-        // Labels: per_page: 200 evita truncamento silencioso para contas com
-        // mais de 20 labels (default da paginação do /labels endpoint).
         const [inboxesResponse, pipelinesResponse, contactsResponse, labelsResponse] =
           await Promise.allSettled([
             InboxesService.list(),
@@ -63,12 +55,10 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
             labelsService.getLabels({ per_page: 200 }),
           ]);
 
-        // ✅ Processar inboxes
         const inboxes: Array<{ label: string; value: string }> = [];
         if (inboxesResponse.status === 'fulfilled') {
           inboxes.push(
             ...inboxesResponse.value.data.map((inbox: Inbox) => {
-              // Extrair o nome do tipo do canal (ex: "Channel::Whatsapp" -> "WhatsApp")
               const channelTypeName =
                 inbox.channel_type?.split('::')[1] || inbox.channel_type || 'Unknown';
               return {
@@ -79,12 +69,9 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
           );
         }
 
-        // ✅ Processar pipelines
         const pipelines: Array<{ label: string; value: string }> = [];
         if (pipelinesResponse.status === 'fulfilled') {
-          // O chatService já processa a resposta e retorna Pipeline[]
           const pipelinesData = pipelinesResponse.value || [];
-
           if (Array.isArray(pipelinesData)) {
             pipelines.push(
               ...pipelinesData.map((pipeline: Pipeline) => ({
@@ -92,8 +79,6 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
                 value: pipeline.id.toString(),
               })),
             );
-          } else {
-            console.warn('⚠️ Pipelines data não é um array:', pipelinesData);
           }
         }
 
@@ -102,8 +87,6 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
         if (labelsResponse.status === 'fulfilled') {
           const labelsData = labelsResponse.value?.data ?? [];
           if (Array.isArray(labelsData)) {
-            // Value = label.title to match filter_service#tag_filter_query, which
-            // compares against tags.name. Using label.id (UUID) here would never hit.
             labels.push(
               ...labelsData.map((label: Label) => ({
                 label: label.title,
@@ -140,19 +123,6 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
           error: null,
         });
 
-        // ✅ Log de erros individuais sem falhar o hook
-        if (inboxesResponse.status === 'rejected') {
-          console.warn('Erro ao carregar inboxes:', inboxesResponse.reason);
-        }
-        if (pipelinesResponse.status === 'rejected') {
-          console.warn('Erro ao carregar pipelines:', pipelinesResponse.reason);
-        }
-        if (contactsResponse.status === 'rejected') {
-          console.warn('Erro ao carregar contatos:', contactsResponse.reason);
-        }
-        if (labelsResponse.status === 'rejected') {
-          console.warn('Erro ao carregar labels:', labelsResponse.reason);
-        }
       } catch (error) {
         console.error('Erro ao carregar opções de filtro:', error);
         setOptions(prev => ({

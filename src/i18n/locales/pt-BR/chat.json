@@ -748,7 +748,8 @@
     },
     "attributes": {
       "status": "Status",
-      "assignee_type": "Responsável",
+      "assignee_type": "Responsável (Geral)",
+      "assignee_id": "Atendente Específico",
       "inbox_id": "Canal",
       "channel_type": "Tipo de Canal",
       "team_id": "Equipe",

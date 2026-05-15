@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import BaseFilter from '@/components/base/BaseFilter';
 import {
   BaseFilter as ConversationFilterType,
@@ -7,6 +7,7 @@ import {
 } from '@/types/core';
 import { useFilterOptions } from '@/hooks/chat/useFilterOptions';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useAppDataStore } from '@/store/appDataStore';
 
 interface ConversationsFilterProps {
   open: boolean;
@@ -29,6 +30,23 @@ export default function ConversationsFilter({
 
   // ⚡ OTIMIZAÇÃO: Carregar dados apenas quando modal é aberto
   const filterOptions = useFilterOptions({ enabled: open });
+
+  // Puxar atendentes direto da store global para evitar ciclos de dependência
+  const agents = useAppDataStore(state => state.agents);
+  const fetchAgents = useAppDataStore(state => state.fetchAgents);
+
+  useEffect(() => {
+    if (open && agents.length === 0) {
+      fetchAgents().catch(console.error);
+    }
+  }, [open, agents.length, fetchAgents]);
+
+  const agentOptions = useMemo(() => {
+    return agents.map(agent => ({
+      label: agent.name,
+      value: String(agent.id),
+    }));
+  }, [agents]);
 
   // ✅ Mesclar opções dinâmicas com os tipos de filtro
   const enrichedFilterTypes = useMemo(() => {
@@ -59,6 +77,11 @@ export default function ConversationsFilter({
             ...filterType,
             options: filterOptions.contacts,
           };
+        case 'assignee_id':
+          return {
+            ...filterType,
+            options: agentOptions,
+          };
         default:
           return filterType;
       }
@@ -69,6 +92,7 @@ export default function ConversationsFilter({
     filterOptions.labels,
     filterOptions.pipelines,
     filterOptions.contacts,
+    agentOptions,
   ]);
 
   return (
