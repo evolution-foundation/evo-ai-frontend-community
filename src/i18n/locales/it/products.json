@@ -1,0 +1,123 @@
+{
+  "page": {
+    "title": "Prodotti",
+    "subtitle": "Catalogo di prodotti fisici e digitali utilizzabili dagli agenti IA.",
+    "loading": "Caricamento..."
+  },
+  "header": {
+    "searchPlaceholder": "Cerca per nome, SKU o descrizione",
+    "new": "Nuovo prodotto",
+    "filters": {
+      "kindAll": "Tutti i tipi",
+      "statusAll": "Tutti gli stati"
+    }
+  },
+  "kind": {
+    "physical": "Fisico",
+    "digital": "Digitale"
+  },
+  "status": {
+    "active": "Attivo",
+    "inactive": "Inattivo",
+    "draft": "Bozza"
+  },
+  "table": {
+    "empty": "Nessun prodotto ancora. Clicca su \"Nuovo prodotto\" per iniziare.",
+    "columns": {
+      "name": "Nome",
+      "sku": "SKU",
+      "kind": "Tipo",
+      "price": "Prezzo",
+      "status": "Stato",
+      "variants": "Varianti",
+      "actions": "Azioni"
+    }
+  },
+  "modal": {
+    "createTitle": "Crea prodotto",
+    "editTitle": "Modifica prodotto",
+    "subtitle": "Compila i dettagli del catalogo. Usa le varianti per taglie/colori quando necessario.",
+    "tabs": {
+      "general": "Generale",
+      "media": "Media",
+      "variants": "Varianti",
+      "labels": "Categorie"
+    }
+  },
+  "fields": {
+    "name": "Nome",
+    "namePlaceholder": "Es.: T-shirt nera premium",
+    "kind": "Tipo",
+    "status": "Stato",
+    "sku": "SKU",
+    "stockQuantity": "Quantità in stock",
+    "defaultPrice": "Prezzo predefinito",
+    "currency": "Valuta",
+    "purchaseUrl": "Link di acquisto",
+    "description": "Descrizione",
+    "descriptionPlaceholder": "Breve descrizione del prodotto (anche visibile all'agente IA)",
+    "labels": "Categorie / etichette",
+    "labelsPlaceholder": "Separate da virgola, es.: abbigliamento, collezione-estate",
+    "labelsHint": "Le categorie aiutano a filtrare i prodotti e possono essere usate da regole di automazione."
+  },
+  "media": {
+    "uploadHint": "Trascina le immagini qui o usa il pulsante in basso.",
+    "selectFiles": "Seleziona file",
+    "existing": "Immagini esistenti",
+    "pending": "In attesa di caricamento"
+  },
+  "variants": {
+    "empty": "Nessuna variante. Clicca su \"Aggiungi variante\".",
+    "add": "Aggiungi variante",
+    "name": "Nome (es.: M, Blu)",
+    "sku": "SKU",
+    "priceOverride": "Prezzo (sovrascrive il predefinito)",
+    "stock": "Stock",
+    "digitalHint": "Le varianti non sono solitamente utilizzate per prodotti digitali."
+  },
+  "actions": {
+    "cancel": "Annulla",
+    "create": "Crea",
+    "update": "Aggiorna",
+    "saving": "Salvataggio...",
+    "delete": "Elimina",
+    "deleting": "Eliminazione...",
+    "edit": "Modifica"
+  },
+  "confirmDelete": {
+    "title": "Eliminare il prodotto?",
+    "description": "Sei sicuro di voler eliminare \"{{name}}\"? Questa operazione non può essere annullata."
+  },
+  "pagination": {
+    "previous": "Precedente",
+    "next": "Successiva",
+    "summary": "Pagina {{page}} di {{totalPages}} — {{totalCount}} prodotti"
+  },
+  "messages": {
+    "loadError": "Impossibile caricare i prodotti",
+    "createSuccess": "Prodotto creato",
+    "createError": "Impossibile creare il prodotto",
+    "updateSuccess": "Prodotto aggiornato",
+    "updateError": "Impossibile aggiornare il prodotto",
+    "deleteSuccess": "Prodotto eliminato",
+    "deleteError": "Impossibile eliminare il prodotto"
+  },
+  "pipelinePanel": {
+    "title": "Prodotti venduti",
+    "empty": "Nessun prodotto collegato a questa scheda ancora.",
+    "emptyList": "Nessun prodotto collegato.",
+    "summary": "{{count}} prodotto(i) · totale {{total}}",
+    "add": "Aggiungi prodotto",
+    "added": "Prodotto aggiunto",
+    "addError": "Impossibile aggiungere il prodotto",
+    "removed": "Prodotto rimosso",
+    "removeError": "Impossibile rimuovere il prodotto",
+    "product": "Prodotto",
+    "selectProduct": "Seleziona un prodotto",
+    "variant": "Variante",
+    "selectVariant": "Seleziona una variante",
+    "noVariant": "Senza variante",
+    "quantity": "Quantità",
+    "notes": "Note (facoltativo)"
+  }
+}

@@ -24,6 +24,7 @@ import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import usersService from '@/services/users/usersService';
 import teamsService from '@/services/teams/teamsService';
 import ProfileSection from './sections/ProfileSection';
+import ProductsSection from './sections/ProductsSection';
 import TaskSection from './sections/TaskSection';
 import ConfigurationSection from './sections/ConfigurationSection';
 import ToolsSection from './sections/ToolsSection';
@@ -44,6 +45,7 @@ type SidebarMenu =
   | 'integrations'
   | 'mcpServers'
   | 'channels'
+  | 'products'
   | 'settings';
 
 interface AgentFormData {
@@ -122,6 +124,8 @@ const AgentEditPage = () => {
     allowReminders: false,
     allowPipelineManipulation: false,
     allowContactEdit: false,
+    allowManageLabels: false,
+    allowProductSales: false,
     timezone: 'America/Sao_Paulo',
     sendAsReply: false,
   });
@@ -475,6 +479,8 @@ const AgentEditPage = () => {
           allowReminders: (config?.allow_reminders as boolean) || false,
           allowPipelineManipulation: (config?.allow_pipeline_manipulation as boolean) || false,
           allowContactEdit: (config?.allow_contact_edit as boolean) || false,
+          allowManageLabels: (config?.allow_manage_labels as boolean) || false,
+          allowProductSales: (config?.allow_product_sales as boolean) || false,
           timezone: (config?.timezone as string) || 'America/Sao_Paulo',
           sendAsReply: (config?.send_as_reply as boolean) || false,
         });
@@ -652,6 +658,8 @@ const AgentEditPage = () => {
           allow_reminders: behaviorSettings.allowReminders,
           allow_pipeline_manipulation: behaviorSettings.allowPipelineManipulation,
           allow_contact_edit: behaviorSettings.allowContactEdit,
+          allow_manage_labels: behaviorSettings.allowManageLabels,
+          allow_product_sales: behaviorSettings.allowProductSales,
           timezone: behaviorSettings.timezone,
           send_as_reply: behaviorSettings.sendAsReply,
           inactivity_actions: inactivityActions,
@@ -689,6 +697,8 @@ const AgentEditPage = () => {
           allow_reminders: behaviorSettings.allowReminders,
           allow_pipeline_manipulation: behaviorSettings.allowPipelineManipulation,
           allow_contact_edit: behaviorSettings.allowContactEdit,
+          allow_manage_labels: behaviorSettings.allowManageLabels,
+          allow_product_sales: behaviorSettings.allowProductSales,
           timezone: behaviorSettings.timezone,
           send_as_reply: behaviorSettings.sendAsReply,
           inactivity_actions: inactivityActions,
@@ -724,6 +734,8 @@ const AgentEditPage = () => {
           allow_reminders: behaviorSettings.allowReminders,
           allow_pipeline_manipulation: behaviorSettings.allowPipelineManipulation,
           allow_contact_edit: behaviorSettings.allowContactEdit,
+          allow_manage_labels: behaviorSettings.allowManageLabels,
+          allow_product_sales: behaviorSettings.allowProductSales,
           timezone: behaviorSettings.timezone,
           send_as_reply: behaviorSettings.sendAsReply,
           inactivity_actions: inactivityActions,
@@ -771,6 +783,8 @@ const AgentEditPage = () => {
           allow_reminders: behaviorSettings.allowReminders,
           allow_pipeline_manipulation: behaviorSettings.allowPipelineManipulation,
           allow_contact_edit: behaviorSettings.allowContactEdit,
+          allow_manage_labels: behaviorSettings.allowManageLabels,
+          allow_product_sales: behaviorSettings.allowProductSales,
           timezone: behaviorSettings.timezone,
           send_as_reply: behaviorSettings.sendAsReply,
           inactivity_actions: inactivityActions,
@@ -958,6 +972,9 @@ const AgentEditPage = () => {
             }}
           />
         );
+
+      case 'products':
+        return <ProductsSection agent={agent} />;
 
       case 'channels':
       case 'settings':

@@ -32,6 +32,47 @@ const CHANNEL_TYPE_TRANSLATIONS: Record<string, string> = {
   'twilio_sms': 'SMS - Twilio',
 };
 
+// Channel types where a phone number is the contact's primary identifier.
+// Used to gate UI affordances (e.g. showing the phone in conversation lists)
+// so we never render a phone field for website/email/API contacts.
+const PHONE_BEARING_CHANNEL_TYPES = new Set<string>([
+  'Channel::Whatsapp',
+  'Channel::WhatsappCloud',
+  'Channel::Whatsapp360Dialog',
+  'Channel::TwilioSms',
+  'Channel::Sms',
+  'Channel::Telegram',
+  'whatsapp',
+  'whatsappcloud',
+  'whatsapp_cloud',
+  'whatsapp360dialog',
+  'whatsapp_360dialog',
+  'twiliosms',
+  'twilio_sms',
+  'sms',
+  'telegram',
+]);
+
+export function isPhoneBearingChannel(channelType?: string | null): boolean {
+  if (!channelType) return false;
+  return PHONE_BEARING_CHANNEL_TYPES.has(channelType);
+}
+
+// Channel types where the contact's `availability_status` carries real
+// presence semantics. Today this is limited to the Website widget; other
+// channels (WhatsApp, SMS, Email, social, API) do not expose live presence,
+// so the UI must hide the indicator instead of showing a misleading state.
+const PRESENCE_CAPABLE_CHANNEL_TYPES = new Set<string>([
+  'Channel::WebWidget',
+  'webwidget',
+  'web_widget',
+]);
+
+export function isPresenceCapableChannel(channelType?: string | null): boolean {
+  if (!channelType) return false;
+  return PRESENCE_CAPABLE_CHANNEL_TYPES.has(channelType);
+}
+
 // Provider-specific translations for detailed display
 const PROVIDER_TRANSLATIONS: Record<string, string> = {
   'whatsapp_cloud': 'WhatsApp Cloud',

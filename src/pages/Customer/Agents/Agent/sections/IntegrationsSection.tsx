@@ -12,7 +12,12 @@ import { ExternalLink, Plug, Check, Settings, Loader2, AlertCircle } from 'lucid
 import ElevenLabsConfigDialog from '@/components/integrations/ElevenLabsConfigDialog';
 import GoogleCalendarConfigDialog from '@/components/integrations/GoogleCalendarConfigDialog';
 import GoogleSheetsConfigDialog from '@/components/integrations/GoogleSheetsConfigDialog';
+import KnowledgeNexusConfigDialog, {
+  type KnowledgeNexusConfig,
+} from '@/components/integrations/KnowledgeNexusConfigDialog';
 import { useIntegrations } from '@/hooks/useIntegrations';
+import { agentIntegrationsService } from '@/services/agents/agentIntegrationsService';
+import { toast } from 'sonner';
 import BrandIcon from '@/components/BrandIcon';
 
 interface Integration {
@@ -36,13 +41,68 @@ const IntegrationsSection = ({
   const [showElevenLabsConfig, setShowElevenLabsConfig] = useState(false);
   const [showGoogleCalendarConfig, setShowGoogleCalendarConfig] = useState(false);
   const [showGoogleSheetsConfig, setShowGoogleSheetsConfig] = useState(false);
+  const [showKnowledgeNexusConfig, setShowKnowledgeNexusConfig] = useState(false);
 
   // Use custom hook for integrations status
   const { credentialsConfigured, isCheckingIntegrations, isConnected, reloadConfigs } =
     useIntegrations(agentId);
 
-  // Integrações que sempre estão disponíveis (não dependem de OAuth global)
-  const ALWAYS_AVAILABLE_INTEGRATIONS = ['elevenlabs', 'google-calendar', 'google-sheets'];
+  // Persist an integration immediately via the backend Upsert endpoint, then
+  // update local state. This is necessary because `agent.config.integrations`
+  // is ignored by the backend's persistence layer for OAuth/native integrations
+  // — the canonical store is the `agent_integrations` table behind
+  // POST /agents/:id/integrations.
+  const persistIntegration = async (
+    provider: string,
+    config: Record<string, unknown>
+  ): Promise<boolean> => {
+    if (!agentId) {
+      toast.error(t('messages.saveError') || 'Agent must be saved first');
+      return false;
+    }
+    try {
+      await agentIntegrationsService.upsertIntegration(agentId, provider, {
+        ...config,
+        connected: true,
+      });
+      if (onIntegrationsChange) {
+        onIntegrationsChange({ ...integrations, [provider]: { ...config, connected: true } });
+      }
+      await reloadConfigs();
+      toast.success(t('edit.integrations.activated') || 'Integration activated');
+      return true;
+    } catch (error) {
+      console.error(`Error upserting integration ${provider}:`, error);
+      toast.error(t('edit.integrations.activationError') || 'Failed to activate integration');
+      return false;
+    }
+  };
+
+  const removeIntegration = async (provider: string): Promise<boolean> => {
+    if (!agentId) return false;
+    try {
+      await agentIntegrationsService.deleteIntegration(agentId, provider);
+      if (onIntegrationsChange) {
+        const next = { ...integrations };
+        delete next[provider];
+        onIntegrationsChange(next);
+      }
+      await reloadConfigs();
+      toast.success(t('edit.integrations.deactivated') || 'Integration deactivated');
+      return true;
+    } catch (error) {
+      console.error(`Error deleting integration ${provider}:`, error);
+      toast.error(t('edit.integrations.deactivationError') || 'Failed to deactivate integration');
+      return false;
+    }
+  };
+
+  // Integrações que sempre estão disponíveis porque o usuário fornece sua
+  // própria credencial (API key) — não dependem de OAuth global configurado
+  // pelo administrador. Google Calendar / Sheets usam OAuth global e portanto
+  // só ficam disponíveis quando `credentialsConfigured` indica que o admin
+  // configurou as chaves correspondentes.
+  const ALWAYS_AVAILABLE_INTEGRATIONS = ['elevenlabs', 'knowledge-nexus'];
 
   const availableIntegrations: Integration[] = [
     {
@@ -65,6 +125,13 @@ const IntegrationsSection = ({
       description:
         t('edit.integrations.googleSheets.description') ||
         'Permite criar, ler, atualizar e gerenciar planilhas do Google Sheets.',
+    },
+    {
+      id: 'knowledge-nexus',
+      name: 'Knowledge Nexus',
+      description:
+        t('edit.integrations.knowledgeNexus.description') ||
+        'Permite que o agente consulte a base de conhecimento do EvoNexus (busca híbrida) antes de responder.',
     },
     // {
     //   id: 'gmail',
@@ -168,6 +235,8 @@ const IntegrationsSection = ({
                                 setShowGoogleCalendarConfig(true);
                               } else if (integration.id === 'google-sheets') {
                                 setShowGoogleSheetsConfig(true);
+                              } else if (integration.id === 'knowledge-nexus') {
+                                setShowKnowledgeNexusConfig(true);
                               }
                             }}
                           >
@@ -186,6 +255,8 @@ const IntegrationsSection = ({
                               setShowGoogleCalendarConfig(true);
                             } else if (integration.id === 'google-sheets') {
                               setShowGoogleSheetsConfig(true);
+                            } else if (integration.id === 'knowledge-nexus') {
+                              setShowKnowledgeNexusConfig(true);
                             }
                           }}
                         >
@@ -229,26 +300,13 @@ const IntegrationsSection = ({
               }>
             | undefined
         }
-        onSave={config => {
-          if (onIntegrationsChange) {
-            onIntegrationsChange({
-              ...integrations,
-              elevenlabs: config,
-            });
-          }
-          // Reload configs to update status
-          reloadConfigs();
+        onSave={async config => {
+          await persistIntegration('elevenlabs', config as unknown as Record<string, unknown>);
         }}
         onDeactivate={
           integrations.elevenlabs
-            ? () => {
-                if (onIntegrationsChange) {
-                  const newIntegrations = { ...integrations };
-                  delete newIntegrations.elevenlabs;
-                  onIntegrationsChange(newIntegrations);
-                }
-                // Reload configs to update status
-                reloadConfigs();
+            ? async () => {
+                await removeIntegration('elevenlabs');
               }
             : undefined
         }
@@ -319,6 +377,28 @@ const IntegrationsSection = ({
                 }
                 // Reload configs to update status
                 reloadConfigs();
+              }
+            : undefined
+        }
+      />
+
+      {/* Dialog de configuração Knowledge Nexus */}
+      <KnowledgeNexusConfigDialog
+        open={showKnowledgeNexusConfig}
+        onOpenChange={setShowKnowledgeNexusConfig}
+        initialConfig={
+          integrations['knowledge-nexus'] as Partial<KnowledgeNexusConfig> | undefined
+        }
+        onSave={async config => {
+          await persistIntegration(
+            'knowledge-nexus',
+            config as unknown as Record<string, unknown>
+          );
+        }}
+        onDeactivate={
+          integrations['knowledge-nexus']
+            ? async () => {
+                await removeIntegration('knowledge-nexus');
               }
             : undefined
         }

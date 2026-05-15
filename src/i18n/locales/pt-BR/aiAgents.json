@@ -537,8 +537,17 @@
       "tools": "Ferramentas",
       "integrations": "Integrações",
       "mcpServers": "Servidores MCP",
+      "products": "Produtos",
       "channels": "Canais",
       "settings": "Configurações"
+    },
+    "products": {
+      "title": "Produtos do agente",
+      "subtitle": "Selecione os produtos que este agente pode recomendar durante conversas. Eles serão injetados no system prompt automaticamente.",
+      "save": "Salvar atribuições",
+      "saving": "Salvando...",
+      "saveSuccess": "Produtos atualizados",
+      "saveError": "Falha ao atualizar produtos"
     },
     "agentOf": "Agente pessoal de",
     "agentType": "{{type}}",
@@ -712,6 +721,10 @@
         "allowContactEditDescription": "Permite que o agente edite informações de contato durante a conversa",
         "allowPipelineManipulation": "Permitir manipular pipelines",
         "allowPipelineManipulationDescription": "Permite que o agente mova conversas entre pipelines e estágios conforme regras definidas",
+        "allowProductSales": "Permitir registrar venda no pipeline",
+        "allowProductSalesDescription": "Permite que o agente registre produtos vendidos no card do pipeline durante a conversa",
+        "allowManageLabels": "Permitir gerenciar labels",
+        "allowManageLabelsDescription": "Permite que o agente adicione e remova labels da conversa atual",
         "timezone": "Timezone do agente",
         "timezoneDescription": "Define o fuso horário usado pelo agente para agendamentos e lembretes",
         "sendAsReply": "Enviar mensagem como resposta na conversa",
@@ -993,6 +1006,37 @@
         "selectSpreadsheet": "Planilha",
         "saveConfig": "APLICAR CONFIGURAÇÕES",
         "disconnect": "Desconectar"
+      },
+      "activated": "Integração ativada",
+      "deactivated": "Integração desativada",
+      "activationError": "Falha ao ativar a integração",
+      "deactivationError": "Falha ao desativar a integração",
+      "knowledgeNexus": {
+        "description": "Permite que o agente consulte a base de conhecimento do EvoNexus (busca híbrida) antes de responder.",
+        "configTitle": "Configurar Knowledge Nexus",
+        "intro": "Conecte este agente a uma base de conhecimento do EvoNexus para que ele possa buscar informações curadas antes de responder.",
+        "baseUrl": "URL base do Nexus",
+        "baseUrlHint": "Endereço do dashboard EvoNexus (sem barra no final).",
+        "apiKey": "API Key",
+        "apiKeyHint": "Chave de API gerada no Nexus em Knowledge → API Keys. Formato evo_k_<prefix>.<secret>.",
+        "apiKeySaved": "✓ Chave já configurada — deixe em branco para manter, redigite para substituir.",
+        "apiKeySavedPlaceholder": "Deixe em branco para manter a chave salva",
+        "space": "Knowledge space",
+        "spaceSelect": "Selecione uma knowledge space",
+        "spaceHint": "As spaces são carregadas do seu Nexus assim que URL e API key estão preenchidas.",
+        "spaceId": "Space ID",
+        "spaceIdHint": "UUID da knowledge space que será consultada por este agente.",
+        "spacesEmpty": "Nenhuma space encontrada para esta API key.",
+        "spacesError": "Não foi possível carregar as spaces. Verifique a URL e a API key, ou cole o Space ID manualmente.",
+        "spacesNeedCreds": "Preencha a URL base e a API key primeiro.",
+        "loadingSpaces": "Carregando spaces do Nexus...",
+        "reloadSpaces": "Recarregar",
+        "useDropdown": "Selecionar da lista",
+        "useManual": "Colar Space ID manualmente",
+        "topK": "Top K (padrão)",
+        "timeout": "Timeout (s)",
+        "apply": "APLICAR CONFIGURAÇÕES",
+        "deactivate": "Desativar integração"
       },
       "github": {
         "description": "Com GitHub seu agente será capaz de acessar repositórios, issues, pull requests e outras informações do GitHub.",
@@ -1282,27 +1326,27 @@
       "types": {
         "llm": {
           "label": "LLM (Modelo de Linguagem)",
-          "description": "Assistente inteligente com IA generativa"
+          "description": "IA conversacional — raciocina, responde perguntas e conversa usando modelo de linguagem"
         },
         "task": {
           "label": "Tarefa",
-          "description": "Automação de tarefas específicas"
+          "description": "Orquestra tarefas entre sub-agentes, cada uma com uma saída definida"
         },
         "sequential": {
-          "label": "Sequential",
-          "description": "Executa agentes em sequência"
+          "label": "Sequencial",
+          "description": "Executa sub-agentes em cadeia, passando o resultado de cada etapa para a próxima"
         },
         "parallel": {
-          "label": "Parallel",
-          "description": "Executa agentes em paralelo"
+          "label": "Paralelo",
+          "description": "Executa múltiplos sub-agentes ao mesmo tempo para tarefas independentes"
         },
         "loop": {
           "label": "Loop",
-          "description": "Executa agentes em loop"
+          "description": "Repete sub-agentes até atingir uma condição ou número de iterações"
         },
         "external": {
           "label": "Integrações Externas",
-          "description": "Conecta e executa integrações externas"
+          "description": "Delega para fluxos do Flowise, n8n, Typebot, Dify ou OpenAI"
         }
       },
       "badges": {
@@ -1378,7 +1422,8 @@
       "validationError": "Descreva brevemente o que seu agente faz (mínimo 10 caracteres)",
       "tip": "Dica:",
       "tipContent": "Seja claro e específico. Quanto mais detalhes você fornecer, melhor o agente entenderá seu papel e responderá de acordo.",
-      "generateWithAI": "Gerar com IA"
+      "generateWithAI": "Gerar com IA",
+      "aiNotConfigured": "Integração com OpenAI não configurada. Acesse Configurações → Integrações para habilitar os recursos de IA."
     },
     "promptGenerator": {
       "title": "Gerador de Prompt com IA",

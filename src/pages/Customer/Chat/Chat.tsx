@@ -46,6 +46,7 @@ import type { AssignmentOption, AssignmentType } from '@/components/chat/assignm
 import { labelsService } from '@/services/contacts/labelsService';
 import { useAppDataStore } from '@/store/appDataStore';
 import type { Label } from '@/types/settings';
+import chatService from '@/services/chat/chatService';
 
 const ContactSidebar = React.lazy(() => import('@/components/chat/contact-sidebar/ContactSidebar'));
 
@@ -84,6 +85,11 @@ const Chat = () => {
   const urlSyncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastUrlSyncRef = useRef<string | null>(null);
 
+  const selectedConvIdRef = useRef<string | null>(conversations.state.selectedConversationId ?? null);
+  useEffect(() => {
+    selectedConvIdRef.current = conversations.state.selectedConversationId ?? null;
+  }, [conversations.state.selectedConversationId]);
+
   // 🔄 CARREGAR MAIS MENSAGENS: Função simples via Context
   const handleLoadMore = useCallback(() => {
     if (!conversations.state.selectedConversationId) return;
@@ -102,6 +108,10 @@ const Chat = () => {
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
   const [assignmentType, setAssignmentType] = useState<AssignmentType>('agent');
   const [conversationToAssign, setConversationToAssign] = useState<Conversation | null>(null);
+
+  // Bulk selection state
+  const [selectedConversationIds, setSelectedConversationIds] = useState<Set<string>>(new Set());
+  const [isBulkResolving, setIsBulkResolving] = useState(false);
 
   // Dashboard Apps state (lazy loaded, not auto-fetched)
   const [dashboardApps] = useState<DashboardApp[]>([]);
@@ -132,6 +142,7 @@ const Chat = () => {
   // 🎯 FILTROS: Usar handlers dos hooks customizados (DEFINIR ANTES DOS useEffect)
   const handleApplyFilters = useCallback(
     async (newFilters: BaseFilter[]) => {
+      setSelectedConversationIds(new Set());
       try {
         await filterHandlers.handleApplyFilters(newFilters);
       } catch (error) {
@@ -180,12 +191,61 @@ const Chat = () => {
   }, [permissionsReady]);
 
   const handleClearFilters = useCallback(async () => {
+    setSelectedConversationIds(new Set());
     await filterHandlers.handleClearFilters();
   }, [filterHandlers]);
 
   const reloadCurrentFilters = useCallback(async () => {
     await filterHandlers.reloadCurrentFilters();
   }, [filterHandlers]);
+
+  const MAX_BULK_SELECTION = 200;
+
+  const handleToggleConversationSelection = useCallback((displayId: string) => {
+    setSelectedConversationIds(prev => {
+      const next = new Set(prev);
+      if (next.has(displayId)) {
+        next.delete(displayId);
+      } else if (next.size < MAX_BULK_SELECTION) {
+        next.add(displayId);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedConversationIds(new Set());
+  }, []);
+
+  const handleBulkResolve = useCallback(async () => {
+    if (selectedConversationIds.size === 0) return;
+    if (!can('conversations', 'update')) {
+      toast.error(t('chatHeader.actions.bulkResolveNoPermission'));
+      return;
+    }
+    const displayIds = Array.from(selectedConversationIds);
+    setIsBulkResolving(true);
+    try {
+      const result = await chatService.bulkResolve(displayIds);
+      setSelectedConversationIds(new Set());
+      if (result.failed_ids.length === 0) {
+        toast.success(t('chatHeader.actions.bulkResolveSuccess', { count: result.success_ids.length }));
+      } else if (result.success_ids.length > 0) {
+        toast.warning(t('chatHeader.actions.bulkResolvePartialSuccess', {
+          success: result.success_ids.length,
+          failed: result.failed_ids.length,
+        }));
+      } else {
+        toast.error(t('chatHeader.actions.bulkResolveError'));
+      }
+      await reloadCurrentFilters();
+    } catch (error) {
+      console.error('Bulk resolve error:', error);
+      toast.error(t('chatHeader.actions.bulkResolveError'));
+    } finally {
+      setIsBulkResolving(false);
+    }
+  }, [selectedConversationIds, can, reloadCurrentFilters, t]);
 
   // 🔄 CARREGAMENTO SIMPLES: Apenas carregar mensagens quando conversa muda
   useEffect(() => {
@@ -381,11 +441,33 @@ const Chat = () => {
     [conversationHandlers],
   );
 
+  // UX decision: after resolve/delete, drop to the unselected list rather than
+  // auto-advancing to the next conversation. Intentional — mirrors the delete flow.
+  const clearSelectionAndGoToList = useCallback(async () => {
+    isManualNavigationRef.current = true;
+    await conversations.selectConversation(null);
+    setMobileView('list');
+    setIsContactSidebarOpen(false);
+    navigate('/conversations', { replace: true });
+    setTimeout(() => {
+      isManualNavigationRef.current = false;
+    }, 100);
+  }, [conversations, navigate]);
+
   const handleMarkAsResolved = useCallback(
     async (conversation: Conversation) => {
-      await conversationHandlers.handleMarkAsResolved(conversation, reloadCurrentFilters);
+      const resolvedId = String(conversation.uuid || conversation.id);
+      try {
+        await conversationHandlers.handleMarkAsResolved(conversation, reloadCurrentFilters);
+        const liveSelected = selectedConvIdRef.current;
+        if (liveSelected != null && String(liveSelected) === resolvedId) {
+          await clearSelectionAndGoToList();
+        }
+      } catch (err) {
+        console.error('[handleMarkAsResolved] failed:', err);
+      }
     },
-    [conversationHandlers, reloadCurrentFilters],
+    [conversationHandlers, reloadCurrentFilters, clearSelectionAndGoToList],
   );
 
   const handlePostpone = useCallback(
@@ -500,13 +582,7 @@ const Chat = () => {
       await conversations.deleteConversation(String(conversationToDelete.id));
       setShowDeleteDialog(false);
       setConversationToDelete(null);
-      setMobileView('list');
-      setIsContactSidebarOpen(false);
-      isManualNavigationRef.current = true;
-      navigate('/conversations', { replace: true });
-      setTimeout(() => {
-        isManualNavigationRef.current = false;
-      }, 100);
+      await clearSelectionAndGoToList();
     } catch (error) {
       console.error('Error deleting conversation:', error);
       // Error is already handled in the context with toast
@@ -655,6 +731,8 @@ const Chat = () => {
       return;
     }
 
+    setSelectedConversationIds(new Set());
+
     // 🔒 MARCAR NAVEGAÇÃO MANUAL para evitar URL sync
     isManualNavigationRef.current = true;
 
@@ -671,21 +749,9 @@ const Chat = () => {
     }, 100);
   };
 
-  const handleCloseConversation = () => {
-    // 🔒 MARCAR NAVEGAÇÃO MANUAL para evitar URL sync
-    isManualNavigationRef.current = true;
-
-    conversations.selectConversation(null);
-    setMobileView('list');
-    setIsContactSidebarOpen(false); // Fechar sidebar se estiver aberto
-    // Voltar para a lista geral de conversas
-    navigate('/conversations', { replace: true });
-
-    // 🔒 RESET flag após navegação
-    setTimeout(() => {
-      isManualNavigationRef.current = false;
-    }, 100);
-  };
+  const handleCloseConversation = useCallback(async () => {
+    await clearSelectionAndGoToList();
+  }, [clearSelectionAndGoToList]);
 
   return (
     <ErrorBoundary>
@@ -714,6 +780,12 @@ const Chat = () => {
           onAssignTeam={handleAssignTeam}
           onAssignTag={handleAssignTag}
           onDeleteConversation={handleDeleteConversation}
+          selectedConversationIds={selectedConversationIds}
+          onToggleSelect={handleToggleConversationSelection}
+          onClearSelection={handleClearSelection}
+          onBulkResolve={handleBulkResolve}
+          isBulkResolving={isBulkResolving}
+          canBulkResolve={can('conversations', 'update')}
         />
 
         {/* Chat Area */}

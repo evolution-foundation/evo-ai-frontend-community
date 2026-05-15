@@ -328,7 +328,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 <ReplyPreview message={replyToMessage} isOwn={false} />
               )}
 
-              <div className={isDeleted ? 'opacity-60' : ''}>{renderMessageContent()}</div>
+              {isDeleted ? (
+                <div className="italic text-muted-foreground text-sm opacity-70">
+                  {t('messages.messageBubble.deletedPlaceholder', 'This message was deleted')}
+                </div>
+              ) : (
+                <div>{renderMessageContent()}</div>
+              )}
             </div>,
           )}
 
@@ -363,7 +369,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               <AlertDialogCancel className="w-full sm:w-auto">{t('messages.messageBubble.deleteDialog.cancel')}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={confirmDeleteMessage}
-                className="w-full sm:w-auto bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive"
+                className="w-full sm:w-auto bg-destructive text-white hover:bg-destructive/90 focus:ring-destructive"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 {t('messages.messageBubble.deleteDialog.confirm')}
@@ -489,7 +495,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               <ReplyPreview message={replyToMessage} isOwn={isOwn} />
             )}
 
-            <div className={isDeleted ? 'opacity-60' : ''}>{renderMessageContent()}</div>
+            {isDeleted ? (
+                <div className="italic text-muted-foreground text-sm opacity-70">
+                  {t('messages.messageBubble.deletedPlaceholder', 'This message was deleted')}
+                </div>
+              ) : (
+                <div>{renderMessageContent()}</div>
+              )}
           </div>,
         )}
 
@@ -519,7 +531,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             <AlertDialogCancel className="w-full sm:w-auto">{t('messages.messageBubble.deleteDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeleteMessage}
-              className="w-full sm:w-auto bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive"
+              className="w-full sm:w-auto bg-destructive text-white hover:bg-destructive/90 focus:ring-destructive"
             >
               <Trash2 className="h-4 w-4 mr-2" />
               {t('messages.messageBubble.deleteDialog.confirm')}

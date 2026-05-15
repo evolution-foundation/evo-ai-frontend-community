@@ -390,11 +390,17 @@
     "when": "When",
     "then": "Then",
     "anyValue": "Any",
+    "anyLabel": "Any label",
     "labelNamePlaceholder": "Label name...",
     "selectStage": "Select stage...",
     "selectAgent": "Select agent...",
+    "selectPipeline": "Select pipeline...",
+    "selectLabel": "Select label...",
     "noOtherStages": "No other stages available",
+    "noOtherPipelines": "No other pipelines available",
+    "noStagesInPipeline": "No stages in the selected pipeline",
     "noAgents": "No agents available",
+    "noLabels": "No labels available",
     "triggers": {
       "label_added": "Label added",
       "conversation_status_changed": "Conversation status changed",
@@ -402,6 +408,7 @@
     },
     "actions": {
       "move_to_stage": "Move to stage",
+      "move_to_pipeline": "Move to another pipeline",
       "assign_agent": "Assign agent",
       "apply_label": "Apply label"
     }

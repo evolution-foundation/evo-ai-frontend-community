@@ -61,11 +61,7 @@
     "testConnection": "Testa Connessione",
     "testing": "Test in corso...",
     "testFailed": "Test di connessione fallito",
-    "testError": "Impossibile eseguire il test di connessione",
-    "envWarning": {
-      "title": "Attenzione:",
-      "body": "Salvare qui persiste i valori, ma il servizio email legge ancora le credenziali SMTP dalle variabili d'ambiente all'avvio. Fino al rilascio di EVO-1049, configurare SMTP tramite env var per avere effetto."
-    }
+    "testError": "Impossibile eseguire il test di connessione"
   },
   "storage": {
     "title": "Configurazione Archiviazione",

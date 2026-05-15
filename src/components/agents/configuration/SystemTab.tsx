@@ -26,6 +26,8 @@ import {
   GitBranch,
   Edit3,
   Zap,
+  Tag,
+  ShoppingCart,
 } from 'lucide-react';
 import { AdvancedBotConfigData } from '@/components/ai_agents/Forms/AdvancedBotConfig';
 import { supportsBehaviorSettings, supportsMessageHandling, isExternalAgent } from '@/utils/agents';
@@ -36,6 +38,8 @@ export interface BehaviorSettings {
   allowReminders: boolean;
   allowPipelineManipulation: boolean;
   allowContactEdit: boolean;
+  allowManageLabels: boolean;
+  allowProductSales: boolean;
   timezone: string;
   sendAsReply: boolean;
 }
@@ -275,6 +279,60 @@ export const SystemTab = ({
                   onBehaviorSettingsChange({
                     ...behaviorSettings,
                     allowPipelineManipulation: checked,
+                  })
+                }
+              />
+            </div>
+
+            {/* Permitir gerenciar labels */}
+            <div className="flex items-center justify-between py-3 border-b last:border-0">
+              <div className="flex items-start gap-3 flex-1">
+                <Tag className="h-5 w-5 text-amber-500 mt-0.5" />
+                <div className="flex-1">
+                  <Label htmlFor="allow-manage-labels" className="font-medium cursor-pointer">
+                    {t('edit.configuration.behavior.allowManageLabels') ||
+                      'Permitir gerenciar labels'}
+                  </Label>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t('edit.configuration.behavior.allowManageLabelsDescription') ||
+                      'Permite que o agente adicione e remova labels da conversa atual'}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                id="allow-manage-labels"
+                checked={behaviorSettings.allowManageLabels}
+                onCheckedChange={checked =>
+                  onBehaviorSettingsChange({
+                    ...behaviorSettings,
+                    allowManageLabels: checked,
+                  })
+                }
+              />
+            </div>
+
+            {/* Permitir registrar venda no pipeline */}
+            <div className="flex items-center justify-between py-3 border-b last:border-0">
+              <div className="flex items-start gap-3 flex-1">
+                <ShoppingCart className="h-5 w-5 text-emerald-500 mt-0.5" />
+                <div className="flex-1">
+                  <Label htmlFor="allow-product-sales" className="font-medium cursor-pointer">
+                    {t('edit.configuration.behavior.allowProductSales') ||
+                      'Permitir registrar venda no pipeline'}
+                  </Label>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t('edit.configuration.behavior.allowProductSalesDescription') ||
+                      'Permite que o agente registre produtos vendidos no card do pipeline durante a conversa'}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                id="allow-product-sales"
+                checked={behaviorSettings.allowProductSales}
+                onCheckedChange={checked =>
+                  onBehaviorSettingsChange({
+                    ...behaviorSettings,
+                    allowProductSales: checked,
                   })
                 }
               />

@@ -27,6 +27,7 @@ import {
   ShieldX,
   Building2,
   Briefcase,
+  Users,
 } from 'lucide-react';
 import { Contact, ContactFormData } from '@/types/contacts';
 import ContactLabels from './ContactLabels';
@@ -50,7 +51,7 @@ interface ContactFormProps {
 }
 
 interface FormData {
-  type: 'person' | 'company';
+  type: 'person' | 'company' | 'group';
   firstName: string;
   lastName: string;
   email: string;
@@ -291,8 +292,8 @@ export default function ContactForm({
 
     // Tax ID validation based on country
     if (formData.tax_id) {
-      if (!validateTaxId(formData.tax_id, phoneCountry, formData.type)) {
-        const taxIdLabel = getTaxIdLabel(phoneCountry, formData.type);
+      if (!validateTaxId(formData.tax_id, phoneCountry, taxIdType)) {
+        const taxIdLabel = getTaxIdLabel(phoneCountry, taxIdType);
         newErrors.tax_id = t('form.validation.taxIdInvalid', { type: taxIdLabel });
       }
     }
@@ -349,6 +350,7 @@ export default function ContactForm({
 
   const isCompany = formData.type === 'company';
   const isPerson = formData.type === 'person';
+  const taxIdType: 'person' | 'company' = formData.type === 'company' ? 'company' : 'person';
 
   // Detect country from phone number
   const handlePhoneChange = (value: string) => {
@@ -368,7 +370,7 @@ export default function ContactForm({
   };
 
   // Get Tax ID label based on detected country
-  const taxIdLabel = getTaxIdLabel(phoneCountry, formData.type);
+  const taxIdLabel = getTaxIdLabel(phoneCountry, taxIdType);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -381,7 +383,7 @@ export default function ContactForm({
             </Label>
             <Select
               value={formData.type}
-              onValueChange={(value: 'person' | 'company') =>
+              onValueChange={(value: 'person' | 'company' | 'group') =>
                 setFormData(prev => ({ ...prev, type: value }))
               }
               disabled={loading}
@@ -421,6 +423,8 @@ export default function ContactForm({
           <div className="flex items-center gap-2">
             {formData.type === 'company' ? (
               <Building2 className="h-4 w-4 text-primary" />
+            ) : formData.type === 'group' ? (
+              <Users className="h-4 w-4 text-primary" />
             ) : (
               <User className="h-4 w-4 text-primary" />
             )}
@@ -431,6 +435,8 @@ export default function ContactForm({
               <span className="text-sm font-semibold">
                 {formData.type === 'company'
                   ? t('form.fields.type.company')
+                  : formData.type === 'group'
+                  ? t('type.group')
                   : t('form.fields.type.person')}
               </span>
             </div>
@@ -536,7 +542,7 @@ export default function ContactForm({
             <Label htmlFor="tax_id">{taxIdLabel}</Label>
             <TaxIdInput
               id="tax_id"
-              type={formData.type}
+              type={taxIdType}
               country={phoneCountry}
               value={formData.tax_id}
               onChange={value => handleInputChange('tax_id', value)}

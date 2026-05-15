@@ -3,4 +3,3 @@
 
 export * from './notifications';
 export * from './messages';
-export * from './contact-events';

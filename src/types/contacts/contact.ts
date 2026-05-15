@@ -112,7 +112,7 @@ export interface ContactPipelineInfo {
 export interface Contact {
   id: string;
   name: string;
-  type: 'person' | 'company';
+  type: 'person' | 'company' | 'group';
   email: string;
   phone_number: string;
   thumbnail: string;
@@ -210,7 +210,8 @@ export interface ContactsListParams {
   order?: 'asc' | 'desc';
   labels?: string[];
   q?: string;
-  type?: 'person' | 'company';
+  type?: 'person' | 'company' | 'group';
+  include_groups?: boolean;
   company_id?: string;
   include_contact_inboxes?: boolean;
   created_after?: string;
@@ -224,7 +225,7 @@ export interface ContactsSearchParams {
   page?: number;
   per_page?: number;
   sort?: string;
-  type?: 'person' | 'company';
+  type?: 'person' | 'company' | 'group';
   labels?: string[];
   include_contact_inboxes?: boolean;
 }
@@ -236,7 +237,7 @@ export interface ContactsFilterParams {
 
 export interface ContactCreateData {
   name: string;
-  type: 'person' | 'company';
+  type: 'person' | 'company' | 'group';
   email?: string;
   phone_number?: string;
   identifier?: string;

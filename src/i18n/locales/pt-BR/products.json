@@ -1,0 +1,123 @@
+{
+  "page": {
+    "title": "Produtos",
+    "subtitle": "Catálogo de produtos físicos e digitais que os agentes de IA podem utilizar.",
+    "loading": "Carregando..."
+  },
+  "header": {
+    "searchPlaceholder": "Buscar por nome, SKU ou descrição",
+    "new": "Novo produto",
+    "filters": {
+      "kindAll": "Todos os tipos",
+      "statusAll": "Todos os status"
+    }
+  },
+  "kind": {
+    "physical": "Físico",
+    "digital": "Digital"
+  },
+  "status": {
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "draft": "Rascunho"
+  },
+  "table": {
+    "empty": "Nenhum produto cadastrado. Clique em \"Novo produto\".",
+    "columns": {
+      "name": "Nome",
+      "sku": "SKU",
+      "kind": "Tipo",
+      "price": "Preço",
+      "status": "Status",
+      "variants": "Variantes",
+      "actions": "Ações"
+    }
+  },
+  "modal": {
+    "createTitle": "Criar produto",
+    "editTitle": "Editar produto",
+    "subtitle": "Preencha os detalhes do produto. Use variantes para tamanho/cor quando necessário.",
+    "tabs": {
+      "general": "Geral",
+      "media": "Mídias",
+      "variants": "Variantes",
+      "labels": "Categorias"
+    }
+  },
+  "fields": {
+    "name": "Nome",
+    "namePlaceholder": "Ex.: Camiseta preta premium",
+    "kind": "Tipo",
+    "status": "Status",
+    "sku": "SKU",
+    "stockQuantity": "Quantidade em estoque",
+    "defaultPrice": "Preço padrão",
+    "currency": "Moeda",
+    "purchaseUrl": "Link de compra",
+    "description": "Descrição",
+    "descriptionPlaceholder": "Descrição curta do produto (também usada pelo agente de IA)",
+    "labels": "Categorias / etiquetas",
+    "labelsPlaceholder": "Separadas por vírgula, ex.: vestuario, colecao-verao",
+    "labelsHint": "Categorias ajudam a filtrar produtos e podem ser usadas por regras de automação."
+  },
+  "media": {
+    "uploadHint": "Arraste imagens ou clique no botão abaixo.",
+    "selectFiles": "Selecionar arquivos",
+    "existing": "Imagens existentes",
+    "pending": "Pendentes de upload"
+  },
+  "variants": {
+    "empty": "Nenhuma variante. Clique em \"Adicionar variante\".",
+    "add": "Adicionar variante",
+    "name": "Nome (ex.: M, Azul)",
+    "sku": "SKU",
+    "priceOverride": "Preço (override)",
+    "stock": "Estoque",
+    "digitalHint": "Geralmente não são usadas variantes em produtos digitais."
+  },
+  "actions": {
+    "cancel": "Cancelar",
+    "create": "Criar",
+    "update": "Atualizar",
+    "saving": "Salvando...",
+    "delete": "Excluir",
+    "deleting": "Excluindo...",
+    "edit": "Editar"
+  },
+  "confirmDelete": {
+    "title": "Excluir produto?",
+    "description": "Tem certeza que deseja excluir \"{{name}}\"? Esta ação não pode ser desfeita."
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Próxima",
+    "summary": "Página {{page}} de {{totalPages}} — {{totalCount}} produtos"
+  },
+  "messages": {
+    "loadError": "Falha ao carregar produtos",
+    "createSuccess": "Produto criado",
+    "createError": "Falha ao criar produto",
+    "updateSuccess": "Produto atualizado",
+    "updateError": "Falha ao atualizar produto",
+    "deleteSuccess": "Produto excluído",
+    "deleteError": "Falha ao excluir produto"
+  },
+  "pipelinePanel": {
+    "title": "Produtos vendidos",
+    "empty": "Nenhum produto vinculado a este card ainda.",
+    "emptyList": "Nenhum produto vinculado.",
+    "summary": "{{count}} produto(s) · total {{total}}",
+    "add": "Adicionar produto",
+    "added": "Produto adicionado",
+    "addError": "Falha ao adicionar produto",
+    "removed": "Produto removido",
+    "removeError": "Falha ao remover produto",
+    "product": "Produto",
+    "selectProduct": "Selecione um produto",
+    "variant": "Variante",
+    "selectVariant": "Selecione uma variante",
+    "noVariant": "Sem variante",
+    "quantity": "Quantidade",
+    "notes": "Observações (opcional)"
+  }
+}

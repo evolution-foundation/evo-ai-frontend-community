@@ -281,6 +281,16 @@ class ChatService {
     );
     return extractData<Message>(response);
   }
+
+  async bulkResolve(displayIds: string[]): Promise<{ success_ids: number[]; failed_ids: number[] }> {
+    const response = await api.post('/bulk_actions', {
+      type: 'Conversation',
+      ids: displayIds,
+      fields: { status: 'resolved' },
+    });
+    const data = response.data?.data;
+    return data ?? { success_ids: [], failed_ids: [] };
+  }
 }
 
 // Export singleton instance

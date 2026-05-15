@@ -17,6 +17,7 @@ import { isActionNotSupported } from '@/utils/chat/actionSupport';
 import { Contact, Conversation, ConversationListParams } from '@/types/chat/api';
 import { PaginationMeta } from '@/types/core';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
+import { matchesConversationId } from '@/utils/chat/conversationMatcher';
 
 export function ConversationsProvider({ children }: { children: React.ReactNode }) {
   const { t } = useLanguage('chat');
@@ -32,11 +33,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
     (conversationId: string) => {
       const idStr = String(conversationId);
       return (
-        state.conversations.find(
-          conv =>
-            String(conv.id) === idStr ||
-            String(conv.uuid || '') === idStr,
-        ) || null
+        state.conversations.find(conv => matchesConversationId(conv, idStr)) || null
       );
     },
     [state.conversations],

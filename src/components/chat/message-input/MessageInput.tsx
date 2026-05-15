@@ -527,9 +527,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
     [showCannedResponses, filteredCannedResponses, selectedCannedIndex, handleSelectCannedResponse],
   );
 
-  const handleFilesSelected = (files: File[]) => {
+  const handleFilesSelected = useCallback((files: File[]) => {
     setSelectedFiles(prev => [...prev, ...files]);
-    // Toast mais sutil
     const count = files.length;
     toast.success(
       count === 1
@@ -539,7 +538,34 @@ const MessageInput: React.FC<MessageInputProps> = ({
         duration: 2000,
       },
     );
-  };
+  }, [t]);
+
+  // Handle media paste from clipboard (Ctrl+V / Cmd+V)
+  useEffect(() => {
+    const handlePaste = (event: ClipboardEvent) => {
+      if (isDisabled || isSending) return;
+
+      const items = event.clipboardData?.items;
+      if (!items) return;
+
+      const files: File[] = [];
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.kind === 'file') {
+          const file = item.getAsFile();
+          if (file) files.push(file);
+        }
+      }
+
+      if (files.length > 0) {
+        event.preventDefault();
+        handleFilesSelected(files);
+      }
+    };
+
+    document.addEventListener('paste', handlePaste);
+    return () => document.removeEventListener('paste', handlePaste);
+  }, [isDisabled, isSending, handleFilesSelected]);
 
   const handleRemoveFile = (index: number) => {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));

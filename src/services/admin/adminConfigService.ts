@@ -21,6 +21,10 @@ class AdminConfigService {
     const response = await api.post(`/admin/app_configs/${configType}/test_connection`);
     return extractData<{ success: boolean; message: string }>(response);
   }
+
+  async clearConfig(configType: string): Promise<void> {
+    await api.delete(`/admin/app_configs/${configType}`);
+  }
 }
 
 export const adminConfigService = new AdminConfigService();

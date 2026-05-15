@@ -60,7 +60,12 @@
     "messageFile": {
       "fileFallback": "file",
       "unknownSize": "Dimensione sconosciuta",
-      "fileFallbackTitle": "File"
+      "fileFallbackTitle": "File",
+      "downloadFallbackOpenedInNewTab": "File aperto in una nuova scheda",
+      "downloadFallbackReason": {
+        "serverError": "Il server ha restituito {{status}} — impossibile scaricare direttamente.",
+        "network": "Errore di rete o blocco CORS — impossibile scaricare direttamente."
+      }
     },
     "messageImage": {
       "downloadStarted": "Download avviato",
@@ -280,17 +285,25 @@
       "assignAgent": "Assegna Agente",
       "assignTeam": "Assegna Team",
       "assignTag": "Assegna Etichetta",
-      "deleteConversation": "Elimina conversazione"
+      "deleteConversation": "Elimina conversazione",
+      "bulkResolveSuccess": "{{count}} conversazione/i risolta/e",
+      "bulkResolvePartialSuccess": "{{success}} risolta/e, {{failed}} fallita/e",
+      "bulkResolveError": "Errore nella risoluzione delle conversazioni",
+      "bulkResolveNoPermission": "Non hai il permesso di risolvere le conversazioni"
     },
     "contactNoName": "Contatto senza nome",
     "status": "Stato:",
     "openConversation": "Apri Conversazione",
-    "closeConversation": "Chiudi conversazione"
+    "closeConversation": "Chiudi conversazione",
+    "phoneNumber": "Numero di telefono"
   },
   "chatSidebar": {
     "searchPlaceholder": "Cerca conversazioni...",
     "conversation": "conversazione",
     "conversations": "conversazioni",
+    "selectedCount_one": "{{count}} conversazione selezionata",
+    "selectedCount_other": "{{count}} conversazioni selezionate",
+    "selectConversation": "Seleziona conversazione",
     "filter": "filtro",
     "filters": "filtri",
     "filtersButton": "Filtri",
@@ -315,7 +328,8 @@
       "noMessages": "Nessun messaggio",
       "noContent": "Messaggio senza contenuto"
     },
-    "contactNoName": "Contatto senza nome"
+    "contactNoName": "Contatto senza nome",
+    "phoneNumber": "Numero di telefono"
   },
   "chatTabs": {
     "chat": "Chat"
@@ -355,7 +369,10 @@
     },
     "contactHeader": {
       "contactNoName": "Contatto senza nome",
-      "online": "Online"
+      "online": "Online",
+      "away": "Assente",
+      "busy": "Occupato",
+      "offline": "Offline"
     },
     "contactDetails": {
       "actions": {
@@ -427,40 +444,6 @@
         "description": "Sei sicuro di voler eseguire la macro {{name}}? Questa azione applicherà {{count}} {{actionLabel}} a questa conversazione.",
         "cancel": "Annulla",
         "execute": "Eseguire Macro"
-      }
-    },
-    "pipeline": {
-      "loading": "Errore nel caricamento dei dati della pipeline",
-      "noPipelines": "Nessuna pipeline configurata",
-      "current": "Pipeline Attuale",
-      "label": "Pipeline",
-      "selectPipeline": "Seleziona una pipeline",
-      "selectStage": "Seleziona uno stadio",
-      "stage": "Stadio",
-      "saving": "Salvataggio...",
-      "save": "Salva",
-      "saveSuccess": "Pipeline aggiornata con successo",
-      "saveError": "Errore nell'aggiornamento della pipeline",
-      "selectError": "Seleziona una pipeline e uno stadio",
-      "removeSuccess": "Conversazione rimossa dalla pipeline",
-      "removeError": "Errore nella rimozione dalla pipeline",
-      "dialogs": {
-        "update": {
-          "title": "Aggiorna Pipeline",
-          "description": "Sei sicuro di voler spostare questa conversazione a {{pipelineName}} nello stadio {{stageName}}?",
-          "confirm": "Aggiorna"
-        },
-        "add": {
-          "title": "Aggiungi alla Pipeline",
-          "description": "Sei sicuro di voler aggiungere questa conversazione alla pipeline {{pipelineName}} nello stadio {{stageName}}?",
-          "confirm": "Aggiungi"
-        },
-        "remove": {
-          "title": "Rimuovi dalla Pipeline",
-          "description": "Sei sicuro di voler rimuovere questa conversazione dalla pipeline {{pipelineName}}? Questa azione non può essere annullata.",
-          "cancel": "Annulla",
-          "confirm": "Rimuovi"
-        }
       }
     },
     "filters": {
@@ -897,5 +880,19 @@
     "success": {
       "sent": "Modello inviato con successo!"
     }
+  },
+  "pipeline": {
+    "section": "Pipeline",
+    "addTo": "Aggiungi al pipeline",
+    "removeFrom": "Rimuovi dal pipeline",
+    "loading": "Caricamento pipeline...",
+    "noPipelines": "Nessun pipeline disponibile",
+    "loadError": "Errore nel caricamento. Clicca per riprovare.",
+    "addSuccess": "Aggiunto al pipeline",
+    "moveSuccess": "Spostato nella fase",
+    "removeSuccess": "Rimosso dal pipeline",
+    "addError": "Errore nell'aggiunta al pipeline",
+    "moveError": "Errore nello spostamento nella fase",
+    "removeError": "Errore nella rimozione dal pipeline"
   }
 }

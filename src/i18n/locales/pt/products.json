@@ -1,0 +1,123 @@
+{
+  "page": {
+    "title": "Produtos",
+    "subtitle": "Catálogo de produtos físicos e digitais que os agentes de IA podem utilizar.",
+    "loading": "A carregar..."
+  },
+  "header": {
+    "searchPlaceholder": "Pesquisar por nome, SKU ou descrição",
+    "new": "Novo produto",
+    "filters": {
+      "kindAll": "Todos os tipos",
+      "statusAll": "Todos os estados"
+    }
+  },
+  "kind": {
+    "physical": "Físico",
+    "digital": "Digital"
+  },
+  "status": {
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "draft": "Rascunho"
+  },
+  "table": {
+    "empty": "Ainda não existem produtos. Clique em \"Novo produto\" para começar.",
+    "columns": {
+      "name": "Nome",
+      "sku": "SKU",
+      "kind": "Tipo",
+      "price": "Preço",
+      "status": "Estado",
+      "variants": "Variantes",
+      "actions": "Ações"
+    }
+  },
+  "modal": {
+    "createTitle": "Criar produto",
+    "editTitle": "Editar produto",
+    "subtitle": "Preencha os detalhes do produto. Utilize variantes para tamanho/cor quando necessário.",
+    "tabs": {
+      "general": "Geral",
+      "media": "Multimédia",
+      "variants": "Variantes",
+      "labels": "Categorias"
+    }
+  },
+  "fields": {
+    "name": "Nome",
+    "namePlaceholder": "Ex.: T-shirt preta premium",
+    "kind": "Tipo",
+    "status": "Estado",
+    "sku": "SKU",
+    "stockQuantity": "Quantidade em stock",
+    "defaultPrice": "Preço padrão",
+    "currency": "Moeda",
+    "purchaseUrl": "Ligação de compra",
+    "description": "Descrição",
+    "descriptionPlaceholder": "Descrição curta do produto (também usada pelo agente de IA)",
+    "labels": "Categorias / etiquetas",
+    "labelsPlaceholder": "Separadas por vírgula, ex.: vestuario, colecao-verao",
+    "labelsHint": "As categorias ajudam a filtrar produtos e podem ser usadas por regras de automação."
+  },
+  "media": {
+    "uploadHint": "Arraste imagens para aqui ou utilize o botão em baixo.",
+    "selectFiles": "Selecionar ficheiros",
+    "existing": "Imagens existentes",
+    "pending": "Pendentes de envio"
+  },
+  "variants": {
+    "empty": "Sem variantes. Clique em \"Adicionar variante\".",
+    "add": "Adicionar variante",
+    "name": "Nome (ex.: M, Azul)",
+    "sku": "SKU",
+    "priceOverride": "Preço (substitui o padrão)",
+    "stock": "Stock",
+    "digitalHint": "Normalmente não se utilizam variantes em produtos digitais."
+  },
+  "actions": {
+    "cancel": "Cancelar",
+    "create": "Criar",
+    "update": "Atualizar",
+    "saving": "A guardar...",
+    "delete": "Eliminar",
+    "deleting": "A eliminar...",
+    "edit": "Editar"
+  },
+  "confirmDelete": {
+    "title": "Eliminar produto?",
+    "description": "Tem a certeza que deseja eliminar \"{{name}}\"? Esta ação não pode ser anulada."
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Seguinte",
+    "summary": "Página {{page}} de {{totalPages}} — {{totalCount}} produtos"
+  },
+  "messages": {
+    "loadError": "Falha ao carregar produtos",
+    "createSuccess": "Produto criado",
+    "createError": "Falha ao criar produto",
+    "updateSuccess": "Produto atualizado",
+    "updateError": "Falha ao atualizar produto",
+    "deleteSuccess": "Produto eliminado",
+    "deleteError": "Falha ao eliminar produto"
+  },
+  "pipelinePanel": {
+    "title": "Produtos vendidos",
+    "empty": "Ainda não há produtos associados a este cartão.",
+    "emptyList": "Sem produtos associados.",
+    "summary": "{{count}} produto(s) · total {{total}}",
+    "add": "Adicionar produto",
+    "added": "Produto adicionado",
+    "addError": "Falha ao adicionar produto",
+    "removed": "Produto removido",
+    "removeError": "Falha ao remover produto",
+    "product": "Produto",
+    "selectProduct": "Selecione um produto",
+    "variant": "Variante",
+    "selectVariant": "Selecione uma variante",
+    "noVariant": "Sem variante",
+    "quantity": "Quantidade",
+    "notes": "Notas (opcional)"
+  }
+}

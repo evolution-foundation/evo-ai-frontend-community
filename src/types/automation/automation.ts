@@ -20,7 +20,7 @@ export interface AutomationCondition {
   attribute_key: string;
   filter_operator: string;
   query_operator?: string;
-  values: string[] | number[];
+  values: (string | number)[];
   custom_attribute_type?: string;
 }
 
@@ -28,6 +28,29 @@ export interface AutomationCondition {
 export interface AutomationAction {
   action_name: string;
   action_params: string[] | Record<string, unknown>;
+}
+
+// Automation rule run (execution log)
+export type AutomationRuleRunStatus = 'matched' | 'no_match' | 'error' | 'skipped';
+
+export interface AutomationRuleRunStep {
+  at: string;
+  label: string;
+  level: 'info' | 'success' | 'warn' | 'error';
+  data?: Record<string, unknown>;
+}
+
+export interface AutomationRuleRun {
+  id: string;
+  automation_rule_id: string;
+  event_name: string;
+  status: AutomationRuleRunStatus;
+  started_at: string;
+  finished_at?: string;
+  duration_ms?: number;
+  error_message?: string;
+  payload?: Record<string, unknown>;
+  steps: AutomationRuleRunStep[];
 }
 
 // Automation file interface (existing)
@@ -80,7 +103,7 @@ export interface AutomationConditionNodeData extends Record<string, unknown> {
   type: 'condition';
   attribute_key: string;
   filter_operator: string;
-  values: string[] | number[];
+  values: (string | number)[];
   custom_attribute_type?: string;
   label: string;
 }
@@ -122,8 +145,11 @@ export interface AutomationFlowContext {
 export type AutomationEventType =
   | 'conversation_created'
   | 'conversation_updated'
-  | 'message_created'
   | 'conversation_opened'
+  | 'message_created'
+  | 'pipeline_stage_updated'
+  | 'contact_created'
+  | 'contact_updated'
   | 'conversation_resolved'
   | 'conversation_status_changed';
 
@@ -138,12 +164,16 @@ export type AutomationFilterOperator =
   | 'is_greater_than'
   | 'is_less_than'
   | 'days_before'
+  | 'starts_with'
+  | 'attribute_changed'
   | 'is_in'
   | 'is_not_in';
 
 // Action types for automation actions
 export type AutomationActionType =
   | 'send_message'
+  | 'send_canned_response'
+  | 'send_template'
   | 'add_label'
   | 'remove_label'
   | 'send_email_to_team'
@@ -158,7 +188,8 @@ export type AutomationActionType =
   | 'change_priority'
   | 'send_email_transcript'
   | 'assign_to_pipeline'
-  | 'update_pipeline_stage';
+  | 'update_pipeline_stage'
+  | 'create_pipeline_task';
 
 // Flow builder state interface
 export interface AutomationFlowBuilderState {

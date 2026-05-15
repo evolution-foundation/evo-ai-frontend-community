@@ -1,0 +1,72 @@
+{
+  "title": "Perfis e Permissões",
+  "description": "Gerencie perfis e suas permissões. Perfis do sistema não podem ser excluídos, mas suas permissões podem ser editadas.",
+  "header": {
+    "subtitle": "{{count}} perfil(is) configurado(s)",
+    "searchPlaceholder": "Buscar perfis..."
+  },
+  "addRole": "Novo Perfil",
+  "editRole": "Editar Perfil",
+  "deleteRole": "Excluir Perfil",
+  "backToList": "Voltar para Perfis",
+  "savePermissions": "Salvar Permissões",
+  "saving": "Salvando...",
+  "noRoles": "Nenhum perfil encontrado",
+  "noRolesDescription": "Crie um perfil personalizado para começar.",
+  "table": {
+    "name": "Nome",
+    "description": "Descrição",
+    "type": "Tipo",
+    "permissions": "Permissões",
+    "users": "Usuários",
+    "actions": "Ações"
+  },
+  "type": {
+    "user": "Usuário",
+    "account": "Conta"
+  },
+  "badges": {
+    "system": "Sistema",
+    "custom": "Personalizado"
+  },
+  "detail": {
+    "permissionsTitle": "Permissões",
+    "permissionsDescription": "Marque as permissões que este perfil deve ter. As alterações entram em vigor no próximo acesso do usuário.",
+    "permissionsSelected": "permissões selecionadas",
+    "selectAll": "Selecionar todos",
+    "deselectAll": "Desmarcar todos",
+    "noPermissions": "Nenhuma permissão disponível."
+  },
+  "createModal": {
+    "title": "Criar Perfil",
+    "description": "Defina um nome e descrição opcional para o novo perfil. Você pode configurar as permissões após a criação.",
+    "nameLabel": "Nome",
+    "namePlaceholder": "ex: Agente de Suporte",
+    "descriptionLabel": "Descrição",
+    "descriptionPlaceholder": "Breve descrição deste perfil",
+    "cancel": "Cancelar",
+    "create": "Criar Perfil",
+    "creating": "Criando..."
+  },
+  "deleteDialog": {
+    "title": "Excluir Perfil",
+    "description": "Tem certeza que deseja excluir o perfil \"{{name}}\"? Esta ação não pode ser desfeita.",
+    "cancel": "Cancelar",
+    "confirm": "Excluir",
+    "deleting": "Excluindo..."
+  },
+  "messages": {
+    "createSuccess": "Perfil criado com sucesso",
+    "createError": "Falha ao criar perfil",
+    "updateSuccess": "Perfil atualizado com sucesso",
+    "updateError": "Falha ao atualizar perfil",
+    "deleteSuccess": "Perfil excluído com sucesso",
+    "deleteError": "Falha ao excluir perfil",
+    "permissionsSuccess": "Permissões salvas com sucesso",
+    "permissionsError": "Falha ao salvar permissões",
+    "loadError": "Falha ao carregar perfis",
+    "systemRoleCannotDelete": "Perfis do sistema não podem ser excluídos",
+    "roleHasUsers": "Não é possível excluir um perfil com usuários atribuídos"
+  },
+  "saveChanges": "Salvar Alterações"
+}

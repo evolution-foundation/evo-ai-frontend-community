@@ -221,9 +221,8 @@ export const useChannelSubmission = (form?: FormData) => {
       } else if (selectedProvider.id === 'notificame') {
         try {
           result = await NotificameService.verifyConnection({
-            api_url: getStr(form, 'api_url'),
-            admin_token: getStr(form, 'admin_token'),
-            instance_id: getStr(form, 'instance_id'),
+            api_token: getStr(form, 'api_token'),
+            channel_id: getStr(form, 'channel_id'),
             phone_number: getStr(form, 'phone_number'),
           });
         } catch (error) {
@@ -458,9 +457,8 @@ export const useChannelSubmission = (form?: FormData) => {
             // verify connection first
             try {
               await NotificameService.verifyConnection({
-                api_url: getStr(form, 'api_url'),
-                admin_token: getStr(form, 'admin_token'),
-                instance_id: getStr(form, 'instance_id'),
+                api_token: getStr(form, 'api_token'),
+                channel_id: getStr(form, 'channel_id'),
                 phone_number: getStr(form, 'phone_number'),
               });
             } catch (error) {

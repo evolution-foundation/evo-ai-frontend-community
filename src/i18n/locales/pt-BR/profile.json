@@ -47,7 +47,21 @@
       "validation": {
         "allFields": "Todos os campos são obrigatórios",
         "mismatch": "As senhas não coincidem",
-        "minLength": "A senha deve ter no mínimo 6 caracteres"
+        "minLength": "A senha deve ter no mínimo 8 caracteres"
+      },
+      "errors": {
+        "too_short": "A senha deve ter no mínimo 8 caracteres",
+        "missing_uppercase": "Deve incluir pelo menos uma letra maiúscula (A-Z)",
+        "missing_lowercase": "Deve incluir pelo menos uma letra minúscula (a-z)",
+        "missing_number": "Deve incluir pelo menos um número (0-9)",
+        "missing_special_char": "Deve incluir pelo menos um caractere especial (!@#$...)"
+      },
+      "rules": {
+        "minLength": "Mínimo 8 caracteres",
+        "uppercase": "Pelo menos uma letra maiúscula (A-Z)",
+        "lowercase": "Pelo menos uma letra minúscula (a-z)",
+        "number": "Pelo menos um número (0-9)",
+        "specialChar": "Pelo menos um caractere especial (!@#$...)"
       }
     },
     "accessToken": {

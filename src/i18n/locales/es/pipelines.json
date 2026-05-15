@@ -354,8 +354,14 @@
     "labelNamePlaceholder": "Nombre de la etiqueta...",
     "selectStage": "Seleccionar etapa...",
     "selectAgent": "Seleccionar agente...",
+    "selectPipeline": "Seleccionar pipeline...",
+    "selectLabel": "Seleccionar etiqueta...",
     "noOtherStages": "No hay otras etapas disponibles",
+    "noOtherPipelines": "No hay otros pipelines disponibles",
+    "noStagesInPipeline": "No hay etapas en el pipeline seleccionado",
     "noAgents": "No hay agentes disponibles",
+    "anyLabel": "Cualquier etiqueta",
+    "noLabels": "No hay etiquetas disponibles",
     "triggers": {
       "label_added": "Etiqueta agregada",
       "conversation_status_changed": "Estado de conversación cambiado",
@@ -363,6 +369,7 @@
     },
     "actions": {
       "move_to_stage": "Mover a etapa",
+      "move_to_pipeline": "Mover a otro pipeline",
       "assign_agent": "Asignar agente",
       "apply_label": "Aplicar etiqueta"
     }

@@ -184,8 +184,25 @@ export default function UserFormModal({ isOpen, onClose, user, onSuccess }: User
 
       onSuccess();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao salvar usuário:', error);
+
+      // Parse structured validation errors from the API (EVO-1063)
+      const details = error?.response?.data?.error?.details;
+      if (Array.isArray(details)) {
+        const fieldErrors: Record<string, string> = {};
+        details.forEach((d: { field: string; full_messages?: string[] }) => {
+          if (d.field && d.full_messages?.length) {
+            fieldErrors[d.field] = d.full_messages.join('. ');
+          }
+        });
+
+        if (Object.keys(fieldErrors).length > 0) {
+          setErrors(prev => ({ ...prev, ...fieldErrors }));
+          return;
+        }
+      }
+
       toast.error(t('form.messages.saveError'));
     } finally {
       setLoading(false);

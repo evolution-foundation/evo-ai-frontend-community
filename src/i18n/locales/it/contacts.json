@@ -5,7 +5,6 @@
     "actions": {
       "chat": "Conversare",
       "viewDetails": "Vedi dettagli",
-      "viewEvents": "Visualizza eventi",
       "edit": "Modifica contatto",
       "delete": "Elimina contatto"
     }
@@ -60,148 +59,6 @@
       "invalidDate": "Data non valida"
     },
     "na": "N/D"
-  },
-  "events": {
-    "title": "Eventi di {{name}}",
-    "subtitle": "Cronologia completa delle attività e interazioni",
-    "stats": {
-      "title": "Statistiche Eventi",
-      "loading": "Caricamento statistiche...",
-      "empty": "Nessuna statistica disponibile",
-      "total": "Totale",
-      "events": "eventi",
-      "first": "Primo",
-      "last": "Ultimo",
-      "event": "evento",
-      "byType": "Eventi per Tipo:"
-    },
-    "timeline": {
-      "title": "Cronologia Eventi",
-      "loading": "Caricamento eventi...",
-      "empty": {
-        "title": "Nessun evento trovato",
-        "description": "Questo contatto non ha ancora eventi registrati.",
-        "withFilters": "Nessun evento corrisponde ai filtri selezionati. Prova a modificare i filtri."
-      },
-      "filters": {
-        "title": "Filtri",
-        "refresh": "Aggiorna",
-        "eventType": "Tipo di evento",
-        "eventName": "Nome dell'evento",
-        "actions": "Azioni",
-        "expand": "Espandi",
-        "collapse": "Comprimi",
-        "clear": "Cancella filtri"
-      },
-      "loadMore": "Carica altri eventi ({{remaining}} rimanenti)",
-      "showing": "Visualizzazione di {{count}} su {{total}} eventi",
-      "page": "Pagina {{current}} di {{total}}",
-      "ago": {
-        "minutes": "{{count}} min fa",
-        "hours": "{{count}}h fa",
-        "yesterday": "Ieri"
-      }
-    },
-    "types": {
-      "all": "Tutti i tipi",
-      "identify": "Identificazione",
-      "track": "Tracciamento",
-      "page": "Pagina",
-      "screen": "Schermata"
-    },
-    "names": {
-      "all": "Tutti gli eventi",
-      "contact_created": "Contatto Creato",
-      "contact_updated": "Contatto Aggiornato",
-      "label_added": "Etichetta Aggiunta",
-      "label_removed": "Etichetta Rimossa",
-      "custom_attribute_changed": "Attributo Personalizzato Modificato",
-      "conversation_created": "Conversazione Creata",
-      "conversation_updated": "Conversazione Aggiornata",
-      "conversation_deleted": "Conversazione Eliminata",
-      "message_created": "Messaggio Creato",
-      "message_updated": "Messaggio Aggiornato",
-      "message_deleted": "Messaggio Eliminato",
-      "pipeline_conversation_created": "Aggiunto alla Pipeline",
-      "pipeline_conversation_updated": "Pipeline Aggiornata",
-      "pipeline_conversation_added": "Aggiunto alla Pipeline",
-      "pipeline_conversation_deleted": "Rimosso dalla Pipeline",
-      "pipeline_stage_changed": "Fase della Pipeline Modificata",
-      "pipeline_custom_fields_updated": "Campi Personalizzati della Pipeline",
-      "contactCreated": "Contatto creato",
-      "contactUpdated": "Contatto aggiornato",
-      "labelAdded": "Etichetta aggiunta",
-      "labelRemoved": "Etichetta rimossa",
-      "customAttributeChanged": "Attributo personalizzato modificato",
-      "conversationCreated": "Conversazione creata",
-      "conversationUpdated": "Conversazione aggiornata",
-      "messageCreated": "Messaggio creato",
-      "pipelineCreated": "Pipeline creata",
-      "pipelineUpdated": "Pipeline aggiornata"
-    },
-    "descriptions": {
-      "contact_created": "Un nuovo contatto è stato creato nel sistema",
-      "contact_updated": "{{count}} campo/i sono stati modificati",
-      "label_added": "L'etichetta \"{{labelName}}\" è stata aggiunta",
-      "label_removed": "L'etichetta \"{{labelName}}\" è stata rimossa",
-      "custom_attribute_changed": "L'attributo \"{{attributeName}}\" è stato modificato",
-      "conversation_created": "Nuova conversazione creata nell'inbox \"{{inbox_name}}\"",
-      "conversation_updated": "Conversazione aggiornata ({{count}} modifiche)",
-      "message_created_incoming": "ricevuto dal contatto",
-      "message_created_outgoing": "inviato dall'Agente",
-      "pipeline_added": "Aggiunto alla pipeline \"{{pipeline_name}}\" nella fase \"{{pipeline_stage_name}}\"",
-      "pipeline_stage_changed": "Pipeline \"{{pipeline_name}}\": spostato da \"{{old_stage_name}}\" a \"{{new_stage_name}}\"",
-      "pipeline_custom_fields": "Campi personalizzati della pipeline \"{{pipeline_name}}\" aggiornati (valore totale: {{value}})",
-      "system": "Evento di sistema"
-    },
-    "card": {
-      "properties": "Proprietà ({{count}})",
-      "traits": "Caratteristiche ({{count}})",
-      "conversationChanges": "Modifiche alla Conversazione",
-      "modified": "Modificato",
-      "contactChanges": "Modifiche Effettuate",
-      "changeTypes": {
-        "added": "Aggiunto",
-        "removed": "Rimosso",
-        "modified": "Modificato"
-      },
-      "previous": "Precedente:",
-      "new": "Nuovo:",
-      "pipelineAdded": "Aggiunto alla Pipeline",
-      "pipeline": "Pipeline:",
-      "initialStage": "Fase Iniziale:",
-      "stageChange": "Cambio di Fase",
-      "daysInPipeline": "Giorni nella pipeline: {{days}}",
-      "daysInStage": "Giorni nella fase attuale: {{days}}",
-      "services": "Servizi e Valori",
-      "total": "Totale:",
-      "message": "Messaggio",
-      "messageTypes": {
-        "incoming": "📥 Dal Contatto",
-        "outgoing": "📤 Dall'Agente"
-      },
-      "type": "Tipo: {{type}}",
-      "channel": "Canale: {{channel}}",
-      "labelAdded": "Etichetta Aggiunta",
-      "labelRemoved": "Etichetta Rimossa",
-      "customAttribute": "Attributo Personalizzato",
-      "attribute": "Attributo:",
-      "value": "Valore:",
-      "conversationFields": {
-        "updated_at": "Timestamp di aggiornamento modificato",
-        "waiting_since": "Tempo di attesa aggiornato",
-        "first_reply_created_at": "Prima risposta registrata",
-        "cached_label_list": "Elenco etichette aggiornato",
-        "status": "Stato della conversazione modificato",
-        "assignee_last_seen_at": "Ultima visualizzazione dell'Agente",
-        "generic": "Il campo \"{{field}}\" è stato modificato"
-      },
-      "inbox": "Inbox: {{name}}",
-      "channelType": "Canale: {{type}}",
-      "labelUnknown": "Etichetta sconosciuta",
-      "yes": "Sì",
-      "no": "No"
-    }
   },
   "export": {
     "title": "Esporta Contatti",
@@ -417,7 +274,6 @@
     "startConversation": "Avvia Conversazione",
     "edit": "Modifica",
     "delete": "Elimina",
-    "viewEvents": "Visualizza Eventi",
     "cancel": "Annulla",
     "save": "Salva",
     "confirm": "Conferma"
@@ -483,7 +339,8 @@
   },
   "type": {
     "person": "Persona",
-    "company": "Azienda"
+    "company": "Azienda",
+    "group": "Gruppo"
   },
   "filter": {
     "title": "Filtra Contatti",
@@ -572,7 +429,6 @@
     },
     "actions": {
       "startConversation": "Avvia conversazione",
-      "viewEvents": "Visualizza eventi",
       "edit": "Modifica contatto",
       "delete": "Elimina contatto",
       "create": "Crea contatto"

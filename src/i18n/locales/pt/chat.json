@@ -60,7 +60,12 @@
     "messageFile": {
       "fileFallback": "arquivo",
       "unknownSize": "Tamanho desconhecido",
-      "fileFallbackTitle": "Arquivo"
+      "fileFallbackTitle": "Arquivo",
+      "downloadFallbackOpenedInNewTab": "Ficheiro aberto em nova aba",
+      "downloadFallbackReason": {
+        "serverError": "O servidor retornou {{status}} — não foi possível descarregar diretamente.",
+        "network": "Falha de rede ou bloqueio de CORS — não foi possível descarregar diretamente."
+      }
     },
     "messageImage": {
       "downloadStarted": "Download iniciado",
@@ -280,17 +285,25 @@
       "assignAgent": "Atribuir Atendente",
       "assignTeam": "Atribuir time",
       "assignTag": "Atribuir etiqueta",
-      "deleteConversation": "Deletar conversa"
+      "deleteConversation": "Deletar conversa",
+      "bulkResolveSuccess": "{{count}} conversa(s) resolvida(s)",
+      "bulkResolvePartialSuccess": "{{success}} resolvida(s), {{failed}} falhada(s)",
+      "bulkResolveError": "Erro ao resolver conversas em lote",
+      "bulkResolveNoPermission": "Não tem permissão para resolver conversas"
     },
     "contactNoName": "Contato sem nome",
     "status": "Status:",
     "openConversation": "Abrir Conversa",
-    "closeConversation": "Fechar conversa"
+    "closeConversation": "Fechar conversa",
+    "phoneNumber": "Número de telefone"
   },
   "chatSidebar": {
     "searchPlaceholder": "Buscar conversas...",
     "conversation": "conversa",
     "conversations": "conversas",
+    "selectedCount_one": "{{count}} conversa selecionada",
+    "selectedCount_other": "{{count}} conversas selecionadas",
+    "selectConversation": "Selecionar conversa",
     "filter": "filtro",
     "filters": "filtros",
     "filtersButton": "Filtros",
@@ -315,7 +328,8 @@
       "noMessages": "Sem mensagens",
       "noContent": "Mensagem sem conteúdo"
     },
-    "contactNoName": "Contato sem nome"
+    "contactNoName": "Contato sem nome",
+    "phoneNumber": "Número de telefone"
   },
   "chatTabs": {
     "chat": "Chat"
@@ -355,7 +369,10 @@
     },
     "contactHeader": {
       "contactNoName": "Contato sem nome",
-      "online": "Online"
+      "online": "Online",
+      "away": "Ausente",
+      "busy": "Ocupado",
+      "offline": "Offline"
     },
     "contactDetails": {
       "actions": {
@@ -427,40 +444,6 @@
         "description": "Você tem certeza que deseja executar a macro {{name}}? Esta ação aplicará {{count}} {{actionLabel}} nesta conversa.",
         "cancel": "Cancelar",
         "execute": "Executar Macro"
-      }
-    },
-    "pipeline": {
-      "loading": "Erro ao carregar dados do pipeline",
-      "noPipelines": "Nenhum pipeline configurado",
-      "current": "Pipeline Atual",
-      "label": "Pipeline",
-      "selectPipeline": "Selecione um pipeline",
-      "selectStage": "Selecione um estágio",
-      "stage": "Estágio",
-      "saving": "Salvando...",
-      "save": "Salvar",
-      "saveSuccess": "Pipeline atualizado com sucesso",
-      "saveError": "Erro ao atualizar pipeline",
-      "selectError": "Selecione um pipeline e um estágio",
-      "removeSuccess": "Conversa removida do pipeline",
-      "removeError": "Erro ao remover do pipeline",
-      "dialogs": {
-        "update": {
-          "title": "Atualizar Pipeline",
-          "description": "Você tem certeza que deseja mover esta conversa para {{pipelineName}} no estágio {{stageName}}?",
-          "confirm": "Atualizar"
-        },
-        "add": {
-          "title": "Adicionar ao Pipeline",
-          "description": "Você tem certeza que deseja adicionar esta conversa ao pipeline {{pipelineName}} no estágio {{stageName}}?",
-          "confirm": "Adicionar"
-        },
-        "remove": {
-          "title": "Remover do Pipeline",
-          "description": "Você tem certeza que deseja remover esta conversa do pipeline {{pipelineName}}? Esta ação não pode ser desfeita.",
-          "cancel": "Cancelar",
-          "confirm": "Remover"
-        }
       }
     },
     "filters": {
@@ -901,5 +884,19 @@
     "success": {
       "sent": "Template enviado com sucesso!"
     }
+  },
+  "pipeline": {
+    "section": "Pipeline",
+    "addTo": "Adicionar ao pipeline",
+    "removeFrom": "Remover do pipeline",
+    "loading": "Carregando pipelines...",
+    "noPipelines": "Nenhum pipeline disponível",
+    "loadError": "Erro ao carregar pipelines. Clique para tentar novamente.",
+    "addSuccess": "Adicionado ao pipeline",
+    "moveSuccess": "Movido para o estágio",
+    "removeSuccess": "Removido do pipeline",
+    "addError": "Erro ao adicionar ao pipeline",
+    "moveError": "Erro ao mover para o estágio",
+    "removeError": "Erro ao remover do pipeline"
   }
 }

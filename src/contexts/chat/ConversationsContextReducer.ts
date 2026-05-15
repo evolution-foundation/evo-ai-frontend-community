@@ -1,5 +1,6 @@
 import { ConversationsState, ConversationsAction } from '@/types/chat/conversations';
 import { Conversation } from '@/types/chat/api';
+import { matchesConversationId } from '@/utils/chat/conversationMatcher';
 
 // Helper para verificar se uma conversa foi marcada como lida no localStorage
 const getReadConversationsFromStorage = (): Record<string, boolean> => {
@@ -211,41 +212,71 @@ export function conversationsReducer(
 
       const conversationId = String(action.payload.id);
 
-      // Sincronizar unread_count do objeto com o estado unreadCounts
-      // Priorizar unreadCounts (estado local) sobre o valor do objeto
-      // Se a conversa está selecionada e foi marcada como lida (unreadCount = 0), sempre preservar isso
-      const isSelected = state.selectedConversationId === conversationId;
-      const localUnreadCount = state.unreadCounts[conversationId];
-
-      // Se está selecionada e foi marcada como lida, sempre usar 0
-      // Caso contrário, usar o valor local se existir, senão usar o valor do payload
-      const syncedUnreadCount = isSelected && localUnreadCount === 0
-        ? 0
-        : (localUnreadCount ?? action.payload.unread_count ?? 0);
-
       // Atualizar na lista de conversas
-      const updatedConversationsList = state.conversations
-        .filter(conv => conv !== null && conv !== undefined && conv.id) // Filtrar elementos nulos e sem ID
-        .map(conv =>
-          String(conv.id) === conversationId
-            ? {
-                ...conv,
-                ...action.payload, // Merge ao invés de substituir
-                unread_count: syncedUnreadCount, // Sincronizar com estado unreadCounts
-              }
-            : conv,
-        );
+      const cleanConversations = state.conversations
+        .filter(conv => conv !== null && conv !== undefined && conv.id);
+
+      // Resolve the canonical conversation in state regardless of whether the
+      // payload arrived keyed by `id` or `uuid`. The reducer uses this to keep
+      // selection + unread bookkeeping aligned with the update.
+      const targetConv = cleanConversations.find(conv =>
+        matchesConversationId(conv, conversationId),
+      );
+      const existsInList = targetConv != null;
+
+      // Check selection against the resolved conversation (not the raw payload
+      // id), so that a `selectedConversationId` stored as `id` still matches
+      // when the WebSocket frame is keyed by `uuid` (and vice versa).
+      // Race-safety: when the conv isn't in the list yet (e.g. SELECT_CONVERSATION
+      // landed before SET_CONVERSATIONS completed), fall back to direct
+      // comparison so `selectedConversationData` still tracks the incoming
+      // payload — matches the previous reducer behaviour.
+      const selectedIdStr = state.selectedConversationId
+        ? String(state.selectedConversationId)
+        : null;
+      const isSelected =
+        selectedIdStr != null &&
+        (targetConv != null
+          ? matchesConversationId(targetConv, selectedIdStr)
+          : selectedIdStr === conversationId);
+
+      // Sincronizar unread_count do objeto com o estado unreadCounts.
+      // `selectConversation` canonicaliza a selection para `uuid` quando ele
+      // existe, mas `SET_CONVERSATIONS` semeia `unreadCounts` por
+      // `String(conv.id)`. As duas entradas coexistem para a mesma conv, então
+      // checamos ambas — se qualquer uma marcar como lida (0) enquanto a conv
+      // está selecionada, preservamos o 0 contra um payload stale.
+      const canonicalKey = targetConv ? String(targetConv.id) : conversationId;
+      const localUnreadCount = state.unreadCounts[canonicalKey];
+      const selectedKeyUnreadCount =
+        selectedIdStr != null && selectedIdStr !== canonicalKey
+          ? state.unreadCounts[selectedIdStr]
+          : undefined;
+      const syncedUnreadCount =
+        isSelected && (localUnreadCount === 0 || selectedKeyUnreadCount === 0)
+          ? 0
+          : (localUnreadCount ?? selectedKeyUnreadCount ?? action.payload.unread_count ?? 0);
+
+      const updatedConversationsList = existsInList
+        ? cleanConversations.map(conv =>
+            matchesConversationId(conv, conversationId)
+              ? {
+                  ...conv,
+                  ...action.payload,
+                  unread_count: syncedUnreadCount,
+                }
+              : conv,
+          )
+        : [{ ...action.payload, unread_count: syncedUnreadCount }, ...cleanConversations];
 
       // Se é a conversa selecionada, atualizar os dados também
-      const updatedSelectedData =
-        state.selectedConversationId &&
-        String(state.selectedConversationId) === conversationId
-          ? {
-              ...state.selectedConversationData,
-              ...action.payload,
-              unread_count: syncedUnreadCount, // Sincronizar também aqui
-            }
-          : state.selectedConversationData;
+      const updatedSelectedData = isSelected
+        ? {
+            ...state.selectedConversationData,
+            ...action.payload,
+            unread_count: syncedUnreadCount, // Sincronizar também aqui
+          }
+        : state.selectedConversationData;
 
       return {
         ...state,
@@ -316,22 +347,20 @@ export function conversationsReducer(
         return state;
       }
 
-      // 🔒 PROTEÇÃO: Verificar se conversa já existe antes de adicionar
-      const existingIndex = state.conversations.findIndex(
-        conv => String(conv.id) === String(action.payload.id),
+      const incomingId = String(action.payload.id);
+
+      const existingIndex = state.conversations.findIndex(conv =>
+        matchesConversationId(conv, incomingId),
       );
 
       if (existingIndex >= 0) {
-        // Se já existe, atualizar ao invés de adicionar (com merge)
         const updatedConversation = { ...state.conversations[existingIndex], ...action.payload };
         return {
           ...state,
           conversations: state.conversations
             .filter(conv => conv !== null && conv !== undefined && conv.id)
             .map(conv =>
-              String(conv.id) === String(action.payload.id)
-                ? updatedConversation // Merge ao invés de substituir
-                : conv,
+              matchesConversationId(conv, incomingId) ? updatedConversation : conv,
             ),
         };
       }
@@ -343,12 +372,18 @@ export function conversationsReducer(
     }
 
     case 'REMOVE_CONVERSATION': {
+      const targetId = String(action.payload);
+      const removed = state.conversations.find(conv =>
+        matchesConversationId(conv, targetId),
+      );
       const filteredConversations = state.conversations.filter(
-        conv => String(conv.id) !== String(action.payload),
+        conv => !matchesConversationId(conv, targetId),
       );
 
-      // Remove from unread counts as well
-      const { [action.payload]: _removed, ...remainingUnreadCounts } = state.unreadCounts; // eslint-disable-line @typescript-eslint/no-unused-vars
+      // `unreadCounts` is keyed by the canonical `String(conv.id)`. When the
+      // caller dispatches by uuid we still want to drop the right key.
+      const unreadKey = removed ? String(removed.id) : targetId;
+      const { [unreadKey]: _removed, ...remainingUnreadCounts } = state.unreadCounts; // eslint-disable-line @typescript-eslint/no-unused-vars
 
       return {
         ...state,
@@ -376,10 +411,16 @@ export function conversationsReducer(
       const { conversationId, count } = action.payload;
       const conversationIdStr = String(conversationId);
 
-      // Se está marcando como lida (count = 0), salvar no localStorage
+      // Sync the persisted "read" marker so `SET_CONVERSATIONS` on the next
+      // page load honors the most recent intent. Without the `else` branch a
+      // mark-as-unread leaves a stale `readConversations[id] = true` behind
+      // and F5 silently zeroes the badge again.
+      const readConversations = getReadConversationsFromStorage();
       if (count === 0) {
-        const readConversations = getReadConversationsFromStorage();
         readConversations[conversationIdStr] = true;
+        saveReadConversationsToStorage(readConversations);
+      } else if (readConversations[conversationIdStr]) {
+        delete readConversations[conversationIdStr];
         saveReadConversationsToStorage(readConversations);
       }
 
@@ -394,7 +435,7 @@ export function conversationsReducer(
         conversations: state.conversations
           .filter(conv => conv !== null && conv !== undefined && conv.id)
           .map(conv =>
-            String(conv.id) === conversationIdStr
+            matchesConversationId(conv, conversationIdStr)
               ? { ...conv, unread_count: count }
               : conv,
           ),

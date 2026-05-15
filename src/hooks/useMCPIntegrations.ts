@@ -119,34 +119,93 @@ export function useMCPIntegrations(agentId: string): UseMCPIntegrationsReturn {
     setIsCheckingCredentials(true);
 
     try {
-      const {
-        configs,
-        credentials_configured,
-      } = await agentIntegrationsService.getAgentIntegrations(agentId);
+      // Backend returns an array of { provider, config, ... } items.
+      const items = await agentIntegrationsService.getAgentIntegrations(agentId);
 
-      setCredentialsConfigured(credentials_configured || {});
+      // Build a provider→config map normalized to hyphen-case keys
+      // (backend stores underscored provider names like "google_calendar").
+      const configsByProvider: Record<string, Record<string, unknown>> = {};
+      const credentialsConfiguredNext: Record<string, boolean> = {
+        github: false,
+        notion: false,
+        stripe: false,
+        linear: false,
+        monday: false,
+        atlassian: false,
+        asana: false,
+        hubspot: false,
+        paypal: false,
+        canva: false,
+        supabase: false,
+      };
+
+      items.forEach(item => {
+        const key = (item.provider || '').replace(/_/g, '-');
+        if (!key) return;
+        configsByProvider[key] = item.config || {};
+        if (key in credentialsConfiguredNext) {
+          credentialsConfiguredNext[key] = true;
+        }
+      });
+
+      setCredentialsConfigured(credentialsConfiguredNext);
 
       // Sanitize configs before storing (defense-in-depth security measure)
-      if (configs.github)
-        setGithubConfig(sanitizeConfig(configs.github) as unknown as GitHubConfig);
-      if (configs.notion)
-        setNotionConfig(sanitizeConfig(configs.notion) as unknown as NotionConfig);
-      if (configs.stripe)
-        setStripeConfig(sanitizeConfig(configs.stripe) as unknown as StripeConfig);
-      if (configs.linear)
-        setLinearConfig(sanitizeConfig(configs.linear) as unknown as LinearConfig);
-      if (configs.monday)
-        setMondayConfig(sanitizeConfig(configs.monday) as unknown as MondayConfig);
-      if (configs.atlassian)
-        setAtlassianConfig(sanitizeConfig(configs.atlassian) as unknown as AtlassianConfig);
-      if (configs.asana) setAsanaConfig(sanitizeConfig(configs.asana) as unknown as AsanaConfig);
-      if (configs.hubspot)
-        setHubspotConfig(sanitizeConfig(configs.hubspot) as unknown as HubSpotConfig);
-      if (configs.paypal)
-        setPaypalConfig(sanitizeConfig(configs.paypal) as unknown as PayPalConfig);
-      if (configs.canva) setCanvaConfig(sanitizeConfig(configs.canva) as unknown as CanvaConfig);
-      if (configs.supabase)
-        setSupabaseConfig(sanitizeConfig(configs.supabase) as unknown as SupabaseConfig);
+      setGithubConfig(
+        configsByProvider.github
+          ? (sanitizeConfig(configsByProvider.github) as unknown as GitHubConfig)
+          : null
+      );
+      setNotionConfig(
+        configsByProvider.notion
+          ? (sanitizeConfig(configsByProvider.notion) as unknown as NotionConfig)
+          : null
+      );
+      setStripeConfig(
+        configsByProvider.stripe
+          ? (sanitizeConfig(configsByProvider.stripe) as unknown as StripeConfig)
+          : null
+      );
+      setLinearConfig(
+        configsByProvider.linear
+          ? (sanitizeConfig(configsByProvider.linear) as unknown as LinearConfig)
+          : null
+      );
+      setMondayConfig(
+        configsByProvider.monday
+          ? (sanitizeConfig(configsByProvider.monday) as unknown as MondayConfig)
+          : null
+      );
+      setAtlassianConfig(
+        configsByProvider.atlassian
+          ? (sanitizeConfig(configsByProvider.atlassian) as unknown as AtlassianConfig)
+          : null
+      );
+      setAsanaConfig(
+        configsByProvider.asana
+          ? (sanitizeConfig(configsByProvider.asana) as unknown as AsanaConfig)
+          : null
+      );
+      setHubspotConfig(
+        configsByProvider.hubspot
+          ? (sanitizeConfig(configsByProvider.hubspot) as unknown as HubSpotConfig)
+          : null
+      );
+      setPaypalConfig(
+        configsByProvider.paypal
+          ? (sanitizeConfig(configsByProvider.paypal) as unknown as PayPalConfig)
+          : null
+      );
+      setCanvaConfig(
+        configsByProvider.canva
+          ? (sanitizeConfig(configsByProvider.canva) as unknown as CanvaConfig)
+          : null
+      );
+      setSupabaseConfig(
+        configsByProvider.supabase
+          ? (sanitizeConfig(configsByProvider.supabase) as unknown as SupabaseConfig)
+          : null
+      );
     } catch (error) {
       console.error('Error loading all integrations:', error);
       setCredentialsConfigured({

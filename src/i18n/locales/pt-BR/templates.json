@@ -1,0 +1,88 @@
+{
+  "page": {
+    "title": "Templates",
+    "subtitle": "Exporte e importe configurações do workspace como pacotes portáveis.",
+    "empty": "Você ainda não criou nem importou nenhum template.",
+    "actions": {
+      "export": "Exportar configuração",
+      "import": "Importar template"
+    }
+  },
+  "export": {
+    "title": "Exportar configuração como template",
+    "stepHint": "Próximo: {{nextStep}} · faltam {{remaining}} passo(s)",
+    "stepProgress": "Passo {{current}} de {{total}}",
+    "step1": {
+      "title": "Detalhes do template",
+      "shortTitle": "Detalhes",
+      "name": "Nome do template",
+      "namePlaceholder": "ex: Clínica — setup completo",
+      "description": "Descrição",
+      "descriptionPlaceholder": "O que esse template configura?",
+      "author": "Autor",
+      "next": "Próximo"
+    },
+    "step2": {
+      "title": "Selecione o que incluir",
+      "shortTitle": "Selecionar itens",
+      "subtitle": "Escolha os itens que vão no pacote. Você pode combinar entre categorias.",
+      "selectAll": "Selecionar todos desta categoria",
+      "noItems": "Nada para exportar nesta categoria ainda.",
+      "back": "Voltar",
+      "next": "Revisar"
+    },
+    "step3": {
+      "title": "Revisar e baixar",
+      "shortTitle": "Revisar",
+      "summary": "Seu pacote vai incluir {{count}} itens em {{categoryCount}} categorias.",
+      "credentialsWarning": "Credenciais (chaves de API, tokens, senhas) NÃO serão incluídas. Quem importar precisará reconfigurar canais e agentes de IA.",
+      "back": "Voltar",
+      "download": "Baixar pacote",
+      "downloading": "Gerando pacote..."
+    },
+    "success": "Pacote baixado com sucesso.",
+    "errors": {
+      "noSelection": "Selecione pelo menos um item para exportar.",
+      "failed": "Não foi possível exportar o pacote."
+    }
+  },
+  "import": {
+    "title": "Importar template",
+    "subtitle": "Arraste um pacote .evotpl.zip aqui, ou clique para escolher.",
+    "selectFile": "Selecionar pacote",
+    "fileSelected": "Selecionado: {{name}} ({{size}})",
+    "submit": "Importar",
+    "importing": "Importando template...",
+    "report": {
+      "title": "Importação concluída",
+      "subtitle": "Revise o que foi criado.",
+      "warningsTitle": "Itens que precisam de atenção",
+      "createdCount": "{{count}} criados",
+      "renamedCount": "{{count}} renomeados",
+      "skippedCount": "{{count}} ignorados",
+      "close": "Fechar"
+    },
+    "errors": {
+      "invalidBundle": "O pacote está corrompido ou malformado.",
+      "unsupportedSchema": "Versão do schema do template não é suportada por esta versão.",
+      "fileTooLarge": "Pacote excede o tamanho máximo (50MB).",
+      "invalidType": "Apenas arquivos .zip são aceitos.",
+      "missingFile": "Escolha um pacote para importar."
+    },
+    "warnings": {
+      "channelRequiresCredentials": "Canal importado sem credenciais. Reconecte em Configurações → Canais.",
+      "agentRequiresApiKey": "Agente importado sem chave de API. Reconfigure em Configurações → Agentes de IA."
+    }
+  },
+  "categories": {
+    "pipelines": "Pipelines",
+    "agents": "Agentes de IA",
+    "teams": "Times",
+    "labels": "Etiquetas",
+    "custom_attributes": "Atributos Personalizados",
+    "canned_responses": "Respostas Rápidas",
+    "macros": "Macros",
+    "inboxes": "Canais",
+    "message_templates": "Modelos de Mensagem"
+  }
+}

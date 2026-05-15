@@ -4,6 +4,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { UserResponse } from '@/types/auth';
+import { ALL_ROLE_KEYS } from '@/constants/roles';
 
 /**
  * Hook para verificar se o usuário tem uma role válida em alguma conta
@@ -14,7 +15,7 @@ export const useHasValidRole = (): boolean => {
   if (!user) return false;
 
   // In single-tenant mode, check user's role directly
-  return !!user.role && ['administrator', 'agent', 'user'].includes(user.role.key);
+  return !!user.role && (ALL_ROLE_KEYS as readonly string[]).includes(user.role.key);
 };
 
 /**

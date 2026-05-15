@@ -17,10 +17,13 @@ import {
   Tags,
   TestTube,
   Wand,
+  Workflow,
   Settings,
   List,
   GraduationCap,
   Shield,
+  Package,
+  ShieldCheck,
 } from 'lucide-react';
 
 export interface MenuItem {
@@ -98,6 +101,20 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
     href: '/pipelines',
     icon: SquareKanban,
     resource: 'pipelines',
+    action: 'read',
+  },
+  {
+    name: t('menu.customer.products'),
+    href: '/products',
+    icon: Package,
+    resource: 'products',
+    action: 'read',
+  },
+  {
+    name: t('menu.customer.automation'),
+    href: '/automation',
+    icon: Workflow,
+    resource: 'automation_rules',
     action: 'read',
   },
   {
@@ -198,6 +215,13 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         action: 'read',
       },
       {
+        name: t('menu.settings.templates'),
+        href: '/settings/templates',
+        icon: Package,
+        resource: 'templates',
+        action: 'read',
+      },
+      {
         name: t('menu.settings.integrations'),
         href: '/settings/integrations',
         icon: Settings,
@@ -209,6 +233,13 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         href: '/settings/access-tokens',
         icon: Key,
         resource: 'access_tokens',
+        action: 'read',
+      },
+      {
+        name: t('menu.settings.roles'),
+        href: '/settings/roles',
+        icon: ShieldCheck,
+        resource: 'roles',
         action: 'read',
       },
       {

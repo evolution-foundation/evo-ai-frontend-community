@@ -15,7 +15,6 @@ import EditableContactCustomAttributes from './EditableContactCustomAttributes';
 import EditableConversationCustomAttributes from './EditableConversationCustomAttributes';
 
 import ConversationPipelineItem from '@/components/pipelines/ConversationPipelineItem';
-import PipelineManagement from '@/components/chat/contact-sidebar/PipelineManagement';
 import { pipelinesService } from '@/services/pipelines';
 import type { Pipeline } from '@/types/analytics';
 
@@ -183,7 +182,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
       >
         {/* Header com Avatar e Info Básica + Close Button */}
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative">
-          <ContactHeader contact={contact} />
+          <ContactHeader contact={contact} channelType={conversation?.inbox?.channel_type} />
 
           {/* Close Button */}
           <Button
@@ -233,23 +232,14 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
               {showPipeline && (
                 <CardContent className="pt-0 px-3 pb-3">
                   {conversation && (
-                    <>
-                      <div className="max-h-60 overflow-y-auto scrollbar-thin pr-1">
-                        <ConversationPipelineItem
-                          conversationId={conversation.id}
-                          pipelines={conversationPipelines}
-                          isLoadingPipelines={isLoadingPipelines}
-                          onPipelineUpdated={handlePipelineUpdated}
-                        />
-                      </div>
-                      <div className="pt-4 border-t border-border mt-4">
-                        <PipelineManagement
-                          conversationId={conversation.id}
-                          pipelines={conversationPipelines}
-                          onPipelineUpdated={handlePipelineUpdated}
-                        />
-                      </div>
-                    </>
+                    <div className="max-h-60 overflow-y-auto scrollbar-thin pr-1">
+                      <ConversationPipelineItem
+                        conversationId={conversation.id}
+                        pipelines={conversationPipelines}
+                        isLoadingPipelines={isLoadingPipelines}
+                        onPipelineUpdated={handlePipelineUpdated}
+                      />
+                    </div>
                   )}
                 </CardContent>
               )}

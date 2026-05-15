@@ -1,4 +1,4 @@
-import { User, Wrench, Plug, Server, Users, ListChecks, Settings } from 'lucide-react';
+import { User, Wrench, Plug, Server, Users, ListChecks, Settings, Package } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Agent } from '@/types/agents';
 
@@ -12,6 +12,7 @@ type SidebarMenu =
   | 'integrations'
   | 'mcpServers'
   | 'channels'
+  | 'products'
   | 'settings';
 
 interface AgentEditSidebarProps {
@@ -79,6 +80,12 @@ const AgentEditSidebar = ({
         label: t('edit.menu.mcpServers') || 'Servidores MCP',
         icon: Server,
         show: !isOrchestratorType && !isExternalType,
+      },
+      {
+        id: 'products',
+        label: t('edit.menu.products') || 'Produtos',
+        icon: Package,
+        show: !isOrchestratorType,
       },
       {
         id: 'configuration',

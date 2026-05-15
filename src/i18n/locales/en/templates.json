@@ -1,0 +1,88 @@
+{
+  "page": {
+    "title": "Templates",
+    "subtitle": "Export and import workspace configurations as portable bundles.",
+    "empty": "You haven't created or imported any template yet.",
+    "actions": {
+      "export": "Export configuration",
+      "import": "Import template"
+    }
+  },
+  "export": {
+    "title": "Export configuration as template",
+    "stepHint": "Next: {{nextStep}} · {{remaining}} step(s) left",
+    "stepProgress": "Step {{current}} of {{total}}",
+    "step1": {
+      "title": "Template details",
+      "shortTitle": "Details",
+      "name": "Template name",
+      "namePlaceholder": "e.g. Clinic — full setup",
+      "description": "Description",
+      "descriptionPlaceholder": "What does this template configure?",
+      "author": "Author",
+      "next": "Next"
+    },
+    "step2": {
+      "title": "Select what to include",
+      "shortTitle": "Select items",
+      "subtitle": "Pick the items you want to bundle. You can mix-and-match across categories.",
+      "selectAll": "Select all in this category",
+      "noItems": "Nothing to export in this category yet.",
+      "back": "Back",
+      "next": "Review"
+    },
+    "step3": {
+      "title": "Review and download",
+      "shortTitle": "Review",
+      "summary": "Your bundle will include {{count}} items across {{categoryCount}} categories.",
+      "credentialsWarning": "Credentials (API keys, tokens, passwords) will NOT be included. Importers will need to reconfigure channels and AI agents.",
+      "back": "Back",
+      "download": "Download bundle",
+      "downloading": "Building bundle..."
+    },
+    "success": "Bundle downloaded successfully.",
+    "errors": {
+      "noSelection": "Select at least one item to export.",
+      "failed": "Could not export the bundle."
+    }
+  },
+  "import": {
+    "title": "Import template",
+    "subtitle": "Drag a .evotpl.zip bundle here, or click to browse.",
+    "selectFile": "Select bundle",
+    "fileSelected": "Selected: {{name}} ({{size}})",
+    "submit": "Import",
+    "importing": "Importing template...",
+    "report": {
+      "title": "Import complete",
+      "subtitle": "Review what was created.",
+      "warningsTitle": "Items that need attention",
+      "createdCount": "{{count}} created",
+      "renamedCount": "{{count}} renamed",
+      "skippedCount": "{{count}} skipped",
+      "close": "Close"
+    },
+    "errors": {
+      "invalidBundle": "The bundle is malformed or corrupted.",
+      "unsupportedSchema": "Bundle schema version is not supported by this version.",
+      "fileTooLarge": "Bundle exceeds the maximum size (50MB).",
+      "invalidType": "Only .zip files are accepted.",
+      "missingFile": "Pick a bundle file to import."
+    },
+    "warnings": {
+      "channelRequiresCredentials": "Channel imported without credentials. Reconnect it in Settings → Inboxes.",
+      "agentRequiresApiKey": "Agent imported without API key. Reconfigure it in Settings → AI Agents."
+    }
+  },
+  "categories": {
+    "pipelines": "Pipelines",
+    "agents": "AI Agents",
+    "teams": "Teams",
+    "labels": "Labels",
+    "custom_attributes": "Custom Attributes",
+    "canned_responses": "Canned Responses",
+    "macros": "Macros",
+    "inboxes": "Channels",
+    "message_templates": "Message Templates"
+  }
+}

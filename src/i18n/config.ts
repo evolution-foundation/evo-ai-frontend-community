@@ -24,9 +24,12 @@ import ptBRLayout from './locales/pt-BR/layout.json';
 import ptBRCommon from './locales/pt-BR/common.json';
 import ptBRAccountSettings from './locales/pt-BR/accountSettings.json';
 import ptBRCannedResponses from './locales/pt-BR/cannedResponses.json';
+import ptBRProducts from './locales/pt-BR/products.json';
+import ptBRTemplates from './locales/pt-BR/templates.json';
 import ptBRCustomAttributes from './locales/pt-BR/customAttributes.json';
 import ptBRLabels from './locales/pt-BR/labels.json';
 import ptBRMacros from './locales/pt-BR/macros.json';
+import ptBRAutomation from './locales/pt-BR/automation.json';
 import ptBRTeams from './locales/pt-BR/teams.json';
 import ptBRUsers from './locales/pt-BR/users.json';
 import ptBRMarketplace from './locales/pt-BR/marketplace.json';
@@ -46,6 +49,7 @@ import ptBRInstagram from './locales/pt-BR/instagram.json';
 import ptBRMessenger from './locales/pt-BR/messenger.json';
 import ptBRCustomerDashboard from './locales/pt-BR/customerDashboard.json';
 import ptBRAdminSettings from './locales/pt-BR/adminSettings.json';
+import ptBRRoles from './locales/pt-BR/roles.json';
 import ptBRTutorials from './locales/pt-BR/tutorials.json';
 import ptAuth from './locales/pt/auth.json';
 import ptChangePassword from './locales/pt/changePassword.json';
@@ -70,6 +74,8 @@ import ptLayout from './locales/pt/layout.json';
 import ptCommon from './locales/pt/common.json';
 import ptAccountSettings from './locales/pt/accountSettings.json';
 import ptCannedResponses from './locales/pt/cannedResponses.json';
+import ptProducts from './locales/pt/products.json';
+import ptTemplates from './locales/pt/templates.json';
 import ptCustomAttributes from './locales/pt/customAttributes.json';
 import ptLabels from './locales/pt/labels.json';
 import ptMacros from './locales/pt/macros.json';
@@ -92,6 +98,7 @@ import ptInstagram from './locales/pt/instagram.json';
 import ptMessenger from './locales/pt/messenger.json';
 import ptCustomerDashboard from './locales/pt/customerDashboard.json';
 import ptAdminSettings from './locales/pt/adminSettings.json';
+import ptRoles from './locales/pt/roles.json';
 import ptTutorials from './locales/pt/tutorials.json';
 import enAuth from './locales/en/auth.json';
 import enChangePassword from './locales/en/changePassword.json';
@@ -116,9 +123,12 @@ import enLayout from './locales/en/layout.json';
 import enCommon from './locales/en/common.json';
 import enAccountSettings from './locales/en/accountSettings.json';
 import enCannedResponses from './locales/en/cannedResponses.json';
+import enProducts from './locales/en/products.json';
+import enTemplates from './locales/en/templates.json';
 import enCustomAttributes from './locales/en/customAttributes.json';
 import enLabels from './locales/en/labels.json';
 import enMacros from './locales/en/macros.json';
+import enAutomation from './locales/en/automation.json';
 import enTeams from './locales/en/teams.json';
 import enUsers from './locales/en/users.json';
 import enMarketplace from './locales/en/marketplace.json';
@@ -138,6 +148,7 @@ import enInstagram from './locales/en/instagram.json';
 import enMessenger from './locales/en/messenger.json';
 import enCustomerDashboard from './locales/en/customerDashboard.json';
 import enAdminSettings from './locales/en/adminSettings.json';
+import enRoles from './locales/en/roles.json';
 import enTutorials from './locales/en/tutorials.json';
 import esAuth from './locales/es/auth.json';
 import esChangePassword from './locales/es/changePassword.json';
@@ -162,6 +173,8 @@ import esLayout from './locales/es/layout.json';
 import esCommon from './locales/es/common.json';
 import esAccountSettings from './locales/es/accountSettings.json';
 import esCannedResponses from './locales/es/cannedResponses.json';
+import esProducts from './locales/es/products.json';
+import esTemplates from './locales/es/templates.json';
 import esCustomAttributes from './locales/es/customAttributes.json';
 import esLabels from './locales/es/labels.json';
 import esMacros from './locales/es/macros.json';
@@ -184,6 +197,7 @@ import esInstagram from './locales/es/instagram.json';
 import esMessenger from './locales/es/messenger.json';
 import esCustomerDashboard from './locales/es/customerDashboard.json';
 import esAdminSettings from './locales/es/adminSettings.json';
+import esRoles from './locales/es/roles.json';
 import esTutorials from './locales/es/tutorials.json';
 import frAuth from './locales/fr/auth.json';
 import frChangePassword from './locales/fr/changePassword.json';
@@ -208,6 +222,8 @@ import frLayout from './locales/fr/layout.json';
 import frCommon from './locales/fr/common.json';
 import frAccountSettings from './locales/fr/accountSettings.json';
 import frCannedResponses from './locales/fr/cannedResponses.json';
+import frProducts from './locales/fr/products.json';
+import frTemplates from './locales/fr/templates.json';
 import frCustomAttributes from './locales/fr/customAttributes.json';
 import frLabels from './locales/fr/labels.json';
 import frMacros from './locales/fr/macros.json';
@@ -230,6 +246,7 @@ import frInstagram from './locales/fr/instagram.json';
 import frMessenger from './locales/fr/messenger.json';
 import frCustomerDashboard from './locales/fr/customerDashboard.json';
 import frAdminSettings from './locales/fr/adminSettings.json';
+import frRoles from './locales/fr/roles.json';
 import frTutorials from './locales/fr/tutorials.json';
 import itAuth from './locales/it/auth.json';
 import itChangePassword from './locales/it/changePassword.json';
@@ -254,6 +271,8 @@ import itLayout from './locales/it/layout.json';
 import itCommon from './locales/it/common.json';
 import itAccountSettings from './locales/it/accountSettings.json';
 import itCannedResponses from './locales/it/cannedResponses.json';
+import itProducts from './locales/it/products.json';
+import itTemplates from './locales/it/templates.json';
 import itCustomAttributes from './locales/it/customAttributes.json';
 import itLabels from './locales/it/labels.json';
 import itMacros from './locales/it/macros.json';
@@ -276,6 +295,7 @@ import itInstagram from './locales/it/instagram.json';
 import itMessenger from './locales/it/messenger.json';
 import itCustomerDashboard from './locales/it/customerDashboard.json';
 import itAdminSettings from './locales/it/adminSettings.json';
+import itRoles from './locales/it/roles.json';
 import ptBRTours from './locales/pt-BR/tours.json';
 import ptTours from './locales/pt/tours.json';
 import enTours from './locales/en/tours.json';
@@ -342,9 +362,12 @@ const resources = {
     common: ptBRCommon,
     accountSettings: ptBRAccountSettings,
     cannedResponses: ptBRCannedResponses,
+    products: ptBRProducts,
+    templates: ptBRTemplates,
     customAttributes: ptBRCustomAttributes,
     labels: ptBRLabels,
     macros: ptBRMacros,
+    automation: ptBRAutomation,
     teams: ptBRTeams,
     users: ptBRUsers,
     marketplace: ptBRMarketplace,
@@ -364,6 +387,7 @@ const resources = {
     messenger: ptBRMessenger,
     customerDashboard: ptBRCustomerDashboard,
     adminSettings: ptBRAdminSettings,
+    roles: ptBRRoles,
     tours: ptBRTours,
     tutorials: ptBRTutorials,
   },
@@ -391,6 +415,8 @@ const resources = {
     common: ptCommon,
     accountSettings: ptAccountSettings,
     cannedResponses: ptCannedResponses,
+    products: ptProducts,
+    templates: ptTemplates,
     customAttributes: ptCustomAttributes,
     labels: ptLabels,
     macros: ptMacros,
@@ -413,6 +439,7 @@ const resources = {
     messenger: ptMessenger,
     customerDashboard: ptCustomerDashboard,
     adminSettings: ptAdminSettings,
+    roles: ptRoles,
     tours: ptTours,
     tutorials: ptTutorials,
   },
@@ -440,9 +467,12 @@ const resources = {
     common: enCommon,
     accountSettings: enAccountSettings,
     cannedResponses: enCannedResponses,
+    products: enProducts,
+    templates: enTemplates,
     customAttributes: enCustomAttributes,
     labels: enLabels,
     macros: enMacros,
+    automation: enAutomation,
     teams: enTeams,
     users: enUsers,
     marketplace: enMarketplace,
@@ -462,6 +492,7 @@ const resources = {
     messenger: enMessenger,
     customerDashboard: enCustomerDashboard,
     adminSettings: enAdminSettings,
+    roles: enRoles,
     tours: enTours,
     tutorials: enTutorials,
   },
@@ -489,6 +520,8 @@ const resources = {
     common: esCommon,
     accountSettings: esAccountSettings,
     cannedResponses: esCannedResponses,
+    products: esProducts,
+    templates: esTemplates,
     customAttributes: esCustomAttributes,
     labels: esLabels,
     macros: esMacros,
@@ -511,6 +544,7 @@ const resources = {
     messenger: esMessenger,
     customerDashboard: esCustomerDashboard,
     adminSettings: esAdminSettings,
+    roles: esRoles,
     tours: esTours,
     tutorials: esTutorials,
   },
@@ -538,6 +572,8 @@ const resources = {
     common: frCommon,
     accountSettings: frAccountSettings,
     cannedResponses: frCannedResponses,
+    products: frProducts,
+    templates: frTemplates,
     customAttributes: frCustomAttributes,
     labels: frLabels,
     macros: frMacros,
@@ -560,6 +596,7 @@ const resources = {
     messenger: frMessenger,
     customerDashboard: frCustomerDashboard,
     adminSettings: frAdminSettings,
+    roles: frRoles,
     tours: frTours,
     tutorials: frTutorials,
   },
@@ -587,6 +624,8 @@ const resources = {
     common: itCommon,
     accountSettings: itAccountSettings,
     cannedResponses: itCannedResponses,
+    products: itProducts,
+    templates: itTemplates,
     customAttributes: itCustomAttributes,
     labels: itLabels,
     macros: itMacros,
@@ -609,6 +648,7 @@ const resources = {
     messenger: itMessenger,
     customerDashboard: itCustomerDashboard,
     adminSettings: itAdminSettings,
+    roles: itRoles,
     tours: itTours,
     tutorials: itTutorials,
   },

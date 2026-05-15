@@ -1,8 +1,9 @@
 import { useLanguage } from '@/hooks/useLanguage';
 import { Button, Card, CardContent } from '@evoapi/design-system';
-import { Edit, MessageSquare, Activity, Eye } from 'lucide-react';
+import { Edit, MessageSquare, Eye } from 'lucide-react';
 import { Contact } from '@/types/contacts';
 import ContactAvatar from '@/components/chat/contact/ContactAvatar';
+import { formatContactPhone } from '@/utils/contact/formatContactPhone';
 import ContactStatusBadge from './ContactStatusBadge';
 import ContactTagsList from './ContactTagsList';
 import ContactTypeBadge from './ContactTypeBadge';
@@ -13,7 +14,6 @@ type ContactCardProps = {
   onViewDetails?: (contact: Contact) => void;
   onStartConversation?: (contact: Contact) => void;
   onEdit?: (contact: Contact) => void;
-  onViewEvents?: (contact: Contact) => void;
 };
 
 export default function ContactCard({
@@ -21,7 +21,6 @@ export default function ContactCard({
   onViewDetails,
   onStartConversation,
   onEdit,
-  onViewEvents,
 }: ContactCardProps) {
   const { t } = useLanguage('contacts');
 
@@ -54,7 +53,7 @@ export default function ContactCard({
           </div>
           <div className="flex items-center justify-between">
             <span>{t('card.phone')}</span>
-            <span className="font-mono">{contact.phone_number}</span>
+            <span className="font-mono">{formatContactPhone(contact.phone_number)}</span>
           </div>
           {contact.labels && contact.labels.length > 0 && (
             <div className="pt-2">
@@ -91,18 +90,6 @@ export default function ContactCard({
             title={t('card.actions.viewDetails')}
           >
             <Eye className="h-4 w-4" />
-          </Button>
-          <div className="w-px bg-sidebar-border" />
-          <Button
-            variant="ghost"
-            className="rounded-none h-12 px-3 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/40"
-            onClick={e => {
-              e.stopPropagation();
-              onViewEvents?.(contact);
-            }}
-            title={t('card.actions.viewEvents')}
-          >
-            <Activity className="h-4 w-4" />
           </Button>
           <div className="w-px bg-sidebar-border" />
           <Button

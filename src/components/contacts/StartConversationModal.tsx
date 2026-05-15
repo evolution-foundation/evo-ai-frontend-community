@@ -30,6 +30,10 @@ import {
   hasUnsupportedFormat,
   isTemplateSendable,
 } from '../chat/message-template/templateStatus';
+import {
+  buildInitialVariableParams,
+  extractTemplateVariables,
+} from '@/utils/templateVariables';
 
 interface StartConversationModalProps {
   open: boolean;
@@ -37,6 +41,36 @@ interface StartConversationModalProps {
   contact: Contact;
   onConversationCreated?: (conversationId: string) => void;
 }
+
+const getTemplatePreviewText = (template: MessageTemplate, isEmailInbox: boolean) => {
+  if (isEmailInbox) {
+    const metadata = template.metadata as Record<string, unknown> | undefined;
+    if (metadata?.html_content && typeof metadata.html_content === 'string') {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = metadata.html_content;
+      return tempDiv.textContent || tempDiv.innerText || 'Template de email';
+    }
+
+    return template.content || 'Template de email visual';
+  }
+
+  const bodyComponent = Array.isArray(template.components)
+    ? template.components.find(c => c.type === 'BODY')
+    : template.components?.body;
+  return bodyComponent?.text || template.content || '';
+};
+
+const replaceTemplateVariables = (content: string, params: Record<string, string>) => {
+  let result = content;
+  Object.entries(params).forEach(([key, value]) => {
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    result = result.replace(
+      new RegExp(`\\{\\{\\s*${escapedKey}\\s*\\}\\}`, 'g'),
+      value || `{{${key}}}`,
+    );
+  });
+  return result;
+};
 
 export default function StartConversationModal({
   open,
@@ -470,47 +504,7 @@ export default function StartConversationModal({
                       <Label>Selecione um Template</Label>
                       <div className="space-y-2 max-h-48 overflow-y-auto">
                         {messageTemplates.map(template => {
-                          let previewText = '';
-
-                          if (isEmailInbox) {
-                            // For email templates, try to get HTML preview
-                            const metadata = template.metadata as
-                              | Record<string, unknown>
-                              | undefined;
-                            if (
-                              metadata?.html_content &&
-                              typeof metadata.html_content === 'string'
-                            ) {
-                              // Extract text from HTML for preview
-                              const tempDiv = document.createElement('div');
-                              tempDiv.innerHTML = metadata.html_content;
-                              previewText =
-                                tempDiv.textContent ||
-                                tempDiv.innerText ||
-                                'Template de email visual';
-                            } else if (template.content) {
-                              const content = template.content.trim();
-                              if (
-                                content.startsWith('<!DOCTYPE') ||
-                                content.startsWith('<html') ||
-                                content.startsWith('<!doctype')
-                              ) {
-                                const tempDiv = document.createElement('div');
-                                tempDiv.innerHTML = content;
-                                previewText =
-                                  tempDiv.textContent || tempDiv.innerText || 'Template de email';
-                              } else {
-                                previewText = 'Template de email visual';
-                              }
-                            }
-                          } else {
-                            // For WhatsApp/other channels, use body component or content
-                            // Handle both object format (WhatsApp Cloud) and array format (legacy)
-                            const bodyComponent = Array.isArray(template.components)
-                              ? template.components.find(c => c.type === 'BODY')
-                              : template.components?.body;
-                            previewText = bodyComponent?.text || template.content || '';
-                          }
+                          const previewText = getTemplatePreviewText(template, isEmailInbox);
 
                           const cloudBadgeKey = isWhatsAppCloud
                             ? getStatusBadgeKey(template)
@@ -524,14 +518,9 @@ export default function StartConversationModal({
                               className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
                               onClick={() => {
                                 setSelectedTemplate(template);
-                                // Extract variables from preview text
-                                const variables = previewText.match(/\{\{(\w+)\}\}/g) || [];
-                                const params: Record<string, string> = {};
-                                variables.forEach((v: string) => {
-                                  const key = v.replace(/\{\{|\}\}/g, '');
-                                  params[key] = '';
-                                });
-                                setTemplateParams(params);
+                                setTemplateParams(
+                                  buildInitialVariableParams(extractTemplateVariables(template)),
+                                );
                               }}
                             >
                               <div className="flex items-center gap-2">
@@ -579,22 +568,25 @@ export default function StartConversationModal({
                       {Object.keys(templateParams).length > 0 && (
                         <div className="space-y-2">
                           <Label className="text-sm">Preencha as Variáveis</Label>
-                          {Object.entries(templateParams).map(([key, value]) => (
-                            <div key={key} className="flex items-center gap-2">
-                              <span className="bg-muted text-muted-foreground inline-block rounded-md text-xs py-2 px-3 min-w-[50px] text-center font-medium">
-                                {key}
-                              </span>
-                              <input
-                                type="text"
-                                value={value}
-                                onChange={e =>
-                                  setTemplateParams(prev => ({ ...prev, [key]: e.target.value }))
-                                }
-                                className="flex-1 h-9 px-3 text-sm rounded-md border border-input bg-background"
-                                placeholder={`Valor para {{${key}}}`}
-                              />
-                            </div>
-                          ))}
+                          {extractTemplateVariables(selectedTemplate).map(variable => {
+                            const key = variable.name;
+                            return (
+                              <div key={key} className="flex items-center gap-2">
+                                <span className="bg-muted text-muted-foreground inline-block rounded-md text-xs py-2 px-3 min-w-[50px] text-center font-medium">
+                                  {variable.label || key}
+                                </span>
+                                <input
+                                  type="text"
+                                  value={templateParams[key] ?? ''}
+                                  onChange={e =>
+                                    setTemplateParams(prev => ({ ...prev, [key]: e.target.value }))
+                                  }
+                                  className="flex-1 h-9 px-3 text-sm rounded-md border border-input bg-background"
+                                  placeholder={variable.example || `Valor para {{${key}}}`}
+                                />
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
 
@@ -630,13 +622,7 @@ export default function StartConversationModal({
                                 }
                               }
 
-                              // Replace template variables with actual values
-                              Object.entries(templateParams).forEach(([key, val]) => {
-                                html = html.replace(
-                                  new RegExp(`\\{\\{${key}\\}\\}`, 'g'),
-                                  val || `{{${key}}}`,
-                                );
-                              });
+                              html = replaceTemplateVariables(html, templateParams);
 
                               return (
                                 <div
@@ -649,18 +635,10 @@ export default function StartConversationModal({
                         ) : (
                           <div className="text-sm whitespace-pre-wrap">
                             {(() => {
-                              // Handle both object format (WhatsApp Cloud) and array format (legacy)
-                              const bodyComponent = Array.isArray(selectedTemplate.components)
-                                ? selectedTemplate.components.find(c => c.type === 'BODY')
-                                : selectedTemplate.components?.body;
-                              let text = bodyComponent?.text || selectedTemplate.content || '';
-                              Object.entries(templateParams).forEach(([key, val]) => {
-                                text = text.replace(
-                                  new RegExp(`\\{\\{${key}\\}\\}`, 'g'),
-                                  val || `{{${key}}}`,
-                                );
-                              });
-                              return text;
+                              return replaceTemplateVariables(
+                                getTemplatePreviewText(selectedTemplate, false),
+                                templateParams,
+                              );
                             })()}
                           </div>
                         )}

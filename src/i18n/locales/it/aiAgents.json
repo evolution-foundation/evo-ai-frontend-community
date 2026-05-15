@@ -537,7 +537,8 @@
       "integrations": "Integrazioni",
       "mcpServers": "Server MCP",
       "channels": "Canali",
-      "settings": "Impostazioni"
+      "settings": "Impostazioni",
+      "products": "Prodotti"
     },
     "agentOf": "Agente personale di",
     "agentType": "{{type}}",
@@ -707,12 +708,16 @@
         "allowContactEditDescription": "Consente all'agente di modificare le informazioni di contatto durante la conversazione",
         "allowPipelineManipulation": "Consentire di manipolare le pipeline",
         "allowPipelineManipulationDescription": "Consente all'agente di spostare le conversazioni tra pipeline e fasi in base alle regole configurate",
+        "allowManageLabels": "Consentire la gestione delle etichette",
+        "allowManageLabelsDescription": "Consente all'agente di aggiungere e rimuovere etichette nella conversazione corrente",
         "configureRules": "Configura regole",
         "configureAutomation": "Automazione",
         "timezone": "Fuso orario dell'agente",
         "timezoneDescription": "Definisce il fuso orario utilizzato dall'agente per la pianificazione e i promemoria",
         "sendAsReply": "Invia messaggio come risposta nella conversazione",
-        "sendAsReplyDescription": "Consente all'agente di inviare messaggi come risposta a un messaggio specifico nella conversazione"
+        "sendAsReplyDescription": "Consente all'agente di inviare messaggi come risposta a un messaggio specifico nella conversazione",
+        "allowProductSales": "Consenti registrazione vendite nella pipeline",
+        "allowProductSalesDescription": "Consente all'agente di allegare prodotti venduti alla scheda della pipeline durante la conversazione"
       },
       "inactivityActions": {
         "description": "Configura le azioni che l'agente deve eseguire quando il cliente smette di rispondere.",
@@ -777,7 +782,7 @@
         "instructionsPlaceholder": "Es: Aggiorna il nome del contatto quando si presenta. Aggiungi l'email quando il cliente la fornisce. Aggiorna la città quando il cliente menziona la sua posizione..."
       },
       "pipelineAutomation": {
-        "description": "Configura automazioni avanzate per ogni fase della pipeline. Crea attività automatiche, notifica i team e definisci azioni quando le conversazioni si spostano tra le fasi.",
+        "description": "Descrizione dell'Attività",
         "addPipeline": "Aggiungi Pipeline",
         "selectPipeline": "Seleziona la pipeline",
         "selectPipelinePlaceholder": "Seleziona una pipeline da automatizzare",
@@ -812,7 +817,6 @@
         },
         "dueDays": "Scadenza (giorni)",
         "dueDaysPlaceholder": "Es: 2",
-        "description": "Descrizione dell'Attività",
         "descriptionPlaceholder": "Dettagli su cosa deve essere fatto...",
         "addTask": "Aggiungi Attività",
         "removeTask": "Rimuovi Attività",
@@ -1072,6 +1076,37 @@
         "saveConfig": "SALVA CONFIGURAZIONI",
         "disconnect": "Disconnetti"
       },
+      "activated": "Integrazione attivata",
+      "deactivated": "Integrazione disattivata",
+      "activationError": "Impossibile attivare l'integrazione",
+      "deactivationError": "Impossibile disattivare l'integrazione",
+      "knowledgeNexus": {
+        "description": "Permette all'agente di consultare la base di conoscenza EvoNexus (ricerca ibrida) prima di rispondere.",
+        "configTitle": "Configura Knowledge Nexus",
+        "intro": "Collega questo agente a uno spazio di conoscenza EvoNexus per consentirgli di cercare informazioni curate prima di rispondere.",
+        "baseUrl": "URL base di Nexus",
+        "baseUrlHint": "Indirizzo della dashboard EvoNexus (senza barra finale).",
+        "apiKey": "API Key",
+        "apiKeyHint": "Chiave API generata in Nexus sotto Knowledge → API Keys. Formato: evo_k_<prefix>.<secret>.",
+        "apiKeySaved": "✓ Chiave già configurata — lasciala vuota per mantenerla, digitala di nuovo per sostituirla.",
+        "apiKeySavedPlaceholder": "Lasciala vuota per mantenere la chiave salvata",
+        "space": "Spazio di conoscenza",
+        "spaceSelect": "Seleziona uno spazio di conoscenza",
+        "spaceHint": "Gli spazi vengono caricati dal tuo Nexus quando URL e API key sono compilati.",
+        "spaceId": "Space ID",
+        "spaceIdHint": "UUID dello spazio di conoscenza che questo agente interrogherà.",
+        "spacesEmpty": "Nessuno spazio trovato per questa API key.",
+        "spacesError": "Impossibile caricare gli spazi. Controlla URL e API key, oppure incolla manualmente lo Space ID.",
+        "spacesNeedCreds": "Compila prima URL base e API key.",
+        "loadingSpaces": "Caricamento spazi da Nexus...",
+        "reloadSpaces": "Ricarica",
+        "useDropdown": "Scegli dall'elenco",
+        "useManual": "Incolla Space ID manualmente",
+        "topK": "Top K (predefinito)",
+        "timeout": "Timeout (s)",
+        "apply": "APPLICA IMPOSTAZIONI",
+        "deactivate": "Disattiva integrazione"
+      },
       "github": {
         "description": "Con GitHub il tuo agente sarà in grado di accedere a repository, issue, pull request e altre informazioni GitHub.",
         "configTitle": "Configura GitHub",
@@ -1139,6 +1174,14 @@
       "title": "Impostazioni",
       "subtitle": "Impostazioni avanzate dell'agente",
       "comingSoon": "Prossimamente..."
+    },
+    "products": {
+      "title": "Prodotti dell'agente",
+      "subtitle": "Seleziona quali prodotti questo agente può consigliare durante le conversazioni. Verranno iniettati automaticamente nel system prompt.",
+      "save": "Salva assegnazioni",
+      "saving": "Salvataggio...",
+      "saveSuccess": "Prodotti aggiornati",
+      "saveError": "Impossibile aggiornare i prodotti"
     }
   },
   "actions": {
@@ -1201,27 +1244,27 @@
       "types": {
         "llm": {
           "label": "LLM (Modello Linguistico)",
-          "description": "Assistente intelligente con IA generativa"
+          "description": "IA conversazionale — ragiona, risponde a domande e chatta usando un modello linguistico"
         },
         "task": {
           "label": "Attività",
-          "description": "Automazione di attività specifiche"
+          "description": "Orchestra attività tra sotto-agenti, ognuna con un output definito"
         },
         "sequential": {
-          "label": "Sequential",
-          "description": "Esegue agenti in sequenza"
+          "label": "Sequenziale",
+          "description": "Esegue sotto-agenti in catena, passando il risultato di ogni fase alla successiva"
         },
         "parallel": {
-          "label": "Parallel",
-          "description": "Esegue agenti in parallelo"
+          "label": "Parallelo",
+          "description": "Esegue più sotto-agenti contemporaneamente per attività indipendenti"
         },
         "loop": {
           "label": "Loop",
-          "description": "Esegue agenti in ciclo"
+          "description": "Ripete i sotto-agenti fino al raggiungimento di una condizione o numero di iterazioni"
         },
         "external": {
           "label": "Integrazioni Esterne",
-          "description": "Connette ed esegue integrazioni esterne"
+          "description": "Delega ai flussi di Flowise, n8n, Typebot, Dify o OpenAI"
         }
       },
       "badges": {
@@ -1297,7 +1340,8 @@
       "validationError": "Descrivi brevemente cosa fa il tuo agente (minimo 10 caratteri)",
       "tip": "Consiglio:",
       "tipContent": "Sii chiaro e specifico. Più dettagli fornisci, meglio l'agente comprenderà il suo ruolo e risponderà di conseguenza.",
-      "generateWithAI": "Genera con IA"
+      "generateWithAI": "Genera con IA",
+      "aiNotConfigured": "Integrazione OpenAI non configurata. Vai in Impostazioni → Integrazioni per abilitare le funzionalità IA."
     },
     "promptGenerator": {
       "title": "Generatore di Prompt con IA",

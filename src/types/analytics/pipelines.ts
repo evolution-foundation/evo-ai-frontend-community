@@ -2,7 +2,11 @@ import type { PaginatedResponse, StandardResponse, PaginationMeta } from '@/type
 import type { Contact } from '@/types/contacts';
 
 export type StageAutomationTrigger = 'label_added' | 'conversation_status_changed' | 'custom_attribute_updated';
-export type StageAutomationAction = 'move_to_stage' | 'assign_agent' | 'apply_label';
+export type StageAutomationAction =
+  | 'move_to_stage'
+  | 'move_to_pipeline'
+  | 'assign_agent'
+  | 'apply_label';
 
 export interface StageAutomationRule {
   trigger: StageAutomationTrigger;

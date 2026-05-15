@@ -28,7 +28,7 @@ import {
   Switch,
   Checkbox,
 } from '@evoapi/design-system';
-import { AlertTriangle, Mail, Volume2, Bell, Keyboard, Play } from 'lucide-react';
+import { AlertTriangle, Mail, Volume2, Bell, Keyboard, Play, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuthStore } from '@/store/authStore';
@@ -38,6 +38,7 @@ import {
   type ProfileUpdateData,
   type PasswordChangeData,
 } from '@/services/profile/profileService';
+import { extractError } from '@/utils/apiHelpers';
 import notificationSettingsService from '@/services/notifications/NotificationSettingsService';
 import { getAudioSettings, playNotificationSoundPreview } from '@/utils/audioNotificationUtils';
 import { getModifierKey } from '@/utils/platform';
@@ -396,7 +397,6 @@ const Profile = () => {
   };
 
   const handleChangePassword = async () => {
-    // Validação básica
     if (!passwords.current_password || !passwords.password || !passwords.password_confirmation) {
       toast.error(t('password.validation.allFields'));
       return;
@@ -407,7 +407,7 @@ const Profile = () => {
       return;
     }
 
-    if (passwords.password.length < 6) {
+    if (passwords.password.length < 8) {
       toast.error(t('password.validation.minLength'));
       return;
     }
@@ -430,7 +430,20 @@ const Profile = () => {
       });
     } catch (error) {
       console.error('Password change error:', error);
-      toast.error(t('notifications.passwordChangeError'));
+      const errorInfo = extractError(error);
+      if (errorInfo.code === 'VALIDATION_ERROR' && Array.isArray(errorInfo.details)) {
+        const passwordDetail = errorInfo.details.find((d: { field: string; codes?: string[] }) => d.field === 'password');
+        if (passwordDetail?.codes?.length) {
+          passwordDetail.codes.forEach((code: string) => {
+            const key = `password.errors.${code.replace('password.', '')}`;
+            toast.error(t(key));
+          });
+        } else {
+          toast.error(t('notifications.passwordChangeError'));
+        }
+      } else {
+        toast.error(t('notifications.passwordChangeError'));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -516,56 +529,77 @@ const Profile = () => {
     </Card>
   );
 
-  const renderSenha = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t('password.title')}</CardTitle>
-        <CardDescription>{t('password.description')}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="max-w-md space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="senha-atual">{t('password.fields.currentPassword')} *</Label>
-            <Input
-              id="senha-atual"
-              type="password"
-              value={passwords.current_password}
-              onChange={handlePasswordInputChange('current_password')}
-              placeholder={t('password.fields.currentPlaceholder')}
-            />
-          </div>
+  const renderSenha = () => {
+    const newPassword = passwords.password;
+    const complexityRules = [
+      { key: 'minLength', met: newPassword.length >= 8 },
+      { key: 'uppercase', met: /[A-Z]/.test(newPassword) },
+      { key: 'lowercase', met: /[a-z]/.test(newPassword) },
+      { key: 'number', met: /\d/.test(newPassword) },
+      { key: 'specialChar', met: /[^A-Za-z0-9]/.test(newPassword) },
+    ];
 
-          <div className="space-y-2">
-            <Label htmlFor="nova-senha">{t('password.fields.newPassword')} *</Label>
-            <Input
-              id="nova-senha"
-              type="password"
-              value={passwords.password}
-              onChange={handlePasswordInputChange('password')}
-              placeholder={t('password.fields.newPlaceholder')}
-            />
-          </div>
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('password.title')}</CardTitle>
+          <CardDescription>{t('password.description')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="max-w-md space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="senha-atual">{t('password.fields.currentPassword')} *</Label>
+              <Input
+                id="senha-atual"
+                type="password"
+                value={passwords.current_password}
+                onChange={handlePasswordInputChange('current_password')}
+                placeholder={t('password.fields.currentPlaceholder')}
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirmar-senha">{t('password.fields.confirmPassword')} *</Label>
-            <Input
-              id="confirmar-senha"
-              type="password"
-              value={passwords.password_confirmation}
-              onChange={handlePasswordInputChange('password_confirmation')}
-              placeholder={t('password.fields.confirmPlaceholder')}
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="nova-senha">{t('password.fields.newPassword')} *</Label>
+              <Input
+                id="nova-senha"
+                type="password"
+                value={passwords.password}
+                onChange={handlePasswordInputChange('password')}
+                placeholder={t('password.fields.newPlaceholder')}
+              />
+              {newPassword.length > 0 && (
+                <ul className="mt-2 space-y-1">
+                  {complexityRules.map(({ key, met }) => (
+                    <li key={key} className={`flex items-center gap-1.5 text-xs ${met ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
+                      {met ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                      {t(`password.rules.${key}`)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
 
-          <div className="flex justify-end">
-            <Button onClick={handleChangePassword} disabled={isLoading} className="min-w-[120px]">
-              {isLoading ? t('password.actions.changing') : t('password.actions.changePassword')}
-            </Button>
+            <div className="space-y-2">
+              <Label htmlFor="confirmar-senha">{t('password.fields.confirmPassword')} *</Label>
+              <Input
+                id="confirmar-senha"
+                type="password"
+                value={passwords.password_confirmation}
+                onChange={handlePasswordInputChange('password_confirmation')}
+                placeholder={t('password.fields.confirmPlaceholder')}
+              />
+            </div>
+
+            <div className="flex justify-end">
+              <Button onClick={handleChangePassword} disabled={isLoading} className="min-w-[120px]">
+                {isLoading ? t('password.actions.changing') : t('password.actions.changePassword')}
+              </Button>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
+  };
 
   // const handleCopyToken = async () => {
   //   // Primeiro tenta buscar do perfil carregado, depois do contexto

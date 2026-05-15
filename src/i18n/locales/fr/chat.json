@@ -60,7 +60,12 @@
     "messageFile": {
       "fileFallback": "fichier",
       "unknownSize": "Taille inconnue",
-      "fileFallbackTitle": "Fichier"
+      "fileFallbackTitle": "Fichier",
+      "downloadFallbackOpenedInNewTab": "Fichier ouvert dans un nouvel onglet",
+      "downloadFallbackReason": {
+        "serverError": "Le serveur a renvoyé {{status}} — impossible de télécharger directement.",
+        "network": "Erreur réseau ou blocage CORS — impossible de télécharger directement."
+      }
     },
     "messageImage": {
       "downloadStarted": "Téléchargement démarré",
@@ -280,17 +285,25 @@
       "assignAgent": "Assigner un Agent",
       "assignTeam": "Assigner une Équipe",
       "assignTag": "Assigner une Étiquette",
-      "deleteConversation": "Supprimer la conversation"
+      "deleteConversation": "Supprimer la conversation",
+      "bulkResolveSuccess": "{{count}} conversation(s) résolue(s)",
+      "bulkResolvePartialSuccess": "{{success}} résolue(s), {{failed}} échouée(s)",
+      "bulkResolveError": "Erreur lors de la résolution des conversations",
+      "bulkResolveNoPermission": "Vous n'avez pas la permission de résoudre des conversations"
     },
     "contactNoName": "Contact sans nom",
     "status": "Statut :",
     "openConversation": "Ouvrir la Conversation",
-    "closeConversation": "Fermer la conversation"
+    "closeConversation": "Fermer la conversation",
+    "phoneNumber": "Numéro de téléphone"
   },
   "chatSidebar": {
     "searchPlaceholder": "Rechercher des conversations...",
     "conversation": "conversation",
     "conversations": "conversations",
+    "selectedCount_one": "{{count}} conversation sélectionnée",
+    "selectedCount_other": "{{count}} conversations sélectionnées",
+    "selectConversation": "Sélectionner la conversation",
     "filter": "filtre",
     "filters": "filtres",
     "filtersButton": "Filtres",
@@ -315,7 +328,8 @@
       "noMessages": "Aucun message",
       "noContent": "Message sans contenu"
     },
-    "contactNoName": "Contact sans nom"
+    "contactNoName": "Contact sans nom",
+    "phoneNumber": "Numéro de téléphone"
   },
   "chatTabs": {
     "chat": "Chat"
@@ -355,7 +369,10 @@
     },
     "contactHeader": {
       "contactNoName": "Contact sans nom",
-      "online": "En ligne"
+      "online": "En ligne",
+      "away": "Absent",
+      "busy": "Occupé",
+      "offline": "Hors ligne"
     },
     "contactDetails": {
       "actions": {
@@ -427,40 +444,6 @@
         "description": "Êtes-vous sûr de vouloir exécuter la macro {{name}} ? Cette action appliquera {{count}} {{actionLabel}} à cette conversation.",
         "cancel": "Annuler",
         "execute": "Exécuter la Macro"
-      }
-    },
-    "pipeline": {
-      "loading": "Erreur lors du chargement des données du pipeline",
-      "noPipelines": "Aucun pipeline configuré",
-      "current": "Pipeline Actuel",
-      "label": "Pipeline",
-      "selectPipeline": "Sélectionnez un pipeline",
-      "selectStage": "Sélectionnez une étape",
-      "stage": "Étape",
-      "saving": "Enregistrement...",
-      "save": "Enregistrer",
-      "saveSuccess": "Pipeline mis à jour avec succès",
-      "saveError": "Erreur lors de la mise à jour du pipeline",
-      "selectError": "Sélectionnez un pipeline et une étape",
-      "removeSuccess": "Conversation supprimée du pipeline",
-      "removeError": "Erreur lors de la suppression du pipeline",
-      "dialogs": {
-        "update": {
-          "title": "Mettre à jour le Pipeline",
-          "description": "Êtes-vous sûr de vouloir déplacer cette conversation vers {{pipelineName}} à l'étape {{stageName}} ?",
-          "confirm": "Mettre à jour"
-        },
-        "add": {
-          "title": "Ajouter au Pipeline",
-          "description": "Êtes-vous sûr de vouloir ajouter cette conversation au pipeline {{pipelineName}} à l'étape {{stageName}} ?",
-          "confirm": "Ajouter"
-        },
-        "remove": {
-          "title": "Retirer du Pipeline",
-          "description": "Êtes-vous sûr de vouloir retirer cette conversation du pipeline {{pipelineName}} ? Cette action ne peut pas être annulée.",
-          "cancel": "Annuler",
-          "confirm": "Retirer"
-        }
       }
     },
     "filters": {
@@ -897,5 +880,19 @@
     "success": {
       "sent": "Modèle envoyé avec succès !"
     }
+  },
+  "pipeline": {
+    "section": "Pipeline",
+    "addTo": "Ajouter au pipeline",
+    "removeFrom": "Retirer du pipeline",
+    "loading": "Chargement des pipelines...",
+    "noPipelines": "Aucun pipeline disponible",
+    "loadError": "Erreur lors du chargement. Cliquez pour réessayer.",
+    "addSuccess": "Ajouté au pipeline",
+    "moveSuccess": "Déplacé vers l'étape",
+    "removeSuccess": "Retiré du pipeline",
+    "addError": "Erreur lors de l'ajout au pipeline",
+    "moveError": "Erreur lors du déplacement vers l'étape",
+    "removeError": "Erreur lors de la suppression du pipeline"
   }
 }

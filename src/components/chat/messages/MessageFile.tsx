@@ -13,16 +13,35 @@ interface MessageFileProps {
 const MessageFile: React.FC<MessageFileProps> = ({ attachments }) => {
   const { t } = useLanguage('chat');
 
-  const downloadFile = (attachment: Attachment) => {
-    const result = openAttachmentInNewTab({
-      url: attachment.data_url,
-      filename: attachment.fallback_title || t('messages.messageFile.fileFallback'),
-    });
+  const downloadFile = async (attachment: Attachment) => {
+    const url = attachment.data_url?.trim();
+    if (!url) return;
 
-    if (result === 'download-fallback') {
-      toast.info(t('messages.messageImage.downloadStarted'), {
-        description: attachment.fallback_title || t('messages.messageFile.fileFallbackTitle'),
+    const filename = attachment.fallback_title || t('messages.messageFile.fileFallback');
+
+    try {
+      const response = await fetch(url, { mode: 'cors' });
+      if (!response.ok) {
+        console.warn('[MessageFile] non-ok response:', response.status, url);
+        toast.warning(t('messages.messageFile.downloadFallbackOpenedInNewTab'), {
+          description: t('messages.messageFile.downloadFallbackReason.serverError', { status: response.status }),
+        });
+        openAttachmentInNewTab({ url, filename });
+        return;
+      }
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 0);
+    } catch (err) {
+      console.warn('[MessageFile] download fallback after fetch error:', err);
+      toast.warning(t('messages.messageFile.downloadFallbackOpenedInNewTab'), {
+        description: t('messages.messageFile.downloadFallbackReason.network'),
       });
+      openAttachmentInNewTab({ url, filename });
     }
   };
 

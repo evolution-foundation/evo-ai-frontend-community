@@ -537,8 +537,17 @@
       "tools": "Tools",
       "integrations": "Integrations",
       "mcpServers": "MCP Servers",
+      "products": "Products",
       "channels": "Channels",
       "settings": "Settings"
+    },
+    "products": {
+      "title": "Agent products",
+      "subtitle": "Pick which products this agent can recommend during conversations. They are injected into the system prompt automatically.",
+      "save": "Save assignments",
+      "saving": "Saving...",
+      "saveSuccess": "Products updated",
+      "saveError": "Failed to update products"
     },
     "agentOf": "Personal agent of",
     "agentType": "{{type}}",
@@ -712,6 +721,10 @@
         "allowContactEditDescription": "Allows the agent to edit contact information during the conversation",
         "allowPipelineManipulation": "Allow pipeline manipulation",
         "allowPipelineManipulationDescription": "Allows the agent to move conversations between pipelines and stages according to defined rules",
+        "allowProductSales": "Allow recording sales on the pipeline",
+        "allowProductSalesDescription": "Lets the agent attach sold products to the pipeline card during the conversation",
+        "allowManageLabels": "Allow label management",
+        "allowManageLabelsDescription": "Allows the agent to add and remove labels on the current conversation",
         "timezone": "Agent timezone",
         "timezoneDescription": "Defines the timezone used by the agent for scheduling and reminders",
         "sendAsReply": "Send message as reply in conversation",
@@ -994,6 +1007,37 @@
         "saveConfig": "APPLY SETTINGS",
         "disconnect": "Disconnect"
       },
+      "activated": "Integration activated",
+      "deactivated": "Integration deactivated",
+      "activationError": "Failed to activate integration",
+      "deactivationError": "Failed to deactivate integration",
+      "knowledgeNexus": {
+        "description": "Lets the agent query the EvoNexus knowledge base (hybrid search) before answering.",
+        "configTitle": "Configure Knowledge Nexus",
+        "intro": "Connect this agent to an EvoNexus knowledge space so it can look up curated information before answering.",
+        "baseUrl": "Nexus base URL",
+        "baseUrlHint": "Address of the EvoNexus dashboard (no trailing slash).",
+        "apiKey": "API Key",
+        "apiKeyHint": "API key generated in Nexus under Knowledge → API Keys. Format: evo_k_<prefix>.<secret>.",
+        "apiKeySaved": "✓ API key already configured — leave blank to keep, retype to replace.",
+        "apiKeySavedPlaceholder": "Leave blank to keep the saved key",
+        "space": "Knowledge space",
+        "spaceSelect": "Select a knowledge space",
+        "spaceHint": "Spaces are fetched from your Nexus instance once URL + API key are filled.",
+        "spaceId": "Space ID",
+        "spaceIdHint": "UUID of the knowledge space this agent will query.",
+        "spacesEmpty": "No spaces found for this API key.",
+        "spacesError": "Could not load spaces. Check the URL and API key, or paste the Space ID manually.",
+        "spacesNeedCreds": "Enter the base URL and API key first.",
+        "loadingSpaces": "Loading spaces from Nexus...",
+        "reloadSpaces": "Reload",
+        "useDropdown": "Pick from the list",
+        "useManual": "Paste Space ID manually",
+        "topK": "Top K (default)",
+        "timeout": "Timeout (s)",
+        "apply": "APPLY SETTINGS",
+        "deactivate": "Deactivate integration"
+      },
       "github": {
         "description": "With GitHub your agent will be able to access repositories, issues, pull requests and other GitHub information.",
         "configTitle": "Configure GitHub",
@@ -1265,27 +1309,27 @@
       "types": {
         "llm": {
           "label": "LLM (Language Model)",
-          "description": "Intelligent assistant with generative AI"
+          "description": "Conversational AI — reasons, answers questions and chats using a language model"
         },
         "task": {
           "label": "Task",
-          "description": "Automation of specific tasks"
+          "description": "Orchestrates tasks across sub-agents, each with a defined output"
         },
         "sequential": {
           "label": "Sequential",
-          "description": "Executes agents in sequence"
+          "description": "Runs sub-agents one after another, passing results down the chain"
         },
         "parallel": {
           "label": "Parallel",
-          "description": "Executes agents in parallel"
+          "description": "Runs multiple sub-agents simultaneously to speed up independent work"
         },
         "loop": {
           "label": "Loop",
-          "description": "Executes agents in loop"
+          "description": "Repeats sub-agents until a condition is met or iterations complete"
         },
         "external": {
           "label": "External Integrations",
-          "description": "Connects and runs external integrations"
+          "description": "Delegates to Flowise, n8n, Typebot, Dify or OpenAI workflows"
         }
       },
       "badges": {
@@ -1361,7 +1405,8 @@
       "validationError": "Briefly describe what your agent does (minimum 10 characters)",
       "tip": "Tip:",
       "tipContent": "Be clear and specific. The more details you provide, the better the agent will understand its role and respond accordingly.",
-      "generateWithAI": "Generate with AI"
+      "generateWithAI": "Generate with AI",
+      "aiNotConfigured": "OpenAI integration not configured. Go to Settings → Integrations to enable AI features."
     },
     "promptGenerator": {
       "title": "AI Prompt Generator",

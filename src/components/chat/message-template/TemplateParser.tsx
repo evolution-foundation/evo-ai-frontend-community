@@ -3,6 +3,10 @@ import { Button } from '@evoapi/design-system/button';
 import { Input } from '@evoapi/design-system/input';
 import type { MessageTemplate } from '@/types/channels/inbox';
 import { useLanguage } from '@/hooks/useLanguage';
+import {
+  buildInitialVariableParams,
+  extractTemplateVariables,
+} from '@/utils/templateVariables';
 
 interface TemplateParserProps {
   template: MessageTemplate;
@@ -51,52 +55,21 @@ const TemplateParser: React.FC<TemplateParserProps> = ({ template, channelType, 
     return '';
   }, [template, isEmailTemplate]);
 
-  // Obter o texto do body do template (for WhatsApp/other channels)
-  const templateString = useMemo(() => {
-    if (isEmailTemplate) {
-      // For email, extract text from HTML for variable detection
-      if (getEmailHtmlContent) {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = getEmailHtmlContent;
-        return tempDiv.textContent || tempDiv.innerText || '';
-      }
-      return '';
-    }
-
-    // Handle both object format (WhatsApp Cloud) and array format (legacy)
-    const bodyComponent = Array.isArray(template.components)
-      ? template.components.find(c => c.type === 'BODY')
-      : template.components?.body;
-    return bodyComponent?.text || template.content || '';
-  }, [template, isEmailTemplate, getEmailHtmlContent]);
-
-  // Extrair variáveis do template (formato: {{1}}, {{2}}, etc.)
   const variables = useMemo(() => {
-    // For email templates, extract from HTML
     if (isEmailTemplate && getEmailHtmlContent) {
-      const matches = getEmailHtmlContent.match(/\{\{([^}]+)\}\}/g);
-      return matches || [];
+      return extractTemplateVariables({
+        content: getEmailHtmlContent,
+        variables: template.variables,
+      });
     }
 
-    // For other channels, extract from text
-    const matches = templateString.match(/\{\{([^}]+)\}\}/g);
-    return matches || [];
-  }, [templateString, isEmailTemplate, getEmailHtmlContent]);
-
-  // Processar string de variável (remover {{ e }})
-  const processVariable = (str: string): string => {
-    return str.replace(/\{\{|\}\}/g, '');
-  };
+    return extractTemplateVariables(template);
+  }, [template, isEmailTemplate, getEmailHtmlContent]);
 
   // Inicializar params quando o template mudar
   useEffect(() => {
     if (variables.length > 0) {
-      const initialParams: Record<string, string> = {};
-      variables.forEach((variable: string) => {
-        const key = processVariable(variable);
-        initialParams[key] = '';
-      });
-      setParams(initialParams);
+      setParams(buildInitialVariableParams(variables));
       setErrors({});
       setTouched(false);
     }
@@ -169,17 +142,21 @@ const TemplateParser: React.FC<TemplateParserProps> = ({ template, channelType, 
             {t('messageTemplates.parser.variablesLabel')}
           </p>
 
-          {Object.entries(params).map(([key, value]) => (
-            <div key={key} className="flex items-center gap-2">
+          {variables.map(variable => (
+            <div key={variable.name} className="flex items-center gap-2">
               <span className="bg-muted text-muted-foreground inline-block rounded-md text-xs py-2 px-4 min-w-[60px] text-center font-medium">
-                {key}
+                {variable.label || variable.name}
               </span>
               <Input
                 type="text"
-                value={value}
-                onChange={e => handleParamChange(key, e.target.value)}
-                placeholder={t('messageTemplates.parser.variablePlaceholder', { variable: key })}
-                className={`flex-1 ${errors[key] ? 'border-destructive' : ''}`}
+                value={params[variable.name] ?? ''}
+                onChange={e => handleParamChange(variable.name, e.target.value)}
+                placeholder={
+                  variable.example ||
+                  variable.default_value ||
+                  t('messageTemplates.parser.variablePlaceholder', { variable: variable.name })
+                }
+                className={`flex-1 ${errors[variable.name] ? 'border-destructive' : ''}`}
               />
             </div>
           ))}

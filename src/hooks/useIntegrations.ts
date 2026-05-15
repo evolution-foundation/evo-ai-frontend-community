@@ -22,11 +22,26 @@ interface GoogleSheetsConfig {
   spreadsheet_id?: string;
 }
 
+export interface KnowledgeNexusConfig {
+  provider?: string;
+  connected?: boolean;
+  nexus_base_url?: string;
+  // Sanitized away when reading back from the backend, but the dialog populates
+  // it on save when the user enters a new key. Optional so a re-edit doesn't
+  // need to retype the key (omit the field to keep the stored value).
+  nexus_api_key?: string;
+  space_id?: string;
+  default_top_k?: number;
+  default_filters?: Record<string, unknown>;
+  timeout_seconds?: number;
+}
+
 interface UseIntegrationsReturn {
   // Configs
   elevenLabsConfig: ElevenLabsConfig | null;
   googleCalendarConfig: GoogleCalendarConfig | null;
   googleSheetsConfig: GoogleSheetsConfig | null;
+  knowledgeNexusConfig: KnowledgeNexusConfig | null;
 
   // Status
   credentialsConfigured: Record<string, boolean>;
@@ -51,6 +66,7 @@ function sanitizeConfig(config: Record<string, unknown>): Record<string, unknown
   const sensitiveFields = [
     'apiKey',
     'api_key',
+    'nexus_api_key',
     'access_token',
     'client_secret',
     'refresh_token',
@@ -78,12 +94,14 @@ export function useIntegrations(agentId: string): UseIntegrationsReturn {
   const [elevenLabsConfig, setElevenLabsConfig] = useState<ElevenLabsConfig | null>(null);
   const [googleCalendarConfig, setGoogleCalendarConfig] = useState<GoogleCalendarConfig | null>(null);
   const [googleSheetsConfig, setGoogleSheetsConfig] = useState<GoogleSheetsConfig | null>(null);
+  const [knowledgeNexusConfig, setKnowledgeNexusConfig] = useState<KnowledgeNexusConfig | null>(null);
 
   const [isCheckingIntegrations, setIsCheckingIntegrations] = useState(true);
   const [credentialsConfigured, setCredentialsConfigured] = useState<Record<string, boolean>>({
     elevenlabs: false,
     'google-calendar': false,
     'google-sheets': false,
+    'knowledge-nexus': false,
   });
 
   const loadConfigs = useCallback(async () => {
@@ -92,42 +110,68 @@ export function useIntegrations(agentId: string): UseIntegrationsReturn {
     setIsCheckingIntegrations(true);
 
     try {
-      // Same endpoint as MCP integrations - returns configs and credentials_configured
-      const {
-        configs,
-        credentials_configured,
-      } = await agentIntegrationsService.getAgentIntegrations(agentId);
+      // Backend returns an array of { provider, config, ... } items.
+      const items = await agentIntegrationsService.getAgentIntegrations(agentId);
 
-      // Normalize credentials_configured to use hyphen format (google-calendar instead of google_calendar)
-      const normalizedCredentials: Record<string, boolean> = {};
-      if (credentials_configured) {
-        Object.entries(credentials_configured).forEach(([key, value]) => {
-          // Convert underscore to hyphen (google_calendar -> google-calendar)
-          const normalizedKey = key.replace(/_/g, '-');
-          normalizedCredentials[normalizedKey] = value;
-        });
-      }
-      setCredentialsConfigured(normalizedCredentials);
+      // Build a provider→config map normalized to hyphen-case keys
+      // (backend stores underscored provider names like "google_calendar").
+      const configsByProvider: Record<string, Record<string, unknown>> = {};
+      const credentialsConfiguredNext: Record<string, boolean> = {
+        elevenlabs: false,
+        'google-calendar': false,
+        'google-sheets': false,
+        'knowledge-nexus': false,
+      };
+
+      items.forEach(item => {
+        const key = (item.provider || '').replace(/_/g, '-');
+        if (!key) return;
+        configsByProvider[key] = item.config || {};
+        credentialsConfiguredNext[key] = true;
+      });
+
+      setCredentialsConfigured(credentialsConfiguredNext);
 
       // Sanitize configs before storing (defense-in-depth security measure)
-      if (configs.elevenlabs) {
-        setElevenLabsConfig(sanitizeConfig(configs.elevenlabs) as unknown as ElevenLabsConfig);
-      }
-      // Accept both hyphen and underscore formats (google-calendar or google_calendar)
-      if (configs['google-calendar'] || configs['google_calendar']) {
-        const googleCalendarData = configs['google-calendar'] || configs['google_calendar'];
-        setGoogleCalendarConfig(sanitizeConfig(googleCalendarData) as unknown as GoogleCalendarConfig);
-      }
-      if (configs['google-sheets'] || configs['google_sheets']) {
-        const googleSheetsData = configs['google-sheets'] || configs['google_sheets'];
-        setGoogleSheetsConfig(sanitizeConfig(googleSheetsData) as unknown as GoogleSheetsConfig);
-      }
+      setElevenLabsConfig(
+        configsByProvider.elevenlabs
+          ? (sanitizeConfig(configsByProvider.elevenlabs) as unknown as ElevenLabsConfig)
+          : null
+      );
+      setGoogleCalendarConfig(
+        configsByProvider['google-calendar']
+          ? (sanitizeConfig(
+              configsByProvider['google-calendar']
+            ) as unknown as GoogleCalendarConfig)
+          : null
+      );
+      setGoogleSheetsConfig(
+        configsByProvider['google-sheets']
+          ? (sanitizeConfig(
+              configsByProvider['google-sheets']
+            ) as unknown as GoogleSheetsConfig)
+          : null
+      );
+      setKnowledgeNexusConfig(
+        configsByProvider['knowledge-nexus']
+          ? (sanitizeConfig(
+              configsByProvider['knowledge-nexus']
+            ) as unknown as KnowledgeNexusConfig)
+          : null
+      );
     } catch (error) {
       console.error('Error loading integrations:', error);
+      // Reset both credentials flags and per-integration configs so the UI
+      // never renders stale "connected" state after a network failure.
+      setElevenLabsConfig(null);
+      setGoogleCalendarConfig(null);
+      setGoogleSheetsConfig(null);
+      setKnowledgeNexusConfig(null);
       setCredentialsConfigured({
         elevenlabs: false,
         'google-calendar': false,
         'google-sheets': false,
+        'knowledge-nexus': false,
       });
     } finally {
       setIsCheckingIntegrations(false);
@@ -140,22 +184,27 @@ export function useIntegrations(agentId: string): UseIntegrationsReturn {
 
   const isConnected = useCallback(
     (integrationId: string): boolean => {
-      const configMap: Record<string, ElevenLabsConfig | GoogleCalendarConfig | GoogleSheetsConfig | null> = {
+      const configMap: Record<
+        string,
+        ElevenLabsConfig | GoogleCalendarConfig | GoogleSheetsConfig | KnowledgeNexusConfig | null
+      > = {
         elevenlabs: elevenLabsConfig,
         'google-calendar': googleCalendarConfig,
         'google-sheets': googleSheetsConfig,
+        'knowledge-nexus': knowledgeNexusConfig,
       };
 
       const config = configMap[integrationId];
       return config?.connected === true;
     },
-    [elevenLabsConfig, googleCalendarConfig, googleSheetsConfig]
+    [elevenLabsConfig, googleCalendarConfig, googleSheetsConfig, knowledgeNexusConfig]
   );
 
   return {
     elevenLabsConfig,
     googleCalendarConfig,
     googleSheetsConfig,
+    knowledgeNexusConfig,
     credentialsConfigured,
     isCheckingIntegrations,
     reloadConfigs: loadConfigs,

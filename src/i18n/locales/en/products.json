@@ -1,0 +1,123 @@
+{
+  "page": {
+    "title": "Products",
+    "subtitle": "Catalog of physical and digital products usable by AI agents.",
+    "loading": "Loading..."
+  },
+  "header": {
+    "searchPlaceholder": "Search by name, SKU or description",
+    "new": "New product",
+    "filters": {
+      "kindAll": "All kinds",
+      "statusAll": "All statuses"
+    }
+  },
+  "kind": {
+    "physical": "Physical",
+    "digital": "Digital"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "draft": "Draft"
+  },
+  "table": {
+    "empty": "No products yet. Click \"New product\" to start.",
+    "columns": {
+      "name": "Name",
+      "sku": "SKU",
+      "kind": "Kind",
+      "price": "Price",
+      "status": "Status",
+      "variants": "Variants",
+      "actions": "Actions"
+    }
+  },
+  "modal": {
+    "createTitle": "Create product",
+    "editTitle": "Edit product",
+    "subtitle": "Fill in the catalog details. Use variants for sizes/colors when needed.",
+    "tabs": {
+      "general": "General",
+      "media": "Media",
+      "variants": "Variants",
+      "labels": "Categories"
+    }
+  },
+  "fields": {
+    "name": "Name",
+    "namePlaceholder": "e.g. Black premium t-shirt",
+    "kind": "Kind",
+    "status": "Status",
+    "sku": "SKU",
+    "stockQuantity": "Stock quantity",
+    "defaultPrice": "Default price",
+    "currency": "Currency",
+    "purchaseUrl": "Purchase link",
+    "description": "Description",
+    "descriptionPlaceholder": "Short product description (shown to the AI agent)",
+    "labels": "Categories / tags",
+    "labelsPlaceholder": "Comma separated, e.g. apparel, summer-collection",
+    "labelsHint": "Categories help filter products and may also be used by automation rules."
+  },
+  "media": {
+    "uploadHint": "Drag images here or use the button below.",
+    "selectFiles": "Select files",
+    "existing": "Existing images",
+    "pending": "Pending upload"
+  },
+  "variants": {
+    "empty": "No variants. Click \"Add variant\".",
+    "add": "Add variant",
+    "name": "Name (e.g. M, Blue)",
+    "sku": "SKU",
+    "priceOverride": "Price override",
+    "stock": "Stock",
+    "digitalHint": "Variants are usually not used for digital products."
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "create": "Create",
+    "update": "Update",
+    "saving": "Saving...",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "edit": "Edit"
+  },
+  "confirmDelete": {
+    "title": "Delete product?",
+    "description": "Are you sure you want to delete \"{{name}}\"? This cannot be undone."
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "summary": "Page {{page}} of {{totalPages}} — {{totalCount}} products"
+  },
+  "messages": {
+    "loadError": "Failed to load products",
+    "createSuccess": "Product created",
+    "createError": "Failed to create product",
+    "updateSuccess": "Product updated",
+    "updateError": "Failed to update product",
+    "deleteSuccess": "Product deleted",
+    "deleteError": "Failed to delete product"
+  },
+  "pipelinePanel": {
+    "title": "Sold products",
+    "empty": "No products linked to this card yet.",
+    "emptyList": "No products linked.",
+    "summary": "{{count}} product(s) · total {{total}}",
+    "add": "Add product",
+    "added": "Product added",
+    "addError": "Failed to add product",
+    "removed": "Product removed",
+    "removeError": "Failed to remove product",
+    "product": "Product",
+    "selectProduct": "Select a product",
+    "variant": "Variant",
+    "selectVariant": "Select a variant",
+    "noVariant": "No variant",
+    "quantity": "Quantity",
+    "notes": "Notes (optional)"
+  }
+}

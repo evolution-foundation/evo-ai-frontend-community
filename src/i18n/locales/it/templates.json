@@ -1,0 +1,88 @@
+{
+  "page": {
+    "title": "Modelli",
+    "subtitle": "Esporta e importa configurazioni del workspace come pacchetti portabili.",
+    "empty": "Non hai ancora creato né importato alcun modello.",
+    "actions": {
+      "export": "Esporta configurazione",
+      "import": "Importa modello"
+    }
+  },
+  "export": {
+    "title": "Esporta configurazione come modello",
+    "stepHint": "Prossimo: {{nextStep}} · {{remaining}} passaggio(i) rimanenti",
+    "stepProgress": "Passaggio {{current}} di {{total}}",
+    "step1": {
+      "title": "Dettagli del modello",
+      "shortTitle": "Dettagli",
+      "name": "Nome del modello",
+      "namePlaceholder": "es: Clinica — setup completo",
+      "description": "Descrizione",
+      "descriptionPlaceholder": "Cosa configura questo modello?",
+      "author": "Autore",
+      "next": "Avanti"
+    },
+    "step2": {
+      "title": "Seleziona cosa includere",
+      "shortTitle": "Seleziona elementi",
+      "subtitle": "Scegli gli elementi da includere nel pacchetto. Puoi combinare le categorie.",
+      "selectAll": "Seleziona tutti di questa categoria",
+      "noItems": "Niente da esportare in questa categoria.",
+      "back": "Indietro",
+      "next": "Rivedi"
+    },
+    "step3": {
+      "title": "Rivedi e scarica",
+      "shortTitle": "Rivedi",
+      "summary": "Il pacchetto includerà {{count}} elementi in {{categoryCount}} categorie.",
+      "credentialsWarning": "Le credenziali (chiavi API, token, password) NON saranno incluse. Chi importa dovrà riconfigurare canali e agenti IA.",
+      "back": "Indietro",
+      "download": "Scarica pacchetto",
+      "downloading": "Generazione pacchetto..."
+    },
+    "success": "Pacchetto scaricato con successo.",
+    "errors": {
+      "noSelection": "Seleziona almeno un elemento da esportare.",
+      "failed": "Impossibile esportare il pacchetto."
+    }
+  },
+  "import": {
+    "title": "Importa modello",
+    "subtitle": "Trascina un pacchetto .evotpl.zip qui, oppure clicca per scegliere.",
+    "selectFile": "Seleziona pacchetto",
+    "fileSelected": "Selezionato: {{name}} ({{size}})",
+    "submit": "Importa",
+    "importing": "Importazione modello...",
+    "report": {
+      "title": "Importazione completata",
+      "subtitle": "Rivedi cosa è stato creato.",
+      "warningsTitle": "Elementi che richiedono attenzione",
+      "createdCount": "{{count}} creati",
+      "renamedCount": "{{count}} rinominati",
+      "skippedCount": "{{count}} saltati",
+      "close": "Chiudi"
+    },
+    "errors": {
+      "invalidBundle": "Il pacchetto è corrotto o malformato.",
+      "unsupportedSchema": "Versione dello schema non supportata da questa versione.",
+      "fileTooLarge": "Il pacchetto supera la dimensione massima (50MB).",
+      "invalidType": "Sono accettati solo file .zip.",
+      "missingFile": "Scegli un pacchetto da importare."
+    },
+    "warnings": {
+      "channelRequiresCredentials": "Canale importato senza credenziali. Riconnettilo in Impostazioni → Canali.",
+      "agentRequiresApiKey": "Agente importato senza chiave API. Riconfiguralo in Impostazioni → Agenti IA."
+    }
+  },
+  "categories": {
+    "pipelines": "Pipeline",
+    "agents": "Agenti IA",
+    "teams": "Team",
+    "labels": "Etichette",
+    "custom_attributes": "Attributi personalizzati",
+    "canned_responses": "Risposte predefinite",
+    "macros": "Macro",
+    "inboxes": "Canali",
+    "message_templates": "Modelli di messaggio"
+  }
+}

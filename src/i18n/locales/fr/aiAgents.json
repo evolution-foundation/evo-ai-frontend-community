@@ -537,7 +537,8 @@
       "integrations": "Intégrations",
       "mcpServers": "Serveurs MCP",
       "channels": "Canaux",
-      "settings": "Paramètres"
+      "settings": "Paramètres",
+      "products": "Produits"
     },
     "agentOf": "Agent personnel de",
     "agentType": "{{type}}",
@@ -707,12 +708,16 @@
         "allowContactEditDescription": "Permet à l'agent de modifier les informations de contact pendant la conversation",
         "allowPipelineManipulation": "Permettre la manipulation des pipelines",
         "allowPipelineManipulationDescription": "Permet à l'agent de déplacer des conversations entre les pipelines et les étapes selon des règles définies",
+        "allowManageLabels": "Autoriser la gestion des étiquettes",
+        "allowManageLabelsDescription": "Permet à l'agent d'ajouter et de supprimer des étiquettes sur la conversation en cours",
         "timezone": "Fuseau horaire de l'agent",
         "timezoneDescription": "Définit le fuseau horaire utilisé par l'agent pour la planification et les rappels",
         "sendAsReply": "Envoyer le message comme réponse dans la conversation",
         "sendAsReplyDescription": "Permet à l'agent d'envoyer des messages comme réponse à un message spécifique dans la conversation",
         "configureRules": "Configurer les règles",
-        "configureAutomation": "Automatisation"
+        "configureAutomation": "Automatisation",
+        "allowProductSales": "Autoriser l'enregistrement des ventes sur le pipeline",
+        "allowProductSalesDescription": "Permet à l'agent de joindre les produits vendus à la carte du pipeline pendant la conversation"
       },
       "inactivityActions": {
         "description": "Configurez les actions que l'agent doit exécuter lorsque le client cesse de répondre.",
@@ -777,7 +782,7 @@
         "instructionsPlaceholder": "Ex: Mettez à jour le nom du contact lorsqu'il se présente. Ajoutez l'email lorsque le client le fournit. Mettez à jour la ville lorsque le client mentionne son emplacement..."
       },
       "pipelineAutomation": {
-        "description": "Configurez des automatisations avancées pour chaque étape du pipeline. Créez des tâches automatiques, notifiez les équipes et définissez des actions lorsque les conversations se déplacent entre les étapes.",
+        "description": "Description de la Tâche",
         "addPipeline": "Ajouter Pipeline",
         "selectPipeline": "Sélectionnez le pipeline",
         "selectPipelinePlaceholder": "Sélectionnez un pipeline à automatiser",
@@ -812,7 +817,6 @@
         },
         "dueDays": "Échéance (jours)",
         "dueDaysPlaceholder": "Ex: 2",
-        "description": "Description de la Tâche",
         "descriptionPlaceholder": "Détails sur ce qui doit être fait...",
         "addTask": "Ajouter Tâche",
         "removeTask": "Retirer Tâche",
@@ -868,7 +872,100 @@
         "description": "Avec ElevenLabs, vous donnez à votre agent la capacité de répondre à vos clients en audio, le rendant encore plus humanisé."
       },
       "googleCalendar": {
-        "description": "Avec Google Calendar, votre agent pourra planifier des réunions, créer des liens d'appel et envoyer des invitations."
+        "configTitle": "Configurer Google Calendar",
+        "connectTitle": "Connecter à Google Calendar",
+        "connectDescription": "Permettez à l'agent d'accéder et de gérer les rendez-vous dans votre calendrier Google",
+        "email": "E-mail Google",
+        "connecting": "Connexion...",
+        "connectButton": "Connecter avec Google",
+        "applyConfig": "APPLIQUER LES CONFIGURATIONS",
+        "disconnect": "Déconnecter",
+        "saving": "Enregistrement...",
+        "tabs": {
+          "general": "Général",
+          "schedule": "Horaires",
+          "settings": "Paramètres"
+        },
+        "calendar": {
+          "title": "Calendrier",
+          "selectCalendar": "Sélectionnez le calendrier"
+        },
+        "minAdvanceTime": {
+          "title": "Délai Minimum d'Avance",
+          "enabled": "Activer le délai minimum",
+          "description": "Ne pas autoriser les rendez-vous de dernière minute"
+        },
+        "maxDistance": {
+          "title": "Distance Maximale Autorisée",
+          "enabled": "Activer la distance maximale",
+          "description": "Limite maximale de jours autorisée"
+        },
+        "maxDuration": {
+          "title": "Durée Maximale du Rendez-vous",
+          "description": "Limite de temps pour chaque rendez-vous"
+        },
+        "simultaneousBookings": {
+          "title": "Rendez-vous Simultanés",
+          "enabled": "Activer les rendez-vous simultanés",
+          "limit": "Limite de rendez-vous au même horaire"
+        },
+        "alwaysOpen": {
+          "title": "Toujours Ouvert",
+          "enabled": "Autoriser les rendez-vous à tout moment"
+        },
+        "businessHours": {
+          "title": "Heures d'Ouverture",
+          "days": {
+            "monday": "Lundi",
+            "tuesday": "Mardi",
+            "wednesday": "Mercredi",
+            "thursday": "Jeudi",
+            "friday": "Vendredi",
+            "saturday": "Samedi",
+            "sunday": "Dimanche"
+          }
+        },
+        "meetIntegration": {
+          "title": "Intégration Google Meet",
+          "enabled": "Générer un lien Meet lors de la planification"
+        },
+        "allowAvailabilityCheck": {
+          "title": "Consultation des Horaires",
+          "enabled": "L'agent peut consulter les horaires disponibles"
+        },
+        "restrictedHours": {
+          "title": "Horaires Restreints",
+          "enabled": "Activer les horaires restreints"
+        },
+        "distributionMode": {
+          "title": "Mode de Distribution",
+          "sequential": "Distribution Séquentielle",
+          "sequentialDescription": "Les rendez-vous sont répartis entre les calendriers en alternance séquentielle",
+          "intelligent": "Distribution Intelligente",
+          "intelligentDescription": "Sélectionne automatiquement le calendrier le plus approprié selon la conversation avec le client"
+        },
+        "bookingFields": {
+          "title": "Champs de Réservation",
+          "name": "Nom",
+          "nameDescription": "Demander le nom de l'utilisateur",
+          "company": "Entreprise",
+          "companyDescription": "Demander le nom de l'entreprise",
+          "subject": "Sujet",
+          "subjectDescription": "Demander le sujet",
+          "duration": "Durée",
+          "durationDescription": "Combien de temps cela va durer",
+          "email": "E-mail",
+          "emailDescription": "Demander l'e-mail pour envoyer l'invitation au calendrier",
+          "summary": "Résumé",
+          "summaryDescription": "Joindre un résumé de la conversation au rendez-vous"
+        },
+        "units": {
+          "hours": "Heures",
+          "days": "Jours",
+          "weeks": "Semaines",
+          "months": "Mois",
+          "minutes": "Minutes"
+        }
       },
       "gmail": {
         "description": "Connectez votre agent à Gmail pour envoyer et recevoir des emails automatiquement."
@@ -978,6 +1075,37 @@
         "saveConfig": "ENREGISTRER LES CONFIGURATIONS",
         "disconnect": "Déconnecter"
       },
+      "activated": "Intégration activée",
+      "deactivated": "Intégration désactivée",
+      "activationError": "Échec de l'activation de l'intégration",
+      "deactivationError": "Échec de la désactivation de l'intégration",
+      "knowledgeNexus": {
+        "description": "Permet à l'agent d'interroger la base de connaissances EvoNexus (recherche hybride) avant de répondre.",
+        "configTitle": "Configurer Knowledge Nexus",
+        "intro": "Connectez cet agent à un espace de connaissances EvoNexus afin qu'il puisse rechercher des informations sélectionnées avant de répondre.",
+        "baseUrl": "URL de base de Nexus",
+        "baseUrlHint": "Adresse du tableau de bord EvoNexus (sans barre oblique finale).",
+        "apiKey": "Clé API",
+        "apiKeyHint": "Clé API générée dans Nexus sous Knowledge → API Keys. Format : evo_k_<prefix>.<secret>.",
+        "apiKeySaved": "✓ Clé déjà configurée — laissez vide pour la conserver, retapez pour la remplacer.",
+        "apiKeySavedPlaceholder": "Laissez vide pour conserver la clé enregistrée",
+        "space": "Espace de connaissances",
+        "spaceSelect": "Sélectionnez un espace de connaissances",
+        "spaceHint": "Les espaces sont chargés depuis votre Nexus dès que l'URL et la clé API sont renseignées.",
+        "spaceId": "Space ID",
+        "spaceIdHint": "UUID de l'espace de connaissances que cet agent interrogera.",
+        "spacesEmpty": "Aucun espace trouvé pour cette clé API.",
+        "spacesError": "Impossible de charger les espaces. Vérifiez l'URL et la clé API, ou collez le Space ID manuellement.",
+        "spacesNeedCreds": "Renseignez d'abord l'URL de base et la clé API.",
+        "loadingSpaces": "Chargement des espaces depuis Nexus...",
+        "reloadSpaces": "Recharger",
+        "useDropdown": "Choisir dans la liste",
+        "useManual": "Coller le Space ID manuellement",
+        "topK": "Top K (par défaut)",
+        "timeout": "Délai (s)",
+        "apply": "APPLIQUER LES PARAMÈTRES",
+        "deactivate": "Désactiver l'intégration"
+      },
       "github": {
         "description": "Avec GitHub votre agent pourra accéder aux dépôts, issues, pull requests et autres informations GitHub.",
         "configTitle": "Configurer GitHub",
@@ -1028,102 +1156,6 @@
         "noTools": "Aucun outil disponible",
         "saveConfig": "ENREGISTRER LES CONFIGURATIONS",
         "disconnect": "Déconnecter"
-      },
-      "googleCalendar": {
-        "configTitle": "Configurer Google Calendar",
-        "connectTitle": "Connecter à Google Calendar",
-        "connectDescription": "Permettez à l'agent d'accéder et de gérer les rendez-vous dans votre calendrier Google",
-        "email": "E-mail Google",
-        "connecting": "Connexion...",
-        "connectButton": "Connecter avec Google",
-        "applyConfig": "APPLIQUER LES CONFIGURATIONS",
-        "disconnect": "Déconnecter",
-        "saving": "Enregistrement...",
-        "tabs": {
-          "general": "Général",
-          "schedule": "Horaires",
-          "settings": "Paramètres"
-        },
-        "calendar": {
-          "title": "Calendrier",
-          "selectCalendar": "Sélectionnez le calendrier"
-        },
-        "minAdvanceTime": {
-          "title": "Délai Minimum d'Avance",
-          "enabled": "Activer le délai minimum",
-          "description": "Ne pas autoriser les rendez-vous de dernière minute"
-        },
-        "maxDistance": {
-          "title": "Distance Maximale Autorisée",
-          "enabled": "Activer la distance maximale",
-          "description": "Limite maximale de jours autorisée"
-        },
-        "maxDuration": {
-          "title": "Durée Maximale du Rendez-vous",
-          "description": "Limite de temps pour chaque rendez-vous"
-        },
-        "simultaneousBookings": {
-          "title": "Rendez-vous Simultanés",
-          "enabled": "Activer les rendez-vous simultanés",
-          "limit": "Limite de rendez-vous au même horaire"
-        },
-        "alwaysOpen": {
-          "title": "Toujours Ouvert",
-          "enabled": "Autoriser les rendez-vous à tout moment"
-        },
-        "businessHours": {
-          "title": "Heures d'Ouverture",
-          "days": {
-            "monday": "Lundi",
-            "tuesday": "Mardi",
-            "wednesday": "Mercredi",
-            "thursday": "Jeudi",
-            "friday": "Vendredi",
-            "saturday": "Samedi",
-            "sunday": "Dimanche"
-          }
-        },
-        "meetIntegration": {
-          "title": "Intégration Google Meet",
-          "enabled": "Générer un lien Meet lors de la planification"
-        },
-        "allowAvailabilityCheck": {
-          "title": "Consultation des Horaires",
-          "enabled": "L'agent peut consulter les horaires disponibles"
-        },
-        "restrictedHours": {
-          "title": "Horaires Restreints",
-          "enabled": "Activer les horaires restreints"
-        },
-        "distributionMode": {
-          "title": "Mode de Distribution",
-          "sequential": "Distribution Séquentielle",
-          "sequentialDescription": "Les rendez-vous sont répartis entre les calendriers en alternance séquentielle",
-          "intelligent": "Distribution Intelligente",
-          "intelligentDescription": "Sélectionne automatiquement le calendrier le plus approprié selon la conversation avec le client"
-        },
-        "bookingFields": {
-          "title": "Champs de Réservation",
-          "name": "Nom",
-          "nameDescription": "Demander le nom de l'utilisateur",
-          "company": "Entreprise",
-          "companyDescription": "Demander le nom de l'entreprise",
-          "subject": "Sujet",
-          "subjectDescription": "Demander le sujet",
-          "duration": "Durée",
-          "durationDescription": "Combien de temps cela va durer",
-          "email": "E-mail",
-          "emailDescription": "Demander l'e-mail pour envoyer l'invitation au calendrier",
-          "summary": "Résumé",
-          "summaryDescription": "Joindre un résumé de la conversation au rendez-vous"
-        },
-        "units": {
-          "hours": "Heures",
-          "days": "Jours",
-          "weeks": "Semaines",
-          "months": "Mois",
-          "minutes": "Minutes"
-        }
       }
     },
     "mcpServers": {
@@ -1141,6 +1173,14 @@
       "title": "Paramètres",
       "subtitle": "Paramètres avancés de l'agent",
       "comingSoon": "Bientôt disponible..."
+    },
+    "products": {
+      "title": "Produits de l'agent",
+      "subtitle": "Choisissez les produits que cet agent peut recommander pendant les conversations. Ils seront injectés automatiquement dans le system prompt.",
+      "save": "Enregistrer les attributions",
+      "saving": "Enregistrement...",
+      "saveSuccess": "Produits mis à jour",
+      "saveError": "Échec de la mise à jour des produits"
     }
   },
   "actions": {
@@ -1203,27 +1243,27 @@
       "types": {
         "llm": {
           "label": "LLM (Modèle de Langage)",
-          "description": "Assistant intelligent avec IA générative"
+          "description": "IA conversationnelle — raisonne, répond aux questions et discute avec un modèle de langage"
         },
         "task": {
           "label": "Tâche",
-          "description": "Automatisation de tâches spécifiques"
+          "description": "Orchestre des tâches entre sous-agents, chacune avec une sortie définie"
         },
         "sequential": {
-          "label": "Sequential",
-          "description": "Exécute les agents en séquence"
+          "label": "Séquentiel",
+          "description": "Exécute les sous-agents en chaîne, passant le résultat de chaque étape à la suivante"
         },
         "parallel": {
-          "label": "Parallel",
-          "description": "Exécute les agents en parallèle"
+          "label": "Parallèle",
+          "description": "Exécute plusieurs sous-agents simultanément pour des tâches indépendantes"
         },
         "loop": {
           "label": "Loop",
-          "description": "Exécute les agents en boucle"
+          "description": "Répète les sous-agents jusqu'à atteindre une condition ou un nombre d'itérations"
         },
         "external": {
           "label": "Intégrations Externes",
-          "description": "Connecte et exécute des intégrations externes"
+          "description": "Délègue aux flux Flowise, n8n, Typebot, Dify ou OpenAI"
         }
       },
       "badges": {
@@ -1299,7 +1339,8 @@
       "validationError": "Décrivez brièvement ce que fait votre agent (minimum 10 caractères)",
       "tip": "Conseil :",
       "tipContent": "Soyez clair et spécifique. Plus vous fournissez de détails, mieux l'agent comprendra son rôle et répondra en conséquence.",
-      "generateWithAI": "Générer avec IA"
+      "generateWithAI": "Générer avec IA",
+      "aiNotConfigured": "Intégration OpenAI non configurée. Allez dans Paramètres → Intégrations pour activer les fonctionnalités IA."
     },
     "promptGenerator": {
       "title": "Générateur de Prompt avec IA",

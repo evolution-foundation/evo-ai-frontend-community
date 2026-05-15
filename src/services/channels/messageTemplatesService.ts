@@ -6,6 +6,11 @@ import type {
   MessageTemplateComponent,
 } from '@/types/channels/inbox';
 import { extractResponse } from '@/utils/apiHelpers';
+import {
+  extractTemplateFormVariables,
+  extractTemplateVariables,
+  normalizeTemplateVariables,
+} from '@/utils/templateVariables';
 
 /**
  * Determine if a channel supports WhatsApp-style template sync
@@ -291,6 +296,7 @@ const MessageTemplateService = {
         category: templateData.category,
         template_type: templateData.template_type || 'interactive',
         components,
+        variables: extractTemplateFormVariables(templateData),
         ...(templateData.mediaUrl && { media_url: templateData.mediaUrl }),
         ...(templateData.mediaType && { media_type: templateData.mediaType }),
         ...(templateData.settings && { settings: templateData.settings }),
@@ -306,6 +312,7 @@ const MessageTemplateService = {
       language: templateData.language,
       category: templateData.category,
       template_type: templateData.template_type || 'text',
+      variables: extractTemplateFormVariables(templateData),
       ...(templateData.mediaUrl && { media_url: templateData.mediaUrl }),
       ...(templateData.mediaType && { media_type: templateData.mediaType }),
       settings: {
@@ -334,6 +341,7 @@ const MessageTemplateService = {
       ...(template.settings && { settings: template.settings }),
       ...(template.metadata && { metadata: template.metadata }),
       active: template.active !== false,
+      variables: extractTemplateVariables(template),
     };
 
     // Extract subject from settings for email templates
@@ -390,10 +398,9 @@ const MessageTemplateService = {
       return Array.from(matches, m => m[1]);
     }
 
-    // WhatsApp and other channels use {{1}}, {{2}} or {{variable}} syntax
-    const whatsappPattern = /\{\{(\w+)\}\}/g;
-    const matches = content.matchAll(whatsappPattern);
-    return Array.from(matches, m => m[1]);
+    return normalizeTemplateVariables(
+      Array.from(content.matchAll(/\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/g), m => m[1]),
+    ).map(variable => variable.name);
   },
 };
 

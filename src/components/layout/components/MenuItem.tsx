@@ -7,11 +7,7 @@ import {
   TooltipTrigger,
 } from '@evoapi/design-system';
 import { MenuItem as MenuItemType } from '../config/menuItems';
-
-// Utility function for className merging
-function cn(...classes: (string | undefined | null | false)[]) {
-  return classes.filter(Boolean).join(' ');
-}
+import { cn } from '@/utils/cn';
 
 interface MenuItemProps {
   item: MenuItemType;
@@ -66,24 +62,9 @@ export default function MenuItem({
   if (!mobile && isCollapsed) {
     return (
       <Tooltip>
-        <TooltipTrigger asChild>
-          {menuItem}
-        </TooltipTrigger>
+        <TooltipTrigger asChild>{menuItem}</TooltipTrigger>
         <TooltipContent side="right">
-          <div>
-            <p className="font-medium">{item.name}</p>
-            {hasSubItems && (
-              <div className="mt-1 space-y-1">
-                {item.subItems?.map(subItem => (
-                  <div key={subItem.href} className="flex items-center gap-2">
-                    <p className="text-xs text-muted-foreground">
-                      {subItem.name}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <p className="font-medium">{item.name}</p>
         </TooltipContent>
       </Tooltip>
     );

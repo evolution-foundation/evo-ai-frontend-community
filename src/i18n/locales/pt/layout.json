@@ -84,8 +84,10 @@
       "conversations": "Conversas",
       "contacts": "Contatos",
       "pipelines": "Pipelines",
+      "products": "Produtos",
       "agents": "Agentes de IA",
       "channels": "Canais",
+      "automation": "Automações",
       "tutorials": "Tutoriais",
       "settings": "Configurações"
     },
@@ -106,8 +108,10 @@
       "customAttributes": "Atributos Personalizados",
       "cannedResponses": "Respostas Rápidas",
       "macros": "Macros",
+      "templates": "Templates",
       "integrations": "Integrações",
       "accessTokens": "Tokens de Acesso",
+      "roles": "Perfis e Permissões",
       "admin": "Configurações Admin"
     }
   }

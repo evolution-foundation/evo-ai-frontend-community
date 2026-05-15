@@ -47,6 +47,8 @@ import MessageTemplateService, {
 import { TemplatePreview } from './TemplatePreview';
 import { MessageTemplate, TemplateFormData } from '@/types';
 import { getStatusBadgeKey } from '@/components/chat/message-template/templateStatus';
+import { extractTemplateFormVariables } from '@/utils/templateVariables';
+import type { MessageTemplateVariable } from '@/types/channels/inbox';
 
 interface MessageTemplateFormProps {
   inboxId: string;
@@ -81,6 +83,24 @@ const TemplateFormModal: React.FC<{
     footerText: '',
     buttons: [],
   });
+
+  const detectedVariables = useMemo(() => extractTemplateFormVariables(formData), [formData]);
+
+  useEffect(() => {
+    setFormData(prev => {
+      const currentByName = new Map((prev.variables ?? []).map(variable => [variable.name, variable]));
+      const nextVariables = detectedVariables.map(variable => ({
+        ...variable,
+        ...currentByName.get(variable.name),
+      }));
+
+      const changed =
+        nextVariables.length !== (prev.variables ?? []).length ||
+        nextVariables.some((variable, index) => variable.name !== prev.variables?.[index]?.name);
+
+      return changed ? { ...prev, variables: nextVariables } : prev;
+    });
+  }, [detectedVariables]);
 
   useEffect(() => {
     if (template && mode === 'edit') {
@@ -145,6 +165,18 @@ const TemplateFormModal: React.FC<{
       ...prev,
       buttons:
         prev.buttons?.map((btn, i) => (i === index ? { ...btn, [field]: value } : btn)) || [],
+    }));
+  };
+
+  const updateVariable = (
+    name: string,
+    patch: Partial<MessageTemplateVariable>,
+  ) => {
+    setFormData(prev => ({
+      ...prev,
+      variables: (prev.variables ?? []).map(variable =>
+        variable.name === name ? { ...variable, ...patch } : variable,
+      ),
     }));
   };
 
@@ -449,6 +481,34 @@ const TemplateFormModal: React.FC<{
                     {t('settings.messageTemplates.form.liquidHelp')}
                   </p>
                 )}
+              </div>
+            )}
+
+            {(formData.variables?.length ?? 0) > 0 && (
+              <div className="space-y-3">
+                <label className="block text-sm font-medium">
+                  {t('settings.messageTemplates.form.variables')}
+                </label>
+                {formData.variables?.map(variable => (
+                  <div key={variable.name} className="grid grid-cols-4 gap-2">
+                    <Input value={variable.name} disabled />
+                    <Input
+                      value={variable.label ?? ''}
+                      onChange={e => updateVariable(variable.name, { label: e.target.value })}
+                      placeholder={t('settings.messageTemplates.form.variableLabel')}
+                    />
+                    <Input
+                      value={variable.example ?? ''}
+                      onChange={e => updateVariable(variable.name, { example: e.target.value })}
+                      placeholder={t('settings.messageTemplates.form.variableExample')}
+                    />
+                    <Input
+                      value={variable.source ?? ''}
+                      onChange={e => updateVariable(variable.name, { source: e.target.value })}
+                      placeholder={t('settings.messageTemplates.form.variableSource')}
+                    />
+                  </div>
+                ))}
               </div>
             )}
 

@@ -30,9 +30,11 @@ import {
   CheckCircle,
   Smartphone,
   QrCode,
+  Info,
 } from 'lucide-react';
 import { EvolutionApiService, ZapiService } from '@/services/channels/channelConfigurationService';
 import InboxesService from '@/services/channels/inboxesService';
+import { useGlobalConfig } from '@/contexts/GlobalConfigContext';
 
 interface ConfigurationFormProps {
   inboxId: string;
@@ -494,6 +496,18 @@ const EvolutionWhatsAppConfig: React.FC<{
   onUpdate: (data: any) => void;
 }> = ({ inbox, onUpdate }) => {
   const { t } = useLanguage('channels');
+  const globalConfig = useGlobalConfig();
+  const isEvolutionGo = inbox?.provider === 'evolution_go';
+  const hasGlobalConfig = isEvolutionGo
+    ? globalConfig.hasEvolutionGoConfig === true
+    : globalConfig.hasEvolutionConfig === true;
+  const usingGlobalFallback =
+    hasGlobalConfig &&
+    !inbox?.provider_config?.api_url &&
+    !inbox?.provider_config?.admin_token;
+
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [instanceSettings, setInstanceSettings] = useState({
     rejectCall: true,
     msgCall: 'Não aceito chamadas',
@@ -568,37 +582,43 @@ const EvolutionWhatsAppConfig: React.FC<{
     );
   };
 
-  // Load instance settings on mount
+  // Load instance settings and profile on mount
   useEffect(() => {
-    const loadInstanceSettings = async () => {
+    let cancelled = false;
+
+    const loadAll = async () => {
+      const provider = inbox.provider;
+      const isEvolutionGo = provider === 'evolution_go';
+      const identifier = getIdentifier();
+
+      if (!identifier) {
+        if (!cancelled) {
+          setLoadError(t('settings.configuration.whatsapp.instance.errors.nameNotFound', 'Could not resolve instance identifier from channel config.'));
+          setIsLoadingSettings(false);
+        }
+        return;
+      }
+
+      // Load settings
       try {
-        const provider = inbox.provider;
-        const isEvolutionGo = provider === 'evolution_go';
-        const identifier = getIdentifier();
-
-        if (!identifier) return;
-
         const response = await EvolutionApiService.getSettings(identifier, provider);
+        if (cancelled) return;
 
-        // Extract settings from nested data structure (similar to Vue components)
         const settings = response?.data?.data || response?.data || response;
 
         if (settings) {
           if (isEvolutionGo) {
-            // Evolution Go settings mapping
-            // Note: ignoreStatus true means ignore status (don't read), so readStatus is the opposite
             const ignoreStatus = settings.ignoreStatus ?? settings.ignore_status ?? true;
             setInstanceSettings({
               rejectCall: settings.rejectCall ?? settings.reject_call ?? true,
               msgCall: settings.msgCall || settings.msg_call || 'Não aceito chamadas',
-              groupsIgnore: settings.ignoreGroups ?? settings.ignore_groups ?? false, // Evolution Go uses ignoreGroups
+              groupsIgnore: settings.ignoreGroups ?? settings.ignore_groups ?? false,
               alwaysOnline: settings.alwaysOnline ?? settings.always_online ?? true,
               readMessages: settings.readMessages ?? settings.read_messages ?? true,
-              syncFullHistory: false, // Evolution Go doesn't have this
-              readStatus: !ignoreStatus, // Invert ignoreStatus to readStatus
+              syncFullHistory: false,
+              readStatus: !ignoreStatus,
             });
           } else {
-            // Evolution (normal) settings mapping
             setInstanceSettings({
               rejectCall: settings.rejectCall ?? true,
               msgCall: settings.msgCall || 'Não aceito chamadas',
@@ -611,49 +631,61 @@ const EvolutionWhatsAppConfig: React.FC<{
           }
         }
       } catch (error) {
-        console.error('Erro ao carregar configurações da instância:', error);
-        // Keep default values on error
-      }
-    };
-
-    loadInstanceSettings();
-
-    // Load profile settings for Evolution Go
-    const loadProfileSettings = async () => {
-      try {
-        if (inbox.provider !== 'evolution_go') return;
-        const identifier = getIdentifier();
-        if (!identifier) return;
-
-        const response = await EvolutionApiService.getProfile(identifier, inbox.provider);
-        const profileData = response?.data || response;
-        if (profileData) {
-          setProfileSettings(prev => ({
-            ...prev,
-            profileName: profileData.profileName || prev.profileName,
-          }));
+        if (!cancelled) {
+          console.error('Erro ao carregar configurações da instância:', error);
         }
-      } catch (error) {
-        console.error('Error loading profile settings:', error);
+      }
+
+      // Load profile for Evolution Go
+      if (isEvolutionGo) {
+        try {
+          const response = await EvolutionApiService.getProfile(identifier, provider);
+          if (cancelled) return;
+          const profileData = response?.data || response;
+          if (profileData) {
+            setProfileSettings(prev => ({
+              ...prev,
+              profileName: profileData.profileName || prev.profileName,
+            }));
+          }
+        } catch (error) {
+          if (!cancelled) {
+            console.error('Error loading profile settings:', error);
+          }
+        }
       }
     };
 
-    loadProfileSettings();
-  }, [inbox.provider, inbox.provider_config, inbox.name]);
+    loadAll();
 
-  // Load instance status on mount and poll while modal is open
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inbox.provider, inbox.name]);
+
+  // Load instance status on mount and poll
   useEffect(() => {
+    let cancelled = false;
+
     const loadInstanceStatus = async () => {
       try {
         const provider = inbox.provider;
         const identifier = getIdentifier();
 
-        if (!identifier) return;
+        if (!identifier) {
+          if (!cancelled) {
+            setLoadError(t('settings.configuration.whatsapp.instance.errors.nameNotFound', 'Could not resolve instance identifier from channel config.'));
+            setIsLoadingSettings(false);
+          }
+          return;
+        }
 
         const response = await EvolutionApiService.getInstances(identifier, provider);
+        if (cancelled) return;
+
         if (response?.data?.instance?.state) {
           const newStatus = response.data.instance.state;
           setInstanceStatus(newStatus);
+          setLoadError(null);
 
           // Close modal and show success if connected
           if (newStatus === 'open' && showQrModal) {
@@ -663,22 +695,29 @@ const EvolutionWhatsAppConfig: React.FC<{
           }
         }
       } catch (error) {
-        console.error('Erro ao carregar status da instância:', error);
+        if (!cancelled) {
+          console.error('Erro ao carregar status da instância:', error);
+          setLoadError(t('settings.configuration.whatsapp.instance.errors.loadFailed', 'Failed to load instance status. Check your connection settings.'));
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingSettings(false);
+        }
       }
     };
 
     loadInstanceStatus();
 
-    // Poll status every 3 seconds while QR modal is open
-    let interval: NodeJS.Timeout | null = null;
-    if (showQrModal) {
-      interval = setInterval(loadInstanceStatus, 3000);
-    }
+    // Poll faster while QR modal is open, slower otherwise
+    const pollInterval = showQrModal ? 3000 : 15000;
+    const interval = setInterval(loadInstanceStatus, pollInterval);
 
     return () => {
-      if (interval) clearInterval(interval);
+      cancelled = true;
+      clearInterval(interval);
     };
-  }, [inbox.provider, inbox.provider_config, inbox.name, showQrModal, t]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inbox.provider, inbox.provider_config, inbox.name, showQrModal]);
 
   const handleGenerateQR = async () => {
     setIsLoading(true);
@@ -918,6 +957,48 @@ const EvolutionWhatsAppConfig: React.FC<{
       setIsLoading(false);
     }
   };
+
+  if (isLoadingSettings && !instanceStatus) {
+    return (
+      <div className="space-y-6" aria-busy="true">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-5 w-5 rounded" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </div>
+            <div className="mt-4 space-y-3">
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-8 w-1/2" />
+            </div>
+            <span className="sr-only">{t('settings.configuration.whatsapp.instance.loading', 'Loading instance settings...')}</span>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (loadError && !instanceStatus) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <Info className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
+              <div>
+                <h3 className="font-semibold text-destructive">{t('settings.configuration.whatsapp.instance.errors.title', 'Configuration Error')}</h3>
+                <p className="text-sm text-muted-foreground mt-1">{loadError}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -1274,6 +1355,22 @@ const EvolutionWhatsAppConfig: React.FC<{
                 </p>
               </div>
 
+              {usingGlobalFallback && (
+                <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/20 p-3">
+                  <div className="flex items-start gap-2">
+                    <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
+                        {t('settings.configuration.whatsapp.instance.connection.usingGlobalConfig', 'Using Admin Settings defaults')}
+                      </p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
+                        {t('settings.configuration.whatsapp.instance.connection.usingGlobalConfigHint', 'The API URL and Token are configured globally in Admin Settings. Fill the fields below only to override the global values for this channel.')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium mb-2">
                   {t('settings.configuration.whatsapp.instance.connection.apiUrlLabel')}
@@ -1283,7 +1380,9 @@ const EvolutionWhatsAppConfig: React.FC<{
                   onChange={e =>
                     setConnectionSettings(prev => ({ ...prev, apiUrl: e.target.value }))
                   }
-                  placeholder={t('settings.configuration.whatsapp.instance.connection.apiUrlPlaceholder')}
+                  placeholder={usingGlobalFallback
+                    ? t('settings.configuration.whatsapp.instance.connection.apiUrlGlobalPlaceholder', 'Using global config — fill to override')
+                    : t('settings.configuration.whatsapp.instance.connection.apiUrlPlaceholder')}
                 />
               </div>
 
@@ -1297,7 +1396,9 @@ const EvolutionWhatsAppConfig: React.FC<{
                   onChange={e =>
                     setConnectionSettings(prev => ({ ...prev, adminToken: e.target.value }))
                   }
-                  placeholder={t('settings.configuration.whatsapp.instance.connection.adminTokenPlaceholder')}
+                  placeholder={usingGlobalFallback
+                    ? t('settings.configuration.whatsapp.instance.connection.adminTokenGlobalPlaceholder', 'Using global config — fill to override')
+                    : t('settings.configuration.whatsapp.instance.connection.adminTokenPlaceholder')}
                 />
                 {inbox?.provider_config?.admin_token && (
                   <p className="mt-1 text-xs text-muted-foreground">

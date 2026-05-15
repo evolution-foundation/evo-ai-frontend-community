@@ -538,7 +538,8 @@
       "integrations": "Integrações",
       "mcpServers": "Servidores MCP",
       "channels": "Canais",
-      "settings": "Configurações"
+      "settings": "Configurações",
+      "products": "Produtos"
     },
     "agentOf": "Agente pessoal de",
     "agentType": "{{type}}",
@@ -712,12 +713,16 @@
         "allowContactEditDescription": "Permite que o agente edite informações de contato durante a conversa",
         "allowPipelineManipulation": "Permitir manipular pipelines",
         "allowPipelineManipulationDescription": "Permite que o agente mova conversas entre pipelines e estágios conforme regras definidas",
+        "allowManageLabels": "Permitir gerir etiquetas",
+        "allowManageLabelsDescription": "Permite que o agente adicione e remova etiquetas da conversa atual",
         "timezone": "Timezone do agente",
         "timezoneDescription": "Define o fuso horário usado pelo agente para agendamentos e lembretes",
         "sendAsReply": "Enviar mensagem como resposta na conversa",
         "sendAsReplyDescription": "Permite que o agente envie mensagens como resposta a uma mensagem específica na conversa",
         "configureRules": "Configurar regras",
-        "configureAutomation": "Automação"
+        "configureAutomation": "Automação",
+        "allowProductSales": "Permitir registar vendas no pipeline",
+        "allowProductSalesDescription": "Permite que o agente associe produtos vendidos ao cartão do pipeline durante a conversa"
       },
       "inactivityActions": {
         "description": "Configure ações que o agente deve executar quando o cliente parar de responder.",
@@ -987,26 +992,43 @@
         "email": "E-mail do Google",
         "connectButton": "Conectar com Google",
         "connecting": "Conectando...",
-        "selectSpreadsheet": "Planilha",
+        "selectSpreadsheet": "Folha",
         "saveConfig": "APLICAR CONFIGURAÇÕES",
-        "disconnect": "Desconectar"
+        "disconnect": "Desligar"
+      },
+      "activated": "Integração ativada",
+      "deactivated": "Integração desativada",
+      "activationError": "Falha ao ativar a integração",
+      "deactivationError": "Falha ao desativar a integração",
+      "knowledgeNexus": {
+        "description": "Permite que o agente consulte a base de conhecimento do EvoNexus (pesquisa híbrida) antes de responder.",
+        "configTitle": "Configurar Knowledge Nexus",
+        "intro": "Liga este agente a um espaço de conhecimento do EvoNexus para que possa procurar informação curada antes de responder.",
+        "baseUrl": "URL base do Nexus",
+        "baseUrlHint": "Endereço do dashboard EvoNexus (sem barra no fim).",
+        "apiKey": "Chave API",
+        "apiKeyHint": "Chave API gerada no Nexus em Knowledge → API Keys. Formato: evo_k_<prefix>.<secret>.",
+        "apiKeySaved": "✓ Chave já configurada — deixe em branco para manter, reescreva para substituir.",
+        "apiKeySavedPlaceholder": "Deixe em branco para manter a chave guardada",
+        "space": "Espaço de conhecimento",
+        "spaceSelect": "Selecione um espaço de conhecimento",
+        "spaceHint": "Os espaços são carregados do seu Nexus assim que o URL e a chave API estiverem preenchidos.",
+        "spaceId": "Space ID",
+        "spaceIdHint": "UUID do espaço de conhecimento que este agente vai consultar.",
+        "spacesEmpty": "Não foram encontrados espaços para esta chave API.",
+        "spacesError": "Não foi possível carregar os espaços. Verifique o URL e a chave API, ou cole o Space ID manualmente.",
+        "spacesNeedCreds": "Preencha primeiro o URL base e a chave API.",
+        "loadingSpaces": "A carregar espaços do Nexus...",
+        "reloadSpaces": "Recarregar",
+        "useDropdown": "Escolher da lista",
+        "useManual": "Colar Space ID manualmente",
+        "topK": "Top K (predefinido)",
+        "timeout": "Timeout (s)",
+        "apply": "APLICAR CONFIGURAÇÕES",
+        "deactivate": "Desativar integração"
       },
       "github": {
-        "description": "Com GitHub seu agente será capaz de acessar repositórios, issues, pull requests e outras informações do GitHub.",
-        "configTitle": "Configurar GitHub",
-        "connectTitle": "Conectar com GitHub",
-        "connectDescription": "Conecte sua conta GitHub para permitir que o agente acesse repositórios e informações de código",
-        "connectButton": "Conectar com GitHub",
-        "connecting": "Conectando...",
-        "connected": "Conectado",
-        "connectedAs": "Conectado como",
-        "connectedDescription": "Sua conta GitHub está conectada e o agente pode acessar seus repositórios.",
-        "toolsTitle": "Ferramentas Disponíveis",
-        "toolsDescription": "Selecione quais ferramentas do GitHub o agente poderá usar",
-        "selectAll": "Selecionar todas",
-        "noTools": "Nenhuma ferramenta disponível",
-        "saveConfig": "SALVAR CONFIGURAÇÕES",
-        "disconnect": "Desconectar"
+        "description": "Integre seu agente com GitHub para acessar repositórios e informações de código."
       },
       "gmail": {
         "description": "Conecte seu agente ao Gmail para enviar e receber emails automaticamente."
@@ -1150,9 +1172,6 @@
         "saveConfig": "SALVAR CONFIGURAÇÕES",
         "disconnect": "Desconectar"
       },
-      "github": {
-        "description": "Integre seu agente com GitHub para acessar repositórios e informações de código."
-      },
       "canva": {
         "description": "Com Canva seu agente será capaz de criar e editar designs, apresentações e materiais visuais.",
         "configTitle": "Configurar Canva",
@@ -1203,6 +1222,14 @@
       "title": "Configurações",
       "subtitle": "Configurações avançadas do agente",
       "comingSoon": "Em breve..."
+    },
+    "products": {
+      "title": "Produtos do agente",
+      "subtitle": "Selecione os produtos que este agente pode recomendar durante conversas. Serão injetados automaticamente no system prompt.",
+      "save": "Guardar atribuições",
+      "saving": "A guardar...",
+      "saveSuccess": "Produtos atualizados",
+      "saveError": "Falha ao atualizar produtos"
     }
   },
   "actions": {
@@ -1265,27 +1292,27 @@
       "types": {
         "llm": {
           "label": "LLM (Modelo de Linguagem)",
-          "description": "Assistente inteligente com IA generativa"
+          "description": "IA conversacional — raciocina, responde perguntas e conversa usando modelo de linguagem"
         },
         "task": {
           "label": "Tarefa",
-          "description": "Automação de tarefas específicas"
+          "description": "Orquestra tarefas entre sub-agentes, cada uma com uma saída definida"
         },
         "sequential": {
-          "label": "Sequential",
-          "description": "Executa agentes em sequência"
+          "label": "Sequencial",
+          "description": "Executa sub-agentes em cadeia, passando o resultado de cada etapa para a próxima"
         },
         "parallel": {
-          "label": "Parallel",
-          "description": "Executa agentes em paralelo"
+          "label": "Paralelo",
+          "description": "Executa múltiplos sub-agentes ao mesmo tempo para tarefas independentes"
         },
         "loop": {
           "label": "Loop",
-          "description": "Executa agentes em loop"
+          "description": "Repete sub-agentes até atingir uma condição ou número de iterações"
         },
         "external": {
           "label": "Integrações Externas",
-          "description": "Conecta e executa integrações externas"
+          "description": "Delega para fluxos do Flowise, n8n, Typebot, Dify ou OpenAI"
         }
       },
       "badges": {
@@ -1361,7 +1388,8 @@
       "validationError": "Descreva brevemente o que seu agente faz (mínimo 10 caracteres)",
       "tip": "Dica:",
       "tipContent": "Seja claro e específico. Quanto mais detalhes você fornecer, melhor o agente entenderá seu papel e responderá de acordo.",
-      "generateWithAI": "Gerar com IA"
+      "generateWithAI": "Gerar com IA",
+      "aiNotConfigured": "Integração com OpenAI não configurada. Aceda a Definições → Integrações para ativar os recursos de IA."
     },
     "promptGenerator": {
       "title": "Gerador de Prompt com IA",
@@ -1493,9 +1521,6 @@
     },
     "notion": {
       "description": "Acesse e atualize páginas, databases e blocos do Notion."
-    },
-    "stripe": {
-      "description": "Gerencie pagamentos, assinaturas e informações de clientes no Stripe."
     },
     "stripe": {
       "description": "Gerencie pagamentos, assinaturas e informações de clientes no Stripe."

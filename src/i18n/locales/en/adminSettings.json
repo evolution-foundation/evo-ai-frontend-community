@@ -61,11 +61,7 @@
     "testConnection": "Test Connection",
     "testing": "Testing...",
     "testFailed": "Connection test failed",
-    "testError": "Failed to run connection test",
-    "envWarning": {
-      "title": "Heads up:",
-      "body": "Saving here persists the values, but the email service still reads SMTP credentials from environment variables at boot time. Until EVO-1049 ships, configure SMTP via env vars to take effect."
-    }
+    "testError": "Failed to run connection test"
   },
   "storage": {
     "title": "Storage Configuration",

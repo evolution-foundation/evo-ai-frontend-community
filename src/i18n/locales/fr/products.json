@@ -1,0 +1,123 @@
+{
+  "page": {
+    "title": "Produits",
+    "subtitle": "Catalogue de produits physiques et numériques utilisables par les agents IA.",
+    "loading": "Chargement..."
+  },
+  "header": {
+    "searchPlaceholder": "Rechercher par nom, SKU ou description",
+    "new": "Nouveau produit",
+    "filters": {
+      "kindAll": "Tous les types",
+      "statusAll": "Tous les statuts"
+    }
+  },
+  "kind": {
+    "physical": "Physique",
+    "digital": "Numérique"
+  },
+  "status": {
+    "active": "Actif",
+    "inactive": "Inactif",
+    "draft": "Brouillon"
+  },
+  "table": {
+    "empty": "Aucun produit pour le moment. Cliquez sur \"Nouveau produit\" pour commencer.",
+    "columns": {
+      "name": "Nom",
+      "sku": "SKU",
+      "kind": "Type",
+      "price": "Prix",
+      "status": "Statut",
+      "variants": "Variantes",
+      "actions": "Actions"
+    }
+  },
+  "modal": {
+    "createTitle": "Créer un produit",
+    "editTitle": "Modifier le produit",
+    "subtitle": "Remplissez les détails du catalogue. Utilisez des variantes pour les tailles/couleurs si nécessaire.",
+    "tabs": {
+      "general": "Général",
+      "media": "Médias",
+      "variants": "Variantes",
+      "labels": "Catégories"
+    }
+  },
+  "fields": {
+    "name": "Nom",
+    "namePlaceholder": "Ex.: T-shirt noir premium",
+    "kind": "Type",
+    "status": "Statut",
+    "sku": "SKU",
+    "stockQuantity": "Quantité en stock",
+    "defaultPrice": "Prix par défaut",
+    "currency": "Devise",
+    "purchaseUrl": "Lien d'achat",
+    "description": "Description",
+    "descriptionPlaceholder": "Courte description du produit (également visible par l'agent IA)",
+    "labels": "Catégories / étiquettes",
+    "labelsPlaceholder": "Séparées par des virgules, ex.: vetements, collection-ete",
+    "labelsHint": "Les catégories aident à filtrer les produits et peuvent être utilisées par les règles d'automatisation."
+  },
+  "media": {
+    "uploadHint": "Faites glisser des images ici ou utilisez le bouton ci-dessous.",
+    "selectFiles": "Sélectionner des fichiers",
+    "existing": "Images existantes",
+    "pending": "En attente de téléchargement"
+  },
+  "variants": {
+    "empty": "Aucune variante. Cliquez sur \"Ajouter une variante\".",
+    "add": "Ajouter une variante",
+    "name": "Nom (ex.: M, Bleu)",
+    "sku": "SKU",
+    "priceOverride": "Prix (remplace celui par défaut)",
+    "stock": "Stock",
+    "digitalHint": "Les variantes ne sont généralement pas utilisées pour les produits numériques."
+  },
+  "actions": {
+    "cancel": "Annuler",
+    "create": "Créer",
+    "update": "Mettre à jour",
+    "saving": "Enregistrement...",
+    "delete": "Supprimer",
+    "deleting": "Suppression...",
+    "edit": "Modifier"
+  },
+  "confirmDelete": {
+    "title": "Supprimer le produit ?",
+    "description": "Êtes-vous sûr de vouloir supprimer \"{{name}}\" ? Cette action est irréversible."
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "summary": "Page {{page}} sur {{totalPages}} — {{totalCount}} produits"
+  },
+  "messages": {
+    "loadError": "Échec du chargement des produits",
+    "createSuccess": "Produit créé",
+    "createError": "Échec de la création du produit",
+    "updateSuccess": "Produit mis à jour",
+    "updateError": "Échec de la mise à jour du produit",
+    "deleteSuccess": "Produit supprimé",
+    "deleteError": "Échec de la suppression du produit"
+  },
+  "pipelinePanel": {
+    "title": "Produits vendus",
+    "empty": "Aucun produit lié à cette carte pour le moment.",
+    "emptyList": "Aucun produit lié.",
+    "summary": "{{count}} produit(s) · total {{total}}",
+    "add": "Ajouter un produit",
+    "added": "Produit ajouté",
+    "addError": "Échec de l'ajout du produit",
+    "removed": "Produit retiré",
+    "removeError": "Échec de la suppression du produit",
+    "product": "Produit",
+    "selectProduct": "Sélectionnez un produit",
+    "variant": "Variante",
+    "selectVariant": "Sélectionnez une variante",
+    "noVariant": "Sans variante",
+    "quantity": "Quantité",
+    "notes": "Notes (facultatif)"
+  }
+}

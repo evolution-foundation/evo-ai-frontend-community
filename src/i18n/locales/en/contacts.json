@@ -5,7 +5,6 @@
     "actions": {
       "chat": "Chat",
       "viewDetails": "View details",
-      "viewEvents": "View events",
       "edit": "Edit contact",
       "delete": "Delete contact"
     }
@@ -68,148 +67,6 @@
       "invalidDate": "Invalid date"
     },
     "na": "N/A"
-  },
-  "events": {
-    "title": "{{name}} Events",
-    "subtitle": "Complete history of activities and interactions",
-    "stats": {
-      "title": "Event Statistics",
-      "loading": "Loading statistics...",
-      "empty": "No statistics available",
-      "total": "Total",
-      "events": "events",
-      "first": "First",
-      "last": "Last",
-      "event": "event",
-      "byType": "Events by Type:"
-    },
-    "timeline": {
-      "title": "Event History",
-      "loading": "Loading events...",
-      "empty": {
-        "title": "No events found",
-        "description": "This contact doesn't have any recorded events yet.",
-        "withFilters": "No events match the selected filters. Try adjusting the filters."
-      },
-      "filters": {
-        "title": "Filters",
-        "refresh": "Refresh",
-        "eventType": "Event type",
-        "eventName": "Event name",
-        "actions": "Actions",
-        "expand": "Expand",
-        "collapse": "Collapse",
-        "clear": "Clear filters"
-      },
-      "loadMore": "Load more events ({{remaining}} remaining)",
-      "showing": "Showing {{count}} of {{total}} events",
-      "page": "Page {{current}} of {{total}}",
-      "ago": {
-        "minutes": "{{count}} min ago",
-        "hours": "{{count}}h ago",
-        "yesterday": "Yesterday"
-      }
-    },
-    "types": {
-      "all": "All types",
-      "identify": "Identification",
-      "track": "Tracking",
-      "page": "Page",
-      "screen": "Screen"
-    },
-    "names": {
-      "all": "All events",
-      "contact_created": "Contact Created",
-      "contact_updated": "Contact Updated",
-      "label_added": "Label Added",
-      "label_removed": "Label Removed",
-      "custom_attribute_changed": "Custom Attribute Changed",
-      "conversation_created": "Conversation Created",
-      "conversation_updated": "Conversation Updated",
-      "conversation_deleted": "Conversation Deleted",
-      "message_created": "Message Created",
-      "message_updated": "Message Updated",
-      "message_deleted": "Message Deleted",
-      "pipeline_conversation_created": "Added to Pipeline",
-      "pipeline_conversation_updated": "Pipeline Updated",
-      "pipeline_conversation_added": "Added to Pipeline",
-      "pipeline_conversation_deleted": "Removed from Pipeline",
-      "pipeline_stage_changed": "Pipeline Stage Changed",
-      "pipeline_custom_fields_updated": "Pipeline Custom Fields",
-      "contactCreated": "Contact created",
-      "contactUpdated": "Contact updated",
-      "labelAdded": "Label added",
-      "labelRemoved": "Label removed",
-      "customAttributeChanged": "Custom attribute changed",
-      "conversationCreated": "Conversation created",
-      "conversationUpdated": "Conversation updated",
-      "messageCreated": "Message created",
-      "pipelineCreated": "Pipeline created",
-      "pipelineUpdated": "Pipeline updated"
-    },
-    "descriptions": {
-      "contact_created": "A new contact was created in the system",
-      "contact_updated": "{{count}} field(s) were changed",
-      "label_added": "Label \"{{labelName}}\" was added",
-      "label_removed": "Label \"{{labelName}}\" was removed",
-      "custom_attribute_changed": "Attribute \"{{attributeName}}\" was changed",
-      "conversation_created": "New conversation created in inbox \"{{inbox_name}}\"",
-      "conversation_updated": "Conversation updated ({{count}} changes)",
-      "message_created_incoming": "received from contact",
-      "message_created_outgoing": "sent by Team Member",
-      "pipeline_added": "Added to pipeline \"{{pipeline_name}}\" in stage \"{{pipeline_stage_name}}\"",
-      "pipeline_stage_changed": "Pipeline \"{{pipeline_name}}\": moved from \"{{old_stage_name}}\" to \"{{new_stage_name}}\"",
-      "pipeline_custom_fields": "Custom fields of pipeline \"{{pipeline_name}}\" updated (total value: {{value}})",
-      "system": "System event"
-    },
-    "card": {
-      "properties": "Properties ({{count}})",
-      "traits": "Traits ({{count}})",
-      "conversationChanges": "Conversation Changes",
-      "modified": "Modified",
-      "contactChanges": "Changes Made",
-      "changeTypes": {
-        "added": "Added",
-        "removed": "Removed",
-        "modified": "Modified"
-      },
-      "previous": "Previous:",
-      "new": "New:",
-      "pipelineAdded": "Added to Pipeline",
-      "pipeline": "Pipeline:",
-      "initialStage": "Initial Stage:",
-      "stageChange": "Stage Change",
-      "daysInPipeline": "Days in pipeline: {{days}}",
-      "daysInStage": "Days in current stage: {{days}}",
-      "services": "Services and Values",
-      "total": "Total:",
-      "message": "Message",
-      "messageTypes": {
-        "incoming": "📥 From Contact",
-        "outgoing": "📤 From Team Member"
-      },
-      "type": "Type: {{type}}",
-      "channel": "Channel: {{channel}}",
-      "labelAdded": "Label Added",
-      "labelRemoved": "Label Removed",
-      "customAttribute": "Custom Attribute",
-      "attribute": "Attribute:",
-      "value": "Value:",
-      "conversationFields": {
-        "updated_at": "Update timestamp modified",
-        "waiting_since": "Wait time updated",
-        "first_reply_created_at": "First reply recorded",
-        "cached_label_list": "Label list updated",
-        "status": "Conversation status changed",
-        "assignee_last_seen_at": "Last seen by Team Member",
-        "generic": "Field \"{{field}}\" was modified"
-      },
-      "inbox": "Inbox: {{name}}",
-      "channelType": "Channel: {{type}}",
-      "labelUnknown": "Unknown label",
-      "yes": "Yes",
-      "no": "No"
-    }
   },
   "export": {
     "title": "Export Contacts",
@@ -425,7 +282,6 @@
     "startConversation": "Start Conversation",
     "edit": "Edit",
     "delete": "Delete",
-    "viewEvents": "View Events",
     "cancel": "Cancel",
     "save": "Save",
     "confirm": "Confirm"
@@ -491,7 +347,8 @@
   },
   "type": {
     "person": "Person",
-    "company": "Company"
+    "company": "Company",
+    "group": "Group"
   },
   "filter": {
     "title": "Filter Contacts",
@@ -580,7 +437,6 @@
     },
     "actions": {
       "startConversation": "Start conversation",
-      "viewEvents": "View events",
       "edit": "Edit contact",
       "delete": "Delete contact",
       "create": "Create contact"

@@ -125,8 +125,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
         handleMenuClick={menuState.handleMenuClick}
       />
 
-      {/* Main Layout Container */}
-      <div className="flex flex-1 min-h-0 transition-colors duration-150 ease-in-out">
+      {/* Main Layout Container — `relative` is the positioning anchor for the collapsed sidebar flyout */}
+      <div className="flex flex-1 min-h-0 relative transition-colors duration-150 ease-in-out">
         {/* Sidebar */}
         <Sidebar
           isCollapsed={isCollapsed}
@@ -137,6 +137,20 @@ export default function MainLayout({ children }: MainLayoutProps) {
           handleMenuClick={menuState.handleMenuClick}
           setActiveSubmenu={menuState.setActiveSubmenu}
         />
+
+        {/* Backdrop for collapsed sidebar flyout — starts at left-16 so the icon sidebar remains clickable */}
+        {menuState.activeSubmenu && isCollapsed && (
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label={t('sidebar.closeSubmenu')}
+            className="hidden md:block absolute left-16 top-0 bottom-0 right-0 z-40"
+            onClick={() => menuState.setActiveSubmenu(null)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') menuState.setActiveSubmenu(null);
+            }}
+          />
+        )}
 
         {/* Main Content */}
         <main className="flex-1 overflow-auto bg-background transition-colors duration-150 ease-in-out">

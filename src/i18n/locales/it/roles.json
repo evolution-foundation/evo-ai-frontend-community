@@ -1,0 +1,72 @@
+{
+  "title": "Profili e Permessi",
+  "description": "Gestisci i profili e i loro permessi. I profili di sistema non possono essere eliminati, ma i loro permessi possono essere modificati.",
+  "header": {
+    "subtitle": "{{count}} profilo(i) configurato(i)",
+    "searchPlaceholder": "Cerca profili..."
+  },
+  "addRole": "Nuovo Profilo",
+  "editRole": "Modifica Profilo",
+  "deleteRole": "Elimina Profilo",
+  "backToList": "Torna ai Profili",
+  "savePermissions": "Salva Permessi",
+  "saving": "Salvataggio...",
+  "noRoles": "Nessun profilo trovato",
+  "noRolesDescription": "Crea un profilo personalizzato per iniziare.",
+  "table": {
+    "name": "Nome",
+    "description": "Descrizione",
+    "type": "Tipo",
+    "permissions": "Permessi",
+    "users": "Utenti",
+    "actions": "Azioni"
+  },
+  "type": {
+    "user": "Utente",
+    "account": "Account"
+  },
+  "badges": {
+    "system": "Sistema",
+    "custom": "Personalizzato"
+  },
+  "detail": {
+    "permissionsTitle": "Permessi",
+    "permissionsDescription": "Seleziona i permessi che questo profilo deve avere. Le modifiche hanno effetto al prossimo accesso dell'utente.",
+    "permissionsSelected": "permessi selezionati",
+    "selectAll": "Seleziona tutti",
+    "deselectAll": "Deseleziona tutti",
+    "noPermissions": "Nessun permesso disponibile."
+  },
+  "createModal": {
+    "title": "Crea Profilo",
+    "description": "Definisci un nome e una descrizione opzionale per il nuovo profilo. Puoi configurare i permessi dopo la creazione.",
+    "nameLabel": "Nome",
+    "namePlaceholder": "es. Agente Supporto",
+    "descriptionLabel": "Descrizione",
+    "descriptionPlaceholder": "Breve descrizione di questo profilo",
+    "cancel": "Annulla",
+    "create": "Crea Profilo",
+    "creating": "Creazione..."
+  },
+  "deleteDialog": {
+    "title": "Elimina Profilo",
+    "description": "Sei sicuro di voler eliminare il profilo \"{{name}}\"? Questa azione non può essere annullata.",
+    "cancel": "Annulla",
+    "confirm": "Elimina",
+    "deleting": "Eliminazione..."
+  },
+  "messages": {
+    "createSuccess": "Profilo creato con successo",
+    "createError": "Errore nella creazione del profilo",
+    "updateSuccess": "Profilo aggiornato con successo",
+    "updateError": "Errore nell'aggiornamento del profilo",
+    "deleteSuccess": "Profilo eliminato con successo",
+    "deleteError": "Errore nell'eliminazione del profilo",
+    "permissionsSuccess": "Permessi salvati con successo",
+    "permissionsError": "Errore nel salvataggio dei permessi",
+    "loadError": "Errore nel caricamento dei profili",
+    "systemRoleCannotDelete": "I profili di sistema non possono essere eliminati",
+    "roleHasUsers": "Impossibile eliminare un profilo con utenti assegnati"
+  },
+  "saveChanges": "Salva modifiche"
+}

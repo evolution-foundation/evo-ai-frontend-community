@@ -22,6 +22,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { adminConfigService } from '@/services/admin/adminConfigService';
 import { extractError } from '@/utils/apiHelpers';
 import type { AdminConfigData } from '@/types/admin/adminConfig';
+import { ClearConfigButton } from '@/components/admin/ClearConfigButton';
 
 // --- Types ---
 
@@ -407,6 +408,7 @@ export default function StorageConfig() {
                   {testing ? t('storage.testing') : t('storage.testConnection')}
                 </Button>
               )}
+              <ClearConfigButton configType="storage" configLabel="Storage" onCleared={() => { reset(); loadConfig(); }} />
             </div>
           </form>
         </CardContent>

@@ -1,0 +1,110 @@
+import type {
+  MessageTemplate,
+  MessageTemplateComponent,
+  MessageTemplateVariable,
+  TemplateFormData,
+} from '@/types/channels/inbox';
+
+const VARIABLE_PATTERN = /\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/g;
+
+const normalizeVariable = (
+  variable: MessageTemplateVariable | string,
+  fallbackIndex = 0,
+): MessageTemplateVariable => {
+  if (typeof variable === 'string') {
+    return {
+      name: variable,
+      label: variable,
+      type: 'text',
+      required: true,
+      position: Number.isFinite(Number(variable)) ? Number(variable) : fallbackIndex + 1,
+    };
+  }
+
+  return {
+    type: 'text',
+    required: true,
+    label: variable.name,
+    position: fallbackIndex + 1,
+    ...variable,
+  };
+};
+
+const extractFromText = (
+  text: string | undefined,
+  component?: MessageTemplateVariable['component'],
+): MessageTemplateVariable[] => {
+  if (!text) return [];
+
+  return Array.from(text.matchAll(VARIABLE_PATTERN), (match, index) => ({
+    name: match[1],
+    label: match[1],
+    type: 'text' as const,
+    required: true,
+    position: Number.isFinite(Number(match[1])) ? Number(match[1]) : index + 1,
+    component,
+  }));
+};
+
+const componentList = (
+  components?: MessageTemplate['components'],
+): MessageTemplateComponent[] => {
+  if (!components) return [];
+  return Array.isArray(components) ? components : Object.values(components);
+};
+
+export const normalizeTemplateVariables = (
+  variables?: Array<MessageTemplateVariable | string>,
+): MessageTemplateVariable[] => {
+  const seen = new Set<string>();
+
+  return (variables ?? [])
+    .map(normalizeVariable)
+    .filter(variable => {
+      if (!variable.name || seen.has(variable.name)) return false;
+      seen.add(variable.name);
+      return true;
+    });
+};
+
+export const extractTemplateVariables = (
+  template: Pick<MessageTemplate, 'content' | 'components' | 'variables'>,
+): MessageTemplateVariable[] => {
+  const declared = normalizeTemplateVariables(template.variables);
+  const extracted = [
+    ...componentList(template.components).flatMap(component =>
+      extractFromText(component.text, component.type === 'FOOTER' ? undefined : component.type),
+    ),
+    ...extractFromText(template.content),
+  ];
+
+  const byName = new Map<string, MessageTemplateVariable>();
+  extracted.forEach(variable => byName.set(variable.name, variable));
+  declared.forEach(variable => byName.set(variable.name, { ...byName.get(variable.name), ...variable }));
+
+  return Array.from(byName.values()).sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+};
+
+export const extractTemplateFormVariables = (formData: TemplateFormData): MessageTemplateVariable[] =>
+  extractTemplateVariables({
+    content: [formData.headerText, formData.bodyText, formData.footerText, formData.content]
+      .filter(Boolean)
+      .join('\n\n'),
+    components: [
+      ...(formData.headerText
+        ? [{ type: 'HEADER' as const, text: formData.headerText }]
+        : []),
+      ...(formData.bodyText
+        ? [{ type: 'BODY' as const, text: formData.bodyText }]
+        : []),
+    ],
+    variables: formData.variables,
+  });
+
+export const buildInitialVariableParams = (
+  variables: MessageTemplateVariable[],
+): Record<string, string> =>
+  variables.reduce<Record<string, string>>((acc, variable) => {
+    acc[variable.name] = variable.default_value ?? variable.example ?? '';
+    return acc;
+  }, {});

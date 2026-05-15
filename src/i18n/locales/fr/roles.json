@@ -1,0 +1,72 @@
+{
+  "title": "Profils et Permissions",
+  "description": "Gérez les profils et leurs permissions. Les profils système ne peuvent pas être supprimés, mais leurs permissions peuvent être modifiées.",
+  "header": {
+    "subtitle": "{{count}} profil(s) configuré(s)",
+    "searchPlaceholder": "Rechercher des profils..."
+  },
+  "addRole": "Nouveau Profil",
+  "editRole": "Modifier le Profil",
+  "deleteRole": "Supprimer le Profil",
+  "backToList": "Retour aux Profils",
+  "savePermissions": "Enregistrer les Permissions",
+  "saving": "Enregistrement...",
+  "noRoles": "Aucun profil trouvé",
+  "noRolesDescription": "Créez un profil personnalisé pour commencer.",
+  "table": {
+    "name": "Nom",
+    "description": "Description",
+    "type": "Type",
+    "permissions": "Permissions",
+    "users": "Utilisateurs",
+    "actions": "Actions"
+  },
+  "type": {
+    "user": "Utilisateur",
+    "account": "Compte"
+  },
+  "badges": {
+    "system": "Système",
+    "custom": "Personnalisé"
+  },
+  "detail": {
+    "permissionsTitle": "Permissions",
+    "permissionsDescription": "Cochez les permissions que ce profil doit avoir. Les modifications prennent effet à la prochaine connexion de l'utilisateur.",
+    "permissionsSelected": "permissions sélectionnées",
+    "selectAll": "Tout sélectionner",
+    "deselectAll": "Tout désélectionner",
+    "noPermissions": "Aucune permission disponible."
+  },
+  "createModal": {
+    "title": "Créer un Profil",
+    "description": "Définissez un nom et une description optionnelle pour le nouveau profil. Vous pouvez configurer les permissions après la création.",
+    "nameLabel": "Nom",
+    "namePlaceholder": "ex. Agent Support",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Brève description de ce profil",
+    "cancel": "Annuler",
+    "create": "Créer le Profil",
+    "creating": "Création..."
+  },
+  "deleteDialog": {
+    "title": "Supprimer le Profil",
+    "description": "Êtes-vous sûr de vouloir supprimer le profil \"{{name}}\" ? Cette action est irréversible.",
+    "cancel": "Annuler",
+    "confirm": "Supprimer",
+    "deleting": "Suppression..."
+  },
+  "messages": {
+    "createSuccess": "Profil créé avec succès",
+    "createError": "Échec de la création du profil",
+    "updateSuccess": "Profil mis à jour avec succès",
+    "updateError": "Échec de la mise à jour du profil",
+    "deleteSuccess": "Profil supprimé avec succès",
+    "deleteError": "Échec de la suppression du profil",
+    "permissionsSuccess": "Permissions enregistrées avec succès",
+    "permissionsError": "Échec de l'enregistrement des permissions",
+    "loadError": "Échec du chargement des profils",
+    "systemRoleCannotDelete": "Les profils système ne peuvent pas être supprimés",
+    "roleHasUsers": "Impossible de supprimer un profil avec des utilisateurs assignés"
+  },
+  "saveChanges": "Enregistrer les modifications"
+}

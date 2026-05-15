@@ -20,6 +20,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { adminConfigService } from '@/services/admin/adminConfigService';
 import { extractError } from '@/utils/apiHelpers';
 import { refreshGlobalConfig } from '@/contexts/GlobalConfigContext';
+import { ClearConfigButton } from '@/components/admin/ClearConfigButton';
 import type { AdminConfigData } from '@/types/admin/adminConfig';
 
 // Sentinel used when the backend reports a secret as "configured" (masked).
@@ -344,9 +345,12 @@ interface ChannelFormCardProps {
   onDismissError: () => void;
   t: (key: string) => string;
   children: React.ReactNode;
+  clearConfigType?: string;
+  clearConfigLabel?: string;
+  onCleared?: () => void;
 }
 
-function ChannelFormCard({ onSubmit, saving, canSubmit, saveError, onDismissError, t, children }: ChannelFormCardProps) {
+function ChannelFormCard({ onSubmit, saving, canSubmit, saveError, onDismissError, t, children, clearConfigType, clearConfigLabel, onCleared }: ChannelFormCardProps) {
   return (
     <Card>
       <CardContent className="pt-6">
@@ -368,11 +372,14 @@ function ChannelFormCard({ onSubmit, saving, canSubmit, saveError, onDismissErro
             </div>
           )}
           {children}
-          <div className="pt-2">
+          <div className="pt-2 flex gap-3">
             <Button type="submit" disabled={saving || !canSubmit}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {saving ? t('channels.saving') : t('channels.save')}
             </Button>
+            {clearConfigType && clearConfigLabel && (
+              <ClearConfigButton configType={clearConfigType} configLabel={clearConfigLabel} onCleared={onCleared} />
+            )}
           </div>
         </form>
       </CardContent>
@@ -901,6 +908,9 @@ export default function ChannelConfig() {
             saveError={evoSaveError}
             onDismissError={() => setEvoSaveError(null)}
             t={t}
+            clearConfigType="evolution"
+            clearConfigLabel="Evolution API"
+            onCleared={() => { evolutionForm.reset(); loadConfig(); }}
           >
             <TextField
               id="EVOLUTION_API_URL"
@@ -935,6 +945,9 @@ export default function ChannelConfig() {
             saveError={evoGoSaveError}
             onDismissError={() => setEvoGoSaveError(null)}
             t={t}
+            clearConfigType="evolution_go"
+            clearConfigLabel="Evolution Go"
+            onCleared={() => { evolutionGoForm.reset(); loadConfig(); }}
           >
             <TextField
               id="EVOLUTION_GO_API_URL"

@@ -671,9 +671,8 @@ export interface EmailChannel {
 // ============================================
 
 export interface NotificameVerifyPayload {
-  api_url: string;
-  admin_token: string;
-  instance_id: string;
+  api_token: string;
+  channel_id: string;
   phone_number: string;
 }
 
@@ -690,6 +689,7 @@ export interface NotificameVerifyResponse {
   success: boolean;
   message?: string;
   error?: string;
+  channels: NotificameChannel[];
 }
 
 // ============================================
@@ -708,6 +708,18 @@ export type MessageTemplateComponent = {
   }>;
 };
 
+export type MessageTemplateVariable = {
+  name: string;
+  label?: string;
+  type?: 'text' | 'number' | 'date' | 'currency' | 'url';
+  required?: boolean;
+  default_value?: string;
+  source?: string;
+  example?: string;
+  position?: number;
+  component?: 'HEADER' | 'BODY' | 'BUTTONS';
+};
+
 export interface MessageTemplate {
   id?: string;
   name: string;
@@ -721,7 +733,7 @@ export interface MessageTemplate {
    * - Array format (Legacy/Other providers): [{ type: 'BODY', ... }, ...]
    */
   components?: MessageTemplateComponent[] | Record<string, MessageTemplateComponent>;
-  variables?: string[];
+  variables?: MessageTemplateVariable[];
   media_url?: string;
   media_type?: string;
   settings?: Record<string, unknown>;
@@ -751,7 +763,7 @@ export interface TemplateFormData {
   }>;
   mediaUrl?: string;
   mediaType?: string;
-  variables?: string[];
+  variables?: MessageTemplateVariable[];
   settings?: Record<string, unknown>;
   metadata?: Record<string, unknown>;
   active?: boolean;

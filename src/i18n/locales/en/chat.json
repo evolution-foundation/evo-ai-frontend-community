@@ -61,7 +61,12 @@
     "messageFile": {
       "fileFallback": "file",
       "unknownSize": "Unknown size",
-      "fileFallbackTitle": "File"
+      "fileFallbackTitle": "File",
+      "downloadFallbackOpenedInNewTab": "File opened in new tab",
+      "downloadFallbackReason": {
+        "serverError": "Server returned {{status}} — could not download directly.",
+        "network": "Network error or CORS block — could not download directly."
+      }
     },
     "messageImage": {
       "downloadStarted": "Download started",
@@ -285,17 +290,25 @@
       "assignAgent": "Assign Team Member",
       "assignTeam": "Assign Team",
       "assignTag": "Assign Label",
-      "deleteConversation": "Delete conversation"
+      "deleteConversation": "Delete conversation",
+      "bulkResolveSuccess": "{{count}} conversation(s) resolved",
+      "bulkResolvePartialSuccess": "{{success}} resolved, {{failed}} failed",
+      "bulkResolveError": "Error resolving conversations",
+      "bulkResolveNoPermission": "You do not have permission to resolve conversations"
     },
     "contactNoName": "Contact without name",
     "status": "Status:",
     "openConversation": "Open Conversation",
-    "closeConversation": "Close conversation"
+    "closeConversation": "Close conversation",
+    "phoneNumber": "Phone number"
   },
   "chatSidebar": {
     "searchPlaceholder": "Search conversations...",
     "conversation": "conversation",
     "conversations": "conversations",
+    "selectedCount_one": "{{count}} conversation selected",
+    "selectedCount_other": "{{count}} conversations selected",
+    "selectConversation": "Select conversation",
     "filter": "filter",
     "filters": "filters",
     "filtersButton": "Filters",
@@ -320,7 +333,8 @@
       "noMessages": "No messages",
       "noContent": "Message without content"
     },
-    "contactNoName": "Contact without name"
+    "contactNoName": "Contact without name",
+    "phoneNumber": "Phone number"
   },
   "chatTabs": {
     "chat": "Chat"
@@ -368,7 +382,10 @@
     },
     "contactHeader": {
       "contactNoName": "Contact without name",
-      "online": "Online"
+      "online": "Online",
+      "away": "Away",
+      "busy": "Busy",
+      "offline": "Offline"
     },
     "contactDetails": {
       "actions": {
@@ -454,40 +471,6 @@
         "description": "Are you sure you want to execute the macro {{name}}? This action will apply {{count}} {{actionLabel}} to this conversation.",
         "cancel": "Cancel",
         "execute": "Execute Macro"
-      }
-    },
-    "pipeline": {
-      "loading": "Error loading pipeline data",
-      "noPipelines": "No pipeline configured",
-      "current": "Current Pipeline",
-      "label": "Pipeline",
-      "selectPipeline": "Select a pipeline",
-      "selectStage": "Select a stage",
-      "stage": "Stage",
-      "saving": "Saving...",
-      "save": "Save",
-      "saveSuccess": "Pipeline updated successfully",
-      "saveError": "Error updating pipeline",
-      "selectError": "Select a pipeline and a stage",
-      "removeSuccess": "Conversation removed from pipeline",
-      "removeError": "Error removing from pipeline",
-      "dialogs": {
-        "update": {
-          "title": "Update Pipeline",
-          "description": "Are you sure you want to move this conversation to {{pipelineName}} at stage {{stageName}}?",
-          "confirm": "Update"
-        },
-        "add": {
-          "title": "Add to Pipeline",
-          "description": "Are you sure you want to add this conversation to pipeline {{pipelineName}} at stage {{stageName}}?",
-          "confirm": "Add"
-        },
-        "remove": {
-          "title": "Remove from Pipeline",
-          "description": "Are you sure you want to remove this conversation from pipeline {{pipelineName}}? This action cannot be undone.",
-          "cancel": "Cancel",
-          "confirm": "Remove"
-        }
       }
     },
     "filters": {
@@ -962,5 +945,19 @@
       "contactsEmpty": "No contacts found",
       "messagesEmpty": "No messages found"
     }
+  },
+  "pipeline": {
+    "section": "Pipeline",
+    "addTo": "Add to pipeline",
+    "removeFrom": "Remove from pipeline",
+    "loading": "Loading pipelines...",
+    "noPipelines": "No pipelines available",
+    "loadError": "Error loading pipelines. Click to retry.",
+    "addSuccess": "Added to pipeline",
+    "moveSuccess": "Moved to stage",
+    "removeSuccess": "Removed from pipeline",
+    "addError": "Error adding to pipeline",
+    "moveError": "Error moving to stage",
+    "removeError": "Error removing from pipeline"
   }
 }

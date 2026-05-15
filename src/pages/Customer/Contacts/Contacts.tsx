@@ -30,7 +30,6 @@ import ContactDetails from '@/components/contacts/ContactDetails';
 import ContactsFilter from '@/components/contacts/ContactsFilter';
 import ContactImportModal from '@/components/contacts/ContactImportModal';
 import ContactExportModal from '@/components/contacts/ContactExportModal';
-import ContactEventsModal from '@/components/contacts/ContactEventsModal';
 import ContactMergeModal from '@/components/contacts/ContactMergeModal';
 import { AxiosError } from 'axios';
 import { ContactsTour } from '@/tours';
@@ -80,8 +79,6 @@ export default function Contacts() {
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilter[]>([]);
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
-  const [eventsModalOpen, setEventsModalOpen] = useState(false);
-  const [eventsContact, setEventsContact] = useState<Contact | null>(null);
   const [mergeModalOpen, setMergeModalOpen] = useState(false);
   const [contactsToMerge, setContactsToMerge] = useState<Contact[]>([]);
 
@@ -471,11 +468,6 @@ export default function Contacts() {
     setConversationModalOpen(true);
   };
 
-  const handleViewEvents = (contact: Contact) => {
-    setEventsContact(contact);
-    setEventsModalOpen(true);
-  };
-
   // Bulk actions
   const handleBulkDelete = () => {
     setBulkDeleteDialogOpen(true);
@@ -709,13 +701,6 @@ export default function Contacts() {
     }
   };
 
-  const handleEventsModalClose = (open: boolean) => {
-    if (!open) {
-      setEventsModalOpen(false);
-      setEventsContact(null);
-    }
-  };
-
   const handleMergeModalClose = (open: boolean) => {
     if (!open) {
       setMergeModalOpen(false);
@@ -792,7 +777,6 @@ export default function Contacts() {
                 onViewDetails={handleContactClick}
                 onStartConversation={handleStartConversation}
                 onEdit={handleEditContact}
-                onViewEvents={handleViewEvents}
               />
             ))}
           </div>
@@ -812,7 +796,6 @@ export default function Contacts() {
             onContactClick={handleContactClick}
             onStartConversation={handleStartConversation}
             onEditContact={handleEditContact}
-            onViewEvents={handleViewEvents}
             onCreateContact={handleCreateContact}
             sortBy={state.sortBy}
             sortOrder={state.sortOrder}
@@ -951,13 +934,6 @@ export default function Contacts() {
         loading={state.loading.export}
         activeFilters={activeFilters}
         totalCount={state.meta.pagination.total}
-      />
-
-      {/* Contact Events Modal */}
-      <ContactEventsModal
-        open={eventsModalOpen}
-        onOpenChange={handleEventsModalClose}
-        contact={eventsContact}
       />
 
       {/* Contact Merge Modal */}

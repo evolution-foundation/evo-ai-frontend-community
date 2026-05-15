@@ -1,0 +1,248 @@
+{
+  "page": {
+    "title": "Automations",
+    "subtitle": "{{count}} automation rules",
+    "searchPlaceholder": "Search by name",
+    "newAutomation": "New automation",
+    "bulkDelete": "Delete selected",
+    "clearSelection": "Clear ({{count}})",
+    "loading": "Loading...",
+    "empty": {
+      "title": "No automations yet",
+      "description": "Create rules that fire on events like new conversations, contacts and pipeline stage changes.",
+      "action": "Create your first automation"
+    }
+  },
+  "table": {
+    "columns": {
+      "name": "Name",
+      "event": "Event",
+      "status": "Status",
+      "actionsCount": "Actions",
+      "createdAt": "Created"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "edit": "Edit",
+      "clone": "Clone",
+      "delete": "Delete"
+    }
+  },
+  "form": {
+    "title": {
+      "create": "New automation",
+      "edit": "Edit automation"
+    },
+    "tabs": {
+      "settings": "Settings",
+      "logs": "Logs"
+    },
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "e.g. Notify sales when conversation enters Won",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional context for your team",
+      "active": "Active",
+      "event": {
+        "label": "Trigger event",
+        "placeholder": "Select an event",
+        "hint": "Tip: to react to a transition (e.g. status moved from Open to Resolved, or a label was added), use the \"Attribute changed\" operator. Plain \"Equals\" re-fires on every update while the value stays the same.",
+        "options": {
+          "conversation_created": "Conversation created",
+          "conversation_updated": "Conversation updated",
+          "conversation_opened": "Conversation opened",
+          "message_created": "Message created",
+          "pipeline_stage_updated": "Pipeline stage updated",
+          "contact_created": "Contact created",
+          "contact_updated": "Contact updated",
+          "conversation_resolved": "Conversation resolved",
+          "conversation_status_changed": "Conversation status changed"
+        }
+      },
+      "conditions": {
+        "label": "Conditions",
+        "addRow": "Add condition",
+        "empty": "No conditions — this rule will fire on every event."
+      },
+      "actions": {
+        "label": "Actions",
+        "addRow": "Add action",
+        "empty": "Add at least one action.",
+        "send_message": "Send message",
+        "send_canned_response": "Send canned response",
+        "send_template": "Send template",
+        "add_label": "Add label",
+        "remove_label": "Remove label",
+        "send_email_to_team": "Send email to team",
+        "assign_team": "Assign team",
+        "assign_agent": "Assign agent",
+        "send_webhook_event": "Send webhook event",
+        "mute_conversation": "Mute conversation",
+        "send_attachment": "Send attachment",
+        "change_status": "Change status",
+        "resolve_conversation": "Resolve conversation",
+        "snooze_conversation": "Snooze conversation",
+        "change_priority": "Change priority",
+        "send_email_transcript": "Send email transcript",
+        "assign_to_pipeline": "Assign to pipeline",
+        "update_pipeline_stage": "Update pipeline stage",
+        "create_pipeline_task": "Create pipeline task"
+      },
+      "conditionRow": {
+        "attribute": "Attribute",
+        "operator": "Operator",
+        "value": "Value",
+        "from": "From",
+        "to": "To",
+        "remove": "Remove condition",
+        "noValueNeeded": "No value needed"
+      },
+      "boolean": {
+        "true": "Yes",
+        "false": "No"
+      },
+      "actionRow": {
+        "action": "Action",
+        "remove": "Remove action",
+        "selectActionFirst": "Select an action to configure",
+        "noParams": "No parameters required",
+        "params": {
+          "send_message": "Message content",
+          "send_canned_response": "Pick a canned response",
+          "send_template": "Pick a template",
+          "send_webhook_event": "Webhook URL",
+          "send_email_transcript": "Recipient email",
+          "assign_team": "Pick a team",
+          "assign_agent": "Pick an agent",
+          "add_label": "Pick a label",
+          "remove_label": "Pick a label",
+          "change_priority": "Pick a priority",
+          "change_status": "Pick a status",
+          "assign_to_pipeline": "Pick a pipeline",
+          "update_pipeline_stage": "Pick a pipeline stage",
+          "send_email_to_team": "Email body",
+          "create_pipeline_task": "Task title",
+          "create_pipeline_task_description": "Description (optional)",
+          "create_pipeline_task_type": "Type (optional)",
+          "create_pipeline_task_priority": "Priority (optional)",
+          "create_pipeline_task_assignee": "Assignee user ID (optional)",
+          "create_pipeline_task_due_in": "Due in (e.g., 2d, 1w)",
+          "send_attachment_ids": "Attachment IDs (comma-separated)",
+          "send_attachment_inbox": "Channel ID (optional)"
+        }
+      },
+      "operators": {
+        "equal_to": "Equals",
+        "not_equal_to": "Does not equal",
+        "contains": "Contains",
+        "does_not_contain": "Does not contain",
+        "is_present": "Is present",
+        "is_not_present": "Is not present",
+        "is_greater_than": "Greater than",
+        "is_less_than": "Less than",
+        "days_before": "Days before",
+        "starts_with": "Starts with",
+        "attribute_changed": "Attribute changed",
+        "is_in": "Is in",
+        "is_not_in": "Is not in",
+        "labels": {
+          "equal_to": "Has this label",
+          "not_equal_to": "Does not have this label",
+          "attribute_changed": "Label changed"
+        }
+      },
+      "attributes": {
+        "status": "Status",
+        "assignee_id": "Assignee",
+        "inbox_id": "Channel",
+        "team_id": "Team",
+        "priority": "Priority",
+        "labels": "Labels",
+        "country_code": "Country code",
+        "referer": "Referer",
+        "mail_subject": "Mail subject",
+        "content": "Message content",
+        "message_type": "Message type",
+        "name": "Name",
+        "email": "Email",
+        "phone_number": "Phone number",
+        "identifier": "Identifier",
+        "city": "City",
+        "company": "Company",
+        "blocked": "Blocked",
+        "pipeline_id": "Pipeline",
+        "pipeline_stage_id": "Pipeline stage"
+      }
+    },
+    "buttons": {
+      "create": "Create",
+      "update": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel"
+    }
+  },
+  "dialog": {
+    "delete": {
+      "title": "Delete automation",
+      "description": "Are you sure you want to delete \"{{name}}\"? This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "deleting": "Deleting..."
+    },
+    "bulkDelete": {
+      "title": "Delete automations",
+      "description": "Are you sure you want to delete {{count}} automations? This cannot be undone.",
+      "confirm": "Delete all",
+      "cancel": "Cancel",
+      "deleting": "Deleting..."
+    }
+  },
+  "logs": {
+    "title": "Execution logs",
+    "description": "Most recent executions of this automation rule.",
+    "refresh": "Refresh",
+    "empty": "No executions recorded yet for this rule.",
+    "filters": {
+      "all": "All statuses",
+      "matched": "Matched",
+      "no_match": "No match",
+      "skipped": "Skipped",
+      "error": "Error"
+    },
+    "status": {
+      "matched": "Matched",
+      "no_match": "No match",
+      "skipped": "Skipped",
+      "error": "Error"
+    },
+    "detail": {
+      "timeline": "Timeline",
+      "payload": "Payload"
+    }
+  },
+  "messages": {
+    "loadError": "Failed to load automations",
+    "bulkDeletePartial": "{{success}} deleted, {{failed}} failed",
+    "ruleNotFound": "Automation rule not found",
+    "createSuccess": "Automation created",
+    "createError": "Failed to create automation",
+    "updateSuccess": "Automation updated",
+    "updateError": "Failed to update automation",
+    "deleteSuccess": "Automation deleted",
+    "deleteError": "Failed to delete automation",
+    "bulkDeleteSuccess": "{{count}} automations deleted",
+    "bulkDeleteError": "Failed to delete automations",
+    "cloneSuccess": "Automation cloned",
+    "cloneError": "Failed to clone automation",
+    "permissionDenied": {
+      "read": "You don't have permission to view automations",
+      "create": "You don't have permission to create automations",
+      "update": "You don't have permission to edit automations",
+      "delete": "You don't have permission to delete automations",
+      "clone": "You don't have permission to clone automations"
+    }
+  }
+}

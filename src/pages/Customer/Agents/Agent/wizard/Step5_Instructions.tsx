@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Textarea, Label, Button } from '@evoapi/design-system';
+import { Textarea, Label, Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@evoapi/design-system';
 import { ArrowRight, ArrowLeft, Sparkles, Wand2, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useGlobalConfig } from '@/contexts/GlobalConfigContext';
@@ -74,42 +74,63 @@ const Step5_Instructions = ({ data, onChange, onNext, onBack }: Step5Props) => {
           <Label className="text-sm font-semibold">
             {t('wizard.step5.instructionLabel')} <span className="text-red-500">*</span>
           </Label>
-          {showAIActions && (
+          <TooltipProvider>
             <div className="flex gap-2">
               {data.instruction && data.instruction.trim() && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleReview}
-                  disabled={isReviewing}
-                  className="gap-2"
-                >
-                  {isReviewing ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      {t('wizard.promptGenerator.buttons.reviewing')}
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="h-4 w-4 text-blue-500" />
-                      {t('wizard.promptGenerator.buttons.review')}
-                    </>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleReview}
+                      disabled={isReviewing || !showAIActions}
+                      aria-disabled={isReviewing || !showAIActions}
+                      className="gap-2"
+                    >
+                      {isReviewing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          {t('wizard.promptGenerator.buttons.reviewing')}
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="h-4 w-4 text-blue-500" />
+                          {t('wizard.promptGenerator.buttons.review')}
+                        </>
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  {!showAIActions && (
+                    <TooltipContent>
+                      <p>{t('wizard.step5.aiNotConfigured')}</p>
+                    </TooltipContent>
                   )}
-                </Button>
+                </Tooltip>
               )}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setShowPromptModal(true)}
-                className="gap-2"
-              >
-                <Sparkles className="h-4 w-4 text-purple-500" />
-                {t('wizard.step5.generateWithAI')}
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowPromptModal(true)}
+                    disabled={!showAIActions}
+                    aria-disabled={!showAIActions}
+                    className="gap-2"
+                  >
+                    <Sparkles className="h-4 w-4 text-purple-500" />
+                    {t('wizard.step5.generateWithAI')}
+                  </Button>
+                </TooltipTrigger>
+                {!showAIActions && (
+                  <TooltipContent>
+                    <p>{t('wizard.step5.aiNotConfigured')}</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
             </div>
-          )}
+          </TooltipProvider>
         </div>
         <Textarea
           value={data.instruction || ''}

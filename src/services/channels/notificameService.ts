@@ -19,17 +19,21 @@ class NotificameService {
    */
   async verifyConnection(payload: NotificameVerifyPayload): Promise<NotificameVerifyResponse> {
     const response = await api.post(`/channels/notificame/verify`, {
-      api_url: payload.api_url,
-      admin_token: payload.admin_token,
-      instance_id: payload.instance_id,
+      api_token: payload.api_token,
+      channel_id: payload.channel_id,
       phone_number: payload.phone_number,
     });
 
+    // Backend envelope is `{ success, data: { channels: [...] }, message }`.
+    // The previous version read `response.data?.channels` (wrong nesting) and
+    // also spread `...response.data` at the end, which clobbered the literal
+    // `success` and `message` with values from a higher level of the response.
+    const body = response.data ?? {};
+    const inner = body.data ?? {};
     return {
-      success: true,
-      message: response.data?.message || 'Conexão verificada com sucesso',
-      channels: response.data?.channels || [],
-      ...response.data,
+      success: body.success ?? true,
+      message: body.message || 'Conexão verificada com sucesso',
+      channels: inner.channels ?? [],
     };
   }
 
