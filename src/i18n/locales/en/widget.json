@@ -129,5 +129,23 @@
     "invalidEmail": "Please enter a valid email",
     "success": "Email saved successfully!",
     "error": "Error saving email. Please try again."
+  },
+  "preChatForm": {
+    "message": "Message",
+    "messagePlaceholder": "Type your message here...",
+    "startConversation": "Start Conversation",
+    "starting": "Starting...",
+    "selectOption": "Select an option",
+    "provideDetails": "Please provide your details to continue",
+    "validation": {
+      "invalidEmail": "Invalid email address",
+      "invalidPhone": "Invalid phone. Use international format (e.g. +12125551234)",
+      "invalidUrl": "Invalid URL",
+      "invalidNumber": "Invalid number",
+      "invalidDate": "Invalid date",
+      "invalidFormat": "Invalid format",
+      "required": "This field is required",
+      "messageRequired": "Message is required"
+    }
   }
 }

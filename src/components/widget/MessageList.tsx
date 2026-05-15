@@ -1,6 +1,6 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { enUS, es, fr, it, pt, ptBR } from 'date-fns/locale';
 import { useLanguage } from '@/hooks/useLanguage';
 
 import type { AttachmentFile } from '@/types/core';
@@ -79,9 +79,14 @@ const MessageList: React.FC<MessageListProps> = ({
   hasMore = true,
   onEmailSubmitted,
 }) => {
-  const { t } = useLanguage('widget');
+  const { t, currentLanguage } = useLanguage('widget');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const shouldScrollToBottom = useRef(true);
+
+  const dateLocale = useMemo(() => {
+    const map: Record<string, typeof enUS> = { en: enUS, es, fr, it, pt, 'pt-BR': ptBR };
+    return map[currentLanguage] ?? enUS;
+  }, [currentLanguage]);
 
   const sanitizeMessageHTML = (html: string): string => {
     if (!html) return '';
@@ -326,7 +331,7 @@ const MessageList: React.FC<MessageListProps> = ({
               >
                 <span className="text-[10px] text-slate-400">
                   {m.ts
-                    ? formatDistanceToNow(new Date(m.ts), { addSuffix: true, locale: ptBR })
+                    ? formatDistanceToNow(new Date(m.ts), { addSuffix: true, locale: dateLocale })
                     : ''}
                 </span>
                 {m.type === 'out' && m.status === 'sending' && (

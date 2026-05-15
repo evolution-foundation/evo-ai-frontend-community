@@ -22,7 +22,14 @@ interface PreChatFormProps {
   widgetColor?: string;
   onSubmit: (data: PreChatSubmissionData) => void;
   isLoading?: boolean;
+  serverErrors?: Record<string, string[]>;
 }
+
+const SERVER_TO_FORM_FIELD: Record<string, string> = {
+  email: 'emailAddress',
+  phone_number: 'phoneNumber',
+  name: 'fullName',
+};
 
 // Validation schema factory
 const createValidationSchema = (fields: PreChatField[], hasActiveCampaign: boolean, t: (key: string) => string) => {
@@ -107,8 +114,9 @@ export const PreChatForm: React.FC<PreChatFormProps> = ({
   widgetColor = '#1f93ff',
   onSubmit,
   isLoading = false,
+  serverErrors,
 }) => {
-  const { t } = useLanguage('channels');
+  const { t } = useLanguage('widget');
   const [formFields, setFormFields] = useState<PreChatField[]>([]);
 
   const hasActiveCampaign = !!activeCampaign?.id;
@@ -149,10 +157,19 @@ export const PreChatForm: React.FC<PreChatFormProps> = ({
     control,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm<PreChatFormData>({
     resolver: zodResolver(validationSchema),
     defaultValues: {},
   });
+
+  useEffect(() => {
+    if (!serverErrors || Object.keys(serverErrors).length === 0) return;
+    Object.entries(serverErrors).forEach(([field, messages]) => {
+      const formField = SERVER_TO_FORM_FIELD[field] || field;
+      setError(formField as any, { type: 'server', message: messages[0] });
+    });
+  }, [serverErrors, setError]);
 
   useEffect(() => {
     setFormFields(filteredPreChatFields);

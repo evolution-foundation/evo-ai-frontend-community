@@ -129,5 +129,23 @@
     "invalidEmail": "Veuillez entrer un email valide",
     "success": "Email enregistré avec succès !",
     "error": "Erreur lors de l'enregistrement. Veuillez réessayer."
+  },
+  "preChatForm": {
+    "message": "Message",
+    "messagePlaceholder": "Écrivez votre message ici...",
+    "startConversation": "Démarrer la conversation",
+    "starting": "Démarrage...",
+    "selectOption": "Sélectionner une option",
+    "provideDetails": "Veuillez fournir vos coordonnées pour continuer",
+    "validation": {
+      "invalidEmail": "Adresse email invalide",
+      "invalidPhone": "Téléphone invalide. Utilisez le format international (ex : +33612345678)",
+      "invalidUrl": "URL invalide",
+      "invalidNumber": "Nombre invalide",
+      "invalidDate": "Date invalide",
+      "invalidFormat": "Format invalide",
+      "required": "Ce champ est obligatoire",
+      "messageRequired": "Le message est obligatoire"
+    }
   }
 }
