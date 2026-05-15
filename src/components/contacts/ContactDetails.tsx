@@ -37,6 +37,7 @@ import {
   // CalendarClock,
   GitBranch,
   Merge,
+  Trash,
 } from 'lucide-react';
 // import { ScheduledActionsList } from '@/components/scheduledActions';
 import { Contact } from '@/types/contacts';
@@ -52,6 +53,7 @@ interface ContactDetailsProps {
   contact: Contact | null;
   onEdit: (contact: Contact) => void;
   onStartConversation: (contact: Contact) => void;
+  onDelete?: (contact: Contact) => void;
   onNavigateToContact?: (contactId: string) => void;
   onContactUpdated?: () => void;
 }
@@ -62,6 +64,7 @@ export default function ContactDetails({
   contact,
   onEdit,
   onStartConversation,
+  onDelete,
   onNavigateToContact,
   onContactUpdated,
 }: ContactDetailsProps) {
@@ -227,6 +230,17 @@ export default function ContactDetails({
                 <Button variant="outline" size="sm" onClick={handleMergeClick}>
                   <Merge className="h-4 w-4 mr-2" />
                   {t('header.mergeContacts')}
+                </Button>
+              )}
+              {onDelete && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
+                  onClick={() => onDelete(contact)}
+                >
+                  <Trash className="h-4 w-4 mr-2" />
+                  {t('actions.delete')}
                 </Button>
               )}
             </div>
