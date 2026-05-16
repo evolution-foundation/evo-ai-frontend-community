@@ -25,6 +25,7 @@ import MessageImage from '@/components/chat/messages/MessageImage';
 import MessageFile from '@/components/chat/messages/MessageFile';
 import MessageAudio from '@/components/chat/messages/MessageAudio';
 import MessageVideo from '@/components/chat/messages/MessageVideo';
+import MessageInputSelect from '@/components/chat/messages/MessageInputSelect';
 import MessageLocation from '@/components/chat/messages/MessageLocation';
 import MessageCarousel from '@/components/chat/messages/MessageCarousel';
 import MessageStatus from '@/components/chat/messages/MessageStatus';
@@ -265,6 +266,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       case 'cards':
         return (
           <MessageCarousel
+            content={message.content}
+            contentAttributes={message.content_attributes}
+          />
+        );
+      case 'input_select':
+        return (
+          <MessageInputSelect
             content={message.content}
             contentAttributes={message.content_attributes}
           />
