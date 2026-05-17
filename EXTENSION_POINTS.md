@@ -263,19 +263,22 @@ returns `undefined`.
 
 The nine slot identifiers below are part of the v2.1.0 contract.
 Adding a new slot id is a minor bump; renaming or removing one is a
-major bump.
+major bump. The **Status** column reflects which slots currently have
+a `<PluginSlot>` wired into the community shell — reserved slots are
+part of the contract (the host accepts contributions to them) but the
+community does not render them yet; a future story may wire them.
 
-| Slot id                | Rendered at                                                |
-|------------------------|------------------------------------------------------------|
-| `app.providers`        | Wraps the application tree (consumer-supplied providers)   |
-| `header.left`          | Left section of the top header (desktop and mobile)        |
-| `header.right`         | Right section of the top header (desktop and mobile)       |
-| `sidebar.afterMain`    | After the main sidebar nav (desktop and mobile Sheet)      |
-| `admin.nav`            | Admin-area navigation                                      |
-| `admin.routes`         | Admin-area route container (used via `PluginRoutes`)       |
-| `settings.sections`    | User settings page sections                                |
-| `dashboard.widgets`    | Dashboard widget grid                                      |
-| `notifications.banner` | Top-of-app notification banner                             |
+| Slot id                | Status   | Rendered at                                              |
+|------------------------|----------|----------------------------------------------------------|
+| `app.providers`        | Reserved | (`PluginHostProvider` composes consumer providers through `PluginManifest.providers`; this slot id is intended for a future imperative provider slot) |
+| `header.left`          | Wired    | Left section of the top header (mobile)                  |
+| `header.right`         | Wired    | Right section of the top header (desktop and mobile)     |
+| `sidebar.afterMain`    | Wired    | After the main sidebar nav (desktop and mobile Sheet)    |
+| `admin.nav`            | Reserved | Admin-area navigation (no `<PluginSlot>` mount yet)      |
+| `admin.routes`         | Reserved | (admin routes are registered via `PluginRoute.namespace = 'admin'`; this slot id is reserved for a future admin-area UI container) |
+| `settings.sections`    | Reserved | User settings page sections (no `<PluginSlot>` mount yet)|
+| `dashboard.widgets`    | Reserved | Dashboard widget grid (no `<PluginSlot>` mount yet)      |
+| `notifications.banner` | Wired    | Top-of-app notification banner                           |
 
 #### Route namespaces
 
