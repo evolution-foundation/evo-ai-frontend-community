@@ -39,7 +39,8 @@
         "description": "¿Está seguro de que desea eliminar este mensaje? Esta acción no se puede deshacer y el mensaje se eliminará permanentemente de la conversación.",
         "cancel": "Cancelar",
         "confirm": "Eliminar mensaje"
-      }
+      },
+      "deletedPlaceholder": "Este mensaje fue eliminado"
     },
     "moderation": {
       "banner": {

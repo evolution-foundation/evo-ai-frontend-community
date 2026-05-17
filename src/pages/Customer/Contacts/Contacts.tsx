@@ -68,6 +68,8 @@ export default function Contacts() {
   const [state, setState] = useState<ContactsState>(INITIAL_STATE);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState<Contact | null>(null);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [conversationModalOpen, setConversationModalOpen] = useState(false);
@@ -468,6 +470,56 @@ export default function Contacts() {
     setConversationModalOpen(true);
   };
 
+  const handleDeleteContact = (contact: Contact) => {
+    setContactToDelete(contact);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteContact = async () => {
+    if (!contactToDelete) return;
+
+    setState(prev => ({ ...prev, loading: { ...prev.loading, delete: true } }));
+
+    try {
+      await contactsService.deleteContact(contactToDelete.id);
+      toast.success(t('messages.deleteSuccess'));
+
+      const deletedId = contactToDelete.id;
+      const wasDetailsOpen = detailsContact?.id === deletedId;
+
+      setDeleteDialogOpen(false);
+      setContactToDelete(null);
+
+      if (wasDetailsOpen) {
+        setDetailsModalOpen(false);
+        setDetailsContact(null);
+      }
+
+      setState(prev => {
+        const newTotal = Math.max(0, prev.meta.pagination.total - 1);
+        const pageSize = prev.meta.pagination.page_size;
+        return {
+          ...prev,
+          contacts: prev.contacts.filter(c => c.id !== deletedId),
+          selectedContactIds: prev.selectedContactIds.filter(id => id !== deletedId),
+          meta: {
+            ...prev.meta,
+            pagination: {
+              ...prev.meta.pagination,
+              total: newTotal,
+              total_pages: Math.ceil(newTotal / pageSize),
+            },
+          },
+        };
+      });
+    } catch (error) {
+      console.error('Error deleting contact:', error);
+      toast.error(t('messages.deleteError'));
+    } finally {
+      setState(prev => ({ ...prev, loading: { ...prev.loading, delete: false } }));
+    }
+  };
+
   // Bulk actions
   const handleBulkDelete = () => {
     setBulkDeleteDialogOpen(true);
@@ -777,6 +829,7 @@ export default function Contacts() {
                 onViewDetails={handleContactClick}
                 onStartConversation={handleStartConversation}
                 onEdit={handleEditContact}
+                onDelete={can('contacts', 'delete') ? handleDeleteContact : undefined}
               />
             ))}
           </div>
@@ -796,6 +849,7 @@ export default function Contacts() {
             onContactClick={handleContactClick}
             onStartConversation={handleStartConversation}
             onEditContact={handleEditContact}
+            onDeleteContact={can('contacts', 'delete') ? handleDeleteContact : undefined}
             onCreateContact={handleCreateContact}
             sortBy={state.sortBy}
             sortOrder={state.sortOrder}
@@ -858,6 +912,37 @@ export default function Contacts() {
         </DialogContent>
       </Dialog>
 
+      {/* Single Contact Delete Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={open => {
+        if (!open && !state.loading.delete) {
+          setDeleteDialogOpen(false);
+          setContactToDelete(null);
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('dialog.deleteContact.title')}</DialogTitle>
+            <DialogDescription>
+              {t('dialog.deleteContact.description', { name: contactToDelete?.name ?? '' })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => { setDeleteDialogOpen(false); setContactToDelete(null); }}
+              disabled={state.loading.delete}
+            >
+              {t('dialog.deleteContact.cancel')}
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteContact} disabled={state.loading.delete}>
+              {state.loading.delete
+                ? t('dialog.deleteContact.deleting')
+                : t('dialog.deleteContact.confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Contact Modal */}
       <ContactModal
         open={contactModalOpen}
@@ -893,6 +978,7 @@ export default function Contacts() {
           setConversationContact(contact);
           setConversationModalOpen(true);
         }}
+        onDelete={can('contacts', 'delete') ? handleDeleteContact : undefined}
         onNavigateToContact={async contactId => {
           try {
             const response = await contactsService.getContact(contactId);

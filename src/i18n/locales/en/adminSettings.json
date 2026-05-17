@@ -61,7 +61,11 @@
     "testConnection": "Test Connection",
     "testing": "Testing...",
     "testFailed": "Connection test failed",
-    "testError": "Failed to run connection test"
+    "testError": "Failed to run connection test",
+    "envWarning": {
+      "title": "Heads up:",
+      "body": "Saving here persists the values, but the email service still reads SMTP credentials from environment variables at boot time. Until EVO-1049 ships, configure SMTP via env vars to take effect."
+    }
   },
   "storage": {
     "title": "Storage Configuration",
@@ -266,6 +270,16 @@
       },
       "saveSuccess": "Twitter configuration saved successfully",
       "saveError": "Failed to save Twitter configuration"
+    },
+    "clearConfig": {
+      "button": "Clear Configuration",
+      "dialogTitle": "Clear Configuration",
+      "dialogDescription": "Are you sure? This will remove all credentials for this provider. The provider will stop working until you reconfigure it.",
+      "cancel": "Cancel",
+      "confirm": "Clear",
+      "clearing": "Clearing...",
+      "success": "Configuration cleared successfully",
+      "error": "Failed to clear configuration"
     },
     "messages": {
       "loadError": "Failed to load channel configuration"

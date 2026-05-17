@@ -12,6 +12,7 @@ import {
 import MenuItem from './MenuItem';
 import { MenuItem as MenuItemType } from '../config/menuItems';
 import { cn } from '@/utils/cn';
+import { PluginSlot } from '@/plugin-host';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -185,6 +186,7 @@ export default function Sidebar({
                 onClick={(e) => handleMenuClick(item, e)}
               />
             ))}
+            <PluginSlot id="sidebar.afterMain" />
           </nav>
 
           {/* Tutorials - fixed at bottom */}

@@ -786,7 +786,10 @@
           "callRejectionMessage": "Message de rejet d'appel",
           "callRejectionPlaceholder": "Message lors du rejet d'appels",
           "saveSettings": "Enregistrer les Paramètres",
+          "loading": "Chargement des paramètres de l'instance...",
           "errors": {
+            "title": "Erreur de Configuration",
+            "loadFailed": "Échec du chargement du statut de l'instance. Vérifiez vos paramètres de connexion.",
             "nameNotFound": "Nom de l'instance non trouvé",
             "qrCodeError": "Erreur lors de la génération du QR Code",
             "updateError": "Erreur lors de la mise à jour des paramètres de l'instance"
@@ -857,6 +860,10 @@
             "apiUrlPlaceholder": "https://api.evolution.com",
             "adminTokenLabel": "Clé API",
             "adminTokenPlaceholder": "Entrez la nouvelle clé API",
+            "usingGlobalConfig": "Utilisation des paramètres Admin par défaut",
+            "usingGlobalConfigHint": "L'URL de l'API et le Token sont configurés globalement dans les Paramètres Admin. Remplissez les champs ci-dessous uniquement pour remplacer les valeurs globales pour ce canal.",
+            "apiUrlGlobalPlaceholder": "Utilise la config globale — remplir pour remplacer",
+            "adminTokenGlobalPlaceholder": "Utilise la config globale — remplir pour remplacer",
             "saveButton": "Enregistrer les Paramètres de Connexion",
             "success": {
               "updated": "Paramètres de connexion mis à jour avec succès !"

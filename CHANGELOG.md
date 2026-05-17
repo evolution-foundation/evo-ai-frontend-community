@@ -19,6 +19,88 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - N/A
 
+## [v1.0.0-rc3] - 2026-05-17
+
+Release de estabilização — concentra correções em upload de arquivos grandes, polling de configuração, reconexão de WebSocket, i18n, scroll de paginação, banners de configuração global, fluxo de password e download de mídia. Também consolida a fundação do open-core via Plugin Host Runtime e `EXTENSION_POINTS.md` (4 categorias declaradas), introduz UI completa de Roles & Permissions, products catalog, template bundles export/import e diversas melhorias de automation rules e pipelines.
+
+### Added
+
+- **Plugin Host Runtime (EVO-1379)** (#79) — runtime no frontend que carrega plugins externos em runtime, com isolamento de bundle. Base para a Enterprise edition injetar features sem fork.
+- **EVO-1387 — `EXTENSION_POINTS.md` v2.1.0** (#81) — categoria "Plugin host runtime" adicionada, formalizando o contrato de plugins.
+- **EVO-1378 — Extension points neutros para open-core** (#78) — pontos de extensão declarados sem referência à Enterprise, mantendo o documento utilizável fora do contexto fechado.
+- **EVO-1284 — `EXTENSION_POINTS.md` inicial** (#76) — primeira versão do documento com 4 categorias declaradas.
+- **EVO-1061 — Roles & Permissions admin UI** (#55) — tela completa de administração de papéis e permissões: criar, editar, deletar roles customizadas, atribuir permissões granularmente.
+- **EVO-1189 — Delete contact** (#70) — action funcional de exclusão de contato a partir do detalhe.
+- **EVO-990 — Pipeline actions no menu 3 pontos + context menu** (#51) — ações de pipeline acessíveis tanto via menu `⋮` quanto via clique direito no card.
+- **EVO-1058 — Operador `attribute_changed` com pickers From/To** (#56) — automation rules ganham operador "atributo mudou" com seletores explícitos de valor antes e valor depois.
+- **EVO-1011 — Bulk resolve de conversas via checkbox** — seleção múltipla na lista de conversas + ação de resolve em lote.
+- **EVO-988 — Telefone do contato na lista de conversas e header** (#48) — número de telefone visível no card de conversa e no cabeçalho do chat.
+- **Templates UI (EVO-1116)** — tela Configurações → Templates com export/import de bundles, wizard de export mais óbvio, locales pt/es/fr/it.
+- **Knowledge Nexus retrieval tool no Agent Builder** — seletor de spaces do Nexus integrado ao builder de agentes (via backend proxy do core-service).
+- **Roles UI — agents** — toggle "Permitir gerenciar labels" com persistência de `allow_manage_labels`.
+- **Automation rules — logs panel** — painel de logs de execução de automation rules, com filtros e detalhe por execução.
+- **Automation rules — canned responses + message templates** — suporte a estes tipos no action registry, com handling dinâmico de parâmetros.
+- **Products catalog UI** — telas de listagem, edição, variantes, attach a agentes, panel de vendas no pipeline.
+- **EVO-1051 — Botão "Clear Configuration" no Admin Settings** — operador da instalação pode limpar configurações específicas direto da UI.
+- **Pipelines — `apply_label` action** — em vez de campo de texto livre, agora abre o picker de labels.
+
+### Changed
+
+- **EVO-1107 — Configuration tab — error states, cancel flags, a11y** — review feedback aplicado: estados de erro tratados, flags de cancelamento de requests, melhorias de acessibilidade.
+- **EVO-1085 — Reconexão de WebSocket** — reconexão ativa com toast de sucesso + backoff em background. Antes a conexão caída ficava silenciosa, agora o usuário vê confirmação ao voltar online.
+- **EVO-1131 — Upload de arquivos** (#65) — skip de fetch+blob para arquivos grandes; limite de upload elevado para 100MB.
+- **EVO-1146 — i18n** — adicionadas 9+ chaves missing em 6 locales.
+- **EVO-1147 — Polling de provider config** — `provider_config` removido das deps do polling + Page Visibility API integrada (não faz polling com aba em background).
+- **EVO-1044 — Per-field GlobalConfig fallback detection** (#71) — banner de configuração global no Connection Settings agora detecta fallback campo a campo, não apenas no documento inteiro.
+- **EVO-1106 / EVO-1132** — scroll preservado na paginação + testes de download em `MessageFile`.
+- **EVO-1059** — `AutomationCondition.values` expandido para array misto (sem cast).
+- **EVO-1063 — Password validation** — checklist inline + erros estruturados na criação de usuário (consome a resposta 422 estruturada do auth-service).
+- **EVO-1053** — error gating, stale closure, helper extraction e cobertura de testes (round 4 de review).
+- **Integrations** — configs normalizados e melhor error handling.
+- **Docs** padronizados para Evolution Foundation 2026 (README, LICENSE, NOTICE, TRADEMARKS).
+- **Docs (org)** — URLs do GitHub atualizadas de `EvolutionAPI` para `evolution-foundation`.
+
+### Fixed
+
+#### Chat / Mensagens
+- **EVO-1145 — Conversation match em `selection` e `lifecycle` reducers** — agora casa por `id || uuid`, evitando state desincronizado entre identificadores.
+- **Mensagens duplicadas no chat + cor do botão de delete** — corrigido o handler que adicionava entrada duplicada na lista local.
+- **EVO-1078 / EVO-1054 / EVO-1062 / EVO-1056** — bugs múltiplos de chat e auth resolvidos em batch.
+
+#### Configuração / Connection Settings
+- **EVO-1107 — Configuration tab blank/slow load** — skeleton adicionado + polling corrigido.
+- **EVO-1044 — Banner global config no Evolution Go/API Connection Settings** — banner não aparecia em determinadas combinações.
+- **EVO-1046 — `setupRequired=false` default quando `/setup/status` erra** (#59) — antes um erro 5xx no setup status bloqueava o app inteiro; agora cai no comportamento "setup já feito" e deixa o usuário tentar login.
+- **EVO-1049 — Remove banner do email config screen** (#64) — banner de workaround retirado após o fix de runtime no auth-service.
+- **EVO-1048 — Sidebar colapsada** (#54) — submenu flyout e tooltip de links agora aparecem quando sidebar está collapsed.
+
+#### Automation rules
+- **Build break** — `MessageTemplateVariable` definido localmente.
+- **Menu** — adicionado item de automation e removida entrada duplicada.
+- **i18n** — campos de linguagem não usados removidos da localização de automation.
+- **`labels` condition** — restrita a `has`/`has-not` (drop `is_present`).
+- **`apply_label` action** — abre label picker, não input de texto.
+
+#### Templates / Products
+- **i18n templates** — locales pt/es/fr/it adicionados (EVO-1116).
+- **Products** — cálculo de total count corrigido na paginação.
+- **Export wizard** — removida import não usada de `DialogDescription`.
+
+#### Mídia / Download (EVO-999)
+- **HIGH review findings** aplicadas para o fix de force-download.
+- **Toast feedback nos fallbacks de download** no `MessageFile`.
+
+#### Notificame / Contacts
+- **EVO-986 — Parsing do verify response** — shape correto da resposta sendo lido.
+- **EVO-1018 — Group contacts** — review feedback aplicado.
+- **Removido trigger de contact events** que causava 404s.
+
+#### Outros
+- **EVO-995 — Agent creation UX wizard** — correções de review aplicadas.
+- **EVO-1083 — `ContactHeader` presence** (#66) — wired para `availability_status` e `channel`.
+- **i18n pt-BR** (#31) — chaves missing em chat/channels/aiAgents/integrations/sms/whatsapp.
+- **Lock file sync** — `package-lock.json` sincronizado com novas dependências.
+
 ## [v1.0.0-rc2] - 2026-05-05
 
 Release de estabilização — corrige fluxos de criação de usuário, gestão de membros de team, sessão axios e diversos refinamentos de UI.
@@ -105,6 +187,7 @@ A PR #25 migrou de PNGs estáticos para SVGs monocromáticos da `@icons-pack/rea
 
 ---
 
-[Unreleased]: https://github.com/EvolutionAPI/evo-ai-frontend-community/compare/v1.0.0-rc2...HEAD
-[v1.0.0-rc2]: https://github.com/EvolutionAPI/evo-ai-frontend-community/compare/v1.0.0-rc1...v1.0.0-rc2
-[v1.0.0-rc1]: https://github.com/EvolutionAPI/evo-ai-frontend-community/releases/tag/v1.0.0-rc1
+[Unreleased]: https://github.com/evolution-foundation/evo-ai-frontend-community/compare/v1.0.0-rc3...HEAD
+[v1.0.0-rc3]: https://github.com/evolution-foundation/evo-ai-frontend-community/compare/v1.0.0-rc2...v1.0.0-rc3
+[v1.0.0-rc2]: https://github.com/evolution-foundation/evo-ai-frontend-community/compare/v1.0.0-rc1...v1.0.0-rc2
+[v1.0.0-rc1]: https://github.com/evolution-foundation/evo-ai-frontend-community/releases/tag/v1.0.0-rc1

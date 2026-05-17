@@ -61,7 +61,11 @@
     "testConnection": "Probar Conexion",
     "testing": "Probando...",
     "testFailed": "La prueba de conexion fallo",
-    "testError": "Error al ejecutar la prueba de conexion"
+    "testError": "Error al ejecutar la prueba de conexion",
+    "envWarning": {
+      "title": "Atención:",
+      "body": "Guardar aquí persiste los valores, pero el servicio de email aún lee las credenciales SMTP de las variables de entorno al arrancar. Hasta que EVO-1049 se entregue, configure SMTP vía env vars para que surta efecto."
+    }
   },
   "storage": {
     "title": "Configuracion de Almacenamiento",
@@ -266,6 +270,16 @@
       },
       "saveSuccess": "Configuracion de Twitter guardada exitosamente",
       "saveError": "Error al guardar la configuracion de Twitter"
+    },
+    "clearConfig": {
+      "button": "Limpiar Configuración",
+      "dialogTitle": "Limpiar Configuración",
+      "dialogDescription": "¿Está seguro? Esto eliminará todas las credenciales de este proveedor. El proveedor dejará de funcionar hasta que lo reconfigure.",
+      "cancel": "Cancelar",
+      "confirm": "Limpiar",
+      "clearing": "Limpiando...",
+      "success": "Configuración limpiada con éxito",
+      "error": "Error al limpiar la configuración"
     },
     "messages": {
       "loadError": "Error al cargar la configuracion de canales"

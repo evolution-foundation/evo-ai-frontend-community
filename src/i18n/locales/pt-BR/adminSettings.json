@@ -61,7 +61,11 @@
     "testConnection": "Testar Conexao",
     "testing": "Testando...",
     "testFailed": "Teste de conexao falhou",
-    "testError": "Falha ao executar teste de conexao"
+    "testError": "Falha ao executar teste de conexao",
+    "envWarning": {
+      "title": "Atenção:",
+      "body": "Salvar aqui persiste os valores, mas o serviço de email ainda lê as credenciais SMTP das variáveis de ambiente no boot. Até a EVO-1049 ser entregue, configure SMTP via env vars para fazer efeito."
+    }
   },
   "storage": {
     "title": "Configuracao de Armazenamento",
@@ -266,6 +270,16 @@
       },
       "saveSuccess": "Configuracao do Twitter salva com sucesso",
       "saveError": "Falha ao salvar configuracao do Twitter"
+    },
+    "clearConfig": {
+      "button": "Limpar Configuração",
+      "dialogTitle": "Limpar Configuração",
+      "dialogDescription": "Tem certeza? Isso removerá todas as credenciais deste provedor. O provedor deixará de funcionar até que você o reconfigure.",
+      "cancel": "Cancelar",
+      "confirm": "Limpar",
+      "clearing": "Limpando...",
+      "success": "Configuração limpa com sucesso",
+      "error": "Falha ao limpar configuração"
     },
     "messages": {
       "loadError": "Falha ao carregar configuracao dos canais"

@@ -39,7 +39,8 @@
         "description": "Êtes-vous sûr de vouloir supprimer ce message ? Cette action ne peut pas être annulée et le message sera définitivement supprimé de la conversation.",
         "cancel": "Annuler",
         "confirm": "Supprimer le message"
-      }
+      },
+      "deletedPlaceholder": "Ce message a été supprimé"
     },
     "moderation": {
       "banner": {

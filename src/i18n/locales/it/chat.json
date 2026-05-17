@@ -39,7 +39,8 @@
         "description": "Sei sicuro di voler eliminare questo messaggio? Questa azione non può essere annullata e il messaggio sarà permanentemente rimosso dalla conversazione.",
         "cancel": "Annulla",
         "confirm": "Elimina messaggio"
-      }
+      },
+      "deletedPlaceholder": "Questo messaggio è stato eliminato"
     },
     "moderation": {
       "banner": {

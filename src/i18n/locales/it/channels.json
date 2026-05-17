@@ -786,7 +786,10 @@
           "callRejectionMessage": "Messaggio di rifiuto chiamata",
           "callRejectionPlaceholder": "Messaggio quando si rifiutano le chiamate",
           "saveSettings": "Salva Impostazioni",
+          "loading": "Caricamento impostazioni dell'istanza...",
           "errors": {
+            "title": "Errore di Configurazione",
+            "loadFailed": "Impossibile caricare lo stato dell'istanza. Verifica le impostazioni di connessione.",
             "nameNotFound": "Nome dell'istanza non trovato",
             "qrCodeError": "Errore durante la generazione del codice QR",
             "updateError": "Errore durante l'aggiornamento delle impostazioni dell'istanza"
@@ -857,6 +860,10 @@
             "apiUrlPlaceholder": "https://api.evolution.com",
             "adminTokenLabel": "Chiave API",
             "adminTokenPlaceholder": "Inserisci la nuova chiave API",
+            "usingGlobalConfig": "Utilizzo delle impostazioni predefinite dell'Admin",
+            "usingGlobalConfigHint": "L'URL dell'API e il Token sono configurati globalmente nelle Impostazioni Admin. Compila i campi sottostanti solo per sovrascrivere i valori globali per questo canale.",
+            "apiUrlGlobalPlaceholder": "Usa config globale — compila per sovrascrivere",
+            "adminTokenGlobalPlaceholder": "Usa config globale — compila per sovrascrivere",
             "saveButton": "Salva Impostazioni di Connessione",
             "success": {
               "updated": "Impostazioni di connessione aggiornate con successo!"

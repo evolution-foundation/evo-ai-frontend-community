@@ -14,7 +14,6 @@
   "dependencies": {
     "@breezystack/lamejs": "^1.2.7",
     "@ffmpeg/core": "^0.11.0",
-    "@ffmpeg/ffmpeg": "^0.11.6",
     "@evoapi/design-system": "^0.0.6",
     "@ffmpeg/core-st": "0.11.0",
     "@ffmpeg/ffmpeg": "^0.11.6",

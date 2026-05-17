@@ -1,5 +1,5 @@
 import { useLanguage } from '@/hooks/useLanguage';
-import { MessageSquare, Edit, Users } from 'lucide-react';
+import { MessageSquare, Edit, Trash, Users } from 'lucide-react';
 import { Contact } from '@/types/contacts';
 import { BaseTable, TableColumn, TableAction } from '@/components/base';
 import ContactAvatar from '@/components/chat/contact/ContactAvatar';
@@ -17,6 +17,7 @@ interface ContactsTableProps {
   onContactClick: (contact: Contact) => void;
   onStartConversation: (contact: Contact) => void;
   onEditContact: (contact: Contact) => void;
+  onDeleteContact?: (contact: Contact) => void;
   onCreateContact?: () => void;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
@@ -31,6 +32,7 @@ export default function ContactsTable({
   onContactClick,
   onStartConversation,
   onEditContact,
+  onDeleteContact,
   onCreateContact,
   sortBy,
   sortOrder,
@@ -122,6 +124,16 @@ export default function ContactsTable({
       icon: <Edit className="h-4 w-4" />,
       onClick: onEditContact,
     },
+    ...(onDeleteContact
+      ? [
+          {
+            label: t('table.actions.delete'),
+            icon: <Trash className="h-4 w-4" />,
+            onClick: onDeleteContact,
+            variant: 'destructive' as const,
+          },
+        ]
+      : []),
   ];
 
   return (

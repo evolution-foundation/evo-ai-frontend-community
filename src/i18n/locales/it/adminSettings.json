@@ -61,7 +61,11 @@
     "testConnection": "Testa Connessione",
     "testing": "Test in corso...",
     "testFailed": "Test di connessione fallito",
-    "testError": "Impossibile eseguire il test di connessione"
+    "testError": "Impossibile eseguire il test di connessione",
+    "envWarning": {
+      "title": "Attenzione:",
+      "body": "Salvare qui persiste i valori, ma il servizio email legge ancora le credenziali SMTP dalle variabili d'ambiente all'avvio. Fino al rilascio di EVO-1049, configurare SMTP tramite env var per avere effetto."
+    }
   },
   "storage": {
     "title": "Configurazione Archiviazione",
@@ -266,6 +270,16 @@
       },
       "saveSuccess": "Configurazione Twitter salvata con successo",
       "saveError": "Salvataggio della configurazione Twitter non riuscito"
+    },
+    "clearConfig": {
+      "button": "Cancella Configurazione",
+      "dialogTitle": "Cancella Configurazione",
+      "dialogDescription": "Sei sicuro? Questo rimuoverà tutte le credenziali per questo provider. Il provider smetterà di funzionare fino a quando non lo riconfigurerai.",
+      "cancel": "Annulla",
+      "confirm": "Cancella",
+      "clearing": "Cancellazione...",
+      "success": "Configurazione cancellata con successo",
+      "error": "Impossibile cancellare la configurazione"
     },
     "messages": {
       "loadError": "Caricamento della configurazione dei canali non riuscito"

@@ -6,6 +6,7 @@ import CustomerRoute from './CustomerRoute';
 import SmartRedirect from './SmartRedirect';
 import RouterGuard from '@/guards/RouterGuard';
 import PermissionRoute from './PermissionRoute';
+import { PluginRoutes, type PluginRoute as PluginRouteType } from '@/plugin-host';
 
 import MainLayout from '@/components/layout/MainLayout';
 
@@ -1353,6 +1354,28 @@ const AppRouter = () => {
               </PrivateRoute>
             }
           />
+
+          {PluginRoutes({
+            namespace: 'admin',
+            wrap: (element, route: PluginRouteType) => (
+              <PrivateRoute>
+                {route.layout === 'none' ? element : <MainLayout>{element}</MainLayout>}
+              </PrivateRoute>
+            ),
+          })}
+
+          {PluginRoutes({
+            namespace: 'customer',
+            wrap: (element, route: PluginRouteType) => (
+              <PrivateRoute>
+                <CustomerRoute>
+                  {route.layout === 'none' ? element : <MainLayout>{element}</MainLayout>}
+                </CustomerRoute>
+              </PrivateRoute>
+            ),
+          })}
+
+          {PluginRoutes({ namespace: 'public' })}
 
           {/* Rota 404 - Página não encontrada */}
           <Route path="*" element={<NotFound />} />

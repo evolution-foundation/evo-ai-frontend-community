@@ -13,11 +13,23 @@ interface MessageFileProps {
 const MessageFile: React.FC<MessageFileProps> = ({ attachments }) => {
   const { t } = useLanguage('chat');
 
+  // Files above this threshold skip fetch+blob (which loads the entire file
+  // into memory) and use direct browser download instead. 25 MB chosen because
+  // WhatsApp videos regularly exceed 50 MB and would cause OOM on mobile/low-memory.
+  const MAX_BLOB_DOWNLOAD_BYTES = 25 * 1024 * 1024; // 25 MB
+
   const downloadFile = async (attachment: Attachment) => {
     const url = attachment.data_url?.trim();
     if (!url) return;
 
     const filename = attachment.fallback_title || t('messages.messageFile.fileFallback');
+
+    // Large files: skip fetch+blob to avoid loading entire file into memory.
+    // Use direct <a download> which streams natively through the browser.
+    if ((attachment.file_size ?? 0) > MAX_BLOB_DOWNLOAD_BYTES) {
+      openAttachmentInNewTab({ url, filename });
+      return;
+    }
 
     try {
       const response = await fetch(url, { mode: 'cors' });

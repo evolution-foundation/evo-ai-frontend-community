@@ -27,6 +27,7 @@ import MenuItem from './MenuItem';
 import { MenuItem as MenuItemType } from '../config/menuItems';
 import { ThemeToggle } from '../../ThemeToggle';
 import { AppLogo } from '../../AppLogo';
+import { PluginSlot } from '@/plugin-host';
 
 // Utility function for className merging
 function cn(...classes: (string | undefined | null | false)[]) {
@@ -176,6 +177,7 @@ export default function Header({
                       </div>
                     );
                   })}
+                  <PluginSlot id="sidebar.afterMain" />
                 </nav>
               </ScrollArea>
 
@@ -203,6 +205,7 @@ export default function Header({
 
         {/* Right: Notifications and User Menu */}
         <div className="flex-1 flex justify-end items-center gap-2">
+          <PluginSlot id="header.right" />
           <TourFab />
           <NotificationBell />
           <ProfileMenu
@@ -257,6 +260,8 @@ export default function Header({
 
         {/* Right side */}
         <div className="flex items-center gap-2 px-4">
+          <PluginSlot id="header.left" />
+          <PluginSlot id="header.right" />
           <TourFab />
           {/* Theme Toggle */}
           <ThemeToggle />

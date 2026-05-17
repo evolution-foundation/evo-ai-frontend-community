@@ -1,6 +1,6 @@
 import { useLanguage } from '@/hooks/useLanguage';
 import { Button, Card, CardContent } from '@evoapi/design-system';
-import { Edit, MessageSquare, Eye } from 'lucide-react';
+import { Edit, MessageSquare, Eye, Trash } from 'lucide-react';
 import { Contact } from '@/types/contacts';
 import ContactAvatar from '@/components/chat/contact/ContactAvatar';
 import { formatContactPhone } from '@/utils/contact/formatContactPhone';
@@ -14,6 +14,7 @@ type ContactCardProps = {
   onViewDetails?: (contact: Contact) => void;
   onStartConversation?: (contact: Contact) => void;
   onEdit?: (contact: Contact) => void;
+  onDelete?: (contact: Contact) => void;
 };
 
 export default function ContactCard({
@@ -21,6 +22,7 @@ export default function ContactCard({
   onViewDetails,
   onStartConversation,
   onEdit,
+  onDelete,
 }: ContactCardProps) {
   const { t } = useLanguage('contacts');
 
@@ -103,6 +105,22 @@ export default function ContactCard({
           >
             <Edit className="h-4 w-4" />
           </Button>
+          {onDelete && (
+            <>
+              <div className="w-px bg-sidebar-border" />
+              <Button
+                variant="ghost"
+                className="rounded-none h-12 px-3 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+                onClick={e => {
+                  e.stopPropagation();
+                  onDelete(contact);
+                }}
+                title={t('card.actions.delete')}
+              >
+                <Trash className="h-4 w-4" />
+              </Button>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>

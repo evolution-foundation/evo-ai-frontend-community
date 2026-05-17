@@ -848,7 +848,10 @@
           "callRejectionMessage": "Call rejection message",
           "callRejectionPlaceholder": "Message when rejecting calls",
           "saveSettings": "Save Settings",
+          "loading": "Loading instance settings...",
           "errors": {
+            "title": "Configuration Error",
+            "loadFailed": "Failed to load instance status. Check your connection settings.",
             "nameNotFound": "Instance name not found",
             "qrCodeError": "Error generating QR Code",
             "updateError": "Error updating instance settings"
@@ -919,6 +922,10 @@
             "apiUrlPlaceholder": "https://api.evolution.com",
             "adminTokenLabel": "API Key",
             "adminTokenPlaceholder": "Enter the new API Key",
+            "usingGlobalConfig": "Using Admin Settings defaults",
+            "usingGlobalConfigHint": "The API URL and Token are configured globally in Admin Settings. Fill the fields below only to override the global values for this channel.",
+            "apiUrlGlobalPlaceholder": "Using global config — fill to override",
+            "adminTokenGlobalPlaceholder": "Using global config — fill to override",
             "saveButton": "Save Connection Settings",
             "success": {
               "updated": "Connection settings updated successfully!"

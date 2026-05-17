@@ -9,6 +9,7 @@ import { NotificationsProvider } from './contexts/NotificationsContext';
 import { PermissionsProvider } from './contexts/PermissionsContext';
 import { UISettingsApplier } from './components/UISettingsApplier';
 import { unlockAudioContext } from '@/utils/audioNotificationUtils';
+import { PluginHostProvider, PluginSlot } from '@/plugin-host';
 
 import { Toaster } from '@evoapi/design-system';
 
@@ -58,22 +59,25 @@ function App() {
   }, []);
 
   return (
-    <AuthProvider>
-      <DarkModeProvider>
-        <GlobalConfigProvider>
-          <UISettingsApplier />
-          <PermissionsProvider>
-          <NotificationsProvider>
-            <AppInitializer>
-              <ImpersonationBar />
-              <AppRouter />
-              <ThemedToaster />
-            </AppInitializer>
-          </NotificationsProvider>
-          </PermissionsProvider>
-        </GlobalConfigProvider>
-      </DarkModeProvider>
-    </AuthProvider>
+    <PluginHostProvider>
+      <AuthProvider>
+        <DarkModeProvider>
+          <GlobalConfigProvider>
+            <UISettingsApplier />
+            <PermissionsProvider>
+            <NotificationsProvider>
+              <AppInitializer>
+                <PluginSlot id="notifications.banner" />
+                <ImpersonationBar />
+                <AppRouter />
+                <ThemedToaster />
+              </AppInitializer>
+            </NotificationsProvider>
+            </PermissionsProvider>
+          </GlobalConfigProvider>
+        </DarkModeProvider>
+      </AuthProvider>
+    </PluginHostProvider>
   );
 }
 
