@@ -177,6 +177,7 @@ export default function Header({
                       </div>
                     );
                   })}
+                  <PluginSlot id="sidebar.afterMain" />
                 </nav>
               </ScrollArea>
 

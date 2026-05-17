@@ -37,6 +37,12 @@ function rebuildCaches(): void {
   guardsCache = computeGuards();
 }
 
+/**
+ * Registers a plugin. Idempotent on `id`: registering the same id twice is
+ * a no-op (logged via console.warn) — the second manifest is dropped and
+ * its `onBoot` is NOT invoked. Callers that need to swap a plugin at
+ * runtime must reset the host first (test-only `__resetPluginHostForTests`).
+ */
 export function registerPlugin(manifest: PluginManifest): void {
   if (!manifest || typeof manifest.id !== 'string' || manifest.id.length === 0) {
     throw new Error('[plugin-host] registerPlugin requires a manifest with a non-empty id');

@@ -248,6 +248,40 @@ describe('plugin-host — runtime context', () => {
   });
 });
 
+describe('plugin-host — lifecycle', () => {
+  it('keeps the host alive when a plugin onBoot throws', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    let goodBootRan = false;
+    registerPlugin({
+      id: 'p-bad-boot',
+      onBoot: () => {
+        throw new Error('boot exploded');
+      },
+      slots: {
+        'header.right': [
+          { id: 'bad-slot', component: () => <span data-testid="bad-slot">bad-slot-render</span> },
+        ],
+      },
+    });
+    registerPlugin({
+      id: 'p-good-boot',
+      onBoot: () => {
+        goodBootRan = true;
+      },
+    });
+
+    renderApp(<PluginSlot id="header.right" />);
+
+    expect(screen.getByTestId('bad-slot')).toBeInTheDocument();
+    expect(goodBootRan).toBe(true);
+    expect(consoleError).toHaveBeenCalledWith(
+      expect.stringContaining('p-bad-boot'),
+      expect.any(Error),
+    );
+    consoleError.mockRestore();
+  });
+});
+
 describe('plugin-host — hygiene', () => {
   it('does not leak commercial vocabulary in the public API surface', () => {
     const surface = JSON.stringify(Object.keys(pluginHost));
