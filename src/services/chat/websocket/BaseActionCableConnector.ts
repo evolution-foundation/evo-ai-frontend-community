@@ -183,7 +183,7 @@ export class BaseActionCableConnector {
     // Remover subscription antiga antes de criar nova
     if (this.subscription) {
       try {
-        this.consumer.subscriptions.remove(this.subscription);
+        this.subscription.unsubscribe();
       } catch {
         // Ignorar erros ao remover subscription stale
       }
