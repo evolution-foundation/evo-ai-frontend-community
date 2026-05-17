@@ -25,8 +25,11 @@ export {
   getRuntimeContextDescriptor,
   bootAllPlugins,
   subscribe,
-  __resetPluginHostForTests,
 } from './registry';
+
+// `__resetPluginHostForTests` lives in `./test-utils` and is NOT
+// re-exported here — it is internal-only and intended for plugin-host
+// specs that need to reset registry state between cases.
 
 export { PluginHostProvider } from './PluginHostProvider';
 export { PluginSlot } from './PluginSlot';
@@ -38,7 +41,6 @@ export {
   PluginRuntimeContextProvider,
   usePluginRuntimeContext,
   onRuntimeContextChanged,
-  emitRuntimeContextChanged,
 } from './runtimeContext';
 
 export { evaluateRouteAccess } from './guards';

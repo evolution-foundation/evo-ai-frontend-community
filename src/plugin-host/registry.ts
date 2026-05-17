@@ -148,6 +148,14 @@ export function bootAllPlugins(): void {
   }
 }
 
+/**
+ * Internal: wipes the registry, listeners and boot flag back to
+ * pristine state. Re-exported from `./test-utils` for the plugin-host
+ * spec only — NOT part of `@/plugin-host`'s public surface. Consumers
+ * importing this function are using a private API.
+ *
+ * @internal
+ */
 export function __resetPluginHostForTests(): void {
   plugins.length = 0;
   listeners.clear();

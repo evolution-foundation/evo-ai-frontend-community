@@ -72,6 +72,10 @@ export type PluginGuard = (args: PluginGuardArgs) => boolean;
  *   its own internal context, not through the host's shared context. Any
  *   other plugin that consumes `usePluginRuntimeContext()` is otherwise
  *   able to mutate the registering plugin's state.
+ * - **At most one plugin may register a `runtimeContext` descriptor.**
+ *   The host resolves the descriptor at registration time (first wins);
+ *   subsequent registrations are dropped and a `console.warn` is logged
+ *   identifying which plugin was ignored.
  */
 export interface PluginRuntimeContextDescriptor {
   Provider: ComponentType<{ children: ReactNode }>;

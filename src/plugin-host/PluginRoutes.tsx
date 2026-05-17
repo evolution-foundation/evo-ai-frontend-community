@@ -48,6 +48,15 @@ interface PluginRoutesProps {
  *
  * Usage: <Routes>{PluginRoutes({ namespace: 'admin' })}</Routes>
  *        — invoked as a plain function, not via JSX.
+ *
+ * MVP timing constraint: routes returned reflect the registry at call
+ * time. Because this function cannot subscribe to registry updates
+ * (react-router rejects non-<Route> children of <Routes>), plugins MUST
+ * register before `<AppRouter />` mounts. Hot-registering routes after
+ * the router has mounted is not supported in the MVP — the new routes
+ * become visible only when the surrounding tree re-renders for some
+ * other reason. In-tree plugins registered at module-init time are
+ * unaffected.
  */
 export function PluginRoutes({ namespace, wrap }: PluginRoutesProps): ReactElement[] {
   const routes = getRoutes(namespace);

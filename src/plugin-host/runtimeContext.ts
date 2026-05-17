@@ -7,6 +7,17 @@ const RuntimeContextCtx = createContext<RuntimeContextValue>(undefined);
 const runtimeContextBus =
   typeof window !== 'undefined' ? new EventTarget() : null;
 
+/**
+ * Internal: dispatches a `runtimeContextChanged` event on the in-memory
+ * bus. Only `RuntimeContextBridge` is expected to call this — it is NOT
+ * exported from `@/plugin-host`'s public surface because any caller can
+ * spoof a context-change payload that downstream listeners attached via
+ * `onRuntimeContextChanged` would react to. If you need to push context
+ * from outside React, register a `runtimeContext` descriptor on a
+ * plugin manifest instead.
+ *
+ * @internal
+ */
 export function emitRuntimeContextChanged(value: RuntimeContextValue): void {
   if (!runtimeContextBus) return;
   runtimeContextBus.dispatchEvent(
