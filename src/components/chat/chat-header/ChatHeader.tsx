@@ -143,6 +143,7 @@ const ChatHeader = ({
   }, [conversation.id]);
 
   const reloadConvPipelineData = useCallback(() => {
+    if (!isMountedRef.current) return;
     const fetchId = ++pipelineFetchCountRef.current;
     setIsLoadingConvPipelines(true);
     (async () => {
@@ -179,7 +180,7 @@ const ChatHeader = ({
         const pipelines = await pipelinesService.getPipelinesByConversation(
           String(conversation.id),
         );
-        setConvPipelineData({ pipelines });
+        if (isMountedRef.current) setConvPipelineData({ pipelines });
       }
     } catch {
       // badge refresh is best-effort

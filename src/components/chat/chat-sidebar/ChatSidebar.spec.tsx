@@ -259,6 +259,11 @@ describe('ChatSidebar pipeline', () => {
     await openContextMenuPipelineStage(user, 'Pipeline p1', 'Lead');
 
     await waitFor(() => {
+      expect(pipelinesService.addItemToPipeline).toHaveBeenCalledWith('p1', {
+        item_id: '42',
+        type: 'conversation',
+        pipeline_stage_id: 'stage-1',
+      });
       expect(mockUpdateConversation).toHaveBeenCalledWith(updatedConv);
     });
   });
