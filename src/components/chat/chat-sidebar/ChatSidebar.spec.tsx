@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import ChatSidebar from './ChatSidebar';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
+import chatService from '@/services/chat/chatService';
 import { toast } from 'sonner';
 
 vi.mock('@/services/pipelines/pipelinesService', () => ({
@@ -18,6 +19,8 @@ vi.mock('@/services/pipelines/pipelinesService', () => ({
 vi.mock('@/services/chat/chatService', () => ({
   default: { getConversation: vi.fn() },
 }));
+
+const mockUpdateConversation = vi.fn();
 
 vi.mock('sonner', () => ({
   toast: { success: vi.fn(), error: vi.fn() },
@@ -120,7 +123,7 @@ const makeMockContext = () => ({
     getUnreadCount: () => 0,
     loadConversations: vi.fn().mockResolvedValue(undefined),
     loadMoreConversations: vi.fn().mockResolvedValue(undefined),
-    updateConversation: vi.fn(),
+    updateConversation: mockUpdateConversation,
   },
   filters: {
     state: { activeFilters: [], isApplyingFilters: false },
@@ -155,6 +158,10 @@ const defaultProps = {
   onAssignTeam: vi.fn(),
   onAssignTag: vi.fn(),
   onDeleteConversation: vi.fn(),
+  selectedConversationIds: new Set<string>(),
+  onToggleSelect: vi.fn(),
+  onClearSelection: vi.fn(),
+  onBulkResolve: vi.fn().mockResolvedValue(undefined),
 };
 
 beforeEach(() => {
@@ -189,6 +196,17 @@ const openContextMenuPipelineStage = async (
 };
 
 describe('ChatSidebar pipeline', () => {
+  const makeItem = (id: string, pipelineId: string) => ({
+    id,
+    item_id: '42',
+    stage_id: `stage-${pipelineId}`,
+    pipeline_id: pipelineId,
+    type: 'conversation',
+    is_lead: false,
+    created_at: '',
+    updated_at: '',
+  });
+
   it('shows loading label in stage submenu while getPipelinesByConversation is pending (isLoadingConvPipelines guard)', async () => {
     const pipeline = makePipeline('p1', [{ id: 'stage-1', name: 'Lead' }]);
     vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [pipeline] } as never);
@@ -226,17 +244,60 @@ describe('ChatSidebar pipeline', () => {
     });
   });
 
-  it('removes ALL pipelines when conversation is in 2+ pipelines before adding to new one (H1)', async () => {
-    const makeItem = (id: string, pipelineId: string) => ({
-      id,
-      item_id: '42',
-      stage_id: `stage-${pipelineId}`,
-      pipeline_id: pipelineId,
-      type: 'conversation',
-      is_lead: false,
-      created_at: '',
-      updated_at: '',
+  it('dispatches updateConversation after pipeline action via right-click', async () => {
+    const pipeline = makePipeline('p1', [{ id: 'stage-1', name: 'Lead' }]);
+    vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [pipeline] } as never);
+    vi.mocked(pipelinesService.getPipelinesByConversation).mockResolvedValue([]);
+    vi.mocked(pipelinesService.addItemToPipeline).mockResolvedValue({} as never);
+    const updatedConv = makeConversation('42');
+    vi.mocked(chatService.getConversation).mockResolvedValue({ data: updatedConv } as never);
+
+    render(<ChatSidebar {...defaultProps} />);
+    await waitFor(() => expect(pipelinesService.getPipelines).toHaveBeenCalled());
+
+    const user = userEvent.setup();
+    await openContextMenuPipelineStage(user, 'Pipeline p1', 'Lead');
+
+    await waitFor(() => {
+      expect(mockUpdateConversation).toHaveBeenCalledWith(updatedConv);
     });
+  });
+
+  it('blocks addItemToPipeline when any cross-pipeline remove fails', async () => {
+    const pOld1 = makePipeline(
+      'p-old1',
+      [{ id: 'stage-p-old1', name: 'StageA' }],
+      [makeItem('item-1', 'p-old1')],
+    );
+    const pOld2 = makePipeline(
+      'p-old2',
+      [{ id: 'stage-p-old2', name: 'StageB' }],
+      [makeItem('item-2', 'p-old2')],
+    );
+    const pNew = makePipeline('p-new', [{ id: 'stage-new', name: 'StageC' }]);
+
+    vi.mocked(pipelinesService.getPipelines).mockResolvedValue({
+      data: [pOld1, pOld2, pNew],
+    } as never);
+    vi.mocked(pipelinesService.getPipelinesByConversation).mockResolvedValue([pOld1, pOld2]);
+    vi.mocked(pipelinesService.removeItemFromPipeline)
+      .mockResolvedValueOnce({ success: true, message: '' })
+      .mockRejectedValueOnce(new Error('network'));
+
+    render(<ChatSidebar {...defaultProps} />);
+    await waitFor(() => expect(pipelinesService.getPipelines).toHaveBeenCalled());
+
+    const user = userEvent.setup();
+    await openContextMenuPipelineStage(user, 'Pipeline p-new', 'StageC');
+
+    await waitFor(() => {
+      expect(pipelinesService.addItemToPipeline).not.toHaveBeenCalled();
+      expect(toast.error).toHaveBeenCalledWith('pipeline.removeError');
+      expect(pipelinesService.getPipelinesByConversation.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  it('removes ALL pipelines when conversation is in 2+ pipelines before adding to new one (H1)', async () => {
     const pOld1 = makePipeline(
       'p-old1',
       [{ id: 'stage-p-old1', name: 'StageA' }],
