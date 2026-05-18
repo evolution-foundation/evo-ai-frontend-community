@@ -169,6 +169,16 @@ export const shouldUseAdvancedFilters = (filters: ConversationFilter[]): boolean
   );
   if (hasPresenceOperator) return true;
 
+  // Filtro por atendente específico (ID numérico/UUID) não é suportado pela
+  // API GET /conversations — ela só aceita assignee_type (me/unassigned/all).
+  // Quando o valor é um ID específico, forçamos POST /conversations/filter.
+  const hasSpecificAssigneeId = filters.some(f => {
+    if (f.attribute_key !== 'assignee_id') return false;
+    const val = Array.isArray(f.values) ? f.values[0] : f.values;
+    return val != null && !['me', 'unassigned', 'assigned', 'all', ''].includes(String(val));
+  });
+  if (hasSpecificAssigneeId) return true;
+
   // Verificar cada filtro individualmente (cenários single-row restantes).
   return filters.some(filter => {
     const { attribute_key, filter_operator } = filter;
