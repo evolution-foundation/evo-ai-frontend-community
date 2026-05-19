@@ -3,8 +3,8 @@
 Scoped design layer for the Flow Builder (React Flow / Journey screen). Delivers tokens + bridge components consumed by Epic 10 downstream stories.
 
 **Card:** EVO-1253
-**Scope:** tokens, bridge components, demo route. **NOT** node modals (owned by EVO-1264).
-**Architecture doc:** `_evo-output/planning-artifacts/flow-builder-design-system/architecture.md`
+**Scope:** tokens, bridge components, Storybook stories, namespace + Button + Typography + Spacing contracts. **NOT** node modals (owned by EVO-1264).
+**Architecture doc:** [`docs/architecture/flow-builder-design-system/architecture.md`](../../../../docs/architecture/flow-builder-design-system/architecture.md) (sibling PRD: [`prd.md`](../../../../docs/architecture/flow-builder-design-system/prd.md))
 
 ---
 

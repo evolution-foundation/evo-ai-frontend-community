@@ -18,13 +18,26 @@ describe('FlowFeedbackBanner', () => {
     },
   );
 
-  it('uses role="alert" for warn and error, role="status" for info and success', () => {
-    const { rerender } = render(
-      <FlowFeedbackBanner variant="error">err</FlowFeedbackBanner>,
+  it.each([
+    ['warn', 'alert'],
+    ['error', 'alert'],
+    ['info', 'status'],
+    ['success', 'status'],
+  ] as const)('uses role=%s → %s default mapping', (variant, expectedRole) => {
+    render(
+      <FlowFeedbackBanner variant={variant} data-testid="banner">
+        {variant}
+      </FlowFeedbackBanner>,
     );
-    expect(screen.getByText('err').getAttribute('role')).toBe('alert');
+    expect(screen.getByTestId('banner').getAttribute('role')).toBe(expectedRole);
+  });
 
-    rerender(<FlowFeedbackBanner variant="info">info</FlowFeedbackBanner>);
-    expect(screen.getByText('info').getAttribute('role')).toBe('status');
+  it('honors a consumer-provided role over the default mapping', () => {
+    render(
+      <FlowFeedbackBanner variant="error" role="region" data-testid="banner">
+        custom role
+      </FlowFeedbackBanner>,
+    );
+    expect(screen.getByTestId('banner').getAttribute('role')).toBe('region');
   });
 });

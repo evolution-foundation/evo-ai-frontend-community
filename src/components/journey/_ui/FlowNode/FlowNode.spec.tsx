@@ -4,7 +4,7 @@ import { FlowNode } from './FlowNode';
 
 describe('FlowNode', () => {
   it.each(['trigger', 'condition', 'control', 'exit'] as const)(
-    'renders kind %s with the matching token class set',
+    'renders variant %s with the matching token class set',
     (variant) => {
       render(<FlowNode variant={variant} data-testid="node" />);
       const node = screen.getByTestId('node');

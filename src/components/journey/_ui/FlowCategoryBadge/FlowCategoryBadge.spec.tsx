@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { FlowCategoryBadge } from './FlowCategoryBadge';
 
 describe('FlowCategoryBadge', () => {
-  it.each(['trigger', 'action', 'condition', 'control', 'exit'] as const)(
+  it.each(['trigger', 'condition', 'control', 'exit'] as const)(
     'renders variant %s with the matching token class set',
     (variant) => {
       render(
@@ -12,11 +12,24 @@ describe('FlowCategoryBadge', () => {
         </FlowCategoryBadge>,
       );
       const badge = screen.getByTestId('badge');
-      const expectedToken =
-        variant === 'action' ? 'flow-node-action-message' : `flow-node-${variant}`;
-      expect(badge.className).toContain(`${expectedToken}-bg`);
-      expect(badge.className).toContain(`${expectedToken}-fg`);
-      expect(badge.className).toContain(`${expectedToken}-border`);
+      expect(badge.className).toContain(`flow-node-${variant}-bg`);
+      expect(badge.className).toContain(`flow-node-${variant}-fg`);
+      expect(badge.className).toContain(`flow-node-${variant}-border`);
+    },
+  );
+
+  it.each(['message', 'webhook', 'label', 'pipeline'] as const)(
+    'renders action subtype %s with action-* token classes',
+    (subtype) => {
+      render(
+        <FlowCategoryBadge variant="action" subtype={subtype} data-testid="badge">
+          action · {subtype}
+        </FlowCategoryBadge>,
+      );
+      const badge = screen.getByTestId('badge');
+      expect(badge.className).toContain(`flow-node-action-${subtype}-bg`);
+      expect(badge.className).toContain(`flow-node-action-${subtype}-fg`);
+      expect(badge.className).toContain(`flow-node-action-${subtype}-border`);
     },
   );
 
