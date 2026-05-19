@@ -1108,7 +1108,7 @@ const ChatSidebar = ({
                 conversation,
                 <div
                   key={conversation.id}
-                  className={`p-4 hover:bg-accent cursor-pointer transition-colors ${
+                  className={`group p-4 hover:bg-accent cursor-pointer transition-colors ${
                     isSelected
                       ? 'bg-primary/10 border-l-2 border-l-primary'
                       : 'border-b border-border/50'
@@ -1207,10 +1207,12 @@ const ChatSidebar = ({
                       className="flex flex-col items-end gap-1 flex-shrink-0"
                       onClick={e => e.stopPropagation()}
                     >
+                      <div className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                       <ConversationActionsDropdown
                         conversation={conversation}
                         allPipelines={allPipelines}
-                        convPipelineStates={convPipelineStates.get(String(conversation.id)) ?? []}
+                        pipelinesForConversation={convPipelineStates.get(String(conversation.id)) ?? []}
+                        pipelinesLoadFailed={pipelinesLoadFailed}
                         isLoadingPipelines={loadingConvPipelines.has(String(conversation.id))}
                         onPipelineStageSelect={(pipeline, stage) =>
                           handlePipelineStageSelect(conversation, pipeline, stage)
@@ -1221,6 +1223,16 @@ const ChatSidebar = ({
                         onDropdownOpen={() =>
                           loadConversationPipelineState(String(conversation.id))
                         }
+                        onRetryLoadPipelines={async () => {
+                          setPipelinesLoadFailed(false);
+                          try {
+                            const resp = await pipelinesService.getPipelines({ is_active: true });
+                            setAllPipelines(resp.data ?? []);
+                            setIsPipelinesLoaded(true);
+                          } catch {
+                            setPipelinesLoadFailed(true);
+                          }
+                        }}
                         onMarkAsRead={() => onMarkAsRead(conversation)}
                         onMarkAsUnread={() => onMarkAsUnread(conversation)}
                         onAssignAgent={() => onAssignAgent(conversation)}
@@ -1228,6 +1240,7 @@ const ChatSidebar = ({
                         onAssignTag={() => onAssignTag(conversation)}
                         onDeleteConversation={() => onDeleteConversation(conversation)}
                       />
+                      </div>
                       {(conversations.getUnreadCount(conversation.id) || 0) > 0 && (
                         <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
                       )}

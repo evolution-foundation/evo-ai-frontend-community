@@ -49,10 +49,12 @@ interface ConversationActionsDropdownProps {
   onAssignTag?: (conversation: Conversation) => void;
   onDeleteConversation?: (conversation: Conversation) => void;
   allPipelines?: Pipeline[];
-  convPipelineStates?: Pipeline[];
+  pipelinesForConversation?: Pipeline[];
+  pipelinesLoadFailed?: boolean;
   isLoadingPipelines?: boolean;
   onPipelineStageSelect?: (pipeline: Pipeline, stage: PipelineStage) => void;
   onRemoveFromPipeline?: (pipeline: Pipeline) => void;
+  onRetryLoadPipelines?: () => Promise<void>;
   onDropdownOpen?: () => void;
 }
 
@@ -66,10 +68,12 @@ const ConversationActionsDropdown: React.FC<ConversationActionsDropdownProps> = 
   onAssignTag,
   onDeleteConversation,
   allPipelines,
-  convPipelineStates,
+  pipelinesForConversation,
+  pipelinesLoadFailed,
   isLoadingPipelines,
   onPipelineStageSelect,
   onRemoveFromPipeline,
+  onRetryLoadPipelines,
   onDropdownOpen,
 }) => {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
@@ -354,14 +358,26 @@ const ConversationActionsDropdown: React.FC<ConversationActionsDropdownProps> = 
             : t('conversationActionsDropdown.archiveConversation')}
         </DropdownMenuItem>
 
-        {allPipelines && allPipelines.length > 0 && (
+        {allPipelines !== undefined && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               {t('pipeline.section')}
             </DropdownMenuLabel>
-            {allPipelines.map(pipeline => {
-              const convInThisPipeline = convPipelineStates?.find(p => p.id === pipeline.id);
+            {pipelinesLoadFailed ? (
+              <DropdownMenuItem
+                className="text-destructive text-xs"
+                onClick={() => onRetryLoadPipelines?.()}
+              >
+                {t('pipeline.loadError')}
+              </DropdownMenuItem>
+            ) : allPipelines.length === 0 ? (
+              <DropdownMenuItem disabled className="text-xs">
+                {t('pipeline.noPipelines')}
+              </DropdownMenuItem>
+            ) : null}
+            {!pipelinesLoadFailed && allPipelines.map(pipeline => {
+              const convInThisPipeline = pipelinesForConversation?.find(p => p.id === pipeline.id);
               const convId = String(conversation!.id);
               return (
                 <DropdownMenuSub key={pipeline.id}>
