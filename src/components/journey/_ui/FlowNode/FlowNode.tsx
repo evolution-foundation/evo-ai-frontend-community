@@ -18,7 +18,9 @@ export const FlowNode = forwardRef<HTMLDivElement, FlowNodeProps>(function FlowN
   ref,
 ) {
   if (props.variant === 'action') {
-    const { variant: _variant, subtype, className, ...rest } = props;
+    // variant intentionally discarded — only used as the discriminator, must not reach the DOM
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { variant, subtype, className, ...rest } = props;
     const kind: FlowNodeKind = `action-${subtype}`;
     return (
       <div ref={ref} className={cn(flowNodeVariants({ kind }), className)} {...rest} />
