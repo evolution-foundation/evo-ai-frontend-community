@@ -55,6 +55,7 @@ import { NoConversations } from '../empty-states';
 import ContactAvatar from '../contact/ContactAvatar';
 import ConversationBadges from '../conversation/ConversationBadges';
 import ConversationsFilter from '../conversation/ConversationsFilter';
+import ConversationActionsDropdown from '../conversation/ConversationActionsDropdown';
 import GlobalSearchPanel from '../search/GlobalSearchPanel';
 import { BaseFilter } from '@/types/core';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -1202,16 +1203,34 @@ const ChatSidebar = ({
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                      {(() => {
-                        // ðŸ"µ INDICADOR PADRÃƒO: Bolinha pequena seguindo padrÃ£o do sistema
-                        const hasUnreadMessages =
-                          (conversations.getUnreadCount(conversation.id) || 0) > 0;
-
-                        return hasUnreadMessages ? (
-                          <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
-                        ) : null;
-                      })()}
+                    <div
+                      className="flex flex-col items-end gap-1 flex-shrink-0"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <ConversationActionsDropdown
+                        conversation={conversation}
+                        allPipelines={allPipelines}
+                        convPipelineStates={convPipelineStates.get(String(conversation.id)) ?? []}
+                        isLoadingPipelines={loadingConvPipelines.has(String(conversation.id))}
+                        onPipelineStageSelect={(pipeline, stage) =>
+                          handlePipelineStageSelect(conversation, pipeline, stage)
+                        }
+                        onRemoveFromPipeline={pipeline =>
+                          handleRemoveFromPipeline(conversation, pipeline)
+                        }
+                        onDropdownOpen={() =>
+                          loadConversationPipelineState(String(conversation.id))
+                        }
+                        onMarkAsRead={() => onMarkAsRead(conversation)}
+                        onMarkAsUnread={() => onMarkAsUnread(conversation)}
+                        onAssignAgent={() => onAssignAgent(conversation)}
+                        onAssignTeam={() => onAssignTeam(conversation)}
+                        onAssignTag={() => onAssignTag(conversation)}
+                        onDeleteConversation={() => onDeleteConversation(conversation)}
+                      />
+                      {(conversations.getUnreadCount(conversation.id) || 0) > 0 && (
+                        <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
+                      )}
                     </div>
                   </div>
                 </div>,

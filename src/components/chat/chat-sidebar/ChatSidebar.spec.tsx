@@ -82,6 +82,17 @@ vi.mock('../search/GlobalSearchPanel', () => ({
   default: () => <div data-testid="global-search-panel" />,
 }));
 
+vi.mock('@/hooks/chat/useConversations', () => ({
+  useConversations: () => ({
+    updateConversationStatus: vi.fn().mockResolvedValue(undefined),
+    updateConversationPriority: vi.fn().mockResolvedValue(undefined),
+    pinConversation: vi.fn().mockResolvedValue(undefined),
+    unpinConversation: vi.fn().mockResolvedValue(undefined),
+    archiveConversation: vi.fn().mockResolvedValue(undefined),
+    unarchiveConversation: vi.fn().mockResolvedValue(undefined),
+  }),
+}));
+
 const makeConversation = (id = '42') =>
   ({
     id,
