@@ -179,6 +179,29 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+const open3DotPipelineStage = async (
+  user: ReturnType<typeof userEvent.setup>,
+  pipelineName: string,
+  stageName: string,
+) => {
+  // The 3-dot button sr-only text is the i18n key (mock returns key as-is)
+  const srLabel = screen.getByText('conversationActionsDropdown.srOnly');
+  const trigger = srLabel.closest('button') as HTMLElement;
+  await user.click(trigger);
+
+  await waitFor(() => screen.getByText('pipeline.section'), { timeout: 2000 });
+
+  const pipelineEl = await screen.findByText(pipelineName, {}, { timeout: 2000 });
+  const pipelineSubTrigger = (
+    pipelineEl.closest('[data-slot="dropdown-menu-sub-trigger"]') ?? pipelineEl
+  ) as HTMLElement;
+  pipelineSubTrigger.focus();
+  await user.keyboard('{ArrowRight}');
+
+  await waitFor(() => screen.getByText(stageName), { timeout: 2000 });
+  await user.click(screen.getByText(stageName));
+};
+
 const openContextMenuPipelineStage = async (
   user: ReturnType<typeof userEvent.setup>,
   pipelineName: string,
@@ -216,6 +239,73 @@ describe('ChatSidebar pipeline', () => {
     is_lead: false,
     created_at: '',
     updated_at: '',
+  });
+
+  it('dispatches addItemToPipeline when selecting a stage via 3-dot row menu (Path A)', async () => {
+    const pipeline = makePipeline('p1', [{ id: 'stage-1', name: 'Lead' }]);
+    vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [pipeline] } as never);
+    vi.mocked(pipelinesService.getPipelinesByConversation).mockResolvedValue([]);
+    vi.mocked(pipelinesService.addItemToPipeline).mockResolvedValue({} as never);
+
+    render(<ChatSidebar {...defaultProps} />);
+    await waitFor(() => expect(pipelinesService.getPipelines).toHaveBeenCalled());
+
+    const user = userEvent.setup();
+    await open3DotPipelineStage(user, 'Pipeline p1', 'Lead');
+
+    await waitFor(() => {
+      expect(pipelinesService.addItemToPipeline).toHaveBeenCalledWith('p1', {
+        item_id: '42',
+        type: 'conversation',
+        pipeline_stage_id: 'stage-1',
+      });
+    });
+  });
+
+  it('dispatches moveItem via 3-dot row menu when conversation is already in the same pipeline (Path A)', async () => {
+    const existingItem = {
+      id: 'item-dot',
+      item_id: '42',
+      stage_id: 'stage-1',
+      pipeline_id: 'p1',
+      type: 'conversation',
+      is_lead: false,
+      created_at: '',
+      updated_at: '',
+    };
+    const pipeline = {
+      id: 'p1',
+      name: 'Pipeline p1',
+      pipeline_type: 'custom' as const,
+      visibility: 'public' as const,
+      is_active: true,
+      stages: [
+        { id: 'stage-1', name: 'Lead', color: '#000', position: 0, created_at: '', updated_at: '', items: [existingItem] },
+        { id: 'stage-2', name: 'Qualified', color: '#000', position: 1, created_at: '', updated_at: '', items: [] },
+      ],
+      created_at: '',
+      updated_at: '',
+    };
+
+    vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [pipeline] } as never);
+    vi.mocked(pipelinesService.getPipelinesByConversation).mockResolvedValue([pipeline]);
+    vi.mocked(pipelinesService.moveItem).mockResolvedValue({ success: true, message: '' });
+
+    render(<ChatSidebar {...defaultProps} />);
+    await waitFor(() => expect(pipelinesService.getPipelines).toHaveBeenCalled());
+
+    const user = userEvent.setup();
+    await open3DotPipelineStage(user, 'Pipeline p1', 'Qualified');
+
+    await waitFor(() => {
+      expect(pipelinesService.moveItem).toHaveBeenCalledWith({
+        pipeline_id: 'p1',
+        item_id: 'item-dot',
+        from_stage_id: 'stage-1',
+        to_stage_id: 'stage-2',
+      });
+      expect(pipelinesService.addItemToPipeline).not.toHaveBeenCalled();
+    });
   });
 
   it('shows loading label in stage submenu while getPipelinesByConversation is pending (isLoadingConvPipelines guard)', async () => {

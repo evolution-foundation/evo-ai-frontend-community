@@ -188,6 +188,17 @@ const ChatSidebar = ({
     return () => { cancelled = true; };
   }, []);
 
+  const handleRetryLoadPipelines = useCallback(async () => {
+    setPipelinesLoadFailed(false);
+    try {
+      const resp = await pipelinesService.getPipelines({ is_active: true });
+      setAllPipelines(resp.data ?? []);
+      setIsPipelinesLoaded(true);
+    } catch {
+      setPipelinesLoadFailed(true);
+    }
+  }, []);
+
   const loadConversationPipelineState = useCallback(async (convId: string) => {
     const current = pipelineFetchCountRef.current.get(convId) ?? 0;
     const fetchId = current + 1;
@@ -1208,38 +1219,30 @@ const ChatSidebar = ({
                       onClick={e => e.stopPropagation()}
                     >
                       <div className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-                      <ConversationActionsDropdown
-                        conversation={conversation}
-                        allPipelines={allPipelines}
-                        pipelinesForConversation={convPipelineStates.get(String(conversation.id)) ?? []}
-                        pipelinesLoadFailed={pipelinesLoadFailed}
-                        isLoadingPipelines={loadingConvPipelines.has(String(conversation.id))}
-                        onPipelineStageSelect={(pipeline, stage) =>
-                          handlePipelineStageSelect(conversation, pipeline, stage)
-                        }
-                        onRemoveFromPipeline={pipeline =>
-                          handleRemoveFromPipeline(conversation, pipeline)
-                        }
-                        onDropdownOpen={() =>
-                          loadConversationPipelineState(String(conversation.id))
-                        }
-                        onRetryLoadPipelines={async () => {
-                          setPipelinesLoadFailed(false);
-                          try {
-                            const resp = await pipelinesService.getPipelines({ is_active: true });
-                            setAllPipelines(resp.data ?? []);
-                            setIsPipelinesLoaded(true);
-                          } catch {
-                            setPipelinesLoadFailed(true);
+                        <ConversationActionsDropdown
+                          conversation={conversation}
+                          allPipelines={allPipelines}
+                          isPipelinesLoaded={isPipelinesLoaded}
+                          pipelinesForConversation={convPipelineStates.get(String(conversation.id)) ?? []}
+                          pipelinesLoadFailed={pipelinesLoadFailed}
+                          isLoadingPipelines={loadingConvPipelines.has(String(conversation.id))}
+                          onPipelineStageSelect={(pipeline, stage) =>
+                            handlePipelineStageSelect(conversation, pipeline, stage)
                           }
-                        }}
-                        onMarkAsRead={() => onMarkAsRead(conversation)}
-                        onMarkAsUnread={() => onMarkAsUnread(conversation)}
-                        onAssignAgent={() => onAssignAgent(conversation)}
-                        onAssignTeam={() => onAssignTeam(conversation)}
-                        onAssignTag={() => onAssignTag(conversation)}
-                        onDeleteConversation={() => onDeleteConversation(conversation)}
-                      />
+                          onRemoveFromPipeline={pipeline =>
+                            handleRemoveFromPipeline(conversation, pipeline)
+                          }
+                          onDropdownOpen={() =>
+                            loadConversationPipelineState(String(conversation.id))
+                          }
+                          onRetryLoadPipelines={handleRetryLoadPipelines}
+                          onMarkAsRead={() => onMarkAsRead(conversation)}
+                          onMarkAsUnread={() => onMarkAsUnread(conversation)}
+                          onAssignAgent={() => onAssignAgent(conversation)}
+                          onAssignTeam={() => onAssignTeam(conversation)}
+                          onAssignTag={() => onAssignTag(conversation)}
+                          onDeleteConversation={() => onDeleteConversation(conversation)}
+                        />
                       </div>
                       {(conversations.getUnreadCount(conversation.id) || 0) > 0 && (
                         <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />

@@ -49,6 +49,7 @@ interface ConversationActionsDropdownProps {
   onAssignTag?: (conversation: Conversation) => void;
   onDeleteConversation?: (conversation: Conversation) => void;
   allPipelines?: Pipeline[];
+  isPipelinesLoaded?: boolean;
   pipelinesForConversation?: Pipeline[];
   pipelinesLoadFailed?: boolean;
   isLoadingPipelines?: boolean;
@@ -68,6 +69,7 @@ const ConversationActionsDropdown: React.FC<ConversationActionsDropdownProps> = 
   onAssignTag,
   onDeleteConversation,
   allPipelines,
+  isPipelinesLoaded,
   pipelinesForConversation,
   pipelinesLoadFailed,
   isLoadingPipelines,
@@ -371,14 +373,21 @@ const ConversationActionsDropdown: React.FC<ConversationActionsDropdownProps> = 
               >
                 {t('pipeline.loadError')}
               </DropdownMenuItem>
+            ) : !isPipelinesLoaded ? (
+              <DropdownMenuItem disabled className="text-xs">
+                {t('pipeline.loading')}
+              </DropdownMenuItem>
             ) : allPipelines.length === 0 ? (
               <DropdownMenuItem disabled className="text-xs">
                 {t('pipeline.noPipelines')}
               </DropdownMenuItem>
             ) : null}
-            {!pipelinesLoadFailed && allPipelines.map(pipeline => {
-              const convInThisPipeline = pipelinesForConversation?.find(p => p.id === pipeline.id);
+            {isPipelinesLoaded && !pipelinesLoadFailed && allPipelines.map(pipeline => {
               const convId = String(conversation!.id);
+              const convInThisPipeline = pipelinesForConversation?.find(p => p.id === pipeline.id);
+              const currentItem = convInThisPipeline
+                ? findItemInPipeline(convInThisPipeline, convId)
+                : undefined;
               return (
                 <DropdownMenuSub key={pipeline.id}>
                   <DropdownMenuSubTrigger className="flex items-center gap-2">
@@ -393,9 +402,6 @@ const ConversationActionsDropdown: React.FC<ConversationActionsDropdownProps> = 
                     ) : (
                       <>
                         {(pipeline.stages ?? []).map(stage => {
-                          const currentItem = convInThisPipeline
-                            ? findItemInPipeline(convInThisPipeline, convId)
-                            : undefined;
                           const isCurrentStage = currentItem?.stage_id === stage.id;
                           return (
                             <DropdownMenuItem
