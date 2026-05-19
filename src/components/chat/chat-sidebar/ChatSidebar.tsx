@@ -67,6 +67,7 @@ import type {
   SearchContactResult,
   SearchMessageResult,
 } from '@/types/chat/search';
+import { findItemInPipeline } from '@/utils/chat/pipelineUtils';
 
 interface ChatSidebarProps {
   mobileView: 'list' | 'chat';
@@ -240,11 +241,9 @@ const ChatSidebar = ({
       const existingInOtherPipelines = currentPipelines.filter(p => p.id !== pipeline.id);
 
       if (existingInSamePipeline) {
-        const item = existingInSamePipeline.items?.find(
-          i => String(i.item_id) === convId,
-        );
+        const item = findItemInPipeline(existingInSamePipeline, convId);
         const itemId = item?.id;
-        if (!itemId) return;
+        if (!itemId) { toast.error(t('pipeline.moveError')); return; }
         try {
           await pipelinesService.moveItem({
             pipeline_id: pipeline.id,
@@ -269,7 +268,7 @@ const ChatSidebar = ({
         if (existingInOtherPipelines.length > 0) {
           const removeResults = await Promise.allSettled(
             existingInOtherPipelines.map(p => {
-              const item = p.items?.find(i => String(i.item_id) === convId);
+              const item = findItemInPipeline(p, convId);
               return item?.id
                 ? pipelinesService.removeItemFromPipeline(p.id, item.id)
                 : Promise.resolve();
@@ -308,9 +307,9 @@ const ChatSidebar = ({
   const handleRemoveFromPipeline = useCallback(
     async (conversation: Conversation, pipeline: Pipeline) => {
       const convId = String(conversation.id);
-      const item = pipeline.items?.find(i => String(i.item_id) === convId);
+      const item = findItemInPipeline(pipeline, convId);
       const itemId = item?.id;
-      if (!itemId) return;
+      if (!itemId) { toast.error(t('pipeline.removeError')); return; }
       try {
         await pipelinesService.removeItemFromPipeline(pipeline.id, itemId);
         toast.success(t('pipeline.removeSuccess'));
@@ -368,59 +367,61 @@ const ChatSidebar = ({
 
       return (
         <>
-          {allPipelines.map(pipeline => (
-            <ContextMenuSub key={pipeline.id}>
-              <ContextMenuSubTrigger className="flex items-center gap-2">
-                <GitBranch className="h-4 w-4" />
-                {pipeline.name}
-              </ContextMenuSubTrigger>
-              <ContextMenuSubContent>
-                {isConvLoading ? (
-                  <ContextMenuLabel className="text-xs">{t('pipeline.loading')}</ContextMenuLabel>
-                ) : (
-                  <>
-                    {(pipeline.stages ?? []).map(stage => {
-                      const convInThisPipeline = currentPipelines.find(p => p.id === pipeline.id);
-                      const currentItem = convInThisPipeline?.items?.find(
-                        i => String(i.item_id) === convId,
-                      );
-                      const isCurrentStage = currentItem?.stage_id === stage.id;
+          {allPipelines.map(pipeline => {
+            const convInThisPipeline = currentPipelines.find(p => p.id === pipeline.id);
+            const currentItem = convInThisPipeline
+              ? findItemInPipeline(convInThisPipeline, convId)
+              : undefined;
+            return (
+              <ContextMenuSub key={pipeline.id}>
+                <ContextMenuSubTrigger className="flex items-center gap-2">
+                  <GitBranch className="h-4 w-4" />
+                  {pipeline.name}
+                </ContextMenuSubTrigger>
+                <ContextMenuSubContent>
+                  {isConvLoading ? (
+                    <ContextMenuLabel className="text-xs">{t('pipeline.loading')}</ContextMenuLabel>
+                  ) : (
+                    <>
+                      {(pipeline.stages ?? []).map(stage => {
+                        const isCurrentStage = currentItem?.stage_id === stage.id;
 
-                      return (
-                        <ContextMenuItem
-                          key={stage.id}
-                          onClick={e => {
-                            e.stopPropagation();
-                            handlePipelineStageSelect(conversation, pipeline, stage);
-                          }}
-                          className="flex items-center gap-2"
-                        >
-                          {isCurrentStage && <Check className="h-3 w-3 text-primary" />}
-                          {!isCurrentStage && <span className="w-3" />}
-                          {stage.name}
-                        </ContextMenuItem>
-                      );
-                    })}
-                    {currentPipelines.some(p => p.id === pipeline.id) && (
-                      <>
-                        <ContextMenuSeparator />
-                        <ContextMenuItem
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleRemoveFromPipeline(conversation, pipeline);
-                          }}
-                          className="flex items-center gap-2 text-destructive focus:text-destructive"
-                        >
-                          <X className="h-4 w-4" />
-                          {t('pipeline.removeFrom')}
-                        </ContextMenuItem>
-                      </>
-                    )}
-                  </>
-                )}
-              </ContextMenuSubContent>
-            </ContextMenuSub>
-          ))}
+                        return (
+                          <ContextMenuItem
+                            key={stage.id}
+                            onClick={e => {
+                              e.stopPropagation();
+                              handlePipelineStageSelect(conversation, pipeline, stage);
+                            }}
+                            className="flex items-center gap-2"
+                          >
+                            {isCurrentStage && <Check className="h-3 w-3 text-primary" />}
+                            {!isCurrentStage && <span className="w-3" />}
+                            {stage.name}
+                          </ContextMenuItem>
+                        );
+                      })}
+                      {convInThisPipeline && (
+                        <>
+                          <ContextMenuSeparator />
+                          <ContextMenuItem
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleRemoveFromPipeline(conversation, convInThisPipeline);
+                            }}
+                            className="flex items-center gap-2 text-destructive focus:text-destructive"
+                          >
+                            <X className="h-4 w-4" />
+                            {t('pipeline.removeFrom')}
+                          </ContextMenuItem>
+                        </>
+                      )}
+                    </>
+                  )}
+                </ContextMenuSubContent>
+              </ContextMenuSub>
+            );
+          })}
         </>
       );
     },

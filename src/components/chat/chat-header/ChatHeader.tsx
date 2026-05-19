@@ -46,6 +46,7 @@ import { useChatContext } from '@/contexts/chat/ChatContext';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import chatService from '@/services/chat/chatService';
 import { toast } from 'sonner';
+import { findItemInPipeline } from '@/utils/chat/pipelineUtils';
 
 interface ChatHeaderProps {
   conversation: Conversation;
@@ -171,19 +172,20 @@ const ChatHeader = ({
   }, [menuOpen, conversation.id, reloadConvPipelineData]);
 
   const refreshConversationBadge = useCallback(async () => {
-    try {
-      const raw = await chatService.getConversation(String(conversation.id));
+    const [badgeResult, pipelinesResult] = await Promise.allSettled([
+      chatService.getConversation(String(conversation.id)),
+      pipelinesService.getPipelinesByConversation(String(conversation.id)),
+    ]);
+
+    if (badgeResult.status === 'fulfilled') {
+      const raw = badgeResult.value;
       const envelope = raw as unknown as { data?: Conversation } | null;
       const updated: Conversation | null = envelope?.data ?? (raw as unknown as Conversation);
-      if (updated) {
-        chatContext.conversations.updateConversation(updated);
-        const pipelines = await pipelinesService.getPipelinesByConversation(
-          String(conversation.id),
-        );
-        if (isMountedRef.current) setConvPipelineData({ pipelines });
-      }
-    } catch {
-      // badge refresh is best-effort
+      if (updated) chatContext.conversations.updateConversation(updated);
+    }
+
+    if (pipelinesResult.status === 'fulfilled' && isMountedRef.current) {
+      setConvPipelineData({ pipelines: pipelinesResult.value });
     }
   }, [conversation.id, chatContext]);
 
@@ -194,11 +196,9 @@ const ChatHeader = ({
       const existingInOtherPipelines = currentPipelines.filter(p => p.id !== pipeline.id);
 
       if (existingInSamePipeline) {
-        const item = existingInSamePipeline.items?.find(
-          i => String(i.item_id) === String(conversation.id),
-        );
+        const item = findItemInPipeline(existingInSamePipeline, String(conversation.id));
         const itemId = item?.id;
-        if (!itemId) return;
+        if (!itemId) { toast.error(t('pipeline.moveError')); return; }
         try {
           await pipelinesService.moveItem({
             pipeline_id: pipeline.id,
@@ -215,7 +215,7 @@ const ChatHeader = ({
         if (existingInOtherPipelines.length > 0) {
           const removeResults = await Promise.allSettled(
             existingInOtherPipelines.map(p => {
-              const item = p.items?.find(i => String(i.item_id) === String(conversation.id));
+              const item = findItemInPipeline(p, String(conversation.id));
               return item?.id
                 ? pipelinesService.removeItemFromPipeline(p.id, item.id)
                 : Promise.resolve();
@@ -245,9 +245,9 @@ const ChatHeader = ({
 
   const handleRemoveFromPipeline = useCallback(
     async (pipeline: Pipeline) => {
-      const item = pipeline.items?.find(i => String(i.item_id) === String(conversation.id));
+      const item = findItemInPipeline(pipeline, String(conversation.id));
       const itemId = item?.id;
-      if (!itemId) return;
+      if (!itemId) { toast.error(t('pipeline.removeError')); return; }
       try {
         await pipelinesService.removeItemFromPipeline(pipeline.id, itemId);
         toast.success(t('pipeline.removeSuccess'));
@@ -295,53 +295,55 @@ const ChatHeader = ({
 
     return (
       <>
-        {allPipelines.map(pipeline => (
-          <DropdownMenuSub key={pipeline.id}>
-            <DropdownMenuSubTrigger className="flex items-center gap-2">
-              <GitBranch className="h-4 w-4" />
-              {pipeline.name}
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              {isLoadingConvPipelines ? (
-                <DropdownMenuLabel className="text-xs">{t('pipeline.loading')}</DropdownMenuLabel>
-              ) : (
-                <>
-                  {(pipeline.stages ?? []).map(stage => {
-                    const convInThisPipeline = currentPipelines.find(p => p.id === pipeline.id);
-                    const currentItem = convInThisPipeline?.items?.find(
-                      i => String(i.item_id) === String(conversation.id),
-                    );
-                    const isCurrentStage = currentItem?.stage_id === stage.id;
+        {allPipelines.map(pipeline => {
+          const convInThisPipeline = currentPipelines.find(p => p.id === pipeline.id);
+          const currentItem = convInThisPipeline
+            ? findItemInPipeline(convInThisPipeline, String(conversation.id))
+            : undefined;
+          return (
+            <DropdownMenuSub key={pipeline.id}>
+              <DropdownMenuSubTrigger className="flex items-center gap-2">
+                <GitBranch className="h-4 w-4" />
+                {pipeline.name}
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {isLoadingConvPipelines ? (
+                  <DropdownMenuLabel className="text-xs">{t('pipeline.loading')}</DropdownMenuLabel>
+                ) : (
+                  <>
+                    {(pipeline.stages ?? []).map(stage => {
+                      const isCurrentStage = currentItem?.stage_id === stage.id;
 
-                    return (
-                      <DropdownMenuItem
-                        key={stage.id}
-                        onClick={() => handlePipelineStageSelect(pipeline, stage)}
-                        className="flex items-center gap-2"
-                      >
-                        {isCurrentStage && <Check className="h-3 w-3 text-primary" />}
-                        {!isCurrentStage && <span className="w-3" />}
-                        {stage.name}
-                      </DropdownMenuItem>
-                    );
-                  })}
-                  {currentPipelines.some(p => p.id === pipeline.id) && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => handleRemoveFromPipeline(pipeline)}
-                        className="flex items-center gap-2 text-destructive focus:text-destructive"
-                      >
-                        <X className="h-4 w-4" />
-                        {t('pipeline.removeFrom')}
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </>
-              )}
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-        ))}
+                      return (
+                        <DropdownMenuItem
+                          key={stage.id}
+                          onClick={() => handlePipelineStageSelect(pipeline, stage)}
+                          className="flex items-center gap-2"
+                        >
+                          {isCurrentStage && <Check className="h-3 w-3 text-primary" />}
+                          {!isCurrentStage && <span className="w-3" />}
+                          {stage.name}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                    {convInThisPipeline && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleRemoveFromPipeline(convInThisPipeline)}
+                          className="flex items-center gap-2 text-destructive focus:text-destructive"
+                        >
+                          <X className="h-4 w-4" />
+                          {t('pipeline.removeFrom')}
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                  </>
+                )}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          );
+        })}
       </>
     );
   };
