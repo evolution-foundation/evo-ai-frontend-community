@@ -873,3 +873,77 @@ Implementation story sequence (3 stories after the D11 demo-route removal):
 3. **README finalisation** — token reference, bridge API reference, PR review checklist, WCAG validation guidance (in-situ via axe browser extension). Cross-reference EVO-1264 as the consumer of panel chrome tokens.
 
 Validation moves to: bridge unit tests (`pnpm test src/components/journey/_ui`) cover the variant→class mapping; WCAG / visual validation happens against actual consumer pages once downstream Epic 10 stories ship.
+
+---
+
+## Change Request Revision — 2026-05-19
+
+After PR #93 review (reviewer: Daniel Paes / Davidson), 3 HIGH, 5 MEDIUM, and 5 LOW findings drove the following amendments to the originally-decided architecture. Sections above are preserved as historical record; this section supersedes where it conflicts.
+
+### A5 — Storybook: **IN scope (was OUT)**
+
+Previously resolved as "out of scope, repo doesn't have Storybook installed". Reviewer's H-2 surfaced that AC-4 requires "examples visuais" and the README + descoped demo route together did not meet that bar.
+
+**Change:** install Storybook 10 (`@storybook/react-vite` framework, `@storybook/addon-a11y`, `@storybook/addon-themes`). It becomes the canonical visual reference surface AND the place where contrast is validated in a real browser DOM. Stories live alongside the bridges (`<Component>.stories.tsx`) plus a top-level `Tokens.stories.tsx` showing every token swatch in both modes.
+
+Adds `~67 dev-only packages` (Storybook is dev-only — no production bundle impact). `pnpm storybook` opens at port 6006; `pnpm build-storybook` produces a static bundle (gitignored).
+
+### D8 — WCAG validation tooling: **colorjs.io spec + Storybook a11y (was manual table + axe in vitest)**
+
+Reviewer's H-1 noted the ratio table values were deferred / not pinned. The previous plan deferred measurement to "in-situ via browser axe extension on downstream consumer pages" — defensible but not enforceable in CI.
+
+**Change:** numeric validation now lives in `src/components/journey/_ui/tokens.contrast.spec.ts`. The spec:
+
+- Reads `globals.css` directly via `fs.readFileSync` (single source of truth).
+- Parses every `--flow-*: oklch(...)` declaration from `:root` (light) and `.dark` (dark) blocks via regex.
+- Uses `colorjs.io` (dev dep, 0.6.1, the WCAG-21 algorithm Deque uses for axe-core) to compute the actual contrast ratio for each canonical pair.
+- Asserts AA thresholds: ≥4.5:1 for body text (fg over its bg), ≥3:1 for graphical objects (borders over canvas-bg, edges over canvas-bg).
+- Currently **46/46 assertions pass**.
+
+Visual / browser-side validation remains via Storybook a11y addon (axe-core in real browser DOM, sees the actual rendered tree).
+
+`vitest-axe` (the earlier tooling pick) is no longer relevant — there is no demo route in vitest to scan, and the Storybook addon covers the DOM-level case better.
+
+### D11 — Demo verification surface: **REMOVED (unchanged); Storybook supersedes**
+
+D11 stays removed per the original user direction (no dev-only routes in production bundle). The role Storybook plays now formally absorbs D11's original intent (isolated visual reference surface) without shipping anything in the production bundle.
+
+### D12 — Typed token export (`tokens.ts`)
+
+The original card text mentioned "exportar como arquivo de constantes consumível por componentes". Reviewer's L-3 called this out as missing.
+
+**Change:** add `src/components/journey/_ui/tokens.ts` — a strongly-typed `flowTokens` const object exposing every flow token as a `var(--color-flow-...)` string reference. Consumers outside Tailwind className (inline SVG attrs, Recharts colour props, canvas paint, dynamic CSS-in-JS) now have a single typed source of truth that still resolves through the runtime cascade for dark/light switching. Exported alongside the bridge components via `_ui/index.ts`.
+
+A `tokens.spec.ts` test asserts every entry of `flowTokens` points at the expected CSS variable, catching silent rename drift.
+
+### D13 — ESLint enforcement of `<Button>` discipline
+
+Reviewer's M-2 surfaced that the Button contract documented in the README had no automated enforcement.
+
+**Change:** an override in `eslint.config.js` rejects raw `<button>` elements anywhere under `src/components/journey/**` or `src/pages/Customer/Journey/**` with a pointer to the README's "Button contract" section. Three pre-existing violations carry inline `eslint-disable` comments referencing the cards that will migrate them (EVO-1274 for SendMessagePanel; environment-manager refactor TBD for VariableInput/VariableTextarea).
+
+The rule prevents NEW raw buttons from entering the Flow Builder surface.
+
+### D14 — `FlowCategoryBadge` API: required `subtype` for `action` variant
+
+Reviewer's M-3 surfaced that the original badge implementation forced `action-message` colours for any action subtype — a `webhook` node with a blue badge reintroduced Pain #3/#5 (visual inconsistency).
+
+**Change:** `<FlowCategoryBadge>` now uses the same discriminated-union API as `<FlowNode>` — `variant + REQUIRED subtype when variant="action"`. The badge colour tracks the actual subtype.
+
+Breaking change to the `<FlowCategoryBadge>` API; no internal consumers exist yet (M-5 confirms the umbrella has zero in-tree consumers at this point), so the break is benign.
+
+### D15 — Documentation surface relocation
+
+Reviewer's H-3 surfaced that the original architecture.md path (`_evo-output/planning-artifacts/...`) was gitignored at the monorepo root (`_evo*` in `.gitignore`) and therefore unreachable for the reviewer. README's "Architecture doc" link pointed at a path that did not exist in the PR.
+
+**Change:** PRD and architecture (this file) relocate from `_evo-output/planning-artifacts/flow-builder-design-system/` to `evo-ai-frontend-community/docs/architecture/flow-builder-design-system/`. README's link updates accordingly. The `_evo-output/` location remains the BMM workflow scratch (gitignored); the tracked location under `docs/` is what reviewers and downstream consumers reach.
+
+### Story sequence after revision (5 stories)
+
+1. Token layer (oklch declared in `globals.css`).
+2. Bridge components (`FlowNode`, `FlowCategoryBadge`, `FlowFeedbackBanner`).
+3. Typed `tokens.ts` export.
+4. Storybook 10 setup + stories (Tokens + 3 bridges).
+5. WCAG `tokens.contrast.spec.ts` + ESLint button rule + computed-style spec coverage.
+
+README finalisation runs in parallel with each story (cross-references update as code lands).

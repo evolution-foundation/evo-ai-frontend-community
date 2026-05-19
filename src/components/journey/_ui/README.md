@@ -237,26 +237,43 @@ This contract satisfies the typography / spacing items in the EVO-1253 in-scope 
 
 ## Visual verification
 
-This card does NOT ship a dedicated demo / preview surface. Visual verification happens **in situ**: open any flow page that consumes the bridges or tokens after a downstream story lands, toggle dark / light via the CRM header, and use the browser axe DevTools extension on that real page.
+The card ships a **Storybook 10** environment as the canonical visual reference. Run locally:
 
-If you need an isolated swatch view during development, build one locally as a one-off page and discard before committing.
+```bash
+pnpm storybook
+# opens http://localhost:6006
+```
+
+Story coverage:
+
+- **Flow Builder / Tokens / Overview** — every `--color-flow-*` swatch grouped by surface.
+- **Flow Builder / FlowNode** — every variant + every action subtype, plus an `AllVariantsMatrix`.
+- **Flow Builder / FlowCategoryBadge** — every variant + every action subtype, plus `AllVariantsRow`.
+- **Flow Builder / FlowFeedbackBanner** — every variant, plus a `Stack`.
+
+The toolbar **theme switcher** (light / dark, defaulting to dark) toggles the `.dark` class on `html`, so every story flips through both modes without code changes. The **Accessibility panel** runs `@storybook/addon-a11y` (axe-core in a real browser DOM) — contrast checks here are authoritative.
+
+For static review (no dev server): `pnpm build-storybook` produces a deployable static bundle in `storybook-static/` (gitignored).
 
 ---
 
-## WCAG ratio table (validation status)
+## WCAG validation
 
-Contrast ratios must meet WCAG AA: **≥4.5:1 for body text** and **≥3:1 for graphical objects / large text**. Validation happens against the actual rendered consumer (a node on the canvas, a feedback banner inside a modal, etc.), not against a synthetic surface.
+Two complementary checks back AC-1 / AC-2:
 
-| Pair | Threshold | When to validate |
-|---|---|---|
-| Node `bg` × Canvas `bg` | ≥3:1 graphical | When a downstream story (e.g. EVO-1270 light mode, EVO-1268 palette redesign) renders nodes on the canvas. |
-| Node `fg` × Node `bg` | ≥4.5:1 body | Same — text legibility on rendered nodes. |
-| Node `border` × Canvas `bg` | ≥3:1 graphical | Same — border perception against canvas. |
-| Feedback `fg` × Feedback `bg` | ≥4.5:1 body | When `<FlowFeedbackBanner>` is rendered inside a panel by EVO-1274. |
-| Edge `default/active/error` × Canvas `bg` | ≥3:1 graphical | When edges are styled with flow-edge-* tokens (downstream). |
-| Canvas `grid` × Canvas `bg` | <3:1 (intentional) | Grid is decorative; should NOT compete with content. |
+1. **Numeric assertion in CI** — `src/components/journey/_ui/tokens.contrast.spec.ts` reads `globals.css` directly, parses every `--flow-*: oklch(...)` declaration in `:root` (light) and `.dark` (dark), and uses `colorjs.io` to compute WCAG 2.1 contrast ratios. The spec asserts the pairs required by the ACs:
+   - Body text (≥4.5:1): every `<token>-fg` over its `<token>-bg` (5 node categories + 4 action subtypes + 4 feedback variants in both modes).
+   - Graphical objects (≥3:1): every node / action subtype border over canvas-bg, plus the 3 edge colours over canvas-bg.
+   - Run with `pnpm test src/components/journey/_ui/tokens.contrast.spec.ts` — 46/46 currently pass.
+2. **Visual a11y audit in browser** — Storybook a11y addon's Accessibility panel scans every story's rendered DOM (color-contrast rule explicitly enabled). Run via `pnpm storybook` and click through each story in both modes.
 
-**How to validate:** install the browser axe DevTools extension. On any page consuming the bridges (e.g. the journey editor after downstream stories ship), run a scan in both dark and light modes. Pin any measured ratios that fall below threshold as follow-up issues against the consuming card, OR adjust the source `oklch()` values in `globals.css` here if the token itself is the problem.
+**Intentionally out of scope of the AA assertions** (per WCAG 2.1 scope rules):
+
+- Node `bg` vs Canvas `bg` — visual grouping fill, not a graphical object conveying information. The node's identity comes from its FG text and its border, both still asserted.
+- Palette `divider` / Panel `divider` — decorative separators (WCAG 1.4.11 exempts pure decoration).
+- Feedback banner `border` vs `bg` — decorative accent; variant is identified by the FG + BG combo.
+
+These advisory ratios are still computed by `tokens.contrast.spec.ts` and visible in the test summary, but they do not fail the build if they slip below 3:1.
 
 ---
 
