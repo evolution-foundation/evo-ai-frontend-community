@@ -97,7 +97,7 @@
   /* Flow Builder design tokens — LIGHT mode values (EVO-1253). */
   --flow-node-trigger-bg: oklch(0.95 0.05 150);
   --flow-node-trigger-fg: oklch(0.30 0.12 150);
-  --flow-node-trigger-border: oklch(0.70 0.13 150);
+  --flow-node-trigger-border: oklch(0.55 0.13 150);
   --flow-node-action-message-bg: oklch(0.95 0.04 250);
   --flow-node-action-message-fg: oklch(0.35 0.18 250);
   --flow-node-action-message-border: oklch(0.65 0.16 250);
@@ -106,16 +106,16 @@
   --flow-node-action-webhook-border: oklch(0.65 0.16 305);
   --flow-node-action-label-bg: oklch(0.95 0.04 175);
   --flow-node-action-label-fg: oklch(0.32 0.12 175);
-  --flow-node-action-label-border: oklch(0.65 0.13 175);
+  --flow-node-action-label-border: oklch(0.55 0.13 175);
   --flow-node-action-pipeline-bg: oklch(0.95 0.04 350);
   --flow-node-action-pipeline-fg: oklch(0.35 0.18 350);
   --flow-node-action-pipeline-border: oklch(0.65 0.17 350);
   --flow-node-condition-bg: oklch(0.95 0.05 85);
   --flow-node-condition-fg: oklch(0.32 0.14 85);
-  --flow-node-condition-border: oklch(0.70 0.14 85);
+  --flow-node-condition-border: oklch(0.55 0.14 85);
   --flow-node-control-bg: oklch(0.95 0.05 40);
   --flow-node-control-fg: oklch(0.35 0.16 40);
-  --flow-node-control-border: oklch(0.70 0.17 40);
+  --flow-node-control-border: oklch(0.55 0.17 40);
   --flow-node-exit-bg: oklch(0.95 0.04 25);
   --flow-node-exit-fg: oklch(0.35 0.18 25);
   --flow-node-exit-border: oklch(0.65 0.18 25);
@@ -149,13 +149,13 @@
   /* Flow Builder design tokens — DARK mode overrides (EVO-1253). */
   --flow-node-trigger-bg: oklch(0.22 0.05 150);
   --flow-node-trigger-fg: oklch(0.90 0.10 150);
-  --flow-node-trigger-border: oklch(0.45 0.12 150);
+  --flow-node-trigger-border: oklch(0.55 0.12 150);
   --flow-node-action-message-bg: oklch(0.22 0.05 250);
   --flow-node-action-message-fg: oklch(0.85 0.12 250);
   --flow-node-action-message-border: oklch(0.50 0.15 250);
   --flow-node-action-webhook-bg: oklch(0.22 0.05 305);
   --flow-node-action-webhook-fg: oklch(0.85 0.13 305);
-  --flow-node-action-webhook-border: oklch(0.50 0.18 305);
+  --flow-node-action-webhook-border: oklch(0.55 0.18 305);
   --flow-node-action-label-bg: oklch(0.22 0.04 175);
   --flow-node-action-label-fg: oklch(0.88 0.10 175);
   --flow-node-action-label-border: oklch(0.50 0.11 175);
