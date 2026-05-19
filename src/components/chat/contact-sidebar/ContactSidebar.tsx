@@ -18,7 +18,18 @@ import ConversationPipelineItem from '@/components/pipelines/ConversationPipelin
 import { pipelinesService } from '@/services/pipelines';
 import type { Pipeline } from '@/types/analytics';
 
+import { contactsService } from '@/services/contacts';
 import { Contact, Conversation } from '@/types/chat/api';
+
+// Converts a Unix-seconds timestamp (number or numeric string) to ISO string.
+// Returns undefined for falsy values or any input that cannot produce a valid date.
+const unixSecondsToIso = (ts: unknown): string | undefined => {
+  if (!ts && ts !== 0) return undefined;
+  const n = Number(ts);
+  if (isNaN(n)) return undefined;
+  const d = new Date(n * 1000);
+  return isNaN(d.getTime()) ? undefined : d.toISOString();
+};
 
 interface ContactSidebarProps {
   isOpen: boolean;
@@ -90,6 +101,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
   const [isMobile, setIsMobile] = useState(false);
   const [conversationPipelines, setConversationPipelines] = useState<Pipeline[]>([]);
   const [isLoadingPipelines, setIsLoadingPipelines] = useState(false);
+  const [enrichedContact, setEnrichedContact] = useState<Contact | null>(null);
 
   // Detectar se é mobile para controlar renderização
   useEffect(() => {
@@ -101,6 +113,34 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  useEffect(() => {
+    setEnrichedContact(null);
+    if (!isOpen || !contact?.id) return;
+    let cancelled = false;
+    contactsService.getContact(contact.id, false).then(full => {
+      if (cancelled) return;
+      setEnrichedContact(prev => {
+        const base = prev ?? contact;
+        return {
+          ...base,
+          identifier: full.identifier ?? base.identifier,
+          additional_attributes: full.additional_attributes ?? base.additional_attributes ?? {},
+          custom_attributes: full.custom_attributes ?? base.custom_attributes ?? {},
+          availability_status: full.availability_status ?? base.availability_status,
+          blocked: full.blocked ?? base.blocked ?? false,
+          avatar_url: full.avatar_url || full.thumbnail || base.avatar_url,
+          avatar: full.avatar || base.avatar,
+          last_activity_at: unixSecondsToIso(full.last_activity_at) ?? base.last_activity_at,
+          created_at: unixSecondsToIso(full.created_at) ?? base.created_at,
+        };
+      });
+    }).catch(err => {
+      console.error('[ContactSidebar] Failed to fetch full contact data:', err);
+    });
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, contact?.id]);
 
   // Carregar pipelines da conversation uma única vez
   const loadConversationPipelines = useCallback(async () => {
@@ -182,7 +222,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
       >
         {/* Header com Avatar e Info Básica + Close Button */}
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative">
-          <ContactHeader contact={contact} channelType={conversation?.inbox?.channel_type} />
+          <ContactHeader contact={enrichedContact ?? contact} channelType={conversation?.inbox?.channel_type} />
 
           {/* Close Button */}
           <Button
@@ -211,7 +251,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
 
             {showContactDetails && (
               <CardContent className="pt-0 px-3 pb-3">
-                <ContactDetails contact={contact} />
+                <ContactDetails contact={enrichedContact ?? contact} />
               </CardContent>
             )}
           </Card>
@@ -389,7 +429,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
           )}
 
           {/* 7. Contact Custom Attributes - Atributos personalizados do contato */}
-          {contact && (
+          {(enrichedContact ?? contact) !== null && (
             <Card>
               <CardHeader className="pb-2">
                 <CollapsibleHeader
@@ -401,10 +441,10 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
                 />
               </CardHeader>
 
-              {showContactAttributes && (
+              {showContactAttributes && (enrichedContact ?? contact) && (
                 <CardContent className="pt-0 px-3 pb-3">
                   <EditableContactCustomAttributes
-                    contact={contact}
+                    contact={enrichedContact ?? contact as Contact}
                     onContactUpdate={onFilterReload}
                   />
                 </CardContent>

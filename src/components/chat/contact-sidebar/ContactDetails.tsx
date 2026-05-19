@@ -50,10 +50,15 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({ contact }) => {
       .join(' ');
   };
 
-  const formatDate = (dateString?: string): string => {
+  const formatDate = (dateString?: string | number): string => {
     if (!dateString) return t('contactSidebar.contactDetails.notInformed');
-
-    const date = new Date(dateString);
+    const numeric = Number(dateString);
+    // Unix timestamp in seconds (10-digit) vs milliseconds (13-digit)
+    const ms = !isNaN(numeric) && String(dateString).match(/^\d+$/)
+      ? (numeric < 1e12 ? numeric * 1000 : numeric)
+      : NaN;
+    const date = isNaN(ms) ? new Date(dateString) : new Date(ms);
+    if (isNaN(date.getTime())) return t('contactSidebar.contactDetails.notInformed');
     return date.toLocaleDateString('pt-BR', {
       day: '2-digit',
       month: '2-digit',
