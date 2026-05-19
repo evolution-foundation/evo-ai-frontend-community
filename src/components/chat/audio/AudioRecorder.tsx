@@ -4,7 +4,6 @@ import { Play, Pause, Square, Trash2, Mic } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useAudioRecorder, AudioRecordingData } from '@/hooks/chat/useAudioRecorder';
-import { acquireFfmpeg, releaseFfmpeg } from '@/utils/audio/ffmpegLoader';
 
 interface AudioRecorderProps {
   onRecordingComplete: (data: AudioRecordingData) => void;
@@ -13,7 +12,10 @@ interface AudioRecorderProps {
   className?: string;
   autoStart?: boolean;
   preferWhatsAppCloudFormat?: boolean;
-  /** When true, pre-loads the OGG/Opus converter on mount so it's ready by send time. */
+  /**
+   * Kept for prop compatibility with existing callers. opus-recorder encodes in
+   * real time so no separate converter needs to be pre-loaded; this flag is a no-op now.
+   */
   shouldPreloadConverter?: boolean;
 }
 
@@ -24,7 +26,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   className = '',
   autoStart = false,
   preferWhatsAppCloudFormat = false,
-  shouldPreloadConverter = false,
+  shouldPreloadConverter: _shouldPreloadConverter = false,
 }) => {
   const { t } = useLanguage('chat');
   const {
@@ -53,36 +55,6 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
     const secs = Math.floor(seconds % 60);
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
-
-  // Pre-load the OGG/Opus converter (FFmpeg WASM) so it's ready when the user sends.
-  // Fires a toast if loading takes more than 1 s to set expectations.
-  useEffect(() => {
-    if (!shouldPreloadConverter) return;
-
-    let toastShown = false;
-    const toastTimer = setTimeout(() => {
-      toastShown = true;
-      toast.loading(t('audioRecorder.preparingConverter'), { id: 'ffmpeg-loading' });
-    }, 1000);
-
-    acquireFfmpeg()
-      .then(() => {
-        clearTimeout(toastTimer);
-        if (toastShown) toast.dismiss('ffmpeg-loading');
-      })
-      .catch(() => {
-        clearTimeout(toastTimer);
-        if (toastShown) toast.dismiss('ffmpeg-loading');
-        // Silently ignore — conversion will fall back to original format on send
-      });
-
-    return () => {
-      clearTimeout(toastTimer);
-      toast.dismiss('ffmpeg-loading');
-      releaseFfmpeg();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldPreloadConverter]);
 
   // Auto-iniciar gravação se especificado
   useEffect(() => {

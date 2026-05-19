@@ -13,10 +13,7 @@
   },
   "dependencies": {
     "@breezystack/lamejs": "^1.2.7",
-    "@ffmpeg/core": "^0.11.0",
     "@evoapi/design-system": "^0.0.6",
-    "@ffmpeg/core-st": "0.11.0",
-    "@ffmpeg/ffmpeg": "^0.11.6",
     "@hookform/resolvers": "^5.0.1",
     "@icons-pack/react-simple-icons": "^13.13.0",
     "@rails/actioncable": "^8.0.201",

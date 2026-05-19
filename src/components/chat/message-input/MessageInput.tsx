@@ -271,43 +271,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
         setIsSending(true);
         const isPrivate = replyMode === ReplyMode.NOTE;
 
-        // Converter áudio para o formato correto por canal:
-        // - WhatsApp (todos os provedores): OGG/Opus para PTT nativo
-        // - Instagram: WAV
-        let audioFile = data.file;
-        if (isWhatsApp) {
-          try {
-            const convertingToastId = toast.loading(t('messageInput.audio.converting'));
-            const { convertToOggOpus } = await import('@/utils/audio/audioConversionUtils');
-            const oggBlob = await convertToOggOpus(data.blob, percent => {
-              toast.loading(`${t('messageInput.audio.converting')} ${percent}%`, {
-                id: convertingToastId,
-              });
-            });
-            toast.dismiss(convertingToastId);
-            const fileName = data.file.name.replace(/\.\w+$/i, '.ogg');
-            audioFile = new File([oggBlob], fileName, { type: 'audio/ogg; codecs=opus' });
-          } catch (conversionError) {
-            console.error('Erro ao converter áudio para OGG/Opus:', conversionError);
-            toast.warning(t('messageInput.audio.conversionWarning'), {
-              description: t('messageInput.audio.conversionWarningDescription'),
-            });
-            // Continuar com o arquivo original em caso de falha na conversão
-          }
-        } else if (isInstagram && data.file.type === 'audio/webm') {
-          try {
-            toast.info(t('messageInput.audio.converting'), { duration: 2000 });
-            const { convertToWav } = await import('@/utils/audio/audioConversionUtils');
-            const wavBlob = await convertToWav(data.blob);
-            const fileName = data.file.name.replace(/\.webm$/i, '.wav');
-            audioFile = new File([wavBlob], fileName, { type: 'audio/wav' });
-          } catch (conversionError) {
-            console.error('Erro ao converter áudio para WAV:', conversionError);
-            toast.warning(t('messageInput.audio.conversionWarning'), {
-              description: t('messageInput.audio.conversionWarningDescription'),
-            });
-          }
-        }
+        // Gravador (opus-recorder) já entrega OGG/Opus direto — sem conversão extra.
+        const audioFile = data.file;
 
         // Enviar arquivo de áudio (isRecordedAudio sinaliza ao backend para setar PTT/voice)
         await onSendMessage({
@@ -414,42 +379,13 @@ const MessageInput: React.FC<MessageInputProps> = ({
     setIsSending(true);
 
     try {
-      // Convert uploaded audio files to OGG/Opus for WhatsApp PTT (acceptance criteria:
-      // "Works for in-browser recordings AND uploaded audio files"). Track which
-      // resulting filenames are PTT so the backend marks only those attachments —
-      // important when audio + non-audio files are mixed in the same message.
-      let filesToSend = selectedFiles;
-      const recordedAudioFilenames: string[] = [];
-      if (isWhatsApp && selectedFiles.some(f => f.type.startsWith('audio/'))) {
-        const { convertToOggOpus } = await import('@/utils/audio/audioConversionUtils');
-        filesToSend = await Promise.all(
-          selectedFiles.map(async file => {
-            if (!file.type.startsWith('audio/')) return file;
-            try {
-              const convertingToastId = toast.loading(t('messageInput.audio.converting'));
-              const oggBlob = await convertToOggOpus(file, percent => {
-                toast.loading(`${t('messageInput.audio.converting')} ${percent}%`, {
-                  id: convertingToastId,
-                });
-              });
-              toast.dismiss(convertingToastId);
-              const oggName = file.name.replace(/\.\w+$/i, '.ogg');
-              recordedAudioFilenames.push(oggName);
-              return new File([oggBlob], oggName, {
-                type: 'audio/ogg; codecs=opus',
-              });
-            } catch {
-              toast.warning(t('messageInput.audio.conversionWarning'), {
-                description: t('messageInput.audio.conversionWarningDescription'),
-              });
-              // Fallback: still mark as PTT so Baileys/EvoGo set ptt:true on the
-              // original (non-OGG) audio — Cloud already hardcodes voice:true.
-              recordedAudioFilenames.push(file.name);
-              return file;
-            }
-          }),
-        );
-      }
+      // Uploaded audio files are sent as-is. For WhatsApp, Baileys/EvoGo will mark
+      // them as PTT (Cloud already hardcodes voice:true). The browser recorder path
+      // delivers OGG/Opus directly via opus-recorder, so this fallback only matters
+      // when a user manually attaches a file (mp3/m4a/wav/etc.).
+      const filesToSend = selectedFiles;
+      const recordedAudioFilenames: string[] =
+        isWhatsApp ? selectedFiles.filter(f => f.type.startsWith('audio/')).map(f => f.name) : [];
 
       await onSendMessage({
         content: currentMessage,

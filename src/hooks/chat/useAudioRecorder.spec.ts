@@ -14,10 +14,6 @@ vi.mock('sonner', () => ({
   },
 }));
 
-vi.mock('@/utils/audio/ffmpegLoader', () => ({
-  FFMPEG_MAX_RECORDING_SECONDS: 300,
-}));
-
 // Minimal MediaRecorder mock
 class MockMediaRecorder {
   static isTypeSupported = (type: string) => type.includes('webm') || type.includes('ogg');

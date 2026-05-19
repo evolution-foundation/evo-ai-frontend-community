@@ -2,13 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import tailwindcss from '@tailwindcss/vite';
-import { copyFile, mkdir } from 'node:fs/promises';
-import { createReadStream, existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
-import type { Plugin } from 'vite';
-
-const FFMPEG_CORE_DIR = path.resolve(__dirname, 'node_modules/@ffmpeg/core/dist');
-const FFMPEG_FILES = ['ffmpeg-core.js', 'ffmpeg-core.wasm', 'ffmpeg-core.worker.js'];
 
 // Resolution order: APP_VERSION env (CI/release) → `git describe` → 'dev'.
 // Env wins because the release pipeline knows the canonical tag better than
@@ -24,38 +18,6 @@ function resolveAppVersion(): string {
   }
 }
 
-/**
- * Serves /ffmpeg/* from @ffmpeg/core/dist in dev and copies files to dist/ffmpeg/ on build.
- * Keeps the WASM self-hosted without CDN dependency.
- */
-function ffmpegCorePlugin(): Plugin {
-  return {
-    name: 'ffmpeg-core',
-    configureServer(server) {
-      server.middlewares.use('/ffmpeg', (req, res, next) => {
-        const file = (req.url || '/').replace(/^\/+/, '');
-        if (!FFMPEG_FILES.includes(file)) return next();
-        const filePath = path.join(FFMPEG_CORE_DIR, file);
-        if (!existsSync(filePath)) return next();
-        const contentType =
-          file.endsWith('.wasm') ? 'application/wasm' : 'text/javascript';
-        res.setHeader('Content-Type', contentType);
-        createReadStream(filePath).pipe(res);
-      });
-    },
-    async writeBundle(options) {
-      const outDir = options.dir ?? path.resolve(__dirname, 'dist');
-      const dest = path.join(outDir, 'ffmpeg');
-      await mkdir(dest, { recursive: true });
-      await Promise.all(
-        FFMPEG_FILES.map(file =>
-          copyFile(path.join(FFMPEG_CORE_DIR, file), path.join(dest, file)),
-        ),
-      );
-    },
-  };
-}
-
 // https://vite.dev/config/
 export default defineConfig({
   define: {
@@ -64,7 +26,6 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    ffmpegCorePlugin(),
   ],
   build: {
     // Reduce chunking to minimize requests via ngrok

@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
-import { FFMPEG_MAX_RECORDING_SECONDS } from '@/utils/audio/ffmpegLoader';
+
+/** Maximum recording length before UI auto-stop warning (5 min). */
+const MAX_RECORDING_SECONDS = 300;
 
 export interface AudioRecordingData {
   blob: Blob;
@@ -312,7 +314,7 @@ export const useAudioRecorder = (options?: UseAudioRecorderOptions): UseAudioRec
             : 0;
           mediaRecorderRef.current.stop();
         }
-      }, FFMPEG_MAX_RECORDING_SECONDS * 1000);
+      }, MAX_RECORDING_SECONDS * 1000);
 
       // Iniciar monitoramento
       monitorAudioLevel();
