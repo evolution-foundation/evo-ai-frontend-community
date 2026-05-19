@@ -142,6 +142,63 @@ import { FlowFeedbackBanner } from '@/components/journey/_ui';
 
 ---
 
+## Button contract — for Flow Builder modals and panels
+
+EVO-1253 does **not** ship a `<FlowButton>`. The Flow Builder reuses `<Button>` from `@evoapi/design-system` directly. Building a flow-specific button would duplicate the design system without an external consumer (against the promotion criterion below).
+
+**Available `<Button>` API** (from `@evoapi/design-system`):
+
+- `variant`: `default | destructive | outline | secondary | ghost | link`
+- `size`: `default | sm | lg | icon`
+
+**Canonical mapping for Flow Builder modals** (matches existing precedent in `src/components/journey/nodes/**`):
+
+| Intent | Variant | Size | Class addition | Use when |
+|---|---|---|---|---|
+| **Save / primary action** | `default` (no `variant` prop) | `default` | `flex-1 h-10` | Save / Apply / Confirm in modal footer. Always with `disabled={!isValid}` while form is invalid. |
+| **Cancel / secondary action** | `outline` | `default` | `flex-1 h-10` | Cancel / Close in modal footer. Pair with Save (flex-1 splits 50/50). |
+| **Destructive action** | `destructive` | `default` | `flex-1 h-10` | Delete / Remove / Discard with irreversible effect. |
+| **Inline secondary** | `outline` | `sm` | (none — default size class) | Add row / Add condition / Add path inside form content. |
+| **Tertiary (low emphasis)** | `ghost` | `default` or `sm` | (varies) | "Learn more" / contextual link inside form. |
+
+**Anti-patterns** to avoid in Flow Builder modals:
+
+- Custom `<button>` element with manual Tailwind classes — always wrap in `<Button>` from design system.
+- Inventing a `<FlowButton>` wrapper because the colors don't match — the flow-* tokens belong on the node body / canvas / panel chrome, NOT on standard action buttons. Standard buttons follow the global primary / secondary / destructive semantics.
+- Mixing `variant="default"` and `variant="outline"` in the same footer with inconsistent ordering. Convention: Cancel left, Save right (or Save right when the pair is horizontal).
+
+This contract satisfies AC-3 (`<Button>` consistency across Flow Builder modals) without adding new components.
+
+---
+
+## Typography contract — for Flow Builder modals and panels
+
+EVO-1253 does **not** declare new typography tokens. Tailwind v4's built-in `text-*` and `font-*` utilities cover every need the Flow Builder has, and the design system's `<DialogTitle>` and `<Label>` already pick the canonical title and label sizes. Adding `--text-flow-*` tokens would fragment typography for no benefit.
+
+**Canonical scale for Flow Builder modals** (matches existing precedent):
+
+| Role | Classes | Source / example |
+|---|---|---|
+| **Modal title** | `text-lg leading-none font-semibold` | Automatic when using `<DialogTitle>` from `@evoapi/design-system`. Do not override. |
+| **Modal description / subtitle** | `text-sm text-muted-foreground` | Automatic via `<DialogDescription>` from design system. |
+| **Section header inside form** | `text-sm font-medium` | Used in `WaitEventConfig`, `RemoveLabelPanel`, `TransferJourneyPanel`, etc. |
+| **Form label** | `text-sm font-medium` | `<Label className="text-sm font-medium">` — matches existing pattern. Plain `<Label>` (no size prop) defaults to the same. |
+| **Body / form input area** | `text-sm` | Default for descriptions, helper text, body copy in panels. |
+| **Inline annotation / meta** | `text-xs` | Small captions, "Optional" hints, count badges. |
+| **Inline annotation with emphasis** | `text-xs font-medium` | Status labels, badge text inside the form. |
+
+**Anti-patterns** to avoid:
+
+- Hard-coding font sizes via inline `style={{ fontSize: ... }}` or arbitrary-value Tailwind (`text-[15px]`). Use the named scale above.
+- Skipping `<DialogTitle>` / `<DialogDescription>` and rolling your own `<h2>`/`<p>` with custom classes. The design-system primitives encode the contract.
+- Using `text-base` (the Tailwind default) for body in modals — the convention here is `text-sm`. Modals are dense; `text-base` looks oversized.
+
+**Spacing scale** is the Tailwind v4 built-in (`p-1 / p-2 / p-3 / p-4 ...` = multiples of `0.25rem` = multiples of 4px). The Flow Builder uses it as-is. Convention from existing panels: header `p-4`, form gap `gap-3` or `gap-4`, footer gap `gap-2`, footer height `h-10`.
+
+This contract satisfies the typography / spacing items in the EVO-1253 in-scope list without new tokens or components.
+
+---
+
 ## Visual verification
 
 This card does NOT ship a dedicated demo / preview surface. Visual verification happens **in situ**: open any flow page that consumes the bridges or tokens after a downstream story lands, toggle dark / light via the CRM header, and use the browser axe DevTools extension on that real page.
