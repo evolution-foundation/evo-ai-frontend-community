@@ -21,7 +21,7 @@ export default meta;
 type Story = StoryObj<typeof FlowCategoryBadge>;
 
 export const Trigger: Story = {
-  args: { variant: 'trigger', children: 'trigger' },
+  args: { variant: "trigger", children: 'trigger' },
 };
 
 export const Condition: Story = {
