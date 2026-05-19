@@ -58,11 +58,28 @@ const MacrosList: React.FC<MacrosListProps> = ({ conversationId, onMacroExecuted
     try {
       setExecutingMacro(selectedMacro.id);
       setShowConfirmDialog(false);
-      await macrosService.executeMacro({
+      const response = await macrosService.executeMacro({
         macroId: String(selectedMacro.id),
         conversationIds: [conversationId],
       });
-      toast.success(t('contactSidebar.macros.executeSuccess', { name: selectedMacro.name }));
+
+      // Check real execution results from the API
+      const executions = response?.data?.executions || (response as any)?.executions || [];
+      const hasFailure = executions.some((exec: any) => exec.status === 'failed');
+
+      if (hasFailure) {
+        const failedExec = executions.find((exec: any) => exec.status === 'failed');
+        const failedActions = failedExec?.actions_result
+          ?.filter((a: any) => a.status === 'failed')
+          ?.map((a: any) => a.action)
+          ?.join(', ');
+        toast.error(
+          t('contactSidebar.macros.executePartialError', { name: selectedMacro.name }) ||
+          `Macro "${selectedMacro.name}" executada com falhas${failedActions ? `: ${failedActions}` : ''}`,
+        );
+      } else {
+        toast.success(t('contactSidebar.macros.executeSuccess', { name: selectedMacro.name }));
+      }
       onMacroExecuted?.();
     } catch (error) {
       console.error('Error executing macro:', error);
