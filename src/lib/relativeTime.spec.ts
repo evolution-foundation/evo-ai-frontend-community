@@ -28,14 +28,41 @@ describe('formatRelativeTime', () => {
     expect(formatRelativeTime(diff(now, 59 * 60), now, enOpts)).toBe('59 minutes ago');
   });
 
+  it('keeps each minute label stable for the full minute (floor, not round)', () => {
+    // 90s elapsed → 1m30s, NOT yet 2 minutes; label should stay "1 minute ago"
+    // until the second minute completes. Without Math.floor this would
+    // incorrectly skip to "2 minutes ago" at 1m30s.
+    expect(formatRelativeTime(diff(now, 90), now, enOpts)).toBe('1 minute ago');
+    expect(formatRelativeTime(diff(now, 119), now, enOpts)).toBe('1 minute ago');
+    expect(formatRelativeTime(diff(now, 120), now, enOpts)).toBe('2 minutes ago');
+  });
+
   it('switches to hours between 1h and 23h', () => {
     expect(formatRelativeTime(diff(now, 60 * 60), now, enOpts)).toBe('1 hour ago');
     expect(formatRelativeTime(diff(now, 3 * 60 * 60), now, enOpts)).toBe('3 hours ago');
   });
 
-  it('switches to days for ≥24h', () => {
+  it('keeps each hour label stable for the full hour (floor, not round)', () => {
+    // 90 minutes elapsed → 1h30m; label should stay "1 hour ago" until 2h complete.
+    expect(formatRelativeTime(diff(now, 90 * 60), now, enOpts)).toBe('1 hour ago');
+    expect(formatRelativeTime(diff(now, 119 * 60), now, enOpts)).toBe('1 hour ago');
+    expect(formatRelativeTime(diff(now, 120 * 60), now, enOpts)).toBe('2 hours ago');
+  });
+
+  it('switches to days for ≥24h and keeps each day stable for 24h', () => {
     expect(formatRelativeTime(diff(now, 24 * 60 * 60), now, enOpts)).toBe('yesterday');
+    expect(formatRelativeTime(diff(now, 36 * 60 * 60), now, enOpts)).toBe('yesterday');
     expect(formatRelativeTime(diff(now, 3 * 24 * 60 * 60), now, enOpts)).toBe('3 days ago');
+  });
+
+  it('falls back to en when the locale string is malformed (does not throw)', () => {
+    const date = diff(now, 10);
+    expect(() =>
+      formatRelativeTime(date, now, { locale: '!!!', justNowLabel: 'just now' }),
+    ).not.toThrow();
+    expect(
+      formatRelativeTime(date, now, { locale: '!!!', justNowLabel: 'just now' }),
+    ).toBe('10 seconds ago');
   });
 
   it('localises naturally to pt-BR via Intl.RelativeTimeFormat', () => {

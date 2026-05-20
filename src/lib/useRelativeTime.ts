@@ -15,10 +15,17 @@ export function useRelativeTime(date: Date | null | undefined): Date {
 
   useEffect(() => {
     if (!date) return;
-    const id = window.setInterval(() => {
-      setNow(new Date());
-    }, intervalFor(Date.now() - date.getTime()));
-    return () => window.clearInterval(id);
+    let timeoutId: number | undefined;
+    const schedule = () => {
+      timeoutId = window.setTimeout(() => {
+        setNow(new Date());
+        schedule();
+      }, intervalFor(Date.now() - date.getTime()));
+    };
+    schedule();
+    return () => {
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+    };
   }, [date]);
 
   return now;

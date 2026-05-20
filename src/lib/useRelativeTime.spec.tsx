@@ -55,4 +55,42 @@ describe('useRelativeTime', () => {
     });
     expect(result.current.getTime()).toBe(initial);
   });
+
+  it('clears the pending timer on unmount', () => {
+    const date = new Date(FIXED_NOW.getTime() - 10_000);
+    const before = vi.getTimerCount();
+    const { unmount } = renderHook(() => useRelativeTime(date));
+    expect(vi.getTimerCount()).toBe(before + 1);
+    unmount();
+    expect(vi.getTimerCount()).toBe(before);
+  });
+
+  it('adapts cadence as the date ages within a single mount (recursive setTimeout)', () => {
+    // Start fresh: cadence should be 30s for the first minute.
+    const date = new Date(FIXED_NOW.getTime() - 10_000);
+    const { result } = renderHook(() => useRelativeTime(date));
+    const initial = result.current.getTime();
+
+    // First tick at 30s — date is now ~40s old, still <1m, next interval 30s.
+    act(() => {
+      vi.advanceTimersByTime(30_000);
+    });
+    expect(result.current.getTime()).toBe(initial + 30_000);
+
+    // Second tick at 60s — date is now ~70s old, between 1m–1h, next interval 60s.
+    act(() => {
+      vi.advanceTimersByTime(30_000);
+    });
+    expect(result.current.getTime()).toBe(initial + 60_000);
+
+    // 60s later → tick. 30s later still nothing (cadence is 60s now).
+    act(() => {
+      vi.advanceTimersByTime(30_000);
+    });
+    expect(result.current.getTime()).toBe(initial + 60_000);
+    act(() => {
+      vi.advanceTimersByTime(30_000);
+    });
+    expect(result.current.getTime()).toBe(initial + 120_000);
+  });
 });

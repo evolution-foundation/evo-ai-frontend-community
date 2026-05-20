@@ -66,7 +66,6 @@
     "saved": "Salvato",
     "viewSessions": "Vedi sessioni",
     "moreActions": "Altre azioni",
-    "lastSaved": "Ultimo salvataggio: {{time}}",
     "lastSavedRelative": "Salvato {{relative}}",
     "lastSavedJustNow": "adesso",
     "autoSaveInfo": "Salvataggio automatico in 10s",

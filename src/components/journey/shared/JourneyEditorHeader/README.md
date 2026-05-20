@@ -41,7 +41,7 @@ import { JourneyEditorHeader } from '@/components/journey/shared/JourneyEditorHe
 />
 ```
 
-`relativeNow` comes from the `useRelativeTime(lastSaved)` hook in `@/lib/useRelativeTime` — it returns a `Date` that ticks at an adaptive cadence (30s when fresher than 1m, 60s up to 1h, 10min beyond). Cadence is intentionally coarse: lastSaved is a status indicator, not a stopwatch — `agora mesmo` → `há 30 segundos` → `há 1 minuto` → `há 2 minutos` reads as state changes, not as a running clock.
+`relativeNow` comes from the `useRelativeTime(lastSaved)` hook in `@/lib/useRelativeTime` — it returns a `Date` that ticks at an adaptive cadence (30s when the date is fresher than 1m, 60s when it's between 1m and 1h, 10min beyond). The cadence is re-evaluated **on every tick** via a recursive `setTimeout`, so within a single mount the strip naturally slows from 30s ticks to 60s ticks to 10min ticks as time goes on. Cadence is intentionally coarse: lastSaved is a status indicator, not a stopwatch — `agora mesmo` → `há 30 segundos` → `há 1 minuto` → `há 2 minutos` reads as state changes, not a running clock. Each minute / hour / day label sticks for the full unit window (`Math.floor` rounding) so the text never "jumps a minute" mid-bucket.
 
 ### Props
 
