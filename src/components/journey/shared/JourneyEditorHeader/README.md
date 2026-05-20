@@ -104,9 +104,12 @@ If a Back keyboard affordance is required in a future iteration, prefer `Alt+Arr
 
 ## Unsaved-changes confirmation
 
-The header itself does NOT decide whether to confirm before navigating away — that is the consumer's responsibility. `JourneyFlowEditor.tsx` uses `useBlocker` from `react-router-dom` to intercept any navigation (button click, browser back, sidebar link) and renders an `<AlertDialog>` asking "Leave without saving?" when `hasUnsavedChanges === true`.
+The header itself does NOT decide whether to confirm before navigating away — that is the consumer's responsibility. `JourneyFlowEditor.tsx` implements the confirmation locally:
 
-This keeps `<JourneyEditorHeader>` framework-agnostic (no React Router import) and lets a future, non-router consumer wire its own confirmation strategy.
+1. The Back button's `onBack` handler routes through `requestNavigate('/journeys')`. When `hasUnsavedChanges` is `true`, that helper opens an `<AlertDialog>` ("Unsaved changes — Stay / Leave anyway") instead of calling `navigate()` immediately. Confirming the dialog completes the navigation.
+2. A `beforeunload` window listener is registered while `hasUnsavedChanges` is `true`, so the browser shows its native prompt on tab close, refresh, or address-bar navigation.
+
+This keeps `<JourneyEditorHeader>` framework-agnostic (no React Router import) and works without migrating the app to a React Router v7 data router. **Caveat:** in-app sidebar `<Link>` clicks bypass `requestNavigate` and therefore skip the in-app confirmation; only the autosave loop and the `beforeunload` prompt mitigate that path. Migrating the app to `createBrowserRouter` and switching to `useBlocker` is the path forward when this coverage gap matters more than the migration cost.
 
 ---
 

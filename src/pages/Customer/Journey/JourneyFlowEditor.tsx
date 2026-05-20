@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useParams, useNavigate, useBlocker } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -632,16 +632,46 @@ function JourneyFlowEditor() {
     };
   }, [hasUnsavedChanges, saveChanges]);
 
-  const handleBack = useCallback(() => {
-    navigate('/journeys');
-  }, [navigate]);
+  const [pendingLeaveTarget, setPendingLeaveTarget] = useState<string | null>(null);
 
-  // Block navigation away from the editor while there are unsaved changes.
-  // Triggers on Back button, browser back/forward, and any sidebar link click.
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname,
+  const requestNavigate = useCallback(
+    (target: string) => {
+      if (hasUnsavedChanges) {
+        setPendingLeaveTarget(target);
+      } else {
+        navigate(target);
+      }
+    },
+    [hasUnsavedChanges, navigate],
   );
+
+  const handleBack = useCallback(() => {
+    requestNavigate('/journeys');
+  }, [requestNavigate]);
+
+  const cancelLeave = useCallback(() => {
+    setPendingLeaveTarget(null);
+  }, []);
+
+  const confirmLeave = useCallback(() => {
+    if (pendingLeaveTarget) {
+      navigate(pendingLeaveTarget);
+      setPendingLeaveTarget(null);
+    }
+  }, [navigate, pendingLeaveTarget]);
+
+  // Native browser dialog for refresh / close tab / address-bar navigation
+  // while the editor has unsaved changes. Modern browsers ignore custom message
+  // strings; setting `returnValue` is what triggers the prompt.
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const handler = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [hasUnsavedChanges]);
 
   if (loading) {
     return (
@@ -705,9 +735,9 @@ function JourneyFlowEditor() {
       />
 
       <AlertDialog
-        open={blocker.state === 'blocked'}
+        open={pendingLeaveTarget !== null}
         onOpenChange={(open) => {
-          if (!open && blocker.state === 'blocked') blocker.reset();
+          if (!open) cancelLeave();
         }}
       >
         <AlertDialogContent>
@@ -718,18 +748,10 @@ function JourneyFlowEditor() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel
-              onClick={() => {
-                if (blocker.state === 'blocked') blocker.reset();
-              }}
-            >
+            <AlertDialogCancel onClick={cancelLeave}>
               {t('flowEditor.stay')}
             </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (blocker.state === 'blocked') blocker.proceed();
-              }}
-            >
+            <AlertDialogAction onClick={confirmLeave}>
               {t('flowEditor.leaveAnyway')}
             </AlertDialogAction>
           </AlertDialogFooter>
