@@ -947,3 +947,19 @@ Reviewer's H-3 surfaced that the original architecture.md path (`_evo-output/pla
 5. WCAG `tokens.contrast.spec.ts` + ESLint button rule + computed-style spec coverage.
 
 README finalisation runs in parallel with each story (cross-references update as code lands).
+
+---
+
+## Follow-through — EVO-1264 NodeConfigModal landed (2026-05-20)
+
+The panel chrome tokens (`--color-flow-panel-*`) declared by EVO-1253 are now consumed in production by the `<NodeConfigModal>` component shipped under EVO-1264. Location: `src/components/journey/shared/NodeConfigModal/`. Three variants:
+
+- `simple` — header + body + footer (~80% of nodes).
+- `tabs` — header + Radix Tabs in body + footer; lifted state preserved across switches (AC-4 of EVO-1264 / Pain #4d of discovery 8.1).
+- `disclosure` — body + Radix Collapsible "Advanced settings" + footer.
+
+The component is composite (consumes `Dialog`, `Tabs`, `Collapsible`, `Button` from `@evoapi/design-system` + flow chrome tokens), so it lives under `journey/shared/` rather than `journey/_ui/` — the latter remains reserved for primitive bridges that consume tokens directly. This split is documented in the EVO-1264 PR.
+
+Promotion criterion check (per D7 of step 5): `<NodeConfigModal>` is flow-specific (consumes `flow-panel-*` tokens that don't exist outside Flow Builder). It does **NOT** graduate to `@evoapi/design-system` — stays local under `journey/shared/`. Promotion would require ≥1 external consumer outside Flow Builder, which by definition cannot happen for a chrome that depends on `flow-*` tokens.
+
+Downstream effect: EVO-1274 [10.4] (refazer 21 modais) is now formally unblocked. It will apply `<NodeConfigModal>` plus the Button / Typography contracts to every existing node configuration modal.
