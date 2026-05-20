@@ -595,6 +595,31 @@ class WidgetService {
     return extractData<any>(response);
   }
 
+  async updateMessageSubmittedValues(
+    websiteToken: string,
+    messageId: string | number,
+    submittedValues: { name: string; title: string; value: string },
+  ) {
+    const response = await this.requestWithBaseFallback((client) =>
+      client.patch(
+        `/widget/messages/${messageId}`,
+        {
+          message: {
+            submitted_values: submittedValues,
+          },
+        },
+        {
+          params: { website_token: websiteToken },
+          headers: {
+            ...this.getAuthHeader(websiteToken),
+            'Content-Type': 'application/json',
+          },
+        },
+      ),
+    );
+    return extractData<any>(response);
+  }
+
   async toggleConversationStatus(websiteToken: string, status: 'open' | 'resolved' = 'resolved') {
     const response = await this.requestWithBaseFallback((client) =>
       client.get('/widget/conversations/toggle_status', {

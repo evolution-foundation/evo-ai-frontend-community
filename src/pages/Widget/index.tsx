@@ -71,6 +71,26 @@ export default function Widget() {
   const transformMessage = (m: any, list: any[] = []): MessageItem => {
     const messageId = String(m.id ?? Math.random());
     const isSystemMessage = m.message_type === 2 || m.message_type === 3;
+    const normalizeContentType = (value: any) => {
+      if (typeof value === 'string') return value;
+      if (typeof value !== 'number') return undefined;
+
+      const map: Record<number, string> = {
+        0: 'text',
+        1: 'input_text',
+        2: 'input_textarea',
+        3: 'input_email',
+        4: 'input_select',
+        5: 'cards',
+        6: 'form',
+        7: 'article',
+        8: 'incoming_email',
+        9: 'input_csat',
+        10: 'integrations',
+        11: 'sticker',
+      };
+      return map[value] || undefined;
+    };
 
     // Process reply-to information
     let replyTo = undefined;
@@ -123,8 +143,10 @@ export default function Widget() {
           }))
         : undefined,
       // Email HTML support
-      contentType: m.content_type,
+      contentType: normalizeContentType(m.content_type),
       submittedEmail: m.submitted_email || undefined,
+      items: Array.isArray(m.content_attributes?.items) ? m.content_attributes.items : undefined,
+      submittedValues: m.content_attributes?.submitted_values || undefined,
       contentAttributes: m.content_attributes?.email
         ? {
             email: {
@@ -684,9 +706,11 @@ export default function Widget() {
 
                     // Handle different message types
                     if (data?.message_type === 1) {
-                      // message_type 1 = outgoing - but check if it's from an agent
+                      // message_type 1 = outgoing - but check if it's from an agent or bot
                       const isFromAgent =
-                        data?.performer?.type === 'user' || data?.sender_type === null;
+                        data?.performer?.type === 'user' ||
+                        data?.sender_type === null ||
+                        data?.sender_type === 'AgentBot';
 
                       if (isFromAgent) {
                         // This is a message from an agent, add as incoming message
@@ -1261,6 +1285,36 @@ export default function Widget() {
     })();
   };
 
+  const handleSelectOption = async (message: MessageItem, item: { title?: string; value?: string }) => {
+    const title = (item.title || '').trim();
+    const value = (item.value || '').trim();
+    const selectedText = title || value;
+    if (!selectedText) return;
+
+    setMessages(prev =>
+      prev.map(m =>
+        m.id === message.id ? { ...m, submittedValues: { name: 'choice', title, value: value || title } } : m,
+      ),
+    );
+
+    handleSend(selectedText);
+
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('website_token') || '';
+      if (!token) return;
+
+      const messageId = message.originalId || message.id;
+      await widgetService.updateMessageSubmittedValues(token, messageId, {
+        name: 'choice',
+        title,
+        value: value || title,
+      });
+    } catch (e) {
+      return;
+    }
+  };
+
   const handlePreChatSubmit = async (preChatData: PreChatSubmissionData) => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get('website_token') || '';
@@ -1642,6 +1696,7 @@ export default function Widget() {
                   inboundAvatarUrl={ui.avatarUrl}
                   onRetry={(_id, text) => handleSend(text)}
                   onReply={handleReplyToMessage}
+                  onSelectOption={handleSelectOption}
                   widgetColor={ui.color || '#00d4aa'}
                   onLoadMore={loadOlderMessages}
                   isLoadingMore={isLoadingOlderMessages}
@@ -1726,4 +1781,3 @@ export default function Widget() {
     </div>
   );
 }
-
