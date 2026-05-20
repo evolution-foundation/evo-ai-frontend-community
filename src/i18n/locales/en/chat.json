@@ -416,6 +416,7 @@
       "noAttributes": "No custom attributes configured",
       "updateSuccess": "Attributes updated successfully",
       "updateError": "Error updating attributes",
+      "refreshError": "Attributes saved, but failed to reload contact data",
       "yes": "Yes",
       "no": "No"
     },

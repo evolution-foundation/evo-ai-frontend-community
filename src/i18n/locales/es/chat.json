@@ -399,6 +399,14 @@
       "notInformed": "No informado",
       "copiedToClipboard": "Copiado al portapapeles"
     },
+    "customAttributes": {
+      "noAttributes": "No hay atributos personalizados configurados",
+      "updateSuccess": "Atributos actualizados correctamente",
+      "updateError": "Error al actualizar atributos",
+      "refreshError": "Atributos guardados, pero falló la recarga de datos del contacto",
+      "yes": "Sí",
+      "no": "No"
+    },
     "conversationActions": {
       "status": {
         "title": "Estado de la Conversación",

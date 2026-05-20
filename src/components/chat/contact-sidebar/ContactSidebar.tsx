@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import { useLanguage } from '@/hooks/useLanguage';
+import { toast } from 'sonner';
 
 import { Button } from '@evoapi/design-system/button';
 import { Card, CardHeader, CardContent } from '@evoapi/design-system/card';
@@ -20,16 +21,7 @@ import type { Pipeline } from '@/types/analytics';
 
 import { contactsService } from '@/services/contacts';
 import { Contact, Conversation } from '@/types/chat/api';
-
-// Converts a Unix-seconds timestamp (number or numeric string) to ISO string.
-// Returns undefined for falsy values or any input that cannot produce a valid date.
-const unixSecondsToIso = (ts: unknown): string | undefined => {
-  if (!ts && ts !== 0) return undefined;
-  const n = Number(ts);
-  if (isNaN(n)) return undefined;
-  const d = new Date(n * 1000);
-  return isNaN(d.getTime()) ? undefined : d.toISOString();
-};
+import { mergeFullContact } from '@/utils/chat/contactTimestamp';
 
 interface ContactSidebarProps {
   isOpen: boolean;
@@ -103,6 +95,11 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
   const [isLoadingPipelines, setIsLoadingPipelines] = useState(false);
   const [enrichedContact, setEnrichedContact] = useState<Contact | null>(null);
 
+  const contactRef = useRef(contact);
+  useEffect(() => {
+    contactRef.current = contact;
+  });
+
   // Detectar se é mobile para controlar renderização
   useEffect(() => {
     const checkMobile = () => {
@@ -118,29 +115,40 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
     setEnrichedContact(null);
     if (!isOpen || !contact?.id) return;
     let cancelled = false;
-    contactsService.getContact(contact.id, false).then(full => {
+    contactsService.getContact(contact.id, true).then(full => {
       if (cancelled) return;
-      setEnrichedContact(prev => {
-        const base = prev ?? contact;
-        return {
-          ...base,
-          identifier: full.identifier ?? base.identifier,
-          additional_attributes: full.additional_attributes ?? base.additional_attributes ?? {},
-          custom_attributes: full.custom_attributes ?? base.custom_attributes ?? {},
-          availability_status: full.availability_status ?? base.availability_status,
-          blocked: full.blocked ?? base.blocked ?? false,
-          avatar_url: full.avatar_url || full.thumbnail || base.avatar_url,
-          avatar: full.avatar || base.avatar,
-          last_activity_at: unixSecondsToIso(full.last_activity_at) ?? base.last_activity_at,
-          created_at: unixSecondsToIso(full.created_at) ?? base.created_at,
-        };
-      });
+      const base = contactRef.current ?? contact;
+      setEnrichedContact(mergeFullContact(full as Contact, base));
     }).catch(err => {
       console.error('[ContactSidebar] Failed to fetch full contact data:', err);
     });
     return () => { cancelled = true; };
+  // contactRef tracks the latest contact object; full `contact` excluded to avoid
+  // re-fetching on every prop reference change — only re-fetch on id/open changes.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, contact?.id]);
+
+  // Propagate scalar field changes from the contact prop into enrichedContact while
+  // the sidebar is open — handles store/WebSocket updates with the same contact id.
+  useEffect(() => {
+    if (!isOpen || !contact) return;
+    setEnrichedContact(prev => {
+      if (!prev || prev.id !== contact.id) return prev;
+      return {
+        ...prev,
+        name: contact.name ?? prev.name,
+        phone_number: contact.phone_number ?? prev.phone_number,
+        email: contact.email ?? prev.email,
+        blocked: contact.blocked ?? prev.blocked,
+        avatar_url: contact.avatar_url ?? prev.avatar_url,
+        avatar: contact.avatar ?? prev.avatar,
+        thumbnail: contact.thumbnail ?? prev.thumbnail,
+      };
+    });
+  // Scalar fields used as deps intentionally instead of the full `contact` object
+  // to avoid re-running on every reference change.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, contact?.id, contact?.name, contact?.phone_number, contact?.email, contact?.blocked, contact?.avatar_url, contact?.avatar, contact?.thumbnail]);
 
   // Carregar pipelines da conversation uma única vez
   const loadConversationPipelines = useCallback(async () => {
@@ -170,6 +178,25 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
     await loadConversationPipelines();
     onFilterReload?.();
   }, [loadConversationPipelines, onFilterReload]);
+
+  const handleContactAttributeUpdate = useCallback(async () => {
+    const id = contactRef.current?.id;
+    if (id) {
+      try {
+        const full = await contactsService.getContact(id, true);
+        setEnrichedContact(prev => {
+          const base = prev ?? contactRef.current;
+          return base ? mergeFullContact(full as Contact, base) : null;
+        });
+      } catch (err) {
+        console.error('[ContactSidebar] Failed to refresh contact after attribute update:', err);
+        toast.error(t('contactSidebar.customAttributes.refreshError'));
+      }
+    }
+    await onFilterReload?.();
+  // t is stable (pure translation fn); omitted from deps intentionally.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onFilterReload]);
 
   // Calcular altura real do header dinamicamente
   useEffect(() => {
@@ -441,11 +468,11 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
                 />
               </CardHeader>
 
-              {showContactAttributes && (enrichedContact ?? contact) && (
+              {showContactAttributes && (
                 <CardContent className="pt-0 px-3 pb-3">
                   <EditableContactCustomAttributes
-                    contact={enrichedContact ?? contact as Contact}
-                    onContactUpdate={onFilterReload}
+                    contact={(enrichedContact ?? contact) as Contact}
+                    onContactUpdate={handleContactAttributeUpdate}
                   />
                 </CardContent>
               )}

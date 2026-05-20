@@ -416,6 +416,7 @@
       "noAttributes": "Nenhum atributo personalizado configurado",
       "updateSuccess": "Atributos atualizados com sucesso",
       "updateError": "Erro ao atualizar atributos",
+      "refreshError": "Atributos salvos, mas falhou ao recarregar dados do contato",
       "yes": "Sim",
       "no": "Não"
     },

@@ -399,6 +399,14 @@
       "notInformed": "Non informato",
       "copiedToClipboard": "Copiato negli appunti"
     },
+    "customAttributes": {
+      "noAttributes": "Nessun attributo personalizzato configurato",
+      "updateSuccess": "Attributi aggiornati con successo",
+      "updateError": "Errore nell'aggiornamento degli attributi",
+      "refreshError": "Attributi salvati, ma ricaricamento dei dati del contatto fallito",
+      "yes": "Sì",
+      "no": "No"
+    },
     "conversationActions": {
       "status": {
         "title": "Stato della Conversazione",
