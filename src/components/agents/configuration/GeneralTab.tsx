@@ -40,6 +40,8 @@ const sanitizeAgentName = (name: string): string => {
 
 interface AdvancedSettingsData {
   planner: boolean;
+  load_memory: boolean;
+  preload_memory: boolean;
 }
 
 interface GeneralTabProps {
@@ -366,6 +368,68 @@ export const GeneralTab = ({
                   onCheckedChange={checked => handleAdvancedSettingsChange('planner', checked)}
                 />
               </div>
+
+              {/* Memória */}
+              <div className="flex items-start justify-between py-3 border-t">
+                <div className="flex items-start gap-3 flex-1">
+                  <Brain className="h-5 w-5 text-blue-500 mt-0.5" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Label htmlFor="load-memory" className="font-medium cursor-pointer">
+                        {t('memory.loadMemory') || 'Memória'}
+                      </Label>
+                      <Badge
+                        variant={advancedSettings.load_memory ? 'default' : 'outline'}
+                        className="text-xs"
+                      >
+                        {advancedSettings.load_memory
+                          ? t('advancedBot.active') || 'Ativo'
+                          : t('advancedBot.inactive') || 'Inativo'}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {t('memory.loadMemoryDescription') || 'Permite que o agente acesse o histórico de conversas passadas para manter o contexto do cliente.'}
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  id="load-memory"
+                  checked={advancedSettings.load_memory}
+                  onCheckedChange={checked => {
+                    onAdvancedSettingsChange({
+                      ...advancedSettings,
+                      load_memory: checked,
+                      preload_memory: checked ? advancedSettings.preload_memory || true : false,
+                    });
+                  }}
+                />
+              </div>
+
+              {/* Preload Memory */}
+              {advancedSettings.load_memory && (
+                <div className="flex items-start justify-between py-3 border-t pl-8">
+                  <div className="flex items-start gap-3 flex-1">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Label htmlFor="preload-memory" className="font-medium cursor-pointer">
+                          {t('memory.preloadMemory') || 'Pré-carregar Memória'}
+                        </Label>
+                        <Badge variant="outline" className="text-xs">
+                          {t('advancedBot.optimization') || 'Otimização'}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {t('memory.preloadMemoryDescription') || 'Carrega previamente as memórias do contato no início da conversa para otimizar o tempo de resposta.'}
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    id="preload-memory"
+                    checked={advancedSettings.preload_memory}
+                    onCheckedChange={checked => handleAdvancedSettingsChange('preload_memory', checked)}
+                  />
+                </div>
+              )}
             </div>
           </div>
         )}

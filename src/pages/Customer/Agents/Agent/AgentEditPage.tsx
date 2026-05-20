@@ -890,10 +890,11 @@ const AgentEditPage = () => {
               setIsDirty(true);
             }}
             onAdvancedSettingsChange={settings => {
-              // Only update planner from ConfigurationSection, keep knowledge/memory settings
               setAdvancedSettings(prev => ({
                 ...prev,
                 planner: settings.planner,
+                load_memory: settings.load_memory,
+                preload_memory: settings.preload_memory,
               }));
               setIsDirty(true);
             }}

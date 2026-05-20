@@ -26,6 +26,8 @@ import {
 
 interface AdvancedSettingsData {
   planner: boolean;
+  load_memory: boolean;
+  preload_memory: boolean;
 }
 
 interface ConfigurationSectionProps {
