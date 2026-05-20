@@ -661,10 +661,11 @@ function JourneyFlowEditor() {
       <JourneyEditorHeader
         onBack={handleBack}
         backLabel={t('flowEditor.back')}
+        backShortcutHint={t('flowEditor.backShortcutHint')}
         title={t('flowEditor.title', { name: journey.name })}
-        subtitle={journey.description || t('flowEditor.subtitleFallback')}
+        subtitle={journey.description || undefined}
         onViewSessions={() => setShowSessionsViewer(true)}
-        viewSessionsLabel="Ver Sessões"
+        viewSessionsLabel={t('flowEditor.viewSessions')}
         environmentSlot={<EnvironmentManager journeyId={id} />}
         onSave={saveChanges}
         hasUnsavedChanges={hasUnsavedChanges}
@@ -676,10 +677,10 @@ function JourneyFlowEditor() {
         lastSavedFormatter={(date) =>
           t('flowEditor.lastSaved', { time: date.toLocaleTimeString() })
         }
+        unsavedChangesHint={t('flowEditor.autoSaveInfo')}
+        moreActionsLabel={t('flowEditor.moreActions')}
       />
       <BaseFlowEditor
-        title={t('flowEditor.title', { name: journey.name })}
-        subtitle={journey.description || t('flowEditor.subtitleFallback')}
         flowData={flowData}
         isLoading={loading}
         isSaving={isSaving}

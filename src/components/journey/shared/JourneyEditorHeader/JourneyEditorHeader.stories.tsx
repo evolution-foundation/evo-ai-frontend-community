@@ -12,10 +12,12 @@ const meta: Meta<typeof JourneyEditorHeader> = {
       description: {
         component:
           'Header chrome for the Journey Editor page. 3 zones (navigation / identity / actions), ' +
-          'ESC keyboard shortcut for Back, responsive kebab below 1024px. Lifted state mandatory ' +
-          '— every prop is consumer-controlled; the component holds no useState. The ' +
-          '`environmentSlot` is a ReactNode slot for the EnvironmentManager component (which ' +
-          'stays self-contained — not refactored as part of EVO-1269).',
+          'ESC and Cmd/Ctrl+B keyboard shortcuts for Back (skipped when focus is inside an INPUT / ' +
+          'TEXTAREA / SELECT / contentEditable element OR when a Radix overlay is open), responsive ' +
+          'kebab below 1024px. Lifted state mandatory — every prop is consumer-controlled; the ' +
+          'component holds no useState. The `environmentSlot` is a ReactNode slot for the ' +
+          'EnvironmentManager component (which stays self-contained — not refactored as part of ' +
+          'EVO-1269).',
       },
     },
   },
@@ -75,7 +77,7 @@ export const Saving: Story = {
 };
 
 export const WithLastSaved: Story = {
-  name: 'Pristine + lastSaved timestamp',
+  name: 'Pristine + lastSaved timestamp (lives inside the persist cluster)',
   args: {
     ...baseArgs,
     hasUnsavedChanges: false,
@@ -84,8 +86,19 @@ export const WithLastSaved: Story = {
   },
 };
 
+export const DirtyWithUnsavedChangesHint: Story = {
+  name: 'Dirty + lastSaved + unsavedChangesHint suffix',
+  args: {
+    ...baseArgs,
+    hasUnsavedChanges: true,
+    lastSaved: new Date(),
+    lastSavedFormatter: (date) => `Last save: ${date.toLocaleTimeString()}`,
+    unsavedChangesHint: 'Auto-save in 10s',
+  },
+};
+
 export const WithoutSubtitle: Story = {
-  name: 'No subtitle — falls back to single-line identity',
+  name: 'No subtitle — falls back to single-line identity (no "No description" filler)',
   args: {
     ...baseArgs,
     subtitle: undefined,
@@ -97,11 +110,15 @@ export const PortugueseLabels: Story = {
   args: {
     ...baseArgs,
     backLabel: 'Voltar',
+    backShortcutHint: 'Esc',
     viewSessionsLabel: 'Ver Sessões',
     saveLabel: 'Salvar',
     savingLabel: 'Salvando…',
     savedLabel: 'Salvo',
     moreActionsLabel: 'Mais ações',
+    unsavedChangesHint: 'Auto-save em 10s',
     hasUnsavedChanges: true,
+    lastSaved: new Date(),
+    lastSavedFormatter: (date) => `Último save: ${date.toLocaleTimeString()}`,
   },
 };
