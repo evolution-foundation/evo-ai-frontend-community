@@ -6,6 +6,7 @@ import { Button, Input, Textarea, Checkbox } from '@evoapi/design-system';
 import { useLanguage } from '@/hooks/useLanguage';
 import { PhoneInput } from '@/components/shared/PhoneInput';
 import '@/components/shared/PhoneInput.css';
+import { getLabel, getPlaceHolder } from '@/components/channels/settings/helpers/preChatHelpers';
 import type {
   PreChatField,
   PreChatFormData,
@@ -22,7 +23,14 @@ interface PreChatFormProps {
   widgetColor?: string;
   onSubmit: (data: PreChatSubmissionData) => void;
   isLoading?: boolean;
+  serverErrors?: Record<string, string[]>;
 }
+
+const SERVER_TO_FORM_FIELD: Record<string, string> = {
+  email: 'emailAddress',
+  phone_number: 'phoneNumber',
+  name: 'fullName',
+};
 
 // Validation schema factory
 const createValidationSchema = (fields: PreChatField[], hasActiveCampaign: boolean, t: (key: string) => string) => {
@@ -107,8 +115,9 @@ export const PreChatForm: React.FC<PreChatFormProps> = ({
   widgetColor = '#1f93ff',
   onSubmit,
   isLoading = false,
+  serverErrors,
 }) => {
-  const { t } = useLanguage('channels');
+  const { t, currentLanguage } = useLanguage('widget');
   const [formFields, setFormFields] = useState<PreChatField[]>([]);
 
   const hasActiveCampaign = !!activeCampaign?.id;
@@ -149,14 +158,53 @@ export const PreChatForm: React.FC<PreChatFormProps> = ({
     control,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm<PreChatFormData>({
     resolver: zodResolver(validationSchema),
     defaultValues: {},
   });
 
   useEffect(() => {
-    setFormFields(filteredPreChatFields);
-  }, [filteredPreChatFields]);
+    if (!serverErrors || Object.keys(serverErrors).length === 0) return;
+    Object.entries(serverErrors).forEach(([field, messages]) => {
+      const formField = SERVER_TO_FORM_FIELD[field] || field;
+      setError(formField as any, { type: 'server', message: messages[0] });
+    });
+  }, [serverErrors, setError]);
+
+  // Standard field names that should be translated
+  const STANDARD_FIELD_NAMES = ['emailAddress', 'fullName', 'phoneNumber'];
+
+  // Translate standard field labels and placeholders
+  const translatedPreChatFields = useMemo(() => {
+    return filteredPreChatFields.map(field => {
+      // Hybrid approach: use field_type if correct, fallback to name check
+      const isStandard = field.field_type === 'standard' || STANDARD_FIELD_NAMES.includes(field.name);
+      if (isStandard) {
+        const translatedLabel = getLabel({
+          key: field.name,
+          label: field.label,
+          language: currentLanguage,
+        });
+        const translatedPlaceholder = getPlaceHolder({
+          key: field.name,
+          placeholder: field.placeholder || '',
+          label: translatedLabel,
+          language: currentLanguage,
+        });
+        return {
+          ...field,
+          label: translatedLabel,
+          placeholder: translatedPlaceholder,
+        };
+      }
+      return field;
+    });
+  }, [filteredPreChatFields, currentLanguage]);
+
+  useEffect(() => {
+    setFormFields(translatedPreChatFields);
+  }, [translatedPreChatFields]);
 
   // Get field value
   const getValue = (field: PreChatField, formData: PreChatFormData) => {

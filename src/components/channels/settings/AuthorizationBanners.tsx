@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { useGlobalConfig } from '@/contexts/GlobalConfigContext';
 import ChannelsService from '@/services/channels/channelsService';
 import WhatsappService from '@/services/channels/whatsappService';
+import InboxesService from '@/services/channels/inboxesService';
 import instagramService from '@/services/channels/instagramService';
 import EmailOauthService from '@/services/channels/emailOauthService';
 
@@ -212,6 +213,22 @@ const AuthorizationSuccessBanner: React.FC<{
   const { t } = useLanguage('channels');
   const config = useGlobalConfig();
   const [isReconnecting, setIsReconnecting] = useState(false);
+  const [isSyncingSubscription, setIsSyncingSubscription] = useState(false);
+
+  const handleSyncWhatsappSubscription = async () => {
+    setIsSyncingSubscription(true);
+    try {
+      await InboxesService.syncWhatsappSubscription(inbox.id);
+      toast.success(t('settings.authorizationBanners.success.subscriptionSynced'));
+    } catch (error: any) {
+      console.error('Error syncing WhatsApp subscription:', error);
+      toast.error(
+        error?.message || t('settings.authorizationBanners.success.subscriptionSyncError'),
+      );
+    } finally {
+      setIsSyncingSubscription(false);
+    }
+  };
 
   const getProviderIcon = () => {
     switch (provider.toLowerCase()) {
@@ -370,9 +387,97 @@ const AuthorizationSuccessBanner: React.FC<{
 
   const handleReconnectWhatsApp = async () => {
     setIsReconnecting(true);
+
+    // Collect both the SDK code response and the Embedded Signup postMessage payload,
+    // then trigger the actual reconnect once both are present (mirrors CloudWhatsappForm).
+    let sdkCode: string | null = null;
+    let signupData: { waba_id?: string; phone_number_id?: string; business_id?: string } | null =
+      null;
+    let finished = false;
+
+    const finalizeReconnect = async () => {
+      if (finished) return;
+      if (!sdkCode || !signupData?.waba_id) return;
+      finished = true;
+
+      try {
+        const { access_token, phone_number_id: backendPhoneNumberId } =
+          await WhatsappService.exchangeCode({
+            code: sdkCode,
+            business_account_id: signupData.business_id || '',
+            waba_id: signupData.waba_id,
+          });
+
+        // Prefer phone_number_id from the Embedded Signup event because the backend
+        // may return a different one (first phone on the account) — same rule as
+        // CloudWhatsappForm.handleConnectionSuccess.
+        const phoneNumberId = signupData.phone_number_id || backendPhoneNumberId || '';
+
+        await InboxesService.update(inbox.id, {
+          channel: {
+            provider_config: {
+              api_key: access_token,
+              phone_number_id: phoneNumberId,
+              waba_id: signupData.waba_id,
+            },
+          },
+        });
+
+        toast.success(t('settings.authorizationBanners.success.reconnected'));
+        setTimeout(() => window.location.reload(), 1000);
+      } catch (error: any) {
+        console.error('Error reconnecting WhatsApp:', error);
+        toast.error(
+          error?.message || t('settings.authorizationBanners.success.reconnectError'),
+        );
+      } finally {
+        setIsReconnecting(false);
+      }
+    };
+
+    // Listen for the Embedded Signup postMessage (waba_id / phone_number_id / business_id).
+    const messageHandler = (event: MessageEvent) => {
+      if (
+        event.origin !== 'https://www.facebook.com' &&
+        event.origin !== 'https://web.facebook.com'
+      ) {
+        return;
+      }
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type !== 'WA_EMBEDDED_SIGNUP') return;
+
+        if (
+          data.event === 'FINISH' ||
+          data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING'
+        ) {
+          signupData = data.data;
+          finalizeReconnect();
+        } else if (data.event === 'CANCEL') {
+          finished = true;
+          window.removeEventListener('message', messageHandler);
+          setIsReconnecting(false);
+          toast.error(t('settings.authorizationBanners.success.loginCancelled'));
+        } else if (data.event === 'ERROR') {
+          finished = true;
+          window.removeEventListener('message', messageHandler);
+          setIsReconnecting(false);
+          toast.error(
+            data.data?.error_message ||
+              t('settings.authorizationBanners.success.reconnectError'),
+          );
+        }
+      } catch {
+        // ignore non-JSON messages
+      }
+    };
+    window.addEventListener('message', messageHandler);
+
     try {
       if (!config.wpAppId || !config.wpWhatsappConfigId) {
         toast.error(t('settings.authorizationBanners.success.whatsappNotConfigured'));
+        window.removeEventListener('message', messageHandler);
+        setIsReconnecting(false);
         return;
       }
 
@@ -380,78 +485,36 @@ const AuthorizationSuccessBanner: React.FC<{
 
       if (!window.FB || !window.FB.login) {
         toast.error(t('settings.authorizationBanners.success.sdkNotLoaded'));
+        window.removeEventListener('message', messageHandler);
+        setIsReconnecting(false);
         return;
       }
 
-      window.FB.init({
-        appId: config.wpAppId,
-        autoLogAppEvents: true,
-        xfbml: true,
-        version: 'v19.0',
-      });
-
       window.FB.login(
         (response: any) => {
-          // Wrap async logic in IIFE to avoid passing async function directly
-          (async () => {
-            if (response.status === 'connected') {
-              try {
-                // Use embedded signup event (same as WhatsappCloudForm)
-                window.FB.Event.subscribe('messenger_platform_embedded_signup', (data: any) => {
-                  // Wrap async logic in IIFE
-                  (async () => {
-                    try {
-                      const payload = {
-                        user_access_token: response.authResponse.accessToken,
-                        waba_id: data.waba_id,
-                        phone_number_id: data.phone_number_id,
-                        inbox_id: inbox.id,
-                      };
-
-                      await WhatsappService.createWhatsappCloudChannel(payload);
-                      toast.success(t('settings.authorizationBanners.success.reconnected'));
-                      setTimeout(() => window.location.reload(), 1000);
-                    } catch (error: any) {
-                      console.error('Error reconnecting WhatsApp:', error);
-                      toast.error(
-                        error?.message || t('settings.authorizationBanners.success.reconnectError'),
-                      );
-                    } finally {
-                      setIsReconnecting(false);
-                    }
-                  })().catch((error: any) => {
-                    console.error('Error in WhatsApp reconnect callback:', error);
-                    setIsReconnecting(false);
-                  });
-                });
-              } catch (error: any) {
-                console.error('Error setting up WhatsApp reconnection:', error);
-                toast.error(
-                  error?.message || t('settings.authorizationBanners.success.reconnectError'),
-                );
-                setIsReconnecting(false);
-              }
-            } else {
-              setIsReconnecting(false);
-              toast.error(t('settings.authorizationBanners.success.loginCancelled'));
-            }
-          })().catch((error: any) => {
-            console.error('Error in WhatsApp reconnect callback:', error);
+          if (response.authResponse?.code) {
+            sdkCode = response.authResponse.code;
+            finalizeReconnect();
+          } else {
+            window.removeEventListener('message', messageHandler);
             setIsReconnecting(false);
-          });
+            toast.error(t('settings.authorizationBanners.success.loginCancelled'));
+          }
         },
         {
           config_id: config.wpWhatsappConfigId,
           response_type: 'code',
           override_default_response_type: true,
           extras: {
-            setup: {},
+            version: 'v3',
+            featureType: 'whatsapp_business_app_onboarding',
           },
         },
       );
     } catch (error: any) {
       console.error('Error reconnecting WhatsApp:', error);
       toast.error(error?.message || t('settings.authorizationBanners.success.reconnectError'));
+      window.removeEventListener('message', messageHandler);
       setIsReconnecting(false);
     }
   };
@@ -548,22 +611,40 @@ const AuthorizationSuccessBanner: React.FC<{
                   {t('settings.authorizationBanners.success.active')}
                 </Badge>
               </div>
-              {showReconnectButton && (
-                <Button
-                  onClick={() => {
-                    handleReconnect().catch(error => {
-                      console.error('Error in handleReconnect:', error);
-                    });
-                  }}
-                  loading={isReconnecting}
-                  size="sm"
-                  variant="outline"
-                  className="border-primary/30 text-primary hover:bg-primary/10"
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  {t('settings.authorizationBanners.success.reconnect')}
-                </Button>
-              )}
+              <div className="flex items-center gap-2">
+                {isWhatsAppCloud && (
+                  <Button
+                    onClick={() => {
+                      handleSyncWhatsappSubscription().catch(error => {
+                        console.error('Error in handleSyncWhatsappSubscription:', error);
+                      });
+                    }}
+                    loading={isSyncingSubscription}
+                    size="sm"
+                    variant="outline"
+                    className="border-primary/30 text-primary hover:bg-primary/10"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    {t('settings.authorizationBanners.success.syncSubscription')}
+                  </Button>
+                )}
+                {showReconnectButton && (
+                  <Button
+                    onClick={() => {
+                      handleReconnect().catch(error => {
+                        console.error('Error in handleReconnect:', error);
+                      });
+                    }}
+                    loading={isReconnecting}
+                    size="sm"
+                    variant="outline"
+                    className="border-primary/30 text-primary hover:bg-primary/10"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    {t('settings.authorizationBanners.success.reconnect')}
+                  </Button>
+                )}
+              </div>
             </div>
             {lastConnected && (
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">

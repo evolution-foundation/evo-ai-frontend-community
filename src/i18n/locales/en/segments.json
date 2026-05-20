@@ -1,0 +1,330 @@
+{
+  "title": "Segments",
+  "loading": "Loading segments...",
+  "loadingSegment": "Loading segment...",
+  "header": {
+    "title": "Segments",
+    "subtitle": "Create and manage segments based on user behavior and properties",
+    "searchPlaceholder": "Search segments...",
+    "newSegment": "New Segment",
+    "bulkDelete": "Delete Selected",
+    "clearSelection": "Clear Selection",
+    "selected": "{{count}} selected(s)",
+    "recomputeAll": "Recompute All",
+    "recomputing": "Recomputing...",
+    "delete": "Delete"
+  },
+  "empty": {
+    "title": "No segments found",
+    "description": "Create a new segment to organize and segment your contacts.",
+    "action": "New Segment"
+  },
+  "table": {
+    "columns": {
+      "name": "Name",
+      "status": "Status",
+      "contacts": "Contacts",
+      "lastComputed": "Last Recomputation",
+      "createdAt": "Creation Date",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "processing": "Processing"
+    }
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "recompute": "Recompute",
+    "viewContactIds": "View IDs",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "back": "Back",
+    "addCondition": "Add Condition",
+    "addFirstCondition": "Add First Condition",
+    "copyJson": "Copy JSON",
+    "close": "Close",
+    "viewIds": "Ver IDs",
+    "pause": "Pause"
+  },
+  "messages": {
+    "permissionDenied": {
+      "read": "You don't have permission to view segments",
+      "create": "You don't have permission to create segments",
+      "update": "You don't have permission to edit segments",
+      "delete": "You don't have permission to delete segments"
+    },
+    "loadError": "Error loading segments",
+    "loadSegmentError": "Error loading segment",
+    "createSuccess": "Segment created successfully",
+    "createError": "Error creating segment",
+    "updateSuccess": "Segment updated successfully",
+    "updateError": "Error updating segment",
+    "deleteSuccess": "Segment deleted successfully",
+    "deleteError": "Error deleting segment",
+    "bulkDeleteSuccess": "{{count}} segment(s) deleted successfully",
+    "bulkDeleteError": "Error deleting segments",
+    "recomputeSuccess": "Segment recomputed successfully",
+    "recomputeError": "Error recomputing segment",
+    "recomputeAllSuccess": "{{count}} segments recomputed successfully in {{time}}s",
+    "recomputeAllError": "Error recomputing all segments",
+    "loadContactIdsError": "Error loading contact IDs",
+    "idsCopied": "IDs copied to clipboard",
+    "nameRequired": "Segment name is required",
+    "accountNotFound": "Account not found"
+  },
+  "dialog": {
+    "delete": {
+      "title": "Delete Segment",
+      "description": "Are you sure you want to delete the segment \"{{name}}\"? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "deleting": "Deleting..."
+    },
+    "bulkDelete": {
+      "title": "Delete Segments",
+      "description": "Are you sure you want to delete {{count}} segment(s) selected? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete All",
+      "deleting": "Deleting..."
+    },
+    "contactIds": {
+      "title": "Contact IDs - {{name}}",
+      "description": "List with {{count}} contact IDs of the segment"
+    }
+  },
+  "createEdit": {
+    "titleNew": "New Segment",
+    "titleEdit": "Edit Segment",
+    "contactsCount": "{{count}} contacts",
+    "lastComputed": "Last Recomputation: {{date}}",
+    "lastComputedNever": "Never",
+    "name": {
+      "label": "Segment Name",
+      "placeholder": "Ex: Premium Clients, Inactive Users, etc.",
+      "description": "Choose a descriptive name to easily identify this segment."
+    },
+    "definition": {
+      "title": "Segment Definition",
+      "description": "Configure how the contacts will be filtered for this segment.",
+      "combinationType": "How to combine the conditions?",
+      "everyone": {
+        "label": "All contacts",
+        "description": "Include all contacts from the database without filters.",
+        "messageTitle": "Universal Segment",
+        "messageDescription": "This segment will automatically include all contacts from your database. No additional conditions are required."
+      },
+      "and": {
+        "label": "All conditions (AND)",
+        "description": "Contacts must meet ALL defined conditions."
+      },
+      "or": {
+        "label": "Any condition (OR)",
+        "description": "Contacts must meet AT LEAST ONE of the conditions."
+      },
+      "noConditions": {
+        "title": "No conditions defined",
+        "description": "Add conditions to filter the contacts for this segment."
+      }
+    }
+  },
+  "conditionTypeSelector": {
+    "groupCondition": "Select condition type"
+  },
+  "conditionTypes": {
+    "userProperty": "User Property",
+    "label": "Label",
+    "customAttribute": "Custom Attribute",
+    "performed": "Performed Action",
+    "lastPerformed": "Last Execution",
+    "randomBucket": "Random Group",
+    "email": "Email",
+    "whatsapp": "WhatsApp",
+    "web": "Web",
+    "sms": "SMS",
+    "manual": "Manual"
+  },
+  "userPropertyEditor": {
+    "propertyPath": "Property Path",
+    "selectProperty": "Select Property",
+    "operator": "Operator",
+    "value": "Value",
+    "valuePlaceholder": "Enter a value",
+    "categories": {
+      "basicInfo": "Basic Information",
+      "metadata": "Metadata",
+      "systemInfo": "System Information",
+      "customData": "Custom Data"
+    },
+    "properties": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "phoneNumber": "Phone Number",
+      "inbox": "Inbox",
+      "lastName": "Last Name",
+      "middleName": "Middle Name",
+      "location": "Location",
+      "countryCode": "Country Code",
+      "identifier": "Identifier",
+      "contactType": "Contact Type",
+      "blocked": "Blocked",
+      "lastActivity": "Last Activity",
+      "lastActivityAt": "Last Activity At",
+      "created": "Created",
+      "createdAt": "Created At",
+      "updated": "Updated",
+      "updatedAt": "Updated At",
+      "additionalAttributes": "Additional Attributes"
+    }
+  },
+  "operators": {
+    "equals": "Equals",
+    "notEquals": "Not Equals",
+    "greaterThan": "Greater Than",
+    "greaterThanOrEqual": "Greater Than or Equal",
+    "lessThan": "Less Than",
+    "lessThanOrEqual": "Less Than or Equal",
+    "contains": "Contains",
+    "notContains": "Not Contains",
+    "within": "Within",
+    "exists": "Exists",
+    "notExists": "Not Exists",
+    "in": "In",
+    "notIn": "Not In"
+  },
+  "labelEditor": {
+    "label": "Label",
+    "selectLabel": "Select a label",
+    "condition": "Condition",
+    "has": "Has",
+    "notHas": "Not Has",
+    "loading": "Loading labels...",
+    "noLabelsFound": "No labels found"
+  },
+  "customAttributeEditor": {
+    "attribute": "Attribute",
+    "selectAttribute": "Select an attribute",
+    "operator": "Operator",
+    "value": "Value",
+    "valuePlaceholder": "Enter a value",
+    "loading": "Loading attributes...",
+    "noAttributesFound": "No custom attributes found"
+  },
+  "conditionEditor": {
+    "eventName": "Event Name",
+    "eventNamePlaceholder": "Ex: button_clicked, page_viewed",
+    "templates": "Templates",
+    "timesPerformed": "Times Performed",
+    "quantity": "Quantity",
+    "properties": "Properties",
+    "whereProperties": "Where Properties",
+    "timeWindow": "Time Window",
+    "eventProperties": "Event Properties",
+    "addProperty": "Add Property",
+    "path": "Path",
+    "pathPlaceholder": "Path",
+    "value": "Value",
+    "valuePlaceholder": "Value",
+    "loading": "Loading...",
+    "selectAttribute": "Select an attribute",
+    "selectLabel": "Select a label",
+    "noAttributesFound": "No custom attributes found",
+    "noLabelsFound": "No labels found",
+    "timesOperators": {
+      "greaterThanOrEqual": "Greater Than or Equal",
+      "lessThan": "Less Than",
+      "equals": "Exactly"
+    },
+    "timeUnits": {
+      "minutes": "Minutes",
+      "hours": "Hours",
+      "days": "Days",
+      "weeks": "Weeks",
+      "months": "Months"
+    },
+    "propertyOperators": {
+      "equals": "Equals",
+      "notEquals": "Not Equals",
+      "contains": "Contains",
+      "exists": "Exists"
+    },
+    "eventCategories": {
+      "contactEvents": "Contact Events",
+      "conversationEvents": "Conversation Events",
+      "pipelineEvents": "Pipeline Events",
+      "segmentEvents": "Segment Events",
+      "customEvents": "Custom Events"
+    },
+    "eventTemplates": {
+      "contactCreated": "Contact Created",
+      "contactUpdated": "Contact Updated",
+      "labelAdded": "Label Added",
+      "labelRemoved": "Label Removed",
+      "customAttributeChanged": "Custom Attribute Changed",
+      "conversationCreated": "Conversation Created",
+      "conversationUpdated": "Conversation Updated",
+      "messageCreated": "Message Created",
+      "messageUpdated": "Message Updated",
+      "pipelineConversationAdded": "Added to Pipeline",
+      "pipelineStageChanged": "Pipeline Stage Changed",
+      "pipelineCustomFieldsUpdated": "Pipeline Custom Fields Updated",
+      "segmentEntered": "Segment Entered",
+      "segmentExited": "Segment Exited",
+      "buttonClicked": "Button Clicked",
+      "pageViewed": "Page Viewed",
+      "formSubmitted": "Form Submitted",
+      "productPurchased": "Product Purchased",
+      "emailOpened": "Email Opened",
+      "linkClicked": "Link Clicked"
+    },
+    "channelEvents": {
+      "email": {
+        "label": "Email Event",
+        "messageSent": "Email Sent",
+        "emailOpened": "Email Opened",
+        "emailClicked": "Email Clicked",
+        "emailBounced": "Email Bounced",
+        "emailDelivered": "Email Delivered",
+        "templateIdLabel": "Template ID (optional)",
+        "templateIdPlaceholder": "Email template ID"
+      },
+      "whatsapp": {
+        "label": "WhatsApp Event",
+        "messageSent": "WhatsApp Sent",
+        "messageRead": "WhatsApp Read",
+        "messageReplied": "WhatsApp Replied",
+        "templateIdLabel": "Template ID (optional)",
+        "templateIdPlaceholder": "WhatsApp template ID"
+      },
+      "web": {
+        "label": "Web Event",
+        "messageSent": "Web Sent",
+        "messageOpened": "Web Opened",
+        "messageClicked": "Web Clicked",
+        "templateIdLabel": "Template ID (optional)",
+        "templateIdPlaceholder": "Web template ID"
+      },
+      "sms": {
+        "label": "SMS Event",
+        "messageSent": "SMS Sent",
+        "messageRead": "SMS Read",
+        "messageReplied": "SMS Replied",
+        "templateIdLabel": "Template ID (optional)",
+        "templateIdPlaceholder": "SMS template ID"
+      }
+    },
+    "randomBucket": {
+      "percentageIncluded": "Percentage Included"
+    },
+    "manualUpload": {
+      "title": "Manual Segment Upload",
+      "description": "Upload a CSV file with user identifiers to manually define this segment",
+      "uploadButton": "Upload CSV",
+      "format": "Format: One column with user_id"
+    }
+  }
+}

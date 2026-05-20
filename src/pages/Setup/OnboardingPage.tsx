@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
+import { type Locale } from '@/i18n/config';
 import { setupService } from '@/services/setup/setupService';
 import { surveyService } from '@/services/survey/surveyService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,9 +28,10 @@ interface SelectFieldProps {
   value: string;
   options: string[];
   onChange: (value: string) => void;
+  placeholder?: string;
 }
 
-function SelectField({ label, id, value, options, onChange }: SelectFieldProps) {
+function SelectField({ label, id, value, options, onChange, placeholder = 'Select...' }: SelectFieldProps) {
   return (
     <div style={{ marginBottom: '1.1rem' }}>
       <label
@@ -76,7 +78,7 @@ function SelectField({ label, id, value, options, onChange }: SelectFieldProps) 
           }}
         >
           <option value="" style={{ background: '#18181b', color: '#52525b' }}>
-            Selecionar...
+            {placeholder}
           </option>
           {options.map((opt) => (
             <option key={opt} value={opt} style={{ background: '#18181b', color: '#fafafa' }}>
@@ -111,10 +113,31 @@ function SelectField({ label, id, value, options, onChange }: SelectFieldProps) 
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
+const LANGUAGES: { value: Locale; labelKey: string }[] = [
+  { value: 'pt-BR', labelKey: 'language.portuguese' },
+  { value: 'en',    labelKey: 'language.english' },
+  { value: 'es',    labelKey: 'language.spanish' },
+  { value: 'fr',    labelKey: 'language.french' },
+  { value: 'it',    labelKey: 'language.italian' },
+];
+
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const { t } = useLanguage('onboarding');
+  const { t, currentLanguage, changeLanguage } = useLanguage('onboarding');
   const { isAuthenticated, refreshUser } = useAuth();
+
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const [form, setForm] = useState<OnboardingFormData>({
     teamSize: '',
@@ -150,7 +173,8 @@ export default function OnboardingPage() {
     form.mainChannel !== '' &&
     (form.mainChannel !== t('survey.channel.other') || form.mainChannelOther.trim().length > 0);
 
-  const filledCount = [
+  // Define os campos que compõem as etapas do onboarding
+  const onboardingSteps = [
     form.teamSize,
     form.dailyVolume,
     isChannelValid ? 'ok' : '',
@@ -158,9 +182,11 @@ export default function OnboardingPage() {
     form.biggestPain,
     form.crmExperience,
     form.mainGoal,
-  ].filter(Boolean).length;
+  ] as const;
 
-  const progressPct = Math.round((filledCount / 7) * 100);
+  const filledCount = onboardingSteps.filter(Boolean).length;
+  const totalSteps = onboardingSteps.length;
+  const progressPct = Math.round((filledCount / totalSteps) * 100);
 
   const handleSubmit = async () => {
     if (loading) return;
@@ -258,6 +284,7 @@ export default function OnboardingPage() {
 
       <div
         style={{
+          position: 'relative',
           minHeight: '100vh',
           background: '#09090b',
           display: 'flex',
@@ -267,6 +294,125 @@ export default function OnboardingPage() {
           fontFamily: 'ui-sans-serif, system-ui, sans-serif',
         }}
       >
+        {/* Language selector */}
+        <div ref={langRef} style={{ position: 'absolute', top: '16px', right: '16px' }}>
+          <button
+            onClick={() => setLangOpen((o) => !o)}
+            aria-haspopup="listbox"
+            aria-expanded={langOpen}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 10px',
+              background: langOpen ? '#1c1c1f' : 'transparent',
+              border: '0.5px solid',
+              borderColor: langOpen ? '#3f3f46' : '#27272a',
+              borderRadius: '6px',
+              color: '#a1a1aa',
+              fontSize: '13px',
+              fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+              cursor: 'pointer',
+              outline: 'none',
+              transition: 'background 0.15s, border-color 0.15s',
+              whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = '#3f3f46';
+              (e.currentTarget as HTMLButtonElement).style.background = '#1c1c1f';
+            }}
+            onMouseLeave={(e) => {
+              if (!langOpen) {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#27272a';
+                (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+              }
+            }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="2" y1="12" x2="22" y2="12" />
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+            <span>{LANGUAGES.find((l) => l.value === currentLanguage)?.labelKey ? t(LANGUAGES.find((l) => l.value === currentLanguage)!.labelKey) : currentLanguage}</span>
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              aria-hidden="true"
+              style={{ transition: 'transform 0.15s', transform: langOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+            >
+              <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+
+          {langOpen && (
+            <div
+              role="listbox"
+              aria-label="Select language"
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 6px)',
+                right: 0,
+                background: '#18181b',
+                border: '0.5px solid #27272a',
+                borderRadius: '8px',
+                padding: '4px',
+                minWidth: '150px',
+                zIndex: 50,
+                boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+              }}
+            >
+              {LANGUAGES.map((lang) => {
+                const isSelected = lang.value === currentLanguage;
+                return (
+                  <button
+                    key={lang.value}
+                    role="option"
+                    aria-selected={isSelected}
+                    onClick={() => { changeLanguage(lang.value); setLangOpen(false); }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      width: '100%',
+                      padding: '8px 10px',
+                      borderRadius: '5px',
+                      border: 'none',
+                      background: isSelected ? 'rgba(0,255,167,0.08)' : 'transparent',
+                      color: isSelected ? '#00ffa7' : '#a1a1aa',
+                      fontSize: '13px',
+                      fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'background 0.1s, color 0.1s',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSelected) {
+                        (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.05)';
+                        (e.currentTarget as HTMLButtonElement).style.color = '#fafafa';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSelected) {
+                        (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+                        (e.currentTarget as HTMLButtonElement).style.color = '#a1a1aa';
+                      }
+                    }}
+                  >
+                    <span>{t(lang.labelKey)}</span>
+                    {isSelected && (
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <path d="M2 6l3 3 5-5" stroke="#00ffa7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         <div
           style={{
             background: '#111113',
@@ -303,6 +449,11 @@ export default function OnboardingPage() {
               }}
             >
               <div
+                role="progressbar"
+                aria-valuenow={filledCount}
+                aria-valuemin={0}
+                aria-valuemax={totalSteps}
+                data-testid="progress-bar-fill"
                 style={{
                   height: '3px',
                   background: '#00ffa7',
@@ -312,8 +463,13 @@ export default function OnboardingPage() {
                 }}
               />
             </div>
-            <span style={{ fontSize: '11px', color: '#52525b', whiteSpace: 'nowrap' }}>
-              {filledCount} {t('survey.progress.of')} 6
+            <span
+              style={{ fontSize: '11px', color: '#52525b', whiteSpace: 'nowrap' }}
+              data-testid="progress-text"
+              data-filled={filledCount}
+              data-total={totalSteps}
+            >
+              {filledCount} {t('survey.progress.of')} {totalSteps}
             </span>
           </div>
 
@@ -327,6 +483,7 @@ export default function OnboardingPage() {
                 value={form.teamSize}
                 options={Array.isArray(teamSizeOptions) ? teamSizeOptions : []}
                 onChange={set('teamSize')}
+                placeholder={t('survey.placeholder')}
               />
 
               <SelectField
@@ -335,6 +492,7 @@ export default function OnboardingPage() {
                 value={form.dailyVolume}
                 options={Array.isArray(dailyVolumeOptions) ? dailyVolumeOptions : []}
                 onChange={set('dailyVolume')}
+                placeholder={t('survey.placeholder')}
               />
 
               {/* Channel — with "Other" free text */}
@@ -428,6 +586,7 @@ export default function OnboardingPage() {
                 value={form.usesAI}
                 options={Array.isArray(aiOptions) ? aiOptions : []}
                 onChange={set('usesAI')}
+                placeholder={t('survey.placeholder')}
               />
 
               <SelectField
@@ -436,6 +595,7 @@ export default function OnboardingPage() {
                 value={form.biggestPain}
                 options={Array.isArray(painOptions) ? painOptions : []}
                 onChange={set('biggestPain')}
+                placeholder={t('survey.placeholder')}
               />
 
               <SelectField
@@ -444,6 +604,7 @@ export default function OnboardingPage() {
                 value={form.crmExperience}
                 options={Array.isArray(crmOptions) ? crmOptions : []}
                 onChange={set('crmExperience')}
+                placeholder={t('survey.placeholder')}
               />
 
               <SelectField
@@ -452,6 +613,7 @@ export default function OnboardingPage() {
                 value={form.mainGoal}
                 options={Array.isArray(goalOptions) ? goalOptions : []}
                 onChange={set('mainGoal')}
+                placeholder={t('survey.placeholder')}
               />
             </div>
           </div>

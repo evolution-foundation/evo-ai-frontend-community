@@ -4,10 +4,25 @@ import path from 'path';
 import tailwindcss from '@tailwindcss/vite';
 import { copyFile, mkdir } from 'node:fs/promises';
 import { createReadStream, existsSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 import type { Plugin } from 'vite';
 
 const FFMPEG_CORE_DIR = path.resolve(__dirname, 'node_modules/@ffmpeg/core/dist');
 const FFMPEG_FILES = ['ffmpeg-core.js', 'ffmpeg-core.wasm', 'ffmpeg-core.worker.js'];
+
+// Resolution order: APP_VERSION env (CI/release) → `git describe` → 'dev'.
+// Env wins because the release pipeline knows the canonical tag better than
+// the local working tree (e.g. detached HEAD on CI).
+function resolveAppVersion(): string {
+  if (process.env.APP_VERSION) return process.env.APP_VERSION;
+  try {
+    return execSync('git describe --tags --always --dirty', {
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).toString().trim();
+  } catch {
+    return 'dev';
+  }
+}
 
 /**
  * Serves /ffmpeg/* from @ffmpeg/core/dist in dev and copies files to dist/ffmpeg/ on build.
@@ -43,6 +58,9 @@ function ffmpegCorePlugin(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(resolveAppVersion()),
+  },
   plugins: [
     react(),
     tailwindcss(),

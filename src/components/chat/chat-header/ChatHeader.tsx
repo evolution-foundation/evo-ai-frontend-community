@@ -119,6 +119,8 @@ const ChatHeader = ({
   const [convPipelineData, setConvPipelineData] = useState<ConvPipelineData | null>(null);
   const [isLoadingConvPipelines, setIsLoadingConvPipelines] = useState(false);
   const pipelineFetchCountRef = useRef(0);
+  const isMountedRef = useRef(true);
+  useEffect(() => () => { isMountedRef.current = false; }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -140,9 +142,8 @@ const ChatHeader = ({
     setConvPipelineData(null);
   }, [conversation.id]);
 
-  useEffect(() => {
-    if (!menuOpen) return;
-
+  const reloadConvPipelineData = useCallback(() => {
+    if (!isMountedRef.current) return;
     const fetchId = ++pipelineFetchCountRef.current;
     setIsLoadingConvPipelines(true);
     (async () => {
@@ -150,19 +151,24 @@ const ChatHeader = ({
         const pipelines = await pipelinesService.getPipelinesByConversation(
           String(conversation.id),
         );
-        if (pipelineFetchCountRef.current !== fetchId) return;
+        if (!isMountedRef.current || pipelineFetchCountRef.current !== fetchId) return;
         setConvPipelineData({ pipelines });
       } catch {
-        if (pipelineFetchCountRef.current === fetchId) {
+        if (isMountedRef.current && pipelineFetchCountRef.current === fetchId) {
           setConvPipelineData({ pipelines: [] });
         }
       } finally {
-        if (pipelineFetchCountRef.current === fetchId) {
+        if (isMountedRef.current && pipelineFetchCountRef.current === fetchId) {
           setIsLoadingConvPipelines(false);
         }
       }
     })();
-  }, [menuOpen, conversation.id]);
+  }, [conversation.id]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    reloadConvPipelineData();
+  }, [menuOpen, conversation.id, reloadConvPipelineData]);
 
   const refreshConversationBadge = useCallback(async () => {
     try {
@@ -174,7 +180,7 @@ const ChatHeader = ({
         const pipelines = await pipelinesService.getPipelinesByConversation(
           String(conversation.id),
         );
-        setConvPipelineData({ pipelines });
+        if (isMountedRef.current) setConvPipelineData({ pipelines });
       }
     } catch {
       // badge refresh is best-effort
@@ -217,6 +223,7 @@ const ChatHeader = ({
           );
           if (removeResults.some(r => r.status === 'rejected')) {
             toast.error(t('pipeline.removeError'));
+            reloadConvPipelineData();
             return;
           }
         }
@@ -233,7 +240,7 @@ const ChatHeader = ({
         }
       }
     },
-    [convPipelineData, conversation.id, t, refreshConversationBadge],
+    [convPipelineData, conversation.id, t, refreshConversationBadge, reloadConvPipelineData],
   );
 
   const handleRemoveFromPipeline = useCallback(

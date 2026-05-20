@@ -47,3 +47,5 @@ export { default as EmailOauthService } from './channels/emailOauthService';
 // Removed coreServiceApi - now using standard API through Evolution
 export { automationService } from './automation/automationService';
 export { pipelinesService } from './pipelines/pipelinesService';
+export { segmentsService } from './segments/segmentsService';
+export { journeyService } from './journeys/journeyService';

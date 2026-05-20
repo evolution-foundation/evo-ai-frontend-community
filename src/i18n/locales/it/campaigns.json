@@ -1,0 +1,251 @@
+{
+  "title": "Campagne",
+  "card": {
+    "contacts": "Contatti",
+    "scheduledFor": "Programmato per",
+    "sent": "Inviati",
+    "deliveryRate": "Tasso di Consegna",
+    "readRate": "Tasso di Lettura",
+    "created": "Creato",
+    "actions": {
+      "pause": "Metti in pausa",
+      "resume": "Riprendi",
+      "viewDetails": "Visualizza dettagli",
+      "viewStats": "Visualizza statistiche",
+      "duplicate": "Duplica",
+      "edit": "Modifica",
+      "delete": "Elimina"
+    }
+  },
+  "header": {
+    "title": "Campagne",
+    "subtitle": "Gestisci le tue campagne di messaggistica di massa",
+    "searchPlaceholder": "Cerca campagne...",
+    "newCampaign": "Nuova Campagna",
+    "bulkPause": "Metti in Pausa Selezionate",
+    "bulkResume": "Riprendi Selezionate",
+    "bulkDuplicate": "Duplica Selezionate",
+    "bulkDelete": "Elimina Selezionate"
+  },
+  "empty": {
+    "title": "Nessuna campagna trovata",
+    "description": "Crea una nuova campagna per iniziare a inviare messaggi di massa ai tuoi contatti.",
+    "action": "Nuova Campagna"
+  },
+  "loading": {
+    "campaigns": "Caricamento campagne...",
+    "creating": "Creazione...",
+    "updating": "Aggiornamento...",
+    "deleting": "Eliminazione...",
+    "scheduling": "Programmazione...",
+    "pausing": "Pausa...",
+    "resuming": "Ripresa..."
+  },
+  "messages": {
+    "loadError": "Errore durante il caricamento delle campagne",
+    "createSuccess": "Campagna creata con successo",
+    "createError": "Errore durante la creazione della campagna",
+    "updateSuccess": "Campagna aggiornata con successo",
+    "updateError": "Errore durante l'aggiornamento della campagna",
+    "deleteSuccess": "Campagna eliminata con successo",
+    "deleteError": "Errore durante l'eliminazione della campagna",
+    "pauseSuccess": "Campagna messa in pausa con successo",
+    "pauseError": "Errore durante la pausa della campagna",
+    "resumeSuccess": "Campagna ripresa con successo",
+    "resumeError": "Errore durante la ripresa della campagna",
+    "duplicateSuccess": "Campagna duplicata con successo",
+    "duplicateError": "Errore durante la duplicazione della campagna",
+    "bulkDeleteSuccess": "{{count}} campagna/e eliminata/e con successo",
+    "bulkDeleteError": "Errore durante l'eliminazione delle campagne",
+    "bulkPauseSuccess": "{{count}} campagna/e messa/e in pausa con successo",
+    "bulkPauseError": "Errore durante la pausa delle campagne",
+    "bulkResumeSuccess": "{{count}} campagna/e ripresa/e con successo",
+    "bulkResumeError": "Errore durante la ripresa delle campagne",
+    "viewDetailsInDevelopment": "Dettagli della campagna in sviluppo",
+    "noPermissionToCreate": "Non hai il permesso di creare campagne",
+    "editInDevelopment": "Modifica delle campagne in sviluppo",
+    "statsInDevelopment": "Statistiche delle campagne in sviluppo",
+    "bulkDuplicateInDevelopment": "Duplicazione in massa di campagne in sviluppo",
+    "filtersInDevelopment": "Filtri delle campagne in sviluppo",
+    "invalidDate": "Data non valida"
+  },
+  "dialog": {
+    "deleteCampaign": {
+      "title": "Elimina Campagna",
+      "description": "Sei sicuro di voler eliminare la campagna \"{{name}}\"? Questa azione non può essere annullata.",
+      "confirm": "Elimina",
+      "cancel": "Annulla",
+      "deleting": "Eliminazione..."
+    },
+    "bulkDelete": {
+      "title": "Elimina Campagne",
+      "description": "Sei sicuro di voler eliminare {{count}} campagna/e selezionata/e? Questa azione non può essere annullata.",
+      "confirm": "Elimina Tutte",
+      "cancel": "Annulla",
+      "deleting": "Eliminazione..."
+    }
+  },
+  "status": {
+    "draft": "Bozza",
+    "scheduled": "Programmata",
+    "sending": "Invio in corso",
+    "paused": "In pausa",
+    "stopped": "Fermata",
+    "completed": "Completata",
+    "sending_testab": "Test A/B"
+  },
+  "type": {
+    "simple": "Semplice",
+    "recurring": "Ricorrente",
+    "trigger": "Trigger"
+  },
+  "channel": {
+    "email": "Email",
+    "whatsapp": "WhatsApp",
+    "sms": "SMS"
+  },
+  "table": {
+    "columns": {
+      "name": "Campagna",
+      "status": "Stato",
+      "contacts": "Contatti",
+      "delivery": "Consegna",
+      "engagement": "Coinvolgimento",
+      "created": "Creato"
+    },
+    "sent": "inviati",
+    "delivered": "consegnati",
+    "read": "letti",
+    "scheduled": "Programmato",
+    "empty": {
+      "noResults": "Nessuna campagna trovata",
+      "title": "Nessuna campagna trovata",
+      "description": "Crea una nuova campagna per iniziare a inviare messaggi di massa ai tuoi contatti."
+    }
+  },
+  "wizard": {
+    "title": "Nuova Campagna",
+    "subtitle": "Crea una nuova campagna di messaggistica di massa",
+    "inDevelopment": "In sviluppo",
+    "validation": {
+      "nameRequired": "Il nome è obbligatorio",
+      "nameMinLength": "Il nome deve contenere almeno 3 caratteri",
+      "titleRequired": "Il titolo è obbligatorio",
+      "titleMinLength": "Il titolo deve contenere almeno 3 caratteri",
+      "typeRequired": "Il tipo è obbligatorio",
+      "channelRequired": "Il canale è obbligatorio",
+      "inboxRequired": "Seleziona almeno una casella di posta",
+      "templateOptionRequired": "Seleziona un'opzione",
+      "templateRequired": "Seleziona un modello",
+      "messageRequired": "Il messaggio è obbligatorio",
+      "contactSelectionRequired": "Seleziona un'opzione",
+      "scheduleOptionRequired": "Seleziona un'opzione",
+      "scheduleDateRequired": "Data e ora sono obbligatorie",
+      "scheduleDateFuture": "La data deve essere futura"
+    },
+    "progress": {
+      "basicInfo": "Informazioni di Base",
+      "template": "Contenuto",
+      "contacts": "Contatti",
+      "schedule": "Programmazione",
+      "review": "Revisione",
+      "success": "Completato"
+    },
+    "step1": {
+      "title": "Informazioni di Base",
+      "subtitle": "Configura i dettagli fondamentali della tua campagna",
+      "nameLabel": "Nome della Campagna",
+      "namePlaceholder": "es., Campagna di Benvenuto",
+      "titleLabel": "Titolo",
+      "titlePlaceholder": "es., Benvenuto sulla nostra piattaforma",
+      "typeLabel": "Tipo di Campagna",
+      "typePlaceholder": "Seleziona il tipo",
+      "channelLabel": "Canale di Comunicazione",
+      "channelPlaceholder": "Seleziona il canale"
+    },
+    "step2": {
+      "title": "Pubblico",
+      "selectAudience": "Seleziona Pubblico",
+      "audienceDescription": "Definisci chi riceverà questa campagna usando filtri cumulativi",
+      "allContacts": "Tutti i Contatti",
+      "allContactsDescription": "Invia a tutta la base contatti senza filtri",
+      "audienceFilters": "Filtri del Pubblico",
+      "audienceFiltersDescription": "Aggiungi più filtri per includere o escludere segmenti e tag",
+      "include": "Includi",
+      "exclude": "Escludi",
+      "segment": "Segmento",
+      "tag": "Tag",
+      "selectSegment": "Seleziona segmento",
+      "selectTag": "Seleziona tag",
+      "activeFilters": "Filtri Attivi",
+      "noFiltersAdded": "Nessun filtro aggiunto. Aggiungi filtri per segmentare il tuo pubblico.",
+      "totalContacts": "Totale contatti nella base",
+      "basedOnFilters": "Basato su {{count}} filtro/i applicato/i"
+    },
+    "step3": {
+      "title": "Contenuto",
+      "channelLabel": "Canale di Comunicazione",
+      "channelDescription": "Scegli quale canale sarà utilizzato in questa campagna",
+      "inboxLabel": "Casella di Posta - {{channel}}",
+      "inboxDescription": "Seleziona solo 1 casella di posta per questa campagna",
+      "health": "salute",
+      "templatesLabel": "Modelli",
+      "templatesSelected": "{{count}} selezionato/i"
+    },
+    "step4": {
+      "title": "Impostazioni",
+      "scheduling": "Programmazione",
+      "schedulingRequired": "Programmazione <span className=\"text-red-500\">*</span>",
+      "sendNow": "Invia ora",
+      "sendNowDescription": "Inizia l'invio immediatamente dopo la creazione",
+      "scheduleLater": "Programma per dopo",
+      "scheduleLaterDescription": "Scegli data e ora specifiche per l'invio",
+      "dateTime": "Data e Ora",
+      "templateDistribution": "Distribuzione Modelli",
+      "templateDistributionDescription": "Configura come alternare tra i modelli durante l'invio (opzionale)",
+      "strategy": "Strategia",
+      "strategyRoundRobin": "Rotazione Semplice - Alterna tra i modelli equamente",
+      "strategyWeighted": "Split/Ponderato - Definisci pesi personalizzati",
+      "strategyRandom": "Casuale - Seleziona modelli casualmente",
+      "strategyAbTest": "Test A/B - Dividi e scegli il migliore (Consigliato)",
+      "weightedConfig": "Ponderazione Modelli (Split)",
+      "weightedConfigDescription": "Definisci la percentuale di invii per ogni modello. Totale: {{total}}%",
+      "weightSumWarning": "⚠️ La somma deve essere 100%. Attualmente: {{total}}%",
+      "abTestConfig": "Configurazione Test A/B",
+      "abTestConfigDescription": "Definisci la percentuale di contatti per la fase di test. Il resto riceverà il modello vincente.",
+      "testPhase": "Fase di Test",
+      "minPercentage": "{{value}}% (minimo)",
+      "maxPercentage": "{{value}}% (massimo)",
+      "howItWorks": "Come funziona:",
+      "abTestExplanation1": "• {{percentage}}% dei contatti riceveranno modelli distribuiti equamente",
+      "abTestExplanation2": "• Il modello con le migliori prestazioni sarà inviato al {{percentage}}% rimanente",
+      "abTestExplanation3": "• {{count}} modelli selezionati saranno testati",
+      "timeWindows": "Finestre Temporali",
+      "timeWindowsDescription": "Limita gli invii a orari e giorni specifici (opzionale)",
+      "businessHours": "Orario Lavorativo",
+      "businessHoursDescription": "Invia solo durante l'orario lavorativo",
+      "start": "Inizio",
+      "end": "Fine",
+      "weekdays": "Giorni della Settimana",
+      "monday": "Lun",
+      "tuesday": "Mar",
+      "wednesday": "Mer",
+      "thursday": "Gio",
+      "friday": "Ven",
+      "saturday": "Sab",
+      "sunday": "Dom",
+      "sendWindow": "Finestra di Invio",
+      "sendWindowDescription": "Distribuisci gli invii su quante ore (evita sovraccarico)",
+      "noLimit": "Nessun limite",
+      "noLimitDescription": "Nessun limite - Invia il più velocemente possibile",
+      "hours": "{{count}} ore",
+      "hoursDay": "{{count}} ore ({{days}} giorno)",
+      "hoursDays": "{{count}} ore ({{days}} giorni)"
+    },
+    "actions": {
+      "continue": "Continua",
+      "back": "Indietro",
+      "create": "Crea Campagna"
+    }
+  }
+}

@@ -170,6 +170,9 @@ export const CloudWhatsappForm = ({ form, onFormChange, canFB }: CloudWhatsappFo
     script.async = true;
     script.defer = true;
     script.src = 'https://connect.facebook.net/en_US/sdk.js';
+    script.onerror = () => {
+      toast.error(t('cloudWhatsappForm.errors.sdkNotLoaded'));
+    };
     document.head.appendChild(script);
   };
 

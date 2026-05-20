@@ -257,6 +257,9 @@
         "lastConnection": "Última conexão: {{date}}",
         "reconnect": "Reconectar",
         "reconnected": "Reconectado com sucesso!",
+        "syncSubscription": "Re-subscrever webhook",
+        "subscriptionSynced": "Webhook do WhatsApp re-subscrito com sucesso!",
+        "subscriptionSyncError": "Erro ao re-subscrever webhook. Tente novamente.",
         "reconnectingWhatsApp": "Reconectando WhatsApp...",
         "whatsappReconnectNotImplemented": "A reconexão do WhatsApp ainda não está implementada para este provedor",
         "reconnectError": "Erro ao reconectar. Tente novamente.",
@@ -1595,6 +1598,34 @@
       "success": {
         "channelCreated": "Canal criado com sucesso"
       }
+    },
+    "preChatForm": {
+      "title": "Formulário Pré-Chat",
+      "description": "Colete informações dos visitantes antes de iniciar a conversa",
+      "totalFields": "Total de Campos",
+      "activeFields": "Campos Ativos",
+      "requiredFields": "Campos Obrigatórios",
+      "welcomeMessage": "Mensagem de Boas-vindas",
+      "welcomeMessagePlaceholder": "Olá! Para melhor atendê-lo, por favor preencha as informações abaixo:",
+      "welcomeMessageHelp": "Esta mensagem será exibida no topo do formulário pré-chat.",
+      "fieldConfiguration": "Configuração dos Campos",
+      "hidePreview": "Ocultar Preview",
+      "showPreview": "Ver Preview",
+      "formPreview": "Preview do Formulário",
+      "noActiveFields": "Nenhum campo ativo para exibir",
+      "howItWorksTitle": "Como funciona o formulário pré-chat",
+      "howItWorks": {
+        "point1": "O formulário é exibido antes do cliente iniciar a conversa",
+        "point2": "Informações coletadas são anexadas ao perfil do contato",
+        "point3": "Campos obrigatórios devem ser preenchidos para continuar",
+        "point4": "Use a função arrastar para reordenar os campos"
+      },
+      "disabledTitle": "Formulário pré-chat desabilitado",
+      "disabledDescription": "Ative para coletar informações dos visitantes antes de iniciar a conversa.",
+      "saving": "Salvando...",
+      "save": "Salvar Configurações",
+      "success": "Configurações do formulário pré-chat atualizadas com sucesso",
+      "error": "Erro ao atualizar configurações do formulário pré-chat"
     }
   },
   "deleteDialog": {

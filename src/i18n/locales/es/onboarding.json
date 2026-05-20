@@ -42,6 +42,13 @@
     },
     "footer": "Tarda menos de 1 minuto · Puedes cambiarlo después en la configuración"
   },
+  "language": {
+    "portuguese": "Português",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "italian": "Italiano"
+  },
   "createAccount": {
     "title": "¡Bienvenido!",
     "subtitle": "Para comenzar a usar el sistema, necesita crear su primera organización.",

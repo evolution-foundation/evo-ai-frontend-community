@@ -211,6 +211,9 @@ export default function Sidebar({
             ) : (
               <>
                 <div className="text-sm text-primary font-medium">{companyName}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {t('sidebar.footer.copyright', { year: currentYear })}
+                </div>
               </>
             )}
           </div>
@@ -229,12 +232,11 @@ export default function Sidebar({
           aria-labelledby="flyout-title"
           aria-hidden={activeSubmenu ? undefined : 'true'}
           className={cn(
-            'hidden md:flex w-64 bg-sidebar text-sidebar-foreground flex-col border-r border-sidebar-border',
-            'absolute left-16 top-0 h-full z-50 shadow-xl',
-            'transition-all duration-150 ease-in-out',
+            'hidden md:flex bg-sidebar text-sidebar-foreground flex-col border-r border-sidebar-border',
+            'transition-all duration-150 ease-in-out overflow-hidden',
             activeSubmenu
-              ? 'translate-x-0 opacity-100'
-              : '-translate-x-2 opacity-0 pointer-events-none',
+              ? 'w-64 opacity-100'
+              : 'w-0 opacity-0 pointer-events-none',
           )}
         >
           {activeSubmenu && (

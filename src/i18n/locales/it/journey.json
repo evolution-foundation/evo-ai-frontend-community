@@ -1,0 +1,1771 @@
+{
+  "title": "Percorsi",
+  "subtitle": "Crea percorsi automatizzati per coinvolgere i tuoi contatti nel tempo",
+  "header": {
+    "newJourney": "Nuovo Percorso",
+    "searchPlaceholder": "Cerca percorsi..."
+  },
+  "table": {
+    "columns": {
+      "name": "Nome",
+      "triggers": "Trigger",
+      "status": "Stato",
+      "createdAt": "Creato il"
+    },
+    "status": {
+      "active": "Attivo",
+      "inactive": "Inattivo"
+    },
+    "invalidDate": "Data non valida"
+  },
+  "actions": {
+    "edit": "Modifica",
+    "openFlow": "Apri Flusso",
+    "duplicate": "Duplica",
+    "delete": "Elimina",
+    "createJourney": "Crea Percorso",
+    "save": "Salva",
+    "cancel": "Annulla"
+  },
+  "empty": {
+    "notFound": "Nessun percorso trovato",
+    "title": "Nessun percorso configurato",
+    "description": "Inizia creando il tuo primo percorso per automatizzare il coinvolgimento con i tuoi contatti"
+  },
+  "messages": {
+    "noPermissionRead": "Non hai il permesso di visualizzare i percorsi",
+    "noPermissionCreate": "Non hai il permesso di creare percorsi",
+    "noPermissionEdit": "Non hai il permesso di modificare i percorsi",
+    "noPermissionDelete": "Non hai il permesso di eliminare i percorsi",
+    "loadError": "Impossibile caricare i percorsi",
+    "activateSuccess": "Percorso attivato con successo",
+    "deactivateSuccess": "Percorso disattivato con successo",
+    "toggleError": "Impossibile aggiornare il percorso",
+    "deleteSuccess": "Percorso eliminato con successo",
+    "deleteError": "Impossibile eliminare il percorso",
+    "duplicateSuccess": "Percorso duplicato con successo",
+    "duplicateError": "Impossibile duplicare il percorso"
+  },
+  "dialog": {
+    "delete": {
+      "title": "Conferma eliminazione",
+      "description": "Sei sicuro di voler eliminare il percorso \"{{name}}\"? Questa azione non può essere annullata.",
+      "confirm": "Elimina",
+      "cancel": "Annulla"
+    }
+  },
+  "flowEditor": {
+    "title": "Editor di Percorso: {{name}}",
+    "subtitleFallback": "Senza descrizione",
+    "loading": "Caricamento percorso...",
+    "notFound": "Percorso non trovato",
+    "back": "Indietro",
+    "save": "Salva",
+    "saving": "Salvataggio...",
+    "saved": "Salvato",
+    "lastSaved": "Ultimo salvataggio: {{time}}",
+    "autoSaveInfo": "Salvataggio automatico in 10s",
+    "saveSuccess": "Percorso salvato con successo",
+    "saveError": "Impossibile salvare il percorso",
+    "loadError": "Impossibile caricare il percorso",
+    "status": {
+      "active": "Attivo",
+      "inactive": "Inattivo"
+    },
+    "createdAt": "Creato il: {{date}}",
+    "invalidDate": "Data non valida",
+    "nodePanel": {
+      "title": "Componenti del Percorso",
+      "subtitle": "Trascina i componenti sulla tela"
+    },
+    "nodes": {
+      "trigger": {
+        "label": "Trigger di Ingresso",
+        "description": "Evento che attiva il percorso",
+        "types": {
+          "manual": "Ingresso Manuale",
+          "event": "Evento",
+          "segment": "Segmento",
+          "schedule": "Pianificazione",
+          "webhook": "Webhook",
+          "contactCreated": "Contatto Creato",
+          "contactUpdated": "Contatto Aggiornato",
+          "label": "Etichetta",
+          "customAttribute": "Attributo Personalizzato"
+        },
+        "descriptions": {
+          "manual": "Attivazione manuale",
+          "configureEvent": "Configura l'evento",
+          "configureSegment": "Configura il segmento",
+          "segmentEnters": "entra in",
+          "segmentExits": "esce da",
+          "whenEnters": "Quando entra nel",
+          "whenExits": "Quando esce dal",
+          "segment": "segmento",
+          "anyContactCreated": "Qualsiasi contatto creato",
+          "anyContactUpdated": "Qualsiasi contatto aggiornato",
+          "filter": "filtro",
+          "filters": "filtri",
+          "field": "campo",
+          "fields": "campi",
+          "applied": "applicata",
+          "removed": "rimossa",
+          "configureLabel": "Configura l'etichetta",
+          "configureAttribute": "Configura l'attributo",
+          "configureWebhook": "Configura il webhook",
+          "attribute": "Attributo",
+          "configureDatetime": "Configura data e ora",
+          "everyHour": "Ogni ora",
+          "everyHours": "Ogni {{count}} ore",
+          "dailyAt": "Giornalmente alle {{time}}",
+          "daily": "Giornalmente",
+          "weekdays": "Lun-Ven",
+          "weekdaysAt": "Lun-Ven alle {{time}}",
+          "configureDays": "Configura i giorni",
+          "monthlyAt": "Mensilmente alle {{time}}",
+          "monthly": "Mensilmente",
+          "configureFrequency": "Configura frequenza",
+          "webhook": "Webhook {{method}}",
+          "configureTrigger": "Configura il trigger",
+          "daysWeek": "{{count}} giorno/sett",
+          "daysWeekPlural": "{{count}} giorni/sett",
+          "daysWeekAt": "{{count}} giorno/sett alle {{time}}",
+          "daysWeekPluralAt": "{{count}} giorni/sett alle {{time}}"
+        }
+      },
+      "wait": {
+        "name": "Attendi",
+        "description": "Attende un periodo di tempo prima di continuare",
+        "types": {
+          "time": "Attendi Tempo",
+          "event": "Attendi Evento",
+          "condition": "Attendi Condizione",
+          "timeOrCondition": "Attendi Tempo o Condizione"
+        },
+        "descriptions": {
+          "configureTime": "Configura il tempo di attesa",
+          "configureEvent": "Configura l'evento da attendere",
+          "configureCondition": "Configura la condizione da attendere",
+          "configureTimeAndCondition": "Configura tempo massimo e condizione",
+          "configureMaxTime": "Configura tempo massimo",
+          "configureWaitType": "Configura il tipo di attesa",
+          "duration": "{{duration}} {{unit}}",
+          "maxTime": "max: {{time}}{{unit}}",
+          "maxPrefix": "Max: {{duration}} {{unit}}",
+          "withFilters": "con filtri",
+          "applied": "applicata",
+          "removed": "rimossa",
+          "otherwiseAfter": "Altrimenti dopo {{time}}{{unit}}",
+          "after": "Dopo {{time}} {{unit}}"
+        },
+        "eventTypes": {
+          "event": "Evento",
+          "segment": "Segmento",
+          "contactCreated": "Contatto Creato",
+          "contactUpdated": "Contatto Aggiornato",
+          "label": "Etichetta",
+          "customAttribute": "Attributo Personalizzato",
+          "webhook": "Webhook"
+        },
+        "outputs": {
+          "eventOccurred": "Evento verificato",
+          "conditionMet": "Condizione soddisfatta",
+          "firstToOccur": "Primo a verificarsi",
+          "timeout": "Timeout",
+          "otherwise": "Altrimenti"
+        }
+      },
+      "delayedAction": {
+        "name": "Programma Azione",
+        "description": "Attende una durata specificata, poi esegue un'azione",
+        "configure": "Configura il ritardo e l'azione",
+        "title": "Programma Azione",
+        "actions": {
+          "send-message": "Invia Messaggio",
+          "add-label": "Aggiungi Etichetta",
+          "update-contact": "Aggiorna Contatto",
+          "assign-agent": "Assegna Utente"
+        }
+      },
+      "scheduledAction": {
+        "name": "Programma Azione",
+        "description": "Attende, poi esegue un'azione",
+        "configure": "Configura il ritardo e l'azione",
+        "title": "Programma Azione",
+        "actions": {
+          "send_message": "Invia Messaggio",
+          "execute_webhook": "Esegui Webhook",
+          "trigger_journey": "Attiva Jornada",
+          "create_task": "Crea Attività"
+        }
+      },
+      "conditional": {
+        "name": "Condizionale",
+        "description": "Prende decisioni basate su condizioni"
+      },
+      "split": {
+        "name": "Split",
+        "description": "Divide il flusso in diversi percorsi"
+      },
+      "exitJourney": {
+        "name": "Esci dal Percorso",
+        "description": "Rimuove il contatto dal percorso"
+      },
+      "transferJourney": {
+        "name": "Trasferisci Percorso",
+        "description": "Trasferisce il contatto a un altro percorso"
+      },
+      "setVariable": {
+        "name": "Imposta Variabile",
+        "description": "Imposta o manipola variabili del percorso",
+        "configure": "Configura la variabile e l'operazione",
+        "operations": {
+          "set": "Imposta",
+          "clear": "Cancella",
+          "increment": "Incrementa",
+          "decrement": "Decrementa",
+          "now": "Ora",
+          "yesterday": "Ieri",
+          "tomorrow": "Domani",
+          "timeOfDay": "Momento della giornata",
+          "randomId": "ID Casuale"
+        },
+        "previewValues": {
+          "undefined": "(valore non definito)",
+          "clear": "(cancella valore)",
+          "currentDateTime": "Data/ora corrente",
+          "yesterdayDate": "Data di ieri",
+          "tomorrowDate": "Data di domani",
+          "currentTimeOfDay": "Momento corrente della giornata",
+          "randomId": "ID casuale"
+        }
+      },
+      "sendMessage": {
+        "name": "Invia Messaggio",
+        "description": "Invia un messaggio al contatto",
+        "eventChannel": "Canale dell'Evento",
+        "oneAttachment": "+ 1 allegato",
+        "multipleAttachments": "+ {{count}} allegati"
+      },
+      "sendWebhook": {
+        "name": "Invia Webhook",
+        "description": "Invia dati tramite webhook",
+        "configure": "Configura l'endpoint del webhook",
+        "configureEndpoint": "Configura l'endpoint",
+        "mappedVariables": "Variabili Mappate",
+        "moreVariables": "+{{count}} altro...",
+        "indicators": {
+          "auth": "Auth",
+          "headers": "{{count}} Headers",
+          "retries": "{{count}} Tentativi",
+          "variables": "{{count}} Variabili"
+        }
+      },
+      "sendEmailTeam": {
+        "name": "Invia Email al Team",
+        "description": "Invia email di notifica al team"
+      },
+      "sendTranscript": {
+        "name": "Invia Trascrizione via Email",
+        "description": "Invia trascrizione della conversazione via email"
+      },
+      "addLabel": {
+        "name": "Aggiungi Etichetta",
+        "description": "Configura l'etichetta da aggiungere al contatto",
+        "configured": "Aggiunge l'etichetta \"{{labelName}}\" al contatto"
+      },
+      "removeLabel": {
+        "name": "Rimuovi Etichetta",
+        "description": "Rimuove un'etichetta dal contatto",
+        "configure": "Configura l'etichetta da rimuovere dal contatto",
+        "configured": "Rimuove l'etichetta \"{{labelName}}\" dal contatto"
+      },
+      "updateContact": {
+        "name": "Aggiorna Contatto",
+        "description": "Aggiorna informazioni del contatto"
+      },
+      "updateCustomAttribute": {
+        "name": "Aggiorna Campo Personalizzato",
+        "description": "Aggiorna un campo personalizzato del contatto"
+      },
+      "assignAgent": {
+        "name": "Assegna Utente",
+        "description": "Assegna un utente specifico alla conversazione",
+        "selectAgent": "Seleziona Agente",
+        "agentNumber": "Agente #{{agentId}}",
+        "assignTo": "Assegna conversazione a",
+        "noAgentSelected": "Nessun utente selezionato"
+      },
+      "assignTeam": {
+        "name": "Assegna Team",
+        "description": "Assegna team responsabili della conversazione",
+        "selectTeam": "Seleziona team",
+        "teamNumber": "Team #{{teamId}}",
+        "assignTo": "Assegna conversazione al team",
+        "noTeamSelected": "Nessun team selezionato"
+      },
+      "muteConversation": {
+        "name": "Silenzia Conversazione",
+        "description": "La conversazione verrà silenziata e non genererà più notifiche per gli Agenti"
+      },
+      "deferConversation": {
+        "name": "Posticipa Conversazione",
+        "description": "Posticipa la conversazione per un periodo determinato"
+      },
+      "resolveConversation": {
+        "name": "Risolvi Conversazione",
+        "description": "Contrassegna la conversazione come risolta"
+      },
+      "changePriority": {
+        "name": "Modifica Priorità",
+        "description": "Modifica la priorità di assistenza della conversazione"
+      }
+    },
+    "categories": {
+      "actions": {
+        "label": "Azioni",
+        "description": "Azioni che possono essere eseguite nel percorso"
+      },
+      "communication": {
+        "label": "Comunicazione",
+        "description": "Invio di messaggi e notifiche"
+      },
+      "labels": {
+        "label": "Etichette",
+        "description": "Gestione delle etichette"
+      },
+      "contact": {
+        "label": "Contatto",
+        "description": "Gestione del contatto"
+      },
+      "conversation": {
+        "label": "Conversazioni",
+        "description": "Gestione delle conversazioni"
+      }
+    }
+  },
+  "units": {
+    "minutes": {
+      "singular": "minuto",
+      "plural": "minuti",
+      "short": "min"
+    },
+    "hours": {
+      "singular": "ora",
+      "plural": "ore",
+      "short": "h"
+    },
+    "days": {
+      "singular": "giorno",
+      "plural": "giorni",
+      "short": "g"
+    }
+  },
+  "modal": {
+    "create": {
+      "title": "Nuovo Percorso",
+      "button": "Crea"
+    },
+    "edit": {
+      "title": "Modifica Percorso",
+      "button": "Aggiorna"
+    },
+    "fields": {
+      "name": {
+        "label": "Nome",
+        "placeholder": "Inserisci il nome del percorso",
+        "required": "Il nome del percorso è obbligatorio"
+      },
+      "description": {
+        "label": "Descrizione",
+        "placeholder": "Descrivi l'obiettivo di questo percorso"
+      },
+      "isActive": "Percorso attivo"
+    },
+    "actions": {
+      "cancel": "Annulla",
+      "saving": "Salvataggio..."
+    },
+    "messages": {
+      "createSuccess": "Percorso creato con successo",
+      "updateSuccess": "Percorso aggiornato con successo",
+      "saveError": "Errore nel salvataggio del percorso"
+    },
+    "defaultTrigger": {
+      "label": "Trigger di Ingresso",
+      "description": "Evento che attiva il percorso",
+      "name": "Trigger Manuale"
+    }
+  },
+  "environmentManager": {
+    "title": "Variabili d'Ambiente",
+    "description": "Configura variabili da usare in tutto il percorso con la sintassi {variabile}",
+    "searchPlaceholder": "Cerca variabili...",
+    "loading": "Caricamento variabili...",
+    "errorTitle": "Errore nel caricamento delle variabili:",
+    "tabs": {
+      "system": "Variabili Predefinite",
+      "custom": "Tue Variabili ({{count}})"
+    },
+    "systemVariables": {
+      "contact": {
+        "name": "Nome del Contatto",
+        "email": "Email del Contatto",
+        "phone": "Telefono del Contatto",
+        "identifier": "Identificativo del Contatto",
+        "nameDescription": "Nome del contatto",
+        "emailDescription": "Email del contatto",
+        "phoneDescription": "Telefono del contatto",
+        "identifierDescription": "Identificativo del contatto"
+      },
+      "event": {
+        "name": "Nome dell'Evento",
+        "value": "Valore dell'Evento",
+        "timestamp": "Data/Ora dell'Evento",
+        "nameDescription": "Nome dell'evento attivato",
+        "valueDescription": "Valore associato all'evento",
+        "timestampDescription": "Data/ora dell'evento"
+      },
+      "webhook": {
+        "response": "Risposta del Webhook",
+        "status": "Stato del Webhook",
+        "data": "Dati del Webhook",
+        "responseDescription": "Risposta completa del webhook",
+        "statusDescription": "Stato del webhook",
+        "dataDescription": "Dati restituiti dal webhook"
+      },
+      "journey": {
+        "startDate": "Data di Inizio",
+        "currentStep": "Passo Corrente",
+        "startDateDescription": "Data di inizio del percorso",
+        "currentStepDescription": "Passo corrente del percorso"
+      }
+    },
+    "categories": {
+      "contact": "Contatto",
+      "event": "Evento",
+      "webhook": "Webhook",
+      "journey": "Percorso",
+      "others": "Altri"
+    },
+    "form": {
+      "create": {
+        "title": "Nuova Variabile",
+        "button": "Crea Variabile"
+      },
+      "edit": {
+        "title": "Modifica Variabile",
+        "button": "Aggiorna"
+      },
+      "fields": {
+        "name": {
+          "label": "Nome della Variabile",
+          "placeholder": "es: nome_cliente",
+          "help": "Usa solo lettere, numeri e underscore",
+          "required": "Il nome della variabile è obbligatorio",
+          "invalid": "Il nome deve iniziare con una lettera e contenere solo lettere, numeri e underscore",
+          "exists": "Esiste già una variabile con questo nome"
+        },
+        "type": {
+          "label": "Tipo",
+          "text": "Testo",
+          "number": "Numero",
+          "boolean": "Sì/No",
+          "date": "Data",
+          "uppercase": "MAIUSCOLO",
+          "lowercase": "minuscolo"
+        },
+        "description": {
+          "label": "Descrizione",
+          "placeholder": "A cosa serve questa variabile..."
+        },
+        "defaultValue": {
+          "label": "Valore Predefinito",
+          "placeholder": "Valore iniziale (opzionale)"
+        }
+      },
+      "actions": {
+        "cancel": "Annulla",
+        "close": "Chiudi"
+      },
+      "messages": {
+        "createError": "Errore nella creazione della variabile. Riprova.",
+        "updateError": "Errore nell'aggiornamento della variabile. Riprova.",
+        "deleteError": "Errore nell'eliminazione della variabile. Riprova."
+      }
+    },
+    "customVariables": {
+      "empty": {
+        "title": "Nessuna variabile creata",
+        "subtitle": "Clicca su \"Nuova Variabile\" per iniziare",
+        "count": "{{count}} variabili"
+      },
+      "actions": {
+        "new": "Nuova Variabile",
+        "copy": "Copia",
+        "edit": "Modifica variabile",
+        "delete": "Rimuovi variabile",
+        "default": "Predefinito: {{value}}"
+      }
+    },
+    "deleteDialog": {
+      "title": "Conferma Eliminazione",
+      "description": "Sei sicuro di voler rimuovere la variabile {{name}}? Questa azione non può essere annullata.",
+      "confirm": "Rimuovi",
+      "cancel": "Annulla"
+    },
+    "footer": {
+      "tip": "💡 Usa la sintassi {nome_della_variabile} in qualsiasi campo di testo"
+    },
+    "examples": {
+      "prefix": "Es: {{example}}"
+    }
+  },
+  "panels": {
+    "wait": {
+      "title": "Configure Wait",
+      "waitType": "Wait Type",
+      "configuration": "Configuration",
+      "types": {
+        "time": "Wait Time",
+        "event": "Wait Event",
+        "condition": "Wait Condition",
+        "timeOrCondition": "Wait Time or Condition"
+      },
+      "descriptions": {
+        "time": "Wait for a specific period of time",
+        "event": "Wait until a specific event occurs",
+        "condition": "Wait until a condition is met",
+        "timeOrCondition": "Wait maximum time or condition (what occurs first)"
+      }
+    },
+    "addLabel": {
+      "title": "Configure Add Label",
+      "loadError": "Error loading labels",
+      "selectLabelAlert": "Select a label to add",
+      "incompleteConfig": "Incomplete configuration",
+      "selectLabel": "Select a label to add",
+      "labelToAdd": "Label to Add",
+      "loading": "Loading...",
+      "selectLabelPlaceholder": "Select a label",
+      "selectedLabel": "Selected Label",
+      "description": "This label will be added to the contact when it passes through this step of the journey.",
+      "tip": "Tip",
+      "tipDescription": "Use labels to segment and organize your contacts. You can use these labels later to create segments or send targeted campaigns.",
+      "selectLabelButton": "Select a Label"
+    },
+    "assignAgent": {
+      "title": "Configure Assign User",
+      "loadDataError": "Error loading form data:",
+      "user": "User",
+      "loadingUsers": "Loading users...",
+      "selectUser": "Select a user",
+      "noUsersFound": "No user found in the account.",
+      "conversationWillBeAssigned": "The conversation will be assigned to the user",
+      "agent": "Agent"
+    },
+    "assignTeam": {
+      "title": "Configure Assign Team",
+      "loadDataError": "Error loading form data:",
+      "team": "Team",
+      "loadingTeams": "Loading teams...",
+      "selectTeam": "Select a team",
+      "defaultDescription": "Support team",
+      "noTeamsFound": "No team found in the account.",
+      "conversationWillBeAssigned": "The conversation will be assigned to the team"
+    },
+    "muteConversation": {
+      "title": "Configure Mute Conversation",
+      "loadDataError": "Error loading form data:",
+      "whatHappens": "What happens when the conversation is muted:",
+      "noNotifications": "The conversation will no longer send notifications to agents",
+      "messagesKeepComing": "New messages will continue to arrive normally",
+      "mutedStatus": "The muted status will appear in the interface",
+      "agentsCanUnmute": "Agents can unmute manually at any time",
+      "whenToUse": "When to use:",
+      "automatedConversations": "Automated conversations that don't need attention",
+      "reduceNoise": "Reduce noise notifications for agents",
+      "fullAutomation": "Full automation process",
+      "testing": "Testing cases or debugging",
+      "important": "Important:",
+      "cannotUndo": "This action cannot be undone automatically",
+      "agentsNeedManualUnmute": "Agents will need to unmute manually if necessary",
+      "useWithCare": "Use with care in conversations that may need attention"
+    },
+    "removeLabel": {
+      "title": "Configure Remove Label",
+      "loadError": "Error loading labels",
+      "selectLabelAlert": "Select a label to remove",
+      "incompleteConfig": "Incomplete configuration",
+      "selectLabel": "Select a label to remove",
+      "labelToRemove": "Label to Remove",
+      "loading": "Loading...",
+      "selectLabelPlaceholder": "Select a label",
+      "selectedLabel": "Selected Label",
+      "description": "This label will be removed from the contact when it passes through this step of the journey.",
+      "warning": "Attention",
+      "warningDescription": "The removal of the label is permanent and cannot be undone automatically.",
+      "selectLabelButton": "Select a Label"
+    },
+    "sendMessage": {
+      "title": "Configure Send Message",
+      "loadDataError": "Error loading form data:",
+      "fileTooLarge": "File too large: {{fileName}}. Maximum allowed: 10MB",
+      "enterMessage": "Enter a message",
+      "selectChannelOrEvent": "Select a channel or mark to use the event channel",
+      "messageTooLong": "Message too long (maximum 1000 characters)",
+      "successMessage": "Message configured successfully",
+      "incompleteConfig": "Incomplete configuration",
+      "useEventChannel": "Use the event channel generated",
+      "useEventChannelDescription": "The message will be sent through the same channel where the event was generated (ex: WhatsApp, Email, etc)",
+      "sendChannel": "Send Channel",
+      "loadingChannels": "Loading channels...",
+      "noChannelsAvailable": "No channel available",
+      "configureChannels": "Configure compatible communication channels",
+      "chooseChannel": "Choose a channel",
+      "channelsDescription": "Communication channels available for sending messages",
+      "message": "Message",
+      "messagePlaceholder": "Enter the message that will be sent...",
+      "useVariables": "Use variables clicking the button (x)",
+      "characterCount": "{{count}}/1000",
+      "attachments": "Attachments (Optional)",
+      "dragFiles": "Drag files or click to select",
+      "maxFileSize": "Maximum 10MB per file",
+      "chooseFiles": "Choose Files",
+      "attachmentsList": "Attachments ({{count}})",
+      "uploading": "{{progress}}%",
+      "uploadError": "Upload error",
+      "previewTitle": "Preview Configuration",
+      "messageConfigured": "Message Configured",
+      "channel": "Channel",
+      "eventChannel": "Event Channel",
+      "oneAttachment": "1 attachment",
+      "multipleAttachments": "{{count}} attachments",
+      "completeConfig": "Complete the Configuration",
+      "waitingUpload": "Wait for the upload of the attachments"
+    },
+    "sendWebhook": {
+      "title": "Configure Webhook",
+      "incompleteConfig": "Incomplete configuration",
+      "requiredUrl": "URL required",
+      "requiredToken": "Token required",
+      "requiredCredentials": "Credentials required",
+      "requiredApiKey": "API Key required",
+      "urlRequired": "URL required",
+      "bearerTokenRequired": "Token authentication is required for Bearer Token",
+      "basicAuthRequired": "Username and password are required for Basic Auth",
+      "apiKeyRequired": "API Key and header name are required",
+      "configureUrlFirst": "Configure the URL first",
+      "invalidJson": "Invalid JSON in the request body",
+      "errorExecuting": "Error executing webhook",
+      "tabs": {
+        "basic": "Basic",
+        "headers": "Headers",
+        "body": "Body",
+        "auth": "Authentication",
+        "test": "Test"
+      },
+      "test": {
+        "title": "Test Webhook",
+        "description": "Execute the webhook to test the configuration and capture the response",
+        "executing": "Executing...",
+        "executeTest": "Execute Test",
+        "savedConfigs": "Saved Configurations ({{count}} mappings)",
+        "unsavedChanges": "Unsaved Changes",
+        "notConfigured": "(not configured)",
+        "mappingsDescription": "These mappings will be applied when the webhook is executed in the journey",
+        "executionError": "Execution Error",
+        "webhookResponse": "Webhook Response",
+        "responseHeaders": "Response Headers",
+        "responseBody": "Response Body",
+        "mapToVariables": "Map to Variables",
+        "mapDescription": "Select fields from the response to save as custom variables",
+        "addMapping": "Add Mapping",
+        "responseField": "Response Field",
+        "selectField": "Select a field",
+        "variableName": "Variable Name",
+        "selectVariable": "Select a variable...",
+        "variableDescription": "Variable Description",
+        "currentValue": "Current Value",
+        "remove": "Remove"
+      },
+      "fixErrors": "Fix Errors",
+      "auth": {
+        "authType": "Authentication Type",
+        "types": {
+          "none": {
+            "label": "No Authentication",
+            "description": "Public endpoint, no authentication"
+          },
+          "bearer": {
+            "label": "Bearer Token",
+            "description": "Authorization token in header"
+          },
+          "basic": {
+            "label": "Basic Auth",
+            "description": "Username and password in Base64"
+          },
+          "apiKey": {
+            "label": "API Key",
+            "description": "API Key in custom header"
+          }
+        },
+        "bearerToken": "Bearer Token *",
+        "bearerPlaceholder": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "bearerDescription": "Token will be sent in header: Authorization: Bearer {token}",
+        "username": "Username *",
+        "usernamePlaceholder": "username",
+        "password": "Password *",
+        "passwordPlaceholder": "password",
+        "basicDescription": "Credentials will be encoded in Base64 in header Authorization",
+        "headerName": "Header Name *",
+        "headerNamePlaceholder": "X-API-Key",
+        "headerNameDescription": "Name of the header where the API Key will be sent. Use variables for dynamic headers.",
+        "apiKey": "API Key *",
+        "apiKeyPlaceholder": "sk-1234567890abcdef...",
+        "noAuthMessage": "No authentication will be sent",
+        "noAuthDescription": "Ideal for public webhooks or internal APIs",
+        "configTitle": "Authentication Configuration",
+        "tokenConfigured": "Bearer token configured",
+        "tokenNotConfigured": "Bearer token not configured",
+        "basicAuth": "Basic auth: {{username}}",
+        "credentialsNotConfigured": "Credentials not configured",
+        "apiKeyHeader": "API Key in header: {{header}}",
+        "apiKeyNotConfigured": "API Key not configured",
+        "noAuth": "No authentication",
+        "sensitiveDataEncrypted": "Sensitive data will be encrypted when saving"
+      },
+      "basic": {
+        "endpointUrl": "Endpoint URL *",
+        "urlPlaceholder": "https://api.exemplo.com/webhook",
+        "urlDescription": "URL complete of the endpoint that will receive the data. Use variables clicking the button (x).",
+        "httpMethod": "HTTP Method",
+        "methods": {
+          "get": {
+            "label": "GET",
+            "description": "Fetch data"
+          },
+          "post": {
+            "label": "POST",
+            "description": "Create/send data"
+          },
+          "put": {
+            "label": "PUT",
+            "description": "Update complete data"
+          },
+          "patch": {
+            "label": "PATCH",
+            "description": "Update partial data"
+          },
+          "delete": {
+            "label": "DELETE",
+            "description": "Delete data"
+          }
+        },
+        "timeout": "Timeout (seconds)",
+        "timeoutDescription": "Timeout for the request (1-300s)",
+        "retryAttempts": "Retry Attempts",
+        "retryDescription": "Retries in case of error (0-5)",
+        "summaryTitle": "Summary:",
+        "summaryRequest": "{{method}} request para",
+        "summaryTimeout": "Timeout: {{timeout}}s",
+        "summaryRetries": "Retries: {{retries}}"
+      },
+      "body": {
+        "contentType": "Content Type",
+        "types": {
+          "json": {
+            "label": "JSON",
+            "description": "Structured data in JSON"
+          },
+          "form": {
+            "label": "Form Data",
+            "description": "Form data (application/x-www-form-urlencoded)"
+          },
+          "text": {
+            "label": "Text/Plain",
+            "description": "Plain text"
+          },
+          "xml": {
+            "label": "XML",
+            "description": "Structured data in XML"
+          }
+        },
+        "methodNotSupported": "Method {{method}} does not support request body",
+        "jsonTemplates": "Templates JSON",
+        "templateContact": "Contact Data",
+        "templateEvent": "Journey Event",
+        "templateCustom": "Custom",
+        "bodyContent": "Body Content",
+        "jsonPlaceholder": "{\n  \"message\": \"Hello from journey\",\n  \"contact\": \"{{contact.name}}\"\n}",
+        "formPlaceholder": "key1=value1&key2=value2",
+        "xmlPlaceholder": "<?xml version=\"1.0\"?>\n<data>\n  <message>Hello</message>\n</data>",
+        "textPlaceholder": "Plain text content here",
+        "useVariables": "Use variables clicking the button (x).",
+        "availableVariables": "Available Variables:",
+        "contact": "Contact:",
+        "system": "System:",
+        "bodyPreview": "Preview of Body:"
+      },
+      "headers": {
+        "httpHeaders": "Headers HTTP",
+        "addHeader": "Header",
+        "noHeadersConfigured": "No header configured",
+        "headersOptional": "Headers are optional for most APIs",
+        "headerName": "Header Name",
+        "headerNamePlaceholder": "Content-Type",
+        "headerValue": "Value",
+        "headerValuePlaceholder": "application/json",
+        "sensitiveHeaderDetected": "Sensitive header detected",
+        "suggestedHeaders": "Suggested Headers:",
+        "summaryTitle": "Summary:",
+        "headersConfigured": "{{count}} header{{plural}} configured{{plural}}",
+        "containsSensitive": "Contains sensitive headers - will be encrypted when saving"
+      }
+    },
+    "assignBot": {
+      "title": "Assign Bot",
+      "description": "Connect a specific bot to an inbox to automate responses. The bot will process all messages received in that inbox.",
+      "selectBot": "Select Bot",
+      "selectBotPlaceholder": "Select a bot...",
+      "selectInbox": "Select Inbox",
+      "selectInboxPlaceholder": "Select an inbox...",
+      "type": "Type",
+      "botDescription": "Description",
+      "channel": "Channel",
+      "website": "Website",
+      "unknown": "unknown",
+      "noBotsAvailable": "No bot available. Create bots in the CRM panel first.",
+      "noInboxesAvailable": "No inbox available. Create inboxes in the CRM panel first.",
+      "assignmentConfigured": "Assignment Configured",
+      "assignmentPreview": "Bot {{botName}} will be connected to inbox {{inboxName}} to process messages automatically.",
+      "importantNotes": "Important Notes:",
+      "note1": "Only one bot can be assigned to an inbox",
+      "note2": "Bot will process all messages from the selected inbox",
+      "note3": "Configuration can be changed later in the CRM",
+      "note4": "Bot must be active and correctly configured",
+      "botLabel": "Bot:",
+      "inboxLabel": "Inbox:",
+      "notSelected": "Not selected",
+      "assignTo": "Assign {{botName}} to inbox {{inboxName}}",
+      "configureToActivate": "Configure bot and inbox to activate",
+      "selectBotNode": "Select bot",
+      "selectInboxNode": "Select inbox",
+      "assignBotAction": "Assign bot"
+    },
+    "changePriority": {
+      "title": "Configure Priority",
+      "newPriority": "New priority",
+      "selectPriority": "Select priority",
+      "priorities": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "urgent": "Urgent"
+      },
+      "priorityAffectsOrder": "Priority affects the order of display and urgency of treatment",
+      "configurationTitle": "Priority configuration:",
+      "conversationMarked": "The conversation will be marked with this priority",
+      "aboutPriorities": "About priorities:",
+      "lowDescription": "Can be attended when convenient",
+      "mediumDescription": "Normal treatment time",
+      "highDescription": "Requires priority attention",
+      "urgentDescription": "Immediate treatment required",
+      "useCases": "Common use cases:",
+      "useCase1": "Raise priority based on urgent keywords",
+      "useCase2": "Set high priority for VIP customers",
+      "useCase3": "Reduce priority of automated conversations",
+      "useCase4": "Scale based on waiting time",
+      "loadDataError": "Error loading form data:",
+      "notConfigured": "Not configured",
+      "noPriorityConfigured": "No priority configured",
+      "changeToLower": "Change to priority {{priority}}",
+      "alterPriority": "Change priority",
+      "priority": "Priority"
+    },
+    "conditional": {
+      "title": "Configure Conditional",
+      "nodeTitle": "Conditional",
+      "configurePaths": "Configure paths",
+      "pathsTitle": "Conditional paths",
+      "addPath": "Add Path",
+      "path": "Path",
+      "pathNumber": "Path {{number}}",
+      "noConditionsConfigured": "No conditions configured",
+      "otherwiseCase": "Otherwise",
+      "otherwiseDescription": "Executed when no condition is met",
+      "oldStructureDetected": "Old structure detected. Reconfigure the conditions.",
+      "pathName": "Path name",
+      "logicalOperatorBetweenConditions": "Logical operator between conditions:",
+      "andAll": "AND (all)",
+      "orAny": "OR (any)",
+      "addCondition": "Add condition",
+      "trigger": "Trigger",
+      "contact": "Contact",
+      "system": "System",
+      "customVariable": "Custom variable",
+      "noConditionsAdded": "No conditions configured",
+      "clickButtonsToAdd": "Click the buttons above to add conditions",
+      "field": "Field",
+      "operator": "Operator",
+      "value": "Value",
+      "notNecessary": "Not necessary",
+      "logicalOperators": {
+        "and": "AND",
+        "or": "OR"
+      },
+      "fieldLabels": {
+        "contactName": "Name",
+        "contactEmail": "Email",
+        "contactPhone": "Phone",
+        "eventName": "Event name",
+        "eventValue": "Event value",
+        "eventProperties": "Event properties",
+        "systemCurrentTime": "Current time",
+        "systemCurrentDay": "Day of the week",
+        "systemCurrentDate": "Current date"
+      },
+      "operators": {
+        "equals": "Equals",
+        "notEquals": "Not equals",
+        "greaterThan": "Greater than",
+        "lessThan": "Less than",
+        "contains": "Contains",
+        "notContains": "Not contains",
+        "startsWith": "Starts with",
+        "endsWith": "Ends with",
+        "isEmpty": "Is empty",
+        "isNotEmpty": "Is not empty",
+        "equalsSymbol": "=",
+        "notEqualsSymbol": "≠",
+        "greaterThanSymbol": ">",
+        "lessThanSymbol": "<",
+        "containsText": "Contains",
+        "notContainsText": "Not contains",
+        "startsWithText": "Starts with",
+        "endsWithText": "Ends with",
+        "isEmptyText": "Is empty",
+        "isNotEmptyText": "Is not empty"
+      },
+      "colors": {
+        "green": "Green",
+        "blue": "Blue",
+        "purple": "Purple",
+        "orange": "Orange",
+        "yellow": "Yellow"
+      },
+      "conditionTypes": {
+        "trigger": "Trigger",
+        "contact": "Contact",
+        "system": "System",
+        "custom": "Custom"
+      },
+      "conditionFields": {
+        "trigger": {
+          "eventName": "Event name",
+          "eventValue": "Event value",
+          "eventProperties": "Event properties"
+        },
+        "contact": {
+          "name": "Name",
+          "email": "Email",
+          "phone": "Phone",
+          "createdAt": "Created at",
+          "updatedAt": "Updated at"
+        },
+        "system": {
+          "currentTime": "Current time",
+          "currentDay": "Day of the week",
+          "currentDate": "Current date"
+        },
+        "custom": {
+          "variable": "Custom variable"
+        }
+      },
+      "summary": {
+        "title": "Summary of paths:",
+        "conditionsCount": "{{count}} condition(s) with operator {{operator}}",
+        "noConditionsConfigured": "No conditions configured",
+        "otherwiseAlwaysAvailable": "Always available when no condition is met"
+      },
+      "emptyState": {
+        "noPathsConfigured": "No path configured",
+        "clickToCreateFirst": "Click on \"Add Path\" to create your first conditional path"
+      }
+    },
+    "deferConversation": {
+      "title": "Configure Deferment of Conversation",
+      "loadDataError": "Error loading form data:",
+      "defermentType": "Deferment type",
+      "types": {
+        "duration": "By duration (hours)",
+        "until_date": "Until specific date"
+      },
+      "duration": {
+        "label": "Duration (hours)",
+        "min": "Minimum: 1 hour, Maximum: 8760 hours (1 year)"
+      },
+      "dateTime": {
+        "label": "Date and time",
+        "futureError": "The date must be in the future",
+        "description": "Conversation will be reactivated at the specified date and time"
+      },
+      "preview": {
+        "title": "⏰ Deferment configuration:",
+        "durationText": "Conversation will be deferred by <strong>{{duration}} hour{{durationPlural}}</strong> from execution",
+        "dateText": "Conversation will be deferred until <strong>{{date}} at {{time}}</strong>"
+      },
+      "info": {
+        "title": "💡 What happens when the conversation is deferred:",
+        "point1": "• The conversation is removed from the active conversations list",
+        "point2": "• It will be automatically reactivated within the configured period",
+        "point3": "• New messages from the customer reactivate the conversation immediately",
+        "point4": "• Agents can reactivate manually at any time"
+      },
+      "node": {
+        "title": "Defer conversation",
+        "noConfig": "No deferment configuration",
+        "incompleteConfig": "Incomplete deferment configuration",
+        "invalidDate": "Invalid deferment date",
+        "durationHours": "Defer by {{duration}} hour{{durationPlural}}",
+        "durationDays": "Defer by {{days}} day{{daysPlural}}",
+        "durationMixed": "Defer by {{days}}d {{hours}}h",
+        "untilDate": "Defer until {{date}} at {{time}}",
+        "configPreview": {
+          "duration": "{{duration}}h from execution",
+          "untilDate": "Until {{date}} {{time}}",
+          "invalidDate": "Invalid date"
+        }
+      }
+    },
+    "exitJourney": {
+      "title": "Exit Journey",
+      "description": "Remove the contact from the journey",
+      "finalStepMessage": "This is a final step - there are no more steps"
+    },
+    "resolveConversation": {
+      "title": "Configure Conversation Resolution",
+      "loadDataError": "Error loading form data:",
+      "whatHappens": "What happens when the conversation is resolved:",
+      "conversationMarked": "The conversation is marked with status \"Resolved\"",
+      "automaticallyArchived": "Automatically archived from the active conversations list",
+      "stopsNotifications": "Stop generating notifications for agents",
+      "availableInHistory": "Available in history for consultation",
+      "newMessagesReopen": "New messages from the customer reopen the conversation",
+      "whenToUse": "When to use:",
+      "endOfSuccessfulFlows": "At the end of successful automated flows",
+      "problemSolved": "When the customer's problem was solved",
+      "noFollowUpNeeded": "To end conversations that don't need follow-up",
+      "organizationProcesses": "In cleaning and organization processes",
+      "important": "Important:",
+      "actionPermanent": "This action is permanent and cannot be undone automatically",
+      "useWhenSure": "Use only when you are sure the conversation is finished",
+      "clientCanMessage": "The client can still send new messages (reopens the conversation)",
+      "actionDescription": "The conversation will be marked as resolved and archived automatically"
+    },
+    "sendEmailTeam": {
+      "title": "Configure Email for Team",
+      "loadError": "Error loading form data:",
+      "teams": "Destination teams",
+      "loadingTeams": "Loading teams...",
+      "noTeamsFound": "No team found in the account.",
+      "messageLabel": "Email message",
+      "messagePlaceholder": "Enter the message that will be sent by email to the selected teams...",
+      "messageHelp": "The message will be sent by email to all selected teams",
+      "characterCount": "{{count}}/500",
+      "preview": {
+        "title": "Email will be sent to",
+        "oneTeam": "1 team",
+        "multipleTeams": "{{count}} teams",
+        "moreTeams": "+{{count}} more..."
+      },
+      "info": {
+        "title": "💡 Information about the email:",
+        "point1": "• The email will be sent to all members of the selected teams",
+        "point2": "• It will include information from the conversation that triggered the journey",
+        "point3": "• A custom message will be added to the email body"
+      },
+      "node": {
+        "title": "Send email to team",
+        "noTeamsSelected": "No team selected",
+        "teamSelected": "Team selected",
+        "teamsSelected": "{{count}} teams selected",
+        "noMessage": "No message",
+        "emailTo": "Email for \"{{teamName}}\"",
+        "emailToMultiple": "Email for {{count}} teams",
+        "defaultTeamDescription": "Support team"
+      }
+    },
+    "sendTranscript": {
+      "title": "Configure Transcript Sending",
+      "loadDataError": "Error loading form data:",
+      "destinationEmail": "Destination email",
+      "emailPlaceholder": "example@company.com",
+      "invalidEmail": "Please enter a valid email",
+      "emailDescription": "The complete conversation transcript will be sent to this email",
+      "emailSubject": "Email subject",
+      "subjectPlaceholder": "Conversation transcript - {{customer_name}}",
+      "variablesHint": "You can use variables like {{customer_name}} and {{conversation_id}}",
+      "characterCount": "{{count}}/100",
+      "previewTitle": "📧 Email will be sent to:",
+      "previewToLabel": "To:",
+      "previewSubjectLabel": "Subject:",
+      "previewDefaultSubject": "Conversation transcript",
+      "transcriptInfo": {
+        "title": "💡 About the transcript:",
+        "includesMessages": "Includes all messages from the conversation",
+        "includesMetadata": "Contains metadata like timestamp and sender",
+        "formatHTML": "Sent in formatted HTML format",
+        "processedOnExecution": "Processed when the journey is executed"
+      },
+      "node": {
+        "title": "Send transcript by email",
+        "noEmailConfigured": "No email configured",
+        "sendToWithoutSubject": "Send to: {{email}} - No subject",
+        "sendTo": "Send to: {{email}}",
+        "subjectLabel": "Subject:"
+      }
+    },
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "trigger": {
+      "title": "Configure Trigger",
+      "defaultLabel": "Trigger",
+      "loadDataError": "Error loading form data:",
+      "triggerEvent": "Trigger Event",
+      "contactEntryOption": "Contact Entry Option",
+      "entryOptions": {
+        "once": "Once",
+        "oncePerPeriod": "Once per period",
+        "multiple": "Multiple"
+      },
+      "period": "Period",
+      "hours": "hours",
+      "entryOptionDescription": "Controls how frequently a contact can enter this automation flow",
+      "conditions": "Conditions",
+      "addCondition": "Add",
+      "noConditionsAdded": "No conditions added.",
+      "triggerWillRunAlways": "The trigger will run always when the event occurs.",
+      "noValue": "No value",
+      "operators": {
+        "and": "AND",
+        "or": "OR"
+      },
+      "nextCondition": "next condition",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "setVariable": {
+      "title": "Configure Set Variable",
+      "incompleteConfig": "Incomplete configuration",
+      "enterVariableName": "Enter the variable name",
+      "configureValue": "Configure the value",
+      "selectCategory": "Select the category",
+      "variable": "Variable",
+      "operation": "Operation",
+      "amount": "Amount",
+      "value": "Value",
+      "idCategory": "ID Category",
+      "operationCategories": {
+        "custom": "Custom",
+        "numeric": "Numeric",
+        "datetime": "Date and Time",
+        "functions": "Functions"
+      },
+      "operations": {
+        "set": {
+          "label": "Set",
+          "description": "Define a specific value for the variable"
+        },
+        "clear": {
+          "label": "Clear",
+          "description": "Remove the value from the variable"
+        },
+        "increment": {
+          "label": "Increase",
+          "description": "Add a numeric value to the variable"
+        },
+        "decrement": {
+          "label": "Decrease",
+          "description": "Subtract a numeric value from the variable"
+        },
+        "now": {
+          "label": "Now",
+          "description": "Define the current date and time"
+        },
+        "yesterday": {
+          "label": "Yesterday",
+          "description": "Define the date of yesterday"
+        },
+        "tomorrow": {
+          "label": "Tomorrow",
+          "description": "Define the date of tomorrow"
+        },
+        "timeOfDay": {
+          "label": "Time of Day",
+          "description": "Define the current time of day"
+        },
+        "randomId": {
+          "label": "Random ID",
+          "description": "Generate a unique random identifier"
+        }
+      },
+      "idCategories": {
+        "uuid": "UUID",
+        "numeric": "Numeric",
+        "alphanumeric": "Alphanumeric",
+        "timestamp": "Timestamp"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "configureVariable": "Configure the Variable"
+      },
+      "placeholders": {
+        "variableName": "variable_name",
+        "customValue": "Enter the custom value",
+        "numericAmount": "Enter the amount",
+        "selectOperation": "Select an operation",
+        "selectIdCategory": "Select an ID category"
+      },
+      "helperTexts": {
+        "variableName": "Use only letters, numbers and underscore",
+        "customValue": "Use variables clicking on the (x) button",
+        "numericAmount": "Amount to be added or subtracted",
+        "operationDescription": "Select how the variable will be manipulated",
+        "idCategoryDescription": "Select the type of ID to be generated"
+      },
+      "validation": {
+        "variableNameRequired": "Variable name is required",
+        "valueRequired": "Value is required",
+        "operationRequired": "Operation is required",
+        "amountRequired": "Amount is required",
+        "categoryRequired": "Category is required",
+        "invalidVariableName": "Variable name must start with a letter and contain only letters, numbers and underscore"
+      },
+      "preview": {
+        "title": "Preview of the Configuration",
+        "variableConfigured": "Variable Configured",
+        "operation": "Operation:",
+        "variable": "Variable:",
+        "value": "Value:",
+        "category": "Category:",
+        "completeConfig": "Complete the Configuration"
+      }
+    },
+    "split": {
+      "title": "Configure Split",
+      "nodeTitle": "Split",
+      "configure": "Configure the variants",
+      "configuration": "Configuration of the Variants",
+      "variants": {
+        "title": "Variants",
+        "name": "Name of the Variant",
+        "color": "Color",
+        "percentage": "Percentage (%)",
+        "defaultNames": {
+          "variantA": "Variant A",
+          "variantB": "Variant B"
+        }
+      },
+      "colors": {
+        "blue": "Blue",
+        "purple": "Purple",
+        "green": "Green",
+        "orange": "Orange",
+        "red": "Red",
+        "yellow": "Yellow"
+      },
+      "actions": {
+        "addVariant": "Add Variant",
+        "distributeEqually": "Distribute Equally",
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "status": {
+        "total": "Total",
+        "excess": "Excess",
+        "missing": "Missing",
+        "summary": "Summary of the Split"
+      },
+      "messages": {
+        "normalizePercentages": "The percentages will be normalized to sum 100% when saving",
+        "emptyState": "No variant configured"
+      },
+      "placeholders": {
+        "variantName": "Name of the variant"
+      }
+    },
+    "transferJourney": {
+      "title": "Configure Transfer Journey",
+      "nodeTitle": "Transfer Journey",
+      "configure": "Configure the destination journey",
+      "transferTo": "Transfer to",
+      "finalActionMessage": "This is a final action - there are no more steps",
+      "incompleteConfig": "Incomplete configuration",
+      "selectDestination": "Select a destination journey",
+      "destinationJourney": "Destination Journey",
+      "loading": "Loading journeys...",
+      "noJourneysAvailable": "No journey available",
+      "noActiveJourneys": "There are no other active journeys to transfer the contact",
+      "chooseJourney": "Choose a journey",
+      "onlyActiveJourneys": "Only active journeys are displayed. The contact will be transferred immediately.",
+      "previewTitle": "Preview of the Configuration",
+      "transferConfigured": "Transfer Configured",
+      "contactWillBeTransferred": "The contact will be transferred to the journey",
+      "important": "Important",
+      "warnings": {
+        "exitImmediately": "Will exit this journey immediately",
+        "startFromFirst": "Will start from the first step of the new journey",
+        "noDataTransfer": "Data and history will not be transferred"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "configureJourney": "Configure the Journey"
+      },
+      "messages": {
+        "loadError": "Error loading available journeys",
+        "selectRequired": "Select a destination journey",
+        "configuredSuccess": "Transfer configured successfully"
+      }
+    },
+    "updateContact": {
+      "title": "Configure Update Contact",
+      "nodeTitle": "Update Contact",
+      "configure": "Configure the field to update in the contact",
+      "updates": "Update {{field}} to \"{{value}}\"",
+      "incompleteConfig": "Incomplete configuration",
+      "selectField": "Select a field to update",
+      "enterValue": "Enter the new value",
+      "fieldToUpdate": "Field to Update",
+      "newValue": "New Value",
+      "selectFieldPlaceholder": "Select a field",
+      "enterNewValuePlaceholder": "Enter the new value",
+      "fields": {
+        "name": "Name",
+        "email": "Email",
+        "phone_number": "Phone",
+        "identifier": "Identifier"
+      },
+      "placeholders": {
+        "name": "Ex: João Silva",
+        "email": "Ex: joao@example.com",
+        "phone_number": "Ex: +1234567890",
+        "identifier": "Ex: ID-12345"
+      },
+      "preview": {
+        "title": "Update Configured",
+        "description": "The field {{field}} of the contact will be updated to this value."
+      },
+      "help": {
+        "title": "💡 Tip",
+        "description": "Use variables clicking on the (x) button."
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "configureFields": "Configure the Fields"
+      }
+    },
+    "updateCustomAttribute": {
+      "title": "Configure Update Custom Attribute",
+      "nodeTitle": "Update Custom Attribute",
+      "configure": "Configure the custom attribute to update",
+      "updates": "Update \"{{attribute}}\" to \"{{value}}\"",
+      "incompleteConfig": "Incomplete configuration",
+      "selectAttribute": "Select a custom attribute",
+      "configureValue": "Configure the new value",
+      "customAttribute": "Custom Attribute",
+      "newValue": "New Value",
+      "loading": "Loading...",
+      "selectAttributePlaceholder": "Select a attribute",
+      "loadError": "Error loading custom attributes",
+      "booleanValues": {
+        "true": "True",
+        "false": "False"
+      },
+      "listPlaceholder": "Select an option",
+      "placeholders": {
+        "text": "Enter the value",
+        "number": "Enter the value",
+        "currency": "Enter the value (R$)",
+        "percent": "Enter the value (%)",
+        "link": "Enter the URL (https://example.com)",
+        "date": "Select the date"
+      },
+      "typeLabel": "Type",
+      "preview": {
+        "title": "Update Configured",
+        "description": "The custom attribute will be updated to this value in the contact."
+      },
+      "help": {
+        "title": "💡 Tip",
+        "description": "Custom attributes allow you to store specific business information in each contact. Use variables clicking on the (x) button."
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "configureAttribute": "Configure the Attribute"
+      },
+      "validation": {
+        "selectAttribute": "Select a custom attribute",
+        "enterValue": "Enter the new value for the attribute"
+      }
+    },
+    "waitComponents": {
+      "condition": {
+        "typeLabel": "Type of Condition to Wait",
+        "configurationLabel": "Configuration",
+        "variableLabel": "Variable for Comparison",
+        "variableDescription": "Select a system or custom variable to use in the condition",
+        "variablePlaceholder": "Select variable...",
+        "fallbackLabel": "Enable \"otherwise\" (alternative path if the condition is not met)",
+        "fallbackDescription": "If enabled, the journey will have 2 outputs: one when the condition is met and another (otherwise) when the timeout is reached",
+        "fallbackTimeLabel": "Timeout (Otherwise)",
+        "fallbackUnitLabel": "Unit",
+        "configureCondition": "Configure the condition",
+        "summaryPrefix": "The journey will wait until",
+        "summaryFallback": "If the condition is not met in",
+        "summaryFallbackSuffix": ", follow the alternative path (otherwise).",
+        "summaryLabel": "Summary",
+        "summaryText": "The journey will wait until {{condition}}.",
+        "conditionTypes": {
+          "contactCreated": "Contact Created",
+          "contactUpdated": "Contact Updated",
+          "label": "Label",
+          "customAttribute": "Custom Attribute"
+        },
+        "withFilters": "with filters",
+        "usingVariable": "using variable"
+      },
+      "event": {
+        "typeLabel": "Type of Event to Wait",
+        "configurationLabel": "Configuration",
+        "fallbackLabel": "Enable \"otherwise\" (alternative path if the event does not occur)",
+        "fallbackDescription": "If enabled, the journey will have 2 outputs: one when the event occurs and another (otherwise) when the timeout is reached",
+        "fallbackTimeLabel": "Timeout (Otherwise)",
+        "fallbackUnitLabel": "Unit",
+        "selectEventType": "Select the event type",
+        "summaryPrefix": "The journey will wait for",
+        "summaryFallback": "If the event does not occur in",
+        "summaryFallbackSuffix": ", follow the alternative path (otherwise).",
+        "summaryLabel": "Summary",
+        "summaryText": "The journey will wait for {{event}}.",
+        "eventTypes": {
+          "event": "Event",
+          "segment": "Segment",
+          "contactCreated": "Contact Created",
+          "contactUpdated": "Contact Updated",
+          "label": "Label",
+          "customAttribute": "Custom Attribute",
+          "webhook": "Webhook"
+        }
+      },
+      "hybrid": {
+        "maxWaitLabel": "Maximum Wait Time (required)",
+        "timeLabel": "Time",
+        "unitLabel": "Unit",
+        "timePlaceholder": "Time",
+        "stopConditionLabel": "Stop Condition (optional)",
+        "eventTab": "Event",
+        "conditionTab": "Condition",
+        "summaryPrefix": "The journey will wait for a maximum of",
+        "summaryMiddle": "OR until",
+        "summarySuffix": "happen (the first one to occur).",
+        "summaryLabel": "Summary",
+        "summaryText": "The journey will wait for a maximum of {{duration}} {{unit}} OR until {{condition}} happens (the first one to occur).",
+        "conditionMetPath": "If the condition is met first → follow the \"Condition met\" path",
+        "timeoutPath": "If the time runs out first → follow the \"Timeout\" path",
+        "configureEvent": "Configure the event",
+        "configureTrigger": "Configure the trigger",
+        "configureMaxTime": "Configure the maximum time",
+        "eventTypeLabels": {
+          "event": "Event",
+          "segment": "Segment",
+          "contactCreated": "Contact Created",
+          "contactUpdated": "Contact Updated",
+          "label": "Label",
+          "customAttribute": "Custom Attribute",
+          "webhook": "Webhook"
+        },
+        "condition": "Condition"
+      },
+      "time": {
+        "durationLabel": "Duration",
+        "durationPlaceholder": "Enter the duration",
+        "timeUnitLabel": "Time Unit",
+        "unitPlaceholder": "Select the unit",
+        "variableHint": "Use variables clicking on the (x) button.",
+        "summaryPrefix": "The journey will be paused for",
+        "summarySuffix": "before continuing to the next step.",
+        "summaryLabel": "Summary",
+        "summaryText": "The journey will be paused for {{duration}} {{unit}} before continuing to the next step."
+      },
+      "shared": {
+        "selectType": "Select the type",
+        "timeUnits": {
+          "minutes": "Minutes",
+          "hours": "Hours",
+          "days": "Days"
+        },
+        "timeUnitsSingular": {
+          "minutes": "minute",
+          "hours": "hour",
+          "days": "day"
+        },
+        "timeUnitsPlural": {
+          "minutes": "minutes",
+          "hours": "hours",
+          "days": "days"
+        }
+      }
+    },
+    "scheduledAction": {
+      "title": "Schedule Action",
+      "delayDuration": "Delay Duration",
+      "actionType": "Action Type",
+      "configure": "Please complete the configuration to save",
+      "units": {
+        "minutes": "Minutes",
+        "hours": "Hours",
+        "days": "Days",
+        "weeks": "Weeks"
+      },
+      "actions": {
+        "send_message": "Send Message",
+        "execute_webhook": "Execute Webhook",
+        "trigger_journey": "Trigger Journey",
+        "create_task": "Create Task"
+      },
+      "labels": {
+        "channel": "Channel",
+        "message": "Message",
+        "webhookUrl": "Webhook URL",
+        "webhookMethod": "HTTP Method",
+        "journeyId": "Journey ID",
+        "taskTitle": "Task Title",
+        "taskDescription": "Task Description"
+      },
+      "placeholders": {
+        "message": "Enter your message here",
+        "webhookUrl": "https://example.com/webhook",
+        "journeyId": "Select a journey",
+        "taskTitle": "Enter task title",
+        "taskDescription": "Enter task description"
+      },
+      "hints": {
+        "journeyId": "The ID of the journey to trigger"
+      },
+      "messages": {
+        "noChannelsConfigured": "Nessun canale di messaggistica configurato. Si prega di configurare prima un canale WhatsApp, SMS, Email o Telegram nelle impostazioni dei Canali."
+      }
+    }
+  },
+  "triggerComponents": {
+    "triggerType": "Tipo del Trigger",
+    "selectType": "Seleziona il tipo",
+    "types": {
+      "manual": "Ingresso Manuale",
+      "event": "Evento",
+      "segment": "Segmento",
+      "webhook": "Webhook",
+      "contactCreated": "Contatto Creato",
+      "contactUpdated": "Contatto Aggiornato",
+      "label": "Etichetta",
+      "customAttribute": "Attributo Personalizzato"
+    },
+    "descriptions": {
+      "manual": "I contatti verranno aggiunti manualmente al percorso.",
+      "event": "Il percorso verrà attivato quando si verifica un evento specifico.",
+      "segment": "Il percorso verrà attivato quando i contatti entrano in un segmento.",
+      "webhook": "Il percorso verrà attivato quando viene ricevuto un webhook.",
+      "contactCreated": "Il percorso verrà attivato quando viene creato un nuovo contatto. Puoi configurare campi specifici per filtrare.",
+      "contactUpdated": "Il percorso verrà attivato quando un contatto viene aggiornato. Puoi configurare quali campi devono essere modificati.",
+      "label": "Il percorso verrà attivato quando un'etichetta viene applicata al contatto.",
+      "customAttribute": "Il percorso verrà attivato in base agli attributi personalizzati del contatto.",
+      "selectType": "Seleziona un tipo di trigger per vedere la sua descrizione."
+    },
+    "operators": {
+      "equals": "Uguale a",
+      "not_equals": "Diverso da",
+      "contains": "Contiene",
+      "not_contains": "Non contiene",
+      "starts_with": "Inizia con",
+      "ends_with": "Termina con",
+      "is_empty": "È vuoto",
+      "is_not_empty": "Non è vuoto",
+      "exists": "Esiste",
+      "not_exists": "Non esiste",
+      "greater_than": "Maggiore di",
+      "less_than": "Minore di"
+    },
+    "contact": {
+      "filtersForCreated": "Filtri per Contatto Creato",
+      "fieldsToMonitor": "Campi da Monitorare (Contatto Aggiornato)",
+      "addField": "Aggiungi Campo",
+      "noFiltersConfigured": "Nessun filtro configurato. Il percorso verrà attivato per tutti i nuovi contatti.",
+      "noSpecificFieldsMonitored": "Nessun campo specifico verrà monitorato. Il percorso verrà attivato per qualsiasi aggiornamento del contatto.",
+      "fieldNumber": "Campo {{number}}",
+      "field": "Campo",
+      "condition": "Condizione",
+      "value": "Valore",
+      "selectField": "Seleziona il campo",
+      "selectCondition": "Seleziona la condizione",
+      "enterValue": "Inserisci il valore",
+      "useVariablesHint": "Usa variabili per valori dinamici, come {custom.source} o {contact.name}.",
+      "createdDescription": "Il percorso verrà attivato quando viene creato un nuovo contatto",
+      "updatedDescription": "Il percorso verrà attivato quando un contatto viene aggiornato",
+      "withFiltersConfigured": "e soddisfa i filtri configurati",
+      "withConfiguredFieldsChanged": "e i campi configurati vengono modificati",
+      "configuredConditions": "Condizioni configurate",
+      "captureContactData": "Cattura Dati del Contatto",
+      "fields": {
+        "name": "Nome",
+        "email": "Email",
+        "phone": "Telefono",
+        "meio": "Mezzo",
+        "sobrenome": "Cognome",
+        "localizacao": "Posizione",
+        "codigo_do_pais": "Codice del Paese",
+        "identificador": "Identificativo",
+        "tipo_do_contato": "Tipo di Contatto",
+        "bloqueado": "Bloccato",
+        "ultima_atividade": "Ultima Attività",
+        "criado": "Creato",
+        "atualizado": "Aggiornato"
+      }
+    },
+    "customAttribute": {
+      "configuration": "Configurazione dell'Attributo Personalizzato",
+      "customAttribute": "Attributo Personalizzato",
+      "loadError": "Errore nel caricamento degli attributi personalizzati",
+      "loadingAttributes": "Caricamento attributi...",
+      "selectAttribute": "Seleziona un attributo",
+      "loading": "Caricamento...",
+      "noAttributesFound": "Nessun attributo personalizzato trovato",
+      "technicalName": "Nome tecnico",
+      "model": "Modello",
+      "condition": "Condizione",
+      "selectCondition": "Seleziona la condizione",
+      "value": "Valore",
+      "enterValue": "Inserisci il valore",
+      "useVariablesHint": "Usa variabili cliccando sul pulsante (x).",
+      "selectedAttribute": "Attributo Selezionato",
+      "name": "Nome",
+      "type": "Tipo",
+      "createdAt": "Creato il",
+      "description": "Il percorso verrà attivato quando l'attributo personalizzato selezionato soddisfa la condizione configurata.",
+      "attribute": "Attributo",
+      "captureAttributeData": "Cattura Dati dell'Attributo",
+      "types": {
+        "string": "Testo",
+        "number": "Numero",
+        "boolean": "Vero/Falso",
+        "date": "Data"
+      }
+    },
+    "event": {
+      "configuration": "Configurazione dell'Evento",
+      "eventName": "Nome dell'Evento",
+      "eventNamePlaceholder": "Es: button_clicked, page_viewed",
+      "templates": "Template",
+      "contactEvents": "Eventi di Contatto",
+      "contactCreated": "Contatto Creato",
+      "contactUpdated": "Contatto Aggiornato",
+      "messageEvents": "Eventi di Messaggio",
+      "messageCreated": "Messaggio Creato",
+      "customEvents": "Eventi Personalizzati",
+      "buttonClicked": "Pulsante Cliccato",
+      "pageViewed": "Pagina Visualizzata",
+      "formSubmitted": "Modulo Inviato",
+      "productPurchased": "Prodotto Acquistato",
+      "eventProperties": "Proprietà dell'Evento",
+      "addProperty": "Aggiungi",
+      "noPropertiesConfigured": "Nessuna proprietà configurata.",
+      "triggerForAnyOccurrence": "Il trigger verrà eseguito per qualsiasi occorrenza dell'evento.",
+      "property": "Proprietà",
+      "value": "Valore",
+      "captureEventData": "Cattura Dati dell'Evento"
+    },
+    "label": {
+      "configuration": "Configurazione dell'Etichetta",
+      "labelAction": "Azione dell'Etichetta",
+      "selectAction": "Seleziona l'azione",
+      "applied": "Applicata",
+      "removed": "Rimossa",
+      "whenApplied": "Quando l'etichetta viene applicata al contatto",
+      "whenRemoved": "Quando l'etichetta viene rimossa dal contatto",
+      "label": "Etichetta",
+      "loadError": "Errore nel caricamento delle etichette",
+      "loadingLabels": "Caricamento etichette...",
+      "selectLabel": "Seleziona un'etichetta",
+      "loading": "Caricamento...",
+      "noLabelsFound": "Nessuna etichetta trovata",
+      "selectedLabel": "Etichetta Selezionata",
+      "name": "Nome",
+      "description": "Descrizione",
+      "createdAt": "Creata il",
+      "appliedDescription": "Il percorso verrà attivato quando l'etichetta selezionata viene applicata a un contatto.",
+      "removedDescription": "Il percorso verrà attivato quando l'etichetta selezionata viene rimossa da un contatto."
+    },
+    "segment": {
+      "configuration": "Configurazione del Segmento",
+      "segmentAction": "Azione del Segmento",
+      "selectAction": "Seleziona l'azione",
+      "entered": "Entrato",
+      "exited": "Uscito",
+      "whenEntered": "Quando il contatto entra nel segmento",
+      "whenExited": "Quando il contatto esce dal segmento",
+      "segment": "Segmento",
+      "loadError": "Errore nel caricamento dei segmenti",
+      "loadingSegments": "Caricamento segmenti...",
+      "selectSegment": "Seleziona un segmento",
+      "loading": "Caricamento...",
+      "noActiveSegmentsFound": "Nessun segmento attivo trovato",
+      "contacts": "contatti",
+      "status": "Stato",
+      "active": "Attivo",
+      "paused": "In pausa",
+      "updated": "Aggiornato",
+      "selectedSegment": "Segmento Selezionato",
+      "name": "Nome",
+      "lastUpdate": "Ultimo aggiornamento",
+      "enteredDescription": "Il percorso verrà attivato quando un contatto entra nel segmento selezionato.",
+      "exitedDescription": "Il percorso verrà attivato quando un contatto esce dal segmento selezionato."
+    },
+    "webhook": {
+      "configuration": "Configurazione del Webhook",
+      "webhookUrl": "URL del Webhook",
+      "urlPlaceholder": "https://tua-api.com/webhook",
+      "urlDescription": "Questo URL verrà chiamato quando il percorso viene attivato. L'URL verrà generato automaticamente con l'ID del percorso quando salvato.",
+      "httpMethod": "Metodo HTTP",
+      "authentication": "Autenticazione",
+      "required": "Obbligatorio",
+      "authDescription": "Usa l'header api_access_token con il tuo token API per l'autenticazione.",
+      "expectedHeaders": "Headers Previsti (Opzionale)",
+      "addHeader": "Aggiungi Header",
+      "noCustomHeaders": "Nessun header personalizzato configurato",
+      "headerName": "Nome dell'header",
+      "headerValue": "Valore",
+      "payloadStructure": "Struttura del Payload",
+      "flexible": "Flessibile",
+      "dataFieldDescription": "Il campo data può contenere qualsiasi struttura JSON di cui hai bisogno per il tuo percorso.",
+      "exampleContactName": "Nome del Contatto",
+      "exampleEmail": "email@esempio.com",
+      "description": "Il percorso verrà attivato quando viene ricevuta una richiesta POST all'URL configurato.",
+      "customHeaders": "Headers personalizzati",
+      "curlExample": "Esempio di utilizzo con cURL",
+      "method": "Metodo",
+      "headersCount": "header(s) personalizzato/i",
+      "captureWebhookData": "Cattura Dati del Webhook",
+      "urlCopied": "URL del Webhook copiato negli appunti"
+    }
+  }
+}

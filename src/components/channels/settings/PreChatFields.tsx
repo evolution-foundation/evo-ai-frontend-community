@@ -155,7 +155,7 @@ export default function PreChatFields({ preChatFields, onUpdate }: PreChatFields
               {/* Placeholder Input */}
               <TableCell className="p-2">
                 <Input
-                  value={field.placeholder}
+                  value={field.placeholder || ''}
                   onChange={(e) => handlePlaceholderChange(field.name, e.target.value)}
                   disabled={isFieldEditable(field)}
                   className="text-sm"

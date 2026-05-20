@@ -1,11 +1,11 @@
 export interface PreChatField {
   name: string;
-  type: 'text' | 'email' | 'phone' | 'select' | 'checkbox' | 'date' | 'url' | 'number';
+  type: 'text' | 'email' | 'phone' | 'select' | 'checkbox' | 'date' | 'url' | 'number' | 'textarea';
   label: string;
   placeholder?: string;
   required: boolean;
   enabled: boolean;
-  field_type: 'contact_attribute' | 'conversation_attribute';
+  field_type: 'contact_attribute' | 'conversation_attribute' | 'standard';
   values?: string[]; // Para select
   regex_pattern?: string;
   regex_cue?: string;

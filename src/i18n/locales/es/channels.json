@@ -255,6 +255,9 @@
         "lastConnection": "Última conexión: {{date}}",
         "reconnect": "Reconectar",
         "reconnected": "¡Reconectado con éxito!",
+        "syncSubscription": "Volver a suscribir webhook",
+        "subscriptionSynced": "¡Webhook de WhatsApp re-suscrito con éxito!",
+        "subscriptionSyncError": "Error al re-suscribir el webhook. Inténtelo de nuevo.",
         "reconnectingWhatsApp": "Reconectando WhatsApp...",
         "whatsappReconnectNotImplemented": "La reconexión de WhatsApp aún no está implementada para este proveedor",
         "reconnectError": "Error al reconectar. Por favor, inténtelo de nuevo.",
@@ -1578,6 +1581,34 @@
       "success": {
         "channelCreated": "Canal creado con éxito"
       }
+    },
+    "preChatForm": {
+      "title": "Formulario Pre-Chat",
+      "description": "Recopile información de los visitantes antes de iniciar la conversación",
+      "totalFields": "Total de Campos",
+      "activeFields": "Campos Activos",
+      "requiredFields": "Campos Obligatorios",
+      "welcomeMessage": "Mensaje de Bienvenida",
+      "welcomeMessagePlaceholder": "¡Hola! Para atenderle mejor, por favor complete la información a continuación:",
+      "welcomeMessageHelp": "Este mensaje se mostrará en la parte superior del formulario pre-chat.",
+      "fieldConfiguration": "Configuración de Campos",
+      "hidePreview": "Ocultar Vista Previa",
+      "showPreview": "Ver Vista Previa",
+      "formPreview": "Vista Previa del Formulario",
+      "noActiveFields": "Ningún campo activo para mostrar",
+      "howItWorksTitle": "Cómo funciona el formulario pre-chat",
+      "howItWorks": {
+        "point1": "El formulario se muestra antes de que el cliente inicie la conversación",
+        "point2": "La información recopilada se adjunta al perfil del contacto",
+        "point3": "Los campos obligatorios deben completarse para continuar",
+        "point4": "Use la función arrastrar para reordenar los campos"
+      },
+      "disabledTitle": "Formulario pre-chat deshabilitado",
+      "disabledDescription": "Active para recopilar información de los visitantes antes de iniciar la conversación.",
+      "saving": "Guardando...",
+      "save": "Guardar Configuraciones",
+      "success": "Configuraciones del formulario pre-chat actualizadas con éxito",
+      "error": "Error al actualizar configuraciones del formulario pre-chat"
     }
   },
   "deleteDialog": {

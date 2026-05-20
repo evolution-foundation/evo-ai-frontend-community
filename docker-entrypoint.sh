@@ -22,4 +22,14 @@ for file in $(find "$HTML_DIR" -name '*.js' -type f); do
   [ -n "$VITE_AGENT_PROCESSOR_URL" ] && sed -i "s|VITE_AGENT_PROCESSOR_URL_PLACEHOLDER|${VITE_AGENT_PROCESSOR_URL}|g" "$file"
 done
 
+# Configure nginx CSP based on environment (default: development)
+APP_ENV="${VITE_APP_ENV:-development}"
+
+if [ "$APP_ENV" = "development" ]; then
+  # Development: Allow localhost connections and permissive frame-ancestors for widget
+  sed -i "s|connect-src 'self' https: wss: ws:|connect-src 'self' https: wss: ws: http://localhost:*|g" /etc/nginx/conf.d/default.conf
+  sed -i "s|frame-ancestors 'self'|frame-ancestors *|g" /etc/nginx/conf.d/default.conf
+fi
+
+
 exec "$@"

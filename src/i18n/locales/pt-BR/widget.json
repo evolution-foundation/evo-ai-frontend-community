@@ -129,5 +129,23 @@
     "invalidEmail": "Por favor, insira um email válido",
     "success": "Email salvo com sucesso!",
     "error": "Erro ao salvar email. Tente novamente."
+  },
+  "preChatForm": {
+    "message": "Mensagem",
+    "messagePlaceholder": "Digite sua mensagem aqui...",
+    "startConversation": "Iniciar conversa",
+    "starting": "Iniciando...",
+    "selectOption": "Selecione uma opção",
+    "provideDetails": "Por favor, informe seus dados para continuar",
+    "validation": {
+      "invalidEmail": "Endereço de e-mail inválido",
+      "invalidPhone": "Telefone inválido. Use o formato internacional (ex: +5511999999999)",
+      "invalidUrl": "URL inválida",
+      "invalidNumber": "Número inválido",
+      "invalidDate": "Data inválida",
+      "invalidFormat": "Formato inválido",
+      "required": "Este campo é obrigatório",
+      "messageRequired": "A mensagem é obrigatória"
+    }
   }
 }

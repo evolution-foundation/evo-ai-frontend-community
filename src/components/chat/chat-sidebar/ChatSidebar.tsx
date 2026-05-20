@@ -288,6 +288,7 @@ const ChatSidebar = ({
           );
           if (removeResults.some(r => r.status === 'rejected')) {
             toast.error(t('pipeline.removeError'));
+            void loadConversationPipelineState(convId);
             return;
           }
         }

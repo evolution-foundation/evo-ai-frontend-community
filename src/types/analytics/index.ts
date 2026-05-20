@@ -4,3 +4,4 @@
 export * from './reports';
 export * from './pipelines';
 export * from './dashboard';
+export * from './segments';

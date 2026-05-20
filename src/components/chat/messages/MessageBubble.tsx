@@ -25,7 +25,9 @@ import MessageImage from '@/components/chat/messages/MessageImage';
 import MessageFile from '@/components/chat/messages/MessageFile';
 import MessageAudio from '@/components/chat/messages/MessageAudio';
 import MessageVideo from '@/components/chat/messages/MessageVideo';
+import MessageInputSelect from '@/components/chat/messages/MessageInputSelect';
 import MessageLocation from '@/components/chat/messages/MessageLocation';
+import MessageCarousel from '@/components/chat/messages/MessageCarousel';
 import MessageStatus from '@/components/chat/messages/MessageStatus';
 import SystemMessage from '@/components/chat/messages/SystemMessage';
 import ReplyPreview from '@/components/chat/messages/ReplyPreview';
@@ -261,6 +263,20 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         return <MessageAudio attachments={message.attachments || []} />;
       case 'video':
         return <MessageVideo attachments={message.attachments || []} />;
+      case 'cards':
+        return (
+          <MessageCarousel
+            content={message.content}
+            contentAttributes={message.content_attributes}
+          />
+        );
+      case 'input_select':
+        return (
+          <MessageInputSelect
+            content={message.content}
+            contentAttributes={message.content_attributes}
+          />
+        );
       default:
         return (
           <MessageText

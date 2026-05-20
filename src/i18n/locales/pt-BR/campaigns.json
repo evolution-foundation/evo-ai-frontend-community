@@ -1,0 +1,308 @@
+{
+  "title": "Campanhas",
+  "card": {
+    "contacts": "Contactos",
+    "scheduledFor": "Agendado para",
+    "sent": "Enviados",
+    "deliveryRate": "Taxa de Entrega",
+    "readRate": "Taxa de Leitura",
+    "created": "Criado",
+    "actions": {
+      "start": "Iniciar campanha",
+      "pause": "Parar campanha",
+      "resume": "Retomar campanha",
+      "cancel": "Cancelar campanha",
+      "stop": "Cancelar campanha",
+      "viewDetails": "Ver detalhes",
+      "viewStats": "Ver estatísticas",
+      "duplicate": "Duplicar",
+      "edit": "Editar campanha",
+      "delete": "Eliminar campanha"
+    }
+  },
+  "header": {
+    "title": "Campanhas",
+    "subtitle": "Gerir as suas campanhas de mensagens em massa",
+    "searchPlaceholder": "Pesquisar campanhas...",
+    "newCampaign": "Nova Campanha",
+    "bulkPause": "Pausar Selecionadas",
+    "bulkResume": "Retomar Selecionadas",
+    "bulkDuplicate": "Duplicar Selecionadas",
+    "bulkDelete": "Eliminar Selecionadas"
+  },
+  "empty": {
+    "title": "Nenhuma campanha encontrada",
+    "description": "Crie uma nova campanha para começar a enviar mensagens em massa para os seus contactos.",
+    "action": "Nova Campanha"
+  },
+  "loading": {
+    "campaigns": "A carregar campanhas...",
+    "creating": "A criar...",
+    "updating": "A atualizar...",
+    "deleting": "A eliminar...",
+    "scheduling": "A agendar...",
+    "pausing": "A pausar...",
+    "resuming": "A retomar..."
+  },
+  "messages": {
+    "loadError": "Erro ao carregar campanhas",
+    "createSuccess": "Campanha criada com sucesso",
+    "createError": "Erro ao criar campanha",
+    "updateSuccess": "Campanha atualizada com sucesso",
+    "updateError": "Erro ao atualizar campanha",
+    "deleteSuccess": "Campanha eliminada com sucesso",
+    "deleteError": "Erro ao eliminar campanha",
+    "pauseSuccess": "Campanha pausada com sucesso",
+    "pauseError": "Erro ao pausar campanha",
+    "startSuccess": "Campanha iniciada com sucesso",
+    "startError": "Erro ao iniciar campanha",
+    "resumeSuccess": "Campanha retomada com sucesso",
+    "resumeError": "Erro ao retomar campanha",
+    "stopSuccess": "Campanha cancelada com sucesso",
+    "stopError": "Erro ao cancelar campanha",
+    "duplicateSuccess": "Campanha duplicada com sucesso",
+    "duplicateError": "Erro ao duplicar campanha",
+    "bulkDeleteSuccess": "{{count}} campanha(s) eliminada(s) com sucesso",
+    "bulkDeleteError": "Erro ao eliminar campanhas",
+    "bulkPauseSuccess": "{{count}} campanha(s) pausada(s) com sucesso",
+    "bulkPauseError": "Erro ao pausar campanhas",
+    "bulkResumeSuccess": "{{count}} campanha(s) retomada(s) com sucesso",
+    "bulkResumeError": "Erro ao retomar campanhas",
+    "detailsError": "Erro ao carregar detalhes da campanha",
+    "noPermissionToCreate": "Não tem permissão para criar campanhas",
+    "editInDevelopment": "Edição de campanhas em desenvolvimento",
+    "statsInDevelopment": "Estatísticas de campanhas em desenvolvimento",
+    "statsError": "Erro ao carregar estatísticas da campanha",
+    "editValidationError": "Título e nome da campanha são obrigatórios",
+    "bulkDuplicateInDevelopment": "Duplicação em massa de campanhas em desenvolvimento",
+    "filtersInDevelopment": "Filtros de campanhas em desenvolvimento",
+    "invalidDate": "Data inválida"
+  },
+  "dialog": {
+    "deleteCampaign": {
+      "title": "Eliminar Campanha",
+      "description": "Tem a certeza de que deseja eliminar a campanha \"{{name}}\"? Esta ação não pode ser revertida.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar",
+      "deleting": "A eliminar..."
+    },
+    "bulkDelete": {
+      "title": "Eliminar Campanhas",
+      "description": "Tem a certeza de que deseja eliminar {{count}} campanha(s) selecionada(s)? Esta ação não pode ser revertida.",
+      "confirm": "Eliminar Todas",
+      "cancel": "Cancelar",
+      "deleting": "A eliminar..."
+    },
+    "editCampaign": {
+      "title": "Editar Campanha",
+      "description": "Atualize os dados básicos da campanha.",
+      "fields": {
+        "title": "Título",
+        "name": "Nome interno",
+        "description": "Descrição"
+      },
+      "confirm": "Salvar alterações",
+      "cancel": "Cancelar",
+      "saving": "Salvando..."
+    },
+    "stats": {
+      "title": "Estatísticas da Campanha",
+      "description": "Resumo de desempenho da campanha \"{{name}}\".",
+      "descriptionEmpty": "Resumo de desempenho da campanha.",
+      "loading": "Carregando estatísticas...",
+      "totalSent": "Total enviado",
+      "totalDelivered": "Total entregue",
+      "totalRead": "Total lido",
+      "totalErrors": "Total de erros",
+      "deliveryRate": "Taxa de entrega",
+      "readRate": "Taxa de leitura",
+      "actions": {
+        "start": "Iniciar",
+        "pause": "Parar",
+        "cancel": "Cancelar"
+      },
+      "close": "Fechar"
+    },
+    "details": {
+      "title": "Detalhes da Campanha",
+      "description": "Dados da campanha \"{{name}}\".",
+      "descriptionEmpty": "Dados da campanha.",
+      "loading": "Carregando detalhes...",
+      "fields": {
+        "title": "Título",
+        "name": "Nome interno",
+        "description": "Descrição",
+        "status": "Status",
+        "channel": "Canal"
+      },
+      "edit": "Editar",
+      "close": "Fechar"
+    }
+  },
+  "status": {
+    "draft": "Rascunho",
+    "scheduled": "Agendada",
+    "sending": "A enviar",
+    "paused": "Pausada",
+    "stopped": "Parada",
+    "completed": "Concluída",
+    "sending_testab": "Teste A/B"
+  },
+  "type": {
+    "simple": "Simples",
+    "recurring": "Recorrente",
+    "trigger": "Com Gatilho"
+  },
+  "channel": {
+    "email": "Email",
+    "whatsapp": "WhatsApp",
+    "sms": "SMS"
+  },
+  "table": {
+    "columns": {
+      "name": "Campanha",
+      "status": "Estado",
+      "contacts": "Contactos",
+      "delivery": "Entrega",
+      "engagement": "Envolvimento",
+      "created": "Criado",
+      "quickActions": "Ações rápidas"
+    },
+    "sent": "enviados",
+    "delivered": "entregues",
+    "read": "lidos",
+    "scheduled": "Agendado",
+    "empty": {
+      "noResults": "Nenhuma campanha encontrada",
+      "title": "Nenhuma campanha encontrada",
+      "description": "Crie uma nova campanha para começar a enviar mensagens em massa para os seus contactos."
+    }
+  },
+  "wizard": {
+    "title": "Nova Campanha",
+    "editTitle": "Editar Campanha",
+    "subtitle": "Criar uma nova campanha de mensagens em massa",
+    "inDevelopment": "Em desenvolvimento",
+    "validation": {
+      "nameRequired": "Nome é obrigatório",
+      "nameMinLength": "Nome deve ter no mínimo 3 caracteres",
+      "titleRequired": "Título é obrigatório",
+      "titleMinLength": "Título deve ter no mínimo 3 caracteres",
+      "typeRequired": "Tipo é obrigatório",
+      "channelRequired": "Canal é obrigatório",
+      "inboxRequired": "Selecione pelo menos um inbox",
+      "templateOptionRequired": "Selecione uma opção",
+      "templateRequired": "Selecione um modelo",
+      "messageRequired": "Mensagem é obrigatória",
+      "contactSelectionRequired": "Selecione uma opção",
+      "scheduleOptionRequired": "Selecione uma opção",
+      "scheduleDateRequired": "Data e hora são obrigatórias",
+      "scheduleDateFuture": "Data deve ser no futuro"
+    },
+    "progress": {
+      "basicInfo": "Informações Básicas",
+      "template": "Conteúdo",
+      "contacts": "Contactos",
+      "schedule": "Agendamento",
+      "review": "Rever",
+      "success": "Concluído"
+    },
+    "step1": {
+      "title": "Informações Básicas",
+      "subtitle": "Configure os detalhes fundamentais da sua campanha",
+      "nameLabel": "Nome da Campanha",
+      "namePlaceholder": "Ex: Campanha de Boas-vindas",
+      "titleLabel": "Título",
+      "titlePlaceholder": "Ex: Bem-vindo à nossa plataforma",
+      "typeLabel": "Tipo de Campanha",
+      "typePlaceholder": "Selecione o tipo",
+      "channelLabel": "Canal de Comunicação",
+      "channelPlaceholder": "Selecione o canal"
+    },
+    "step2": {
+      "title": "Audiência",
+      "selectAudience": "Selecione a Audiência",
+      "audienceDescription": "Defina quem receberá esta campanha usando filtros cumulativos",
+      "allContacts": "Todos os Contatos",
+      "allContactsDescription": "Enviar para toda a base de contatos sem filtros",
+      "audienceFilters": "Filtros de Audiência",
+      "audienceFiltersDescription": "Adicione múltiplos filtros para incluir ou excluir segmentos e tags",
+      "include": "Incluir",
+      "exclude": "Excluir",
+      "segment": "Segmento",
+      "tag": "Tag",
+      "selectSegment": "Selecione segmento",
+      "selectTag": "Selecione tag",
+      "activeFilters": "Filtros Ativos",
+      "noFiltersAdded": "Nenhum filtro adicionado. Adicione filtros para segmentar sua audiência.",
+      "totalContacts": "Total de contatos na base",
+      "basedOnFilters": "Baseado em {{count}} filtro(s) aplicado(s)"
+    },
+    "step3": {
+      "title": "Conteúdo",
+      "channelLabel": "Canal de Comunicação",
+      "channelDescription": "Escolha qual canal será usado nesta campanha",
+      "inboxLabel": "Inbox - {{channel}}",
+      "inboxDescription": "Selecione apenas 1 inbox para esta campanha",
+      "health": "saúde",
+      "templatesLabel": "Templates",
+      "templatesSelected": "{{count}} selecionado(s)"
+    },
+    "step4": {
+      "title": "Configurações",
+      "scheduling": "Agendamento",
+      "schedulingRequired": "Agendamento <span className=\"text-red-500\">*</span>",
+      "sendNow": "Enviar agora",
+      "sendNowDescription": "Iniciar o envio imediatamente após criação",
+      "scheduleLater": "Agendar para mais tarde",
+      "scheduleLaterDescription": "Escolher data e hora específicas para envio",
+      "dateTime": "Data e Hora",
+      "templateDistribution": "Distribuição de Templates",
+      "templateDistributionDescription": "Configure como alternar entre templates durante o envio (opcional)",
+      "strategy": "Estratégia",
+      "strategyRoundRobin": "Rotação Simples - Alterna entre templates igualmente",
+      "strategyWeighted": "Split/Ponderado - Defina pesos personalizados",
+      "strategyRandom": "Aleatório - Seleciona templates aleatoriamente",
+      "strategyAbTest": "Teste A/B - Divide e escolhe o melhor (Recomendado)",
+      "weightedConfig": "Ponderação por Template (Split)",
+      "weightedConfigDescription": "Defina a porcentagem de envios para cada template. Total: {{total}}%",
+      "weightSumWarning": "⚠️ A soma deve ser 100%. Atualmente: {{total}}%",
+      "abTestConfig": "Configuração do Teste A/B",
+      "abTestConfigDescription": "Defina a porcentagem de contatos para a fase de teste. O restante receberá o template vencedor.",
+      "testPhase": "Fase de Teste",
+      "minPercentage": "{{value}}% (mínimo)",
+      "maxPercentage": "{{value}}% (máximo)",
+      "howItWorks": "Como funciona:",
+      "abTestExplanation1": "• {{percentage}}% dos contatos receberão templates distribuídos igualmente",
+      "abTestExplanation2": "• O template com melhor performance será enviado aos {{percentage}}% restantes",
+      "abTestExplanation3": "• {{count}} templates selecionados serão testados",
+      "timeWindows": "Janelas de Tempo",
+      "timeWindowsDescription": "Restrinja envios a horários e dias específicos (opcional)",
+      "businessHours": "Horário Comercial",
+      "businessHoursDescription": "Enviar apenas em horário de trabalho",
+      "start": "Início",
+      "end": "Fim",
+      "weekdays": "Dias da Semana",
+      "monday": "Seg",
+      "tuesday": "Ter",
+      "wednesday": "Qua",
+      "thursday": "Qui",
+      "friday": "Sex",
+      "saturday": "Sáb",
+      "sunday": "Dom",
+      "sendWindow": "Janela de Disparo",
+      "sendWindowDescription": "Espalhar envios ao longo de quantas horas (evita sobrecarga)",
+      "noLimit": "Sem limite",
+      "noLimitDescription": "Sem limite - Enviar o mais rápido possível",
+      "hours": "{{count}} horas",
+      "hoursDay": "{{count}} horas ({{days}} dia)",
+      "hoursDays": "{{count}} horas ({{days}} dias)"
+    },
+    "actions": {
+      "continue": "Continuar",
+      "back": "Voltar",
+      "create": "Criar Campanha",
+      "save": "Salvar Campanha"
+    }
+  }
+}

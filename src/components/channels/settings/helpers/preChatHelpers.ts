@@ -1,17 +1,7 @@
-// Types for Pre-Chat Form
 import i18n from '@/i18n/config';
-export interface PreChatField {
-  name: string;
-  type: string;
-  label: string;
-  placeholder: string;
-  required: boolean;
-  enabled: boolean;
-  values?: string[];
-  field_type?: string;
-  regex_pattern?: string;
-  regex_cue?: string;
-}
+import type { PreChatField } from '@/types/settings';
+
+export type { PreChatField };
 
 export interface PreChatFormOptions {
   pre_chat_message: string;
@@ -30,21 +20,21 @@ export interface CustomAttribute {
 }
 
 // Standard field definitions
-export const getStandardFieldKeys = () => ({
+export const getStandardFieldKeys = (language?: string) => ({
   emailAddress: {
     key: 'EMAIL_ADDRESS',
-    label: i18n.t('channels:settings.preChatHelpers.standardFields.email.label'),
-    placeholder: i18n.t('channels:settings.preChatHelpers.standardFields.email.placeholder'),
+    label: i18n.t('channels:settings.preChatHelpers.standardFields.email.label', { lng: language }),
+    placeholder: i18n.t('channels:settings.preChatHelpers.standardFields.email.placeholder', { lng: language }),
   },
   fullName: {
     key: 'FULL_NAME',
-    label: i18n.t('channels:settings.preChatHelpers.standardFields.fullName.label'),
-    placeholder: i18n.t('channels:settings.preChatHelpers.standardFields.fullName.placeholder'),
+    label: i18n.t('channels:settings.preChatHelpers.standardFields.fullName.label', { lng: language }),
+    placeholder: i18n.t('channels:settings.preChatHelpers.standardFields.fullName.placeholder', { lng: language }),
   },
   phoneNumber: {
     key: 'PHONE_NUMBER',
-    label: i18n.t('channels:settings.preChatHelpers.standardFields.phoneNumber.label'),
-    placeholder: i18n.t('channels:settings.preChatHelpers.standardFields.phoneNumber.placeholder'),
+    label: i18n.t('channels:settings.preChatHelpers.standardFields.phoneNumber.label', { lng: language }),
+    placeholder: i18n.t('channels:settings.preChatHelpers.standardFields.phoneNumber.placeholder', { lng: language }),
   },
 });
 
@@ -61,8 +51,8 @@ export const FIELD_TYPES = {
 } as const;
 
 // Default pre-chat fields
-export const getDefaultPreChatFields = (): PreChatField[] => {
-  const standardFields = getStandardFieldKeys();
+export const getDefaultPreChatFields = (language?: string): PreChatField[] => {
+  const standardFields = getStandardFieldKeys(language);
   return [
     {
       name: 'fullName',
@@ -71,6 +61,7 @@ export const getDefaultPreChatFields = (): PreChatField[] => {
       placeholder: standardFields.fullName.placeholder,
       required: true,
       enabled: true,
+      field_type: 'standard' as const,
     },
     {
       name: 'emailAddress',
@@ -79,6 +70,7 @@ export const getDefaultPreChatFields = (): PreChatField[] => {
       placeholder: standardFields.emailAddress.placeholder,
       required: true,
       enabled: true,
+      field_type: 'standard' as const,
     },
     {
       name: 'phoneNumber',
@@ -87,21 +79,24 @@ export const getDefaultPreChatFields = (): PreChatField[] => {
       placeholder: standardFields.phoneNumber.placeholder,
       required: false,
       enabled: false,
+      field_type: 'standard' as const,
     },
   ];
 };
 
 // Get label with translations
-export const getLabel = ({ key, label }: { key: string; label: string }): string => {
-  const standardField = Object.values(getStandardFieldKeys()).find(field => field.key === key);
-  return standardField ? standardField.label : label;
+export const getLabel = ({ key, label, language }: { key: string; label: string; language?: string }): string => {
+  const standardFields = getStandardFieldKeys(language);
+  const field = standardFields[key as keyof typeof standardFields];
+  return field ? field.label : label;
 };
 
 // Get placeholder with translations
-export const getPlaceHolder = ({ key, placeholder, label }: { key: string; placeholder: string; label?: string }): string => {
-  const standardField = Object.values(getStandardFieldKeys()).find(field => field.key === key);
-  const translatedPlaceholder = standardField ? standardField.placeholder : placeholder;
-  return translatedPlaceholder || label || placeholder;
+export const getPlaceHolder = ({ key, placeholder, label, language }: { key: string; placeholder: string; label?: string; language?: string }): string => {
+  const standardFields = getStandardFieldKeys(language);
+  const field = standardFields[key as keyof typeof standardFields];
+  if (field && field.placeholder) return field.placeholder;
+  return placeholder || label || placeholder;
 };
 
 // Convert custom attributes to pre-chat fields
@@ -125,9 +120,9 @@ export const getCustomFields = ({
         label: attribute.attribute_display_name,
         placeholder: attribute.attribute_display_name,
         name: attribute.attribute_key,
-        type: attribute.attribute_display_type,
+        type: attribute.attribute_display_type as PreChatField['type'],
         values: attribute.attribute_values,
-        field_type: attribute.attribute_model,
+        field_type: attribute.attribute_model as PreChatField['field_type'],
         regex_pattern: attribute.regex_pattern,
         regex_cue: attribute.regex_cue,
         required: false,
@@ -140,11 +135,12 @@ export const getCustomFields = ({
 };
 
 // Format pre-chat fields with proper labels and placeholders
-export const getFormattedPreChatFields = ({ preChatFields }: { preChatFields: PreChatField[] }): PreChatField[] => {
+export const getFormattedPreChatFields = ({ preChatFields, language }: { preChatFields: PreChatField[]; language?: string }): PreChatField[] => {
   return preChatFields.map(item => {
     const formattedLabel = getLabel({
       key: item.name,
       label: item.label || item.name,
+      language,
     });
     return {
       ...item,
@@ -153,6 +149,7 @@ export const getFormattedPreChatFields = ({ preChatFields }: { preChatFields: Pr
         key: item.name,
         placeholder: item.placeholder || '',
         label: formattedLabel,
+        language,
       }),
     };
   });
@@ -162,14 +159,17 @@ export const getFormattedPreChatFields = ({ preChatFields }: { preChatFields: Pr
 export const getPreChatFields = ({
   preChatFormOptions = {},
   customAttributes = [],
+  language,
 }: {
   preChatFormOptions?: Partial<PreChatFormOptions>;
   customAttributes?: CustomAttribute[];
+  language?: string;
 }): PreChatFormOptions => {
-  const { pre_chat_message = '', pre_chat_fields = getDefaultPreChatFields() } = preChatFormOptions;
+  const { pre_chat_message = '', pre_chat_fields = getDefaultPreChatFields(language) } = preChatFormOptions;
 
   const formattedPreChatFields = getFormattedPreChatFields({
     preChatFields: pre_chat_fields,
+    language,
   });
 
   const customFields = getCustomFields({

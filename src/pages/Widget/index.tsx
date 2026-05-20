@@ -49,6 +49,9 @@ export default function Widget() {
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [oldestMessageId, setOldestMessageId] = useState<string | null>(null);
 
+  // Pre-chat server validation errors
+  const [preChatServerErrors, setPreChatServerErrors] = useState<Record<string, string[]>>({});
+
   // Toast notification state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('info');
@@ -1377,7 +1380,15 @@ export default function Widget() {
 
         // Always transition to chat interface after successful conversation creation
         setHasStarted(true);
-      } catch (apiError) {
+      } catch (apiError: any) {
+        // Handle server-side validation errors (422)
+        const status = apiError?.response?.status ?? apiError?.status;
+        const data = apiError?.response?.data ?? apiError?.data;
+        if (status === 422 && data?.code === 'PRE_CHAT_VALIDATION_ERROR' && data?.errors) {
+          setPreChatServerErrors(data.errors);
+          return;
+        }
+
         // If HTTP API fails (e.g., CORS), rely on WebSocket events for state transition
         // The WebSocket will handle setting hasStarted when conversation.created event arrives
         console.warn('Widget: API call failed, relying on WebSocket events:', apiError);
@@ -1615,8 +1626,9 @@ export default function Widget() {
                 currentUser={currentUser}
                 activeCampaign={activeCampaign}
                 widgetColor={ui.color || '#00d4aa'}
-                onSubmit={handlePreChatSubmit}
+                onSubmit={(data) => { setPreChatServerErrors({}); handlePreChatSubmit(data); }}
                 isLoading={isCreatingConversation}
+                serverErrors={preChatServerErrors}
               />
             </div>
           );

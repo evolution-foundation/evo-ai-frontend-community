@@ -14,6 +14,9 @@ importers:
       '@evoapi/design-system':
         specifier: ^0.0.6
         version: 0.0.6(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react-is@17.0.2)(react@19.2.1)(redux@5.0.1)(tailwindcss@4.1.17)
+      '@ffmpeg/core':
+        specifier: ^0.11.0
+        version: 0.11.0
       '@ffmpeg/core-st':
         specifier: 0.11.0
         version: 0.11.0
@@ -679,6 +682,9 @@ packages:
 
   '@ffmpeg/core-st@0.11.0':
     resolution: {integrity: sha512-wktkKHT0LRNOdeRNn5tZlM2Ufwpw6Wo78CP4g2U4dxEOPlWNzod3ldpDgHa9QRjbSXzx2uWFOGgNj0fR1ixqIQ==}
+
+  '@ffmpeg/core@0.11.0':
+    resolution: {integrity: sha512-9Tt/+2PMpkGPXUK8n6He9G8Y+qR6qmCPSCw9iEKZxHHOvJ9BE/r0Fccj+YgDZTlyu6rXxc9x6EqCaFBIt7qzjA==}
 
   '@ffmpeg/ffmpeg@0.11.6':
     resolution: {integrity: sha512-uN8J8KDjADEavPhNva6tYO9Fj0lWs9z82swF3YXnTxWMBoFLGq3LZ6FLlIldRKEzhOBKnkVfA8UnFJuvGvNxcA==}
@@ -3177,8 +3183,8 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
-  unlayer-types@1.405.0:
-    resolution: {integrity: sha512-KbrpkUDRnjCkF1HO7Ap1oiIl7xvqgUf5Du9erC5TiJODwPk3c6XO/wypycSSqu0V+05v1CfmvwmD9icDqXSkNg==}
+  unlayer-types@1.406.0:
+    resolution: {integrity: sha512-vt6MkgpgiEYSAPzZBhxvUKoTaRtFTVm1/gh+UKmB+b95iiqs47Qz1XffA0N/kRihzuvs6E2XkQHbImX1QDLlIQ==}
 
   update-browserslist-db@1.2.2:
     resolution: {integrity: sha512-E85pfNzMQ9jpKkA7+TJAi4TJN+tBCuWh5rUcS/sv6cFi+1q9LYDwDI5dpUL0u/73EElyQ8d3TEaeW4sPedBqYA==}
@@ -3843,6 +3849,8 @@ snapshots:
   '@fastify/deepmerge@3.2.1': {}
 
   '@ffmpeg/core-st@0.11.0': {}
+
+  '@ffmpeg/core@0.11.0': {}
 
   '@ffmpeg/ffmpeg@0.11.6':
     dependencies:
@@ -6000,7 +6008,7 @@ snapshots:
   react-email-editor@1.7.11(react@19.2.1):
     dependencies:
       react: 19.2.1
-      unlayer-types: 1.405.0
+      unlayer-types: 1.406.0
 
   react-hook-form@7.68.0(react@19.2.1):
     dependencies:
@@ -6305,7 +6313,7 @@ snapshots:
 
   undici-types@6.21.0: {}
 
-  unlayer-types@1.405.0: {}
+  unlayer-types@1.406.0: {}
 
   update-browserslist-db@1.2.2(browserslist@4.28.1):
     dependencies:

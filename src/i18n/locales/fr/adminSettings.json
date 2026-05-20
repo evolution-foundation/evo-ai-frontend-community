@@ -110,9 +110,9 @@
     "testing": "Test en cours...",
     "testFailed": "Le test de connexion a echoue",
     "testError": "Impossible d'executer le test de connexion",
-    "envWarning": {
-      "title": "Avertissement :",
-      "body": "Enregistrer ici conserve le choix, mais le service de fichiers lit toujours ACTIVE_STORAGE_SERVICE des variables d'environnement au démarrage. Jusqu'à ce que EVO-1050 soit livré, configurez storage via env vars pour prendre effet."
+    "cloudWarning": {
+      "title": "Important :",
+      "body": "Les identifiants S3 (cle d'acces, secret, region et endpoint) sont integres dans la configuration du service au demarrage — les modifier ici necessite de redemarrer les services auth et CRM et leurs workers Sidekiq pour que les nouvelles valeurs prennent effet. Les changements de fournisseur peuvent prendre jusqu'a 60 secondes pour se propager sur tous les services. Les fichiers existants restent sur l'ancien fournisseur de stockage ; seuls les nouveaux telechargements utiliseront la configuration mise a jour."
     }
   },
   "socialLogin": {

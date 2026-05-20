@@ -28,13 +28,13 @@ dist-ssr
 *.sw?
 
 .yalc/
+yalc.lock
 
 # Workspace planning artifacts (not part of the application)
 _evo/
 _evo-output/
 _bmad/
 _bmad-output/
-yalc.lock
 
 # Environment variables
 .env

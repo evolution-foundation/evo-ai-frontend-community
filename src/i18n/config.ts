@@ -303,6 +303,26 @@ import esTours from './locales/es/tours.json';
 import frTours from './locales/fr/tours.json';
 import itTours from './locales/it/tours.json'
 import itTutorials from './locales/it/tutorials.json';
+
+// Segments / Journey / Campaigns namespaces
+import ptBRSegments from './locales/pt-BR/segments.json';
+import ptBRJourney from './locales/pt-BR/journey.json';
+import ptBRCampaigns from './locales/pt-BR/campaigns.json';
+import ptSegments from './locales/pt/segments.json';
+import ptJourney from './locales/pt/journey.json';
+import ptCampaigns from './locales/pt/campaigns.json';
+import enSegments from './locales/en/segments.json';
+import enJourney from './locales/en/journey.json';
+import enCampaigns from './locales/en/campaigns.json';
+import esSegments from './locales/es/segments.json';
+import esJourney from './locales/es/journey.json';
+import esCampaigns from './locales/es/campaigns.json';
+import frSegments from './locales/fr/segments.json';
+import frJourney from './locales/fr/journey.json';
+import frCampaigns from './locales/fr/campaigns.json';
+import itSegments from './locales/it/segments.json';
+import itJourney from './locales/it/journey.json';
+import itCampaigns from './locales/it/campaigns.json';
 export const locales = ['en', 'pt-BR', 'pt', 'fr', 'it', 'es'] as const;
 export const defaultLocale = 'en' as const;
 
@@ -390,6 +410,9 @@ const resources = {
     roles: ptBRRoles,
     tours: ptBRTours,
     tutorials: ptBRTutorials,
+    segments: ptBRSegments,
+    journey: ptBRJourney,
+    campaigns: ptBRCampaigns,
   },
   pt: {
     auth: ptAuth,
@@ -442,6 +465,9 @@ const resources = {
     roles: ptRoles,
     tours: ptTours,
     tutorials: ptTutorials,
+    segments: ptSegments,
+    journey: ptJourney,
+    campaigns: ptCampaigns,
   },
   en: {
     auth: enAuth,
@@ -495,6 +521,9 @@ const resources = {
     roles: enRoles,
     tours: enTours,
     tutorials: enTutorials,
+    segments: enSegments,
+    journey: enJourney,
+    campaigns: enCampaigns,
   },
   es: {
     auth: esAuth,
@@ -547,6 +576,9 @@ const resources = {
     roles: esRoles,
     tours: esTours,
     tutorials: esTutorials,
+    segments: esSegments,
+    journey: esJourney,
+    campaigns: esCampaigns,
   },
   fr: {
     auth: frAuth,
@@ -599,6 +631,9 @@ const resources = {
     roles: frRoles,
     tours: frTours,
     tutorials: frTutorials,
+    segments: frSegments,
+    journey: frJourney,
+    campaigns: frCampaigns,
   },
   it: {
     auth: itAuth,
@@ -651,6 +686,9 @@ const resources = {
     roles: itRoles,
     tours: itTours,
     tutorials: itTutorials,
+    segments: itSegments,
+    journey: itJourney,
+    campaigns: itCampaigns,
   },
 };
 

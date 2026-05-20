@@ -1,0 +1,308 @@
+{
+  "title": "Campaigns",
+  "card": {
+    "contacts": "Contacts",
+    "scheduledFor": "Scheduled for",
+    "sent": "Sent",
+    "deliveryRate": "Delivery Rate",
+    "readRate": "Read Rate",
+    "created": "Created",
+    "actions": {
+      "start": "Start campaign",
+      "pause": "Stop campaign",
+      "resume": "Resume campaign",
+      "cancel": "Cancel campaign",
+      "stop": "Cancel campaign",
+      "viewDetails": "View details",
+      "viewStats": "View statistics",
+      "duplicate": "Duplicate",
+      "edit": "Edit campaign",
+      "delete": "Delete campaign"
+    }
+  },
+  "header": {
+    "title": "Campaigns",
+    "subtitle": "Manage your mass messaging campaigns",
+    "searchPlaceholder": "Search campaigns...",
+    "newCampaign": "New Campaign",
+    "bulkPause": "Pause Selected",
+    "bulkResume": "Resume Selected",
+    "bulkDuplicate": "Duplicate Selected",
+    "bulkDelete": "Delete Selected"
+  },
+  "empty": {
+    "title": "No campaigns found",
+    "description": "Create a new campaign to start sending mass messages to your contacts.",
+    "action": "New Campaign"
+  },
+  "loading": {
+    "campaigns": "Loading campaigns...",
+    "creating": "Creating...",
+    "updating": "Updating...",
+    "deleting": "Deleting...",
+    "scheduling": "Scheduling...",
+    "pausing": "Pausing...",
+    "resuming": "Resuming..."
+  },
+  "messages": {
+    "loadError": "Error loading campaigns",
+    "createSuccess": "Campaign created successfully",
+    "createError": "Error creating campaign",
+    "updateSuccess": "Campaign updated successfully",
+    "updateError": "Error updating campaign",
+    "deleteSuccess": "Campaign deleted successfully",
+    "deleteError": "Error deleting campaign",
+    "pauseSuccess": "Campaign paused successfully",
+    "pauseError": "Error pausing campaign",
+    "startSuccess": "Campaign started successfully",
+    "startError": "Error starting campaign",
+    "resumeSuccess": "Campaign resumed successfully",
+    "resumeError": "Error resuming campaign",
+    "stopSuccess": "Campaign canceled successfully",
+    "stopError": "Error canceling campaign",
+    "duplicateSuccess": "Campaign duplicated successfully",
+    "duplicateError": "Error duplicating campaign",
+    "bulkDeleteSuccess": "{{count}} campaign(s) deleted successfully",
+    "bulkDeleteError": "Error deleting campaigns",
+    "bulkPauseSuccess": "{{count}} campaign(s) paused successfully",
+    "bulkPauseError": "Error pausing campaigns",
+    "bulkResumeSuccess": "{{count}} campaign(s) resumed successfully",
+    "bulkResumeError": "Error resuming campaigns",
+    "detailsError": "Error loading campaign details",
+    "noPermissionToCreate": "You do not have permission to create campaigns",
+    "editInDevelopment": "Campaign editing under development",
+    "statsInDevelopment": "Campaign statistics under development",
+    "statsError": "Error loading campaign statistics",
+    "editValidationError": "Campaign title and name are required",
+    "bulkDuplicateInDevelopment": "Bulk campaign duplication under development",
+    "filtersInDevelopment": "Campaign filters under development",
+    "invalidDate": "Invalid date"
+  },
+  "dialog": {
+    "deleteCampaign": {
+      "title": "Delete Campaign",
+      "description": "Are you sure you want to delete the campaign \"{{name}}\"? This action cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "deleting": "Deleting..."
+    },
+    "bulkDelete": {
+      "title": "Delete Campaigns",
+      "description": "Are you sure you want to delete {{count}} selected campaign(s)? This action cannot be undone.",
+      "confirm": "Delete All",
+      "cancel": "Cancel",
+      "deleting": "Deleting..."
+    },
+    "editCampaign": {
+      "title": "Edit Campaign",
+      "description": "Update the basic campaign data.",
+      "fields": {
+        "title": "Title",
+        "name": "Internal name",
+        "description": "Description"
+      },
+      "confirm": "Save changes",
+      "cancel": "Cancel",
+      "saving": "Saving..."
+    },
+    "stats": {
+      "title": "Campaign Statistics",
+      "description": "Performance summary for campaign \"{{name}}\".",
+      "descriptionEmpty": "Campaign performance summary.",
+      "loading": "Loading statistics...",
+      "totalSent": "Total sent",
+      "totalDelivered": "Total delivered",
+      "totalRead": "Total read",
+      "totalErrors": "Total errors",
+      "deliveryRate": "Delivery rate",
+      "readRate": "Read rate",
+      "actions": {
+        "start": "Start",
+        "pause": "Stop",
+        "cancel": "Cancel"
+      },
+      "close": "Close"
+    },
+    "details": {
+      "title": "Campaign Details",
+      "description": "Data for campaign \"{{name}}\".",
+      "descriptionEmpty": "Campaign data.",
+      "loading": "Loading details...",
+      "fields": {
+        "title": "Title",
+        "name": "Internal name",
+        "description": "Description",
+        "status": "Status",
+        "channel": "Channel"
+      },
+      "edit": "Edit",
+      "close": "Close"
+    }
+  },
+  "status": {
+    "draft": "Draft",
+    "scheduled": "Scheduled",
+    "sending": "Sending",
+    "paused": "Paused",
+    "stopped": "Stopped",
+    "completed": "Completed",
+    "sending_testab": "A/B Testing"
+  },
+  "type": {
+    "simple": "Simple",
+    "recurring": "Recurring",
+    "trigger": "Trigger"
+  },
+  "channel": {
+    "email": "Email",
+    "whatsapp": "WhatsApp",
+    "sms": "SMS"
+  },
+  "table": {
+    "columns": {
+      "name": "Campaign",
+      "status": "Status",
+      "contacts": "Contacts",
+      "delivery": "Delivery",
+      "engagement": "Engagement",
+      "created": "Created",
+      "quickActions": "Quick actions"
+    },
+    "sent": "sent",
+    "delivered": "delivered",
+    "read": "read",
+    "scheduled": "Scheduled",
+    "empty": {
+      "noResults": "No campaigns found",
+      "title": "No campaigns found",
+      "description": "Create a new campaign to start sending mass messages to your contacts."
+    }
+  },
+  "wizard": {
+    "title": "New Campaign",
+    "editTitle": "Edit Campaign",
+    "subtitle": "Create a new mass messaging campaign",
+    "inDevelopment": "Under development",
+    "validation": {
+      "nameRequired": "Name is required",
+      "nameMinLength": "Name must be at least 3 characters",
+      "titleRequired": "Title is required",
+      "titleMinLength": "Title must be at least 3 characters",
+      "typeRequired": "Type is required",
+      "channelRequired": "Channel is required",
+      "inboxRequired": "Select at least one inbox",
+      "templateOptionRequired": "Select an option",
+      "templateRequired": "Select a template",
+      "messageRequired": "Message is required",
+      "contactSelectionRequired": "Select an option",
+      "scheduleOptionRequired": "Select an option",
+      "scheduleDateRequired": "Date and time are required",
+      "scheduleDateFuture": "Date must be in the future"
+    },
+    "progress": {
+      "basicInfo": "Basic Info",
+      "template": "Content",
+      "contacts": "Contacts",
+      "schedule": "Schedule",
+      "review": "Review",
+      "success": "Completed"
+    },
+    "step1": {
+      "title": "Basic Information",
+      "subtitle": "Configure the fundamental details of your campaign",
+      "nameLabel": "Campaign Name",
+      "namePlaceholder": "e.g., Welcome Campaign",
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g., Welcome to our platform",
+      "typeLabel": "Campaign Type",
+      "typePlaceholder": "Select type",
+      "channelLabel": "Communication Channel",
+      "channelPlaceholder": "Select channel"
+    },
+    "step2": {
+      "title": "Audience",
+      "selectAudience": "Select Audience",
+      "audienceDescription": "Define who will receive this campaign using cumulative filters",
+      "allContacts": "All Contacts",
+      "allContactsDescription": "Send to entire contact base without filters",
+      "audienceFilters": "Audience Filters",
+      "audienceFiltersDescription": "Add multiple filters to include or exclude segments and tags",
+      "include": "Include",
+      "exclude": "Exclude",
+      "segment": "Segment",
+      "tag": "Tag",
+      "selectSegment": "Select segment",
+      "selectTag": "Select tag",
+      "activeFilters": "Active Filters",
+      "noFiltersAdded": "No filters added. Add filters to segment your audience.",
+      "totalContacts": "Total contacts in base",
+      "basedOnFilters": "Based on {{count}} applied filter(s)"
+    },
+    "step3": {
+      "title": "Content",
+      "channelLabel": "Communication Channel",
+      "channelDescription": "Choose which channel will be used in this campaign",
+      "inboxLabel": "Inbox - {{channel}}",
+      "inboxDescription": "Select only 1 inbox for this campaign",
+      "health": "health",
+      "templatesLabel": "Templates",
+      "templatesSelected": "{{count}} selected"
+    },
+    "step4": {
+      "title": "Settings",
+      "scheduling": "Scheduling",
+      "schedulingRequired": "Scheduling <span className=\"text-red-500\">*</span>",
+      "sendNow": "Send now",
+      "sendNowDescription": "Start sending immediately after creation",
+      "scheduleLater": "Schedule for later",
+      "scheduleLaterDescription": "Choose specific date and time for sending",
+      "dateTime": "Date and Time",
+      "templateDistribution": "Template Distribution",
+      "templateDistributionDescription": "Configure how to alternate between templates during sending (optional)",
+      "strategy": "Strategy",
+      "strategyRoundRobin": "Round Robin - Alternates between templates equally",
+      "strategyWeighted": "Split/Weighted - Define custom weights",
+      "strategyRandom": "Random - Selects templates randomly",
+      "strategyAbTest": "A/B Test - Split and choose the best (Recommended)",
+      "weightedConfig": "Template Weighting (Split)",
+      "weightedConfigDescription": "Define the percentage of sends for each template. Total: {{total}}%",
+      "weightSumWarning": "⚠️ Sum must be 100%. Currently: {{total}}%",
+      "abTestConfig": "A/B Test Configuration",
+      "abTestConfigDescription": "Define the percentage of contacts for the test phase. The rest will receive the winning template.",
+      "testPhase": "Test Phase",
+      "minPercentage": "{{value}}% (minimum)",
+      "maxPercentage": "{{value}}% (maximum)",
+      "howItWorks": "How it works:",
+      "abTestExplanation1": "• {{percentage}}% of contacts will receive evenly distributed templates",
+      "abTestExplanation2": "• The best performing template will be sent to the remaining {{percentage}}%",
+      "abTestExplanation3": "• {{count}} selected templates will be tested",
+      "timeWindows": "Time Windows",
+      "timeWindowsDescription": "Restrict sends to specific times and days (optional)",
+      "businessHours": "Business Hours",
+      "businessHoursDescription": "Send only during business hours",
+      "start": "Start",
+      "end": "End",
+      "weekdays": "Weekdays",
+      "monday": "Mon",
+      "tuesday": "Tue",
+      "wednesday": "Wed",
+      "thursday": "Thu",
+      "friday": "Fri",
+      "saturday": "Sat",
+      "sunday": "Sun",
+      "sendWindow": "Send Window",
+      "sendWindowDescription": "Spread sends over how many hours (avoids overload)",
+      "noLimit": "No limit",
+      "noLimitDescription": "No limit - Send as fast as possible",
+      "hours": "{{count}} hours",
+      "hoursDay": "{{count}} hours ({{days}} day)",
+      "hoursDays": "{{count}} hours ({{days}} days)"
+    },
+    "actions": {
+      "continue": "Continue",
+      "back": "Back",
+      "create": "Create Campaign",
+      "save": "Save Campaign"
+    }
+  }
+}

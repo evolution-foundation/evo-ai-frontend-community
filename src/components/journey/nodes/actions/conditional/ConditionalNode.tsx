@@ -1,0 +1,309 @@
+import { GitBranch, Settings } from 'lucide-react';
+import { BaseFlowNode } from '@/components/base';
+import { Handle, Position, useEdges } from '@xyflow/react';
+import { cn } from '@/lib/utils';
+import { useLanguage } from '@/hooks/useLanguage';
+
+export interface Condition {
+  id: string;
+  type: 'trigger' | 'contact' | 'system' | 'custom';
+  field: string;
+  operator: string;
+  value: any;
+  customVariable?: string;
+}
+
+export interface ConditionalPath {
+  id: string;
+  name: string;
+  color?: string;
+  logicalOperator: 'AND' | 'OR';
+  conditions: Condition[];
+}
+
+export interface ConditionalNodeData {
+  label: string;
+  description?: string;
+  paths: ConditionalPath[];
+  // Mantendo compatibilidade temporária
+  rules?: ConditionalRule[];
+  logicalOperator?: 'AND' | 'OR';
+}
+
+// Interface legada para compatibilidade
+export interface ConditionalRule {
+  id: string;
+  type: 'trigger' | 'contact' | 'system';
+  field: string;
+  operator: string;
+  value: any;
+  connector?: 'AND' | 'OR';
+}
+
+export interface ConditionalNodeType {
+  id: string;
+  type: 'conditional-node';
+  position: { x: number; y: number };
+  data: ConditionalNodeData;
+}
+
+interface ConditionalNodeProps {
+  selected: boolean;
+  data: ConditionalNodeData;
+  id: string;
+}
+
+export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
+  const edges = useEdges();
+  const { t } = useLanguage('journey');
+
+  // Verificar se um handle está conectado
+  const isHandleConnected = (handleId: string) => {
+    return edges.some(edge => edge.source === id && edge.sourceHandle === handleId);
+  };
+
+  const getFieldLabel = (field: string) => {
+    const fieldLabels: Record<string, string> = {
+      'contact.name': t('panels.conditional.fieldLabels.contactName'),
+      'contact.email': t('panels.conditional.fieldLabels.contactEmail'),
+      'contact.phone': t('panels.conditional.fieldLabels.contactPhone'),
+      'event.name': t('panels.conditional.fieldLabels.eventName'),
+      'event.value': t('panels.conditional.fieldLabels.eventValue'),
+      'event.properties': t('panels.conditional.fieldLabels.eventProperties'),
+      'system.current_time': t('panels.conditional.fieldLabels.systemCurrentTime'),
+      'system.current_day': t('panels.conditional.fieldLabels.systemCurrentDay'),
+      'system.current_date': t('panels.conditional.fieldLabels.systemCurrentDate'),
+    };
+    return fieldLabels[field] || field;
+  };
+
+  const getOperatorLabel = (operator: string) => {
+    const operatorLabels: Record<string, string> = {
+      equals: t('panels.conditional.operators.equalsSymbol'),
+      not_equals: t('panels.conditional.operators.notEqualsSymbol'),
+      greater_than: t('panels.conditional.operators.greaterThanSymbol'),
+      less_than: t('panels.conditional.operators.lessThanSymbol'),
+      contains: t('panels.conditional.operators.containsText'),
+      not_contains: t('panels.conditional.operators.notContainsText'),
+      starts_with: t('panels.conditional.operators.startsWithText'),
+      ends_with: t('panels.conditional.operators.endsWithText'),
+      is_empty: t('panels.conditional.operators.isEmptyText'),
+      is_not_empty: t('panels.conditional.operators.isNotEmptyText'),
+    };
+    return operatorLabels[operator] || operator;
+  };
+
+  const needsValue = (operator: string) => {
+    return !['is_empty', 'is_not_empty'].includes(operator);
+  };
+
+  const getPathColor = (color?: string) => {
+    const colors: Record<string, { border: string; bg: string; text: string }> = {
+      green: {
+        border: 'border-green-700/40',
+        bg: 'bg-green-950/10',
+        text: 'text-green-400',
+      },
+      blue: {
+        border: 'border-blue-700/40',
+        bg: 'bg-blue-950/10',
+        text: 'text-blue-400',
+      },
+      purple: {
+        border: 'border-purple-700/40',
+        bg: 'bg-purple-950/10',
+        text: 'text-purple-400',
+      },
+      orange: {
+        border: 'border-orange-700/40',
+        bg: 'bg-orange-950/10',
+        text: 'text-orange-400',
+      },
+      yellow: {
+        border: 'border-yellow-700/40',
+        bg: 'bg-yellow-950/10',
+        text: 'text-yellow-400',
+      },
+    };
+    return colors[color || 'yellow'] || colors.yellow;
+  };
+
+  const renderPath = (path: ConditionalPath, index: number) => {
+    const handleId = `path-${path.id}`;
+    const isConnected = isHandleConnected(handleId);
+    const colors = getPathColor(path.color);
+
+    if (!path.conditions || path.conditions.length === 0) {
+      return (
+        <div
+          key={path.id}
+          className={`mb-3 cursor-pointer rounded-lg border border-dashed ${colors.border} ${colors.bg} p-3 text-left transition-all duration-200 hover:border-opacity-70`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className={`text-xs font-medium ${colors.text}`}>
+                {path.name || t('panels.conditional.pathNumber', { number: index + 1 })}
+              </p>
+              <p className="text-xs text-gray-400 mt-1">{t('panels.conditional.noConditionsConfigured')}</p>
+            </div>
+            <Handle
+              className={cn(
+                '!rounded-full transition-all duration-300',
+                isConnected
+                  ? '!bg-green-500 !border-green-400'
+                  : '!bg-neutral-400 !border-neutral-500',
+              )}
+              style={{
+                top: '50%',
+                right: '-5px',
+                transform: 'translateY(-50%)',
+                height: '14px',
+                position: 'relative',
+                width: '14px',
+              }}
+              type="source"
+              position={Position.Right}
+              id={handleId}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div
+        key={path.id}
+        className={`mb-3 cursor-pointer rounded-lg border ${colors.border} ${colors.bg} p-3 text-left transition-all duration-200 hover:border-opacity-70`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <p className={`text-xs font-bold ${colors.text} mb-2`}>
+              {path.name || t('panels.conditional.pathNumber', { number: index + 1 })}
+            </p>
+            <div className="space-y-1">
+              {path.conditions.map((condition, idx) => (
+                <div key={condition.id} className="text-xs">
+                  {idx > 0 && (
+                    <span className="text-gray-500 font-medium mr-1">
+                      {path.logicalOperator === 'AND' ? t('panels.conditional.logicalOperators.and') : t('panels.conditional.logicalOperators.or')}
+                    </span>
+                  )}
+                  <span className="text-gray-300">{getFieldLabel(condition.field)}</span>{' '}
+                  <span className="text-gray-400">{getOperatorLabel(condition.operator)}</span>
+                  {needsValue(condition.operator) && condition.value && (
+                    <>
+                      {' '}
+                      <span className="text-green-400 font-medium">"{condition.value}"</span>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+          <Handle
+            className={cn(
+              '!rounded-full transition-all duration-300',
+              isConnected
+                ? '!bg-green-500 !border-green-400'
+                : '!bg-neutral-400 !border-neutral-500',
+            )}
+            style={{
+              top: '50%',
+              right: '-5px',
+              transform: 'translateY(-50%)',
+              height: '14px',
+              position: 'relative',
+              width: '14px',
+            }}
+            type="source"
+            position={Position.Right}
+            id={handleId}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  // Compatibilidade com estrutura antiga
+  const paths = data.paths || [];
+  const hasLegacyRules = data.rules && data.rules.length > 0;
+
+  return (
+    <BaseFlowNode
+      selected={selected}
+      hasTarget={true}
+      borderColor="yellow"
+      isExecuting={false}
+      hasSource={false}
+      nodeId={id}
+      targetHandleId="conditional-input"
+    >
+      <div className="space-y-3">
+        {/* Header seguindo nosso padrão */}
+        <div className="flex items-center gap-3">
+          <div className="flex-shrink-0 w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
+            <GitBranch className="w-4 h-4 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+              {t('panels.conditional.nodeTitle')}
+            </h3>
+          </div>
+          <div className="flex-shrink-0">
+            <Settings className="w-3 h-3 text-gray-400" />
+          </div>
+        </div>
+
+        {/* Renderizar caminhos */}
+        {paths.length > 0 ? (
+          <div className="space-y-2">{paths.map((path, index) => renderPath(path, index))}</div>
+        ) : hasLegacyRules ? (
+          // Fallback para estrutura antiga
+          <div className="p-3 rounded-lg border border-yellow-700/40 bg-yellow-950/10">
+            <p className="text-xs text-yellow-600 dark:text-yellow-300 mb-2">
+              {t('panels.conditional.oldStructureDetected')}
+            </p>
+          </div>
+        ) : (
+          <div className="p-3 rounded-lg border-2 border-dashed border-yellow-300 bg-yellow-50 dark:bg-yellow-950/20 text-center">
+            <GitBranch className="h-6 w-6 text-yellow-400 mx-auto mb-2" />
+            <p className="text-xs text-yellow-600 dark:text-yellow-300">{t('panels.conditional.configurePaths')}</p>
+          </div>
+        )}
+
+        {/* Handle para "caso contrário" - sempre presente */}
+        <div className="cursor-pointer rounded-lg border border-red-700/40 bg-red-950/10 p-3 text-left transition-all duration-200 hover:border-red-600/50 hover:bg-red-900/10">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="font-medium text-neutral-300">
+                <span className="font-semibold text-red-400">{t('panels.conditional.otherwiseCase')}</span>
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                {t('panels.conditional.otherwiseDescription')}
+              </p>
+            </div>
+            <Handle
+              className={cn(
+                '!rounded-full transition-all duration-300',
+                isHandleConnected('else')
+                  ? '!bg-green-500 !border-green-400'
+                  : '!bg-neutral-400 !border-neutral-500',
+              )}
+              style={{
+                top: '50%',
+                right: '-5px',
+                transform: 'translateY(-50%)',
+                height: '14px',
+                position: 'relative',
+                width: '14px',
+              }}
+              type="source"
+              position={Position.Right}
+              id="else"
+            />
+          </div>
+        </div>
+      </div>
+    </BaseFlowNode>
+  );
+}

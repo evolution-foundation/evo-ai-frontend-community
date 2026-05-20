@@ -1,0 +1,330 @@
+{
+  "title": "Segments",
+  "loading": "Chargement des segments...",
+  "loadingSegment": "Chargement du segment...",
+  "header": {
+    "title": "Segments",
+    "subtitle": "Créez et gérez des segments basés sur le comportement et les propriétés des utilisateurs",
+    "searchPlaceholder": "Rechercher des segments...",
+    "newSegment": "Nouveau Segment",
+    "bulkDelete": "Supprimer les Sélectionnés",
+    "clearSelection": "Effacer la Sélection",
+    "selected": "{{count}} sélectionné(s)",
+    "recomputeAll": "Recalculer Tous",
+    "recomputing": "Recalcul...",
+    "delete": "Supprimer"
+  },
+  "empty": {
+    "title": "Aucun segment trouvé",
+    "description": "Créez un nouveau segment pour organiser et segmenter vos contacts.",
+    "action": "Nouveau Segment"
+  },
+  "table": {
+    "columns": {
+      "name": "Nom",
+      "status": "Statut",
+      "contacts": "Contacts",
+      "lastComputed": "Dernier Recalcul",
+      "createdAt": "Date de Création",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "processing": "Traitement"
+    }
+  },
+  "actions": {
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "recompute": "Recalculer",
+    "viewContactIds": "Voir les IDs",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "back": "Retour",
+    "addCondition": "Ajouter une Condition",
+    "addFirstCondition": "Ajouter la Première Condition",
+    "copyJson": "Copier le JSON",
+    "close": "Fermer",
+    "viewIds": "Voir les IDs",
+    "pause": "Mettre en Pause"
+  },
+  "messages": {
+    "permissionDenied": {
+      "read": "Vous n'avez pas la permission de visualiser les segments",
+      "create": "Vous n'avez pas la permission de créer des segments",
+      "update": "Vous n'avez pas la permission de modifier les segments",
+      "delete": "Vous n'avez pas la permission de supprimer les segments"
+    },
+    "loadError": "Erreur lors du chargement des segments",
+    "loadSegmentError": "Erreur lors du chargement du segment",
+    "createSuccess": "Segment créé avec succès",
+    "createError": "Erreur lors de la création du segment",
+    "updateSuccess": "Segment mis à jour avec succès",
+    "updateError": "Erreur lors de la mise à jour du segment",
+    "deleteSuccess": "Segment supprimé avec succès",
+    "deleteError": "Erreur lors de la suppression du segment",
+    "bulkDeleteSuccess": "{{count}} segment(s) supprimé(s) avec succès",
+    "bulkDeleteError": "Erreur lors de la suppression des segments",
+    "recomputeSuccess": "Segment recalculé avec succès",
+    "recomputeError": "Erreur lors du recalcul du segment",
+    "recomputeAllSuccess": "{{count}} segments recalculés avec succès en {{time}}s",
+    "recomputeAllError": "Erreur lors du recalcul de tous les segments",
+    "loadContactIdsError": "Erreur lors du chargement des IDs des contacts",
+    "idsCopied": "IDs copiés dans le presse-papiers",
+    "nameRequired": "Le nom du segment est obligatoire",
+    "accountNotFound": "Compte non trouvé"
+  },
+  "dialog": {
+    "delete": {
+      "title": "Supprimer le Segment",
+      "description": "Êtes-vous sûr de vouloir supprimer le segment \"{{name}}\" ? Cette action ne peut pas être annulée.",
+      "cancel": "Annuler",
+      "confirm": "Supprimer",
+      "deleting": "Suppression..."
+    },
+    "bulkDelete": {
+      "title": "Supprimer les Segments",
+      "description": "Êtes-vous sûr de vouloir supprimer {{count}} segment(s) sélectionné(s) ? Cette action ne peut pas être annulée.",
+      "cancel": "Annuler",
+      "confirm": "Tout Supprimer",
+      "deleting": "Suppression..."
+    },
+    "contactIds": {
+      "title": "IDs des Contacts - {{name}}",
+      "description": "Liste avec {{count}} IDs de contacts du segment"
+    }
+  },
+  "createEdit": {
+    "titleNew": "Nouveau Segment",
+    "titleEdit": "Modifier le Segment",
+    "contactsCount": "{{count}} contacts",
+    "lastComputed": "Dernier recalcul : {{date}}",
+    "lastComputedNever": "Jamais",
+    "name": {
+      "label": "Nom du Segment",
+      "placeholder": "Ex : Clients Premium, Utilisateurs Inactifs, etc.",
+      "description": "Choisissez un nom descriptif pour identifier facilement ce segment."
+    },
+    "definition": {
+      "title": "Définition du Segment",
+      "description": "Configurez comment les contacts seront filtrés pour ce segment.",
+      "combinationType": "Comment combiner les conditions ?",
+      "everyone": {
+        "label": "Tous les contacts",
+        "description": "Inclure tous les contacts de la base sans filtres.",
+        "messageTitle": "Segment Universel",
+        "messageDescription": "Ce segment inclura automatiquement tous les contacts de votre base de données. Aucune condition supplémentaire n'est nécessaire."
+      },
+      "and": {
+        "label": "Toutes les conditions (ET)",
+        "description": "Les contacts doivent répondre à TOUTES les conditions définies."
+      },
+      "or": {
+        "label": "N'importe quelle condition (OU)",
+        "description": "Les contacts doivent répondre à AU MOINS UNE des conditions."
+      },
+      "noConditions": {
+        "title": "Aucune condition définie",
+        "description": "Ajoutez des conditions pour filtrer les contacts de ce segment."
+      }
+    }
+  },
+  "conditionTypeSelector": {
+    "groupCondition": "Sélectionner le type de condition"
+  },
+  "conditionTypes": {
+    "userProperty": "Propriété de l'Utilisateur",
+    "label": "Étiquette",
+    "customAttribute": "Attribut Personnalisé",
+    "performed": "Action Effectuée",
+    "lastPerformed": "Dernière Exécution",
+    "randomBucket": "Groupe Aléatoire",
+    "email": "Email",
+    "whatsapp": "WhatsApp",
+    "web": "Web",
+    "sms": "SMS",
+    "manual": "Manuel"
+  },
+  "userPropertyEditor": {
+    "propertyPath": "Chemin de la Propriété",
+    "selectProperty": "Sélectionner une propriété",
+    "operator": "Opérateur",
+    "value": "Valeur",
+    "valuePlaceholder": "Saisissez une valeur",
+    "categories": {
+      "basicInfo": "Informations de Base",
+      "metadata": "Métadonnées",
+      "systemInfo": "Informations Système",
+      "customData": "Données Personnalisées"
+    },
+    "properties": {
+      "name": "Nom",
+      "email": "Email",
+      "phone": "Téléphone",
+      "phoneNumber": "Numéro de Téléphone",
+      "inbox": "Boîte de Réception",
+      "lastName": "Nom de Famille",
+      "middleName": "Deuxième Prénom",
+      "location": "Localisation",
+      "countryCode": "Code Pays",
+      "identifier": "Identifiant",
+      "contactType": "Type de Contact",
+      "blocked": "Bloqué",
+      "lastActivity": "Dernière Activité",
+      "lastActivityAt": "Date de la Dernière Activité",
+      "created": "Créé",
+      "createdAt": "Date de Création",
+      "updated": "Mis à Jour",
+      "updatedAt": "Date de Mise à Jour",
+      "additionalAttributes": "Attributs Supplémentaires"
+    }
+  },
+  "operators": {
+    "equals": "Égal",
+    "notEquals": "Différent",
+    "greaterThan": "Supérieur à",
+    "greaterThanOrEqual": "Supérieur ou égal",
+    "lessThan": "Inférieur à",
+    "lessThanOrEqual": "Inférieur ou égal",
+    "contains": "Contient",
+    "notContains": "Ne contient pas",
+    "within": "Dans",
+    "exists": "Existe",
+    "notExists": "N'existe pas",
+    "in": "Est dans",
+    "notIn": "N'est pas dans"
+  },
+  "labelEditor": {
+    "label": "Étiquette",
+    "selectLabel": "Sélectionnez une étiquette",
+    "condition": "Condition",
+    "has": "Possède",
+    "notHas": "Ne possède pas",
+    "loading": "Chargement des étiquettes...",
+    "noLabelsFound": "Aucune étiquette enregistrée"
+  },
+  "customAttributeEditor": {
+    "attribute": "Attribut",
+    "selectAttribute": "Sélectionnez un attribut",
+    "operator": "Opérateur",
+    "value": "Valeur",
+    "valuePlaceholder": "Saisissez une valeur",
+    "loading": "Chargement des attributs...",
+    "noAttributesFound": "Aucun attribut personnalisé enregistré"
+  },
+  "conditionEditor": {
+    "eventName": "Nom de l'Événement",
+    "eventNamePlaceholder": "Ex : button_clicked, page_viewed",
+    "templates": "Modèles",
+    "timesPerformed": "Fois Effectué",
+    "quantity": "Quantité",
+    "properties": "Propriétés",
+    "whereProperties": "Où Propriétés",
+    "timeWindow": "Fenêtre de Temps",
+    "eventProperties": "Propriétés de l'Événement",
+    "addProperty": "Ajouter une Propriété",
+    "path": "Chemin",
+    "pathPlaceholder": "Chemin",
+    "value": "Valeur",
+    "valuePlaceholder": "Valeur",
+    "loading": "Chargement...",
+    "selectAttribute": "Sélectionnez un attribut",
+    "selectLabel": "Sélectionnez une étiquette",
+    "noAttributesFound": "Aucun attribut personnalisé enregistré",
+    "noLabelsFound": "Aucune étiquette enregistrée",
+    "timesOperators": {
+      "greaterThanOrEqual": "Au moins",
+      "lessThan": "Moins que",
+      "equals": "Exactement"
+    },
+    "timeUnits": {
+      "minutes": "Minutes",
+      "hours": "Heures",
+      "days": "Jours",
+      "weeks": "Semaines",
+      "months": "Mois"
+    },
+    "propertyOperators": {
+      "equals": "Égal",
+      "notEquals": "Différent",
+      "contains": "Contient",
+      "exists": "Existe"
+    },
+    "eventCategories": {
+      "contactEvents": "Événements de Contact",
+      "conversationEvents": "Événements de Conversation",
+      "pipelineEvents": "Événements de Pipeline",
+      "segmentEvents": "Événements de Segment",
+      "customEvents": "Événements Personnalisés"
+    },
+    "eventTemplates": {
+      "contactCreated": "Contact Créé",
+      "contactUpdated": "Contact Mis à Jour",
+      "labelAdded": "Étiquette Ajoutée",
+      "labelRemoved": "Étiquette Retirée",
+      "customAttributeChanged": "Attribut Personnalisé",
+      "conversationCreated": "Conversation Créée",
+      "conversationUpdated": "Conversation Mise à Jour",
+      "messageCreated": "Message Créé",
+      "messageUpdated": "Message Mis à Jour",
+      "pipelineConversationAdded": "Ajouté au Pipeline",
+      "pipelineStageChanged": "Changement d'Étape",
+      "pipelineCustomFieldsUpdated": "Champs Personnalisés",
+      "segmentEntered": "Entré dans le Segment",
+      "segmentExited": "Sorti du Segment",
+      "buttonClicked": "Bouton Cliqué",
+      "pageViewed": "Page Visualisée",
+      "formSubmitted": "Formulaire Soumis",
+      "productPurchased": "Produit Acheté",
+      "emailOpened": "Email Ouvert",
+      "linkClicked": "Lien Cliqué"
+    },
+    "channelEvents": {
+      "email": {
+        "label": "Événement Email",
+        "messageSent": "Email Envoyé",
+        "emailOpened": "Email Ouvert",
+        "emailClicked": "Email Cliqué",
+        "emailBounced": "Email Retourné",
+        "emailDelivered": "Email Livré",
+        "templateIdLabel": "ID du Modèle (facultatif)",
+        "templateIdPlaceholder": "ID du modèle d'email"
+      },
+      "whatsapp": {
+        "label": "Événement WhatsApp",
+        "messageSent": "WhatsApp Envoyé",
+        "messageRead": "WhatsApp Lu",
+        "messageReplied": "WhatsApp Répondu",
+        "templateIdLabel": "ID du Modèle (facultatif)",
+        "templateIdPlaceholder": "ID du modèle de WhatsApp"
+      },
+      "web": {
+        "label": "Événement Web",
+        "messageSent": "Message Web Envoyé",
+        "messageOpened": "Message Web Ouvert",
+        "messageClicked": "Message Web Cliqué",
+        "templateIdLabel": "ID du Modèle (facultatif)",
+        "templateIdPlaceholder": "ID du modèle web"
+      },
+      "sms": {
+        "label": "Événement SMS",
+        "messageSent": "SMS Envoyé",
+        "messageRead": "SMS Lu",
+        "messageReplied": "SMS Répondu",
+        "templateIdLabel": "ID du Modèle (facultatif)",
+        "templateIdPlaceholder": "ID du modèle de SMS"
+      }
+    },
+    "randomBucket": {
+      "percentageIncluded": "Pourcentage Inclus"
+    },
+    "manualUpload": {
+      "title": "Upload Manuel de Segment",
+      "description": "Téléchargez un fichier CSV avec les IDs des utilisateurs",
+      "uploadButton": "📁 Upload CSV",
+      "format": "Format : Une colonne avec user_id"
+    }
+  }
+}

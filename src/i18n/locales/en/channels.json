@@ -257,6 +257,9 @@
         "lastConnection": "Last connection: {{date}}",
         "reconnect": "Reconnect",
         "reconnected": "Reconnected successfully!",
+        "syncSubscription": "Resubscribe webhook",
+        "subscriptionSynced": "WhatsApp webhook resubscribed successfully!",
+        "subscriptionSyncError": "Failed to resubscribe webhook. Please try again.",
         "reconnectingWhatsApp": "Reconnecting WhatsApp...",
         "whatsappReconnectNotImplemented": "WhatsApp reconnection is not yet implemented for this provider",
         "reconnectError": "Error reconnecting. Please try again.",
@@ -1661,6 +1664,34 @@
       "success": {
         "channelCreated": "Channel created successfully"
       }
+    },
+    "preChatForm": {
+      "title": "Pre-Chat Form",
+      "description": "Collect visitor information before starting the conversation",
+      "totalFields": "Total Fields",
+      "activeFields": "Active Fields",
+      "requiredFields": "Required Fields",
+      "welcomeMessage": "Welcome Message",
+      "welcomeMessagePlaceholder": "Hello! To better assist you, please complete the information below:",
+      "welcomeMessageHelp": "This message will be displayed at the top of the pre-chat form.",
+      "fieldConfiguration": "Field Configuration",
+      "hidePreview": "Hide Preview",
+      "showPreview": "Show Preview",
+      "formPreview": "Form Preview",
+      "noActiveFields": "No active fields to display",
+      "howItWorksTitle": "How the pre-chat form works",
+      "howItWorks": {
+        "point1": "The form is displayed before the client starts the conversation",
+        "point2": "Collected information is attached to the contact profile",
+        "point3": "Required fields must be completed to continue",
+        "point4": "Use the drag function to reorder fields"
+      },
+      "disabledTitle": "Pre-chat form disabled",
+      "disabledDescription": "Enable to collect visitor information before starting the conversation.",
+      "saving": "Saving...",
+      "save": "Save Settings",
+      "success": "Pre-chat form settings updated successfully",
+      "error": "Error updating pre-chat form settings"
     }
   },
   "deleteDialog": {

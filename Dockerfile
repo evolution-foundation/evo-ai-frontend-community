@@ -19,6 +19,14 @@ ENV VITE_WS_URL=VITE_WS_URL_PLACEHOLDER
 ENV VITE_EVOAI_API_URL=VITE_EVOAI_API_URL_PLACEHOLDER
 ENV VITE_AGENT_PROCESSOR_URL=VITE_AGENT_PROCESSOR_URL_PLACEHOLDER
 
+# App version (release tag, e.g. v1.0.0-rc3). Pass via:
+#   docker build --build-arg APP_VERSION=$(git describe --tags --always --dirty) ...
+# The .git directory is not copied into the build context, so vite.config.ts
+# cannot run `git describe` from inside the container — the build-arg is the
+# only signal. Falls back to 'dev' if not provided.
+ARG APP_VERSION=dev
+ENV APP_VERSION=$APP_VERSION
+
 # Build the application
 RUN npm run build
 

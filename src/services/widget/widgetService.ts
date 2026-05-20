@@ -231,7 +231,9 @@ class WidgetService {
 
       const locale = this.normalizeWidgetLocale(websiteConfig.locale);
       if (locale && i18n.language !== locale) {
-        await i18n.changeLanguage(locale).catch(() => undefined);
+        await i18n.changeLanguage(locale).catch((err) => {
+          console.error('[Widget] Failed to change language:', err);
+        });
       }
 
       return {

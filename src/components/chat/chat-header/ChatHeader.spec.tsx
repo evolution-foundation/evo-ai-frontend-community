@@ -135,6 +135,17 @@ const openPipelineAndSelectStage = async (
 };
 
 describe('ChatHeader pipeline', () => {
+  const makeItem = (id: string, pipelineId: string) => ({
+    id,
+    item_id: '42',
+    stage_id: `stage-${pipelineId}`,
+    pipeline_id: pipelineId,
+    type: 'conversation',
+    is_lead: false,
+    created_at: '',
+    updated_at: '',
+  });
+
   it('loads pipelines on mount and calls getPipelinesByConversation when menu opens', async () => {
     const pipeline = makePipeline('p1', [{ id: 'stage-1', name: 'Lead' }]);
     vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [pipeline] } as never);
@@ -270,16 +281,6 @@ describe('ChatHeader pipeline', () => {
   });
 
   it('removes ALL pipelines when conversation is in 2+ pipelines before adding to new one (H1)', async () => {
-    const makeItem = (id: string, pipelineId: string) => ({
-      id,
-      item_id: '42',
-      stage_id: `stage-${pipelineId}`,
-      pipeline_id: pipelineId,
-      type: 'conversation',
-      is_lead: false,
-      created_at: '',
-      updated_at: '',
-    });
     const pOld1 = makePipeline('p-old1', [{ id: 'stage-p-old1', name: 'StageA' }], [makeItem('item-1', 'p-old1')]);
     const pOld2 = makePipeline('p-old2', [{ id: 'stage-p-old2', name: 'StageB' }], [makeItem('item-2', 'p-old2')]);
     const pNew  = makePipeline('p-new',  [{ id: 'stage-new',    name: 'StageC' }]);
@@ -333,6 +334,30 @@ describe('ChatHeader pipeline', () => {
     await waitFor(() => {
       expect(screen.getByText('pipeline.loading')).toBeInTheDocument();
       expect(screen.queryByText('Lead')).not.toBeInTheDocument();
+    });
+  });
+
+  it('reloads conv pipeline data when a cross-pipeline remove fails partially', async () => {
+    const pOld1 = makePipeline('p-old1', [{ id: 'stage-p-old1', name: 'StageA' }], [makeItem('item-1', 'p-old1')]);
+    const pOld2 = makePipeline('p-old2', [{ id: 'stage-p-old2', name: 'StageB' }], [makeItem('item-2', 'p-old2')]);
+    const pNew  = makePipeline('p-new',  [{ id: 'stage-new',    name: 'StageC' }]);
+
+    vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [pOld1, pOld2, pNew] } as never);
+    vi.mocked(pipelinesService.getPipelinesByConversation).mockResolvedValue([pOld1, pOld2]);
+    vi.mocked(pipelinesService.removeItemFromPipeline)
+      .mockResolvedValueOnce({ success: true, message: '' })
+      .mockRejectedValueOnce(new Error('network'));
+
+    render(<ChatHeader {...defaultProps} />);
+    await waitFor(() => expect(pipelinesService.getPipelines).toHaveBeenCalled());
+
+    const user = userEvent.setup();
+    await openPipelineAndSelectStage(user, 'Pipeline p-new', 'StageC');
+
+    await waitFor(() => {
+      expect(pipelinesService.addItemToPipeline).not.toHaveBeenCalled();
+      expect(toast.error).toHaveBeenCalledWith('pipeline.removeError');
+      expect(pipelinesService.getPipelinesByConversation.mock.calls.length).toBeGreaterThanOrEqual(2);
     });
   });
 

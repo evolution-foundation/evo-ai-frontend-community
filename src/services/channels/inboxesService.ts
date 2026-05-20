@@ -97,6 +97,11 @@ const InboxesService = {
     return extractData(response);
   },
 
+  async syncWhatsappSubscription(inboxId: string) {
+    const response = await api.post(`/inboxes/${inboxId}/sync_whatsapp_subscription`);
+    return extractData(response);
+  },
+
   async update(inboxId: string, payload: Record<string, unknown>): Promise<InboxResponse> {
     const response = await api.patch(`/inboxes/${inboxId}`, payload);
     return extractData<InboxResponse>(response);

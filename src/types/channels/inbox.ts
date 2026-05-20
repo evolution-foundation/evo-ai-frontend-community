@@ -89,21 +89,7 @@ export interface Inbox {
   };
   // Pre-chat form
   pre_chat_form_enabled?: boolean;
-  pre_chat_form_options?: {
-    pre_chat_message: string;
-    pre_chat_fields: Array<{
-      name: string;
-      type: string;
-      label: string;
-      placeholder: string;
-      required: boolean;
-      enabled: boolean;
-      values?: string[];
-      field_type?: string;
-      regex_pattern?: string;
-      regex_cue?: string;
-    }>;
-  };
+  pre_chat_form_options?: import('@/components/channels/settings/helpers/preChatHelpers').PreChatFormOptions;
   web_widget_script?: string;
   default_conversation_status?: string;
 }

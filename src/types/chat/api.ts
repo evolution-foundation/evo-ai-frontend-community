@@ -210,6 +210,7 @@ export interface Message {
     | 'input_email'
     | 'incoming_email'
     | 'cards'
+    | 'input_select'
     | 'form'
     | 'article'
     | 'image'

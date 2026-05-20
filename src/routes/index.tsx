@@ -51,6 +51,12 @@ import { AddUsers } from '@/pages/Customer/Settings/Teams';
 import Users from '@/pages/Customer/Settings/Users';
 import Labels from '@/pages/Customer/Settings/Labels';
 import CustomAttributes from '@/pages/Customer/Settings/CustomAttributes';
+import Segments from '@/pages/Customer/Settings/Segments/Segments';
+import SegmentCreateEdit from '@/pages/Customer/Settings/Segments/SegmentCreateEdit';
+import Journey from '@/pages/Customer/Journey/Journey';
+import JourneyFlowEditor from '@/pages/Customer/Journey/JourneyFlowEditor';
+import Campaigns from '@/pages/Customer/Campaigns/Campaigns';
+import NewCampaign from '@/pages/Customer/Campaigns/NewCampaign/NewCampaign';
 import CannedResponses from '@/pages/Customer/Settings/CannedResponses';
 import { Macros } from '@/pages/Customer/Settings/Macros';
 import Products from '@/pages/Customer/Settings/Products';
@@ -503,6 +509,129 @@ const AppRouter = () => {
               </PrivateRoute>
             }
           /> */}
+
+          {/* Segments (settings subroute) */}
+          <Route
+            path="/settings/segments"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="segments" action="read">
+                      <Segments />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/settings/segments/new"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="segments" action="create">
+                      <SegmentCreateEdit />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/settings/segments/:id/edit"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="segments" action="update">
+                      <SegmentCreateEdit />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          {/* Journeys */}
+          <Route
+            path="/journeys"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="journeys" action="read">
+                      <Journey />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/journey/:id/flow"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="journeys" action="update">
+                      <JourneyFlowEditor />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          {/* Campaigns */}
+          <Route
+            path="/campaigns"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="campaigns" action="read">
+                      <Campaigns />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/campaigns/new"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="campaigns" action="create">
+                      <NewCampaign />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/campaigns/:id/edit"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="campaigns" action="update">
+                      <NewCampaign />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
 
           <Route
             path="/settings/account"
