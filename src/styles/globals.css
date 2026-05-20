@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './kaiabi-theme.css';
 
 /* Define o variant dark para o Tailwind v4 */
 @custom-variant dark (&:is(.dark *));
