@@ -19,20 +19,21 @@ export type JourneyEditorHeaderProps = {
   // Zone 1 — Navigation
   onBack: () => void;
   backLabel?: string;
+  backShortcutHint?: string;
 
   // Zone 2 — Identity
   title: string;
   subtitle?: string;
 
-  // Zone 3 — Visualizar
+  // Zone 3a — Visualizar
   onViewSessions: () => void;
   viewSessionsLabel?: string;
 
-  // Zone 3 — Configurar (slot — EnvironmentManager is a self-contained component
+  // Zone 3b — Configurar (slot — EnvironmentManager is a self-contained component
   // and refactoring it to accept a controlled trigger is out of scope here).
   environmentSlot?: ReactNode;
 
-  // Zone 3 — Persistir
+  // Zone 3c — Persistir
   onSave: () => void;
   hasUnsavedChanges?: boolean;
   isSaving?: boolean;
@@ -41,14 +42,28 @@ export type JourneyEditorHeaderProps = {
   savingLabel?: string;
   savedLabel?: string;
   lastSavedFormatter?: (date: Date) => string;
+  unsavedChangesHint?: string;
 
   // A11y
   moreActionsLabel?: string;
 };
 
+function isOpenOverlayPresent(): boolean {
+  // Radix Dialog, AlertDialog, Popover, DropdownMenu and friends all set
+  // `data-state="open"` on their content when visible. Skip ESC/Cmd+B when any
+  // of those overlays are open so we don't double-fire onBack while the user
+  // is just dismissing a popup.
+  return document.querySelector(
+    '[role="dialog"][data-state="open"],' +
+      '[role="alertdialog"][data-state="open"],' +
+      '[role="menu"][data-state="open"]',
+  ) !== null;
+}
+
 export function JourneyEditorHeader({
   onBack,
   backLabel = 'Back',
+  backShortcutHint = 'Esc',
   title,
   subtitle,
   onViewSessions,
@@ -62,11 +77,16 @@ export function JourneyEditorHeader({
   savingLabel = 'Saving…',
   savedLabel = 'Saved',
   lastSavedFormatter,
+  unsavedChangesHint,
   moreActionsLabel = 'More actions',
 }: JourneyEditorHeaderProps) {
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
+      const isEscape = event.key === 'Escape';
+      const isToggleBack =
+        (event.key === 'b' || event.key === 'B') && (event.metaKey || event.ctrlKey);
+      if (!isEscape && !isToggleBack) return;
+
       const active = document.activeElement;
       if (active instanceof HTMLElement) {
         const tag = active.tagName;
@@ -75,6 +95,10 @@ export function JourneyEditorHeader({
         // implementation is unreliable, so also read the attribute directly.
         if (active.isContentEditable || active.getAttribute('contenteditable') === 'true') return;
       }
+
+      if (isOpenOverlayPresent()) return;
+
+      if (isToggleBack) event.preventDefault();
       onBack();
     };
     document.addEventListener('keydown', handler);
@@ -89,6 +113,7 @@ export function JourneyEditorHeader({
 
   const saveDisabled = !hasUnsavedChanges || isSaving;
   const saveVariant = hasUnsavedChanges && !isSaving ? 'default' : 'outline';
+  const showUnsavedHint = Boolean(lastSaved && hasUnsavedChanges && unsavedChangesHint);
 
   return (
     <header
@@ -102,6 +127,7 @@ export function JourneyEditorHeader({
           onClick={onBack}
           className="gap-2"
           aria-keyshortcuts="Escape"
+          title={`${backLabel} (${backShortcutHint})`}
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           {backLabel}
@@ -118,18 +144,6 @@ export function JourneyEditorHeader({
       </div>
 
       <div data-zone="actions" className="flex items-center gap-2">
-        {lastSaved ? (
-          <div
-            className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground"
-            aria-live="polite"
-          >
-            <Clock className="h-3 w-3" aria-hidden="true" />
-            <span>
-              {lastSavedFormatter ? lastSavedFormatter(lastSaved) : lastSaved.toLocaleTimeString()}
-            </span>
-          </div>
-        ) : null}
-
         <div className="hidden lg:flex items-center gap-2 border-l border-flow-panel-divider pl-2">
           <Button
             variant="outline"
@@ -169,7 +183,24 @@ export function JourneyEditorHeader({
           </DropdownMenu>
         </div>
 
-        <div className="flex items-center border-l border-flow-panel-divider pl-2">
+        <div
+          data-cluster="persist"
+          className="flex items-center gap-3 border-l border-flow-panel-divider pl-2"
+        >
+          {lastSaved ? (
+            <div
+              className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground"
+              aria-live="polite"
+            >
+              <Clock className="h-3 w-3" aria-hidden="true" />
+              <span>
+                {lastSavedFormatter ? lastSavedFormatter(lastSaved) : lastSaved.toLocaleTimeString()}
+                {showUnsavedHint ? ` • ${unsavedChangesHint}` : null}
+              </span>
+            </div>
+          ) : null}
+
+          {/* Fixed min-width avoids button reflow as the label cycles Save → Saving… → Saved. */}
           <Button
             variant={saveVariant}
             size="sm"
