@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import InboxesService from '@/services/channels/inboxesService';
 import chatService from '@/services/chat/chatService';
-import { contactsService } from '@/services/contacts/contactsService';
 import { labelsService } from '@/services/contacts/labelsService';
 import { Inbox } from '@/types/channels/inbox';
 import type { Pipeline } from '@/types/chat/api';
-import type { Contact } from '@/types/contacts/contact';
 import type { Label } from '@/types/settings';
 
 interface FilterOption {
@@ -47,11 +45,12 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
       setOptions(prev => ({ ...prev, loading: true, error: null }));
 
       try {
-        const [inboxesResponse, pipelinesResponse, contactsResponse, labelsResponse] =
+        // Nota: carregamento de contatos removido para evitar query pesada no backend
+        // (query sem LIMIT causava statement timeout no PostgreSQL)
+        const [inboxesResponse, pipelinesResponse, labelsResponse] =
           await Promise.allSettled([
             InboxesService.list(),
             chatService.getAvailablePipelines(),
-            contactsService.getContacts({ per_page: 100, sort: 'last_activity_at', order: 'desc' }),
             labelsService.getLabels({ per_page: 200 }),
           ]);
 
@@ -96,22 +95,8 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
           }
         }
 
+        // contacts removido: query sem LIMIT causava timeout no PostgreSQL
         const contacts: FilterOption[] = [];
-        if (contactsResponse.status === 'fulfilled') {
-          const contactsData = contactsResponse.value?.data ?? [];
-          if (Array.isArray(contactsData)) {
-            contacts.push(
-              ...contactsData.map((contact: Contact) => {
-                const identifier = contact.email || contact.phone_number || contact.identifier || '';
-                const label = identifier ? `${contact.name} (${identifier})` : contact.name;
-                return {
-                  label,
-                  value: String(contact.id),
-                };
-              }),
-            );
-          }
-        }
 
         setOptions({
           inboxes,
