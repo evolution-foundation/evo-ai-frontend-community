@@ -63,9 +63,9 @@ const MacrosList: React.FC<MacrosListProps> = ({ conversationId, onMacroExecuted
         conversationIds: [conversationId],
       });
 
-      // Check real execution results from the API
       const executions = response?.data?.executions || (response as any)?.executions || [];
       const hasFailure = executions.some((exec: any) => exec.status === 'failed');
+      const hasPending = executions.some((exec: any) => exec.status === 'pending');
 
       if (hasFailure) {
         const failedExec = executions.find((exec: any) => exec.status === 'failed');
@@ -77,6 +77,10 @@ const MacrosList: React.FC<MacrosListProps> = ({ conversationId, onMacroExecuted
           t('contactSidebar.macros.executePartialError', { name: selectedMacro.name }) ||
           `Macro "${selectedMacro.name}" executada com falhas${failedActions ? `: ${failedActions}` : ''}`,
         );
+      } else if (hasPending) {
+        // Webhook actions are async — wait for macro.execution.completed
+        // WebSocket event before confirming success/failure to the user.
+        toast.info(t('contactSidebar.macros.executeQueued', { name: selectedMacro.name }));
       } else {
         toast.success(t('contactSidebar.macros.executeSuccess', { name: selectedMacro.name }));
       }

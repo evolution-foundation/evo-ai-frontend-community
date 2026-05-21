@@ -468,6 +468,7 @@
       "executeSuccess": "Macro \"{{name}}\" executed successfully",
       "executeError": "Error executing macro \"{{name}}\"",
       "executePartialError": "Macro \"{{name}}\" completed with failures",
+      "executeQueued": "Macro \"{{name}}\" queued — waiting for webhook",
       "dialog": {
         "title": "Execute Macro",
         "description": "Are you sure you want to execute the macro {{name}}? This action will apply {{count}} {{actionLabel}} to this conversation.",

@@ -468,6 +468,7 @@
       "executeSuccess": "Macro \"{{name}}\" executada com sucesso",
       "executeError": "Erro ao executar macro \"{{name}}\"",
       "executePartialError": "Macro \"{{name}}\" executada com falhas",
+      "executeQueued": "Macro \"{{name}}\" enfileirada — aguardando webhook",
       "dialog": {
         "title": "Executar Macro",
         "description": "Você tem certeza que deseja executar a macro {{name}}? Esta ação aplicará {{count}} {{actionLabel}} nesta conversa.",
