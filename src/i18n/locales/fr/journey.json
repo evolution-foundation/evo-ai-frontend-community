@@ -250,7 +250,8 @@
         "description": "Envoie un message au contact",
         "eventChannel": "Canal de l'événement",
         "oneAttachment": "+ 1 pièce jointe",
-        "multipleAttachments": "+ {{count}} pièces jointes"
+        "multipleAttachments": "+ {{count}} pièces jointes",
+        "channelLabel": "Canal :"
       },
       "sendWebhook": {
         "name": "Envoyer un webhook",
@@ -996,6 +997,9 @@
       "emptyState": {
         "noPathsConfigured": "No path configured",
         "clickToCreateFirst": "Click on \"Add Path\" to create your first conditional path"
+      },
+      "placeholders": {
+        "selectVariable": "Sélectionner une variable..."
       }
     },
     "deferConversation": {
@@ -1563,13 +1567,19 @@
         "webhookUrl": "https://example.com/webhook",
         "journeyId": "Select a journey",
         "taskTitle": "Enter task title",
-        "taskDescription": "Enter task description"
+        "taskDescription": "Enter task description",
+        "selectAction": "Sélectionner une action",
+        "selectChannel": "Sélectionner un canal",
+        "loadingChannels": "Chargement des canaux...",
+        "loadingJourneys": "Chargement des parcours..."
       },
       "hints": {
-        "journeyId": "The ID of the journey to trigger"
+        "journeyId": "The ID of the journey to trigger",
+        "characterCount": "{{count}} caractères"
       },
       "messages": {
-        "noChannelsConfigured": "Aucun canal de messagerie configuré. Veuillez d'abord configurer un canal WhatsApp, SMS, Email ou Telegram dans les paramètres des Canaux."
+        "noChannelsConfigured": "Aucun canal de messagerie configuré. Veuillez d'abord configurer un canal WhatsApp, SMS, Email ou Telegram dans les paramètres des Canaux.",
+        "noChannelsConfiguredInline": "Aucun canal configuré"
       }
     }
   },

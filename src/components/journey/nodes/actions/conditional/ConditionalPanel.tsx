@@ -215,7 +215,7 @@ export function ConditionalPanel({
             <VariableSelect
               value={condition.field || ''}
               onValueChange={value => updateCondition(pathId, condition.id, { field: value })}
-              placeholder="Selecionar variável..."
+              placeholder={t('panels.conditional.placeholders.selectVariable')}
               journeyId={journeyId}
               className="w-full"
               showSystemVariables={true}

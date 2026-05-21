@@ -240,8 +240,9 @@ export function ScheduledActionPanel({
       onCancel={onClose}
       onSave={handleSave}
       dirty={dirty && isConfigured}
-      saveLabel="Save"
-      cancelLabel="Close"
+      saveLabel={t('panels.actions.save')}
+      cancelLabel={t('panels.actions.cancel')}
+      savingAriaLabel={t('modal.actions.saving')}
     >
       <div className="space-y-4">
         {error && (
@@ -284,7 +285,7 @@ export function ScheduledActionPanel({
             onChange={handleActionTypeChange}
             className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground text-sm"
           >
-            <option value="">Select an action</option>
+            <option value="">{t('panels.scheduledAction.placeholders.selectAction')}</option>
             <option value="send_message">{t('panels.scheduledAction.actions.send_message')}</option>
             <option value="execute_webhook">
               {t('panels.scheduledAction.actions.execute_webhook')}
@@ -311,13 +312,17 @@ export function ScheduledActionPanel({
                 >
                   <SelectTrigger>
                     <SelectValue
-                      placeholder={loadingInboxes ? 'Loading channels...' : 'Select a channel'}
+                      placeholder={
+                        loadingInboxes
+                          ? t('panels.scheduledAction.placeholders.loadingChannels')
+                          : t('panels.scheduledAction.placeholders.selectChannel')
+                      }
                     />
                   </SelectTrigger>
                   <SelectContent>
                     {availableInboxes.length === 0 && !loadingInboxes && (
                       <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                        No channels configured
+                        {t('panels.scheduledAction.messages.noChannelsConfiguredInline')}
                       </div>
                     )}
                     {availableInboxes.map(inbox => {
@@ -352,7 +357,9 @@ export function ScheduledActionPanel({
                   className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground text-sm font-mono"
                 />
                 <p className="text-xs text-muted-foreground">
-                  {formData.actionConfig?.message?.length || 0} characters
+                  {t('panels.scheduledAction.hints.characterCount', {
+                    count: formData.actionConfig?.message?.length || 0,
+                  })}
                 </p>
               </div>
             </div>
@@ -408,7 +415,9 @@ export function ScheduledActionPanel({
                 disabled={loadingJourneys}
               >
                 <option value="">
-                  {loadingJourneys ? 'Loading journeys...' : 'Select a journey'}
+                  {loadingJourneys
+                    ? t('panels.scheduledAction.placeholders.loadingJourneys')
+                    : t('panels.scheduledAction.placeholders.journeyId')}
                 </option>
                 {journeys.map(journey => (
                   <option key={journey.id} value={journey.id}>

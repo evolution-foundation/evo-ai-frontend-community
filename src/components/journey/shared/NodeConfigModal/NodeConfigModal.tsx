@@ -42,6 +42,12 @@ type CommonProps = {
   dirty?: boolean;
   saveLabel?: string;
   cancelLabel?: string;
+  /**
+   * Screen-reader-only text announced while `loading` is true. Default
+   * is English "Saving…"; consumers should pass a translated value so
+   * the audio feedback respects the user's locale.
+   */
+  savingAriaLabel?: string;
   /** Forwarded onto Dialog.Content's className via cn(). Useful for width overrides (e.g. max-w-4xl). */
   contentClassName?: string;
 };
@@ -80,6 +86,7 @@ export function NodeConfigModal(props: NodeConfigModalProps) {
     dirty = false,
     saveLabel = 'Save',
     cancelLabel = 'Cancel',
+    savingAriaLabel = 'Saving...',
     contentClassName,
   } = props;
 
@@ -169,7 +176,7 @@ export function NodeConfigModal(props: NodeConfigModalProps) {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                <span className="sr-only">Saving…</span>
+                <span className="sr-only">{savingAriaLabel}</span>
               </>
             ) : null}
             {saveLabel}

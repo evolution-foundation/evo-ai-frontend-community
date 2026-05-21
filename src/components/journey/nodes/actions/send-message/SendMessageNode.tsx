@@ -126,7 +126,10 @@ export function SendMessageNode({ selected, data, id }: SendMessageNodeProps) {
           {hasInboxConfigured && (
             <div className="p-2 rounded-md bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30">
               <p className="text-xs text-green-800 dark:text-green-200 leading-relaxed">
-                <span className="font-medium">Canal:</span> {getInboxName()}
+                <span className="font-medium">
+                  {t('flowEditor.nodes.sendMessage.channelLabel')}
+                </span>{' '}
+                {getInboxName()}
               </p>
             </div>
           )}
