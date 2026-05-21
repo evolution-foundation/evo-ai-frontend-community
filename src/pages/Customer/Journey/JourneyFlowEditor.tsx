@@ -566,7 +566,7 @@ function JourneyFlowEditor() {
     journeyRef.current = journey;
   }, [journey]);
 
-  const saveChanges = useCallback(async () => {
+  const saveChanges = useCallback(async (opts?: { silent?: boolean }) => {
     const currentJourney = journeyRef.current;
     const store = useFlowEditorStore.getState();
     const snapshot = store.currentSnapshot;
@@ -643,7 +643,9 @@ function JourneyFlowEditor() {
       // next autosave tick picks up the unsynced edits (atomic update
       // requirement of EVO-1258).
       useFlowEditorStore.getState().commitSave(new Date(), snapshot);
-      toast.success(t('flowEditor.saveSuccess'));
+      if (!opts?.silent) {
+        toast.success(t('flowEditor.saveSuccess'));
+      }
     } catch (error) {
       console.error('Erro ao salvar jornada:', error);
       const message = friendlySaveErrorMessage(error, t);
@@ -659,9 +661,11 @@ function JourneyFlowEditor() {
 
   // Register the autosave trigger so the store-owned debounced timer can fire
   // saveChanges when the editor has been dirty for 5s without a new edit.
+  // Autosaves run silently — the header status indicator is the only feedback,
+  // because a toast every 5s of active editing was noise.
   useEffect(() => {
     return registerAutosaveTrigger(() => {
-      void saveChanges();
+      void saveChanges({ silent: true });
     });
   }, [saveChanges]);
 
