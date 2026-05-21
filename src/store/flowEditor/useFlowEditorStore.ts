@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { Node, Edge } from '@xyflow/react';
 import type { JourneyVariable } from '@/components/journey/environment-manager';
 import { saveSnapshot, clearSnapshot, type StoredFlowSnapshot } from './idbSnapshot';
+import { persistLastSavedAt } from './lastSavedMark';
 
 export type FlowSnapshot = {
   nodes: Node[];
@@ -220,6 +221,7 @@ export const useFlowEditorStore = create<FlowEditorState>((set, get) => ({
 
     if (state.journeyId) {
       void clearSnapshot(state.journeyId);
+      persistLastSavedAt(state.journeyId, savedAt);
     }
   },
 

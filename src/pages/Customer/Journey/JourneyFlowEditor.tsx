@@ -28,6 +28,7 @@ import {
   type FlowSnapshot,
 } from '@/store/flowEditor/useFlowEditorStore';
 import { loadSnapshot } from '@/store/flowEditor/idbSnapshot';
+import { loadLastSavedAt } from '@/store/flowEditor/lastSavedMark';
 import { FlowFeedbackBanner } from '@/components/journey/_ui';
 
 // Importar todos os nodes da jornada por categoria
@@ -505,7 +506,13 @@ function JourneyFlowEditor() {
         variables: [],
       };
 
-      const lastSavedAt = response.updatedAt ? new Date(response.updatedAt) : new Date();
+      // Prefer a client-persisted save mark over response.updatedAt because
+      // the server timestamp has come back stale/timezone-shifted in
+      // practice, causing the header to read "Saved 2 hours ago" right
+      // after a fresh save.
+      const localMark = loadLastSavedAt(id);
+      const serverMark = response.updatedAt ? new Date(response.updatedAt) : null;
+      const lastSavedAt = localMark ?? serverMark ?? new Date();
 
       useFlowEditorStore.getState().hydrate({
         journeyId: id,
