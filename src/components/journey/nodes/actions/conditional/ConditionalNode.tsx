@@ -144,7 +144,7 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
               <p className={`text-xs font-medium ${colors.text}`}>
                 {path.name || t('panels.conditional.pathNumber', { number: index + 1 })}
               </p>
-              <p className="text-xs text-gray-400 mt-1">{t('panels.conditional.noConditionsConfigured')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('panels.conditional.noConditionsConfigured')}</p>
             </div>
             <Handle
               className={cn(
@@ -189,7 +189,7 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
                     </span>
                   )}
                   <span className="text-gray-300">{getFieldLabel(condition.field)}</span>{' '}
-                  <span className="text-gray-400">{getOperatorLabel(condition.operator)}</span>
+                  <span className="text-muted-foreground">{getOperatorLabel(condition.operator)}</span>
                   {needsValue(condition.operator) && condition.value && (
                     <>
                       {' '}
@@ -245,12 +245,12 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
             <GitBranch className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+            <h3 className="text-sm font-medium text-foreground truncate">
               {t('panels.conditional.nodeTitle')}
             </h3>
           </div>
           <div className="flex-shrink-0">
-            <Settings className="w-3 h-3 text-gray-400" />
+            <Settings className="w-3 h-3 text-muted-foreground" />
           </div>
         </div>
 
@@ -275,10 +275,10 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
         <div className="cursor-pointer rounded-lg border border-red-700/40 bg-red-950/10 p-3 text-left transition-all duration-200 hover:border-red-600/50 hover:bg-red-900/10">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <p className="font-medium text-neutral-300">
+              <p className="font-medium text-foreground">
                 <span className="font-semibold text-red-400">{t('panels.conditional.otherwiseCase')}</span>
               </p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 {t('panels.conditional.otherwiseDescription')}
               </p>
             </div>

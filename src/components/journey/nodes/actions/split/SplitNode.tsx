@@ -78,9 +78,9 @@ export function SplitNode({ selected, data, id }: SplitNodeProps) {
       >
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <p className="font-medium text-neutral-300">
+            <p className="font-medium text-foreground">
               <span className={cn('font-semibold', colorClasses.text)}>{variant.name}</span>{' '}
-              <span className="text-neutral-400">({variant.percentage}%)</span>
+              <span className="text-muted-foreground">({variant.percentage}%)</span>
             </p>
           </div>
           <Handle
@@ -124,10 +124,10 @@ export function SplitNode({ selected, data, id }: SplitNodeProps) {
             <Split className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{t('panels.split.nodeTitle')}</h3>
+            <h3 className="text-sm font-medium text-foreground truncate">{t('panels.split.nodeTitle')}</h3>
           </div>
           <div className="flex-shrink-0">
-            <Settings className="w-3 h-3 text-gray-400" />
+            <Settings className="w-3 h-3 text-muted-foreground" />
           </div>
         </div>
 
