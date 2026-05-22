@@ -106,12 +106,34 @@ describe('journey i18n parity (EVO-1260)', () => {
     expect(empties).toEqual([]);
   });
 
+  // Generalised non-empty check across EN and pt-BR (the lock-step pair):
+  // every string value must be non-empty. Catches an entire-file regression
+  // class (e.g. a script writing "" to a key during a future sweep) that
+  // the EVO-1260-only check above misses.
+  it.each([
+    ['en', en],
+    ['pt-BR', ptBR],
+  ])('%s has non-empty string values for every key', (_name, locale) => {
+    const flat = flattenWithValues(locale);
+    const empties: string[] = [];
+    for (const [k, v] of Object.entries(flat)) {
+      if (typeof v !== 'string') continue;
+      if (v.trim() === '') empties.push(k);
+    }
+    expect(empties).toEqual([]);
+  });
+
   // Anti-leakage: catches the EVO-1260 review finding class — pt-BR
   // values byte-identical to EN that are NOT legitimate tech terms,
   // sample literals, or pure-interpolation strings. The prior parity
   // checks (presence + non-empty) passed mechanically while pt-BR
   // still rendered English to the user.
   it('pt-BR has no English leakage (pt-BR !== EN except for whitelisted tech terms)', () => {
+    // Some bare tech-term entries below are not currently present as
+    // standalone string values; they are kept on purpose so that a future
+    // key like { "foo": "URL" } is allowlisted automatically. Lean
+    // alternative: prune to only-currently-used and accept that future
+    // additions need an allowlist update.
     const ALLOWED_IDENTICAL_VALUES = new Set<string>([
       // bare tech terms used identically in pt-BR
       'Webhook', 'JSON', 'URL', 'Auth', 'API', 'HTTP', 'HTTPS', 'OAuth',
