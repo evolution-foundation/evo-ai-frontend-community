@@ -1558,14 +1558,14 @@
         "message": "Message",
         "webhookUrl": "Webhook URL",
         "webhookMethod": "HTTP Method",
-        "journeyId": "Journey ID",
+        "journeyId": "ID da Jornada",
         "taskTitle": "Task Title",
         "taskDescription": "Task Description"
       },
       "placeholders": {
         "message": "Enter your message here",
         "webhookUrl": "https://example.com/webhook",
-        "journeyId": "Select a journey",
+        "journeyId": "Selecione uma jornada",
         "taskTitle": "Enter task title",
         "taskDescription": "Enter task description",
         "selectAction": "Selecione uma ação",
@@ -1574,7 +1574,7 @@
         "loadingJourneys": "Carregando jornadas..."
       },
       "hints": {
-        "journeyId": "The ID of the journey to trigger",
+        "journeyId": "O ID da jornada a ser disparada",
         "characterCount": "{{count}} caracteres"
       },
       "messages": {
