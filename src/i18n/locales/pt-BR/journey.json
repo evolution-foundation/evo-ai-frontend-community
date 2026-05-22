@@ -1136,8 +1136,8 @@
       }
     },
     "actions": {
-      "save": "Save",
-      "cancel": "Cancel"
+      "save": "Salvar",
+      "cancel": "Cancelar"
     },
     "trigger": {
       "title": "Configure Trigger",
