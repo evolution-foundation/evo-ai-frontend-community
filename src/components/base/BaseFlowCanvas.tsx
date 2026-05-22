@@ -516,6 +516,7 @@ export function BaseFlowCanvas({
             variant={backgroundVariant as any}
             gap={24}
             size={1.5}
+            color="var(--color-flow-canvas-grid)"
             className="bg-sidebar"
           />
         )}
@@ -535,9 +536,9 @@ export function BaseFlowCanvas({
         {/* MiniMap */}
         {showMiniMap && (
           <MiniMap
-            className="bg-neutral-800/80 border border-neutral-700 rounded-lg shadow-lg"
-            nodeColor={node => defaultMiniMapColors[node.type || 'default'] || '#64748b'}
-            maskColor="rgba(21, 21, 21, 0.6)"
+            className="bg-flow-palette-bg border border-flow-palette-divider rounded-lg shadow-lg"
+            nodeColor={node => defaultMiniMapColors[node.type || 'default'] || 'var(--color-muted-foreground)'}
+            maskColor="color-mix(in srgb, var(--color-foreground) 30%, transparent)"
           />
         )}
 
