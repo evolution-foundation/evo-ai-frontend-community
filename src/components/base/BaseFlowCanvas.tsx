@@ -536,9 +536,9 @@ export function BaseFlowCanvas({
         {/* MiniMap */}
         {showMiniMap && (
           <MiniMap
-            className="bg-flow-palette-bg border border-flow-palette-divider rounded-lg shadow-lg"
+            className="bg-flow-palette-bg/85 border border-flow-palette-divider rounded-lg shadow-lg backdrop-blur-sm"
             nodeColor={node => defaultMiniMapColors[node.type || 'default'] || 'var(--color-muted-foreground)'}
-            maskColor="color-mix(in srgb, var(--color-foreground) 30%, transparent)"
+            maskColor="color-mix(in srgb, var(--color-foreground) 12%, transparent)"
           />
         )}
 

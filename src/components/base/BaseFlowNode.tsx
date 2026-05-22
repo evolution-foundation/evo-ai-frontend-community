@@ -38,116 +38,120 @@ export type NodeBorderColor =
   | 'cyan' | 'teal' | 'lime' | 'amber' | 'rose';
 
 // Mapeamento de cores - COMPATÍVEL COM BaseNode ATUAL
+// Cada gradient mantém o feel dark-only original e ganha uma variante
+// light (`dark:` prefix vira a regra dark; default é light) usando
+// tints -50/-100 sobre o token semântico `bg-card`. Light variant
+// resolve EVO-1270 AC#2 sem redesenhar visualmente o node.
 const colorStyles = {
   blue: {
-    border: "border-blue-700/70 hover:border-blue-500",
-    gradient: "bg-gradient-to-br from-blue-950/40 to-neutral-900/90",
+    border: "border-blue-300 hover:border-blue-500 dark:border-blue-700/70 dark:hover:border-blue-500",
+    gradient: "bg-gradient-to-br from-blue-50 to-card dark:from-blue-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(59,130,246,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(59,130,246,0.3)]",
     handle: "bg-yellow-500 border-yellow-400" // Mantém o padrão atual de handles amarelos
   },
   orange: {
-    border: "border-orange-700/70 hover:border-orange-500",
-    gradient: "bg-gradient-to-br from-orange-950/40 to-neutral-900/90",
+    border: "border-orange-300 hover:border-orange-500 dark:border-orange-700/70 dark:hover:border-orange-500",
+    gradient: "bg-gradient-to-br from-orange-50 to-card dark:from-orange-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(249,115,22,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(249,115,22,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
   },
   green: {
-    border: "border-green-700/70 hover:border-green-500",
-    gradient: "bg-gradient-to-br from-green-950/40 to-neutral-900/90",
+    border: "border-green-300 hover:border-green-500 dark:border-green-700/70 dark:hover:border-green-500",
+    gradient: "bg-gradient-to-br from-green-50 to-card dark:from-green-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(34,197,94,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(34,197,94,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
   },
   red: {
-    border: "border-red-700/70 hover:border-red-500",
-    gradient: "bg-gradient-to-br from-red-950/40 to-neutral-900/90",
+    border: "border-red-300 hover:border-red-500 dark:border-red-700/70 dark:hover:border-red-500",
+    gradient: "bg-gradient-to-br from-red-50 to-card dark:from-red-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(239,68,68,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(239,68,68,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
   },
   yellow: {
-    border: "border-yellow-700/70 hover:border-yellow-500",
-    gradient: "bg-gradient-to-br from-yellow-950/40 to-neutral-900/90",
+    border: "border-yellow-300 hover:border-yellow-500 dark:border-yellow-700/70 dark:hover:border-yellow-500",
+    gradient: "bg-gradient-to-br from-yellow-50 to-card dark:from-yellow-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(234,179,8,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(234,179,8,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
   },
   purple: {
-    border: "border-purple-700/70 hover:border-purple-500",
-    gradient: "bg-gradient-to-br from-purple-950/40 to-neutral-900/90",
+    border: "border-purple-300 hover:border-purple-500 dark:border-purple-700/70 dark:hover:border-purple-500",
+    gradient: "bg-gradient-to-br from-purple-50 to-card dark:from-purple-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(168,85,247,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(168,85,247,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
   },
   indigo: {
-    border: "border-indigo-700/70 hover:border-indigo-500",
-    gradient: "bg-gradient-to-br from-indigo-950/40 to-neutral-900/90",
+    border: "border-indigo-300 hover:border-indigo-500 dark:border-indigo-700/70 dark:hover:border-indigo-500",
+    gradient: "bg-gradient-to-br from-indigo-50 to-card dark:from-indigo-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(99,102,241,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(99,102,241,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
   },
   pink: {
-    border: "border-pink-700/70 hover:border-pink-500",
-    gradient: "bg-gradient-to-br from-pink-950/40 to-neutral-900/90",
+    border: "border-pink-300 hover:border-pink-500 dark:border-pink-700/70 dark:hover:border-pink-500",
+    gradient: "bg-gradient-to-br from-pink-50 to-card dark:from-pink-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(236,72,153,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(236,72,153,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
   },
   emerald: {
-    border: "border-emerald-700/70 hover:border-emerald-500",
-    gradient: "bg-gradient-to-br from-emerald-950/40 to-neutral-900/90",
+    border: "border-emerald-300 hover:border-emerald-500 dark:border-emerald-700/70 dark:hover:border-emerald-500",
+    gradient: "bg-gradient-to-br from-emerald-50 to-card dark:from-emerald-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(16,185,129,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(16,185,129,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
   },
   slate: {
-    border: "border-slate-700/70 hover:border-slate-500",
-    gradient: "bg-gradient-to-br from-slate-800/40 to-neutral-900/90",
+    border: "border-slate-300 hover:border-slate-500 dark:border-slate-700/70 dark:hover:border-slate-500",
+    gradient: "bg-gradient-to-br from-slate-50 to-card dark:from-slate-800/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(100,116,139,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(100,116,139,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
   },
   // Cores extras mantendo compatibilidade
   cyan: {
-    border: "border-cyan-700/70 hover:border-cyan-500",
-    gradient: "bg-gradient-to-br from-cyan-950/40 to-neutral-900/90",
+    border: "border-cyan-300 hover:border-cyan-500 dark:border-cyan-700/70 dark:hover:border-cyan-500",
+    gradient: "bg-gradient-to-br from-cyan-50 to-card dark:from-cyan-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(6,182,212,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(6,182,212,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
   },
   teal: {
-    border: "border-teal-700/70 hover:border-teal-500",
-    gradient: "bg-gradient-to-br from-teal-950/40 to-neutral-900/90",
+    border: "border-teal-300 hover:border-teal-500 dark:border-teal-700/70 dark:hover:border-teal-500",
+    gradient: "bg-gradient-to-br from-teal-50 to-card dark:from-teal-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(20,184,166,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(20,184,166,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
   },
   lime: {
-    border: "border-lime-700/70 hover:border-lime-500",
-    gradient: "bg-gradient-to-br from-lime-950/40 to-neutral-900/90",
+    border: "border-lime-300 hover:border-lime-500 dark:border-lime-700/70 dark:hover:border-lime-500",
+    gradient: "bg-gradient-to-br from-lime-50 to-card dark:from-lime-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(132,204,22,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(132,204,22,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
   },
   amber: {
-    border: "border-amber-700/70 hover:border-amber-500",
-    gradient: "bg-gradient-to-br from-amber-950/40 to-neutral-900/90",
+    border: "border-amber-300 hover:border-amber-500 dark:border-amber-700/70 dark:hover:border-amber-500",
+    gradient: "bg-gradient-to-br from-amber-50 to-card dark:from-amber-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(245,158,11,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(245,158,11,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
   },
   rose: {
-    border: "border-rose-700/70 hover:border-rose-500",
-    gradient: "bg-gradient-to-br from-rose-950/40 to-neutral-900/90",
+    border: "border-rose-300 hover:border-rose-500 dark:border-rose-700/70 dark:hover:border-rose-500",
+    gradient: "bg-gradient-to-br from-rose-50 to-card dark:from-rose-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(244,63,94,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(244,63,94,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
   },
   violet: {
-    border: "border-violet-700/70 hover:border-violet-500",
-    gradient: "bg-gradient-to-br from-violet-950/40 to-neutral-900/90",
+    border: "border-violet-300 hover:border-violet-500 dark:border-violet-700/70 dark:hover:border-violet-500",
+    gradient: "bg-gradient-to-br from-violet-50 to-card dark:from-violet-950/40 dark:to-neutral-900/90",
     glow: "shadow-[0_0_15px_rgba(139,92,246,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(139,92,246,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
@@ -239,7 +243,7 @@ export function BaseFlowNode({
 
       {/* Source Handle - mantém comportamento exato do BaseNode atual */}
       {hasSource && (
-        <div className="mt-2 flex items-center justify-end text-sm text-neutral-400 transition-colors">
+        <div className="mt-2 flex items-center justify-end text-sm text-muted-foreground transition-colors">
           {showSourceArrow && (
             <div className="flex items-center space-x-1 rounded-md py-1 px-2">
               <span>{t('base.flow.node.nextStep')}</span>
@@ -299,11 +303,11 @@ export function NodeHeader({
         </div>
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+        <h3 className="text-sm font-medium text-foreground truncate">
           {title}
         </h3>
         {subtitle && (
-          <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+          <p className="text-xs text-muted-foreground truncate">
             {subtitle}
           </p>
         )}

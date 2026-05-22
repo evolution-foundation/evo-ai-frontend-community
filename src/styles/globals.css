@@ -410,3 +410,30 @@
     color: #000000 !important;
   }
 }
+
+/*
+ * React Flow theming bridge (EVO-1270).
+ *
+ * React Flow ships its own `--xy-*` design tokens with light defaults at
+ * `.react-flow` and dark defaults at `.react-flow.dark`. Our CRM toggles
+ * `.dark` on the html root (shadcn pattern) instead of on the React Flow
+ * wrapper, so React Flow's own dark variant never activates and the
+ * canvas chrome (Controls, MiniMap internals, edges) stays stuck on
+ * one default per build. Override the relevant `--xy-*` defaults with
+ * shadcn semantic tokens so the Flow Builder chrome tracks the global
+ * light/dark toggle.
+ */
+.react-flow {
+  --xy-controls-button-background-color-default: var(--color-card);
+  --xy-controls-button-background-color-hover-default: var(--color-accent);
+  --xy-controls-button-color-default: var(--color-foreground);
+  --xy-controls-button-color-hover-default: var(--color-foreground);
+  --xy-controls-button-border-color-default: var(--color-border);
+  --xy-minimap-background-color-default: var(--color-flow-palette-bg);
+  --xy-edge-stroke-default: var(--color-flow-edge-default);
+  --xy-edge-stroke-selected-default: var(--color-flow-edge-active);
+  --xy-connectionline-stroke-default: var(--color-flow-edge-active);
+  --xy-attribution-background-color-default: color-mix(in srgb, var(--color-card) 50%, transparent);
+  --xy-handle-background-color-default: var(--color-muted-foreground);
+  --xy-handle-border-color-default: var(--color-foreground);
+}
