@@ -18,7 +18,6 @@ import {
   type Edge,
   ConnectionLineType,
 } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
 import './BaseFlow.css';
 
 import { Button } from '@evoapi/design-system';

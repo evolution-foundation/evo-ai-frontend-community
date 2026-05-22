@@ -423,7 +423,7 @@
  * shadcn semantic tokens so the Flow Builder chrome tracks the global
  * light/dark toggle.
  */
-.react-flow {
+.react-flow.react-flow {
   --xy-controls-button-background-color-default: var(--color-card);
   --xy-controls-button-background-color-hover-default: var(--color-accent);
   --xy-controls-button-color-default: var(--color-foreground);
