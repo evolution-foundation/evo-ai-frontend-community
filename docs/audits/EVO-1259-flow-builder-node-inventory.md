@@ -13,7 +13,7 @@ It also surfaces backend↔frontend node-type mismatches that are NOT EVO-1268's
 
 ## TL;DR — Binary recommendation for EVO-1268
 
-**Reorganise the palette AND wire (or delete) one hidden node (`assign-bot`).** Everything else the palette currently exposes is wired through to `nodeTypes`, panels, and the miniMap. The four other gaps below are runtime-level (frontend↔backend mismatches) and belong to EVO-1262.
+**Reorganise the palette AND wire (or delete) one hidden node (`assign-bot`).** Everything else the palette currently exposes is wired through to `nodeTypes`, panels, and the miniMap. The five other gaps below are runtime-level (frontend↔backend mismatches, including a critical trigger-discovery one that breaks the entire executor) and belong to EVO-1262.
 
 ---
 
@@ -21,59 +21,58 @@ It also surfaces backend↔frontend node-type mismatches that are NOT EVO-1268's
 
 22 component folders exist under `src/components/journey/nodes/actions/` plus 1 under `nodes/trigger/`. The "source of truth" for what the user sees in the palette is `nodePanelNodeTypes` inside `JourneyFlowEditor.tsx`.
 
-Column meanings:
+Column meanings (the five columns explicitly required by the card's AC#1 use the literal names from the acceptance criteria; the rest are extra evidence columns for the wiring chain):
 
-- **Folder** — directory under `src/components/journey/nodes/`
 - **node_type** — string ID used by React Flow + backend
-- **Component** — the `*Node.tsx` file
+- **componente_path** — directory under `src/components/journey/nodes/` plus the `*Node.tsx` filename
 - **Panel** — the `*Panel.tsx` config dialog (or `—` if the node has no config)
-- **Barrel** — exported by `src/components/journey/nodes/actions/action-nodes.ts`? (✓/✗)
+- **exportado_em_barrel** — exported by `src/components/journey/nodes/actions/action-nodes.ts`? (✓/✗)
 - **Editor import** — imported in `JourneyFlowEditor.tsx`? (✓/✗)
 - **nodeTypes** — registered as a React Flow `nodeType` at `JourneyFlowEditor.tsx:151-177`? (✓/✗)
-- **Palette** — appears as a draggable card in `nodePanelNodeTypes` at `JourneyFlowEditor.tsx:234-412`? (category or ✗)
+- **aparece_na_palette** — appears as a draggable card in `nodePanelNodeTypes` at `JourneyFlowEditor.tsx:234-412`? (category or ✗)
 - **miniMap** — coloured in `miniMapNodeColors` at `JourneyFlowEditor.tsx:417-440`? (✓/✗)
 - **renderConfigPanel** — handled in the switch at `JourneyFlowEditor.tsx:464+`? (✓/✗)
-- **Backend action_node?** — listed in `FlowExecutionService#action_node?` at `flow_execution_service.rb:78-95`? (✓/—/✗) where `—` means "not an action (control / terminal / trigger)" and ✗ means "missing handler"
+- **runtime_reconhece** — listed in `FlowExecutionService#action_node?` at `flow_execution_service.rb:78-95`? (✓/—/✗) where `—` means "not an action (control / terminal / trigger)" and ✗ means "missing handler"
 
 ### Triggers
 
-| Folder | node_type | Component | Panel | Barrel | Editor import | nodeTypes | Palette | miniMap | renderConfigPanel | Backend |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `trigger/` | `journey-trigger-node` | `JourneyTriggerNode.tsx` | `JourneyTriggerPanel.tsx` | n/a (separate import) | ✓ | ✓ | n/a (seeded as initial node) | ✓ | ✓ | n/a (trigger, not action) |
+| node_type | componente_path | Panel | exportado_em_barrel | Editor import | nodeTypes | aparece_na_palette | miniMap | renderConfigPanel | runtime_reconhece |
+|---|---|---|---|---|---|---|---|---|---|
+| `journey-trigger-node` | `trigger/JourneyTriggerNode.tsx` | `JourneyTriggerPanel.tsx` | n/a (separate import) | ✓ | ✓ | n/a (seeded as initial node) | ✓ | ✓ | **✗ (G6 — backend looks for `trigger-node`)** |
 
 The trigger is a single React component that internally handles 8 trigger sub-types (`manual`, `event`, `segment`, `webhook`, `contactCreated`, `contactUpdated`, `label`, `customAttribute`). Documented at `src/pages/Customer/Journey/journey-nodes.md:40-167`.
 
 ### Control flow & terminal
 
-| Folder | node_type | Component | Panel | Barrel | Editor import | nodeTypes | Palette | miniMap | renderConfigPanel | Backend |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `actions/wait/` | `wait-node` | `WaitNode.tsx` | `WaitPanel.tsx` | ✓ | ✓ | ✓ | `actions` | ✓ | ✓ | — (graph-traversal) |
-| `actions/conditional/` | `conditional-node` | `ConditionalNode.tsx` | `ConditionalPanel.tsx` | ✓ | ✓ | ✓ | `actions` | ✓ | ✓ | — (graph-traversal) |
-| `actions/split/` | `split-node` | `SplitNode.tsx` | `SplitPanel.tsx` | ✓ | ✓ | ✓ | `actions` | ✓ | ✓ | — (graph-traversal) |
-| `actions/exit-journey/` | `exit-journey-node` | `ExitJourneyNode.tsx` | — | ✓ | ✓ | ✓ | `actions` | ✓ | — | — (terminal) |
-| `actions/transfer-journey/` | `transfer-journey-node` | `TransferJourneyNode.tsx` | `TransferJourneyPanel.tsx` | ✓ | ✓ | ✓ | `actions` | ✓ | ✓ | ✗ (G3) |
+| node_type | componente_path | Panel | exportado_em_barrel | Editor import | nodeTypes | aparece_na_palette | miniMap | renderConfigPanel | runtime_reconhece |
+|---|---|---|---|---|---|---|---|---|---|
+| `wait-node` | `actions/wait/WaitNode.tsx` | `WaitPanel.tsx` | ✓ | ✓ | ✓ | `actions` | ✓ | ✓ | — (graph-traversal) |
+| `conditional-node` | `actions/conditional/ConditionalNode.tsx` | `ConditionalPanel.tsx` | ✓ | ✓ | ✓ | `actions` | ✓ | ✓ | — (graph-traversal) |
+| `split-node` | `actions/split/SplitNode.tsx` | `SplitPanel.tsx` | ✓ | ✓ | ✓ | `actions` | ✓ | ✓ | — (graph-traversal) |
+| `exit-journey-node` | `actions/exit-journey/ExitJourneyNode.tsx` | — | ✓ | ✓ | ✓ | `actions` | ✓ | — | — (terminal) |
+| `transfer-journey-node` | `actions/transfer-journey/TransferJourneyNode.tsx` | `TransferJourneyPanel.tsx` | ✓ | ✓ | ✓ | `actions` | ✓ | ✓ | ✗ (G3) |
 
 ### Actions
 
-| Folder | node_type | Component | Panel | Barrel | Editor import | nodeTypes | Palette | miniMap | renderConfigPanel | Backend |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `actions/scheduled-action/` | `scheduled-action-node` | `ScheduledActionNode.tsx` | `ScheduledActionPanel.tsx` | ✓ | ✓ | ✓ | `actions` | ✓ | ✓ | ✗ (G3) |
-| `actions/set-variable/` | `set-variable-node` | `SetVariableNode.tsx` | `SetVariablePanel.tsx` | ✓ | ✓ | ✓ | `actions` | ✓ | ✓ | ✗ (G3) |
-| `actions/send-message/` | `send-message-node` | `SendMessageNode.tsx` | `SendMessagePanel.tsx` | ✓ | ✓ | ✓ | `communication` | ✓ | ✓ | ✓ |
-| `actions/send-webhook/` | `send-webhook-node` | `SendWebhookNode.tsx` | `SendWebhookPanel.tsx` | ✓ | ✓ | ✓ | `communication` | ✓ | ✓ | ✓ |
-| `actions/send-email-team/` | `send-email-team-node` | `SendEmailTeamNode.tsx` | `SendEmailTeamPanel.tsx` | ✓ | ✓ | ✓ | `communication` | ✓ | ✓ | ✓ |
-| `actions/send-transcript/` | `send-transcript-node` | `SendTranscriptNode.tsx` | `SendTranscriptPanel.tsx` | ✓ | ✓ | ✓ | `communication` | ✓ | ✓ | ✓ |
-| `actions/add-label/` | `add-label-node` | `AddLabelNode.tsx` | `AddLabelPanel.tsx` | ✓ | ✓ | ✓ | `labels` | ✓ | ✓ | ✓ |
-| `actions/remove-label/` | `remove-label-node` | `RemoveLabelNode.tsx` | `RemoveLabelPanel.tsx` | ✓ | ✓ | ✓ | `labels` | ✓ | ✓ | ✓ |
-| `actions/update-contact/` | `update-contact-node` | `UpdateContactNode.tsx` | `UpdateContactPanel.tsx` | ✓ | ✓ | ✓ | `contact` | ✓ | ✓ | ✗ (G3) |
-| `actions/update-custom-attribute/` | `update-custom-attribute-node` | `UpdateCustomAttributeNode.tsx` | `UpdateCustomAttributePanel.tsx` | ✓ | ✓ | ✓ | `contact` | ✓ | ✓ | ✗ (G3) |
-| `actions/assign-agent/` | `assign-agent-node` | `AssignAgentNode.tsx` | `AssignAgentPanel.tsx` | ✓ | ✓ | ✓ | `contact` | ✓ | ✓ | ✓ |
-| `actions/assign-team/` | `assign-team-node` | `AssignTeamNode.tsx` | `AssignTeamPanel.tsx` | ✓ | ✓ | ✓ | `contact` | ✓ | ✓ | ✓ |
-| `actions/assign-bot/` | `assign-bot-node` (intended) | `AssignBotNode.tsx` | `AssignBotPanel.tsx` | **✗** (G1) | **✗** | **✗** | **✗** | **✗** | **✗** | **✗** |
-| `actions/mute-conversation/` | `mute-conversation-node` | `MuteConversationNode.tsx` | `MuteConversationPanel.tsx` | ✓ | ✓ | ✓ | `conversation` | ✓ | ✓ | ✓ |
-| `actions/defer-conversation/` | `defer-conversation-node` | `DeferConversationNode.tsx` | `DeferConversationPanel.tsx` | ✓ | ✓ | ✓ | `conversation` | ✓ | ✓ | **✗** (G2 — backend has `snooze-conversation-node`) |
-| `actions/resolve-conversation/` | `resolve-conversation-node` | `ResolveConversationNode.tsx` | `ResolveConversationPanel.tsx` | ✓ | ✓ | ✓ | `conversation` | ✓ | ✓ | ✓ |
-| `actions/change-priority/` | `change-priority-node` | `ChangePriorityNode.tsx` | `ChangePriorityPanel.tsx` | ✓ | ✓ | ✓ | `conversation` | ✓ | ✓ | ✓ |
+| node_type | componente_path | Panel | exportado_em_barrel | Editor import | nodeTypes | aparece_na_palette | miniMap | renderConfigPanel | runtime_reconhece |
+|---|---|---|---|---|---|---|---|---|---|
+| `scheduled-action-node` | `actions/scheduled-action/ScheduledActionNode.tsx` | `ScheduledActionPanel.tsx` | ✓ | ✓ | ✓ | `actions` | ✓ | ✓ | ✗ (G3) |
+| `set-variable-node` | `actions/set-variable/SetVariableNode.tsx` | `SetVariablePanel.tsx` | ✓ | ✓ | ✓ | `actions` | ✓ | ✓ | ✗ (G3) |
+| `send-message-node` | `actions/send-message/SendMessageNode.tsx` | `SendMessagePanel.tsx` | ✓ | ✓ | ✓ | `communication` | ✓ | ✓ | ✓ |
+| `send-webhook-node` | `actions/send-webhook/SendWebhookNode.tsx` | `SendWebhookPanel.tsx` | ✓ | ✓ | ✓ | `communication` | ✓ | ✓ | ✓ |
+| `send-email-team-node` | `actions/send-email-team/SendEmailTeamNode.tsx` | `SendEmailTeamPanel.tsx` | ✓ | ✓ | ✓ | `communication` | ✓ | ✓ | ✓ |
+| `send-transcript-node` | `actions/send-transcript/SendTranscriptNode.tsx` | `SendTranscriptPanel.tsx` | ✓ | ✓ | ✓ | `communication` | ✓ | ✓ | ✓ |
+| `add-label-node` | `actions/add-label/AddLabelNode.tsx` | `AddLabelPanel.tsx` | ✓ | ✓ | ✓ | `labels` | ✓ | ✓ | ✓ |
+| `remove-label-node` | `actions/remove-label/RemoveLabelNode.tsx` | `RemoveLabelPanel.tsx` | ✓ | ✓ | ✓ | `labels` | ✓ | ✓ | ✓ |
+| `update-contact-node` | `actions/update-contact/UpdateContactNode.tsx` | `UpdateContactPanel.tsx` | ✓ | ✓ | ✓ | `contact` | ✓ | ✓ | ✗ (G3) |
+| `update-custom-attribute-node` | `actions/update-custom-attribute/UpdateCustomAttributeNode.tsx` | `UpdateCustomAttributePanel.tsx` | ✓ | ✓ | ✓ | `contact` | ✓ | ✓ | ✗ (G3) |
+| `assign-agent-node` | `actions/assign-agent/AssignAgentNode.tsx` | `AssignAgentPanel.tsx` | ✓ | ✓ | ✓ | `contact` | ✓ | ✓ | ✓ |
+| `assign-team-node` | `actions/assign-team/AssignTeamNode.tsx` | `AssignTeamPanel.tsx` | ✓ | ✓ | ✓ | `contact` | ✓ | ✓ | ✓ |
+| `assign-bot-node` | `actions/assign-bot/AssignBotNode.tsx` | `AssignBotPanel.tsx` | **✗** (G1) | **✗** | **✗** | **✗** | **✗** | **✗** | **✗** |
+| `mute-conversation-node` | `actions/mute-conversation/MuteConversationNode.tsx` | `MuteConversationPanel.tsx` | ✓ | ✓ | ✓ | `conversation` | ✓ | ✓ | ✓ |
+| `defer-conversation-node` | `actions/defer-conversation/DeferConversationNode.tsx` | `DeferConversationPanel.tsx` | ✓ | ✓ | ✓ | `conversation` | ✓ | ✓ | **✗** (G2 — backend has `snooze-conversation-node`) |
+| `resolve-conversation-node` | `actions/resolve-conversation/ResolveConversationNode.tsx` | `ResolveConversationPanel.tsx` | ✓ | ✓ | ✓ | `conversation` | ✓ | ✓ | ✓ |
+| `change-priority-node` | `actions/change-priority/ChangePriorityNode.tsx` | `ChangePriorityPanel.tsx` | ✓ | ✓ | ✓ | `conversation` | ✓ | ✓ | ✓ |
 
 ### Palette totals (what the user actually sees)
 
@@ -154,6 +153,31 @@ Same user impact as G2: a journey that uses any of these passes save validation 
 
 The other two (`update-contact-node`, `update-custom-attribute-node`) are simple ActiveRecord updates and should be quick.
 
+### G6 — Frontend trigger type does not match the backend trigger-discovery selector (HIGH, possibly CRITICAL)
+
+`FlowExecutionService#execute_flow` discovers the trigger node by selecting against the literal string `'trigger-node'` for both `type` and `id` (`flow_execution_service.rb:38-39`):
+
+```ruby
+trigger_node = nodes.find { |node| node['type'] == 'trigger-node' || node['id'] == 'trigger-node' }
+```
+
+The frontend, however, persists the trigger node with `type: 'journey-trigger-node'` AND `id: 'journey-trigger-node'` (`JourneyFlowEditor.tsx:153, 183-184`). Neither alternative in the `find` matches. As a result, every flow created with the current editor falls into the `unless trigger_node` branch at `flow_execution_service.rb:41-43`, which logs `"No trigger node found in flow_data"` and returns early. **No action node downstream of the trigger is ever executed via this service.**
+
+This is not dead code: `AutomationRules::FlowExecutionService` is invoked from `automation_rule_listener.rb:100, 113, 166, 179, 289` for five Wisper events on contact/conversation lifecycle. If those listeners are firing in production and the flow's trigger lookup is failing, **all flow-mode automation rules are silently no-op'ing in production**.
+
+Two follow-ups are needed to confirm severity:
+
+- Verify in staging/production logs whether the warn `"No trigger node found in flow_data"` is present at scale — confirms the impact is live.
+- Inspect for any flow_data normalisation layer between the frontend persistence and `flow_data['nodes']` (e.g. in `AutomationRule` model, a serializer, or a migration). If something rewrites `journey-trigger-node` → `trigger-node` on write, the bug would be invisible at runtime.
+
+**Action:** EVO-1262 [10.B]. The clean fix is to update the backend selector to `'journey-trigger-node'` (matching frontend). A safer fix is to accept both literals to cover any legacy flow data already on disk:
+
+```ruby
+trigger_node = nodes.find { |node| %w[trigger-node journey-trigger-node].include?(node['type']) }
+```
+
+This gap is arguably the most severe of the audit because it short-circuits every flow before any other node runs. Surfaced via adversarial review of the first draft of this audit (commit `51b1b9a`); not in the initial discovery.
+
 ### G4 — Orphan backend handler `send-attachment-node` (LOW)
 
 `flow_execution_service.rb:79-93` lists `send-attachment-node` in `action_node?` and the switch handles it at `:131-138`, but no frontend folder, palette entry, or component for `send-attachment-node` exists. The handler also requires `@rule.files.attached?` and `node_data['attachment_ids']` — both populated only by something that never publishes the type.
@@ -174,7 +198,7 @@ The other two (`update-contact-node`, `update-custom-attribute-node`) are simple
 
 **(B) — Reorganise palette + wire (or delete) one hidden node (`assign-bot`).**
 
-Rationale: of the 22 implemented frontend components, 21 are already wired through every layer (`nodeTypes`, palette, panel switch, miniMap). The 22nd (`assign-bot`) is the only "hidden" item in the EVO-1268 sense. The other four gaps (G2, G3, G4) are backend-vs-frontend mismatches: they would not be fixed by a palette reshuffle and need EVO-1262 [10.B].
+Rationale: of the 22 implemented frontend components, 21 are already wired through every layer (`nodeTypes`, palette, panel switch, miniMap). The 22nd (`assign-bot`) is the only "hidden" item in the EVO-1268 sense. The other five gaps (G2, G3, G4, G6) are backend-vs-frontend mismatches: they would not be fixed by a palette reshuffle and need EVO-1262 [10.B]. **G6 in particular short-circuits the entire executor and should be treated as P0 by EVO-1262 even though it is outside EVO-1268's surface.**
 
 If product decides `assign-bot` is not shipping, EVO-1268 can lean (A) instead and EVO-1268 just deletes `actions/assign-bot/` + the `panels.assignBot.*` keys.
 
@@ -205,6 +229,11 @@ Backend (`evo-ai-crm-community`):
 - Silent drop on unknown type: `flow_execution_service.rb:173-174`.
 - `snooze-conversation-node` dispatch: `flow_execution_service.rb:148-149`.
 - `send-attachment-node` orphan handler: `flow_execution_service.rb:131-138`.
+- Trigger discovery selector that misses the frontend trigger id/type: `flow_execution_service.rb:38-39`.
+- Trigger-not-found early exit: `flow_execution_service.rb:41-43`.
+- `FlowExecutionService` call sites confirming the service is live: `app/listeners/automation_rule_listener.rb:100, 113, 166, 179, 289`.
+- Frontend trigger id/type: `JourneyFlowEditor.tsx:153, 183-184` (`'journey-trigger-node'` for both `id` and `type`).
+- Confirmation of `assign-bot-node` node_type declaration (no longer "intended"): `src/components/journey/nodes/actions/assign-bot/AssignBotNode.tsx:21` — `type: 'assign-bot-node';`.
 
 ## §5 — Notes
 
