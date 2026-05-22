@@ -21,6 +21,20 @@ function flatten(obj: unknown, prefix = ''): string[] {
   return keys;
 }
 
+function flattenWithValues(obj: unknown, prefix = ''): Record<string, unknown> {
+  if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) return {};
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+    const path = prefix ? `${prefix}.${k}` : k;
+    if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
+      Object.assign(out, flattenWithValues(v, path));
+    } else {
+      out[path] = v;
+    }
+  }
+  return out;
+}
+
 /**
  * Return the value at a dot-delimited path. Returns `undefined` if any
  * segment is missing.
@@ -90,5 +104,63 @@ describe('journey i18n parity (EVO-1260)', () => {
       return typeof v !== 'string' || v.trim() === '';
     });
     expect(empties).toEqual([]);
+  });
+
+  // Anti-leakage: catches the EVO-1260 review finding class — pt-BR
+  // values byte-identical to EN that are NOT legitimate tech terms,
+  // sample literals, or pure-interpolation strings. The prior parity
+  // checks (presence + non-empty) passed mechanically while pt-BR
+  // still rendered English to the user.
+  it('pt-BR has no English leakage (pt-BR !== EN except for whitelisted tech terms)', () => {
+    const ALLOWED_IDENTICAL_VALUES = new Set<string>([
+      // bare tech terms used identically in pt-BR
+      'Webhook', 'JSON', 'URL', 'Auth', 'API', 'HTTP', 'HTTPS', 'OAuth',
+      'Bearer', 'Token', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'UUID',
+      'UTC', 'SLA', 'CRM', 'ID', 'Trigger', 'Triggers', 'Tag', 'Status',
+      'Timeout', 'Headers', 'Header', 'Timestamp', 'XML', 'Total', 'Logs',
+      'Form Data',
+      // time units
+      'min', 'h', 'd', 's', 'ms',
+      // symbol-only operators (unicode notequal is the literal char)
+      '=', '≠', '>', '<',
+      // tech-term phrases (with optional required-marker asterisk)
+      'Bearer Token', 'Bearer Token *', 'API Key', 'API Key *',
+      'Basic Auth', 'Headers HTTP', 'Templates JSON', 'Bot:',
+      // strings whose only "language" content is the variable placeholder
+      '{{duration}} {{unit}}', 'Webhook {{method}}', 'Ex: {{example}}',
+      'Basic auth: {{username}}', 'Timeout: {{timeout}}s',
+      // sample literals used as placeholders in form fields
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+      'sk-1234567890abcdef...',
+      'X-API-Key',
+      'https://api.exemplo.com/webhook',
+      'Content-Type',
+      'application/json',
+      'Ex: João Silva',
+      'Ex: ID-12345',
+      'Ex: button_clicked, page_viewed',
+      // EN file already contains the Portuguese word "Valor" at this key
+      // (apparently authored in pt-first); pt-BR matches by coincidence.
+      'Valor',
+    ]);
+
+    // Pure-interpolation values whose only content is a placeholder
+    // followed by a numeric or symbolic suffix (e.g. "{{count}}/1000",
+    // "{{progress}}%"). These have no translatable language.
+    const PURE_INTERPOLATION_RE = /^\{\{[a-zA-Z_][a-zA-Z0-9_]*\}\}[^a-zA-Z]*$/;
+
+    const enFlat = flattenWithValues(en);
+    const ptFlat = flattenWithValues(ptBR);
+    const leaks: string[] = [];
+    for (const [key, enVal] of Object.entries(enFlat)) {
+      const ptVal = ptFlat[key];
+      if (typeof enVal !== 'string' || typeof ptVal !== 'string') continue;
+      if (!enVal.trim()) continue;
+      if (enVal !== ptVal) continue;
+      if (ALLOWED_IDENTICAL_VALUES.has(enVal)) continue;
+      if (PURE_INTERPOLATION_RE.test(enVal)) continue;
+      leaks.push(`${key} = ${JSON.stringify(enVal)}`);
+    }
+    expect(leaks).toEqual([]);
   });
 });
