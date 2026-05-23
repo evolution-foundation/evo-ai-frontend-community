@@ -25,11 +25,31 @@ done
 # Configure nginx CSP based on environment (default: development)
 APP_ENV="${VITE_APP_ENV:-development}"
 
+
 if [ "$APP_ENV" = "development" ]; then
-  # Development: Allow localhost connections and permissive frame-ancestors for widget
-  sed -i "s|connect-src 'self' https: wss: ws:|connect-src 'self' https: wss: ws: http://localhost:*|g" /etc/nginx/conf.d/default.conf
-  sed -i "s|frame-ancestors 'self'|frame-ancestors *|g" /etc/nginx/conf.d/default.conf
+  # Development: Allow localhost connections and permissive frame-ancestors for widget.
+  # Regex targets the directive token only — resilient to changes in surrounding CSP tokens.
+  NGINX_CONF=/etc/nginx/conf.d/default.conf
+
+  if ! grep -v "^[[:space:]]*#" "$NGINX_CONF" | grep -q "connect-src[^;]*http://localhost:\*"; then
+    sed -i "s|\(connect-src[^;]*\);|\1 http://localhost:*;|g" "$NGINX_CONF"
+  fi
+  connect_result=$(grep -v "^[[:space:]]*#" "$NGINX_CONF" | grep -o "connect-src[^;]*" || true)
+  if echo "$connect_result" | grep -q "http://localhost:\*"; then
+    echo "[CSP] connect-src OK: $connect_result"
+  else
+    echo "[CSP] WARNING: connect-src patch did not match — current value: ${connect_result:-<not found>}"
+  fi
+
+  sed -i "s|frame-ancestors 'self'|frame-ancestors *|g" "$NGINX_CONF"
+  fa_result=$(grep -v "^[[:space:]]*#" "$NGINX_CONF" | grep -o "frame-ancestors[^;\"]*" || true)
+  if echo "$fa_result" | grep -q "\*"; then
+    echo "[CSP] frame-ancestors OK: $fa_result"
+  else
+    echo "[CSP] WARNING: frame-ancestors patch did not match — current value: ${fa_result:-<not found>}"
+  fi
 fi
+
 
 
 exec "$@"
