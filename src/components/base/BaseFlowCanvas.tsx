@@ -28,6 +28,7 @@ import { BaseFlowHelperLines } from './BaseFlowHelperLines';
 import BaseDefaultEdge from './BaseDefaultEdge';
 import { cn, getHelperLines, createMiniMapNodeColors } from '@/lib/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
+import { flowTokens } from '@/components/journey/_ui/tokens';
 
 // Edge types padrão
 const defaultEdgeTypes = {
@@ -517,7 +518,7 @@ export function BaseFlowCanvas({
             variant={backgroundVariant as any}
             gap={24}
             size={1.5}
-            color="var(--color-flow-canvas-grid)"
+            color={flowTokens.canvas.grid}
             className="bg-sidebar"
           />
         )}
