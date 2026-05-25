@@ -78,14 +78,37 @@ describe('EventSelector', () => {
     expect(onChange).toHaveBeenCalledWith({ eventName: 'custom', isCustom: true });
   });
 
-  it('respects filterByEventType — hides categories outside the allowed set', async () => {
+  it('respects filterByCategory — hides categories outside the allowed set', async () => {
     const user = userEvent.setup();
-    render(<EventSelector onChange={vi.fn()} filterByEventType={['message']} />);
+    render(<EventSelector onChange={vi.fn()} filterByCategory={['message']} />);
 
     await user.click(screen.getByRole('combobox'));
     const listbox = await screen.findByRole('listbox');
     expect(within(listbox).queryByText(/Contact events|Eventos de Contato/i)).toBeNull();
     expect(within(listbox).getByText(/Message events|Eventos de Mensagem/i)).toBeTruthy();
+  });
+
+  // S2 (per card): filterByEventType accepts 'track' | 'identify' — useful for
+  // screens that only emit on one DTO surface.
+  it('respects filterByEventType — track only (hides contact.* identify events)', async () => {
+    const user = userEvent.setup();
+    render(<EventSelector onChange={vi.fn()} filterByEventType={['track']} />);
+
+    await user.click(screen.getByRole('combobox'));
+    const listbox = await screen.findByRole('listbox');
+    expect(within(listbox).queryByText(/Contact events|Eventos de Contato/i)).toBeNull();
+    expect(within(listbox).getByText(/Message events|Eventos de Mensagem/i)).toBeTruthy();
+  });
+
+  it('respects filterByEventType — identify only (shows only contact.* events)', async () => {
+    const user = userEvent.setup();
+    render(<EventSelector onChange={vi.fn()} filterByEventType={['identify']} />);
+
+    await user.click(screen.getByRole('combobox'));
+    const listbox = await screen.findByRole('listbox');
+    expect(within(listbox).getByText(/Contact events|Eventos de Contato/i)).toBeTruthy();
+    expect(within(listbox).queryByText(/Message events|Eventos de Mensagem/i)).toBeNull();
+    expect(within(listbox).queryByText(/Campaign events|Eventos de Campanha/i)).toBeNull();
   });
 
   it('renders disabled when disabled=true', () => {

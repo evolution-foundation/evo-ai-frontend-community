@@ -21,14 +21,22 @@ const meta: Meta<typeof EventSelector> = {
 export default meta;
 type Story = StoryObj<typeof EventSelector>;
 
-function Wrapper(props: { initial?: string; filter?: Array<'contact' | 'conversation' | 'message' | 'campaign' | 'custom'> }) {
+type Category = 'contact' | 'conversation' | 'message' | 'campaign' | 'custom';
+type DtoType = 'track' | 'identify';
+
+function Wrapper(props: {
+  initial?: string;
+  filterByCategory?: Category[];
+  filterByEventType?: DtoType[];
+}) {
   const [value, setValue] = useState<string | undefined>(props.initial);
   return (
     <div style={{ width: 360 }}>
       <EventSelector
         value={value}
         onChange={(change: EventSelectorChange) => setValue(change.eventName)}
-        filterByEventType={props.filter}
+        filterByCategory={props.filterByCategory}
+        filterByEventType={props.filterByEventType}
       />
       <pre style={{ marginTop: 12, fontSize: 12, color: '#888' }}>value: {value ?? '(none)'}</pre>
     </div>
@@ -48,9 +56,18 @@ export const CustomSentinel: Story = {
 };
 
 export const MessageEventsOnly: Story = {
-  render: () => <Wrapper filter={['message']} />,
+  render: () => <Wrapper filterByCategory={['message']} />,
 };
 
 export const CampaignEventsOnly: Story = {
-  render: () => <Wrapper filter={['campaign']} />,
+  render: () => <Wrapper filterByCategory={['campaign']} />,
+};
+
+// S2: filter by evo-flow DTO surface. Identify-only is the contact.* family.
+export const TrackEventsOnly: Story = {
+  render: () => <Wrapper filterByEventType={['track']} />,
+};
+
+export const IdentifyEventsOnly: Story = {
+  render: () => <Wrapper filterByEventType={['identify']} />,
 };

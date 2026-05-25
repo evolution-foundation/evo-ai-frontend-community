@@ -5,6 +5,7 @@ import {
   getEvent,
   getEventCatalog,
   getEventsByCategory,
+  getEventsByDtoType,
   isCanonicalEvent,
   isCustomEvent,
   getEventLabel,
@@ -19,12 +20,14 @@ describe('frontend events manifest mirror', () => {
     }
   });
 
-  it('includes the custom sentinel with allowExtraProperties=true', () => {
+  // L4: invariant — custom MUST always accept any payload. No required, no
+  // optional. If a future edit adds fields here, AC4 breaks.
+  it('includes the custom sentinel with empty schema (AC4 invariant)', () => {
     const custom = getEvent('custom');
     expect(custom).toBeDefined();
     expect(custom?.category).toBe('custom');
-    expect(custom?.schema.allowExtraProperties).toBe(true);
     expect(custom?.schema.required).toEqual({});
+    expect(custom?.schema.optional).toEqual({});
   });
 
   it('declares the message.delivered required fields exactly as the spec calls out (AC5)', () => {
@@ -64,16 +67,50 @@ describe('frontend events manifest mirror', () => {
       expect(getEventLabel('contact.created', 'pt-BR')).toBe('Contato criado');
     });
 
+    it('returns the PT-BR label for pt locale', () => {
+      expect(getEventLabel('contact.created', 'pt')).toBe('Contato criado');
+    });
+
     it('returns the EN label for en locale', () => {
       expect(getEventLabel('contact.created', 'en')).toBe('Contact created');
     });
 
-    it('falls back to PT-BR for non-EN locales (transitional)', () => {
-      expect(getEventLabel('contact.created', 'es')).toBe('Contato criado');
+    // M3 fix: non-PT non-EN locales fall back to EN (not PT) so es/fr/it users
+    // don't get Portuguese labels in an otherwise translated UI.
+    it('falls back to EN for non-PT locales (es/fr/it)', () => {
+      expect(getEventLabel('contact.created', 'es')).toBe('Contact created');
+      expect(getEventLabel('contact.created', 'fr')).toBe('Contact created');
+      expect(getEventLabel('contact.created', 'it')).toBe('Contact created');
     });
 
     it('returns the raw name for unknown events', () => {
       expect(getEventLabel('not.a.real.event', 'en')).toBe('not.a.real.event');
+    });
+  });
+
+  describe('getEventsByDtoType (S2: track/identify filter)', () => {
+    it('returns identify events for dtoType=identify (contact.*)', () => {
+      const names = getEventsByDtoType('identify').map((e) => e.eventName);
+      expect(names).toEqual(
+        expect.arrayContaining([
+          'contact.created',
+          'contact.updated',
+          'contact.deleted',
+          'contact.label.added',
+          'contact.label.removed',
+          'contact.custom_attribute.changed',
+        ]),
+      );
+      expect(names).not.toContain('message.delivered');
+    });
+
+    it('returns track events for dtoType=track (everything else)', () => {
+      const names = getEventsByDtoType('track').map((e) => e.eventName);
+      expect(names).toContain('message.delivered');
+      expect(names).toContain('conversation.created');
+      expect(names).toContain('campaign.triggered');
+      expect(names).toContain('custom');
+      expect(names).not.toContain('contact.created');
     });
   });
 });
