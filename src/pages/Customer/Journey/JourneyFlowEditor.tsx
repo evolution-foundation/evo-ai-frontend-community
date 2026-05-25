@@ -203,22 +203,16 @@ function JourneyFlowEditor() {
   // Definir categorias para o NodePanel
   const nodePanelCategories: NodeCategory[] = [
     {
-      value: 'actions',
-      label: t('flowEditor.categories.actions.label'),
+      value: 'controlFlow',
+      label: t('flowEditor.categories.controlFlow.label'),
       icon: MoveRight,
-      description: t('flowEditor.categories.actions.description'),
+      description: t('flowEditor.categories.controlFlow.description'),
     },
     {
       value: 'communication',
       label: t('flowEditor.categories.communication.label'),
       icon: Send,
       description: t('flowEditor.categories.communication.description'),
-    },
-    {
-      value: 'labels',
-      label: t('flowEditor.categories.labels.label'),
-      icon: Tag,
-      description: t('flowEditor.categories.labels.description'),
     },
     {
       value: 'contact',
@@ -228,7 +222,7 @@ function JourneyFlowEditor() {
     },
     {
       value: 'conversation',
-      label: t('flowEditor.categories.conversation.labels'),
+      label: t('flowEditor.categories.conversation.label'),
       icon: MessageSquare,
       description: t('flowEditor.categories.conversation.description'),
     },
@@ -236,13 +230,13 @@ function JourneyFlowEditor() {
 
   // Definir tipos de nodes para o NodePanel
   const nodePanelNodeTypes: Record<string, NodeType[]> = {
-    actions: [
+    controlFlow: [
       {
         id: 'wait-node',
         name: t('flowEditor.nodes.wait.name'),
         icon: ClockIcon,
         color: 'text-blue-400',
-        category: 'actions',
+        category: 'controlFlow',
         description: t('flowEditor.nodes.wait.description'),
       },
       {
@@ -250,7 +244,7 @@ function JourneyFlowEditor() {
         name: t('flowEditor.nodes.scheduledAction.name'),
         icon: Clock,
         color: 'text-orange-400',
-        category: 'actions',
+        category: 'controlFlow',
         description: t('flowEditor.nodes.scheduledAction.description'),
       },
       {
@@ -258,7 +252,7 @@ function JourneyFlowEditor() {
         name: t('flowEditor.nodes.conditional.name'),
         icon: GitBranch,
         color: 'text-yellow-400',
-        category: 'actions',
+        category: 'controlFlow',
         description: t('flowEditor.nodes.conditional.description'),
       },
       {
@@ -266,7 +260,7 @@ function JourneyFlowEditor() {
         name: t('flowEditor.nodes.split.name'),
         icon: Split,
         color: 'text-indigo-400',
-        category: 'actions',
+        category: 'controlFlow',
         description: t('flowEditor.nodes.split.description'),
       },
       {
@@ -274,7 +268,7 @@ function JourneyFlowEditor() {
         name: t('flowEditor.nodes.exitJourney.name'),
         icon: LogOut,
         color: 'text-red-400',
-        category: 'actions',
+        category: 'controlFlow',
         description: t('flowEditor.nodes.exitJourney.description'),
       },
       {
@@ -282,7 +276,7 @@ function JourneyFlowEditor() {
         name: t('flowEditor.nodes.transferJourney.name'),
         icon: ArrowRight,
         color: 'text-orange-400',
-        category: 'actions',
+        category: 'controlFlow',
         description: t('flowEditor.nodes.transferJourney.description'),
       },
       {
@@ -290,7 +284,7 @@ function JourneyFlowEditor() {
         name: t('flowEditor.nodes.setVariable.name'),
         icon: Variable,
         color: 'text-purple-400',
-        category: 'actions',
+        category: 'controlFlow',
         description: t('flowEditor.nodes.setVariable.description'),
       },
     ],
@@ -328,24 +322,6 @@ function JourneyFlowEditor() {
         description: t('flowEditor.nodes.sendTranscript.description'),
       },
     ],
-    labels: [
-      {
-        id: 'add-label-node',
-        name: t('flowEditor.nodes.addLabel.name'),
-        icon: Tag,
-        color: 'text-green-400',
-        category: 'labels',
-        description: t('flowEditor.nodes.addLabel.description'),
-      },
-      {
-        id: 'remove-label-node',
-        name: t('flowEditor.nodes.removeLabel.name'),
-        icon: Trash2,
-        color: 'text-red-400',
-        category: 'labels',
-        description: t('flowEditor.nodes.removeLabel.description'),
-      },
-    ],
     contact: [
       {
         id: 'update-contact-node',
@@ -362,6 +338,22 @@ function JourneyFlowEditor() {
         color: 'text-pink-400',
         category: 'contact',
         description: t('flowEditor.nodes.updateCustomAttribute.description'),
+      },
+      {
+        id: 'add-label-node',
+        name: t('flowEditor.nodes.addLabel.name'),
+        icon: Tag,
+        color: 'text-green-400',
+        category: 'contact',
+        description: t('flowEditor.nodes.addLabel.description'),
+      },
+      {
+        id: 'remove-label-node',
+        name: t('flowEditor.nodes.removeLabel.name'),
+        icon: Trash2,
+        color: 'text-red-400',
+        category: 'contact',
+        description: t('flowEditor.nodes.removeLabel.description'),
       },
       {
         id: 'assign-agent-node',

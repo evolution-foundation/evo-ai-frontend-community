@@ -332,25 +332,21 @@
       }
     },
     "categories": {
-      "actions": {
-        "label": "Ações",
-        "description": "Ações que podem ser executadas na jornada"
+      "controlFlow": {
+        "label": "Controle de Fluxo",
+        "description": "Aguardar, ramificar e direcionar a jornada"
       },
       "communication": {
         "label": "Comunicação",
-        "description": "Envio de mensagens e notificações"
-      },
-      "labels": {
-        "label": "Etiquetas",
-        "description": "Gerenciamento de etiquetas"
+        "description": "Enviar mensagens, webhooks e notificações"
       },
       "contact": {
         "label": "Contato",
-        "description": "Gerenciamento de contato"
+        "description": "Atualizar dados do contato, etiquetas e atribuições"
       },
       "conversation": {
-        "label": "Conversas",
-        "description": "Gerenciamento de conversas"
+        "label": "Conversa",
+        "description": "Silenciar, adiar, resolver e priorizar conversas"
       }
     }
   },
