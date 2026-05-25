@@ -203,17 +203,17 @@ export function BaseNodePanel({
         {/* Seletor de categoria */}
         {enableCategories && !searchQuery && (
           <Select value={activeTab} onValueChange={setActiveTab}>
-            <SelectTrigger className="w-full h-10 bg-sidebar-accent/30 border-sidebar-border text-sidebar-foreground">
-              <div className="flex items-center gap-2">
+            <SelectTrigger className="w-full h-auto min-h-14 py-2.5 px-3 bg-sidebar-accent/30 border-sidebar-border text-sidebar-foreground">
+              <div className="flex items-center gap-3 w-full">
                 {(() => {
                   const currentCategory = allCategories.find(cat => cat.value === activeTab);
                   const IconComponent = currentCategory?.icon || Grid3X3;
                   return (
                     <>
-                      <IconComponent className="h-4 w-4" />
-                      <div className="flex flex-col items-start">
-                        <span className="text-sm font-medium">{currentCategory?.label}</span>
-                        <span className="text-xs text-sidebar-foreground/60">{currentCategory?.description}</span>
+                      <IconComponent className="h-5 w-5 shrink-0" />
+                      <div className="flex flex-col items-start gap-0.5 min-w-0">
+                        <span className="text-sm font-medium leading-tight">{currentCategory?.label}</span>
+                        <span className="text-xs text-sidebar-foreground/60 leading-tight truncate">{currentCategory?.description}</span>
                       </div>
                     </>
                   );
@@ -224,12 +224,12 @@ export function BaseNodePanel({
               {allCategories.map(category => {
                 const IconComponent = category.icon;
                 return (
-                  <SelectItem key={category.value} value={category.value} className="text-sidebar-foreground">
-                    <div className="flex items-center gap-3 py-1">
-                      <IconComponent className="h-4 w-4" />
-                      <div className="flex flex-col">
-                        <span className="font-medium">{category.label}</span>
-                        <span className="text-xs text-sidebar-foreground/60">{category.description}</span>
+                  <SelectItem key={category.value} value={category.value} className="text-sidebar-foreground py-2.5">
+                    <div className="flex items-center gap-3">
+                      <IconComponent className="h-5 w-5 shrink-0" />
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-medium leading-tight">{category.label}</span>
+                        <span className="text-xs text-sidebar-foreground/60 leading-tight">{category.description}</span>
                       </div>
                     </div>
                   </SelectItem>

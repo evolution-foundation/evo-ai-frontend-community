@@ -457,7 +457,9 @@ function JourneyFlowEditor() {
       'set-variable-node': '#a855f7', // purple para definir variável
       'assign-agent-node': '#8b5cf6', // violet para atribuir agente
       'assign-team-node': '#0ea5e9', // sky para atribuir equipe
-      'assign-bot-node': '#a855f7', // purple para atribuir bot
+      // assign-bot uses the flow token directly so the entry survives the
+      // EVO-1270 sweep that converts the rest of this map to CSS vars.
+      'assign-bot-node': 'var(--color-flow-node-action-pipeline-border)',
       'send-email-team-node': '#10b981', // emerald para enviar email equipe
       'send-transcript-node': '#14b8a6', // teal para enviar transcrição
       'mute-conversation-node': '#64748b', // gray para silenciar conversa
