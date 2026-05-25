@@ -36,6 +36,7 @@ export * from './set-variable';
 // Assignment & Team Management
 export * from './assign-agent';
 export * from './assign-team';
+export * from './assign-bot';
 
 // Conversation Management
 export * from './mute-conversation';

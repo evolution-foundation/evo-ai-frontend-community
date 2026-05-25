@@ -310,6 +310,10 @@
         "assignTo": "Assign conversation to team",
         "noTeamSelected": "No team selected"
       },
+      "assignBot": {
+        "name": "Assign Bot",
+        "description": "Connects a specific bot to an inbox to automate responses"
+      },
       "muteConversation": {
         "name": "Mute Conversation",
         "description": "The conversation will be muted and will not generate notifications for Agents"

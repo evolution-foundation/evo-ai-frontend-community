@@ -50,6 +50,7 @@ import {
   SetVariableNode,
   AssignAgentNode,
   AssignTeamNode,
+  AssignBotNode,
   SendEmailTeamNode,
   SendTranscriptNode,
   MuteConversationNode,
@@ -75,6 +76,7 @@ import {
   SetVariablePanel,
   AssignAgentPanel,
   AssignTeamPanel,
+  AssignBotPanel,
   SendEmailTeamPanel,
   SendTranscriptPanel,
   MuteConversationPanel,
@@ -105,6 +107,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Clock,
+  Bot,
 } from 'lucide-react';
 
 /**
@@ -166,6 +169,7 @@ function JourneyFlowEditor() {
       'set-variable-node': SetVariableNode,
       'assign-agent-node': AssignAgentNode,
       'assign-team-node': AssignTeamNode,
+      'assign-bot-node': AssignBotNode,
       'send-email-team-node': SendEmailTeamNode,
       'send-transcript-node': SendTranscriptNode,
       'mute-conversation-node': MuteConversationNode,
@@ -375,6 +379,14 @@ function JourneyFlowEditor() {
         category: 'contact',
         description: t('flowEditor.nodes.assignTeam.description'),
       },
+      {
+        id: 'assign-bot-node',
+        name: t('flowEditor.nodes.assignBot.name'),
+        icon: Bot,
+        color: 'text-purple-400',
+        category: 'contact',
+        description: t('flowEditor.nodes.assignBot.description'),
+      },
     ],
     conversation: [
       {
@@ -431,6 +443,7 @@ function JourneyFlowEditor() {
       'set-variable-node': '#a855f7', // purple para definir variável
       'assign-agent-node': '#8b5cf6', // violet para atribuir agente
       'assign-team-node': '#0ea5e9', // sky para atribuir equipe
+      'assign-bot-node': '#a855f7', // purple para atribuir bot
       'send-email-team-node': '#10b981', // emerald para enviar email equipe
       'send-transcript-node': '#14b8a6', // teal para enviar transcrição
       'mute-conversation-node': '#64748b', // gray para silenciar conversa
@@ -492,6 +505,8 @@ function JourneyFlowEditor() {
           return <AssignAgentPanel {...commonProps} />;
         case 'assign-team-node':
           return <AssignTeamPanel {...commonProps} />;
+        case 'assign-bot-node':
+          return <AssignBotPanel {...commonProps} />;
         case 'send-email-team-node':
           return <SendEmailTeamPanel {...commonProps} />;
         case 'send-transcript-node':

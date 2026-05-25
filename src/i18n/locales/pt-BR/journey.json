@@ -310,6 +310,10 @@
         "assignTo": "Atribuir conversa para equipe",
         "noTeamSelected": "Nenhuma equipe selecionada"
       },
+      "assignBot": {
+        "name": "Atribuir Bot",
+        "description": "Conecta um bot específico a uma caixa de entrada para automatizar respostas"
+      },
       "muteConversation": {
         "name": "Silenciar Conversa",
         "description": "A conversa será silenciada e não gerará mais notificações para os atendentes"
