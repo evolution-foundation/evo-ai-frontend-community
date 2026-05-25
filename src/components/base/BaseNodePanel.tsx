@@ -323,7 +323,7 @@ export function BaseNodePanel({
 
       {/* Lista de nodes */}
       <div className={cn(
-        'px-4 pb-4 space-y-3 overflow-y-auto',
+        'px-4 pt-4 pb-4 space-y-3 overflow-y-auto',
         maxHeight,
         contentClassName,
       )}>
@@ -338,7 +338,7 @@ export function BaseNodePanel({
             const Icon = category.icon;
             return (
               <section key={category.value} className="space-y-2" aria-labelledby={`palette-group-${category.value}`}>
-                <div className="flex items-center gap-2 pt-1 first:pt-0">
+                <div className="flex items-center gap-2 pt-3 pb-1">
                   <Icon className="h-3.5 w-3.5 text-sidebar-foreground/60 shrink-0" />
                   <h4
                     id={`palette-group-${category.value}`}
