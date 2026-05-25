@@ -238,6 +238,7 @@ function JourneyFlowEditor() {
         color: 'text-blue-400',
         category: 'controlFlow',
         description: t('flowEditor.nodes.wait.description'),
+        searchKeywords: ['delay', 'pause', 'sleep', 'timer', 'hold'],
       },
       {
         id: 'scheduled-action-node',
@@ -246,6 +247,7 @@ function JourneyFlowEditor() {
         color: 'text-orange-400',
         category: 'controlFlow',
         description: t('flowEditor.nodes.scheduledAction.description'),
+        searchKeywords: ['schedule', 'defer', 'queue', 'later', 'cron', 'timer'],
       },
       {
         id: 'conditional-node',
@@ -254,6 +256,7 @@ function JourneyFlowEditor() {
         color: 'text-yellow-400',
         category: 'controlFlow',
         description: t('flowEditor.nodes.conditional.description'),
+        searchKeywords: ['branch', 'if', 'condition', 'route', 'switch', 'decision'],
       },
       {
         id: 'split-node',
@@ -262,6 +265,7 @@ function JourneyFlowEditor() {
         color: 'text-indigo-400',
         category: 'controlFlow',
         description: t('flowEditor.nodes.split.description'),
+        searchKeywords: ['ab', 'a/b', 'test', 'distribute', 'random', 'variant', 'experiment'],
       },
       {
         id: 'exit-journey-node',
@@ -270,6 +274,7 @@ function JourneyFlowEditor() {
         color: 'text-red-400',
         category: 'controlFlow',
         description: t('flowEditor.nodes.exitJourney.description'),
+        searchKeywords: ['exit', 'leave', 'terminate', 'end', 'stop', 'finish'],
       },
       {
         id: 'transfer-journey-node',
@@ -278,6 +283,7 @@ function JourneyFlowEditor() {
         color: 'text-orange-400',
         category: 'controlFlow',
         description: t('flowEditor.nodes.transferJourney.description'),
+        searchKeywords: ['transfer', 'move', 'redirect', 'switch', 'jump', 'journey'],
       },
       {
         id: 'set-variable-node',
@@ -286,6 +292,7 @@ function JourneyFlowEditor() {
         color: 'text-purple-400',
         category: 'controlFlow',
         description: t('flowEditor.nodes.setVariable.description'),
+        searchKeywords: ['variable', 'store', 'save', 'assign', 'set', 'value'],
       },
     ],
     communication: [
@@ -296,6 +303,7 @@ function JourneyFlowEditor() {
         color: 'text-blue-400',
         category: 'communication',
         description: t('flowEditor.nodes.sendMessage.description'),
+        searchKeywords: ['chat', 'text', 'reply', 'whatsapp', 'sms', 'communicate', 'send'],
       },
       {
         id: 'send-webhook-node',
@@ -304,6 +312,7 @@ function JourneyFlowEditor() {
         color: 'text-purple-400',
         category: 'communication',
         description: t('flowEditor.nodes.sendWebhook.description'),
+        searchKeywords: ['http', 'api', 'request', 'post', 'integration', 'callback', 'rest'],
       },
       {
         id: 'send-email-team-node',
@@ -312,6 +321,7 @@ function JourneyFlowEditor() {
         color: 'text-emerald-400',
         category: 'communication',
         description: t('flowEditor.nodes.sendEmailTeam.description'),
+        searchKeywords: ['email', 'mail', 'team', 'notify', 'internal'],
       },
       {
         id: 'send-transcript-node',
@@ -320,6 +330,7 @@ function JourneyFlowEditor() {
         color: 'text-teal-400',
         category: 'communication',
         description: t('flowEditor.nodes.sendTranscript.description'),
+        searchKeywords: ['transcript', 'export', 'history', 'log', 'summary'],
       },
     ],
     contact: [
@@ -330,6 +341,7 @@ function JourneyFlowEditor() {
         color: 'text-cyan-400',
         category: 'contact',
         description: t('flowEditor.nodes.updateContact.description'),
+        searchKeywords: ['edit', 'modify', 'change', 'profile', 'data'],
       },
       {
         id: 'update-custom-attribute-node',
@@ -338,6 +350,7 @@ function JourneyFlowEditor() {
         color: 'text-pink-400',
         category: 'contact',
         description: t('flowEditor.nodes.updateCustomAttribute.description'),
+        searchKeywords: ['attribute', 'field', 'custom', 'metadata', 'property'],
       },
       {
         id: 'add-label-node',
@@ -346,6 +359,7 @@ function JourneyFlowEditor() {
         color: 'text-green-400',
         category: 'contact',
         description: t('flowEditor.nodes.addLabel.description'),
+        searchKeywords: ['tag', 'classify', 'mark', 'categorize', 'etiqueta'],
       },
       {
         id: 'remove-label-node',
@@ -354,6 +368,7 @@ function JourneyFlowEditor() {
         color: 'text-red-400',
         category: 'contact',
         description: t('flowEditor.nodes.removeLabel.description'),
+        searchKeywords: ['untag', 'unmark', 'delete', 'label', 'etiqueta'],
       },
       {
         id: 'assign-agent-node',
@@ -362,6 +377,7 @@ function JourneyFlowEditor() {
         color: 'text-violet-400',
         category: 'contact',
         description: t('flowEditor.nodes.assignAgent.description'),
+        searchKeywords: ['user', 'operator', 'handoff', 'agent', 'route'],
       },
       {
         id: 'assign-team-node',
@@ -370,6 +386,7 @@ function JourneyFlowEditor() {
         color: 'text-sky-400',
         category: 'contact',
         description: t('flowEditor.nodes.assignTeam.description'),
+        searchKeywords: ['team', 'group', 'queue', 'handoff', 'route'],
       },
       {
         id: 'assign-bot-node',
@@ -378,6 +395,7 @@ function JourneyFlowEditor() {
         color: 'text-purple-400',
         category: 'contact',
         description: t('flowEditor.nodes.assignBot.description'),
+        searchKeywords: ['bot', 'automation', 'ai', 'assistant', 'automate'],
       },
     ],
     conversation: [
@@ -388,6 +406,7 @@ function JourneyFlowEditor() {
         color: 'text-gray-400',
         category: 'conversation',
         description: t('flowEditor.nodes.muteConversation.description'),
+        searchKeywords: ['mute', 'silence', 'quiet', 'hide', 'suppress'],
       },
       {
         id: 'defer-conversation-node',
@@ -396,6 +415,7 @@ function JourneyFlowEditor() {
         color: 'text-yellow-400',
         category: 'conversation',
         description: t('flowEditor.nodes.deferConversation.description'),
+        searchKeywords: ['snooze', 'defer', 'postpone', 'delay', 'later'],
       },
       {
         id: 'resolve-conversation-node',
@@ -404,6 +424,7 @@ function JourneyFlowEditor() {
         color: 'text-green-400',
         category: 'conversation',
         description: t('flowEditor.nodes.resolveConversation.description'),
+        searchKeywords: ['resolve', 'close', 'complete', 'finish', 'done'],
       },
       {
         id: 'change-priority-node',
@@ -412,6 +433,7 @@ function JourneyFlowEditor() {
         color: 'text-indigo-400',
         category: 'conversation',
         description: t('flowEditor.nodes.changePriority.description'),
+        searchKeywords: ['priority', 'urgent', 'importance', 'vip', 'escalate'],
       },
     ],
   };
