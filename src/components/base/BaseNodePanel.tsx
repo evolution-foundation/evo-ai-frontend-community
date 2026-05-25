@@ -31,6 +31,10 @@ export interface NodeType {
   icon: LucideIcon;
   color: string;
   category?: string;
+  // English synonyms / aliases checked in addition to the locale-resolved
+  // name + description by the palette search. Lets users find a node by
+  // technical or alternative terms (e.g. "tag" for add-label).
+  searchKeywords?: string[];
 }
 
 export interface NodeCategory {
@@ -111,12 +115,13 @@ export function BaseNodePanel({
   const getFilteredNodes = (nodes: NodeType[]) => {
     if (!searchQuery) return nodes;
 
-    // Ensure nodes is an array
     if (!Array.isArray(nodes)) return [];
 
+    const q = searchQuery.toLowerCase();
     return nodes.filter(node =>
-      node.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      node.description.toLowerCase().includes(searchQuery.toLowerCase())
+      node.name.toLowerCase().includes(q) ||
+      node.description.toLowerCase().includes(q) ||
+      (node.searchKeywords ?? []).some(kw => kw.toLowerCase().includes(q))
     );
   };
 
