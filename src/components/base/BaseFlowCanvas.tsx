@@ -27,6 +27,7 @@ import { BaseFlowContextMenu } from './BaseFlowContextMenu';
 import { BaseFlowHelperLines } from './BaseFlowHelperLines';
 import BaseDefaultEdge from './BaseDefaultEdge';
 import { cn, getHelperLines, createMiniMapNodeColors } from '@/lib/utils';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 // Edge types padrão
 const defaultEdgeTypes = {
@@ -169,6 +170,7 @@ export function BaseFlowCanvas({
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
   const { type, setPointerEvents, setType } = useDnD();
+  const { theme } = useDarkMode();
 
   // Estados do canvas
   const [nodes, setNodes, onNodesChangeInternal] = useNodesState(initialNodes);
@@ -476,7 +478,7 @@ export function BaseFlowCanvas({
         snapToGrid={snapToGrid}
         snapGrid={snapGrid}
         proOptions={proOptions}
-        colorMode="dark"
+        colorMode={theme === 'dark' ? 'dark' : 'light'}
         deleteKeyCode={['Backspace', 'Delete']}
         multiSelectionKeyCode={['Meta', 'Ctrl']}
         panOnDrag={true}
