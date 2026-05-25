@@ -51,7 +51,7 @@
         "conversation_closed": "Conversación Cerrada",
         "message_updated": "Mensaje Actualizado",
         "message_deleted": "Mensaje Eliminado",
-        "channel_message": "Nuevo mensaje via {{channel}}"
+        "channel_message": "Nuevo mensaje vía {{channel}}"
       }
     }
   },

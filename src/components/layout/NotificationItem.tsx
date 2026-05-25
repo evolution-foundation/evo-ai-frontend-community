@@ -74,7 +74,6 @@ export default function NotificationItem({
     ? t('notifications.panel.types.channel_message', { channel: channelName })
     : getTypeLabel(notification.notification_type);
 
-
   const activityDate = useMemo(() => {
     if (!notification.last_activity_at) return null;
     const d = new Date(notification.last_activity_at);
