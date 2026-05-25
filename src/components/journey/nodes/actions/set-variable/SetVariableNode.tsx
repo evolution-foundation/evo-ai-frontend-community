@@ -103,7 +103,7 @@ export function SetVariableNode({ selected, data, id }: SetVariableNodeProps) {
             {t('flowEditor.nodes.setVariable.name')}
           </h3>
           {data.variableName && (
-            <p className="text-xs text-gray-600 dark:text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {data.variableName}
             </p>
           )}
@@ -125,7 +125,7 @@ export function SetVariableNode({ selected, data, id }: SetVariableNodeProps) {
               <div className={`text-xs font-medium ${getOperationColor()}`}>
                 {getOperationLabel()}
               </div>
-              <div className="text-xs text-gray-600 dark:text-muted-foreground mt-1">
+              <div className="text-xs text-muted-foreground mt-1">
                 {getPreviewValue()}
               </div>
             </div>

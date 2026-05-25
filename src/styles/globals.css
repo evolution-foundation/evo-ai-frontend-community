@@ -414,14 +414,25 @@
 /*
  * React Flow theming bridge (EVO-1270).
  *
- * React Flow ships its own `--xy-*` design tokens with light defaults at
- * `.react-flow` and dark defaults at `.react-flow.dark`. Our CRM toggles
- * `.dark` on the html root (shadcn pattern) instead of on the React Flow
- * wrapper, so React Flow's own dark variant never activates and the
- * canvas chrome (Controls, MiniMap internals, edges) stays stuck on
- * one default per build. Override the relevant `--xy-*` defaults with
- * shadcn semantic tokens so the Flow Builder chrome tracks the global
- * light/dark toggle.
+ * React Flow ships its own `--xy-*` design tokens with light defaults
+ * scoped to `.react-flow {}` and dark defaults scoped to
+ * `.react-flow.dark {}`. The CRM theme toggle drives that `.dark` class
+ * on the React Flow wrapper via the `colorMode` prop on <ReactFlow>
+ * (set in BaseFlowCanvas from the `useDarkMode()` hook), so the
+ * package's own dark switching now works correctly out of the box.
+ *
+ * We still want the chrome (Controls, MiniMap internals, edges,
+ * attribution, handle) to look like the rest of the CRM, so this block
+ * remaps the relevant `--xy-*-default` tokens onto the shadcn semantic
+ * tokens (--color-card, --color-foreground, --color-border, etc.).
+ * Each shadcn token has its own light/dark resolution in @evoapi/
+ * design-system/styles, so the chrome tracks the global theme via the
+ * shadcn cascade.
+ *
+ * Specificity is bumped to `.react-flow.react-flow` so this block beats
+ * the package's `.react-flow.dark {}` selector when both load (the
+ * package CSS is imported in main.tsx before globals.css so cascade
+ * order also favours this file).
  */
 .react-flow.react-flow {
   --xy-controls-button-background-color-default: var(--color-card);
