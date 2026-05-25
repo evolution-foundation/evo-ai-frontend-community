@@ -80,7 +80,7 @@ export function BaseNodePanel({
   title,
   subtitle,
   width = 'w-[420px]',
-  maxHeight = 'max-h-96',
+  maxHeight = 'max-h-[60vh]',
   enableSearch = true,
   enableCategories = true,
   showAllCategory = true,
