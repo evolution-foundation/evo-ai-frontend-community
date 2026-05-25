@@ -156,6 +156,79 @@ export function BaseNodePanel({
 
   const nodesToShow = getNodesToShow();
 
+  // EVO-1268 AC#1: the 'All' view groups nodes under category headers
+  // instead of showing a flat list, so the user can scan the palette
+  // by purpose. The grouped layout activates only when 'All' is active
+  // AND there is no active search query (search keeps a flat list
+  // because the matches span categories).
+  const useGroupedLayout = activeTab === 'todos' && !searchQuery && enableCategories;
+  const groupsToRender = useGroupedLayout
+    ? categories
+        .map(cat => ({ category: cat, nodes: nodeTypes[cat.value] ?? [] }))
+        .filter(group => group.nodes.length > 0)
+    : null;
+
+  const renderNodeCard = (node: NodeType) => (
+    <TooltipProvider key={node.id} delayDuration={300}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            draggable
+            onDragStart={event => onDragStart(event, node.id)}
+            className={cn(
+              'group flex items-center gap-3 p-3 border rounded-lg cursor-grab transition-all duration-200',
+              'bg-sidebar border-sidebar-border hover:bg-sidebar-accent/50 hover:border-sidebar-border',
+              'hover:shadow-md',
+              nodeClassName,
+            )}
+          >
+            <div
+              className={cn(
+                'flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200',
+                'bg-sidebar-accent/30 border border-sidebar-border group-hover:scale-105',
+              )}
+            >
+              <node.icon className={cn('h-5 w-5', node.color)} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="font-medium block text-sm text-sidebar-foreground">
+                {node.name}
+              </span>
+              <span className="text-xs text-sidebar-foreground/60 truncate block">
+                {node.description}
+              </span>
+            </div>
+            <div
+              onClick={() => handleNodeAdd(node.id)}
+              className={cn(
+                'flex items-center justify-center h-8 w-8 rounded-md',
+                'bg-sidebar-accent/50 border border-sidebar-border text-sidebar-foreground/60',
+                'hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all',
+              )}
+            >
+              <Plus size={16} />
+            </div>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent
+          side="right"
+          className="bg-sidebar border-sidebar-border text-sidebar-foreground shadow-lg"
+        >
+          <div className="p-2 max-w-[200px]">
+            <p className="font-medium text-sm">
+              {node.name}
+            </p>
+            <p className="text-xs text-sidebar-foreground/70 mt-1">{node.description}</p>
+            <div className="flex items-center mt-2 pt-2 border-t border-sidebar-border text-xs text-sidebar-foreground/60">
+              <MoveRight className="h-3 w-3 mr-1.5" />
+              <span>{t('base.flow.panel.dragToAdd')}</span>
+            </div>
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+
   return (
     <div className={cn(
       'bg-sidebar border border-sidebar-border rounded-lg shadow-lg transition-all duration-300 ease-in-out overflow-hidden',
@@ -252,7 +325,7 @@ export function BaseNodePanel({
       <div className={cn(
         'px-4 pb-4 space-y-3 overflow-y-auto',
         maxHeight,
-        contentClassName
+        contentClassName,
       )}>
         {nodesToShow.length === 0 && searchQuery ? (
           <div className="text-center py-8">
@@ -260,67 +333,29 @@ export function BaseNodePanel({
               {t('base.flow.panel.noResults', { query: searchQuery })}
             </p>
           </div>
-        ) : (
-          nodesToShow.map(node => (
-            <TooltipProvider key={node.id} delayDuration={300}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div
-                    draggable
-                    onDragStart={event => onDragStart(event, node.id)}
-                    className={cn(
-                      'group flex items-center gap-3 p-3 border rounded-lg cursor-grab transition-all duration-200',
-                      'bg-sidebar border-sidebar-border hover:bg-sidebar-accent/50 hover:border-sidebar-border',
-                      'hover:shadow-md',
-                      nodeClassName
-                    )}
+        ) : groupsToRender ? (
+          groupsToRender.map(({ category, nodes }) => {
+            const Icon = category.icon;
+            return (
+              <section key={category.value} className="space-y-2" aria-labelledby={`palette-group-${category.value}`}>
+                <div className="flex items-center gap-2 pt-1 first:pt-0">
+                  <Icon className="h-3.5 w-3.5 text-sidebar-foreground/60 shrink-0" />
+                  <h4
+                    id={`palette-group-${category.value}`}
+                    className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/60"
                   >
-                    <div
-                      className={cn(
-                        'flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200',
-                        'bg-sidebar-accent/30 border border-sidebar-border group-hover:scale-105',
-                      )}
-                    >
-                      <node.icon className={cn('h-5 w-5', node.color)} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <span className="font-medium block text-sm text-sidebar-foreground">
-                        {node.name}
-                      </span>
-                      <span className="text-xs text-sidebar-foreground/60 truncate block">
-                        {node.description}
-                      </span>
-                    </div>
-                    <div
-                      onClick={() => handleNodeAdd(node.id)}
-                      className={cn(
-                        'flex items-center justify-center h-8 w-8 rounded-md',
-                        'bg-sidebar-accent/50 border border-sidebar-border text-sidebar-foreground/60',
-                        'hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all',
-                      )}
-                    >
-                      <Plus size={16} />
-                    </div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent
-                  side="right"
-                  className="bg-sidebar border-sidebar-border text-sidebar-foreground shadow-lg"
-                >
-                  <div className="p-2 max-w-[200px]">
-                    <p className="font-medium text-sm">
-                      {node.name}
-                    </p>
-                    <p className="text-xs text-sidebar-foreground/70 mt-1">{node.description}</p>
-                    <div className="flex items-center mt-2 pt-2 border-t border-sidebar-border text-xs text-sidebar-foreground/60">
-                      <MoveRight className="h-3 w-3 mr-1.5" />
-                      <span>{t('base.flow.panel.dragToAdd')}</span>
-                    </div>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ))
+                    {category.label}
+                  </h4>
+                  <span className="text-xs text-sidebar-foreground/40 ml-auto">{nodes.length}</span>
+                </div>
+                <div className="space-y-2">
+                  {nodes.map(node => renderNodeCard(node))}
+                </div>
+              </section>
+            );
+          })
+        ) : (
+          nodesToShow.map(node => renderNodeCard(node))
         )}
       </div>
     </div>

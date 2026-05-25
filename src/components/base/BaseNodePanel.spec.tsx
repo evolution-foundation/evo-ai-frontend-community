@@ -162,4 +162,32 @@ describe('BaseNodePanel', () => {
     expect(screen.queryByText('Wait')).toBeNull();
     expect(screen.queryByText('Add Label')).toBeNull();
   });
+
+  it('groups nodes under category headers in the "All" view (AC#1)', () => {
+    render(<BaseNodePanel nodeTypes={nodeTypes} categories={categories} />);
+    // A section per non-empty category, each labelled by its translated label.
+    const sections = screen.getAllByRole('region');
+    expect(sections.length).toBe(3);
+    expect(screen.getByRole('region', { name: /control flow/i })).toBeTruthy();
+    expect(screen.getByRole('region', { name: /communication/i })).toBeTruthy();
+    expect(screen.getByRole('region', { name: /contact/i })).toBeTruthy();
+    // Empty conversation category does not produce a section header.
+    expect(screen.queryByRole('region', { name: /^conversation$/i })).toBeNull();
+  });
+
+  it('grouped view stays scoped to its category — wait is rendered inside the Control Flow section', () => {
+    render(<BaseNodePanel nodeTypes={nodeTypes} categories={categories} />);
+    const controlFlow = screen.getByRole('region', { name: /control flow/i });
+    expect(within(controlFlow).getByText('Wait')).toBeTruthy();
+    expect(within(controlFlow).queryByText('Send Message')).toBeNull();
+  });
+
+  it('grouped layout collapses to a flat list while a search query is active', async () => {
+    const user = userEvent.setup();
+    render(<BaseNodePanel nodeTypes={nodeTypes} categories={categories} />);
+    const input = screen.getByPlaceholderText('Search components…');
+    await user.type(input, 'wait');
+    expect(screen.queryByRole('region', { name: /control flow/i })).toBeNull();
+    expect(screen.getByText('Wait')).toBeTruthy();
+  });
 });
