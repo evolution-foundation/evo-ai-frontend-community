@@ -189,7 +189,7 @@ function CommandGroupSection({
                 {selectedLabel(item, currentLanguage)}
                 {item.category === 'custom' && (
                   <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium uppercase text-amber-700 dark:text-amber-300">
-                    Custom
+                    {t('selector.customBadge')}
                   </span>
                 )}
               </span>

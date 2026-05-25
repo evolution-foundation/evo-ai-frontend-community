@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from 'react';
+import { useId, useMemo, useState, useEffect } from 'react';
 import { Plus, X, AlertTriangle, ChevronsUpDown } from 'lucide-react';
 import {
   Button,
@@ -88,9 +88,22 @@ function SchemaDrivenFields({
 }) {
   const [shownOptional, setShownOptional] = useState<string[]>([]);
 
+  // F1 fix: when eventName changes upstream, optionalFields changes synchronously
+  // but shownOptional state lingers. Compute the filtered set at render time
+  // so a stale entry never reaches SchemaField as spec=undefined. The useEffect
+  // below prunes the stored state on next tick for tidiness.
+  const visibleOptional = useMemo(
+    () => shownOptional.filter((field) => field in optionalFields),
+    [shownOptional, optionalFields],
+  );
+
+  useEffect(() => {
+    setShownOptional((prev) => prev.filter((field) => field in optionalFields));
+  }, [optionalFields]);
+
   const optionalKeysAvailable = useMemo(
-    () => Object.keys(optionalFields).filter((k) => !shownOptional.includes(k)),
-    [optionalFields, shownOptional],
+    () => Object.keys(optionalFields).filter((k) => !visibleOptional.includes(k)),
+    [optionalFields, visibleOptional],
   );
 
   const handleFieldChange = (field: string, raw: unknown) => {
@@ -126,9 +139,9 @@ function SchemaDrivenFields({
         </FieldSection>
       )}
 
-      {(shownOptional.length > 0 || optionalKeysAvailable.length > 0) && (
+      {(visibleOptional.length > 0 || optionalKeysAvailable.length > 0) && (
         <FieldSection title={t('propertiesForm.optionalSectionLabel')}>
-          {shownOptional.map((field) => (
+          {visibleOptional.map((field) => (
             <SchemaField
               key={field}
               field={field}
@@ -313,7 +326,9 @@ function OptionalFieldPicker({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-        <Command>
+        {/* F6 fix: key={open} remounts the Command on each open, clearing any
+            leftover CommandInput query from the previous open. */}
+        <Command key={String(open)}>
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
             <CommandEmpty>{noResultsLabel}</CommandEmpty>
@@ -338,6 +353,16 @@ function OptionalFieldPicker({
   );
 }
 
+type Pair = { key: string; value: string };
+
+function pairsFromValue(value: EventPropertiesValue): Pair[] {
+  const seeded = Object.entries(value).map<Pair>(([k, v]) => ({
+    key: k,
+    value: typeof v === 'object' && v !== null ? JSON.stringify(v) : v == null ? '' : String(v),
+  }));
+  return seeded.length > 0 ? seeded : [{ key: '', value: '' }];
+}
+
 function CustomKeyValueEditor({
   value,
   onChange,
@@ -351,17 +376,17 @@ function CustomKeyValueEditor({
   className?: string;
   t: (key: string) => string;
 }) {
-  type Pair = { key: string; value: string };
-  const initialPairs: Pair[] = useMemo(
-    () =>
-      Object.entries(value).map(([k, v]) => ({
-        key: k,
-        value: typeof v === 'object' && v !== null ? JSON.stringify(v) : v == null ? '' : String(v),
-      })),
+  const [pairs, setPairs] = useState<Pair[]>(() => pairsFromValue(value));
+
+  // F5 fix: resync pairs when the value's KEY SET changes upstream (e.g.,
+  // parent resets value to {} or hydrates with a new payload). Tracking only
+  // the key set, not the full value, means in-flight edits to a value field
+  // don't get clobbered by our own emit() roundtrip.
+  const valueKeySet = Object.keys(value).sort().join('|');
+  useEffect(() => {
+    setPairs(pairsFromValue(value));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-  const [pairs, setPairs] = useState<Pair[]>(initialPairs.length > 0 ? initialPairs : [{ key: '', value: '' }]);
+  }, [valueKeySet]);
 
   const emit = (next: Pair[]) => {
     const flat: EventPropertiesValue = {};

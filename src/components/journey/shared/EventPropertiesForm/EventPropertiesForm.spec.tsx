@@ -100,4 +100,35 @@ describe('EventPropertiesForm', () => {
     expect(keys[0]).toHaveProperty('value', 'env');
     expect(keys[1]).toHaveProperty('value', 'user_id');
   });
+
+  // F1: switching eventName drops revealed optional fields that don't exist in
+  // the new schema, so SchemaField never receives spec=undefined.
+  it('does not crash when eventName switches away from a schema with revealed optionals', async () => {
+    const user = userEvent.setup();
+    function Switcher() {
+      const [eventName, setEventName] = useState('message.delivered');
+      const [value, setValue] = useState<EventPropertiesValue>({});
+      return (
+        <>
+          <button onClick={() => setEventName('contact.created')}>switch</button>
+          <EventPropertiesForm eventName={eventName} value={value} onChange={setValue} />
+        </>
+      );
+    }
+    render(<Switcher />);
+
+    // Reveal an optional field on message.delivered
+    const picker = screen.getByRole('combobox');
+    await user.click(picker);
+    const listbox = await screen.findByRole('listbox');
+    await user.click(within(listbox).getByText('previous_status'));
+    expect(screen.getByText('previous_status')).toBeTruthy();
+
+    // Switch eventName; previous_status is not in contact.created's schema —
+    // must NOT throw and must NOT render previous_status anymore.
+    await user.click(screen.getByText('switch'));
+    expect(screen.queryByText('previous_status')).toBeNull();
+    // contact.created shows its own required fields
+    expect(screen.getByText('id')).toBeTruthy();
+  });
 });

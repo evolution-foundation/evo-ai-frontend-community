@@ -3,7 +3,8 @@
     "placeholder": "Sélectionnez un événement",
     "searchPlaceholder": "Rechercher un événement...",
     "noResults": "Aucun événement trouvé",
-    "customLabel": "Événement personnalisé"
+    "customLabel": "Événement personnalisé",
+    "customBadge": "Custom"
   },
   "categories": {
     "contact": "Événements de contact",
