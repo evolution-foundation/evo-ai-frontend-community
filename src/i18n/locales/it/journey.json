@@ -322,6 +322,10 @@
         "assignTo": "Assegna conversazione al team",
         "noTeamSelected": "Nessun team selezionato"
       },
+      "assignBot": {
+        "name": "Assegna Bot",
+        "description": "Connette un bot specifico a una casella di posta per automatizzare le risposte"
+      },
       "muteConversation": {
         "name": "Silenzia Conversazione",
         "description": "La conversazione verrà silenziata e non genererà più notifiche per gli Agenti"
@@ -340,25 +344,21 @@
       }
     },
     "categories": {
-      "actions": {
-        "label": "Azioni",
-        "description": "Azioni che possono essere eseguite nel percorso"
+      "controlFlow": {
+        "label": "Controllo di Flusso",
+        "description": "Aspettare, ramificare e indirizzare il percorso"
       },
       "communication": {
         "label": "Comunicazione",
-        "description": "Invio di messaggi e notifiche"
-      },
-      "labels": {
-        "label": "Etichette",
-        "description": "Gestione delle etichette"
+        "description": "Inviare messaggi, webhook e notifiche"
       },
       "contact": {
         "label": "Contatto",
-        "description": "Gestione del contatto"
+        "description": "Aggiornare dati contatto, etichette e assegnazioni"
       },
       "conversation": {
-        "label": "Conversazioni",
-        "description": "Gestione delle conversazioni"
+        "label": "Conversazione",
+        "description": "Silenziare, posticipare, risolvere e dare priorità alle conversazioni"
       }
     }
   },
