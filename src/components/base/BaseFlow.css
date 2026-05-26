@@ -29,13 +29,18 @@
   padding: 5px;
 }
 
+/*
+ * Controls chrome — keep the structural rules (sizing, radius, blur)
+ * but defer all colour decisions to React Flow's own --xy-* defaults,
+ * which are remapped to shadcn semantic tokens in globals.css. The
+ * previous block hardcoded dark rgba(...) values with !important and
+ * stomped on the light theme (EVO-1270).
+ */
 .react-flow__controls {
-  background-color: rgba(30, 30, 30, 0.8);
   backdrop-filter: blur(4px);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(70, 70, 70, 0.5);
+  box-shadow: 0 4px 15px color-mix(in srgb, var(--color-foreground) 18%, transparent);
   padding: 4px;
 }
 
@@ -44,10 +49,7 @@
   width: 32px;
   height: 32px;
   margin: 4px 0;
-  border: none !important;
-  background-color: rgba(40, 40, 40, 0.8) !important;
-  color: #a0a0a0 !important;
-  border-radius: 6px !important;
+  border-radius: 6px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -55,24 +57,14 @@
 }
 
 .react-flow__controls-button:hover {
-  background-color: rgba(60, 60, 60, 0.9) !important;
-  color: #ffffff !important;
   transform: translateY(-1px);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 5px color-mix(in srgb, var(--color-foreground) 12%, transparent);
 }
 
 .react-flow__controls-button svg {
   fill: currentColor;
   width: 16px;
   height: 16px;
-}
-
-.react-flow__controls-button[data-action="zoom-in"] {
-  border-bottom: 1px solid rgba(70, 70, 70, 0.5) !important;
-}
-
-.react-flow__controls-button[data-action="zoom-out"] {
-  border-bottom: 1px solid rgba(70, 70, 70, 0.5) !important;
 }
 
 /* Hide scrollbar for all browsers while maintaining scroll functionality */
@@ -310,20 +302,10 @@
   }
 }
 
-/* Dark theme adjustments */
-@media (prefers-color-scheme: dark) {
-  .react-flow__controls {
-    background-color: rgba(20, 20, 20, 0.9);
-    border-color: rgba(60, 60, 60, 0.5);
-  }
-
-  .react-flow__controls-button {
-    background-color: rgba(30, 30, 30, 0.8) !important;
-    color: #b0b0b0 !important;
-  }
-
-  .react-flow__controls-button:hover {
-    background-color: rgba(50, 50, 50, 0.9) !important;
-    color: #ffffff !important;
-  }
-}
+/*
+ * Removed: legacy @media (prefers-color-scheme: dark) block that
+ * duplicated the hardcoded dark control styles. The CRM theme toggle is
+ * the canonical switch (not the OS preference), and React Flow's own
+ * `.react-flow.dark { ... }` defaults — driven by the colorMode prop
+ * (EVO-1270 C7) — handle the dark variant correctly.
+ */

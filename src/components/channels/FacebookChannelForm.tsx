@@ -4,6 +4,7 @@ import { useGlobalConfig } from '@/contexts/GlobalConfigContext';
 import ChannelsService from '@/services/channels/channelsService';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
+import HubConnectButton from '@/components/inbox/HubConnectButton';
 
 // Facebook SDK types
 declare global {
@@ -22,6 +23,7 @@ interface FacebookChannelFormProps {
 export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookChannelFormProps) {
   const { t } = useLanguage('messenger');
   const config = useGlobalConfig();
+  const hubEnabled = config.evolutionHubEnabled === true;
 
   const [hasLoginStarted, setHasLoginStarted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -275,6 +277,32 @@ export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookCha
     setSelected(null);
     setInboxName('');
   };
+
+  // Evo Hub branch — short-circuit the native Facebook OAuth flow.
+  // The Hub owns the Meta authorization; the button below creates the inbox
+  // via /api/v1/inboxes (via_hub: true) and opens the Hub connect page.
+  if (hubEnabled) {
+    return (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-foreground">
+            {t('channelName')}
+          </label>
+          <Input
+            placeholder={t('channelNamePlaceholder')}
+            value={inboxName}
+            onChange={(e) => setInboxName(e.target.value)}
+          />
+        </div>
+        <HubConnectButton channelType="facebook_page" name={inboxName} />
+        <div className="text-center">
+          <Button variant="outline" onClick={onCancel}>
+            {t('cancel')}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // Initial state - show login button
   if (!hasLoginStarted) {

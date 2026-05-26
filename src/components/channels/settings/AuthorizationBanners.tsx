@@ -215,6 +215,38 @@ const AuthorizationSuccessBanner: React.FC<{
   const [isReconnecting, setIsReconnecting] = useState(false);
   const [isSyncingSubscription, setIsSyncingSubscription] = useState(false);
 
+  // When the inbox was created through Evo Hub, the channel record
+  // carries a public_link that drives the Meta OAuth flow on the Hub side.
+  // Native FB SDK reconnect cannot work for these inboxes (the CRM never
+  // sees Meta App IDs in Hub mode), so we short-circuit Reconnect to open
+  // that link instead.
+  const hubPublicLink: string | null = (() => {
+    // The inbox jbuilder flattens channel fields onto the inbox object itself
+    // (legacy Chatwoot shape). Read provider_config/evolution_hub_meta from
+    // both the legacy nested .channel for safety and from the inbox root.
+    const ch: any = inbox?.channel ?? {};
+    const fromInboxProviderConfig =
+      (inbox as any)?.provider_config?.evolution_hub?.public_link;
+    const fromInboxMeta = (inbox as any)?.evolution_hub_meta?.public_link;
+    const fromChannelProviderConfig = ch?.provider_config?.evolution_hub?.public_link;
+    const fromChannelMeta = ch?.evolution_hub_meta?.public_link;
+    const result = (
+      fromInboxProviderConfig ||
+      fromInboxMeta ||
+      fromChannelProviderConfig ||
+      fromChannelMeta ||
+      null
+    ) as string | null;
+    // eslint-disable-next-line no-console
+    console.debug('[hubPublicLink debug]', {
+      result,
+      inbox_root_provider_config: (inbox as any)?.provider_config,
+      inbox_root_evolution_hub_meta: (inbox as any)?.evolution_hub_meta,
+      inbox_channel: ch,
+    });
+    return result;
+  })();
+
   const handleSyncWhatsappSubscription = async () => {
     setIsSyncingSubscription(true);
     try {
@@ -567,6 +599,13 @@ const AuthorizationSuccessBanner: React.FC<{
 
   const handleReconnect = async () => {
     const providerLower = provider.toLowerCase();
+
+    // Hub-relayed inboxes: open the Hub public_link instead of the native
+    // Meta OAuth. Only the 3 Meta channels carry a public_link.
+    if (hubPublicLink && ['facebook', 'instagram', 'whatsapp'].includes(providerLower)) {
+      window.open(hubPublicLink, '_blank', 'noopener,noreferrer');
+      return;
+    }
 
     if (providerLower === 'facebook') {
       await handleReconnectFacebook();

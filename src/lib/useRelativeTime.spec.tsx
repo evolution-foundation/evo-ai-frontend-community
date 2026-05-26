@@ -65,6 +65,29 @@ describe('useRelativeTime', () => {
     expect(vi.getTimerCount()).toBe(before);
   });
 
+  it('snaps `now` to the wall-clock when the input date changes (save-just-landed)', () => {
+    // Reproduces the bug fixed in EVO-1258: while mounted, the user saves,
+    // which flips lastSavedAt from 2h ago to right now. `now` must follow
+    // immediately during the same render so the label reads "just now",
+    // not "X minutes ago" where X was the user's session length.
+    const initialDate = new Date(FIXED_NOW.getTime() - 2 * 60 * 60 * 1000);
+    const { result, rerender } = renderHook(({ date }) => useRelativeTime(date), {
+      initialProps: { date: initialDate },
+    });
+    expect(result.current.getTime()).toBe(FIXED_NOW.getTime());
+
+    // Wall-clock advances 30 minutes (user editing without saving).
+    const elapsedNow = new Date(FIXED_NOW.getTime() + 30 * 60 * 1000);
+    vi.setSystemTime(elapsedNow);
+
+    // User clicks Save — store.commitSave(new Date()) flips lastSavedAt to NOW.
+    rerender({ date: new Date(elapsedNow.getTime()) });
+
+    // `now` must follow the wall-clock so the formatted label reads
+    // "just now", not the stale mount-time value.
+    expect(result.current.getTime()).toBe(elapsedNow.getTime());
+  });
+
   it('adapts cadence as the date ages within a single mount (recursive setTimeout)', () => {
     // Start fresh: cadence should be 30s for the first minute.
     const date = new Date(FIXED_NOW.getTime() - 10_000);

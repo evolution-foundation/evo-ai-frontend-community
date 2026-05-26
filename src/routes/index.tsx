@@ -88,6 +88,7 @@ const SocialLoginConfig = React.lazy(() => import('@/pages/Admin/Settings/Social
 const ChannelConfig = React.lazy(() => import('@/pages/Admin/Settings/ChannelConfig'));
 const OpenAIConfig = React.lazy(() => import('@/pages/Admin/Settings/OpenAIConfig'));
 const IntegrationsConfig = React.lazy(() => import('@/pages/Admin/Settings/IntegrationsConfig'));
+const EvolutionHubConfig = React.lazy(() => import('@/pages/Admin/Settings/EvolutionHubConfig'));
 const InboundEmailConfig = React.lazy(() => import('@/pages/Admin/Settings/InboundEmailConfig'));
 const FrontendRuntimeConfig = React.lazy(() => import('@/pages/Admin/Settings/FrontendRuntimeConfig'));
 
@@ -1419,6 +1420,14 @@ const AppRouter = () => {
               element={
                 <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}>
                   <IntegrationsConfig />
+                </Suspense>
+              }
+            />
+            <Route
+              path="evolution-hub"
+              element={
+                <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}>
+                  <EvolutionHubConfig />
                 </Suspense>
               }
             />

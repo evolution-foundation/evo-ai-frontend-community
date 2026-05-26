@@ -18,7 +18,6 @@ import {
   type Edge,
   ConnectionLineType,
 } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
 import './BaseFlow.css';
 
 import { Button } from '@evoapi/design-system';
@@ -28,6 +27,8 @@ import { BaseFlowContextMenu } from './BaseFlowContextMenu';
 import { BaseFlowHelperLines } from './BaseFlowHelperLines';
 import BaseDefaultEdge from './BaseDefaultEdge';
 import { cn, getHelperLines, createMiniMapNodeColors } from '@/lib/utils';
+import { useDarkMode } from '@/hooks/useDarkMode';
+import { flowTokens } from '@/components/journey/_ui/tokens';
 
 // Edge types padrão
 const defaultEdgeTypes = {
@@ -170,6 +171,7 @@ export function BaseFlowCanvas({
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
   const { type, setPointerEvents, setType } = useDnD();
+  const { theme } = useDarkMode();
 
   // Estados do canvas
   const [nodes, setNodes, onNodesChangeInternal] = useNodesState(initialNodes);
@@ -382,12 +384,38 @@ export function BaseFlowCanvas({
     [configPanelSystem, onNodeClick],
   );
 
-  // 🆕 Função para atualizar node (sistema de painéis de configuração)
+  // 🆕 Função para atualizar node (sistema de painéis de configuração).
+  // Config-panel updates bypass xyflow's NodeChange path because they mutate
+  // `node.data` directly via `setNodes`. The parent's `onFlowDataChange`
+  // listener would otherwise never see the edit, so the journey editor's
+  // dirty/autosave/IDB pipeline would stay clean despite a real change in
+  // a panel field. Wire the callbacks here so the data path matches what
+  // `handleNodesChange` does for canvas-level edits.
+  //
+  // IMPORTANT: side effects (onFlowDataChange / onFlowDataChangeExtended)
+  // run AFTER setNodes returns, NOT inside the updater callback. Updaters
+  // must be pure — React (and StrictMode in particular) double-invokes
+  // them in dev to surface non-idempotency, which would cause the store
+  // notifications to fire twice. This mirrors the pattern used by
+  // `handleNodesChange` above.
   const updateNode = useCallback(
     (nodeId: string, newData: any) => {
-      setNodes(nds => nds.map(node => (node.id === nodeId ? { ...node, data: newData } : node)));
+      const updated = nodes.map(node =>
+        node.id === nodeId ? { ...node, data: newData } : node,
+      );
+      setNodes(updated);
+      if (onFlowDataChange) {
+        onFlowDataChange(updated, edges);
+      }
+      if (onFlowDataChangeExtended) {
+        onFlowDataChangeExtended({
+          nodes: updated,
+          edges,
+          variables: flowVariables,
+        });
+      }
     },
-    [setNodes],
+    [nodes, setNodes, onFlowDataChange, onFlowDataChangeExtended, edges, flowVariables],
   );
 
   // Controle de conexões
@@ -451,7 +479,7 @@ export function BaseFlowCanvas({
         snapToGrid={snapToGrid}
         snapGrid={snapGrid}
         proOptions={proOptions}
-        colorMode="dark"
+        colorMode={theme === 'dark' ? 'dark' : 'light'}
         deleteKeyCode={['Backspace', 'Delete']}
         multiSelectionKeyCode={['Meta', 'Ctrl']}
         panOnDrag={true}
@@ -490,6 +518,7 @@ export function BaseFlowCanvas({
             variant={backgroundVariant as any}
             gap={24}
             size={1.5}
+            color={flowTokens.canvas.grid}
             className="bg-sidebar"
           />
         )}
@@ -509,9 +538,9 @@ export function BaseFlowCanvas({
         {/* MiniMap */}
         {showMiniMap && (
           <MiniMap
-            className="bg-neutral-800/80 border border-neutral-700 rounded-lg shadow-lg"
-            nodeColor={node => defaultMiniMapColors[node.type || 'default'] || '#64748b'}
-            maskColor="rgba(21, 21, 21, 0.6)"
+            className="bg-flow-palette-bg/85 border border-flow-palette-divider rounded-lg shadow-lg backdrop-blur-sm"
+            nodeColor={node => defaultMiniMapColors[node.type || 'default'] || 'var(--color-muted-foreground)'}
+            maskColor="color-mix(in srgb, var(--color-foreground) 12%, transparent)"
           />
         )}
 

@@ -47,13 +47,52 @@ export function SplitNode({ selected, data, id }: SplitNodeProps) {
   const variants = data.variants && data.variants.length > 0 ? data.variants : defaultVariants;
 
   const getVariantColorClasses = (color: string) => {
-    const colorMap: Record<string, { bg: string; border: string; text: string }> = {
-      blue: { bg: 'bg-blue-950/10', border: 'border-blue-700/40', text: 'text-blue-400' },
-      purple: { bg: 'bg-purple-950/10', border: 'border-purple-700/40', text: 'text-purple-400' },
-      green: { bg: 'bg-green-950/10', border: 'border-green-700/40', text: 'text-green-400' },
-      orange: { bg: 'bg-orange-950/10', border: 'border-orange-700/40', text: 'text-orange-400' },
-      red: { bg: 'bg-red-950/10', border: 'border-red-700/40', text: 'text-red-400' },
-      yellow: { bg: 'bg-yellow-950/10', border: 'border-yellow-700/40', text: 'text-yellow-400' },
+    const colorMap: Record<
+      string,
+      { bg: string; border: string; text: string; hoverBg: string; hoverBorder: string }
+    > = {
+      blue: {
+        bg: 'bg-blue-50 dark:bg-blue-950/10',
+        border: 'border-blue-300 dark:border-blue-700/40',
+        text: 'text-blue-700 dark:text-blue-400',
+        hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900/20',
+        hoverBorder: 'hover:border-blue-400 dark:hover:border-blue-600/50',
+      },
+      purple: {
+        bg: 'bg-purple-50 dark:bg-purple-950/10',
+        border: 'border-purple-300 dark:border-purple-700/40',
+        text: 'text-purple-700 dark:text-purple-400',
+        hoverBg: 'hover:bg-purple-100 dark:hover:bg-purple-900/20',
+        hoverBorder: 'hover:border-purple-400 dark:hover:border-purple-600/50',
+      },
+      green: {
+        bg: 'bg-green-50 dark:bg-green-950/10',
+        border: 'border-green-300 dark:border-green-700/40',
+        text: 'text-green-700 dark:text-green-400',
+        hoverBg: 'hover:bg-green-100 dark:hover:bg-green-900/20',
+        hoverBorder: 'hover:border-green-400 dark:hover:border-green-600/50',
+      },
+      orange: {
+        bg: 'bg-orange-50 dark:bg-orange-950/10',
+        border: 'border-orange-300 dark:border-orange-700/40',
+        text: 'text-orange-700 dark:text-orange-400',
+        hoverBg: 'hover:bg-orange-100 dark:hover:bg-orange-900/20',
+        hoverBorder: 'hover:border-orange-400 dark:hover:border-orange-600/50',
+      },
+      red: {
+        bg: 'bg-red-50 dark:bg-red-950/10',
+        border: 'border-red-300 dark:border-red-700/40',
+        text: 'text-red-700 dark:text-red-400',
+        hoverBg: 'hover:bg-red-100 dark:hover:bg-red-900/20',
+        hoverBorder: 'hover:border-red-400 dark:hover:border-red-600/50',
+      },
+      yellow: {
+        bg: 'bg-yellow-50 dark:bg-yellow-950/10',
+        border: 'border-yellow-300 dark:border-yellow-700/40',
+        text: 'text-yellow-700 dark:text-yellow-400',
+        hoverBg: 'hover:bg-yellow-100 dark:hover:bg-yellow-900/20',
+        hoverBorder: 'hover:border-yellow-400 dark:hover:border-yellow-600/50',
+      },
     };
     return colorMap[color] || colorMap.blue;
   };
@@ -70,17 +109,15 @@ export function SplitNode({ selected, data, id }: SplitNodeProps) {
           'mb-3 cursor-pointer rounded-lg border p-3 text-left transition-all duration-200',
           colorClasses.bg,
           colorClasses.border,
-          `hover:${colorClasses.border.replace('/40', '/50')} hover:${colorClasses.bg.replace(
-            '/10',
-            '/20',
-          )}`,
+          colorClasses.hoverBg,
+          colorClasses.hoverBorder,
         )}
       >
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <p className="font-medium text-neutral-300">
+            <p className="font-medium text-foreground">
               <span className={cn('font-semibold', colorClasses.text)}>{variant.name}</span>{' '}
-              <span className="text-neutral-400">({variant.percentage}%)</span>
+              <span className="text-muted-foreground">({variant.percentage}%)</span>
             </p>
           </div>
           <Handle
@@ -124,10 +161,10 @@ export function SplitNode({ selected, data, id }: SplitNodeProps) {
             <Split className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{t('panels.split.nodeTitle')}</h3>
+            <h3 className="text-sm font-medium text-foreground truncate">{t('panels.split.nodeTitle')}</h3>
           </div>
           <div className="flex-shrink-0">
-            <Settings className="w-3 h-3 text-gray-400" />
+            <Settings className="w-3 h-3 text-muted-foreground" />
           </div>
         </div>
 

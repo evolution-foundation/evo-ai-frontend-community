@@ -22,9 +22,9 @@ import {
   List,
   Shield,
   Package,
-  Filter,
-  Megaphone,
-  Route,
+  // Filter,
+  // Megaphone,
+  // Route,
   ShieldCheck,
 } from 'lucide-react';
 
@@ -119,20 +119,20 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
     resource: 'automation_rules',
     action: 'read',
   },
-  {
-    name: t('menu.customer.journeys'),
-    href: '/journeys',
-    icon: Route,
-    resource: 'journeys',
-    action: 'read',
-  },
-  {
-    name: t('menu.customer.campaigns'),
-    href: '/campaigns',
-    icon: Megaphone,
-    resource: 'campaigns',
-    action: 'read',
-  },
+  // {
+  //   name: t('menu.customer.journeys'),
+  //   href: '/journeys',
+  //   icon: Route,
+  //   resource: 'journeys',
+  //   action: 'read',
+  // },
+  // {
+  //   name: t('menu.customer.campaigns'),
+  //   href: '/campaigns',
+  //   icon: Megaphone,
+  //   resource: 'campaigns',
+  //   action: 'read',
+  // },
   {
     id: 'customer-agents',
     name: t('menu.customer.agents'),
@@ -211,13 +211,13 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         resource: 'custom_attribute_definitions',
         action: 'read',
       },
-      {
-        name: t('menu.settings.segments'),
-        href: '/settings/segments',
-        icon: Filter,
-        resource: 'segments',
-        action: 'read',
-      },
+      // {
+      //   name: t('menu.settings.segments'),
+      //   href: '/settings/segments',
+      //   icon: Filter,
+      //   resource: 'segments',
+      //   action: 'read',
+      // },
       {
         name: t('menu.settings.cannedResponses'),
         href: '/settings/canned-responses',

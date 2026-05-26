@@ -47,6 +47,9 @@ importers:
       i18next:
         specifier: ^25.3.2
         version: 25.7.1(typescript@5.7.3)
+      idb-keyval:
+        specifier: ^6.2.2
+        version: 6.2.2
       imask:
         specifier: ^7.6.1
         version: 7.6.1
@@ -186,6 +189,9 @@ importers:
       eslint-plugin-react-refresh:
         specifier: ^0.4.19
         version: 0.4.24(eslint@9.39.1(jiti@2.6.1))
+      fake-indexeddb:
+        specifier: ^6.2.5
+        version: 6.2.5
       globals:
         specifier: ^16.0.0
         version: 16.5.0
@@ -2710,6 +2716,10 @@ packages:
     resolution: {integrity: sha512-knvyeauYhqjOYvQ66MznSMs83wmHrCycNEN6Ao+2AeYEfxUIkuiVxdEa1qlGEPK+We3n0THiDciYSsCcgW/DoA==}
     engines: {node: '>=12.0.0'}
 
+  fake-indexeddb@6.2.5:
+    resolution: {integrity: sha512-CGnyrvbhPlWYMngksqrSSUT1BAVP49dZocrHuK0SvtR0D5TMs5wP0o3j7jexDJW01KSadjBp1M/71o/KR3nD1w==}
+    engines: {node: '>=18'}
+
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
@@ -2864,6 +2874,9 @@ packages:
   iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
     engines: {node: '>=0.10.0'}
+
+  idb-keyval@6.2.2:
+    resolution: {integrity: sha512-yjD9nARJ/jb1g+CvD0tlhUHOrJ9Sy0P8T9MF3YaLlHnSRpwPfpTX0XIvpmw3gAJUmEu3FiICLBDPXVwyEvrleg==}
 
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
@@ -3719,8 +3732,8 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
-  unlayer-types@1.408.0:
-    resolution: {integrity: sha512-A4Jo2klqraIhB9N8nwKknrhwHKCSHJLeyJwpaZub677FOq7axrun61Bdij+1oCWgdbkqKJ3LUym8mN0vWQae/Q==}
+  unlayer-types@1.410.0:
+    resolution: {integrity: sha512-R5w6TZKfYerXlsiwtfS0zmI/nt9lGefoQGCx/Dc09fjwhj9StgSBp9IXA3SwbB0YzjuFW5Yy+cRn4FK1N0OjLQ==}
 
   unplugin@2.3.11:
     resolution: {integrity: sha512-5uKD0nqiYVzlmCRs01Fhs2BdkEgBS3SAVP6ndrBsuK42iC2+JHyxM05Rm9G8+5mkmRtzMZGY8Ct5+mliZxU/Ww==}
@@ -6363,6 +6376,8 @@ snapshots:
 
   expect-type@1.3.0: {}
 
+  fake-indexeddb@6.2.5: {}
+
   fast-deep-equal@3.1.3: {}
 
   fast-json-stable-stringify@2.1.0: {}
@@ -6502,6 +6517,8 @@ snapshots:
   iconv-lite@0.6.3:
     dependencies:
       safer-buffer: 2.1.2
+
+  idb-keyval@6.2.2: {}
 
   ignore@5.3.2: {}
 
@@ -6982,7 +6999,7 @@ snapshots:
   react-email-editor@1.7.11(react@19.2.1):
     dependencies:
       react: 19.2.1
-      unlayer-types: 1.408.0
+      unlayer-types: 1.410.0
 
   react-hook-form@7.68.0(react@19.2.1):
     dependencies:
@@ -7346,7 +7363,7 @@ snapshots:
 
   undici-types@6.21.0: {}
 
-  unlayer-types@1.408.0: {}
+  unlayer-types@1.410.0: {}
 
   unplugin@2.3.11:
     dependencies:

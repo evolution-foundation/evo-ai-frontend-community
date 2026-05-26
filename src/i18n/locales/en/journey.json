@@ -70,6 +70,18 @@
     "unsavedChangesBody": "You have unsaved changes that will be lost if you leave now.",
     "stay": "Stay",
     "leaveAnyway": "Leave anyway",
+    "recoveryTitle": "Recover unsaved work?",
+    "recoveryBody": "We found unsaved changes from {{when}} stored locally. Recover them or discard?",
+    "recover": "Recover",
+    "discard": "Discard",
+    "saveErrorBanner": "Save failed: {{reason}}. Retrying in {{seconds}}s.",
+    "saveErrorBannerNoRetry": "Save failed: {{reason}}. Click Save to try again.",
+    "saveErrorMessages": {
+      "network": "Network error",
+      "server": "Server error",
+      "unauthorized": "Not authorized",
+      "validation": "Invalid data"
+    },
     "saveSuccess": "Journey saved successfully",
     "saveError": "Unable to save journey",
     "loadError": "Unable to load journey",
@@ -238,7 +250,8 @@
         "description": "Sends a message to the contact",
         "eventChannel": "Event Channel",
         "oneAttachment": "+ 1 attachment",
-        "multipleAttachments": "+ {{count}} attachments"
+        "multipleAttachments": "+ {{count}} attachments",
+        "channelLabel": "Channel:"
       },
       "sendWebhook": {
         "name": "Send Webhook",
@@ -297,6 +310,10 @@
         "assignTo": "Assign conversation to team",
         "noTeamSelected": "No team selected"
       },
+      "assignBot": {
+        "name": "Assign Bot",
+        "description": "Connects a specific bot to an inbox to automate responses"
+      },
       "muteConversation": {
         "name": "Mute Conversation",
         "description": "The conversation will be muted and will not generate notifications for Agents"
@@ -315,25 +332,21 @@
       }
     },
     "categories": {
-      "actions": {
-        "label": "Actions",
-        "description": "Actions that can be executed in the journey"
+      "controlFlow": {
+        "label": "Control Flow",
+        "description": "Wait, branch and route the journey"
       },
       "communication": {
         "label": "Communication",
-        "description": "Sending messages and notifications"
-      },
-      "labels": {
-        "label": "Labels",
-        "description": "Label management"
+        "description": "Send messages, webhooks and notifications"
       },
       "contact": {
         "label": "Contact",
-        "description": "Contact management"
+        "description": "Update contact data, labels and assignments"
       },
       "conversation": {
-        "label": "Conversations",
-        "description": "Conversation management"
+        "label": "Conversation",
+        "description": "Mute, defer, resolve and prioritise conversations"
       }
     }
   },
@@ -984,6 +997,9 @@
       "emptyState": {
         "noPathsConfigured": "No path configured",
         "clickToCreateFirst": "Click on \"Add Path\" to create your first conditional path"
+      },
+      "placeholders": {
+        "selectVariable": "Select variable..."
       }
     },
     "deferConversation": {
@@ -1551,13 +1567,19 @@
         "webhookUrl": "https://example.com/webhook",
         "journeyId": "Select a journey",
         "taskTitle": "Enter task title",
-        "taskDescription": "Enter task description"
+        "taskDescription": "Enter task description",
+        "selectAction": "Select an action",
+        "selectChannel": "Select a channel",
+        "loadingChannels": "Loading channels...",
+        "loadingJourneys": "Loading journeys..."
       },
       "hints": {
-        "journeyId": "The ID of the journey to trigger"
+        "journeyId": "The ID of the journey to trigger",
+        "characterCount": "{{count}} characters"
       },
       "messages": {
-        "noChannelsConfigured": "No messaging channels configured. Please configure a WhatsApp, SMS, Email, or Telegram channel first in the Channels settings."
+        "noChannelsConfigured": "No messaging channels configured. Please configure a WhatsApp, SMS, Email, or Telegram channel first in the Channels settings.",
+        "noChannelsConfiguredInline": "No channels configured"
       }
     }
   },

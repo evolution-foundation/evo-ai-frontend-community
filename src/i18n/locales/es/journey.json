@@ -70,6 +70,18 @@
     "unsavedChangesBody": "Tienes cambios sin guardar que se perderán si sales ahora.",
     "stay": "Quedarme",
     "leaveAnyway": "Salir igualmente",
+    "recoveryTitle": "¿Recuperar trabajo sin guardar?",
+    "recoveryBody": "Encontramos cambios sin guardar de {{when}} almacenados localmente. ¿Recuperar o descartar?",
+    "recover": "Recuperar",
+    "discard": "Descartar",
+    "saveErrorBanner": "Error al guardar: {{reason}}. Reintentando en {{seconds}}s.",
+    "saveErrorBannerNoRetry": "Error al guardar: {{reason}}. Haz clic en Guardar para intentarlo de nuevo.",
+    "saveErrorMessages": {
+      "network": "Error de red",
+      "server": "Error del servidor",
+      "unauthorized": "Sin permiso",
+      "validation": "Datos no válidos"
+    },
     "saveSuccess": "Jornada guardada con éxito",
     "saveError": "No fue posible guardar la jornada",
     "loadError": "No fue posible cargar la jornada",
@@ -238,7 +250,8 @@
         "description": "Envía un mensaje al contacto",
         "eventChannel": "Canal del Evento",
         "oneAttachment": "+ 1 adjunto",
-        "multipleAttachments": "+ {{count}} adjuntos"
+        "multipleAttachments": "+ {{count}} adjuntos",
+        "channelLabel": "Canal:"
       },
       "sendWebhook": {
         "name": "Enviar Webhook",
@@ -297,6 +310,10 @@
         "assignTo": "Asignar conversación al equipo",
         "noTeamSelected": "Ningún equipo seleccionado"
       },
+      "assignBot": {
+        "name": "Asignar Bot",
+        "description": "Conecta un bot específico a una bandeja de entrada para automatizar respuestas"
+      },
       "muteConversation": {
         "name": "Silenciar Conversación",
         "description": "La conversación será silenciada y no generará más notificaciones para los agentes"
@@ -315,25 +332,21 @@
       }
     },
     "categories": {
-      "actions": {
-        "label": "Acciones",
-        "description": "Acciones que pueden ser ejecutadas en la jornada"
+      "controlFlow": {
+        "label": "Control de Flujo",
+        "description": "Esperar, ramificar y dirigir el flujo"
       },
       "communication": {
         "label": "Comunicación",
-        "description": "Envío de mensajes y notificaciones"
-      },
-      "labels": {
-        "label": "Etiquetas",
-        "description": "Gestión de etiquetas"
+        "description": "Enviar mensajes, webhooks y notificaciones"
       },
       "contact": {
         "label": "Contacto",
-        "description": "Gestión de contacto"
+        "description": "Actualizar datos del contacto, etiquetas y asignaciones"
       },
       "conversation": {
-        "label": "Conversaciones",
-        "description": "Gestión de conversaciones"
+        "label": "Conversación",
+        "description": "Silenciar, posponer, resolver y priorizar conversaciones"
       }
     }
   },
@@ -984,6 +997,9 @@
       "emptyState": {
         "noPathsConfigured": "No path configured",
         "clickToCreateFirst": "Click on \"Add Path\" to create your first conditional path"
+      },
+      "placeholders": {
+        "selectVariable": "Seleccionar variable..."
       }
     },
     "deferConversation": {
@@ -1551,13 +1567,19 @@
         "webhookUrl": "https://example.com/webhook",
         "journeyId": "Select a journey",
         "taskTitle": "Enter task title",
-        "taskDescription": "Enter task description"
+        "taskDescription": "Enter task description",
+        "selectAction": "Selecciona una acción",
+        "selectChannel": "Selecciona un canal",
+        "loadingChannels": "Cargando canales...",
+        "loadingJourneys": "Cargando jornadas..."
       },
       "hints": {
-        "journeyId": "The ID of the journey to trigger"
+        "journeyId": "The ID of the journey to trigger",
+        "characterCount": "{{count}} caracteres"
       },
       "messages": {
-        "noChannelsConfigured": "No hay canales de mensajería configurados. Por favor, configure primero un canal de WhatsApp, SMS, Email o Telegram en la configuración de Canales."
+        "noChannelsConfigured": "No hay canales de mensajería configurados. Por favor, configure primero un canal de WhatsApp, SMS, Email o Telegram en la configuración de Canales.",
+        "noChannelsConfiguredInline": "Sin canales configurados"
       }
     }
   },
