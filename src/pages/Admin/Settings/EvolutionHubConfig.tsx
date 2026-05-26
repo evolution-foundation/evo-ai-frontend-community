@@ -18,6 +18,12 @@ import { adminConfigService } from '@/services/admin/adminConfigService';
 import type { AdminConfigData } from '@/types/admin/adminConfig';
 import { useGlobalConfig } from '@/contexts/GlobalConfigContext';
 import { extractError } from '@/utils/apiHelpers';
+import {
+  evolutionHubService,
+  type HubPlan,
+  type MetaAppOptions,
+  type HubChannel,
+} from '@/services/integrations';
 
 const CONFIG_TYPE = 'evolution_hub';
 const MASKED = '••••';
@@ -64,6 +70,18 @@ export default function EvolutionHubConfig() {
   const [webhookSecretConfigured, setWebhookSecretConfigured] = useState(false);
   const [apiKeyTouched, setApiKeyTouched] = useState(false);
   const [secretTouched, setSecretTouched] = useState(false);
+
+  // "Configuração detectada no Hub": preview de plano + Meta Apps +
+  // canais que o admin tem no Evolution Hub. Carregado on-demand
+  // (clique no botão "Atualizar") porque envolve 3 chamadas serial-ish
+  // que podem demorar se o Hub estiver lento, e a tela já abre rápida.
+  const [hubPreview, setHubPreview] = useState<{
+    plan: HubPlan | null;
+    options: MetaAppOptions | null;
+    channels: HubChannel[];
+  } | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -139,6 +157,49 @@ export default function EvolutionHubConfig() {
       setTesting(false);
     }
   };
+
+  // Carrega "configuração detectada" (plano + Meta Apps + canais) do Hub.
+  // Promise.allSettled pra que uma falha (ex.: endpoint de channels)
+  // não impeça mostrar plano/options. UI mostra o que conseguiu obter
+  // e error inline pra que faltou.
+  const loadHubPreview = async () => {
+    setPreviewLoading(true);
+    setPreviewError(null);
+    try {
+      const [planRes, optionsRes, channelsRes] = await Promise.allSettled([
+        evolutionHubService.getPlan(),
+        evolutionHubService.getMetaAppOptions(),
+        evolutionHubService.listChannels(),
+      ]);
+      setHubPreview({
+        plan: planRes.status === 'fulfilled' ? planRes.value : null,
+        options: optionsRes.status === 'fulfilled' ? optionsRes.value : null,
+        channels: channelsRes.status === 'fulfilled' ? channelsRes.value : [],
+      });
+      const fails = [planRes, optionsRes, channelsRes].filter((r) => r.status === 'rejected');
+      if (fails.length === 3) {
+        setPreviewError(
+          errorMessage((fails[0] as PromiseRejectedResult).reason, 'Falha ao consultar Evolution Hub'),
+        );
+      } else if (fails.length > 0) {
+        setPreviewError(
+          `Algumas informações não puderam ser carregadas (${fails.length} de 3). Verifique a API URL e o token.`,
+        );
+      }
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  // Auto-load do preview quando a integração já está configurada e ativa.
+  // Carrega só uma vez na entrada da tela — admin clica "Atualizar"
+  // pra refetch depois.
+  useEffect(() => {
+    if (!loading && enabledBool && apiKeyConfigured && !hubPreview && !previewLoading) {
+      loadHubPreview();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, enabledBool, apiKeyConfigured]);
 
   if (loading) {
     return (
@@ -277,6 +338,129 @@ export default function EvolutionHubConfig() {
           </div>
         )}
       </form>
+
+      {/* Configuração detectada no Hub — só renderiza quando integração
+          está habilitada E API key salva. Mostra plano + Meta Apps +
+          canais que o admin tem do outro lado pra confirmar que a
+          conexão está OK antes de criar inboxes. */}
+      {enabledBool && apiKeyConfigured && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <CardTitle>Configuração detectada no Evolution Hub</CardTitle>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={loadHubPreview}
+              disabled={previewLoading}
+            >
+              {previewLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+              <span className="ml-2">Atualizar</span>
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {previewError && (
+              <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm">
+                <AlertTriangle className="h-5 w-5 text-destructive mt-0.5" />
+                <span>{previewError}</span>
+              </div>
+            )}
+
+            {/* Plano */}
+            <section>
+              <h3 className="text-sm font-semibold mb-2">Plano atual</h3>
+              {hubPreview?.plan ? (
+                <div className="rounded-md border p-3 text-sm space-y-1">
+                  <div>
+                    <span className="font-medium">{hubPreview.plan.name}</span>
+                    <span className="ml-2 text-xs text-muted-foreground">({hubPreview.plan.slug})</span>
+                  </div>
+                  {hubPreview.plan.description && (
+                    <p className="text-xs text-muted-foreground">{hubPreview.plan.description}</p>
+                  )}
+                  <div className="text-xs text-muted-foreground pt-2">
+                    Meta App compartilhada: <strong>{hubPreview.plan.allow_shared_meta_app ? 'sim' : 'não'}</strong>{' '}
+                    · Meta App própria (BYO): <strong>{hubPreview.plan.allow_own_meta_app ? 'sim' : 'não'}</strong>{' '}
+                    · Total de canais: <strong>{hubPreview.plan.max_channels_total ?? 'ilimitado'}</strong>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {previewLoading ? 'Carregando…' : 'Sem dados.'}
+                </p>
+              )}
+            </section>
+
+            {/* Meta Apps disponíveis */}
+            <section>
+              <h3 className="text-sm font-semibold mb-2">Meta Apps disponíveis</h3>
+              {hubPreview?.options ? (
+                <ul className="space-y-2">
+                  {hubPreview.options.allowed_modes.includes('shared') && (
+                    <li className="rounded-md border p-3 text-sm">
+                      <span className="font-medium">Meta App da Evolution (Cloud)</span>
+                      <span className="ml-2 text-xs text-muted-foreground">compartilhada</span>
+                    </li>
+                  )}
+                  {hubPreview.options.byo_credentials.map((c) => (
+                    <li key={c.id} className="rounded-md border p-3 text-sm">
+                      <span className="font-medium">{c.name}</span>
+                      <span className="ml-2 text-xs text-muted-foreground">própria (BYO) · {c.app_id}</span>
+                    </li>
+                  ))}
+                  {hubPreview.options.allowed_modes.length === 0 && (
+                    <li className="text-sm text-muted-foreground">
+                      Nenhuma Meta App disponível. Cadastre uma no Evolution Hub para começar a criar canais.
+                    </li>
+                  )}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {previewLoading ? 'Carregando…' : 'Sem dados.'}
+                </p>
+              )}
+            </section>
+
+            {/* Canais já existentes */}
+            <section>
+              <h3 className="text-sm font-semibold mb-2">
+                Canais já criados no Hub{' '}
+                {hubPreview && (
+                  <span className="text-xs text-muted-foreground font-normal">
+                    ({hubPreview.channels.length})
+                  </span>
+                )}
+              </h3>
+              {hubPreview && hubPreview.channels.length > 0 ? (
+                <ul className="space-y-2">
+                  {hubPreview.channels.slice(0, 10).map((ch) => (
+                    <li key={ch.id} className="rounded-md border p-3 text-sm flex items-center justify-between">
+                      <div>
+                        <span className="text-xs font-mono uppercase text-muted-foreground mr-2">[{ch.type}]</span>
+                        <span className="font-medium">{ch.name}</span>
+                      </div>
+                      <span className="text-xs text-muted-foreground">{ch.status}</span>
+                    </li>
+                  ))}
+                  {hubPreview.channels.length > 10 && (
+                    <li className="text-xs text-muted-foreground text-center">
+                      + {hubPreview.channels.length - 10} canais
+                    </li>
+                  )}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {previewLoading ? 'Carregando…' : 'Nenhum canal criado ainda.'}
+                </p>
+              )}
+            </section>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
