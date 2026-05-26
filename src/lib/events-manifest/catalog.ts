@@ -112,7 +112,7 @@ const ENTRIES: EventCatalogEntry[] = [
     labelEn: 'Conversation created',
     description: 'A new conversation was opened with a contact.',
     schema: {
-      required: { conversation_id: f('uuid'), inbox_id: f('number'), source: f('string') },
+      required: { conversation_id: f('uuid'), inbox_id: f('uuid'), source: f('string') },
       optional: { inbox_name: f('string'), channel_type: f('string') },
     },
   },
@@ -124,7 +124,7 @@ const ENTRIES: EventCatalogEntry[] = [
     labelEn: 'Conversation resolved',
     description: 'An open conversation was closed/resolved.',
     schema: {
-      required: { conversation_id: f('uuid'), inbox_id: f('number'), source: f('string') },
+      required: { conversation_id: f('uuid'), inbox_id: f('uuid'), source: f('string') },
       optional: {
         inbox_name: f('string'),
         channel_type: f('string'),
@@ -198,7 +198,7 @@ const ENTRIES: EventCatalogEntry[] = [
         pipeline_name: f('string'),
         pipeline_stage_id: f('uuid'),
         pipeline_stage_name: f('string'),
-        assigned_by_id: f('number'),
+        assigned_by_id: f('uuid'),
         custom_fields: f('object'),
       },
     },
