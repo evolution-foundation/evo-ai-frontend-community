@@ -258,7 +258,7 @@ export const CloudWhatsappForm = ({ form, onFormChange, canFB }: CloudWhatsappFo
 
   return (
     <div className="space-y-6">
-      {/* Evolution Hub branch: skip native FB Embedded Signup and let the Hub
+      {/* Evo Hub branch: skip native FB Embedded Signup and let the Hub
           orchestrate Meta OAuth. The button here POSTs to /api/v1/inboxes with
           via_hub: true; the page footer is hidden by the parent in this mode. */}
       {hubEnabled && (

@@ -215,7 +215,7 @@ const AuthorizationSuccessBanner: React.FC<{
   const [isReconnecting, setIsReconnecting] = useState(false);
   const [isSyncingSubscription, setIsSyncingSubscription] = useState(false);
 
-  // When the inbox was created through Evolution Hub, the channel record
+  // When the inbox was created through Evo Hub, the channel record
   // carries a public_link that drives the Meta OAuth flow on the Hub side.
   // Native FB SDK reconnect cannot work for these inboxes (the CRM never
   // sees Meta App IDs in Hub mode), so we short-circuit Reconnect to open

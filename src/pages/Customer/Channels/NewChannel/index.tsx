@@ -323,7 +323,7 @@ export default function NewChannel() {
   };
 
   const shouldShowFooter = () => {
-    // When Evolution Hub is the active provider for Meta channels, the form
+    // When Evo Hub is the active provider for Meta channels, the form
     // itself owns the "create" action via HubConnectButton — the page-level
     // footer would offer a second submit path that 422s (no api_key/phone_id).
     const hubOwnsWhatsappCloud =

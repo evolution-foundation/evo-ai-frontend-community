@@ -1,8 +1,8 @@
-// Service pra consultar o que está configurado no Evolution Hub a partir
+// Service pra consultar o que está configurado no Evo Hub a partir
 // do CRM. Bate nos endpoints proxy do CRM (que por trás chamam o Hub
 // usando a API key configurada em /admin/app_configs/evolution_hub).
 //
-// Usado pela tela Admin → Evolution Hub pra mostrar "Configuração detectada"
+// Usado pela tela Admin → Evo Hub pra mostrar "Configuração detectada"
 // depois que o admin salva URL + API key.
 
 import api from '../core/api';

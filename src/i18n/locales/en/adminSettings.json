@@ -7,7 +7,7 @@
     "channels": "Channels",
     "openai": "OpenAI",
     "integrations": "Integrations",
-    "evolutionHub": "Evolution Hub",
+    "evolutionHub": "Evo Hub",
     "inboundEmail": "Inbound Email",
     "frontendRuntime": "Frontend Runtime"
   },
@@ -460,13 +460,13 @@
     "saving": "Saving..."
   },
   "evolutionHub": {
-    "title": "Evolution Hub",
-    "description": "Use Evolution Hub as a proxy layer for Meta channels (WhatsApp Cloud, Messenger, Instagram). When enabled, the CRM replaces direct Graph API calls with Hub-relayed ones.",
+    "title": "Evo Hub",
+    "description": "Use Evo Hub as a proxy layer for Meta channels (WhatsApp Cloud, Messenger, Instagram). When enabled, the CRM replaces direct Graph API calls with Hub-relayed ones.",
     "sections": {
       "connection": "Connection"
     },
     "fields": {
-      "enabled": "Use Evolution Hub",
+      "enabled": "Use Evo Hub",
       "enabledHelp": "When ON, all Meta calls (WA Cloud, Messenger, Instagram) go through the configured Hub.",
       "url": "Hub URL",
       "apiKey": "API Key",
@@ -481,7 +481,7 @@
       "generateSecret": "Generate random secret"
     },
     "messages": {
-      "saved": "Evolution Hub configuration saved",
+      "saved": "Evo Hub configuration saved",
       "saveError": "Failed to save configuration",
       "loadError": "Failed to load configuration",
       "testError": "Connection test failed",

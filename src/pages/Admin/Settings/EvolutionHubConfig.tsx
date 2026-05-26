@@ -39,9 +39,11 @@ function generateSecret(byteLength = 32): string {
   return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+// EVOLUTION_HUB_URL é hardcoded no backend (lib/meta_base_url.rb) —
+// não é mais editável pelo admin porque o Hub é um serviço único da
+// Evolution Foundation, não muda por instalação.
 const schema = z.object({
   EVOLUTION_HUB_ENABLED: z.union([z.string(), z.boolean()]).optional(),
-  EVOLUTION_HUB_URL: z.string().url('URL inválida').or(z.literal('')),
   EVOLUTION_HUB_API_KEY: z.string().optional().nullable(),
   EVOLUTION_HUB_WEBHOOK_SECRET: z.string().optional().nullable(),
 });
@@ -50,7 +52,6 @@ type FormData = z.infer<typeof schema>;
 
 const DEFAULTS: FormData = {
   EVOLUTION_HUB_ENABLED: 'false',
-  EVOLUTION_HUB_URL: '',
   EVOLUTION_HUB_API_KEY: null,
   EVOLUTION_HUB_WEBHOOK_SECRET: null,
 };
@@ -72,7 +73,7 @@ export default function EvolutionHubConfig() {
   const [secretTouched, setSecretTouched] = useState(false);
 
   // "Configuração detectada no Hub": preview de plano + Meta Apps +
-  // canais que o admin tem no Evolution Hub. Carregado on-demand
+  // canais que o admin tem no Evo Hub. Carregado on-demand
   // (clique no botão "Atualizar") porque envolve 3 chamadas serial-ish
   // que podem demorar se o Hub estiver lento, e a tela já abre rápida.
   const [hubPreview, setHubPreview] = useState<{
@@ -101,7 +102,6 @@ export default function EvolutionHubConfig() {
         setWebhookSecretConfigured(isMasked(cfg.EVOLUTION_HUB_WEBHOOK_SECRET));
         reset({
           EVOLUTION_HUB_ENABLED: String(cfg.EVOLUTION_HUB_ENABLED ?? 'false'),
-          EVOLUTION_HUB_URL: (cfg.EVOLUTION_HUB_URL as string) ?? '',
           EVOLUTION_HUB_API_KEY: null,
           EVOLUTION_HUB_WEBHOOK_SECRET: null,
         });
@@ -119,7 +119,6 @@ export default function EvolutionHubConfig() {
     try {
       const payload: AdminConfigData = {
         EVOLUTION_HUB_ENABLED: String(values.EVOLUTION_HUB_ENABLED),
-        EVOLUTION_HUB_URL: values.EVOLUTION_HUB_URL || '',
       };
       // Preserve existing secrets when the field wasn't touched.
       if (apiKeyTouched) {
@@ -179,7 +178,7 @@ export default function EvolutionHubConfig() {
       const fails = [planRes, optionsRes, channelsRes].filter((r) => r.status === 'rejected');
       if (fails.length === 3) {
         setPreviewError(
-          errorMessage((fails[0] as PromiseRejectedResult).reason, 'Falha ao consultar Evolution Hub'),
+          errorMessage((fails[0] as PromiseRejectedResult).reason, 'Falha ao consultar Evo Hub'),
         );
       } else if (fails.length > 0) {
         setPreviewError(
@@ -248,18 +247,6 @@ export default function EvolutionHubConfig() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="url">{t('evolutionHub.fields.url')}</Label>
-              <Input
-                id="url"
-                placeholder="https://api.evohub.ai"
-                {...register('EVOLUTION_HUB_URL')}
-              />
-              {errors.EVOLUTION_HUB_URL && (
-                <p className="text-sm text-destructive">{errors.EVOLUTION_HUB_URL.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="apiKey">
                 {t('evolutionHub.fields.apiKey')}
                 {apiKeyConfigured && !apiKeyTouched && (
@@ -317,10 +304,15 @@ export default function EvolutionHubConfig() {
             {t('evolutionHub.actions.save')}
           </Button>
 
-          <Button type="button" variant="outline" onClick={onTest} disabled={testing}>
-            {testing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            {t('evolutionHub.actions.test')}
-          </Button>
+          {/* Test só faz sentido depois que API Key foi salva pelo menos
+              uma vez — sem credencial persistida o backend retorna
+              "EVOLUTION_HUB_URL not configured" mesmo com URL no form. */}
+          {apiKeyConfigured && (
+            <Button type="button" variant="outline" onClick={onTest} disabled={testing}>
+              {testing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              {t('evolutionHub.actions.test')}
+            </Button>
+          )}
         </div>
 
         {testResult && (
@@ -346,7 +338,7 @@ export default function EvolutionHubConfig() {
       {enabledBool && apiKeyConfigured && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle>Configuração detectada no Evolution Hub</CardTitle>
+            <CardTitle>Configuração detectada no Evo Hub</CardTitle>
             <Button
               type="button"
               variant="outline"
@@ -414,7 +406,7 @@ export default function EvolutionHubConfig() {
                   ))}
                   {hubPreview.options.allowed_modes.length === 0 && (
                     <li className="text-sm text-muted-foreground">
-                      Nenhuma Meta App disponível. Cadastre uma no Evolution Hub para começar a criar canais.
+                      Nenhuma Meta App disponível. Cadastre uma no Evo Hub para começar a criar canais.
                     </li>
                   )}
                 </ul>
