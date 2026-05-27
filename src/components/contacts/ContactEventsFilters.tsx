@@ -13,6 +13,7 @@ import { useId } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { CONTACT_EVENT_CHANNEL_OPTIONS } from '@/constants/contactEventsChannels';
 import type { ContactEventsQuery, ContactEventType } from '@/types/contacts';
+import { CampaignFilterAutocomplete } from './CampaignFilterAutocomplete';
 
 interface ContactEventsFiltersProps {
   value: ContactEventsQuery;
@@ -144,12 +145,10 @@ export function ContactEventsFilters({ value, onChange, disabled }: ContactEvent
 
       <div className="flex min-w-[200px] flex-col gap-1">
         <Label htmlFor={campaignId}>{t('events.filters.campaign')}</Label>
-        <Input
+        <CampaignFilterAutocomplete
           id={campaignId}
-          type="text"
-          placeholder={t('events.filters.campaignPlaceholder')}
-          value={value.campaign_id ?? ''}
-          onChange={(e) => update('campaign_id', e.target.value)}
+          value={value.campaign_id}
+          onChange={(next) => update('campaign_id', next)}
           disabled={disabled}
         />
       </div>

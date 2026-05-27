@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Button } from '@evoapi/design-system';
 import { Loader2 } from 'lucide-react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { useLanguage } from '@/hooks/useLanguage';
 import { ContactEventCard } from './ContactEventCard';
 import type { ContactEvent } from '@/types/contacts';
@@ -13,6 +14,10 @@ interface ContactEventsTimelineProps {
   onLoadMore: () => void;
 }
 
+// Trigger fetch a few rows before the end so the request is already in flight
+// by the time the user scrolls to the bottom.
+const PREFETCH_OFFSET = 5;
+
 export function ContactEventsTimeline({
   events,
   hasMore,
@@ -21,8 +26,10 @@ export function ContactEventsTimeline({
   onLoadMore,
 }: ContactEventsTimelineProps) {
   const { t } = useLanguage('contacts');
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-  // Latest callback in a ref so the IO effect doesn't re-bind on every render.
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  // Latest callback in a ref so the virtualizer subscription doesn't re-bind
+  // every render.
   const onLoadMoreRef = useRef(onLoadMore);
   onLoadMoreRef.current = onLoadMore;
   const isLoadingMoreRef = useRef(isLoadingMore);
@@ -30,29 +37,37 @@ export function ContactEventsTimeline({
   const hasMoreRef = useRef(hasMore);
   hasMoreRef.current = hasMore;
 
-  useEffect(() => {
-    const node = sentinelRef.current;
-    if (!node) return;
+  const virtualizer = useVirtualizer({
+    count: events.length,
+    getScrollElement: () => scrollRef.current,
+    // Cards typically render around ~96px (icon row + meta + 1-2 lines of
+    // properties). measureElement refines this per-row after first paint, so
+    // the estimate just needs to be in the right ballpark.
+    estimateSize: () => 96,
+    overscan: 8,
+    getItemKey: (index) => events[index]?.id ?? index,
+  });
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (!entry?.isIntersecting) return;
-        // Guard against double-fire: IO can re-trigger while a fetch is in
-        // flight, especially when the sentinel stays inside the viewport
-        // after a small batch is appended. The store also no-ops in this
-        // case but stopping it here saves a render.
-        if (isLoadingMoreRef.current || !hasMoreRef.current) return;
-        onLoadMoreRef.current();
-      },
-      { rootMargin: '0px 0px 200px 0px' },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+  // Prefetch trigger: whenever the visible window reaches within
+  // PREFETCH_OFFSET of the last loaded event, ask for the next page. This
+  // replaces the previous IntersectionObserver sentinel, which couldn't live
+  // inside the virtualized list without participating in layout.
+  useEffect(() => {
+    const items = virtualizer.getVirtualItems();
+    if (items.length === 0) return;
+    const lastVisibleIndex = items[items.length - 1].index;
+    if (
+      hasMoreRef.current &&
+      !isLoadingMoreRef.current &&
+      lastVisibleIndex >= events.length - 1 - PREFETCH_OFFSET
+    ) {
+      onLoadMoreRef.current();
+    }
+  }, [virtualizer, events.length, hasMore, isLoadingMore]);
 
   return (
     <div
+      ref={scrollRef}
       role="feed"
       aria-busy={isLoadingMore}
       aria-label={t('events.timeline.ariaLabel')}
@@ -68,30 +83,45 @@ export function ContactEventsTimeline({
         </div>
       )}
 
-      <div className="flex flex-col gap-2 p-3">
-        {events.map((event) => (
-          <div key={event.id} role="article">
-            <ContactEventCard event={event} />
-          </div>
-        ))}
-
-        {hasMore && !isLoadingMore && (
-          <div className="flex justify-center pt-2">
-            <Button variant="outline" size="sm" onClick={onLoadMore} disabled={isLoadingMore}>
-              {t('events.timeline.loadMore')}
-            </Button>
-          </div>
-        )}
-
-        {isLoadingMore && (
-          <div role="status" className="flex items-center justify-center gap-2 py-3 text-xs text-muted-foreground">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            {t('events.timeline.loadingMore')}
-          </div>
-        )}
-
-        <div ref={sentinelRef} aria-hidden="true" data-testid="load-more-sentinel" className="h-1" />
+      <div
+        className="relative p-3"
+        style={{ height: `${virtualizer.getTotalSize()}px` }}
+      >
+        {virtualizer.getVirtualItems().map((item) => {
+          const event = events[item.index];
+          if (!event) return null;
+          return (
+            <div
+              key={item.key}
+              ref={virtualizer.measureElement}
+              data-index={item.index}
+              role="article"
+              className="absolute left-0 right-0 px-3 pb-2"
+              style={{ transform: `translateY(${item.start}px)` }}
+            >
+              <ContactEventCard event={event} />
+            </div>
+          );
+        })}
       </div>
+
+      {hasMore && !isLoadingMore && (
+        <div className="flex justify-center px-3 pb-3 pt-1">
+          <Button variant="outline" size="sm" onClick={onLoadMore} disabled={isLoadingMore}>
+            {t('events.timeline.loadMore')}
+          </Button>
+        </div>
+      )}
+
+      {isLoadingMore && (
+        <div
+          role="status"
+          className="flex items-center justify-center gap-2 px-3 pb-3 pt-1 text-xs text-muted-foreground"
+        >
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          {t('events.timeline.loadingMore')}
+        </div>
+      )}
     </div>
   );
 }

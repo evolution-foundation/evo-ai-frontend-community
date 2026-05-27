@@ -1,4 +1,25 @@
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
+
+// @tanstack/react-virtual measures the scroll element via ResizeObserver +
+// getBoundingClientRect, both of which JSDOM stubs as 0×0. The virtualizer
+// then renders zero items, which breaks any test that asserts on the
+// rendered list. Replace it with a deterministic stub that returns every
+// item as visible — tests can still assert on render output, presence of
+// the load-more button, and the prefetch trigger.
+vi.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, i) => ({
+        index: i,
+        key: i,
+        start: i * 100,
+        size: 100,
+      })),
+    getTotalSize: () => count * 100,
+    measureElement: () => {},
+  }),
+}));
 
 // JSDOM ships neither ResizeObserver, IntersectionObserver, nor PointerEvent.
 // Radix UI primitives (Select, Tabs) and cmdk depend on pointer-capture APIs;

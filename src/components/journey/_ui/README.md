@@ -313,7 +313,7 @@ These Epic 10 cards consume tokens / bridges from this directory:
 |---|---|---|
 | EVO-1264 [10.11] NodeConfigModal | `--color-flow-panel-*` tokens | ✅ Delivered. Lives at `src/components/journey/shared/NodeConfigModal/` with 3 variants (simple / tabs / disclosure). Consumes `Dialog`, `Tabs`, `Collapsible`, `Button` from `@evoapi/design-system` + flow-panel chrome tokens. See sibling story tree "Flow Builder / NodeConfigModal" in Storybook. |
 | EVO-1274 [10.4] Refazer modais | Wraps EVO-1264's `<NodeConfigModal>`, uses `<FlowFeedbackBanner>` for inline alerts | Application work — does not declare new tokens. Formally unblocked since EVO-1264 landed. |
-| EVO-1271 [10.6] Trigger Event UX | Uses `<FlowNode variant="trigger">` + tokens |
+| EVO-1271 [10.6] Trigger Event UX | Uses `<FlowNode variant="trigger">` + tokens | Plus its own dependency EVO-1261 (event manifesto). |
 | EVO-1270 [10.21] Light mode | All token light variants | Audits the rest of the Flow Builder and applies light-mode tokens to existing surfaces. |
 | EVO-1269 [10.20] Header refactor | `--color-flow-panel-header-bg`, `--color-flow-panel-divider` + Button contract | ✅ Delivered. Lives at `src/components/journey/shared/JourneyEditorHeader/` — 3-zone layout, ESC shortcut, responsive kebab below 1024px. See sibling story tree "Flow Builder / JourneyEditorHeader" in Storybook. |
 | EVO-1268 [10.2] Palette redesign | `--color-flow-palette-*` tokens + `<FlowCategoryBadge>` | Applies tokens to the existing palette panel. |

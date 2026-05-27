@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import { act } from 'react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { ContactEvent } from '@/types/contacts';
 import { ContactEventsTimeline } from '../ContactEventsTimeline';
@@ -7,6 +6,10 @@ import { ContactEventsTimeline } from '../ContactEventsTimeline';
 vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({ t: (key: string) => key, currentLanguage: 'en' }),
 }));
+
+// Note: @tanstack/react-virtual is globally mocked in src/test/setup.ts to
+// render every item (JSDOM measures 0×0, which would otherwise produce an
+// empty virtual list).
 
 function event(id: string): ContactEvent {
   return {
@@ -18,19 +21,12 @@ function event(id: string): ContactEvent {
   };
 }
 
-type IOTrigger = (idx: number, entries: Array<{ isIntersecting: boolean }>) => void;
-const triggerIO: IOTrigger = (globalThis as unknown as { triggerIO: IOTrigger }).triggerIO;
-
-function resetObservers() {
-  (globalThis as unknown as { __intersectionObservers?: unknown[] }).__intersectionObservers = [];
-}
-
 describe('ContactEventsTimeline', () => {
   beforeEach(() => {
-    resetObservers();
+    vi.clearAllMocks();
   });
 
-  it('renders one article per event (no virtualization)', () => {
+  it('renders one article per virtual event', () => {
     const events = Array.from({ length: 12 }, (_, i) => event(`e-${i}`));
     render(
       <ContactEventsTimeline events={events} hasMore={false} isLoadingMore={false} softCapped={false} onLoadMore={vi.fn()} />,
@@ -49,8 +45,7 @@ describe('ContactEventsTimeline', () => {
     const { rerender } = render(
       <ContactEventsTimeline events={[event('a')]} hasMore isLoadingMore={false} softCapped={false} onLoadMore={vi.fn()} />,
     );
-    const feed = screen.getByRole('feed');
-    expect(feed).toHaveAttribute('aria-busy', 'false');
+    expect(screen.getByRole('feed')).toHaveAttribute('aria-busy', 'false');
 
     rerender(
       <ContactEventsTimeline events={[event('a')]} hasMore isLoadingMore softCapped={false} onLoadMore={vi.fn()} />,
@@ -58,43 +53,49 @@ describe('ContactEventsTimeline', () => {
     expect(screen.getByRole('feed')).toHaveAttribute('aria-busy', 'true');
   });
 
-  it('fires onLoadMore once when sentinel intersects (hasMore && !isLoadingMore)', () => {
-    const onLoadMore = vi.fn();
-    render(
-      <ContactEventsTimeline events={[event('a')]} hasMore isLoadingMore={false} softCapped={false} onLoadMore={onLoadMore} />,
-    );
-    act(() => {
-      triggerIO(0, [{ isIntersecting: true }]);
-    });
-    expect(onLoadMore).toHaveBeenCalledTimes(1);
-  });
-
-  it('no-ops when sentinel intersects but hasMore=false', () => {
+  // Prefetch trigger: with the stub returning every event as visible, the
+  // last virtual index always equals events.length - 1, which is within the
+  // PREFETCH_OFFSET of the end. So onLoadMore should fire once on mount
+  // when hasMore && !isLoadingMore.
+  it('fires onLoadMore when the last visible index is within prefetch distance', () => {
     const onLoadMore = vi.fn();
     render(
       <ContactEventsTimeline
-        events={[event('a')]}
+        events={[event('a'), event('b')]}
+        hasMore
+        isLoadingMore={false}
+        softCapped={false}
+        onLoadMore={onLoadMore}
+      />,
+    );
+    expect(onLoadMore).toHaveBeenCalled();
+  });
+
+  it('no-ops when hasMore=false', () => {
+    const onLoadMore = vi.fn();
+    render(
+      <ContactEventsTimeline
+        events={[event('a'), event('b')]}
         hasMore={false}
         isLoadingMore={false}
         softCapped={false}
         onLoadMore={onLoadMore}
       />,
     );
-    act(() => {
-      triggerIO(0, [{ isIntersecting: true }]);
-    });
     expect(onLoadMore).not.toHaveBeenCalled();
   });
 
-  it('no-ops when sentinel intersects while isLoadingMore=true', () => {
+  it('no-ops when isLoadingMore=true', () => {
     const onLoadMore = vi.fn();
     render(
-      <ContactEventsTimeline events={[event('a')]} hasMore isLoadingMore softCapped={false} onLoadMore={onLoadMore} />,
+      <ContactEventsTimeline
+        events={[event('a'), event('b')]}
+        hasMore
+        isLoadingMore
+        softCapped={false}
+        onLoadMore={onLoadMore}
+      />,
     );
-    act(() => {
-      triggerIO(0, [{ isIntersecting: true }]);
-      triggerIO(0, [{ isIntersecting: true }]);
-    });
     expect(onLoadMore).not.toHaveBeenCalled();
   });
 
@@ -105,25 +106,11 @@ describe('ContactEventsTimeline', () => {
     expect(screen.getByRole('button', { name: /events\.timeline\.loadMore/ })).toBeInTheDocument();
   });
 
-  it('hides the fallback button when isLoadingMore=true', () => {
+  it('hides the fallback button and shows the spinner when isLoadingMore=true', () => {
     render(
       <ContactEventsTimeline events={[event('a')]} hasMore isLoadingMore softCapped={false} onLoadMore={vi.fn()} />,
     );
     expect(screen.queryByRole('button', { name: /events\.timeline\.loadMore/ })).not.toBeInTheDocument();
     expect(screen.getByText(/events\.timeline\.loadingMore/)).toBeInTheDocument();
-  });
-
-  it('disconnects its IntersectionObserver on unmount (AC: T13 case 7)', () => {
-    const { unmount } = render(
-      <ContactEventsTimeline events={[event('a')]} hasMore isLoadingMore={false} softCapped={false} onLoadMore={vi.fn()} />,
-    );
-    const observers = (globalThis as unknown as {
-      __intersectionObservers?: Array<{ disconnect: () => void }>;
-    }).__intersectionObservers;
-    expect(observers && observers.length).toBeGreaterThan(0);
-    const observer = observers![observers!.length - 1];
-    const disconnectSpy = vi.spyOn(observer, 'disconnect');
-    unmount();
-    expect(disconnectSpy).toHaveBeenCalledTimes(1);
   });
 });
