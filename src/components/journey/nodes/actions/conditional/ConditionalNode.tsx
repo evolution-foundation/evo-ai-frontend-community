@@ -98,31 +98,44 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
   };
 
   const getPathColor = (color?: string) => {
-    const colors: Record<string, { border: string; bg: string; text: string }> = {
+    const colors: Record<
+      string,
+      { border: string; bg: string; text: string; hoverBorder: string; hoverBg: string }
+    > = {
       green: {
-        border: 'border-green-700/40',
-        bg: 'bg-green-950/10',
-        text: 'text-green-400',
+        border: 'border-green-300 dark:border-green-700/40',
+        bg: 'bg-green-50 dark:bg-green-950/10',
+        text: 'text-green-700 dark:text-green-400',
+        hoverBorder: 'hover:border-green-400 dark:hover:border-green-600/50',
+        hoverBg: 'hover:bg-green-100 dark:hover:bg-green-900/20',
       },
       blue: {
-        border: 'border-blue-700/40',
-        bg: 'bg-blue-950/10',
-        text: 'text-blue-400',
+        border: 'border-blue-300 dark:border-blue-700/40',
+        bg: 'bg-blue-50 dark:bg-blue-950/10',
+        text: 'text-blue-700 dark:text-blue-400',
+        hoverBorder: 'hover:border-blue-400 dark:hover:border-blue-600/50',
+        hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900/20',
       },
       purple: {
-        border: 'border-purple-700/40',
-        bg: 'bg-purple-950/10',
-        text: 'text-purple-400',
+        border: 'border-purple-300 dark:border-purple-700/40',
+        bg: 'bg-purple-50 dark:bg-purple-950/10',
+        text: 'text-purple-700 dark:text-purple-400',
+        hoverBorder: 'hover:border-purple-400 dark:hover:border-purple-600/50',
+        hoverBg: 'hover:bg-purple-100 dark:hover:bg-purple-900/20',
       },
       orange: {
-        border: 'border-orange-700/40',
-        bg: 'bg-orange-950/10',
-        text: 'text-orange-400',
+        border: 'border-orange-300 dark:border-orange-700/40',
+        bg: 'bg-orange-50 dark:bg-orange-950/10',
+        text: 'text-orange-700 dark:text-orange-400',
+        hoverBorder: 'hover:border-orange-400 dark:hover:border-orange-600/50',
+        hoverBg: 'hover:bg-orange-100 dark:hover:bg-orange-900/20',
       },
       yellow: {
-        border: 'border-yellow-700/40',
-        bg: 'bg-yellow-950/10',
-        text: 'text-yellow-400',
+        border: 'border-yellow-300 dark:border-yellow-700/40',
+        bg: 'bg-yellow-50 dark:bg-yellow-950/10',
+        text: 'text-yellow-700 dark:text-yellow-400',
+        hoverBorder: 'hover:border-yellow-400 dark:hover:border-yellow-600/50',
+        hoverBg: 'hover:bg-yellow-100 dark:hover:bg-yellow-900/20',
       },
     };
     return colors[color || 'yellow'] || colors.yellow;
@@ -137,14 +150,20 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
       return (
         <div
           key={path.id}
-          className={`mb-3 cursor-pointer rounded-lg border border-dashed ${colors.border} ${colors.bg} p-3 text-left transition-all duration-200 hover:border-opacity-70`}
+          className={cn(
+            'mb-3 cursor-pointer rounded-lg border border-dashed p-3 text-left transition-all duration-200',
+            colors.border,
+            colors.bg,
+            colors.hoverBorder,
+            colors.hoverBg,
+          )}
         >
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <p className={`text-xs font-medium ${colors.text}`}>
+              <p className={cn('text-xs font-medium', colors.text)}>
                 {path.name || t('panels.conditional.pathNumber', { number: index + 1 })}
               </p>
-              <p className="text-xs text-gray-400 mt-1">{t('panels.conditional.noConditionsConfigured')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('panels.conditional.noConditionsConfigured')}</p>
             </div>
             <Handle
               className={cn(
@@ -173,27 +192,33 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
     return (
       <div
         key={path.id}
-        className={`mb-3 cursor-pointer rounded-lg border ${colors.border} ${colors.bg} p-3 text-left transition-all duration-200 hover:border-opacity-70`}
+        className={cn(
+          'mb-3 cursor-pointer rounded-lg border p-3 text-left transition-all duration-200',
+          colors.border,
+          colors.bg,
+          colors.hoverBorder,
+          colors.hoverBg,
+        )}
       >
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <p className={`text-xs font-bold ${colors.text} mb-2`}>
+            <p className={cn('text-xs font-bold mb-2', colors.text)}>
               {path.name || t('panels.conditional.pathNumber', { number: index + 1 })}
             </p>
             <div className="space-y-1">
               {path.conditions.map((condition, idx) => (
                 <div key={condition.id} className="text-xs">
                   {idx > 0 && (
-                    <span className="text-gray-500 font-medium mr-1">
+                    <span className="text-muted-foreground font-medium mr-1">
                       {path.logicalOperator === 'AND' ? t('panels.conditional.logicalOperators.and') : t('panels.conditional.logicalOperators.or')}
                     </span>
                   )}
-                  <span className="text-gray-300">{getFieldLabel(condition.field)}</span>{' '}
-                  <span className="text-gray-400">{getOperatorLabel(condition.operator)}</span>
+                  <span className="text-foreground">{getFieldLabel(condition.field)}</span>{' '}
+                  <span className="text-muted-foreground">{getOperatorLabel(condition.operator)}</span>
                   {needsValue(condition.operator) && condition.value && (
                     <>
                       {' '}
-                      <span className="text-green-400 font-medium">"{condition.value}"</span>
+                      <span className="text-green-700 dark:text-green-400 font-medium">"{condition.value}"</span>
                     </>
                   )}
                 </div>
@@ -245,12 +270,12 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
             <GitBranch className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+            <h3 className="text-sm font-medium text-foreground truncate">
               {t('panels.conditional.nodeTitle')}
             </h3>
           </div>
           <div className="flex-shrink-0">
-            <Settings className="w-3 h-3 text-gray-400" />
+            <Settings className="w-3 h-3 text-muted-foreground" />
           </div>
         </div>
 
@@ -259,8 +284,8 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
           <div className="space-y-2">{paths.map((path, index) => renderPath(path, index))}</div>
         ) : hasLegacyRules ? (
           // Fallback para estrutura antiga
-          <div className="p-3 rounded-lg border border-yellow-700/40 bg-yellow-950/10">
-            <p className="text-xs text-yellow-600 dark:text-yellow-300 mb-2">
+          <div className="p-3 rounded-lg border border-yellow-300 bg-yellow-50 dark:border-yellow-700/40 dark:bg-yellow-950/10">
+            <p className="text-xs text-yellow-700 dark:text-yellow-300 mb-2">
               {t('panels.conditional.oldStructureDetected')}
             </p>
           </div>
@@ -272,13 +297,13 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
         )}
 
         {/* Handle para "caso contrário" - sempre presente */}
-        <div className="cursor-pointer rounded-lg border border-red-700/40 bg-red-950/10 p-3 text-left transition-all duration-200 hover:border-red-600/50 hover:bg-red-900/10">
+        <div className="cursor-pointer rounded-lg border border-red-300 bg-red-50 hover:border-red-400 hover:bg-red-100 dark:border-red-700/40 dark:bg-red-950/10 dark:hover:border-red-600/50 dark:hover:bg-red-900/10 p-3 text-left transition-all duration-200">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <p className="font-medium text-neutral-300">
-                <span className="font-semibold text-red-400">{t('panels.conditional.otherwiseCase')}</span>
+              <p className="font-medium text-foreground">
+                <span className="font-semibold text-red-700 dark:text-red-400">{t('panels.conditional.otherwiseCase')}</span>
               </p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 {t('panels.conditional.otherwiseDescription')}
               </p>
             </div>

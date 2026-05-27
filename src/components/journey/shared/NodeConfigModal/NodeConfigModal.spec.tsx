@@ -149,13 +149,13 @@ describe('NodeConfigModal — common chrome', () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
-  it('announces "Saving…" to assistive tech while loading', () => {
+  it('announces the saving label to assistive tech while loading', () => {
     render(
       <NodeConfigModal {...baseProps} variant="simple" dirty loading>
         body
       </NodeConfigModal>,
     );
-    expect(screen.getByText('Saving…')).toBeTruthy();
+    expect(screen.getByText('Saving...')).toBeTruthy();
   });
 });
 

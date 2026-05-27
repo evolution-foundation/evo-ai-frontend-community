@@ -256,7 +256,7 @@ export const useChannelForm = () => {
     // Config helpers — derived from backend `hasXxxConfig` booleans, which share
     // the `IntegrationRequirements` source of truth with the admin save endpoint.
     //
-    // Meta channels (FB / WA Cloud / IG) also unlock when Evolution Hub is enabled,
+    // Meta channels (FB / WA Cloud / IG) also unlock when Evo Hub is enabled,
     // because in that mode the OAuth + Graph API calls happen at the Hub and the
     // CRM doesn't need local FB_APP_ID / WP_APP_ID / INSTAGRAM_APP_ID credentials.
     hasEvolutionConfig: config.hasEvolutionConfig === true,

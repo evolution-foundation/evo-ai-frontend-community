@@ -40,7 +40,7 @@ export function ExitJourneyNode({ selected, id }: ExitJourneyNodeProps) {
             <LogOut className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+            <h3 className="text-sm font-medium text-foreground truncate">
               {t('panels.exitJourney.title')}
             </h3>
           </div>

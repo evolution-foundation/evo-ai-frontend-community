@@ -1,5 +1,8 @@
 import { createRoot } from 'react-dom/client';
 import "@evoapi/design-system/styles";
+// React Flow CSS imported here so it is processed BEFORE globals.css and
+// our theming overrides in globals.css can win the cascade (EVO-1270).
+import '@xyflow/react/dist/style.css';
 import './styles/globals.css';
 import './i18n/config'; // Importar configuração do i18n
 import App from './App.tsx';

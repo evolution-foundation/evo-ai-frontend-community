@@ -7,7 +7,7 @@
     "channels": "Canales",
     "openai": "OpenAI",
     "integrations": "Integraciones",
-    "evolutionHub": "Evolution Hub",
+    "evolutionHub": "Evo Hub",
     "inboundEmail": "Correo Entrante",
     "frontendRuntime": "Frontend Runtime"
   },
@@ -460,11 +460,11 @@
     "saving": "Guardando..."
   },
   "evolutionHub": {
-    "title": "Evolution Hub",
-    "description": "Use Evolution Hub como capa de proxy para canales Meta (WhatsApp Cloud, Messenger, Instagram). Cuando se activa, el CRM sustituye las llamadas directas a la Graph API por llamadas vía Hub.",
+    "title": "Evo Hub",
+    "description": "Use Evo Hub como capa de proxy para canales Meta (WhatsApp Cloud, Messenger, Instagram). Cuando se activa, el CRM sustituye las llamadas directas a la Graph API por llamadas vía Hub.",
     "sections": { "connection": "Conexión" },
     "fields": {
-      "enabled": "Usar Evolution Hub",
+      "enabled": "Usar Evo Hub",
       "enabledHelp": "Cuando está activado, todas las llamadas Meta pasan por el Hub configurado.",
       "url": "URL del Hub",
       "apiKey": "API Key",

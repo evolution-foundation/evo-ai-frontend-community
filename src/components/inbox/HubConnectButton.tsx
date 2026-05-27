@@ -7,7 +7,7 @@ import { api } from '@/services/core';
 /**
  * Hub-relayed Inbox creation button.
  *
- * Rendered in place of the native Meta OAuth form whenever the Evolution Hub
+ * Rendered in place of the native Meta OAuth form whenever the Evo Hub
  * feature is active (see GlobalConfigContext.evolutionHubEnabled). Calls the
  * CRM's POST /api/v2/accounts/:id/inboxes with via_hub: true; the controller
  * delegates to EvolutionHub::InboxBuilder which talks to the Hub and returns
@@ -71,7 +71,7 @@ export default function HubConnectButton({
       const message =
         (error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
         (error as { message?: string }).message ??
-        'Falha ao criar inbox via Evolution Hub';
+        'Falha ao criar inbox via Evo Hub';
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -103,7 +103,7 @@ export default function HubConnectButton({
   return (
     <Button type="button" onClick={handleClick} disabled={submitting}>
       {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <ExternalLink className="h-4 w-4 mr-2" />}
-      Conectar via Evolution Hub
+      Conectar via Evo Hub
     </Button>
   );
 }

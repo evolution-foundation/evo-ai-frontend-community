@@ -282,12 +282,12 @@ export function WaitNode({ selected, data, id }: WaitNodeProps) {
             <IconComponent className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+            <h3 className="text-sm font-medium text-foreground truncate">
               {typeConfig.title}
             </h3>
           </div>
           <div className="flex-shrink-0">
-            <Settings className="w-3 h-3 text-gray-400" />
+            <Settings className="w-3 h-3 text-muted-foreground" />
           </div>
         </div>
 
@@ -316,11 +316,11 @@ export function WaitNode({ selected, data, id }: WaitNodeProps) {
         {needsMultipleOutputs && (
           <div className="space-y-2">
             {/* Handle principal (condição/evento atendido) */}
-            <div className="mb-3 cursor-pointer rounded-lg border border-green-700/40 bg-green-950/10 p-3 text-left transition-all duration-200 hover:border-green-600/50 hover:bg-green-900/10">
+            <div className="mb-3 cursor-pointer rounded-lg border border-green-300 bg-green-50 hover:border-green-400 hover:bg-green-100 dark:border-green-700/40 dark:bg-green-950/10 dark:hover:border-green-600/50 dark:hover:bg-green-900/10 p-3 text-left transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="font-medium text-neutral-300">
-                    <span className="font-semibold text-green-400">
+                  <p className="font-medium text-foreground">
+                    <span className="font-semibold text-green-700 dark:text-green-400">
                       {data.waitType === 'event'
                         ? t('flowEditor.nodes.wait.outputs.eventOccurred')
                         : data.waitType === 'condition'
@@ -352,17 +352,17 @@ export function WaitNode({ selected, data, id }: WaitNodeProps) {
             </div>
 
             {/* Handle para fallback/timeout */}
-            <div className="mb-3 cursor-pointer rounded-lg border border-red-700/40 bg-red-950/10 p-3 text-left transition-all duration-200 hover:border-red-600/50 hover:bg-red-900/10">
+            <div className="mb-3 cursor-pointer rounded-lg border border-red-300 bg-red-50 hover:border-red-400 hover:bg-red-100 dark:border-red-700/40 dark:bg-red-950/10 dark:hover:border-red-600/50 dark:hover:bg-red-900/10 p-3 text-left transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="font-medium text-neutral-300">
-                    <span className="font-semibold text-red-400">
+                  <p className="font-medium text-foreground">
+                    <span className="font-semibold text-red-700 dark:text-red-400">
                       {data.waitType === 'time_or_condition'
                         ? t('flowEditor.nodes.wait.outputs.timeout')
                         : t('flowEditor.nodes.wait.outputs.otherwise')}
                     </span>
                     {data.enableFallback && data.fallbackTime && data.fallbackUnit && (
-                      <span className="text-xs text-red-300 block mt-1">
+                      <span className="text-xs text-red-700 dark:text-red-300 block mt-1">
                         {t('flowEditor.nodes.wait.descriptions.after', {
                           time: data.fallbackTime,
                           unit: t(`units.${data.fallbackUnit}.short`),

@@ -48,12 +48,12 @@ export function ResolveConversationNode({ selected, id }: ResolveConversationNod
             <CheckCircle className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+          <h3 className="text-sm font-medium text-foreground truncate">
             {t('flowEditor.nodes.resolveConversation.name')}
           </h3>
           </div>
           <div className="flex-shrink-0">
-            <Settings className="w-3 h-3 text-gray-400" />
+            <Settings className="w-3 h-3 text-muted-foreground" />
           </div>
         </div>
 

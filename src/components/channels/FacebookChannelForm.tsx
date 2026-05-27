@@ -278,7 +278,7 @@ export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookCha
     setInboxName('');
   };
 
-  // Evolution Hub branch — short-circuit the native Facebook OAuth flow.
+  // Evo Hub branch — short-circuit the native Facebook OAuth flow.
   // The Hub owns the Meta authorization; the button below creates the inbox
   // via /api/v1/inboxes (via_hub: true) and opens the Hub connect page.
   if (hubEnabled) {

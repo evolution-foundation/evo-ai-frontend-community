@@ -310,6 +310,10 @@
         "assignTo": "Assign conversation to team",
         "noTeamSelected": "No team selected"
       },
+      "assignBot": {
+        "name": "Assign Bot",
+        "description": "Connects a specific bot to an inbox to automate responses"
+      },
       "muteConversation": {
         "name": "Mute Conversation",
         "description": "The conversation will be muted and will not generate notifications for Agents"
@@ -328,25 +332,21 @@
       }
     },
     "categories": {
-      "actions": {
-        "label": "Actions",
-        "description": "Actions that can be executed in the journey"
+      "controlFlow": {
+        "label": "Control Flow",
+        "description": "Wait, branch and route the journey"
       },
       "communication": {
         "label": "Communication",
-        "description": "Sending messages and notifications"
-      },
-      "labels": {
-        "label": "Labels",
-        "description": "Label management"
+        "description": "Send messages, webhooks and notifications"
       },
       "contact": {
         "label": "Contact",
-        "description": "Contact management"
+        "description": "Update contact data, labels and assignments"
       },
       "conversation": {
-        "label": "Conversations",
-        "description": "Conversation management"
+        "label": "Conversation",
+        "description": "Mute, defer, resolve and prioritise conversations"
       }
     }
   },
