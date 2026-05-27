@@ -18,7 +18,8 @@
       "pipeline": "Pipeline",
       "history": "Histórico",
       "notes": "Notas",
-      "attributes": "Atributos"
+      "attributes": "Atributos",
+      "events": "Eventos"
     },
     "actions": {
       "startConversation": "Iniciar Conversa",
@@ -611,5 +612,97 @@
     "contact": "Contato",
     "contactPlaceholder": "Buscar um contato...",
     "noContactsFound": "Nenhum contato encontrado"
+  },
+  "events": {
+    "timeline": {
+      "title": "Histórico de eventos",
+      "ariaLabel": "Linha do tempo de eventos do contato",
+      "loading": "Carregando eventos...",
+      "loadingMore": "Carregando mais...",
+      "loadMore": "Carregar mais",
+      "showing": "{{count}} eventos",
+      "softCapped": "Mostrando os últimos {{cap}} eventos. Use filtros para refinar.",
+      "empty": {
+        "default": "Este contato ainda não tem eventos registrados.",
+        "withFilters": "Nenhum evento corresponde aos filtros aplicados."
+      },
+      "degraded": {
+        "banner": "Histórico temporariamente indisponível. Tente novamente em alguns instantes.",
+        "retry": "Tentar novamente"
+      },
+      "error": {
+        "forbidden": "Sem permissão para ver o histórico deste contato.",
+        "invalidFilters": "Filtros inválidos. Revise os campos e tente novamente.",
+        "rateLimit": "Muitas requisições. Aguarde alguns instantes.",
+        "generic": "Erro ao carregar eventos. Tente recarregar a página.",
+        "retry": "Tentar novamente"
+      },
+      "crashed": {
+        "title": "Algo deu errado ao mostrar o histórico.",
+        "reload": "Recarregar"
+      }
+    },
+    "filters": {
+      "title": "Filtros",
+      "eventType": "Tipo",
+      "eventName": "Nome",
+      "channel": "Canal",
+      "campaign": "Campanha (UUID)",
+      "campaignPlaceholder": "UUID da campanha",
+      "occurredAfter": "De",
+      "occurredBefore": "Até",
+      "clear": "Limpar filtros",
+      "allEventNames": "Todos os nomes"
+    },
+    "types": {
+      "_comment": "Os valores de termos de protocolo (Identify/Track/Page/Screen/Segment) são mantidos sem tradução em todos os locales propositalmente.",
+      "all": "Todos os tipos",
+      "identify": "Identificação",
+      "track": "Rastreio",
+      "page": "Página",
+      "screen": "Tela",
+      "segment": "Segmento"
+    },
+    "channels": {
+      "all": "Todos os canais",
+      "api": "API",
+      "email": "Email",
+      "facebook": "Facebook (inclui Página Facebook)",
+      "instagram": "Instagram",
+      "line": "LINE",
+      "sms": "SMS",
+      "telegram": "Telegram",
+      "twilio_sms": "Twilio SMS",
+      "twitter": "Twitter (inclui Twitter Profile)",
+      "web_widget": "Website",
+      "whatsapp": "WhatsApp"
+    },
+    "card": {
+      "expand": "Ver detalhes",
+      "collapse": "Ocultar detalhes",
+      "properties": "Propriedades do evento",
+      "justNow": "agora",
+      "enriched": {
+        "campaign": "Campanha: {{name}}",
+        "channel": "Canal: {{label}}",
+        "agent": "Atendente: {{name}}"
+      }
+    },
+    "names": {
+      "contact_created": "Contato criado",
+      "contact_updated": "Contato atualizado",
+      "contact_label_added": "Etiqueta adicionada",
+      "contact_label_removed": "Etiqueta removida",
+      "contact_custom_attribute_changed": "Atributo personalizado alterado",
+      "conversation_created": "Conversa criada",
+      "conversation_updated": "Conversa atualizada",
+      "conversation_resolved": "Conversa resolvida",
+      "conversation_activity": "Atividade na conversa",
+      "conversation_first_reply": "Primeira resposta",
+      "message_created": "Mensagem enviada",
+      "pipeline_conversation_created": "Conversa criada no pipeline",
+      "pipeline_conversation_updated": "Conversa atualizada no pipeline",
+      "pipeline_stage_changed": "Estágio do pipeline alterado"
+    }
   }
 }

@@ -1,19 +1,98 @@
 import '@testing-library/jest-dom';
 
-// JSDOM ships neither ResizeObserver nor PointerEvent; cmdk + Radix UI primitives
-// rely on both. Tests under src/components/journey/shared/* (EVO-1261 EventSelector,
-// future shared dropdowns) need these stubs to mount.
-if (typeof globalThis.ResizeObserver === 'undefined') {
-  globalThis.ResizeObserver = class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
+// JSDOM ships neither ResizeObserver, IntersectionObserver, nor PointerEvent.
+// Radix UI primitives (Select, Tabs) and cmdk depend on pointer-capture APIs;
+// EventSelector and ContactEventsTab tests rely on these
+// stubs to mount. The IO and RO mocks below are dispatchable — tests can
+// fire synthetic entries via the `triggerIO(idx, entries)` / `triggerRO`
+// globals to exercise sentinel callbacks without a real layout pass.
+if (typeof Element !== 'undefined') {
+  if (!(Element.prototype as unknown as { hasPointerCapture?: unknown }).hasPointerCapture) {
+    (Element.prototype as unknown as { hasPointerCapture: () => boolean }).hasPointerCapture = () => false;
+  }
+  if (!(Element.prototype as unknown as { releasePointerCapture?: unknown }).releasePointerCapture) {
+    (Element.prototype as unknown as { releasePointerCapture: () => void }).releasePointerCapture = () => {};
+  }
+  if (!(Element.prototype as unknown as { setPointerCapture?: unknown }).setPointerCapture) {
+    (Element.prototype as unknown as { setPointerCapture: () => void }).setPointerCapture = () => {};
+  }
+  if (!(Element.prototype as unknown as { scrollIntoView?: unknown }).scrollIntoView) {
+    (Element.prototype as unknown as { scrollIntoView: () => void }).scrollIntoView = () => {};
+  }
 }
 
-if (typeof Element !== 'undefined' && !(Element.prototype as any).hasPointerCapture) {
-  (Element.prototype as any).hasPointerCapture = () => false;
-  (Element.prototype as any).releasePointerCapture = () => {};
-  (Element.prototype as any).setPointerCapture = () => {};
-  (Element.prototype as any).scrollIntoView = () => {};
+type IOEntry = Partial<IntersectionObserverEntry> & { isIntersecting: boolean };
+
+// Install the dispatchable mocks UNCONDITIONALLY so tests behave the same
+// across jsdom versions. If jsdom ever ships a partial native implementation
+// of IntersectionObserver / ResizeObserver, leaving the guard in place would
+// silently bypass these mocks and break `triggerIO` / `triggerRO`.
+class MockIntersectionObserver implements IntersectionObserver {
+  readonly root: Element | Document | null = null;
+  readonly rootMargin: string = '';
+  readonly thresholds: ReadonlyArray<number> = [];
+  callback: IntersectionObserverCallback;
+
+  constructor(callback: IntersectionObserverCallback) {
+    this.callback = callback;
+    const g = globalThis as unknown as { __intersectionObservers?: MockIntersectionObserver[] };
+    g.__intersectionObservers ??= [];
+    g.__intersectionObservers.push(this);
+  }
+
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+  takeRecords(): IntersectionObserverEntry[] { return []; }
 }
+
+(globalThis as unknown as { IntersectionObserver: typeof IntersectionObserver }).IntersectionObserver =
+  MockIntersectionObserver as unknown as typeof IntersectionObserver;
+
+class MockResizeObserver implements ResizeObserver {
+  callback: ResizeObserverCallback;
+
+  constructor(callback: ResizeObserverCallback) {
+    this.callback = callback;
+    const g = globalThis as unknown as { __resizeObservers?: MockResizeObserver[] };
+    g.__resizeObservers ??= [];
+    g.__resizeObservers.push(this);
+  }
+
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+}
+
+(globalThis as unknown as { ResizeObserver: typeof ResizeObserver }).ResizeObserver =
+  MockResizeObserver as unknown as typeof ResizeObserver;
+
+// Dispatch helpers — fire a synthetic entry list to a mocked observer instance
+// by index. Tests can also read the global arrays directly for advanced
+// scenarios (counting observers, asserting disconnect, etc.).
+(globalThis as unknown as { triggerIO?: (idx: number, entries: IOEntry[]) => void }).triggerIO = (
+  idx: number,
+  entries: IOEntry[],
+) => {
+  const g = globalThis as unknown as {
+    __intersectionObservers?: Array<{ callback: IntersectionObserverCallback }>;
+  };
+  const observer = g.__intersectionObservers?.[idx];
+  if (!observer) return;
+  observer.callback(
+    entries as unknown as IntersectionObserverEntry[],
+    {} as IntersectionObserver,
+  );
+};
+
+(globalThis as unknown as { triggerRO?: (idx: number, entries: ResizeObserverEntry[]) => void }).triggerRO = (
+  idx: number,
+  entries: ResizeObserverEntry[],
+) => {
+  const g = globalThis as unknown as {
+    __resizeObservers?: Array<{ callback: ResizeObserverCallback }>;
+  };
+  const observer = g.__resizeObservers?.[idx];
+  if (!observer) return;
+  observer.callback(entries, {} as ResizeObserver);
+};

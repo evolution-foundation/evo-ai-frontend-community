@@ -35,7 +35,6 @@ import {
   ExternalLink,
   Search,
   // CalendarClock,
-  GitBranch,
   Merge,
   Trash,
 } from 'lucide-react';
@@ -44,6 +43,9 @@ import { Contact } from '@/types/contacts';
 import ContactAvatar from '@/components/chat/contact/ContactAvatar';
 import { formatContactPhone } from '@/utils/contact/formatContactPhone';
 import ContactPipelineItem from '@/components/pipelines/ContactPipelineItem';
+import ContactEventsTab from './ContactEventsTab';
+import ContactEventsErrorBoundary from './ContactEventsErrorBoundary';
+import { buildContactDetailsTabs } from './contactDetailsTabs';
 import { toast } from 'sonner';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 
@@ -174,18 +176,9 @@ export default function ContactDetails({
   };
 
   // Dynamic tabs based on contact type
-  const tabs = [
-    ...(hasCompanies
-      ? [{ value: 'companies', icon: Building2, label: t('details.tabs.companies') }]
-      : []),
-    ...(hasPersons ? [{ value: 'persons', icon: Users, label: t('details.tabs.persons') }] : []),
-    // Scheduled Actions temporarily disabled - feature is in development
-    // { value: 'scheduled-actions', icon: CalendarClock, label: t('scheduledActions.label') },
-    { value: 'pipeline', icon: GitBranch, label: t('details.tabs.pipeline') },
-    { value: 'history', icon: History, label: t('details.tabs.history') },
-    { value: 'notes', icon: StickyNote, label: t('details.tabs.notes') },
-    { value: 'attributes', icon: Settings, label: t('details.tabs.attributes') },
-  ];
+  // Scheduled Actions temporarily disabled - feature is in development
+  // { value: 'scheduled-actions', icon: CalendarClock, label: t('scheduledActions.label') },
+  const tabs = buildContactDetailsTabs({ hasCompanies, hasPersons, t });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -462,6 +455,15 @@ export default function ContactDetails({
                 <ContactPipelineItem
                   contactId={contact.id}
                 />
+              </TabsContent>
+
+              <TabsContent value="events" className="py-6 mt-0">
+                <ContactEventsErrorBoundary
+                  fallbackTitle={t('events.timeline.crashed.title')}
+                  fallbackReload={t('events.timeline.crashed.reload')}
+                >
+                  <ContactEventsTab contactId={contact.id} />
+                </ContactEventsErrorBoundary>
               </TabsContent>
 
               <TabsContent value="attributes" className="py-6 mt-0">
