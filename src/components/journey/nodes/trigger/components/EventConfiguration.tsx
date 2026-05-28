@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Button,
   Label,
@@ -39,20 +39,32 @@ export function EventConfiguration({
   onVariableMappingsChange,
   journeyId,
 }: EventConfigurationProps) {
-  const { t, currentLanguage } = useLanguage('journey');
+  const { t } = useLanguage('journey');
 
   // selectorValue tracks which dropdown entry is rendered as selected
   // (canonical event name OR the literal 'custom' placeholder); customName
   // holds the free-text typed value when the user is in custom mode. The
   // persisted `eventName` prop stays as the canonical name OR the custom
   // string the user typed — never the literal 'custom'.
-  const [selectorValue, setSelectorValue] = useState<string>('');
-  const [customName, setCustomName] = useState<string>('');
+  const [selectorValue, setSelectorValue] = useState<string>(
+    () => resolveLegacyEventName(eventName).selectorValue,
+  );
+  const [customName, setCustomName] = useState<string>(
+    () => resolveLegacyEventName(eventName).customName ?? '',
+  );
+
+  // Skip the re-derive effect when the prop is just echoing back our own
+  // onEventNameChange call. Without this, typing a name in the custom
+  // input that happens to be canonical would yank the user out of custom
+  // mode mid-keystroke.
+  const lastPushedRef = useRef<string>(eventName);
 
   useEffect(() => {
+    if (lastPushedRef.current === eventName) return;
     const resolved = resolveLegacyEventName(eventName);
     setSelectorValue(resolved.selectorValue);
     setCustomName(resolved.customName ?? '');
+    lastPushedRef.current = eventName;
   }, [eventName]);
 
   const generateEventPaths = () => {
@@ -66,16 +78,19 @@ export function EventConfiguration({
   const handleSelectorChange = ({ eventName: picked, isCustom }: { eventName: string; isCustom: boolean }) => {
     if (isCustom) {
       setSelectorValue('custom');
+      lastPushedRef.current = customName;
       onEventNameChange(customName);
     } else {
       setSelectorValue(picked);
       setCustomName('');
+      lastPushedRef.current = picked;
       onEventNameChange(picked);
     }
   };
 
   const handleCustomNameChange = (next: string) => {
     setCustomName(next);
+    lastPushedRef.current = next;
     onEventNameChange(next);
   };
 
@@ -113,14 +128,17 @@ export function EventConfiguration({
             value={selectorValue || undefined}
             onChange={handleSelectorChange}
             className="bg-sidebar border-sidebar-border text-sidebar-foreground"
-            key={currentLanguage}
           />
           {canonicalDescription && (
             <p className="text-xs text-muted-foreground">{canonicalDescription}</p>
           )}
           {isCustomMode && (
             <div className="space-y-2 pt-1">
+              <Label htmlFor="custom-event-name" className="text-sm font-medium">
+                {t('triggerComponents.event.eventName')}
+              </Label>
               <VariableInput
+                id="custom-event-name"
                 value={customName}
                 onChange={e => handleCustomNameChange(e.target.value)}
                 placeholder={t('triggerComponents.event.customEventNamePlaceholder')}

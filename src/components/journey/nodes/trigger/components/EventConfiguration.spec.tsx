@@ -91,4 +91,30 @@ describe('EventConfiguration — event name UI', () => {
       screen.getByText(/a new contact was created/i),
     ).toBeTruthy();
   });
+
+  it('typing a canonical-looking name into the custom input does NOT switch out of custom mode', async () => {
+    const user = userEvent.setup();
+    render(<Harness initialEventName="button_click" />);
+
+    // Sanity: starts in custom mode with the legacy value preserved.
+    const customInput = screen.getByPlaceholderText(
+      /custom event name|nome do evento custom/i,
+    ) as HTMLInputElement;
+    expect(customInput.value).toBe('button_click');
+
+    // Clear and type a name that would resolve as canonical if re-derived.
+    await user.clear(customInput);
+    await user.type(customInput, 'contact.created');
+
+    // Custom input MUST still be visible (no premature exit from custom mode).
+    expect(
+      screen.queryByPlaceholderText(/custom event name|nome do evento custom/i),
+    ).not.toBeNull();
+    // The canonical description must NOT be rendered (we're still in custom mode).
+    expect(screen.queryByText(/a new contact was created/i)).toBeNull();
+    // And the warning is still visible.
+    expect(
+      screen.getByText(/custom events have no schema validation|não têm validação de schema/i),
+    ).toBeTruthy();
+  });
 });
