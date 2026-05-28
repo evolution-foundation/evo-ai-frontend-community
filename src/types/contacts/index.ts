@@ -3,3 +3,4 @@
 
 // Contact types
 export * from './contact';
+export * from './contactEvent';

@@ -1,5 +1,3 @@
-import { PaginationMeta } from '@/types/core';
-
 // Notification metadata
 export interface NotificationMeta {
   assignee?: {
@@ -8,25 +6,51 @@ export interface NotificationMeta {
   };
 }
 
+export interface NotificationSender {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  type: string;
+}
+
 // Notification entity
 export interface Notification {
   id: string;
   notification_type: string;
   primary_actor_id: string;
-  primary_actor: { id: string } | null;
+  primary_actor: {
+    id: string;
+    display_id?: number;
+    type?: string;
+    channel?: string;
+    contact?: { id: string; name: string; avatar_url: string | null };
+  } | null;
+  secondary_actor?: { id: string; type: string; sender?: NotificationSender } | null;
   push_message_title: string;
+  push_message_body?: string;
   last_activity_at: string;
   read_at: string | null;
   primary_actor_meta?: NotificationMeta | null;
+  sender?: NotificationSender | null;
 }
 
-// Notification list response
+// Shape of the pagination object nested inside meta by paginated_response helper
+interface NotificationsPagination {
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+  has_next_page: boolean;
+  has_previous_page: boolean;
+}
+
+// Notification list response — mirrors the actual backend JSON shape
 export interface NotificationsResponse {
   data: Notification[];
-  meta: PaginationMeta & {
+  meta: {
     count: number;
-    currentPage: number;
-    unreadCount: number;
+    unread_count: number;
+    pagination: NotificationsPagination;
   };
 }
 

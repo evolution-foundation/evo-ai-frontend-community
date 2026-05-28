@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Bell } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import {
   Button,
   DropdownMenu,
@@ -15,6 +16,25 @@ export default function NotificationBell() {
   const { t } = useLanguage('layout');
   const [isOpen, setIsOpen] = useState(false);
   const { state, actions } = useNotifications();
+  const location = useLocation();
+  // Initialize with the current pathname so the effect only fires on actual
+  // navigations — not on initial mount or re-mounts caused by state updates.
+  const lastMarkedPathRef = useRef<string>(location.pathname);
+
+  // Mark the notification as read when the user navigates to a conversation
+  // without clicking the notification item (e.g., from the sidebar).
+  useEffect(() => {
+    const prevPath = lastMarkedPathRef.current;
+    lastMarkedPathRef.current = location.pathname;
+
+    // Skip if the path didn't actually change (mount / re-render on same route)
+    if (prevPath === location.pathname) return;
+
+    const match = location.pathname.match(/\/conversations\/([^/]+)/);
+    if (!match) return;
+    const conversationId = match[1];
+    actions.markConversationAsRead(conversationId);
+  }, [location.pathname, actions]);
 
   // Fetch notifications every time the dropdown opens.
   // `actions` is now memoized in the provider (deps=[]), so it's stable across

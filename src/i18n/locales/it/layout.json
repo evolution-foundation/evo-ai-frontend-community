@@ -50,7 +50,8 @@
         "conversation_opened": "Conversazione Aperta",
         "conversation_closed": "Conversazione Chiusa",
         "message_updated": "Messaggio Aggiornato",
-        "message_deleted": "Messaggio Eliminato"
+        "message_deleted": "Messaggio Eliminato",
+        "channel_message": "Nuovo messaggio via {{channel}}"
       }
     }
   },

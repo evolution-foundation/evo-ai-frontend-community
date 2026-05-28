@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo, useRef } from 'react';
+import { unixTimestampToIso } from '@/utils/chat/contactTimestamp';
 import type { AxiosError } from 'axios';
 import notificationsService, { type Notification } from '@/services/notifications/NotificationsService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -41,7 +42,7 @@ type NotificationsAction =
   | { type: 'MARK_ALL_AS_READ' }
   | { type: 'SET_FILTERS'; payload: Record<string, any> };
 
-const initialState: NotificationsState = {
+export const initialState: NotificationsState = {
   notifications: [],
   meta: {
     count: 0,
@@ -59,7 +60,7 @@ const initialState: NotificationsState = {
   notificationFilters: {},
 };
 
-function notificationsReducer(
+export function notificationsReducer(
   state: NotificationsState,
   action: NotificationsAction,
 ): NotificationsState {
@@ -153,29 +154,26 @@ function notificationsReducer(
         },
       };
 
-    case 'MARK_AS_READ':
+    case 'MARK_AS_READ': {
+      const wasUnread = state.notifications.some(n => n.id === action.payload.id && !n.read_at);
       return {
         ...state,
-        notifications: state.notifications.map(notification =>
-          notification.id === action.payload.id
-            ? { ...notification, read_at: action.payload.read_at }
-            : notification,
-        ),
+        notifications: state.notifications.filter(n => n.id !== action.payload.id),
         meta: {
           ...state.meta,
-          unreadCount: Math.max(0, state.meta.unreadCount - 1),
+          count: Math.max(0, state.meta.count - 1),
+          unreadCount: wasUnread ? Math.max(0, state.meta.unreadCount - 1) : state.meta.unreadCount,
         },
       };
+    }
 
     case 'MARK_ALL_AS_READ':
       return {
         ...state,
-        notifications: state.notifications.map(notification => ({
-          ...notification,
-          read_at: notification.read_at || new Date().toISOString(),
-        })),
+        notifications: [],
         meta: {
           ...state.meta,
+          count: 0,
           unreadCount: 0,
         },
       };
@@ -203,6 +201,7 @@ interface NotificationsContextType {
     markAsRead: (notification: Notification) => Promise<void>;
     markAsUnread: (id: string) => Promise<void>;
     markAllAsRead: () => Promise<void>;
+    markConversationAsRead: (conversationId: string) => Promise<void>;
     deleteNotification: (id: string) => Promise<void>;
     deleteAllNotifications: (type?: 'all' | 'read') => Promise<void>;
     snoozeNotification: (id: string, snoozedUntil?: string) => Promise<void>;
@@ -250,12 +249,21 @@ const NotificationsProviderInner: React.FC<NotificationsProviderProps> = ({ chil
         const notifications = response.data || [];
         const meta = response.meta;
 
+        // CLEAR only after a successful response so a backend error doesn't
+        // wipe existing (e.g. WS-delivered) notifications from the list.
         if (params.page === 1) {
           dispatch({ type: 'CLEAR_NOTIFICATIONS' });
         }
 
         dispatch({ type: 'SET_NOTIFICATIONS', payload: notifications });
-        dispatch({ type: 'SET_META', payload: meta });
+        dispatch({
+          type: 'SET_META',
+          payload: {
+            count: meta?.count ?? 0,
+            unreadCount: meta?.unread_count ?? 0,
+            currentPage: meta?.pagination?.page ?? params.page ?? 1,
+          },
+        });
 
         if (notifications.length < 15) {
           dispatch({ type: 'SET_UI_FLAGS', payload: { isAllNotificationsLoaded: true } });
@@ -340,6 +348,29 @@ const NotificationsProviderInner: React.FC<NotificationsProviderProps> = ({ chil
       }
     },
 
+    markConversationAsRead: async (conversationId: string) => {
+      // Only call the API when we have the UUID from local state.
+      // The URL may contain a display_id (numeric), and the server's read_all
+      // endpoint marks ALL notifications as read when primary_actor_id doesn't
+      // resolve to a valid Conversation record — never pass an unknown ID.
+      const matching = stateRef.current.notifications.filter(
+        n =>
+          !n.read_at &&
+          (n.primary_actor_id === conversationId ||
+            String(n.primary_actor?.display_id) === conversationId),
+      );
+      if (matching.length === 0) return;
+      try {
+        // One API call is enough — the backend marks all notifications for the conversation
+        await notificationsService.markAsRead('Conversation', matching[0].primary_actor_id);
+        for (const n of matching) {
+          dispatch({ type: 'MARK_AS_READ', payload: { id: n.id, read_at: new Date().toISOString() } });
+        }
+      } catch (error) {
+        console.error('Error marking conversation notification as read:', error);
+      }
+    },
+
     deleteNotification: async (id: string) => {
       dispatch({ type: 'SET_UI_FLAGS', payload: { isDeleting: true } });
 
@@ -421,19 +452,21 @@ const NotificationsProviderInner: React.FC<NotificationsProviderProps> = ({ chil
         primary_actor:
           notificationData.primary_actor ||
           (notificationData.primary_actor_id ? { id: notificationData.primary_actor_id } : null),
+        secondary_actor: notificationData.secondary_actor || null,
         push_message_title:
           notificationData.push_message_title ||
           notificationData.message ||
           notificationData.content ||
           notificationData.title ||
           '',
+        push_message_body: notificationData.push_message_body || '',
         last_activity_at:
-          notificationData.last_activity_at ||
-          notificationData.created_at ||
-          notificationData.updated_at ||
+          unixTimestampToIso(notificationData.last_activity_at) ??
+          unixTimestampToIso(notificationData.created_at) ??
           new Date().toISOString(),
         read_at: notificationData.read_at || null,
         primary_actor_meta: notificationData.primary_actor_meta || null,
+        sender: notificationData.sender || notificationData.secondary_actor?.sender || null,
       };
 
       actions.addNotification(notification);
@@ -552,9 +585,33 @@ const NotificationsProviderInner: React.FC<NotificationsProviderProps> = ({ chil
   }, [actions]);
 
   const handleNotificationUpdated = useCallback((data: any) => {
-    if (data.id) {
-      actions.updateNotification(data.id, data);
+    if (!data.id) return;
+    // Only forward the fields an "updated" event actually changes. Spreading the
+    // raw payload could clobber a rich primary_actor already in state (contact,
+    // display_id, channel) with a shallow {id} from the WS message.
+    const normalized: Partial<Notification> = {};
+    if (data.last_activity_at !== undefined) {
+      normalized.last_activity_at =
+        unixTimestampToIso(data.last_activity_at) ?? data.last_activity_at;
     }
+    // read_at: WS currently sends a datetime string, but normalize defensively in
+    // case the backend switches to a Unix int (like created_at) for consistency.
+    if (data.read_at !== undefined) {
+      normalized.read_at =
+        typeof data.read_at === 'number'
+          ? (data.read_at ? new Date(data.read_at * 1000).toISOString() : null)
+          : data.read_at;
+    }
+    if (data.sender) {
+      normalized.sender = data.sender;
+    }
+    if (data.push_message_body !== undefined) {
+      normalized.push_message_body = data.push_message_body;
+    }
+    if (data.push_message_title !== undefined) {
+      normalized.push_message_title = data.push_message_title;
+    }
+    actions.updateNotification(data.id, normalized);
   }, [actions]);
 
   // Initialize global WebSocket connection for real-time notifications and messages

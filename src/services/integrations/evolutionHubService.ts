@@ -65,6 +65,24 @@ class EvolutionHubService {
   async listChannels(): Promise<HubChannel[]> {
     const response = await api.get('/integrations/evolution_hub/channels');
     const data = extractData<HubChannel[] | { channels?: HubChannel[]; data?: HubChannel[] }>(response);
+    return EvolutionHubService.normalizeChannels(data);
+  }
+
+  /**
+   * Canais Hub disponíveis pra serem LINKADOS a um inbox novo no CRM.
+   * Filtra no backend os já atrelados a outro inbox (evita mensagem duplicada).
+   * Optional `type` filter: 'whatsapp' | 'facebook' | 'instagram'.
+   */
+  async getAvailableChannels(type?: HubChannel['type']): Promise<HubChannel[]> {
+    const query = type ? `?type=${encodeURIComponent(type)}` : '';
+    const response = await api.get(`/integrations/evolution_hub/available_channels${query}`);
+    const data = extractData<HubChannel[] | { channels?: HubChannel[]; data?: HubChannel[] }>(response);
+    return EvolutionHubService.normalizeChannels(data);
+  }
+
+  private static normalizeChannels(
+    data: HubChannel[] | { channels?: HubChannel[]; data?: HubChannel[] } | null | undefined,
+  ): HubChannel[] {
     if (Array.isArray(data)) return data;
     if (data && Array.isArray((data as { channels?: HubChannel[] }).channels)) {
       return (data as { channels: HubChannel[] }).channels;

@@ -292,7 +292,7 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
         ) : (
           <div className="p-3 rounded-lg border-2 border-dashed border-yellow-300 bg-yellow-50 dark:bg-yellow-950/20 text-center">
             <GitBranch className="h-6 w-6 text-yellow-400 mx-auto mb-2" />
-            <p className="text-xs text-yellow-600 dark:text-yellow-300">{t('panels.conditional.configurePaths')}</p>
+            <p className="text-xs text-yellow-700 dark:text-yellow-300">{t('panels.conditional.configurePaths')}</p>
           </div>
         )}
 

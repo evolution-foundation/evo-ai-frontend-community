@@ -18,7 +18,8 @@
       "pipeline": "Pipeline",
       "history": "Cronologia",
       "notes": "Note",
-      "attributes": "Attributi"
+      "attributes": "Attributi",
+      "events": "Eventi"
     },
     "actions": {
       "startConversation": "Avvia Conversazione",
@@ -602,6 +603,102 @@
       "hoursMinutes": "{{hours}}h {{minutes}}m",
       "minutesSeconds": "{{minutes}}m {{seconds}}s",
       "seconds": "{{seconds}}s"
+    }
+  },
+  "events": {
+    "timeline": {
+      "title": "Cronologia eventi",
+      "ariaLabel": "Cronologia degli eventi del contatto",
+      "loading": "Caricamento eventi...",
+      "loadingMore": "Caricamento...",
+      "loadMore": "Carica altro",
+      "showing": "{{count}} eventi",
+      "softCapped": "Mostrando gli ultimi {{cap}} eventi. Usa i filtri per restringere.",
+      "empty": {
+        "default": "Questo contatto non ha ancora eventi registrati.",
+        "withFilters": "Nessun evento corrisponde ai filtri applicati."
+      },
+      "degraded": {
+        "banner": "Cronologia temporaneamente non disponibile. Riprova tra qualche istante.",
+        "retry": "Riprova"
+      },
+      "error": {
+        "forbidden": "Non hai il permesso di vedere la cronologia di questo contatto.",
+        "invalidFilters": "Filtri non validi. Controlla i campi e riprova.",
+        "rateLimit": "Troppe richieste. Attendi qualche secondo.",
+        "generic": "Errore nel caricamento degli eventi. Ricarica la pagina.",
+        "retry": "Riprova"
+      },
+      "crashed": {
+        "title": "Si è verificato un errore durante la visualizzazione della cronologia.",
+        "reload": "Ricarica"
+      }
+    },
+    "filters": {
+      "title": "Filtri",
+      "eventType": "Tipo",
+      "eventName": "Nome",
+      "channel": "Canale",
+      "campaign": "Campagna",
+      "campaignPlaceholder": "Filtra per campagna",
+      "campaignSearchPlaceholder": "Cerca campagne…",
+      "campaignLoading": "Caricamento campagne…",
+      "campaignEmpty": "Nessuna campagna trovata",
+      "clearCampaign": "Cancella filtro campagna",
+      "occurredAfter": "Dal",
+      "occurredBefore": "Al",
+      "clear": "Pulisci filtri",
+      "allEventNames": "Tutti i nomi"
+    },
+    "types": {
+      "_comment": "I valori dei termini di protocollo (Identify/Track/Page/Screen/Segment) sono mantenuti non tradotti in tutte le locali per scelta.",
+      "all": "Tutti i tipi",
+      "identify": "Identify",
+      "track": "Track",
+      "page": "Page",
+      "screen": "Screen",
+      "segment": "Segment"
+    },
+    "channels": {
+      "all": "Tutti i canali",
+      "api": "API",
+      "email": "Email",
+      "facebook": "Facebook (include la pagina Facebook)",
+      "instagram": "Instagram",
+      "line": "LINE",
+      "sms": "SMS",
+      "telegram": "Telegram",
+      "twilio_sms": "Twilio SMS",
+      "twitter": "Twitter (include il profilo Twitter)",
+      "web_widget": "Sito web",
+      "whatsapp": "WhatsApp"
+    },
+    "card": {
+      "expand": "Mostra dettagli",
+      "collapse": "Nascondi dettagli",
+      "properties": "Proprietà dell'evento",
+      "justNow": "adesso",
+      "enriched": {
+        "campaign": "Campagna: {{name}}",
+        "channel": "Canale: {{label}}",
+        "agent": "Operatore: {{name}}"
+      }
+    },
+    "names": {
+      "contact_created": "Contatto creato",
+      "contact_updated": "Contatto aggiornato",
+      "contact_label_added": "Etichetta aggiunta",
+      "contact_label_removed": "Etichetta rimossa",
+      "contact_custom_attribute_changed": "Attributo personalizzato modificato",
+      "conversation_created": "Conversazione creata",
+      "conversation_updated": "Conversazione aggiornata",
+      "conversation_resolved": "Conversazione risolta",
+      "conversation_activity": "Attività nella conversazione",
+      "conversation_first_reply": "Prima risposta",
+      "message_created": "Messaggio inviato",
+      "pipeline_conversation_created": "Conversazione creata nel pipeline",
+      "pipeline_conversation_updated": "Conversazione aggiornata nel pipeline",
+      "pipeline_stage_changed": "Fase del pipeline modificata"
     }
   }
 }

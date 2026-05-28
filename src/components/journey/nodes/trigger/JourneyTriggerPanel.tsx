@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@evoapi/design-system';
+import { useState, useEffect, useMemo } from 'react';
 import { Play } from 'lucide-react';
 import { JourneyTriggerNodeData } from './JourneyTriggerNode';
-import { BaseFlowPanel } from '@/components/base';
+import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
 import { JourneyVariable } from '@/components/journey/environment-manager';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -34,6 +33,11 @@ export function JourneyTriggerPanel({
   onVariablesChange,
 }: JourneyTriggerPanelProps) {
   const { t } = useLanguage('journey');
+  const [originalData] = useState<JourneyTriggerNodeData>(() => ({
+    ...data,
+    eventProperties: data.eventProperties || [],
+    contactFields: data.contactFields || [],
+  }));
   const [formData, setFormData] = useState<JourneyTriggerNodeData>(data);
   const [eventProperties, setEventProperties] = useState(data.eventProperties || []);
   const [contactFields, setContactFields] = useState(data.contactFields || []);
@@ -146,12 +150,26 @@ export function JourneyTriggerPanel({
     setFormData(prev => ({ ...prev, expectedHeaders: headers }));
   };
 
+  const dirty = useMemo(
+    () =>
+      JSON.stringify({ ...formData, eventProperties, contactFields }) !==
+      JSON.stringify(originalData),
+    [formData, eventProperties, contactFields, originalData],
+  );
+
   return (
-    <BaseFlowPanel
+    <NodeConfigModal
+      open
+      variant="simple"
       title={t('panels.trigger.title')}
       icon={<Play className="w-5 h-5 text-green-500" />}
-      onClose={onClose}
-      width="w-[800px]"
+      onCancel={onClose}
+      onSave={handleSave}
+      dirty={dirty}
+      saveLabel={t('panels.actions.save')}
+      cancelLabel={t('panels.actions.cancel')}
+      savingAriaLabel={t('modal.actions.saving')}
+      contentClassName="max-w-[800px]"
     >
       {/* Tipo do Trigger */}
       <TriggerTypeSelector value={formData.triggerType} onChange={handleTriggerTypeChange} />
@@ -240,16 +258,6 @@ export function JourneyTriggerPanel({
           onVariablesChange={onVariablesChange}
         />
       )}
-
-      {/* Botões de ação */}
-      <div className="flex gap-3 pt-2">
-        <Button variant="outline" onClick={onClose} className="flex-1 h-10">
-          {t('panels.trigger.cancel')}
-        </Button>
-        <Button onClick={handleSave} className="flex-1 h-10">
-          {t('panels.trigger.save')}
-        </Button>
-      </div>
-    </BaseFlowPanel>
+    </NodeConfigModal>
   );
 }
