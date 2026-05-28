@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   Button,
   Label,
@@ -10,11 +11,13 @@ import {
 } from '@evoapi/design-system';
 import { Plus, X } from 'lucide-react';
 import { VariableInput, VariableMapping, type DataMapping } from '@/components/journey/environment-manager';
+import { EventSelector } from '@/components/journey/shared/EventSelector';
+import { getEvent, resolveLegacyEventName } from '@/lib/events-manifest';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface EventProperty {
   path: string;
-  operator: { type: string; value?: any };
+  operator: { type: string; value?: unknown };
 }
 
 interface EventConfigurationProps {
@@ -27,58 +30,6 @@ interface EventConfigurationProps {
   journeyId: string;
 }
 
-const eventTemplates = {
-  contact_created: {
-    event: 'contact_created',
-    properties: [
-      { path: 'source', operator: { type: 'Equals', value: '' } },
-      { path: 'contact_type', operator: { type: 'Equals', value: 'lead' } },
-    ],
-  },
-  contact_updated: {
-    event: 'contact_updated',
-    properties: [
-      { path: 'changeCount', operator: { type: 'GreaterThanOrEqual', value: '1' } },
-      { path: 'changedFields', operator: { type: 'Contains', value: '' } },
-    ],
-  },
-  message_created: {
-    event: 'message_created',
-    properties: [
-      { path: 'message_type', operator: { type: 'Equals', value: 'incoming' } },
-      { path: 'content_type', operator: { type: 'Equals', value: 'text' } },
-    ],
-  },
-  button_clicked: {
-    event: 'button_clicked',
-    properties: [
-      { path: 'button_id', operator: { type: 'Equals', value: '' } },
-      { path: 'page_url', operator: { type: 'Contains', value: '' } },
-    ],
-  },
-  page_viewed: {
-    event: 'page_viewed',
-    properties: [
-      { path: 'page_url', operator: { type: 'Equals', value: '' } },
-      { path: 'page_title', operator: { type: 'Contains', value: '' } },
-    ],
-  },
-  form_submitted: {
-    event: 'form_submitted',
-    properties: [
-      { path: 'form_id', operator: { type: 'Equals', value: '' } },
-      { path: 'form_name', operator: { type: 'Equals', value: '' } },
-    ],
-  },
-  product_purchased: {
-    event: 'product_purchased',
-    properties: [
-      { path: 'product_id', operator: { type: 'Equals', value: '' } },
-      { path: 'price', operator: { type: 'GreaterThan', value: '0' } },
-    ],
-  },
-};
-
 export function EventConfiguration({
   eventName,
   eventProperties,
@@ -88,25 +39,49 @@ export function EventConfiguration({
   onVariableMappingsChange,
   journeyId,
 }: EventConfigurationProps) {
-  const { t } = useLanguage('journey');
-  // Gerar paths dinamicamente baseado nas propriedades configuradas
+  const { t, currentLanguage } = useLanguage('journey');
+
+  // selectorValue tracks which dropdown entry is rendered as selected
+  // (canonical event name OR the literal 'custom' placeholder); customName
+  // holds the free-text typed value when the user is in custom mode. The
+  // persisted `eventName` prop stays as the canonical name OR the custom
+  // string the user typed — never the literal 'custom'.
+  const [selectorValue, setSelectorValue] = useState<string>('');
+  const [customName, setCustomName] = useState<string>('');
+
+  useEffect(() => {
+    const resolved = resolveLegacyEventName(eventName);
+    setSelectorValue(resolved.selectorValue);
+    setCustomName(resolved.customName ?? '');
+  }, [eventName]);
+
   const generateEventPaths = () => {
     const basePaths = ['event.id', 'event.name', 'event.timestamp', 'event.user_id'];
-
-    // Adicionar propriedades configuradas
     const propertyPaths = eventProperties
       .filter(prop => prop.path && prop.path.trim())
       .map(prop => `event.properties.${prop.path}`);
-
     return [...basePaths, ...propertyPaths];
   };
-  const applyEventTemplate = (templateKey: string) => {
-    const template = eventTemplates[templateKey as keyof typeof eventTemplates];
-    if (template) {
-      onEventNameChange(template.event);
-      onEventPropertiesChange(template.properties);
+
+  const handleSelectorChange = ({ eventName: picked, isCustom }: { eventName: string; isCustom: boolean }) => {
+    if (isCustom) {
+      setSelectorValue('custom');
+      onEventNameChange(customName);
+    } else {
+      setSelectorValue(picked);
+      setCustomName('');
+      onEventNameChange(picked);
     }
   };
+
+  const handleCustomNameChange = (next: string) => {
+    setCustomName(next);
+    onEventNameChange(next);
+  };
+
+  const isCustomMode = selectorValue === 'custom';
+  const canonicalDescription =
+    !isCustomMode && selectorValue ? getEvent(selectorValue)?.description : undefined;
 
   const addEventProperty = () => {
     const newProperty = { path: '', operator: { type: 'Equals', value: '' } };
@@ -134,64 +109,29 @@ export function EventConfiguration({
         {/* Nome do evento */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">{t('triggerComponents.event.eventName')}</Label>
-          <div className="flex gap-2">
-            <VariableInput
-              value={eventName || ''}
-              onChange={e => onEventNameChange(e.target.value)}
-              placeholder={t('triggerComponents.event.eventNamePlaceholder')}
-              className="flex-1 bg-sidebar border-sidebar-border text-sidebar-foreground"
-              journeyId={journeyId}
-              onVariableInsert={variable => {
-                console.log('Variable inserted in event name:', variable);
-              }}
-            />
-            <Select
-              value=""
-              onValueChange={templateKey => {
-                if (templateKey) {
-                  applyEventTemplate(templateKey);
-                }
-              }}
-            >
-              <SelectTrigger className="w-48 bg-sidebar border-sidebar-border text-sidebar-foreground">
-                <SelectValue placeholder={t('triggerComponents.event.templates')} />
-              </SelectTrigger>
-              <SelectContent className="bg-sidebar border-sidebar-border">
-                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                  {t('triggerComponents.event.contactEvents')}
-                </div>
-                <SelectItem value="contact_created" className="text-sidebar-foreground">
-                  {t('triggerComponents.event.contactCreated')}
-                </SelectItem>
-                <SelectItem value="contact_updated" className="text-sidebar-foreground">
-                  {t('triggerComponents.event.contactUpdated')}
-                </SelectItem>
-
-                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                  {t('triggerComponents.event.messageEvents')}
-                </div>
-                <SelectItem value="message_created" className="text-sidebar-foreground">
-                  {t('triggerComponents.event.messageCreated')}
-                </SelectItem>
-
-                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                  {t('triggerComponents.event.customEvents')}
-                </div>
-                <SelectItem value="button_clicked" className="text-sidebar-foreground">
-                  {t('triggerComponents.event.buttonClicked')}
-                </SelectItem>
-                <SelectItem value="page_viewed" className="text-sidebar-foreground">
-                  {t('triggerComponents.event.pageViewed')}
-                </SelectItem>
-                <SelectItem value="form_submitted" className="text-sidebar-foreground">
-                  {t('triggerComponents.event.formSubmitted')}
-                </SelectItem>
-                <SelectItem value="product_purchased" className="text-sidebar-foreground">
-                  {t('triggerComponents.event.productPurchased')}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <EventSelector
+            value={selectorValue || undefined}
+            onChange={handleSelectorChange}
+            className="bg-sidebar border-sidebar-border text-sidebar-foreground"
+            key={currentLanguage}
+          />
+          {canonicalDescription && (
+            <p className="text-xs text-muted-foreground">{canonicalDescription}</p>
+          )}
+          {isCustomMode && (
+            <div className="space-y-2 pt-1">
+              <VariableInput
+                value={customName}
+                onChange={e => handleCustomNameChange(e.target.value)}
+                placeholder={t('triggerComponents.event.customEventNamePlaceholder')}
+                className="bg-sidebar border-sidebar-border text-sidebar-foreground"
+                journeyId={journeyId}
+              />
+              <p className="text-xs text-amber-700 dark:text-amber-300">
+                {t('triggerComponents.event.customEventWarning')}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Propriedades do evento */}
@@ -235,9 +175,6 @@ export function EventConfiguration({
                       }
                       className="flex-1 bg-sidebar-accent border-sidebar-border text-sidebar-foreground"
                       journeyId={journeyId}
-                      onVariableInsert={variable => {
-                        console.log('Variable inserted in property path:', variable);
-                      }}
                     />
                     <Select
                       value={property.operator.type}
@@ -275,7 +212,11 @@ export function EventConfiguration({
                     {property.operator.type !== 'Exists' && (
                       <VariableInput
                         placeholder={t('triggerComponents.event.value')}
-                        value={property.operator.value || ''}
+                        value={
+                          property.operator.value == null
+                            ? ''
+                            : String(property.operator.value)
+                        }
                         onChange={e =>
                           updateEventProperty(index, {
                             ...property,
@@ -284,9 +225,6 @@ export function EventConfiguration({
                         }
                         className="flex-1 bg-sidebar-accent border-sidebar-border text-sidebar-foreground"
                         journeyId={journeyId}
-                        onVariableInsert={variable => {
-                          console.log('Variable inserted in property value:', variable);
-                        }}
                       />
                     )}
                     <Button

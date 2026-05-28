@@ -1707,7 +1707,9 @@
       "triggerForAnyOccurrence": "O trigger será executado para qualquer ocorrência do evento.",
       "property": "Propriedade",
       "value": "Valor",
-      "captureEventData": "Capturar Dados do Evento"
+      "captureEventData": "Capturar Dados do Evento",
+      "customEventNamePlaceholder": "Digite o nome do evento custom (ex: button_clicked)",
+      "customEventWarning": "Eventos custom não têm validação de schema. Use apenas para casos não cobertos pelos eventos canônicos."
     },
     "label": {
       "configuration": "Configuração da Etiqueta",
