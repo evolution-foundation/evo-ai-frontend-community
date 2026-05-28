@@ -38,3 +38,6 @@ export function getEventLabel(eventName: string, locale: Locale | string): strin
 export function isCustomEvent(eventName: string): boolean {
   return eventName === 'custom';
 }
+
+export { resolveLegacyEventName } from './legacy';
+export type { ResolvedLegacyEventName } from './legacy';
