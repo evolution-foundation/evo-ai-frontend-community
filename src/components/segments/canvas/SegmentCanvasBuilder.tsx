@@ -26,27 +26,6 @@ const NODE_TYPES: Record<string, ComponentType<NodeProps>> = (() => {
   return reg;
 })();
 
-const NODE_CATEGORIES: NodeCategory[] = [
-  { value: 'identity', label: 'Identity', icon: User, description: 'Who the contact is' },
-  { value: 'behavior', label: 'Behavior', icon: Activity, description: 'What the contact did' },
-  { value: 'messages', label: 'Messages', icon: MessageSquare, description: 'Channel interactions' },
-];
-
-const PALETTE: Record<string, NodeType[]> = SEGMENT_NODE_META.reduce(
-  (acc, m) => {
-    (acc[m.category] ||= []).push({
-      id: m.type,
-      name: m.label,
-      description: m.description,
-      icon: m.icon,
-      color: m.color,
-      category: m.category,
-    });
-    return acc;
-  },
-  {} as Record<string, NodeType[]>,
-);
-
 export interface SegmentCanvasBuilderProps {
   definitionType: EntryType;
   nodes: SegmentNodeUnion[];
@@ -67,6 +46,37 @@ export function SegmentCanvasBuilder({
   onDefinitionTypeChange,
 }: SegmentCanvasBuilderProps) {
   const { t } = useLanguage('segments');
+
+  // Palette labels/descriptions are translated here (not at module scope) so
+  // they react to the active language. Categories mirror SegmentNodeMeta.category.
+  const nodeCategories = useMemo<NodeCategory[]>(
+    () => [
+      { value: 'identity', label: t('canvas.categories.identity.label'), icon: User, description: t('canvas.categories.identity.description') },
+      { value: 'behavior', label: t('canvas.categories.behavior.label'), icon: Activity, description: t('canvas.categories.behavior.description') },
+      { value: 'messages', label: t('canvas.categories.messages.label'), icon: MessageSquare, description: t('canvas.categories.messages.description') },
+    ],
+    [t],
+  );
+
+  const palette = useMemo<Record<string, NodeType[]>>(
+    () =>
+      SEGMENT_NODE_META.reduce(
+        (acc, m) => {
+          (acc[m.category] ||= []).push({
+            id: m.type,
+            name: t(m.labelKey),
+            description: t(m.descriptionKey),
+            icon: m.icon,
+            color: m.color,
+            category: m.category,
+          });
+          return acc;
+        },
+        {} as Record<string, NodeType[]>,
+      ),
+    [t],
+  );
+
   const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>(undefined);
   // Bumped to force a canvas reseed when structure changes outside the canvas
   // (e.g. the inspector removes a node).
@@ -122,8 +132,8 @@ export function SegmentCanvasBuilder({
           showToolbar={false}
           onFlowDataChange={handleFlowDataChange}
           nodeTypes={NODE_TYPES}
-          nodePanelNodeTypes={PALETTE}
-          nodePanelCategories={NODE_CATEGORIES}
+          nodePanelNodeTypes={palette}
+          nodePanelCategories={nodeCategories}
           nodePanelTitle={t('canvas.panelTitle')}
         />
       </div>

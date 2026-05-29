@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import type { NodeProps } from '@xyflow/react';
+import { useLanguage } from '@/hooks/useLanguage';
 import { BaseFlowNode } from '@/components/base/BaseFlowNode';
 import { metaForType } from './segmentCanvasMeta';
 
@@ -9,8 +10,12 @@ import { metaForType } from './segmentCanvasMeta';
  * (the existing SegmentConditionEditor) when the node is selected.
  */
 function SegmentCanvasNodeComponent({ type, selected }: NodeProps) {
+  const { t } = useLanguage('segments');
   const meta = metaForType(String(type));
   const Icon = meta.icon;
+  // Unknown types carry no i18n key — fall back to the raw type / empty.
+  const label = meta.labelKey ? t(meta.labelKey) : String(type);
+  const description = meta.descriptionKey ? t(meta.descriptionKey) : '';
   return (
     <BaseFlowNode
       selected={!!selected}
@@ -22,8 +27,8 @@ function SegmentCanvasNodeComponent({ type, selected }: NodeProps) {
       <div className="flex items-start gap-2">
         <Icon className="h-4 w-4 mt-0.5" />
         <div className="min-w-0">
-          <p className="text-sm font-medium text-neutral-100">{meta.label}</p>
-          <p className="truncate text-xs text-neutral-400">{meta.description}</p>
+          <p className="text-sm font-medium text-neutral-100">{label}</p>
+          <p className="truncate text-xs text-neutral-400">{description}</p>
         </div>
       </div>
     </BaseFlowNode>

@@ -5,8 +5,10 @@ import type { SegmentNodeUnion } from '@/types/analytics/segments';
 export interface SegmentNodeMeta {
   /** The DSL `type` discriminant emitted onto the canvas / definition. */
   type: string;
-  label: string;
-  description: string;
+  /** i18n key (under the `segments` namespace) for the palette label. */
+  labelKey: string;
+  /** i18n key (under the `segments` namespace) for the palette description. */
+  descriptionKey: string;
   icon: LucideIcon;
   color: NodeBorderColor;
   /** Palette category bucket. */
@@ -15,15 +17,17 @@ export interface SegmentNodeMeta {
 
 // The 8 palette node types (AC6). "Channel" defaults to WhatsApp and can be
 // switched to Web/SMS in the inspector. Everyone is the entry-only marker.
+// label/description are i18n keys (segments namespace) resolved at render time —
+// see canvas.nodes.* in the locale files.
 export const SEGMENT_NODE_META: SegmentNodeMeta[] = [
-  { type: 'Everyone', label: 'Everyone', description: 'All contacts in the account', icon: Users, color: 'emerald', category: 'identity' },
-  { type: 'UserProperty', label: 'User property', description: 'Filter by a contact property', icon: User, color: 'indigo', category: 'identity' },
-  { type: 'CustomAttribute', label: 'Custom attribute', description: 'Filter by a custom attribute', icon: Hash, color: 'cyan', category: 'identity' },
-  { type: 'Label', label: 'Label', description: 'Has / lacks a label', icon: Tag, color: 'purple', category: 'identity' },
-  { type: 'Performed', label: 'Performed event', description: 'Did a tracked event', icon: Activity, color: 'blue', category: 'behavior' },
-  { type: 'RandomBucket', label: 'Random bucket', description: 'A random % of contacts', icon: Percent, color: 'amber', category: 'behavior' },
-  { type: 'Email', label: 'Email', description: 'Email interaction', icon: Mail, color: 'rose', category: 'messages' },
-  { type: 'WhatsApp', label: 'Channel', description: 'Reached on a channel (WhatsApp/Web/SMS)', icon: MessageSquare, color: 'teal', category: 'messages' },
+  { type: 'Everyone', labelKey: 'canvas.nodes.Everyone.label', descriptionKey: 'canvas.nodes.Everyone.description', icon: Users, color: 'emerald', category: 'identity' },
+  { type: 'UserProperty', labelKey: 'canvas.nodes.UserProperty.label', descriptionKey: 'canvas.nodes.UserProperty.description', icon: User, color: 'indigo', category: 'identity' },
+  { type: 'CustomAttribute', labelKey: 'canvas.nodes.CustomAttribute.label', descriptionKey: 'canvas.nodes.CustomAttribute.description', icon: Hash, color: 'cyan', category: 'identity' },
+  { type: 'Label', labelKey: 'canvas.nodes.Label.label', descriptionKey: 'canvas.nodes.Label.description', icon: Tag, color: 'purple', category: 'identity' },
+  { type: 'Performed', labelKey: 'canvas.nodes.Performed.label', descriptionKey: 'canvas.nodes.Performed.description', icon: Activity, color: 'blue', category: 'behavior' },
+  { type: 'RandomBucket', labelKey: 'canvas.nodes.RandomBucket.label', descriptionKey: 'canvas.nodes.RandomBucket.description', icon: Percent, color: 'amber', category: 'behavior' },
+  { type: 'Email', labelKey: 'canvas.nodes.Email.label', descriptionKey: 'canvas.nodes.Email.description', icon: Mail, color: 'rose', category: 'messages' },
+  { type: 'WhatsApp', labelKey: 'canvas.nodes.WhatsApp.label', descriptionKey: 'canvas.nodes.WhatsApp.description', icon: MessageSquare, color: 'teal', category: 'messages' },
 ];
 
 const BY_TYPE: Record<string, SegmentNodeMeta> = SEGMENT_NODE_META.reduce(
@@ -42,8 +46,9 @@ export function metaForType(type: string): SegmentNodeMeta {
   return (
     BY_TYPE[type] ?? {
       type,
-      label: type,
-      description: '',
+      // No i18n key for unknown types — consumers fall back to the raw type.
+      labelKey: '',
+      descriptionKey: '',
       icon: Filter,
       color: 'slate',
       category: 'identity',

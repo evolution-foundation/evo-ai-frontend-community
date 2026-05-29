@@ -50,6 +50,34 @@
     "viewIds": "Ver IDs",
     "pause": "Pausar"
   },
+  "preview": {
+    "result_one": "{{count}} contacto corresponde a este segmento.",
+    "result_other": "{{count}} contactos correspondem a este segmento.",
+    "sample": "ex.: {{ids}}",
+    "error": "Não foi possível pré-visualizar este segmento."
+  },
+  "canvas": {
+    "title": "Tela do segmento",
+    "subtitle": "Arraste condições do painel; clique num nó para o editar",
+    "panelTitle": "Condições",
+    "combineWith": "Combinar com",
+    "selectNode": "Selecione um nó na tela para o editar, ou arraste uma nova condição do painel.",
+    "categories": {
+      "identity": { "label": "Identidade", "description": "Quem é o contacto" },
+      "behavior": { "label": "Comportamento", "description": "O que o contacto fez" },
+      "messages": { "label": "Mensagens", "description": "Interações por canal" }
+    },
+    "nodes": {
+      "Everyone": { "label": "Todos", "description": "Todos os contactos da conta" },
+      "UserProperty": { "label": "Propriedade do utilizador", "description": "Filtrar por uma propriedade do contacto" },
+      "CustomAttribute": { "label": "Atributo personalizado", "description": "Filtrar por um atributo personalizado" },
+      "Label": { "label": "Etiqueta", "description": "Tem / não tem uma etiqueta" },
+      "Performed": { "label": "Evento realizado", "description": "Realizou um evento monitorizado" },
+      "RandomBucket": { "label": "Amostra aleatória", "description": "Uma % aleatória de contactos" },
+      "Email": { "label": "E-mail", "description": "Interação por e-mail" },
+      "WhatsApp": { "label": "Canal", "description": "Alcançado num canal (WhatsApp/Web/SMS)" }
+    }
+  },
   "messages": {
     "permissionDenied": {
       "read": "Você não tem permissão para visualizar segmentos",

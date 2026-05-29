@@ -65,7 +65,22 @@
     "subtitle": "Arraste condições do painel; clique num nó para editar",
     "panelTitle": "Condições",
     "combineWith": "Combinar com",
-    "selectNode": "Selecione um nó no canvas para editar, ou arraste uma nova condição do painel."
+    "selectNode": "Selecione um nó no canvas para editar, ou arraste uma nova condição do painel.",
+    "categories": {
+      "identity": { "label": "Identidade", "description": "Quem é o contato" },
+      "behavior": { "label": "Comportamento", "description": "O que o contato fez" },
+      "messages": { "label": "Mensagens", "description": "Interações por canal" }
+    },
+    "nodes": {
+      "Everyone": { "label": "Todos", "description": "Todos os contatos da conta" },
+      "UserProperty": { "label": "Propriedade do usuário", "description": "Filtrar por uma propriedade do contato" },
+      "CustomAttribute": { "label": "Atributo personalizado", "description": "Filtrar por um atributo personalizado" },
+      "Label": { "label": "Etiqueta", "description": "Possui / não possui uma etiqueta" },
+      "Performed": { "label": "Evento realizado", "description": "Realizou um evento rastreado" },
+      "RandomBucket": { "label": "Amostra aleatória", "description": "Uma % aleatória de contatos" },
+      "Email": { "label": "E-mail", "description": "Interação por e-mail" },
+      "WhatsApp": { "label": "Canal", "description": "Alcançado em um canal (WhatsApp/Web/SMS)" }
+    }
   },
   "messages": {
     "permissionDenied": {

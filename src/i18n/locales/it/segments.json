@@ -50,6 +50,34 @@
     "viewIds": "Visualizza ID",
     "pause": "Pausa"
   },
+  "preview": {
+    "result_one": "{{count}} contatto corrisponde a questo segmento.",
+    "result_other": "{{count}} contatti corrispondono a questo segmento.",
+    "sample": "es. {{ids}}",
+    "error": "Impossibile visualizzare l'anteprima di questo segmento."
+  },
+  "canvas": {
+    "title": "Tela del segmento",
+    "subtitle": "Trascina le condizioni dal pannello; fai clic su un nodo per modificarlo",
+    "panelTitle": "Condizioni",
+    "combineWith": "Combina con",
+    "selectNode": "Seleziona un nodo sulla tela per modificarlo, oppure trascina una nuova condizione dal pannello.",
+    "categories": {
+      "identity": { "label": "Identità", "description": "Chi è il contatto" },
+      "behavior": { "label": "Comportamento", "description": "Cosa ha fatto il contatto" },
+      "messages": { "label": "Messaggi", "description": "Interazioni sui canali" }
+    },
+    "nodes": {
+      "Everyone": { "label": "Tutti", "description": "Tutti i contatti dell'account" },
+      "UserProperty": { "label": "Proprietà utente", "description": "Filtra per una proprietà del contatto" },
+      "CustomAttribute": { "label": "Attributo personalizzato", "description": "Filtra per un attributo personalizzato" },
+      "Label": { "label": "Etichetta", "description": "Ha / non ha un'etichetta" },
+      "Performed": { "label": "Evento eseguito", "description": "Ha effettuato un evento tracciato" },
+      "RandomBucket": { "label": "Campione casuale", "description": "Una % casuale di contatti" },
+      "Email": { "label": "Email", "description": "Interazione via email" },
+      "WhatsApp": { "label": "Canale", "description": "Raggiunto su un canale (WhatsApp/Web/SMS)" }
+    }
+  },
   "messages": {
     "permissionDenied": {
       "read": "Non hai il permesso di visualizzare i segmenti",
