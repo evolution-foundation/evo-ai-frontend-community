@@ -67,16 +67,6 @@ export function AssignToPipelinePanel({
     onClose();
   };
 
-  useEffect(() => {
-    if (pipelines.length > 0) {
-      const updatedData: AssignToPipelineNodeData = {
-        ...data,
-        formDataOptions: { pipelines },
-      };
-      onUpdate(nodeId, updatedData);
-    }
-  }, [pipelines, data, nodeId, onUpdate]);
-
   const dirty = useMemo(() => pipelineId !== originalPipelineId, [pipelineId, originalPipelineId]);
   const isValid = Boolean(pipelineId);
 
