@@ -140,7 +140,7 @@ describe('journey i18n parity (EVO-1260)', () => {
       'Bearer', 'Token', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'UUID',
       'UTC', 'SLA', 'CRM', 'ID', 'Trigger', 'Triggers', 'Tag', 'Status',
       'Timeout', 'Headers', 'Header', 'Timestamp', 'XML', 'Total', 'Logs',
-      'Form Data',
+      'Form Data', 'Pipeline', 'Pipeline #{{pipelineId}}',
       // time units
       'min', 'h', 'd', 's', 'ms',
       // symbol-only operators (unicode notequal is the literal char)

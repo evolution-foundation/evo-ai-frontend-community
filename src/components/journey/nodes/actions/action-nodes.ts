@@ -37,6 +37,7 @@ export * from './set-variable';
 export * from './assign-agent';
 export * from './assign-team';
 export * from './assign-bot';
+export * from './assign-to-pipeline';
 
 // Conversation Management
 export * from './mute-conversation';
