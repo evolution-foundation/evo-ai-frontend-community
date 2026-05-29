@@ -12,6 +12,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useConversationHandlers } from '@/hooks/chat/useConversationHandlers';
 import { useAssignmentHandlers } from '@/hooks/chat/useAssignmentHandlers';
 import { useFilterHandlers } from '@/hooks/chat/useFilterHandlers';
+import { useDashboardApps } from '@/hooks/useDashboardApps';
 
 import { loadConversationFilters, getDefaultFilter } from '@/utils/storage/filtersStorage';
 
@@ -41,7 +42,6 @@ import { AlertTriangle, Trash2 } from 'lucide-react';
 
 import { Conversation } from '@/types/chat/api';
 import { BaseFilter } from '@/types/core';
-import type { DashboardApp } from '../../../types/integrations';
 import type { AssignmentOption, AssignmentType } from '@/components/chat/assignment';
 import { labelsService } from '@/services/contacts/labelsService';
 import { useAppDataStore } from '@/store/appDataStore';
@@ -113,8 +113,10 @@ const Chat = () => {
   const [selectedConversationIds, setSelectedConversationIds] = useState<Set<string>>(new Set());
   const [isBulkResolving, setIsBulkResolving] = useState(false);
 
-  // Dashboard Apps state (lazy loaded, not auto-fetched)
-  const [dashboardApps] = useState<DashboardApp[]>([]);
+  // Dashboard apps for conversation tabs
+  const { apps: dashboardApps } = useDashboardApps({
+    displayType: 'conversation',
+  });
   const [activeTab, setActiveTab] = useState<string>('chat');
 
   // Hooks customizados para lógica de negócio

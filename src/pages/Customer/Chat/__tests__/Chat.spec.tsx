@@ -23,6 +23,10 @@ const capturedHeaderProps = vi.hoisted(() => ({
   conversation: null as Conversation | null,
 }));
 
+const capturedChatTabsProps = vi.hoisted(() => ({
+  dashboardApps: [] as any[],
+}));
+
 const mockSelectedConversation = vi.hoisted(() => ({
   value: null as Conversation | null,
 }));
@@ -109,6 +113,24 @@ vi.mock('@/hooks/chat/useFilterHandlers', () => ({
   }),
 }));
 
+// ─── Dashboard apps hook ─────────────────────────────────────────────────────
+vi.mock('@/hooks/useDashboardApps', () => ({
+  useDashboardApps: () => ({
+    apps: [
+      {
+        id: 'app-conversation',
+        title: 'Conversation App',
+        content: [{ type: 'frame', url: 'https://example.com/app' }],
+        display_type: 'conversation',
+        created_at: '2026-05-29T00:00:00.000Z',
+      },
+    ],
+    loading: false,
+    error: null,
+    reload: vi.fn(),
+  }),
+}));
+
 // ─── Storage utils ────────────────────────────────────────────────────────────
 vi.mock('@/utils/storage/filtersStorage', () => ({
   loadConversationFilters: vi.fn().mockReturnValue([]),
@@ -146,7 +168,10 @@ vi.mock('@/components/chat/chat-area/ChatArea', () => ({
 }));
 
 vi.mock('@/components/chat/chat-tabs/ChatTabs', () => ({
-  default: () => <div data-testid="chat-tabs" />,
+  default: (props: any) => {
+    capturedChatTabsProps.dashboardApps = props.dashboardApps;
+    return <div data-testid="chat-tabs" />;
+  },
 }));
 
 vi.mock('../../../components/ErrorBoundary', () => ({
@@ -196,6 +221,7 @@ describe('Chat — handleMarkAsResolved navigation behavior', () => {
     capturedProps.onMarkAsResolved = null;
     capturedHeaderProps.onMarkAsResolved = null;
     capturedHeaderProps.conversation = null;
+    capturedChatTabsProps.dashboardApps = [];
     mockState.selectedConversationId = null;
     mockSelectedConversation.value = null;
     mockHookResolve.fn.mockResolvedValue(undefined);
@@ -278,5 +304,21 @@ describe('Chat — handleMarkAsResolved navigation behavior', () => {
     expect(mockSelectConversation).not.toHaveBeenCalled();
 
     unmount();
+  });
+
+  it('passes conversation dashboard apps into ChatTabs', () => {
+    mockState.selectedConversationId = 'uuid-selected';
+    mockSelectedConversation.value = selectedConv;
+
+    render(<Chat />);
+
+    expect(capturedChatTabsProps.dashboardApps).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'app-conversation',
+          display_type: 'conversation',
+        }),
+      ]),
+    );
   });
 });
