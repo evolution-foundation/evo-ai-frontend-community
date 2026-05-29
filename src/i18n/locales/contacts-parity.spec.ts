@@ -111,6 +111,8 @@ describe('contacts i18n parity (EVO-1244)', () => {
     'events.card.expand',
     'events.card.collapse',
     'events.card.properties',
+    'events.card.traits',
+    'events.card.noData',
     'events.card.justNow',
     'events.card.enriched.campaign',
     'events.card.enriched.channel',

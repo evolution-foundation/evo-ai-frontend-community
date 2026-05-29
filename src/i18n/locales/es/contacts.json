@@ -677,6 +677,8 @@
       "expand": "Ver detalles",
       "collapse": "Ocultar detalles",
       "properties": "Propiedades del evento",
+      "traits": "Atributos del evento",
+      "noData": "Sin datos adicionales para este evento",
       "justNow": "ahora",
       "enriched": {
         "campaign": "Campaña: {{name}}",

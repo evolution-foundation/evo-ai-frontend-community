@@ -124,7 +124,7 @@ describe('ContactEventCard', () => {
     expect(text).not.toContain('t1');
   });
 
-  it('exposes aria-controls linking the button to the properties pre element', async () => {
+  it('exposes aria-controls linking the button to the expanded properties region', async () => {
     const user = userEvent.setup();
     render(<ContactEventCard event={makeEvent({ properties: { foo: 'bar' } })} />);
     const button = screen.getByRole('button', { name: /events\.card\.expand/ });
@@ -132,8 +132,12 @@ describe('ContactEventCard', () => {
     expect(controls).toBeTruthy();
 
     await user.click(button);
+    // The id lives on the wrapper region (it can hold properties, traits and the
+    // empty-state message), with the <pre> nested inside it.
+    const region = document.getElementById(controls!);
+    expect(region).not.toBeNull();
     const pre = await screen.findByText((_, node) => node?.tagName.toLowerCase() === 'pre');
-    expect(pre.id).toBe(controls);
-    expect(within(pre.parentElement!).getByText(/foo/)).toBeInTheDocument();
+    expect(region!.contains(pre)).toBe(true);
+    expect(within(region!).getByText(/foo/)).toBeInTheDocument();
   });
 });
