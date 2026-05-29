@@ -1,4 +1,3 @@
-import apiEvoFlow from '@/services/core/apiEvoFlow';
 import api from '@/services/core/api';
 import { extractData } from '@/utils/apiHelpers';
 import { SegmentsResponse, SegmentResponse, SegmentDeleteResponse, SegmentFormData, Segment } from '@/types/analytics';
@@ -22,7 +21,7 @@ class SegmentsService {
       status?: string;
     },
   ): Promise<SegmentsResponse> {
-    // Routed through the CRM proxy (api → /api/v1/segments), not apiEvoFlow.
+    // Routed through the CRM proxy (api → /api/v1/segments).
     const response = await api.get(this.getBaseUrl(), {
       params,
     });
@@ -60,7 +59,8 @@ class SegmentsService {
   }
 
   async deleteSegment(segmentId: string): Promise<SegmentDeleteResponse> {
-    const response = await apiEvoFlow.delete(`${this.getBaseUrl()}/${segmentId}`);
+    // Via CRM proxy (DELETE /api/v1/segments/:id → evo-flow).
+    const response = await api.delete(`${this.getBaseUrl()}/${segmentId}`);
     return extractData<SegmentDeleteResponse>(response);
   }
 
@@ -82,7 +82,8 @@ class SegmentsService {
   }
 
   async recomputeSegment(segmentId: string): Promise<void> {
-    await apiEvoFlow.post(`${this.getBaseUrl()}/${segmentId}/recompute`, {});
+    // Via CRM proxy (POST /api/v1/segments/:id/recompute → evo-flow).
+    await api.post(`${this.getBaseUrl()}/${segmentId}/recompute`, {});
   }
 
   async recomputeAllSegments(): Promise<{
@@ -95,7 +96,8 @@ class SegmentsService {
     }>;
     totalProcessingTimeMs: number;
   }> {
-    const response = await apiEvoFlow.post(`${this.getBaseUrl()}/recompute-all`, {});
+    // Via CRM proxy (POST /api/v1/segments/recompute-all → evo-flow).
+    const response = await api.post(`${this.getBaseUrl()}/recompute-all`, {});
     return extractData<{
       results: Array<{
         segmentId: string;
@@ -120,7 +122,8 @@ class SegmentsService {
     limit: number;
     offset: number;
   }> {
-    const response = await apiEvoFlow.get(`${this.getBaseUrl()}/${segmentId}/contact-ids`, {
+    // Via CRM proxy (GET /api/v1/segments/:id/contact-ids → evo-flow).
+    const response = await api.get(`${this.getBaseUrl()}/${segmentId}/contact-ids`, {
       params,
     });
     return extractData<{
@@ -142,10 +145,12 @@ class SegmentsService {
 
       const allSegments = segmentsResponse.data || [];
 
-      // Buscar eventos do tipo 'segment' do contato
-      const eventsResponse = await apiEvoFlow.get(`/contacts/${contactId}/events`, {
+      // Buscar eventos do tipo 'segment' do contato.
+      // O proxy permite somente chaves snake_case (event_type); camelCase é
+      // silenciosamente descartado, o que retornaria eventos não filtrados.
+      const eventsResponse = await api.get(`/contacts/${contactId}/events`, {
         params: {
-          eventType: 'segment',
+          event_type: 'segment',
           limit: 100,
         },
       });
@@ -186,6 +191,13 @@ class SegmentsService {
         total: activeSegments.length,
       };
     } catch (error) {
+      // Now that this flows through the auth-gated CRM proxy, an auth failure
+      // must NOT be masked as "contact is in no segments" — rethrow it so the
+      // api interceptor (401 refresh / 403 handling) and callers can react.
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      if (status === 401 || status === 403) {
+        throw error;
+      }
       console.error('Error fetching contact segments:', error);
       return {
         segmentIds: [],
