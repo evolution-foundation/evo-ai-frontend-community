@@ -52,6 +52,7 @@ import {
   AssignAgentNode,
   AssignTeamNode,
   AssignBotNode,
+  AssignToPipelineNode,
   SendEmailTeamNode,
   SendTranscriptNode,
   MuteConversationNode,
@@ -78,6 +79,7 @@ import {
   AssignAgentPanel,
   AssignTeamPanel,
   AssignBotPanel,
+  AssignToPipelinePanel,
   SendEmailTeamPanel,
   SendTranscriptPanel,
   MuteConversationPanel,
@@ -109,6 +111,7 @@ import {
   AlertTriangle,
   Clock,
   Bot,
+  Workflow,
 } from 'lucide-react';
 
 /**
@@ -171,6 +174,7 @@ function JourneyFlowEditor() {
       'assign-agent-node': AssignAgentNode,
       'assign-team-node': AssignTeamNode,
       'assign-bot-node': AssignBotNode,
+      'assign-to-pipeline-node': AssignToPipelineNode,
       'send-email-team-node': SendEmailTeamNode,
       'send-transcript-node': SendTranscriptNode,
       'mute-conversation-node': MuteConversationNode,
@@ -398,6 +402,15 @@ function JourneyFlowEditor() {
         description: t('flowEditor.nodes.assignBot.description'),
         searchKeywords: ['bot', 'automation', 'ai', 'assistant', 'automate'],
       },
+      {
+        id: 'assign-to-pipeline-node',
+        name: t('flowEditor.nodes.assignToPipeline.name'),
+        icon: Workflow,
+        color: 'text-amber-400',
+        category: 'contact',
+        description: t('flowEditor.nodes.assignToPipeline.description'),
+        searchKeywords: ['pipeline', 'funnel', 'sales', 'stage', 'crm', 'deal'],
+      },
     ],
     conversation: [
       {
@@ -465,6 +478,7 @@ function JourneyFlowEditor() {
       'assign-agent-node': flowTokens.node.action.pipeline.border,
       'assign-team-node': flowTokens.node.action.pipeline.border,
       'assign-bot-node': flowTokens.node.action.pipeline.border,
+      'assign-to-pipeline-node': flowTokens.node.action.pipeline.border,
       'change-priority-node': flowTokens.node.action.pipeline.border,
       'mute-conversation-node': flowTokens.node.action.pipeline.border,
       'defer-conversation-node': flowTokens.node.action.pipeline.border,
@@ -526,6 +540,8 @@ function JourneyFlowEditor() {
           return <AssignTeamPanel {...commonProps} />;
         case 'assign-bot-node':
           return <AssignBotPanel {...commonProps} />;
+        case 'assign-to-pipeline-node':
+          return <AssignToPipelinePanel {...commonProps} />;
         case 'send-email-team-node':
           return <SendEmailTeamPanel {...commonProps} />;
         case 'send-transcript-node':

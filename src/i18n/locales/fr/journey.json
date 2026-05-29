@@ -314,6 +314,14 @@
         "name": "Attribuer un Bot",
         "description": "Connecte un bot spécifique à une boîte de réception pour automatiser les réponses"
       },
+      "assignToPipeline": {
+        "name": "Attribuer au Pipeline",
+        "description": "Ajoute la conversation à un pipeline de ventes",
+        "selectPipeline": "Sélectionner un pipeline",
+        "pipelineNumber": "Pipeline #{{pipelineId}}",
+        "assignTo": "Attribuer la conversation au",
+        "noPipelineSelected": "Aucune pipeline sélectionnée"
+      },
       "muteConversation": {
         "name": "Mettre en sourdine la conversation",
         "description": "La conversation sera mise en sourdine et ne générera plus de notifications pour les Agents"
@@ -858,6 +866,17 @@
       "selectBotNode": "Select bot",
       "selectInboxNode": "Select inbox",
       "assignBotAction": "Assign bot"
+    },
+    "assignToPipeline": {
+      "title": "Configurer Attribuer au Pipeline",
+      "loadDataError": "Erreur de chargement des pipelines:",
+      "pipeline": "Pipeline",
+      "loadingPipelines": "Chargement des pipelines...",
+      "selectPipeline": "Sélectionnez un pipeline",
+      "noPipelinesFound": "Aucune pipeline trouvée dans le compte.",
+      "conversationWillBeAssigned": "La conversation sera attribuée au pipeline",
+      "replacesAnyPrevious": "cela remplace toute attribution de pipeline précédente",
+      "loadErrorBanner": "Impossible de charger les pipelines. Vérifiez votre connexion et rouvrez ce node."
     },
     "changePriority": {
       "title": "Configure Priority",

@@ -314,6 +314,14 @@
         "name": "Assign Bot",
         "description": "Connects a specific bot to an inbox to automate responses"
       },
+      "assignToPipeline": {
+        "name": "Assign to Pipeline",
+        "description": "Adds the conversation to a sales pipeline",
+        "selectPipeline": "Select pipeline",
+        "pipelineNumber": "Pipeline #{{pipelineId}}",
+        "assignTo": "Assign conversation to",
+        "noPipelineSelected": "No pipeline selected"
+      },
       "muteConversation": {
         "name": "Mute Conversation",
         "description": "The conversation will be muted and will not generate notifications for Agents"
@@ -858,6 +866,17 @@
       "selectBotNode": "Select bot",
       "selectInboxNode": "Select inbox",
       "assignBotAction": "Assign bot"
+    },
+    "assignToPipeline": {
+      "title": "Configure Assign to Pipeline",
+      "loadDataError": "Error loading pipelines:",
+      "pipeline": "Pipeline",
+      "loadingPipelines": "Loading pipelines...",
+      "selectPipeline": "Select a pipeline",
+      "noPipelinesFound": "No pipelines found in the account.",
+      "conversationWillBeAssigned": "The conversation will be assigned to the pipeline",
+      "replacesAnyPrevious": "this replaces any previous pipeline assignment",
+      "loadErrorBanner": "Could not load pipelines. Check your connection and try reopening this node."
     },
     "changePriority": {
       "title": "Configure Priority",
