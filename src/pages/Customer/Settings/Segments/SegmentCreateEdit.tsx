@@ -1,12 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
 import { Button, Input, Label, RadioGroup, RadioGroupItem } from '@evoapi/design-system';
-import { Plus, Save, ArrowLeft, RefreshCw, Target, Users, Filter } from 'lucide-react';
+import { Plus, Save, ArrowLeft, RefreshCw, Target, Users, Filter, Eye, AlertCircle, List, Workflow } from 'lucide-react';
 
 import { segmentsService } from '@/services/segments/segmentsService';
+import { SegmentCanvasBuilder } from '@/components/segments/canvas/SegmentCanvasBuilder';
 import {
   Segment,
   SegmentFormData,
@@ -34,7 +35,18 @@ export default function SegmentCreateEdit() {
   const [name, setName] = useState('');
   const [definitionType, setDefinitionType] = useState<'Everyone' | 'And' | 'Or'>('Everyone');
   const [nodes, setNodes] = useState<SegmentNodeUnion[]>([]);
+  const [editorMode, setEditorMode] = useState<'form' | 'canvas'>('form');
   const [originalDefinition, setOriginalDefinition] = useState<SegmentDefinition | null>(null);
+
+  // Preview state (count + sample of matching contacts). The preview is
+  // debounced and never mutates the form — on error we only surface a banner
+  // so the in-progress definition is preserved (422 keep-work).
+  const [previewing, setPreviewing] = useState(false);
+  const [previewCount, setPreviewCount] = useState<number | null>(null);
+  const [previewSample, setPreviewSample] = useState<string[]>([]);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const previewTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previewSeq = useRef(0);
 
   // Computed values
   const hasChanges = (() => {
@@ -190,6 +202,55 @@ export default function SegmentCreateEdit() {
     }
   };
 
+  const buildCurrentDefinition = useCallback(
+    (): SegmentDefinition => ({
+      nodes,
+      entryNode: {
+        id: 'entry',
+        type: definitionType,
+        children: definitionType === 'Everyone' ? undefined : nodes.map(n => n.id),
+      },
+    }),
+    [nodes, definitionType],
+  );
+
+  const runPreview = useCallback(async () => {
+    const definition = buildCurrentDefinition();
+    const seq = ++previewSeq.current;
+    setPreviewing(true);
+    setPreviewError(null);
+    try {
+      const { count, sample } = await segmentsService.previewSegment(definition);
+      if (seq !== previewSeq.current) return; // superseded by a newer preview
+      setPreviewCount(count);
+      setPreviewSample((sample || []).map(c => c.id));
+    } catch (error) {
+      if (seq !== previewSeq.current) return;
+      // 422 keep-work: never touch the form; surface the upstream message.
+      const data = (error as { response?: { data?: { errors?: { error?: { message?: unknown }; message?: unknown } } }; message?: string })
+        ?.response?.data?.errors;
+      const candidate = data?.error?.message ?? data?.message ?? (error as { message?: string })?.message;
+      setPreviewError(typeof candidate === 'string' ? candidate : t('preview.error'));
+    } finally {
+      if (seq === previewSeq.current) setPreviewing(false);
+    }
+  }, [buildCurrentDefinition, t]);
+
+  // Debounced (500ms) so rapid clicks collapse into a single request.
+  const handlePreview = useCallback(() => {
+    if (previewTimer.current) clearTimeout(previewTimer.current);
+    previewTimer.current = setTimeout(() => {
+      void runPreview();
+    }, 500);
+  }, [runPreview]);
+
+  useEffect(
+    () => () => {
+      if (previewTimer.current) clearTimeout(previewTimer.current);
+    },
+    [],
+  );
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return t('createEdit.lastComputedNever');
     const date = new Date(dateString);
@@ -239,6 +300,15 @@ export default function SegmentCreateEdit() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={handlePreview}
+              disabled={previewing}
+              className="flex items-center gap-2"
+            >
+              <Eye className="h-4 w-4" />
+              {previewing ? t('actions.previewing') : t('actions.preview')}
+            </Button>
             {isEditing && (
               <Button
                 variant="outline"
@@ -265,6 +335,29 @@ export default function SegmentCreateEdit() {
       {/* Content */}
       <div className="flex-1 overflow-auto">
         <div className="max-w-5xl mx-auto p-6 space-y-6">
+          {/* Preview result / error (does not affect the form) */}
+          {previewError && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800/30 dark:bg-red-950/20">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 text-red-500 mt-0.5" />
+                <p className="text-sm text-red-800 dark:text-red-200">{previewError}</p>
+              </div>
+            </div>
+          )}
+          {previewCount !== null && !previewError && (
+            <div className="rounded-lg border bg-muted/30 p-3">
+              <p className="text-sm">
+                {t('preview.result', { count: previewCount })}
+                {previewSample.length > 0 && (
+                  <span className="text-muted-foreground">
+                    {' '}
+                    {t('preview.sample', { ids: previewSample.join(', ') })}
+                  </span>
+                )}
+              </p>
+            </div>
+          )}
+
           {/* Nome do Segmento */}
           <div className="rounded-lg border p-6">
             <Label htmlFor="name" className="text-base font-semibold mb-3 block">
@@ -282,16 +375,50 @@ export default function SegmentCreateEdit() {
 
           {/* Definição do Segmento */}
           <div className="rounded-lg border p-6">
-            <div className="mb-6">
-              <h2 className="text-base font-semibold mb-1 flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                {t('createEdit.definition.title')}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {t('createEdit.definition.description')}
-              </p>
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-base font-semibold mb-1 flex items-center gap-2">
+                  <Filter className="h-4 w-4" />
+                  {t('createEdit.definition.title')}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {t('createEdit.definition.description')}
+                </p>
+              </div>
+              {/* Form ⇄ Canvas editor toggle (same underlying definition) */}
+              <div className="flex flex-shrink-0 items-center gap-1 rounded-md border p-1">
+                <Button
+                  type="button"
+                  variant={editorMode === 'form' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-7 gap-1"
+                  onClick={() => setEditorMode('form')}
+                >
+                  <List className="h-3.5 w-3.5" />
+                  {t('actions.form')}
+                </Button>
+                <Button
+                  type="button"
+                  variant={editorMode === 'canvas' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-7 gap-1"
+                  onClick={() => setEditorMode('canvas')}
+                >
+                  <Workflow className="h-3.5 w-3.5" />
+                  {t('actions.canvas')}
+                </Button>
+              </div>
             </div>
 
+            {editorMode === 'canvas' ? (
+              <SegmentCanvasBuilder
+                definitionType={definitionType}
+                nodes={nodes}
+                onNodesChange={setNodes}
+                onDefinitionTypeChange={handleDefinitionTypeChange}
+              />
+            ) : (
+              <>
             {/* Tipo de Combinação */}
             <div className="rounded-lg border p-4 mb-6">
               <Label className="text-sm font-medium mb-3 block">
@@ -399,6 +526,8 @@ export default function SegmentCreateEdit() {
                   </Button>
                 )}
               </div>
+            )}
+              </>
             )}
           </div>
         </div>

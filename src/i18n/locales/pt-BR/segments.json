@@ -48,7 +48,24 @@
     "copyJson": "Copiar JSON",
     "close": "Fechar",
     "viewIds": "Ver IDs",
-    "pause": "Pausar"
+    "pause": "Pausar",
+    "preview": "Pré-visualizar",
+    "previewing": "Pré-visualizando…",
+    "form": "Formulário",
+    "canvas": "Canvas"
+  },
+  "preview": {
+    "result_one": "{{count}} contato corresponde a este segmento.",
+    "result_other": "{{count}} contatos correspondem a este segmento.",
+    "sample": "ex.: {{ids}}",
+    "error": "Não foi possível pré-visualizar este segmento."
+  },
+  "canvas": {
+    "title": "Canvas do segmento",
+    "subtitle": "Arraste condições do painel; clique num nó para editar",
+    "panelTitle": "Condições",
+    "combineWith": "Combinar com",
+    "selectNode": "Selecione um nó no canvas para editar, ou arraste uma nova condição do painel."
   },
   "messages": {
     "permissionDenied": {

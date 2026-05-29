@@ -48,7 +48,24 @@
     "copyJson": "Copy JSON",
     "close": "Close",
     "viewIds": "Ver IDs",
-    "pause": "Pause"
+    "pause": "Pause",
+    "preview": "Preview",
+    "previewing": "Previewing…",
+    "form": "Form",
+    "canvas": "Canvas"
+  },
+  "preview": {
+    "result_one": "{{count}} contact matches this segment.",
+    "result_other": "{{count}} contacts match this segment.",
+    "sample": "e.g. {{ids}}",
+    "error": "Could not preview this segment."
+  },
+  "canvas": {
+    "title": "Segment canvas",
+    "subtitle": "Drag conditions from the panel; click a node to edit it",
+    "panelTitle": "Conditions",
+    "combineWith": "Combine with",
+    "selectNode": "Select a node on the canvas to edit it, or drag a new condition from the panel."
   },
   "messages": {
     "permissionDenied": {

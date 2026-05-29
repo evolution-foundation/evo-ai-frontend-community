@@ -80,6 +80,15 @@ export interface CustomAttributeNode extends SegmentNode {
   operator: OperatorObject;
 }
 
+// Channel node — the SegmentConditionEditor already emits 'WhatsApp' | 'Web' |
+// 'SMS' (and evo-flow's query builder switches on them); declared here so the
+// union and the canvas builder are complete.
+export interface ChannelNode extends SegmentNode {
+  type: 'WhatsApp' | 'Web' | 'SMS';
+  event?: string;
+  templateId?: string;
+}
+
 // Union of all node types
 export type SegmentNodeUnion =
   | UserPropertyNode
@@ -89,7 +98,8 @@ export type SegmentNodeUnion =
   | RandomBucketNode
   | ManualNode
   | LabelNode
-  | CustomAttributeNode;
+  | CustomAttributeNode
+  | ChannelNode;
 
 // Default segment definition
 export const DEFAULT_SEGMENT_DEFINITION: SegmentDefinition = {

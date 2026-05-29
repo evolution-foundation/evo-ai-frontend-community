@@ -1,6 +1,13 @@
 import apiEvoFlow from '@/services/core/apiEvoFlow';
+import api from '@/services/core/api';
 import { extractData } from '@/utils/apiHelpers';
 import { SegmentsResponse, SegmentResponse, SegmentDeleteResponse, SegmentFormData, Segment } from '@/types/analytics';
+import type { SegmentDefinition } from '@/types/analytics/segments';
+
+export interface SegmentPreviewResponse {
+  count: number;
+  sample: Array<{ id: string }>;
+}
 
 class SegmentsService {
   private getBaseUrl(): string {
@@ -15,7 +22,8 @@ class SegmentsService {
       status?: string;
     },
   ): Promise<SegmentsResponse> {
-    const response = await apiEvoFlow.get(this.getBaseUrl(), {
+    // Routed through the CRM proxy (api → /api/v1/segments), not apiEvoFlow.
+    const response = await api.get(this.getBaseUrl(), {
       params,
     });
     // API retorna: { success: true, data: { segments: [], total: 0, page: 1, limit: 100 }, meta: {...} }
@@ -37,7 +45,8 @@ class SegmentsService {
   }
 
   async createSegment(data: SegmentFormData): Promise<SegmentResponse> {
-    const response = await apiEvoFlow.post(this.getBaseUrl(), data);
+    // Via CRM proxy (POST /api/v1/segments → evo-flow).
+    const response = await api.post(this.getBaseUrl(), data);
     return extractData<SegmentResponse>(response);
   }
 
@@ -45,7 +54,8 @@ class SegmentsService {
     segmentId: string,
     data: Partial<SegmentFormData>,
   ): Promise<SegmentResponse> {
-    const response = await apiEvoFlow.patch(`${this.getBaseUrl()}/${segmentId}`, data);
+    // Via CRM proxy with PUT (AC4): PUT /api/v1/segments/:id → evo-flow.
+    const response = await api.put(`${this.getBaseUrl()}/${segmentId}`, data);
     return extractData<SegmentResponse>(response);
   }
 
@@ -55,8 +65,20 @@ class SegmentsService {
   }
 
   async getSegment(segmentId: string): Promise<SegmentResponse> {
-    const response = await apiEvoFlow.get(`${this.getBaseUrl()}/${segmentId}`);
+    // Via CRM proxy (GET /api/v1/segments/:id → evo-flow).
+    const response = await api.get(`${this.getBaseUrl()}/${segmentId}`);
     return extractData<SegmentResponse>(response);
+  }
+
+  /**
+   * Preview an inline segment definition without persisting it: returns the
+   * in-segment contact count and a small sample of ids. Routed through the CRM
+   * proxy (`api` → /api/v1/segments/preview), which forwards to evo-flow's
+   * POST /segments/preview.
+   */
+  async previewSegment(definition: SegmentDefinition): Promise<SegmentPreviewResponse> {
+    const response = await api.post(`${this.getBaseUrl()}/preview`, { definition });
+    return extractData<SegmentPreviewResponse>(response);
   }
 
   async recomputeSegment(segmentId: string): Promise<void> {
