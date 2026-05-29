@@ -108,7 +108,8 @@
           "contactCreated": "Contatto Creato",
           "contactUpdated": "Contatto Aggiornato",
           "label": "Etichetta",
-          "customAttribute": "Attributo Personalizzato"
+          "customAttribute": "Attributo Personalizzato",
+          "pipelineStageChanged": "Stage della Pipeline Cambiato"
         },
         "descriptions": {
           "manual": "Attivazione manuale",
@@ -147,7 +148,8 @@
           "daysWeek": "{{count}} giorno/sett",
           "daysWeekPlural": "{{count}} giorni/sett",
           "daysWeekAt": "{{count}} giorno/sett alle {{time}}",
-          "daysWeekPluralAt": "{{count}} giorni/sett alle {{time}}"
+          "daysWeekPluralAt": "{{count}} giorni/sett alle {{time}}",
+          "anyStageTransition": "Attivato a qualsiasi transizione di stage"
         }
       },
       "wait": {
@@ -1631,7 +1633,8 @@
       "contactCreated": "Contatto Creato",
       "contactUpdated": "Contatto Aggiornato",
       "label": "Etichetta",
-      "customAttribute": "Attributo Personalizzato"
+      "customAttribute": "Attributo Personalizzato",
+      "pipelineStageChanged": "Stage della Pipeline Cambiato"
     },
     "descriptions": {
       "manual": "I contatti verranno aggiunti manualmente al percorso.",
@@ -1642,6 +1645,7 @@
       "contactUpdated": "Il percorso verrà attivato quando un contatto viene aggiornato. Puoi configurare quali campi devono essere modificati.",
       "label": "Il percorso verrà attivato quando un'etichetta viene applicata al contatto.",
       "customAttribute": "Il percorso verrà attivato in base agli attributi personalizzati del contatto.",
+      "pipelineStageChanged": "Il percorso verrà attivato quando un contatto cambia stage nella pipeline.",
       "selectType": "Seleziona un tipo di trigger per vedere la sua descrizione."
     },
     "operators": {
@@ -1693,6 +1697,21 @@
         "criado": "Creato",
         "atualizado": "Aggiornato"
       }
+    },
+    "pipelineStageChanged": {
+      "pipeline": "Pipeline",
+      "fromStage": "Stage di origine",
+      "toStage": "Stage di destinazione",
+      "selectPipeline": "Seleziona una pipeline (opzionale)",
+      "loadingPipelines": "Caricamento pipeline...",
+      "loadingStages": "Caricamento stage...",
+      "noPipelinesFound": "Nessuna pipeline trovata nell'account.",
+      "anyStage": "Qualsiasi stage",
+      "anyPipeline": "qualsiasi pipeline",
+      "anyStageTransition": "Il percorso sarà attivato a qualsiasi transizione di stage della pipeline.",
+      "summary": "Attivato quando un contatto cambia in {{pipeline}}, da {{from}} a {{to}}.",
+      "loadError": "Errore caricamento pipeline:",
+      "loadErrorBanner": "Impossibile caricare le pipeline. Controlla la connessione e riapri questo node."
     },
     "customAttribute": {
       "configuration": "Configurazione dell'Attributo Personalizzato",

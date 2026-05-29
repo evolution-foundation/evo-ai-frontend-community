@@ -15,6 +15,8 @@ import {
   LabelConfiguration,
   CustomAttributeConfiguration,
   WebhookConfiguration,
+  PipelineStageChangedConfiguration,
+  type PipelineStageChangedSelection,
 } from './components';
 
 interface JourneyTriggerPanelProps {
@@ -53,6 +55,9 @@ export function JourneyTriggerPanel({
     data.triggerType === 'customAttribute',
   );
   const [showWebhookConfig, setShowWebhookConfig] = useState(data.triggerType === 'webhook');
+  const [showPipelineStageChangedConfig, setShowPipelineStageChangedConfig] = useState(
+    data.triggerType === 'pipelineStageChanged',
+  );
   // Required-field validity reported by EventBasicConfig. True (non-blocking)
   // whenever the event config isn't shown, so other trigger types can always Save.
   const [eventPropsValid, setEventPropsValid] = useState(true);
@@ -71,6 +76,7 @@ export function JourneyTriggerPanel({
     setShowLabelConfig(data.triggerType === 'label');
     setShowCustomAttributeConfig(data.triggerType === 'customAttribute');
     setShowWebhookConfig(data.triggerType === 'webhook');
+    setShowPipelineStageChangedConfig(data.triggerType === 'pipelineStageChanged');
   }, [data]);
 
   const handleSave = () => {
@@ -103,6 +109,13 @@ export function JourneyTriggerPanel({
       webhookSecret: showWebhookConfig ? formData.webhookSecret : undefined,
       webhookMethod: showWebhookConfig ? formData.webhookMethod : undefined,
       expectedHeaders: showWebhookConfig ? formData.expectedHeaders : undefined,
+      pipelineId: showPipelineStageChangedConfig ? formData.pipelineId : undefined,
+      pipelineName: showPipelineStageChangedConfig ? formData.pipelineName : undefined,
+      fromStageId: showPipelineStageChangedConfig ? formData.fromStageId : undefined,
+      fromStageName: showPipelineStageChangedConfig ? formData.fromStageName : undefined,
+      toStageId: showPipelineStageChangedConfig ? formData.toStageId : undefined,
+      toStageName: showPipelineStageChangedConfig ? formData.toStageName : undefined,
+      eventName: showPipelineStageChangedConfig ? 'pipeline.stage_changed' : formData.eventName,
     };
     onUpdate(nodeId, updatedData);
     onClose();
@@ -119,8 +132,21 @@ export function JourneyTriggerPanel({
     setShowLabelConfig(value === 'label');
     setShowCustomAttributeConfig(value === 'customAttribute');
     setShowWebhookConfig(value === 'webhook');
+    setShowPipelineStageChangedConfig(value === 'pipelineStageChanged');
     if (value !== 'event') setEventPropsValid(true);
     setActiveTab('basico');
+  };
+
+  const handlePipelineStageChangedChange = (next: PipelineStageChangedSelection) => {
+    setFormData(prev => ({
+      ...prev,
+      pipelineId: next.pipelineId,
+      pipelineName: next.pipelineName,
+      fromStageId: next.fromStageId,
+      fromStageName: next.fromStageName,
+      toStageId: next.toStageId,
+      toStageName: next.toStageName,
+    }));
   };
 
   const handleEventNameChange = (name: string) => {
@@ -338,6 +364,21 @@ export function JourneyTriggerPanel({
             setFormData(prev => ({ ...prev, variableMappings: mappings }))
           }
           onVariablesChange={onVariablesChange}
+        />
+      )}
+
+      {/* Configuração de Pipeline Stage Changed (EVO-1266) */}
+      {showPipelineStageChangedConfig && (
+        <PipelineStageChangedConfiguration
+          selection={{
+            pipelineId: formData.pipelineId,
+            pipelineName: formData.pipelineName,
+            fromStageId: formData.fromStageId,
+            fromStageName: formData.fromStageName,
+            toStageId: formData.toStageId,
+            toStageName: formData.toStageName,
+          }}
+          onChange={handlePipelineStageChangedChange}
         />
       )}
     </NodeConfigModal>

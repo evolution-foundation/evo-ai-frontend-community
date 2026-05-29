@@ -108,7 +108,8 @@
           "contactCreated": "Contact créé",
           "contactUpdated": "Contact mis à jour",
           "label": "Étiquette",
-          "customAttribute": "Attribut personnalisé"
+          "customAttribute": "Attribut personnalisé",
+          "pipelineStageChanged": "Étape du Pipeline Modifiée"
         },
         "descriptions": {
           "manual": "Déclenchement manuel",
@@ -147,7 +148,8 @@
           "daysWeek": "{{count}} jour/sem",
           "daysWeekPlural": "{{count}} jours/sem",
           "daysWeekAt": "{{count}} jour/sem à {{time}}",
-          "daysWeekPluralAt": "{{count}} jours/sem à {{time}}"
+          "daysWeekPluralAt": "{{count}} jours/sem à {{time}}",
+          "anyStageTransition": "Déclenché sur toute transition d'étape"
         }
       },
       "wait": {
@@ -1619,7 +1621,8 @@
       "contactCreated": "Contact créé",
       "contactUpdated": "Contact mis à jour",
       "label": "Étiquette",
-      "customAttribute": "Attribut personnalisé"
+      "customAttribute": "Attribut personnalisé",
+      "pipelineStageChanged": "Étape du Pipeline Modifiée"
     },
     "descriptions": {
       "manual": "Les contacts seront ajoutés manuellement au parcours.",
@@ -1630,6 +1633,7 @@
       "contactUpdated": "Le parcours sera déclenché lorsqu'un contact est mis à jour. Vous pouvez configurer quels champs doivent être modifiés.",
       "label": "Le parcours sera déclenché lorsqu'une étiquette est appliquée au contact.",
       "customAttribute": "Le parcours sera déclenché en fonction d'attributs personnalisés du contact.",
+      "pipelineStageChanged": "Le parcours sera déclenché lorsqu'un contact change d'étape dans le pipeline.",
       "selectType": "Sélectionnez un type de déclencheur pour voir sa description."
     },
     "operators": {
@@ -1681,6 +1685,21 @@
         "criado": "Créé",
         "atualizado": "Mis à jour"
       }
+    },
+    "pipelineStageChanged": {
+      "pipeline": "Pipeline",
+      "fromStage": "Étape d'origine",
+      "toStage": "Étape de destination",
+      "selectPipeline": "Sélectionnez un pipeline (optionnel)",
+      "loadingPipelines": "Chargement des pipelines...",
+      "loadingStages": "Chargement des étapes...",
+      "noPipelinesFound": "Aucun pipeline trouvé dans le compte.",
+      "anyStage": "Toute étape",
+      "anyPipeline": "tout pipeline",
+      "anyStageTransition": "Le parcours sera déclenché sur toute transition d'étape du pipeline.",
+      "summary": "Déclenché lorsqu'un contact change dans {{pipeline}}, de {{from}} à {{to}}.",
+      "loadError": "Erreur de chargement des pipelines:",
+      "loadErrorBanner": "Impossible de charger les pipelines. Vérifiez votre connexion et rouvrez ce node."
     },
     "customAttribute": {
       "configuration": "Configuration de l'attribut personnalisé",

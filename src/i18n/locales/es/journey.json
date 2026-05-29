@@ -108,7 +108,8 @@
           "contactCreated": "Contacto Creado",
           "contactUpdated": "Contacto Actualizado",
           "label": "Etiqueta",
-          "customAttribute": "Atributo Personalizado"
+          "customAttribute": "Atributo Personalizado",
+          "pipelineStageChanged": "Etapa del Pipeline Cambiada"
         },
         "descriptions": {
           "manual": "Disparo manual",
@@ -147,7 +148,8 @@
           "daysWeek": "{{count}} día/sem",
           "daysWeekPlural": "{{count}} días/sem",
           "daysWeekAt": "{{count}} día/sem a las {{time}}",
-          "daysWeekPluralAt": "{{count}} días/sem a las {{time}}"
+          "daysWeekPluralAt": "{{count}} días/sem a las {{time}}",
+          "anyStageTransition": "Activado en cualquier transición de etapa"
         }
       },
       "wait": {
@@ -1619,7 +1621,8 @@
       "contactCreated": "Contacto Creado",
       "contactUpdated": "Contacto Actualizado",
       "label": "Etiqueta",
-      "customAttribute": "Atributo Personalizado"
+      "customAttribute": "Atributo Personalizado",
+      "pipelineStageChanged": "Etapa del Pipeline Cambiada"
     },
     "descriptions": {
       "manual": "Los contactos serán añadidos manualmente a la jornada.",
@@ -1630,6 +1633,7 @@
       "contactUpdated": "La jornada será disparada cuando un contacto sea actualizado. Puede configurar cuáles campos deben ser alterados.",
       "label": "La jornada será disparada cuando una etiqueta sea aplicada al contacto.",
       "customAttribute": "La jornada será disparada basándose en atributos personalizados del contacto.",
+      "pipelineStageChanged": "La jornada será disparada cuando un contacto cambie de etapa en el pipeline.",
       "selectType": "Seleccione un tipo de trigger para ver su descripción."
     },
     "operators": {
@@ -1681,6 +1685,21 @@
         "criado": "Creado",
         "atualizado": "Actualizado"
       }
+    },
+    "pipelineStageChanged": {
+      "pipeline": "Pipeline",
+      "fromStage": "Etapa de origen",
+      "toStage": "Etapa de destino",
+      "selectPipeline": "Selecciona un pipeline (opcional)",
+      "loadingPipelines": "Cargando pipelines...",
+      "loadingStages": "Cargando etapas...",
+      "noPipelinesFound": "Sin pipelines encontrados en la cuenta.",
+      "anyStage": "Cualquier etapa",
+      "anyPipeline": "cualquier pipeline",
+      "anyStageTransition": "La jornada se activará en cualquier transición de etapa del pipeline.",
+      "summary": "Activado cuando un contacto cambia en {{pipeline}}, de {{from}} a {{to}}.",
+      "loadError": "Error al cargar los pipelines:",
+      "loadErrorBanner": "No se pudieron cargar los pipelines. Verifica tu conexión y reabre este node."
     },
     "customAttribute": {
       "configuration": "Configuración del Atributo Personalizado",

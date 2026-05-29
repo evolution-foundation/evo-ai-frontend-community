@@ -108,7 +108,8 @@
           "contactCreated": "Contact Created",
           "contactUpdated": "Contact Updated",
           "label": "Label",
-          "customAttribute": "Custom Attribute"
+          "customAttribute": "Custom Attribute",
+          "pipelineStageChanged": "Pipeline Stage Changed"
         },
         "descriptions": {
           "manual": "Manual trigger",
@@ -147,7 +148,8 @@
           "daysWeek": "{{count}} day/week",
           "daysWeekPlural": "{{count}} days/week",
           "daysWeekAt": "{{count}} day/week at {{time}}",
-          "daysWeekPluralAt": "{{count}} days/week at {{time}}"
+          "daysWeekPluralAt": "{{count}} days/week at {{time}}",
+          "anyStageTransition": "Triggered on any stage transition"
         }
       },
       "wait": {
@@ -1626,7 +1628,8 @@
       "contactCreated": "Contact Created",
       "contactUpdated": "Contact Updated",
       "label": "Label",
-      "customAttribute": "Custom Attribute"
+      "customAttribute": "Custom Attribute",
+      "pipelineStageChanged": "Pipeline Stage Changed"
     },
     "descriptions": {
       "manual": "Contacts will be added manually to the journey.",
@@ -1637,6 +1640,7 @@
       "contactUpdated": "The journey will be triggered when a contact is updated. You can configure specific fields to change.",
       "label": "The journey will be triggered when a label is applied to a contact.",
       "customAttribute": "The journey will be triggered based on custom attributes of the contact.",
+      "pipelineStageChanged": "The journey will be triggered when a contact moves between pipeline stages.",
       "selectType": "Select a trigger type to see its description."
     },
     "operators": {
@@ -1688,6 +1692,21 @@
         "criado": "Created",
         "atualizado": "Updated"
       }
+    },
+    "pipelineStageChanged": {
+      "pipeline": "Pipeline",
+      "fromStage": "From stage",
+      "toStage": "To stage",
+      "selectPipeline": "Select a pipeline (optional)",
+      "loadingPipelines": "Loading pipelines...",
+      "loadingStages": "Loading stages...",
+      "noPipelinesFound": "No pipelines found in the account.",
+      "anyStage": "Any stage",
+      "anyPipeline": "any pipeline",
+      "anyStageTransition": "The journey will be triggered on any pipeline stage transition.",
+      "summary": "Triggered when a contact moves in {{pipeline}}, from {{from}} to {{to}}.",
+      "loadError": "Error loading pipelines:",
+      "loadErrorBanner": "Could not load pipelines. Check your connection and try reopening this node."
     },
     "customAttribute": {
       "configuration": "Custom Attribute Configuration",

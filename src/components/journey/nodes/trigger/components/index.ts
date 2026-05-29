@@ -4,6 +4,7 @@ export * from './EventBasicConfig';
 export * from './EventAdvancedConfig';
 export * from './EventConfiguration';
 export * from './LabelConfiguration';
+export * from './PipelineStageChangedConfiguration';
 export * from './SegmentConfiguration';
 export * from './TriggerDescription';
 export * from './TriggerTypeSelector';
