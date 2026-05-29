@@ -55,6 +55,14 @@ function ContactEventCardImpl({ event }: ContactEventCardProps) {
 
   const enriched = event.enriched;
 
+  // Identify events (e.g. contact.updated) carry their payload in `traits`,
+  // not `properties` (which is `{}`). Track/page events use `properties`.
+  // Render whichever has data so no event shows up empty.
+  const hasKeys = (o?: Record<string, unknown>): boolean =>
+    !!o && typeof o === 'object' && Object.keys(o).length > 0;
+  const hasProps = hasKeys(event.properties);
+  const hasTraits = hasKeys(event.traits);
+
   return (
     <Card className="border border-border bg-card transition-colors hover:bg-accent/30">
       <CardContent className="p-4">
@@ -108,12 +116,35 @@ function ContactEventCardImpl({ event }: ContactEventCardProps) {
             </Button>
 
             {expanded && (
-              <pre
-                id={propertiesId}
-                className="mt-2 max-h-64 overflow-auto rounded-md bg-muted/40 p-3 text-xs"
-              >
-                {JSON.stringify(event.properties, redactReplacer, 2)}
-              </pre>
+              <div id={propertiesId} className="mt-2 space-y-2">
+                {hasProps && (
+                  <div>
+                    <p className="mb-1 text-xs font-medium text-muted-foreground">
+                      {t('events.card.properties', { defaultValue: 'Properties' })}
+                    </p>
+                    <pre className="max-h-64 overflow-auto rounded-md bg-muted/40 p-3 text-xs">
+                      {JSON.stringify(event.properties, redactReplacer, 2)}
+                    </pre>
+                  </div>
+                )}
+                {hasTraits && (
+                  <div>
+                    <p className="mb-1 text-xs font-medium text-muted-foreground">
+                      {t('events.card.traits', { defaultValue: 'Traits' })}
+                    </p>
+                    <pre className="max-h-64 overflow-auto rounded-md bg-muted/40 p-3 text-xs">
+                      {JSON.stringify(event.traits, redactReplacer, 2)}
+                    </pre>
+                  </div>
+                )}
+                {!hasProps && !hasTraits && (
+                  <p className="rounded-md bg-muted/40 p-3 text-xs text-muted-foreground">
+                    {t('events.card.noData', {
+                      defaultValue: 'No additional data for this event',
+                    })}
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </div>
