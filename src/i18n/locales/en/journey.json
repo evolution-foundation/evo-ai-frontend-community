@@ -875,7 +875,8 @@
       "selectPipeline": "Select a pipeline",
       "noPipelinesFound": "No pipelines found in the account.",
       "conversationWillBeAssigned": "The conversation will be assigned to the pipeline",
-      "replacesAnyPrevious": "this replaces any previous pipeline assignment"
+      "replacesAnyPrevious": "this replaces any previous pipeline assignment",
+      "loadErrorBanner": "Could not load pipelines. Check your connection and try reopening this node."
     },
     "changePriority": {
       "title": "Configure Priority",

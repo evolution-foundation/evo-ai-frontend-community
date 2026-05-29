@@ -7,7 +7,7 @@ import {
   SelectValue,
   Label,
 } from '@evoapi/design-system';
-import { Workflow } from 'lucide-react';
+import { AlertCircle, Workflow } from 'lucide-react';
 import { AssignToPipelineNodeData, AssignToPipelinePipelineOption } from './AssignToPipelineNode';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
@@ -32,11 +32,13 @@ export function AssignToPipelinePanel({
   const [originalPipelineId] = useState<string>(() => data.pipeline_id?.toString() || '');
   const [pipelines, setPipelines] = useState<AssignToPipelinePipelineOption[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     const loadPipelines = async () => {
       try {
         setLoading(true);
+        setLoadError(false);
         const response = await pipelinesService.getPipelines();
         const list = (response?.data || []).map(p => ({
           id: p.id.toString(),
@@ -45,6 +47,7 @@ export function AssignToPipelinePanel({
         setPipelines(list);
       } catch (error) {
         console.error(t('panels.assignToPipeline.loadDataError'), error);
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
@@ -84,6 +87,14 @@ export function AssignToPipelinePanel({
       cancelLabel={t('panels.actions.cancel')}
     >
       <div className="space-y-4">
+        {loadError && (
+          <FlowFeedbackBanner variant="error">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4" />
+              <span>{t('panels.assignToPipeline.loadErrorBanner')}</span>
+            </div>
+          </FlowFeedbackBanner>
+        )}
         <div className="space-y-2">
           <Label className="text-sidebar-foreground font-medium">
             {t('panels.assignToPipeline.pipeline')}

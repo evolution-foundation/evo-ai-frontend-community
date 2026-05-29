@@ -166,7 +166,7 @@ describe('AssignToPipelinePanel', () => {
     ).toBeTruthy();
   });
 
-  it('swallows fetch errors and renders an empty list', async () => {
+  it('renders an error banner when the fetch fails', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockGetPipelines.mockRejectedValueOnce(new Error('boom'));
 
@@ -183,7 +183,7 @@ describe('AssignToPipelinePanel', () => {
 
     expect(
       await screen.findByText(
-        /no pipelines found|nenhuma pipeline|sin pipelines|aucune pipeline|nessuna pipeline/i,
+        /could not load pipelines|n[ãa]o foi poss[íi]vel carregar|no se pudieron cargar|impossible de charger|impossibile caricare/i,
       ),
     ).toBeTruthy();
 
