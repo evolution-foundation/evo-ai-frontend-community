@@ -13,7 +13,9 @@ import {
   MiniMap,
   ProOptions,
   applyNodeChanges,
+  applyEdgeChanges,
   type NodeChange,
+  type EdgeChange,
   type Node,
   type Edge,
   ConnectionLineType,
@@ -274,24 +276,82 @@ export function BaseFlowCanvas({
   );
 
   const handleEdgesChange = useCallback(
-    (changes: any[]) => {
+    (changes: EdgeChange[]) => {
       onEdgesChangeInternal(changes);
+
+      // EVO-1573: real edge edits (add/remove/replace) must propagate to
+      // the editor store so the snapshot includes them on the next save;
+      // pre-fix, only handleNodesChange notified the store, which silently
+      // dropped fresh connections and deletes when no node was moved
+      // afterwards. Selection-type changes are volatile UI state and
+      // would mark the journey dirty without a real edit — the store
+      // already strips volatile fields for nodes (stripVolatileNodeFields)
+      // but has no equivalent for edges, so filter at the source here.
+      const persistChanges = changes.filter(c => c.type !== 'select');
+      if (persistChanges.length > 0) {
+        const updatedEdges = applyEdgeChanges(persistChanges, edges);
+        if (onFlowDataChange) {
+          onFlowDataChange(nodes, updatedEdges);
+        }
+        if (onFlowDataChangeExtended) {
+          onFlowDataChangeExtended({
+            nodes,
+            edges: updatedEdges,
+            variables: flowVariables,
+          });
+        }
+      }
+
       if (onEdgesChange) {
         onEdgesChange(changes);
       }
     },
-    [onEdgesChangeInternal, onEdgesChange],
+    [
+      onEdgesChangeInternal,
+      onEdgesChange,
+      onFlowDataChange,
+      onFlowDataChangeExtended,
+      nodes,
+      edges,
+      flowVariables,
+    ],
   );
 
   const handleConnect = useCallback(
     (connection: Parameters<OnConnect>[0]) => {
       const edge = { ...connection, animated: true, type: 'default' };
-      setEdges(eds => addEdge(edge, eds));
+      // EVO-1573: compute the updated edges from the closure and call
+      // setEdges with the bare value (NOT a functional updater) so the
+      // setter stays pure. React 18 StrictMode runs functional updaters
+      // twice to surface impurity — embedding side effects in the
+      // updater would fire onFlowDataChange twice per connection in dev.
+      // Match the shape of handleEdgesChange: state set first, side
+      // effects fired after.
+      const updatedEdges = addEdge(edge, edges);
+      setEdges(updatedEdges);
+      if (onFlowDataChange) {
+        onFlowDataChange(nodes, updatedEdges);
+      }
+      if (onFlowDataChangeExtended) {
+        onFlowDataChangeExtended({
+          nodes,
+          edges: updatedEdges,
+          variables: flowVariables,
+        });
+      }
       if (onConnect) {
         onConnect(connection);
       }
     },
-    [setEdges, onConnect],
+    [
+      setEdges,
+      edges,
+      onConnect,
+      onFlowDataChange,
+      onFlowDataChangeExtended,
+      nodes,
+      flowVariables,
+    ],
   );
 
   // Drag and drop
