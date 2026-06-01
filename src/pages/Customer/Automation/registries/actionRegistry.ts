@@ -9,14 +9,14 @@ const labelListSchema = z.array(idValueSchema).min(1);
 
 const sendEmailToTeamSchema = z.tuple([
   z.object({
-    team_ids: z.array(z.number()).min(1),
+    team_ids: z.array(idValueSchema).min(1),
     message: z.string().min(1),
   }),
 ]);
 
-const assignTeamSchema = z.tuple([z.union([z.number(), z.null()])]);
+const assignTeamSchema = z.tuple([z.union([z.string(), z.number(), z.null()])]);
 
-const assignAgentSchema = z.tuple([z.union([z.number(), z.null()])]);
+const assignAgentSchema = z.tuple([z.union([z.string(), z.number(), z.null()])]);
 
 const sendWebhookEventSchema = z.tuple([z.string().url()]);
 
