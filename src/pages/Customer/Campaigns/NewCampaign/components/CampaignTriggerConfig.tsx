@@ -169,7 +169,13 @@ export function CampaignTriggerConfig({ config, onChange }: CampaignTriggerConfi
     updateFormData({ expectedHeaders: headers });
   };
 
-  // Single-account: usar identificador estável para componentes de jornada que esperam journeyId
+  // O <EventConfiguration> abaixo é INTENCIONALMENTE o MESMO componente
+  // compartilhado renderizado pelo Flow Builder (JourneyTriggerPanel) — importado do
+  // mesmo barrel `@/components/journey/nodes/trigger/components`. A única diferença é
+  // o contexto via props (aqui: sem onVariableMappingsChange + journeyId sentinel).
+  // O sentinel só alimenta o autocomplete de variáveis de jornada (useJourneyVariables);
+  // em campanha não há jornada, então o fetch degrada graciosamente (sem variáveis de
+  // jornada, só as de sistema). Tornar `journeyId` opcional/context-aware é um follow-up.
   const journeyId = 'campaign-trigger';
 
   return (
