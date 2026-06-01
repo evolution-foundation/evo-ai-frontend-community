@@ -22,6 +22,20 @@ export type NodeConfigModalTab = {
   value: string;
   label: string;
   content: ReactNode;
+  /**
+   * Optional indicator rendered next to the tab label (e.g. a count dot
+   * signalling "this tab has data"). Purely visual — carry any a11y text on
+   * the node itself (aria-label). Default-off: tabs that omit it render
+   * exactly as before. See EVO-1276.
+   */
+  badge?: ReactNode;
+  /**
+   * Keep this tab's content mounted (Radix `forceMount`) even while another tab
+   * is active, so local component state inside it survives tab switches.
+   * Default-off → inactive tabs unmount as before. Use sparingly: only for tabs
+   * whose local state can't be reconstructed from lifted props. See EVO-1276.
+   */
+  forceMount?: boolean;
 };
 
 type CommonProps = {
@@ -64,6 +78,18 @@ type TabsVariantProps = CommonProps & {
   tabs: NodeConfigModalTab[];
   defaultTab?: string;
   onTabChange?: (value: string) => void;
+  /**
+   * Always-visible content rendered ABOVE the tab list (e.g. a type selector
+   * that must stay reachable from any tab). Omitted → no slot, identical to the
+   * pre-EVO-1276 layout. See EVO-1276.
+   */
+  header?: ReactNode;
+  /**
+   * Drives the active tab in controlled mode. When provided, the modal honors
+   * this value (and `onTabChange` becomes the change handler); when omitted, the
+   * tabs stay uncontrolled via `defaultTab`. See EVO-1276.
+   */
+  value?: string;
 };
 
 type DisclosureProps = CommonProps & {
@@ -125,18 +151,28 @@ export function NodeConfigModal(props: NodeConfigModalProps) {
 
           {props.variant === 'tabs' ? (
             <Tabs
-              defaultValue={props.defaultTab ?? props.tabs[0]?.value}
+              {...(props.value !== undefined
+                ? { value: props.value }
+                : { defaultValue: props.defaultTab ?? props.tabs[0]?.value })}
               onValueChange={props.onTabChange}
             >
+              {props.header ? <div className="mb-4">{props.header}</div> : null}
               <TabsList className="mb-4">
                 {props.tabs.map((tab) => (
                   <TabsTrigger key={tab.value} value={tab.value}>
                     {tab.label}
+                    {tab.badge ? (
+                      <span className="ml-1.5 inline-flex items-center">{tab.badge}</span>
+                    ) : null}
                   </TabsTrigger>
                 ))}
               </TabsList>
               {props.tabs.map((tab) => (
-                <TabsContent key={tab.value} value={tab.value}>
+                <TabsContent
+                  key={tab.value}
+                  value={tab.value}
+                  {...(tab.forceMount ? { forceMount: true } : {})}
+                >
                   {tab.content}
                 </TabsContent>
               ))}

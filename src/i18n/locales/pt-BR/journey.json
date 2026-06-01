@@ -1183,7 +1183,13 @@
       },
       "nextCondition": "próxima condição",
       "cancel": "Cancelar",
-      "save": "Salvar"
+      "save": "Salvar",
+      "tabs": {
+        "basic": "Básico",
+        "advanced": "Avançado",
+        "advancedBadgeLabel": "Configuração avançada preenchida"
+      },
+      "advancedHelp": "Mapeie os dados do evento recebido para variáveis do fluxo e reutilize-os em etapas seguintes. Referencie uma variável com a sintaxe {variable}."
     },
     "setVariable": {
       "title": "Configurar Definir Variável",

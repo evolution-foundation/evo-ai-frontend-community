@@ -1195,7 +1195,13 @@
       },
       "nextCondition": "next condition",
       "cancel": "Cancel",
-      "save": "Save"
+      "save": "Save",
+      "tabs": {
+        "basic": "Base",
+        "advanced": "Avanzato",
+        "advancedBadgeLabel": "Dati avanzati configurati"
+      },
+      "advancedHelp": "Mappa i dati dell'evento in arrivo su variabili del flusso per riutilizzarli nei passaggi successivi. Richiama una variabile con la sintassi {variable}."
     },
     "setVariable": {
       "title": "Configure Set Variable",
