@@ -25,7 +25,7 @@ interface ContactConfigurationProps {
   onContactFieldsChange: (fields: ContactField[]) => void;
   variableMappings?: DataMapping[];
   onVariableMappingsChange?: (mappings: DataMapping[]) => void;
-  journeyId: string;
+  journeyId?: string;
 }
 
 // Moved to component to use translations

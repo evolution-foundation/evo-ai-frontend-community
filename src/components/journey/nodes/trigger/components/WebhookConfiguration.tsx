@@ -18,7 +18,7 @@ interface WebhookConfigurationProps {
   }>;
   onWebhookUrlChange: (url: string) => void;
   onExpectedHeadersChange: (headers: Array<{ name: string; value: string }>) => void;
-  journeyId: string;
+  journeyId?: string;
   variableMappings?: DataMapping[];
   onVariableMappingsChange?: (mappings: DataMapping[]) => void;
   onVariablesChange?: (variables: JourneyVariable[]) => void;

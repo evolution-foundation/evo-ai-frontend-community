@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventConfiguration } from './EventConfiguration';
 import '@/i18n/config';
 
@@ -10,26 +10,32 @@ import '@/i18n/config';
 // Both consumers render THIS SAME `EventConfiguration` from the same barrel
 // (`@/components/journey/nodes/trigger/components`):
 //   - Flow Builder  → JourneyTriggerPanel.tsx (real journeyId + variable-mapping callback)
-//   - Campaigns     → CampaignTriggerConfig.tsx (sentinel journeyId='campaign-trigger', no callback)
+//   - Campaigns     → CampaignTriggerConfig.tsx (NO journeyId, no mapping callback)
 // The only intended difference is the props each context passes. This spec mounts
 // the component with each context's EXACT prop shape and locks in equivalent
 // behavior — the executable proof of the "same component reused" conclusion and
-// of AC #3 ("the only difference is the props").
+// that the only difference is props.
 //
 // Network seam: `VariableInput`/`VariableMapping` call `useJourneyVariables(journeyId)`,
-// which hits `journeyService.getJourneyVariables`. Mock it so the campaign sentinel
-// journeyId does not fire a (404-ing) request during the test.
+// which hits `journeyService.getJourneyVariables`. We mock it AND capture the journeyId
+// it receives, so we can assert the context-aware behaviour: the campaign context (no
+// journey) must call the hook with `undefined` — never a real/sentinel id — so no fetch
+// fires; the flow context passes the real journey id.
+const { useJourneyVariablesSpy } = vi.hoisted(() => ({ useJourneyVariablesSpy: vi.fn() }));
 vi.mock('@/hooks/useJourneyVariables', () => ({
-  useJourneyVariables: () => ({
-    variables: [],
-    loading: false,
-    error: null,
-    fetchVariables: vi.fn(),
-    updateVariables: vi.fn(),
-    addVariable: vi.fn(),
-    updateVariable: vi.fn(),
-    deleteVariable: vi.fn(),
-  }),
+  useJourneyVariables: (journeyId?: string) => {
+    useJourneyVariablesSpy(journeyId);
+    return {
+      variables: [],
+      loading: false,
+      error: null,
+      fetchVariables: vi.fn(),
+      updateVariables: vi.fn(),
+      addVariable: vi.fn(),
+      updateVariable: vi.fn(),
+      deleteVariable: vi.fn(),
+    };
+  },
 }));
 
 type Context = 'flow' | 'campaign';
@@ -39,12 +45,12 @@ interface EventProperty {
   operator: { type: string; value?: unknown };
 }
 
-// The exact prop shapes the two consumers pass (see JourneyTriggerPanel.tsx:181-193
-// and CampaignTriggerConfig.tsx:193-206). The only differences are journeyId and
-// whether onVariableMappingsChange is provided.
-const CONTEXTS: Record<Context, { journeyId: string; hasMappingCallback: boolean }> = {
+// The exact prop shapes the two consumers pass (see JourneyTriggerPanel.tsx and
+// CampaignTriggerConfig.tsx). The only differences are journeyId (real id vs none)
+// and whether onVariableMappingsChange is provided.
+const CONTEXTS: Record<Context, { journeyId?: string; hasMappingCallback: boolean }> = {
   flow: { journeyId: 'journey-uuid-123', hasMappingCallback: true },
-  campaign: { journeyId: 'campaign-trigger', hasMappingCallback: false },
+  campaign: { journeyId: undefined, hasMappingCallback: false },
 };
 
 function renderInContext(context: Context) {
@@ -81,6 +87,10 @@ function renderInContext(context: Context) {
 const CONTEXT_CASES: Context[] = ['flow', 'campaign'];
 
 describe('EventConfiguration — shared across Flow Builder + Campaign contexts', () => {
+  beforeEach(() => {
+    useJourneyVariablesSpy.mockClear();
+  });
+
   it.each(CONTEXT_CASES)(
     'renders the shared EventSelector + properties editor (%s context)',
     context => {
@@ -122,7 +132,7 @@ describe('EventConfiguration — shared across Flow Builder + Campaign contexts'
 
   it('renders the VariableMapping (capture-event-data) UI in the Flow Builder context', () => {
     renderInContext('flow');
-    // Gated by `onVariableMappingsChange &&` (EventConfiguration.tsx:265-280).
+    // Gated by `onVariableMappingsChange &&` (EventConfiguration.tsx).
     expect(
       screen.getByText(/capture event data|capturar dados do evento|cattura dati|capturer les données/i),
     ).toBeTruthy();
@@ -136,9 +146,32 @@ describe('EventConfiguration — shared across Flow Builder + Campaign contexts'
     ).toBeNull();
   });
 
-  it('renders without crashing in the Campaign context despite the sentinel journeyId', () => {
-    // journeyId='campaign-trigger' is a non-journey sentinel; the mocked hook keeps it
-    // inert here, proving the component degrades cleanly rather than throwing.
+  // EVO-1608: context-aware journeyId. The campaign context has no journey, so the
+  // optional journeyId is omitted and the variable autocomplete must never fetch a
+  // journey (no sentinel, no 404). Drive a VariableInput to render (a property row)
+  // so the hook is invoked, then assert the journeyId it receives per context.
+  it.each(CONTEXT_CASES)(
+    'forwards the context journeyId to useJourneyVariables (%s context)',
+    async context => {
+      renderInContext(context);
+      const user = userEvent.setup();
+      await user.click(screen.getByRole('button', { name: /add|adicionar/i }));
+
+      const expected = CONTEXTS[context].journeyId; // 'journey-uuid-123' | undefined
+      expect(useJourneyVariablesSpy).toHaveBeenCalledWith(expected);
+      // No call may use any other id — campaign must NEVER pass a real/sentinel journey id.
+      expect(useJourneyVariablesSpy.mock.calls.every(([id]) => id === expected)).toBe(true);
+    },
+  );
+
+  it('does not fetch journey variables in the Campaign context (no journeyId)', () => {
+    renderInContext('campaign');
+    // With no journeyId and no mapping callback, nothing should ask for a real journey:
+    // every (if any) hook call is with undefined → useJourneyVariables skips the fetch.
+    expect(useJourneyVariablesSpy.mock.calls.every(([id]) => id === undefined)).toBe(true);
+  });
+
+  it('renders without crashing in the Campaign context with no journeyId', () => {
     expect(() => renderInContext('campaign')).not.toThrow();
     expect(screen.getByRole('combobox')).toBeTruthy();
   });
