@@ -1183,7 +1183,13 @@
       },
       "nextCondition": "next condition",
       "cancel": "Cancel",
-      "save": "Save"
+      "save": "Save",
+      "tabs": {
+        "basic": "Básico",
+        "advanced": "Avanzado",
+        "advancedBadgeLabel": "Datos avanzados configurados"
+      },
+      "advancedHelp": "Asigna los datos del evento entrante a variables del flujo para reutilizarlos en pasos posteriores. Referencia una variable con la sintaxis {variable}."
     },
     "setVariable": {
       "title": "Configure Set Variable",

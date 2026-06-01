@@ -1183,7 +1183,13 @@
       },
       "nextCondition": "next condition",
       "cancel": "Cancel",
-      "save": "Save"
+      "save": "Save",
+      "tabs": {
+        "basic": "Basic",
+        "advanced": "Advanced",
+        "advancedBadgeLabel": "Advanced data configured"
+      },
+      "advancedHelp": "Map incoming event data to flow variables so later steps can reuse it. Reference a variable anywhere with {variable} syntax."
     },
     "setVariable": {
       "title": "Configure Set Variable",

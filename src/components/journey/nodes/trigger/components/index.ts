@@ -1,5 +1,7 @@
 export * from './ContactConfiguration';
 export * from './CustomAttributeConfiguration';
+export * from './EventBasicConfig';
+export * from './EventAdvancedConfig';
 export * from './EventConfiguration';
 export * from './LabelConfiguration';
 export * from './SegmentConfiguration';

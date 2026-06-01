@@ -1183,7 +1183,13 @@
       },
       "nextCondition": "next condition",
       "cancel": "Cancel",
-      "save": "Save"
+      "save": "Save",
+      "tabs": {
+        "basic": "Basique",
+        "advanced": "Avancé",
+        "advancedBadgeLabel": "Données avancées configurées"
+      },
+      "advancedHelp": "Associez les données de l'événement à des variables du flux pour les réutiliser dans les étapes suivantes. Référencez une variable avec la syntaxe {variable}."
     },
     "setVariable": {
       "title": "Configure Set Variable",
