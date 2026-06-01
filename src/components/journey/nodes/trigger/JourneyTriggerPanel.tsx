@@ -51,11 +51,15 @@ export function JourneyTriggerPanel({
     data.triggerType === 'customAttribute',
   );
   const [showWebhookConfig, setShowWebhookConfig] = useState(data.triggerType === 'webhook');
+  // Required-field validity reported by EventConfiguration. True (non-blocking)
+  // whenever the event config isn't shown, so other trigger types can always Save.
+  const [eventPropsValid, setEventPropsValid] = useState(true);
 
   useEffect(() => {
     setFormData(data);
     setEventProperties(data.eventProperties || []);
     setContactFields(data.contactFields || []);
+    if (data.triggerType !== 'event') setEventPropsValid(true);
     setShowEventConfig(data.triggerType === 'event');
     setShowSegmentConfig(data.triggerType === 'segment');
     setShowContactConfig(['contactCreated', 'contactUpdated'].includes(data.triggerType));
@@ -103,6 +107,7 @@ export function JourneyTriggerPanel({
     setShowLabelConfig(value === 'label');
     setShowCustomAttributeConfig(value === 'customAttribute');
     setShowWebhookConfig(value === 'webhook');
+    if (value !== 'event') setEventPropsValid(true);
   };
 
   const handleEventNameChange = (name: string) => {
@@ -166,6 +171,7 @@ export function JourneyTriggerPanel({
       onCancel={onClose}
       onSave={handleSave}
       dirty={dirty}
+      saveDisabled={showEventConfig && !eventPropsValid}
       saveLabel={t('panels.actions.save')}
       cancelLabel={t('panels.actions.cancel')}
       savingAriaLabel={t('modal.actions.saving')}
@@ -184,6 +190,7 @@ export function JourneyTriggerPanel({
           eventProperties={eventProperties}
           onEventNameChange={handleEventNameChange}
           onEventPropertiesChange={setEventProperties}
+          onValidityChange={setEventPropsValid}
           variableMappings={formData.variableMappings || []}
           onVariableMappingsChange={mappings =>
             setFormData(prev => ({ ...prev, variableMappings: mappings }))

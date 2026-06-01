@@ -1726,7 +1726,13 @@
       "triggerForAnyOccurrence": "Le déclencheur sera exécuté pour toute occurrence de l'événement.",
       "property": "Propriété",
       "value": "Valeur",
-      "captureEventData": "Capturer les données de l'événement"
+      "captureEventData": "Capturer les données de l'événement",
+      "eventSwitch": {
+        "title": "Conserver les valeurs compatibles ?",
+        "body": "Vous avez changé d'événement. Conserver les valeurs de propriété qui existent aussi sur le nouvel événement (même nom et type) ou tout effacer ?",
+        "preserve": "Conserver compatibles",
+        "clear": "Tout effacer"
+      }
     },
     "label": {
       "configuration": "Configuration de l'étiquette",

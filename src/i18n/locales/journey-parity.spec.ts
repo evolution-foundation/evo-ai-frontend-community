@@ -106,6 +106,32 @@ describe('journey i18n parity (EVO-1260)', () => {
     expect(empties).toEqual([]);
   });
 
+  // EVO-1275: the event-switch confirm-modal keys were added to ALL six
+  // locales (the strict en↔pt-BR mirror would otherwise leave pt/es/fr/it
+  // unguarded against silent drift/removal). Assert presence + non-empty
+  // across every shipped locale, mirroring the EVO-1260 pattern above.
+  const evo1275Keys = [
+    'triggerComponents.event.eventSwitch.title',
+    'triggerComponents.event.eventSwitch.body',
+    'triggerComponents.event.eventSwitch.preserve',
+    'triggerComponents.event.eventSwitch.clear',
+  ];
+
+  it.each([
+    ['en', en],
+    ['pt-BR', ptBR],
+    ['pt', pt],
+    ['es', es],
+    ['fr', fr],
+    ['it', itLocale],
+  ])('%s contains every EVO-1275 event-switch key, non-empty', (_name, locale) => {
+    const offenders = evo1275Keys.filter((k) => {
+      const v = getAtPath(locale, k);
+      return typeof v !== 'string' || v.trim() === '';
+    });
+    expect(offenders).toEqual([]);
+  });
+
   // Generalised non-empty check across EN and pt-BR (the lock-step pair):
   // every string value must be non-empty. Catches an entire-file regression
   // class (e.g. a script writing "" to a key during a future sweep) that

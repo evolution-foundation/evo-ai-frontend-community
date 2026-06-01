@@ -41,3 +41,11 @@ export function isCustomEvent(eventName: string): boolean {
 
 export { resolveLegacyEventName } from './legacy';
 export type { ResolvedLegacyEventName } from './legacy';
+
+export {
+  propertiesToRecord,
+  recordToProperties,
+  validateEventProperties,
+  preserveCompatibleValues,
+} from './event-properties-bridge';
+export type { EventProperty } from './event-properties-bridge';

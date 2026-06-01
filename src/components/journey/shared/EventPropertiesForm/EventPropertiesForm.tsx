@@ -86,7 +86,12 @@ function SchemaDrivenFields({
   className?: string;
   t: (key: string) => string;
 }) {
-  const [shownOptional, setShownOptional] = useState<string[]>([]);
+  // EVO-1275: seed from any optional fields that already carry a value, so a
+  // reopened node (or values preserved across an event switch) renders them
+  // instead of hiding persisted data behind the "+ Add field" picker.
+  const [shownOptional, setShownOptional] = useState<string[]>(
+    () => Object.keys(value).filter((field) => field in optionalFields),
+  );
 
   // F1 fix: when eventName changes upstream, optionalFields changes synchronously
   // but shownOptional state lingers. Compute the filtered set at render time
@@ -97,9 +102,20 @@ function SchemaDrivenFields({
     [shownOptional, optionalFields],
   );
 
+  // Prune entries that no longer belong to the current schema AND surface any
+  // optional field that has a value (e.g. preserved across an event switch).
+  // Returns the previous array unchanged when nothing differs, so a fresh
+  // `value` object reference with identical content can't cause a render loop.
   useEffect(() => {
-    setShownOptional((prev) => prev.filter((field) => field in optionalFields));
-  }, [optionalFields]);
+    setShownOptional((prev) => {
+      const pruned = prev.filter((field) => field in optionalFields);
+      const withValues = Object.keys(value).filter(
+        (field) => field in optionalFields && !pruned.includes(field),
+      );
+      if (withValues.length === 0 && pruned.length === prev.length) return prev;
+      return [...pruned, ...withValues];
+    });
+  }, [optionalFields, value]);
 
   const optionalKeysAvailable = useMemo(
     () => Object.keys(optionalFields).filter((k) => !visibleOptional.includes(k)),

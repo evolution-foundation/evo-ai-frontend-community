@@ -1728,7 +1728,13 @@
       "value": "Valor",
       "captureEventData": "Capturar Dados do Evento",
       "customEventNamePlaceholder": "Digite o nome do evento custom (ex: button_clicked)",
-      "customEventWarning": "Eventos custom não têm validação de schema. Use apenas para casos não cobertos pelos eventos canônicos."
+      "customEventWarning": "Eventos custom não têm validação de schema. Use apenas para casos não cobertos pelos eventos canônicos.",
+      "eventSwitch": {
+        "title": "Preservar valores compatíveis?",
+        "body": "Você alterou o evento. Manter os valores de propriedade que também existem no novo evento (mesmo nome e tipo) ou limpar todos?",
+        "preserve": "Preservar compatíveis",
+        "clear": "Limpar tudo"
+      }
     },
     "label": {
       "configuration": "Configuração da Etiqueta",
