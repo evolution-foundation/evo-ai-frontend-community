@@ -16,11 +16,12 @@ import '@/i18n/config';
 // behavior — the executable proof of the "same component reused" conclusion and
 // that the only difference is props.
 //
-// Network seam: `VariableInput`/`VariableMapping` call `useJourneyVariables(journeyId)`,
-// which hits `journeyService.getJourneyVariables`. We mock it AND capture the journeyId
-// it receives, so we can assert the context-aware behaviour: the campaign context (no
-// journey) must call the hook with `undefined` — never a real/sentinel id — so no fetch
-// fires; the flow context passes the real journey id.
+// Network seam: the custom-event-name `VariableInput` calls
+// `useJourneyVariables(journeyId)`, which hits `journeyService.getJourneyVariables`.
+// We mock it AND capture the journeyId it receives, so we can assert the
+// context-aware behaviour: the campaign context (no journey) must call the hook
+// with `undefined` — never a real/sentinel id — so no fetch fires; the flow
+// context passes the real journey id.
 const { useJourneyVariablesSpy } = vi.hoisted(() => ({ useJourneyVariablesSpy: vi.fn() }));
 vi.mock('@/hooks/useJourneyVariables', () => ({
   useJourneyVariables: (journeyId?: string) => {
@@ -84,6 +85,19 @@ function renderInContext(context: Context) {
   return { onEventNameChange, onEventPropertiesChange };
 }
 
+// Pick the canonical "Contact created" entry from the shared EventSelector.
+async function selectContactCreated(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('combobox'));
+  const listbox = await screen.findByRole('listbox');
+  await user.click(within(listbox).getByText(/contact created|contato criado/i));
+}
+
+async function selectCustomEvent(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('combobox'));
+  const listbox = await screen.findByRole('listbox');
+  await user.click(within(listbox).getByText(/custom event|evento personalizado/i));
+}
+
 const CONTEXT_CASES: Context[] = ['flow', 'campaign'];
 
 describe('EventConfiguration — shared across Flow Builder + Campaign contexts', () => {
@@ -92,13 +106,15 @@ describe('EventConfiguration — shared across Flow Builder + Campaign contexts'
   });
 
   it.each(CONTEXT_CASES)(
-    'renders the shared EventSelector + properties editor (%s context)',
-    context => {
+    'renders the shared EventSelector + schema-driven properties form (%s context)',
+    async context => {
       renderInContext(context);
+      const user = userEvent.setup();
       // EventSelector (EVO-1271 / 10.6) — the combobox is the primary entry point.
       expect(screen.getByRole('combobox')).toBeTruthy();
-      // Event-properties editor — the "Add property" affordance.
-      expect(screen.getByRole('button', { name: /add|adicionar/i })).toBeTruthy();
+      // After picking a canonical event, the schema-driven form renders its fields.
+      await selectContactCreated(user);
+      expect(screen.getByLabelText(/source/i)).toBeTruthy();
     },
   );
 
@@ -108,9 +124,7 @@ describe('EventConfiguration — shared across Flow Builder + Campaign contexts'
       const { onEventNameChange } = renderInContext(context);
       const user = userEvent.setup();
 
-      await user.click(screen.getByRole('combobox'));
-      const listbox = await screen.findByRole('listbox');
-      await user.click(within(listbox).getByText(/contact created|contato criado/i));
+      await selectContactCreated(user);
 
       // Same canonical value resolved regardless of context.
       expect(onEventNameChange).toHaveBeenCalledWith('contact.created');
@@ -118,15 +132,17 @@ describe('EventConfiguration — shared across Flow Builder + Campaign contexts'
   );
 
   it.each(CONTEXT_CASES)(
-    'adds an event property identically (%s context)',
+    'emits an Equals filter-condition array when a schema field is filled (%s context)',
     async context => {
       const { onEventPropertiesChange } = renderInContext(context);
       const user = userEvent.setup();
 
-      await user.click(screen.getByRole('button', { name: /add|adicionar/i }));
+      await selectContactCreated(user);
+      await user.type(screen.getByLabelText(/source/i), 'crm');
 
-      expect(onEventPropertiesChange).toHaveBeenCalledTimes(1);
-      expect(onEventPropertiesChange.mock.calls[0][0]).toHaveLength(1);
+      // Option A: the persisted shape stays the {path, operator} array.
+      const last = onEventPropertiesChange.mock.calls.at(-1)?.[0];
+      expect(last).toEqual([{ path: 'source', operator: { type: 'Equals', value: 'crm' } }]);
     },
   );
 
@@ -148,14 +164,14 @@ describe('EventConfiguration — shared across Flow Builder + Campaign contexts'
 
   // EVO-1608: context-aware journeyId. The campaign context has no journey, so the
   // optional journeyId is omitted and the variable autocomplete must never fetch a
-  // journey (no sentinel, no 404). Drive a VariableInput to render (a property row)
-  // so the hook is invoked, then assert the journeyId it receives per context.
+  // journey (no sentinel, no 404). Drive the custom-event-name VariableInput to
+  // render (custom mode) so the hook is invoked, then assert the journeyId per context.
   it.each(CONTEXT_CASES)(
     'forwards the context journeyId to useJourneyVariables (%s context)',
     async context => {
       renderInContext(context);
       const user = userEvent.setup();
-      await user.click(screen.getByRole('button', { name: /add|adicionar/i }));
+      await selectCustomEvent(user);
 
       const expected = CONTEXTS[context].journeyId; // 'journey-uuid-123' | undefined
       expect(useJourneyVariablesSpy).toHaveBeenCalledWith(expected);
@@ -167,10 +183,9 @@ describe('EventConfiguration — shared across Flow Builder + Campaign contexts'
   it('never asks for a real journey in the Campaign context (no fetch)', async () => {
     renderInContext('campaign');
     const user = userEvent.setup();
-    // Mount a VariableInput (a property row) so the hook is actually exercised —
-    // otherwise no VariableInput/VariableMapping renders and the assertion below
-    // would be vacuously true.
-    await user.click(screen.getByRole('button', { name: /add|adicionar/i }));
+    // Switch to custom mode so the custom-name VariableInput renders and the hook
+    // is actually exercised — otherwise the assertion below would be vacuously true.
+    await selectCustomEvent(user);
 
     expect(useJourneyVariablesSpy).toHaveBeenCalled();
     // Every call must be with undefined → useJourneyVariables skips getJourneyVariables.

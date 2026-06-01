@@ -1728,7 +1728,13 @@
       "value": "Value",
       "captureEventData": "Capture Event Data",
       "customEventNamePlaceholder": "Type the custom event name (e.g. button_clicked)",
-      "customEventWarning": "Custom events have no schema validation. Use only for cases not covered by canonical events."
+      "customEventWarning": "Custom events have no schema validation. Use only for cases not covered by canonical events.",
+      "eventSwitch": {
+        "title": "Preserve compatible values?",
+        "body": "You changed the event. Keep the property values that also exist on the new event (same name and type), or clear them all?",
+        "preserve": "Preserve compatible",
+        "clear": "Clear all"
+      }
     },
     "label": {
       "configuration": "Label Configuration",

@@ -40,6 +40,8 @@ type CommonProps = {
   description?: string;
   loading?: boolean;
   dirty?: boolean;
+  /** Gate the Save button beyond dirty/loading — e.g. required-field validation. Defaults to false. */
+  saveDisabled?: boolean;
   saveLabel?: string;
   cancelLabel?: string;
   /**
@@ -84,6 +86,7 @@ export function NodeConfigModal(props: NodeConfigModalProps) {
     description,
     loading = false,
     dirty = false,
+    saveDisabled = false,
     saveLabel = 'Save',
     cancelLabel = 'Cancel',
     savingAriaLabel = 'Saving...',
@@ -170,7 +173,7 @@ export function NodeConfigModal(props: NodeConfigModalProps) {
           </Button>
           <Button
             onClick={onSave}
-            disabled={!dirty || loading}
+            disabled={!dirty || loading || saveDisabled}
             className="flex-1 sm:flex-initial h-10"
           >
             {loading ? (

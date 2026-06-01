@@ -59,6 +59,23 @@ describe('NodeConfigModal — common chrome', () => {
     expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
   });
 
+  it('keeps Save disabled when saveDisabled is true even if dirty (EVO-1275)', () => {
+    const { rerender } = render(
+      <NodeConfigModal {...baseProps} variant="simple" dirty saveDisabled>
+        body
+      </NodeConfigModal>,
+    );
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+
+    // Clearing saveDisabled (while still dirty) re-enables Save.
+    rerender(
+      <NodeConfigModal {...baseProps} variant="simple" dirty saveDisabled={false}>
+        body
+      </NodeConfigModal>,
+    );
+    expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
+  });
+
   it('disables both Save and Cancel while loading', () => {
     render(
       <NodeConfigModal {...baseProps} variant="simple" dirty loading>

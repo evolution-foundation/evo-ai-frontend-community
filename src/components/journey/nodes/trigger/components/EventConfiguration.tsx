@@ -1,30 +1,38 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
   Button,
   Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Separator,
 } from '@evoapi/design-system';
-import { Plus, X } from 'lucide-react';
 import { VariableInput, VariableMapping, type DataMapping } from '@/components/journey/environment-manager';
 import { EventSelector } from '@/components/journey/shared/EventSelector';
-import { getEvent, resolveLegacyEventName } from '@/lib/events-manifest';
+import { EventPropertiesForm } from '@/components/journey/shared/EventPropertiesForm';
+import {
+  getEvent,
+  resolveLegacyEventName,
+  propertiesToRecord,
+  recordToProperties,
+  validateEventProperties,
+  preserveCompatibleValues,
+  type EventProperty,
+} from '@/lib/events-manifest';
 import { useLanguage } from '@/hooks/useLanguage';
-
-interface EventProperty {
-  path: string;
-  operator: { type: string; value?: unknown };
-}
 
 interface EventConfigurationProps {
   eventName: string;
   eventProperties: EventProperty[];
   onEventNameChange: (name: string) => void;
   onEventPropertiesChange: (properties: EventProperty[]) => void;
+  // Optional: only the Flow Builder (JourneyTriggerPanel) gates Save on this.
+  // Campaigns/Wait omit it and rely on the inline required-field indicators
+  // <EventPropertiesForm> renders. See EVO-1275.
+  onValidityChange?: (valid: boolean) => void;
   variableMappings?: DataMapping[];
   onVariableMappingsChange?: (mappings: DataMapping[]) => void;
   // Optional: in contexts without a journey (e.g. trigger-type Campaigns) it is
@@ -38,6 +46,7 @@ export function EventConfiguration({
   eventProperties,
   onEventNameChange,
   onEventPropertiesChange,
+  onValidityChange,
   variableMappings = [],
   onVariableMappingsChange,
   journeyId,
@@ -70,15 +79,48 @@ export function EventConfiguration({
     lastPushedRef.current = eventName;
   }, [eventName]);
 
+  const isCustomMode = selectorValue === 'custom';
+  // The event identity the schema form reasons about: 'custom' in custom mode,
+  // otherwise the canonical selector value.
+  const formEventName = isCustomMode ? 'custom' : selectorValue;
+
+  // Option A bridge: the persisted shape stays the filter-condition array;
+  // derive the flat Record the form consumes WITHOUT mutating the source.
+  const record = useMemo(() => propertiesToRecord(eventProperties), [eventProperties]);
+
+  const canonicalDescription =
+    !isCustomMode && selectorValue ? getEvent(selectorValue)?.description : undefined;
+
   const generateEventPaths = () => {
     const basePaths = ['event.id', 'event.name', 'event.timestamp', 'event.user_id'];
-    const propertyPaths = eventProperties
-      .filter(prop => prop.path && prop.path.trim())
-      .map(prop => `event.properties.${prop.path}`);
+    const propertyPaths = Object.keys(record).map((key) => `event.properties.${key}`);
     return [...basePaths, ...propertyPaths];
   };
 
+  // Emit validity to opted-in consumers, but only when it actually flips so we
+  // don't churn the parent's state on every keystroke.
+  const lastValidityRef = useRef<boolean | null>(null);
+  useEffect(() => {
+    // An event trigger with no event chosen yet is not a savable config — treat
+    // the empty selection as invalid (formEventName === selectorValue, which is
+    // '' until something is picked; 'custom' once Custom is selected).
+    const valid =
+      formEventName === '' ? false : validateEventProperties(formEventName, record).valid;
+    if (lastValidityRef.current !== valid) {
+      lastValidityRef.current = valid;
+      onValidityChange?.(valid);
+    }
+  }, [formEventName, record, onValidityChange]);
+
+  // Pending event switch awaiting the user's preserve/clear decision.
+  const [pendingSwitch, setPendingSwitch] = useState<{ from: string; to: string } | null>(null);
+
   const handleSelectorChange = ({ eventName: picked, isCustom }: { eventName: string; isCustom: boolean }) => {
+    const prevFormEvent = formEventName;
+    const nextFormEvent = isCustom ? 'custom' : picked;
+
+    // The event NAME (and selector) updates immediately so the schema reflects
+    // the new event; the properties decision is deferred to the confirm dialog.
     if (isCustom) {
       setSelectorValue('custom');
       lastPushedRef.current = customName;
@@ -89,6 +131,12 @@ export function EventConfiguration({
       lastPushedRef.current = picked;
       onEventNameChange(picked);
     }
+
+    const identityChanged = prevFormEvent !== nextFormEvent;
+    const hasValues = Object.keys(record).length > 0;
+    if (identityChanged && hasValues) {
+      setPendingSwitch({ from: prevFormEvent, to: nextFormEvent });
+    }
   };
 
   const handleCustomNameChange = (next: string) => {
@@ -97,23 +145,21 @@ export function EventConfiguration({
     onEventNameChange(next);
   };
 
-  const isCustomMode = selectorValue === 'custom';
-  const canonicalDescription =
-    !isCustomMode && selectorValue ? getEvent(selectorValue)?.description : undefined;
-
-  const addEventProperty = () => {
-    const newProperty = { path: '', operator: { type: 'Equals', value: '' } };
-    onEventPropertiesChange([...eventProperties, newProperty]);
+  const handlePropertiesRecordChange = (next: Record<string, unknown>) => {
+    onEventPropertiesChange(recordToProperties(next, eventProperties));
   };
 
-  const removeEventProperty = (index: number) => {
-    onEventPropertiesChange(eventProperties.filter((_, i) => i !== index));
+  const handlePreserveValues = () => {
+    if (pendingSwitch) {
+      const kept = preserveCompatibleValues(record, pendingSwitch.from, pendingSwitch.to);
+      onEventPropertiesChange(recordToProperties(kept, eventProperties));
+    }
+    setPendingSwitch(null);
   };
 
-  const updateEventProperty = (index: number, property: EventProperty) => {
-    const updated = [...eventProperties];
-    updated[index] = property;
-    onEventPropertiesChange(updated);
+  const handleClearValues = () => {
+    onEventPropertiesChange([]);
+    setPendingSwitch(null);
   };
 
   return (
@@ -157,110 +203,14 @@ export function EventConfiguration({
 
         {/* Propriedades do evento */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label className="text-sidebar-foreground font-medium text-sm">
-              {t('triggerComponents.event.eventProperties')}
-            </Label>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={addEventProperty}
-              className="h-8 px-3 text-xs"
-            >
-              <Plus className="w-3 h-3 mr-1" />
-              {t('triggerComponents.event.addProperty')}
-            </Button>
-          </div>
-
-          {eventProperties.length === 0 ? (
-            <div className="p-4 rounded-lg bg-sidebar-accent/20 border border-sidebar-border/50">
-              <p className="text-sm text-sidebar-foreground/70 text-center">
-                {t('triggerComponents.event.noPropertiesConfigured')}
-                <br />
-                {t('triggerComponents.event.triggerForAnyOccurrence')}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {eventProperties.map((property, index) => (
-                <div key={index} className="p-3 rounded-lg bg-sidebar border border-sidebar-border">
-                  <div className="flex items-center gap-2">
-                    <VariableInput
-                      placeholder={t('triggerComponents.event.property')}
-                      value={property.path}
-                      onChange={e =>
-                        updateEventProperty(index, {
-                          ...property,
-                          path: e.target.value,
-                        })
-                      }
-                      className="flex-1 bg-sidebar-accent border-sidebar-border text-sidebar-foreground"
-                      journeyId={journeyId}
-                    />
-                    <Select
-                      value={property.operator.type}
-                      onValueChange={value =>
-                        updateEventProperty(index, {
-                          ...property,
-                          operator: { ...property.operator, type: value },
-                        })
-                      }
-                    >
-                      <SelectTrigger className="w-32 bg-sidebar-accent border-sidebar-border text-sidebar-foreground">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-sidebar border-sidebar-border">
-                        <SelectItem value="Equals" className="text-sidebar-foreground">
-                          {t('triggerComponents.operators.equals')}
-                        </SelectItem>
-                        <SelectItem value="NotEquals" className="text-sidebar-foreground">
-                          {t('triggerComponents.operators.not_equals')}
-                        </SelectItem>
-                        <SelectItem value="Contains" className="text-sidebar-foreground">
-                          {t('triggerComponents.operators.contains')}
-                        </SelectItem>
-                        <SelectItem value="GreaterThan" className="text-sidebar-foreground">
-                          {t('triggerComponents.operators.greater_than')}
-                        </SelectItem>
-                        <SelectItem value="LessThan" className="text-sidebar-foreground">
-                          {t('triggerComponents.operators.less_than')}
-                        </SelectItem>
-                        <SelectItem value="Exists" className="text-sidebar-foreground">
-                          {t('triggerComponents.operators.exists')}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {property.operator.type !== 'Exists' && (
-                      <VariableInput
-                        placeholder={t('triggerComponents.event.value')}
-                        value={
-                          property.operator.value == null
-                            ? ''
-                            : String(property.operator.value)
-                        }
-                        onChange={e =>
-                          updateEventProperty(index, {
-                            ...property,
-                            operator: { ...property.operator, value: e.target.value },
-                          })
-                        }
-                        className="flex-1 bg-sidebar-accent border-sidebar-border text-sidebar-foreground"
-                        journeyId={journeyId}
-                      />
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeEventProperty(index)}
-                      className="h-7 w-7 p-0 text-sidebar-foreground/60 hover:text-red-500"
-                    >
-                      <X className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <Label className="text-sidebar-foreground font-medium text-sm">
+            {t('triggerComponents.event.eventProperties')}
+          </Label>
+          <EventPropertiesForm
+            eventName={formEventName}
+            value={record}
+            onChange={handlePropertiesRecordChange}
+          />
         </div>
       </div>
 
@@ -282,6 +232,35 @@ export function EventConfiguration({
           </div>
         </>
       )}
+
+      {/* Preserve-compatible-values confirm on event switch */}
+      <AlertDialog
+        open={pendingSwitch !== null}
+        onOpenChange={open => {
+          // Dismissing (Esc) without an explicit choice would otherwise strand
+          // the newly-selected event with the previous event's values (incl.
+          // keys absent from the new schema). Default a dismiss to the safe
+          // Clear. Explicit Preserve/Clear close via state, not onOpenChange.
+          if (!open) handleClearValues();
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('triggerComponents.event.eventSwitch.title')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('triggerComponents.event.eventSwitch.body')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={handleClearValues}>
+              {t('triggerComponents.event.eventSwitch.clear')}
+            </Button>
+            <Button onClick={handlePreserveValues}>
+              {t('triggerComponents.event.eventSwitch.preserve')}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

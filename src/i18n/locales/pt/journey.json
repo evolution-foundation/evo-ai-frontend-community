@@ -1726,7 +1726,13 @@
       "triggerForAnyOccurrence": "O trigger será executado para qualquer ocorrência do evento.",
       "property": "Propriedade",
       "value": "Valor",
-      "captureEventData": "Capturar Dados do Evento"
+      "captureEventData": "Capturar Dados do Evento",
+      "eventSwitch": {
+        "title": "Preservar valores compatíveis?",
+        "body": "Você alterou o evento. Manter os valores de propriedade que também existem no novo evento (mesmo nome e tipo) ou limpar todos?",
+        "preserve": "Preservar compatíveis",
+        "clear": "Limpar tudo"
+      }
     },
     "label": {
       "configuration": "Configuração da Etiqueta",
