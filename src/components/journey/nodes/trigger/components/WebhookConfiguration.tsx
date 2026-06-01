@@ -69,7 +69,10 @@ export function WebhookConfiguration({
     } else if (JSON.stringify(expectedHeaders) !== JSON.stringify(localHeaders)) {
       setLocalHeaders(expectedHeaders);
     }
-  }, [expectedHeaders]); // Remove localHeaders from dependencies
+    // localHeaders is intentionally excluded — it's our own mirror of expectedHeaders;
+    // including it would loop. Sync is driven solely by the incoming expectedHeaders prop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expectedHeaders]);
 
   const copyToClipboard = async (text: string) => {
     try {

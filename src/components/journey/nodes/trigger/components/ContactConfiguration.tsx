@@ -16,7 +16,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 interface ContactField {
   field: string;
   operator: string;
-  value?: any;
+  value?: unknown;
 }
 
 interface ContactConfigurationProps {
@@ -227,7 +227,7 @@ export function ContactConfiguration({
                         {t('triggerComponents.contact.value')}
                       </Label>
                       <VariableInput
-                        value={field.value || ''}
+                        value={typeof field.value === 'string' ? field.value : ''}
                         onChange={e => updateField(index, { value: e.target.value })}
                         placeholder={t('triggerComponents.contact.enterValue')}
                         className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
@@ -279,7 +279,7 @@ export function ContactConfiguration({
                   return (
                     <li key={index}>
                       {fieldLabel} {operatorLabel.toLowerCase()}{' '}
-                      {needsValue(field.operator) && field.value && `"${field.value}"`}
+                      {needsValue(field.operator) && Boolean(field.value) && `"${String(field.value)}"`}
                     </li>
                   );
                 })}

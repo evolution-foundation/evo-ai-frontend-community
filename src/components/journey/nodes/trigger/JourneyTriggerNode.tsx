@@ -19,7 +19,7 @@ export interface JourneyTriggerNodeData {
   eventName?: string;
   eventProperties?: Array<{
     path: string;
-    operator: { type: string; value?: any };
+    operator: { type: string; value?: unknown };
   }>;
   // Configurações de segmento
   segmentId?: string;
@@ -29,7 +29,7 @@ export interface JourneyTriggerNodeData {
   contactFields?: Array<{
     field: string;
     operator: string;
-    value?: any;
+    value?: unknown;
   }>;
   // Configurações de etiqueta
   labelId?: string;
@@ -52,7 +52,7 @@ export interface JourneyTriggerNodeData {
   conditions?: Array<{
     field?: string;
     operator?: string;
-    value?: any;
+    value?: unknown;
     eventName?: string;
     segmentId?: string;
   }>;

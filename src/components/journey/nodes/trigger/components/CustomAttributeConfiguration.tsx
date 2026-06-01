@@ -99,6 +99,8 @@ export function CustomAttributeConfiguration({
     };
 
     loadAttributes();
+    // loadingAttributes is a guard flag, not an input — including it would re-run the fetch on every toggle.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t]);
 
   const selectedAttribute = availableAttributes.find(a => a.attribute_key === attributeName);
