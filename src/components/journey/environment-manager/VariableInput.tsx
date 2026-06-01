@@ -15,7 +15,9 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { PhoneInput } from '@/components/shared/PhoneInput';
 
 export interface VariableInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  journeyId: string;
+  // Optional: contexts without a journey (campaigns, automations) omit it, so the
+  // variable autocomplete falls back to system variables only — no journey fetch.
+  journeyId?: string;
   onVariableInsert?: (variable: string) => void;
   showVariableButton?: boolean;
   variableButtonTooltip?: string;

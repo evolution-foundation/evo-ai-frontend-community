@@ -27,7 +27,10 @@ interface EventConfigurationProps {
   onEventPropertiesChange: (properties: EventProperty[]) => void;
   variableMappings?: DataMapping[];
   onVariableMappingsChange?: (mappings: DataMapping[]) => void;
-  journeyId: string;
+  // Optional: in contexts without a journey (e.g. trigger-type Campaigns) it is
+  // omitted, so useJourneyVariables skips the fetch and the autocomplete degrades
+  // to system variables only — no 404. See EVO-1608.
+  journeyId?: string;
 }
 
 export function EventConfiguration({

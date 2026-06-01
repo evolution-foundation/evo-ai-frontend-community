@@ -21,7 +21,7 @@ interface CustomAttributeConfigurationProps {
   onAttributeNameChange: (name: string, displayName?: string) => void;
   onOperatorChange: (operator: string) => void;
   onValueChange: (value: string) => void;
-  journeyId: string;
+  journeyId?: string;
   variableMappings?: DataMapping[];
   onVariableMappingsChange?: (mappings: DataMapping[]) => void;
 }
