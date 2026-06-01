@@ -48,7 +48,11 @@ export function WebhookConfiguration({
   const isInitialized = useRef(false);
 
   useEffect(() => {
-    // Generate webhook URL using actual journey ID
+    // Generate the trigger webhook URL from the REAL journey id. Contexts without a
+    // journey (trigger-type Campaigns / automations) pass no journeyId (EVO-1608, ex
+    // sentinel 'campaign-trigger' que gerava uma URL .../trigger/campaign-trigger não
+    // roteável). Nesses casos NÃO auto-geramos URL — o contexto deve fornecer a sua.
+    // Campanha precisa de uma URL de trigger própria.
     if (journeyId && !webhookUrl) {
       const campaignApiUrl = import.meta.env.VITE_CAMPAIGN_API_URL || 'http://localhost:3000';
       const url = `${campaignApiUrl}/api/v1/journeys/trigger/${journeyId}`;

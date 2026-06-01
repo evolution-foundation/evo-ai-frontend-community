@@ -164,10 +164,16 @@ describe('EventConfiguration — shared across Flow Builder + Campaign contexts'
     },
   );
 
-  it('does not fetch journey variables in the Campaign context (no journeyId)', () => {
+  it('never asks for a real journey in the Campaign context (no fetch)', async () => {
     renderInContext('campaign');
-    // With no journeyId and no mapping callback, nothing should ask for a real journey:
-    // every (if any) hook call is with undefined → useJourneyVariables skips the fetch.
+    const user = userEvent.setup();
+    // Mount a VariableInput (a property row) so the hook is actually exercised —
+    // otherwise no VariableInput/VariableMapping renders and the assertion below
+    // would be vacuously true.
+    await user.click(screen.getByRole('button', { name: /add|adicionar/i }));
+
+    expect(useJourneyVariablesSpy).toHaveBeenCalled();
+    // Every call must be with undefined → useJourneyVariables skips getJourneyVariables.
     expect(useJourneyVariablesSpy.mock.calls.every(([id]) => id === undefined)).toBe(true);
   });
 
