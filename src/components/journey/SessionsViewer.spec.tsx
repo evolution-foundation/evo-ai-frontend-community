@@ -62,6 +62,7 @@ describe('SessionsViewer — defensive stats handling', () => {
     expect(statCount('sessions-stat-total')).toBe('12');
     expect(statCount('sessions-stat-active')).toBe('3');
     expect(statCount('sessions-stat-waiting')).toBe('2');
+    expect(statCount('sessions-stat-paused')).toBe('1');
     expect(statCount('sessions-stat-completed')).toBe('4');
     expect(statCount('sessions-stat-failed')).toBe('1');
     expect(statCount('sessions-stat-cancelled')).toBe('1');
@@ -121,6 +122,7 @@ describe('SessionsViewer — defensive stats handling', () => {
     expect(statCount('sessions-stat-total')).toBe('5');
     expect(statCount('sessions-stat-active')).toBe('5');
     expect(statCount('sessions-stat-waiting')).toBe('0');
+    expect(statCount('sessions-stat-paused')).toBe('0');
     expect(statCount('sessions-stat-completed')).toBe('0');
     expect(statCount('sessions-stat-failed')).toBe('0');
     expect(statCount('sessions-stat-cancelled')).toBe('0');
@@ -148,6 +150,7 @@ describe('SessionsViewer — defensive stats handling', () => {
     // critically: no crash.
     expect(statCount('sessions-stat-total')).toBe('0');
     expect(statCount('sessions-stat-active')).toBe('0');
+    expect(statCount('sessions-stat-paused')).toBe('0');
   });
 
   it('does NOT render the stats grid when the stats request fails (stats stays null)', async () => {

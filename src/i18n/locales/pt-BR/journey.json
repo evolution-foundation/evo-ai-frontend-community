@@ -1813,6 +1813,7 @@
         "total": "Total",
         "active": "Ativas",
         "waiting": "Aguardando",
+        "paused": "Pausadas",
         "completed": "Concluídas",
         "failed": "Falhas",
         "cancelled": "Canceladas"

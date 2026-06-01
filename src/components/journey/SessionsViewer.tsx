@@ -208,7 +208,7 @@ export function SessionsViewer({ journeyId, journeyName, onClose }: SessionsView
         {/* Stats Cards */}
         {stats && (
           <div className="p-6 border-b border-sidebar-border" data-testid="sessions-stats-grid">
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
               <Card className="bg-sidebar-accent" data-testid="sessions-stat-total">
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-sidebar-foreground">{stats.total ?? 0}</div>
@@ -225,6 +225,12 @@ export function SessionsViewer({ journeyId, journeyName, onClose }: SessionsView
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-blue-500">{stats.byStatus?.waiting ?? 0}</div>
                   <div className="text-xs text-sidebar-foreground/60 mt-1">{t('sessions.viewer.stats.waiting')}</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-yellow-500/10 border-yellow-500/20" data-testid="sessions-stat-paused">
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-yellow-500">{stats.byStatus?.paused ?? 0}</div>
+                  <div className="text-xs text-sidebar-foreground/60 mt-1">{t('sessions.viewer.stats.paused')}</div>
                 </CardContent>
               </Card>
               <Card className="bg-emerald-500/10 border-emerald-500/20" data-testid="sessions-stat-completed">
