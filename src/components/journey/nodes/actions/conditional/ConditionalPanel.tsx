@@ -21,6 +21,15 @@ import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { VariableInput, VariableSelect } from '@/components/journey/environment-manager';
 import { v4 as uuidv4 } from 'uuid';
 import { useLanguage } from '@/hooks/useLanguage';
+import { pipelinesService } from '@/services/pipelines/pipelinesService';
+
+const PIPELINE_STAGE_FIELD = '{{conversation.pipeline_stage_id}}';
+const PIPELINE_STAGE_OPERATORS = ['equals', 'not_equals'];
+
+interface StageOption {
+  id: string;
+  label: string;
+}
 
 interface ConditionalPanelProps {
   nodeId: string;
@@ -67,6 +76,7 @@ export function ConditionalPanel({
   ];
 
   const [activePathId, setActivePathId] = useState<string>('');
+  const [stageOptions, setStageOptions] = useState<StageOption[]>([]);
 
   useEffect(() => {
     setFormData({
@@ -78,6 +88,44 @@ export function ConditionalPanel({
       setActivePathId(data.paths[0].id);
     }
   }, [data]);
+
+  const hasPipelineStageCondition = useMemo(
+    () =>
+      formData.paths.some(path =>
+        path.conditions.some(condition => condition.field === PIPELINE_STAGE_FIELD),
+      ),
+    [formData.paths],
+  );
+
+  useEffect(() => {
+    if (!hasPipelineStageCondition || stageOptions.length > 0) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const pipelinesResponse = await pipelinesService.getPipelines();
+        const pipelines = pipelinesResponse?.data ?? [];
+
+        const stagesByPipeline = await Promise.all(
+          pipelines.map(async pipeline => {
+            const stagesResponse = await pipelinesService.getPipelineStages(pipeline.id);
+            return (stagesResponse?.data ?? []).map(stage => ({
+              id: stage.id,
+              label: `[${pipeline.name}] ${stage.name}`,
+            }));
+          }),
+        );
+
+        if (!cancelled) setStageOptions(stagesByPipeline.flat());
+      } catch {
+        // Stage picker stays empty on failure; reopening the panel retries.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hasPipelineStageCondition, stageOptions.length]);
 
   const handleSave = () => {
     onUpdate(nodeId, formData);
@@ -190,9 +238,27 @@ export function ConditionalPanel({
     [formData, originalData],
   );
 
+  const handleFieldChange = (pathId: string, condition: Condition, field: string) => {
+    const updates: Partial<Condition> = { field };
+    if (field === PIPELINE_STAGE_FIELD) {
+      // Pipeline-stage conditions only support id equality; reset incompatible
+      // operator/value carried over from a previous field selection.
+      if (!PIPELINE_STAGE_OPERATORS.includes(condition.operator)) {
+        updates.operator = 'equals';
+      }
+      updates.value = '';
+    }
+    updateCondition(pathId, condition.id, updates);
+  };
+
   const renderCondition = (pathId: string, condition: Condition, index: number) => {
     const path = formData.paths.find(p => p.id === pathId);
     if (!path) return null;
+
+    const isPipelineStageField = condition.field === PIPELINE_STAGE_FIELD;
+    const operatorOptions = isPipelineStageField
+      ? OPERATORS.filter(option => PIPELINE_STAGE_OPERATORS.includes(option.value))
+      : OPERATORS;
 
     return (
       <div
@@ -214,7 +280,7 @@ export function ConditionalPanel({
             <Label className="text-xs">{t('panels.conditional.field')}</Label>
             <VariableSelect
               value={condition.field || ''}
-              onValueChange={value => updateCondition(pathId, condition.id, { field: value })}
+              onValueChange={value => handleFieldChange(pathId, condition, value)}
               placeholder={t('panels.conditional.placeholders.selectVariable')}
               journeyId={journeyId}
               className="w-full"
@@ -232,7 +298,7 @@ export function ConditionalPanel({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-sidebar border-sidebar-border">
-                {OPERATORS.map(option => (
+                {operatorOptions.map(option => (
                   <SelectItem
                     key={option.value}
                     value={option.value}
@@ -247,7 +313,29 @@ export function ConditionalPanel({
 
           <div className="col-span-4">
             <Label className="text-xs">{t('panels.conditional.value')}</Label>
-            {needsValue(condition.operator) ? (
+            {isPipelineStageField ? (
+              <Select
+                value={condition.value || ''}
+                onValueChange={value => updateCondition(pathId, condition.id, { value })}
+              >
+                <SelectTrigger className="bg-sidebar border-sidebar-border text-sidebar-foreground">
+                  <SelectValue
+                    placeholder={t('panels.conditional.placeholders.selectStage')}
+                  />
+                </SelectTrigger>
+                <SelectContent className="bg-sidebar border-sidebar-border">
+                  {stageOptions.map(option => (
+                    <SelectItem
+                      key={option.id}
+                      value={option.id}
+                      className="text-sidebar-foreground"
+                    >
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : needsValue(condition.operator) ? (
               <VariableInput
                 value={condition.value || ''}
                 onChange={e => updateCondition(pathId, condition.id, { value: e.target.value })}

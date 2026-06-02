@@ -73,6 +73,9 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
       'system.current_time': t('panels.conditional.fieldLabels.systemCurrentTime'),
       'system.current_day': t('panels.conditional.fieldLabels.systemCurrentDay'),
       'system.current_date': t('panels.conditional.fieldLabels.systemCurrentDate'),
+      '{{conversation.pipeline_stage_id}}': t(
+        'panels.conditional.fieldLabels.conversationPipelineStage',
+      ),
     };
     return fieldLabels[field] || field;
   };

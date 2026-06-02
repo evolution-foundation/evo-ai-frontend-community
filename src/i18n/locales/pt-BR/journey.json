@@ -453,6 +453,10 @@
         "currentStep": "Passo Atual",
         "startDateDescription": "Data de início da jornada",
         "currentStepDescription": "Passo atual da jornada"
+      },
+      "conversation": {
+        "pipelineStageId": "Estágio do pipeline",
+        "pipelineStageIdDescription": "Estágio atual do pipeline da conversa"
       }
     },
     "categories": {
@@ -460,6 +464,7 @@
       "event": "Evento",
       "webhook": "Webhook",
       "journey": "Jornada",
+      "conversation": "Conversa",
       "others": "Outros"
     },
     "form": {
@@ -948,7 +953,8 @@
         "eventProperties": "Propriedades do evento",
         "systemCurrentTime": "Hora atual",
         "systemCurrentDay": "Dia da semana",
-        "systemCurrentDate": "Data atual"
+        "systemCurrentDate": "Data atual",
+        "conversationPipelineStage": "Estágio do pipeline"
       },
       "operators": {
         "equals": "Igual a",
@@ -1018,7 +1024,8 @@
         "clickToCreateFirst": "Clique em \"Adicionar Caminho\" para criar seu primeiro caminho condicional"
       },
       "placeholders": {
-        "selectVariable": "Selecionar variável..."
+        "selectVariable": "Selecionar variável...",
+        "selectStage": "Selecione um estágio..."
       }
     },
     "deferConversation": {

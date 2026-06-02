@@ -122,6 +122,16 @@ export const getSystemVariables = (t: any): VariableOption[] => [
     description: t('environmentManager.systemVariables.journey.currentStepDescription'),
     category: t('environmentManager.categories.journey'),
   },
+
+  // Conversa
+  {
+    value: '{{conversation.pipeline_stage_id}}',
+    label: t('environmentManager.systemVariables.conversation.pipelineStageId'),
+    description: t(
+      'environmentManager.systemVariables.conversation.pipelineStageIdDescription',
+    ),
+    category: t('environmentManager.categories.conversation'),
+  },
 ];
 
 export function EnvironmentManager({

@@ -453,6 +453,10 @@
         "currentStep": "Current Step",
         "startDateDescription": "Journey start date",
         "currentStepDescription": "Current step of the journey"
+      },
+      "conversation": {
+        "pipelineStageId": "Pipeline stage",
+        "pipelineStageIdDescription": "Current pipeline stage of the conversation"
       }
     },
     "categories": {
@@ -460,6 +464,7 @@
       "event": "Event",
       "webhook": "Webhook",
       "journey": "Journey",
+      "conversation": "Conversation",
       "others": "Others"
     },
     "form": {
@@ -948,7 +953,8 @@
         "eventProperties": "Event properties",
         "systemCurrentTime": "Current time",
         "systemCurrentDay": "Day of the week",
-        "systemCurrentDate": "Current date"
+        "systemCurrentDate": "Current date",
+        "conversationPipelineStage": "Pipeline stage"
       },
       "operators": {
         "equals": "Equals",
@@ -1018,7 +1024,8 @@
         "clickToCreateFirst": "Click on \"Add Path\" to create your first conditional path"
       },
       "placeholders": {
-        "selectVariable": "Select variable..."
+        "selectVariable": "Select variable...",
+        "selectStage": "Select a stage..."
       }
     },
     "deferConversation": {
