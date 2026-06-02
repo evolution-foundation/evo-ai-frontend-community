@@ -120,7 +120,7 @@ export function NodeConfigModal(props: NodeConfigModalProps) {
           </div>
         </DialogHeader>
 
-        <div className="px-6 py-4">
+        <div className="px-6 py-4 max-h-[70vh] overflow-y-auto">
           {props.variant === 'simple' ? props.children : null}
 
           {props.variant === 'tabs' ? (

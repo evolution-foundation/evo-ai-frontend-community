@@ -3,6 +3,9 @@ import { BaseFlowNode } from '@/components/base';
 import { Handle, Position, useEdges } from '@xyflow/react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/hooks/useLanguage';
+import { usePipelineStageNames } from '@/hooks/usePipelineStageNames';
+
+export const PIPELINE_STAGE_FIELD = '{{conversation.pipeline_stage_id}}';
 
 export interface Condition {
   id: string;
@@ -10,6 +13,8 @@ export interface Condition {
   field: string;
   operator: string;
   value: any;
+  /** Human-readable label for `value` when it is an opaque id (e.g. a pipeline stage). Display-only. */
+  valueLabel?: string;
   customVariable?: string;
 }
 
@@ -56,6 +61,11 @@ interface ConditionalNodeProps {
 export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
   const edges = useEdges();
   const { t } = useLanguage('journey');
+
+  const hasPipelineStageCondition = (data.paths || []).some(path =>
+    (path.conditions || []).some(condition => condition.field === PIPELINE_STAGE_FIELD),
+  );
+  const stageNames = usePipelineStageNames(hasPipelineStageCondition);
 
   // Verificar se um handle está conectado
   const isHandleConnected = (handleId: string) => {
@@ -221,7 +231,13 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
                   {needsValue(condition.operator) && condition.value && (
                     <>
                       {' '}
-                      <span className="text-green-700 dark:text-green-400 font-medium">"{condition.value}"</span>
+                      <span className="text-green-700 dark:text-green-400 font-medium">
+                        "
+                        {stageNames.get(condition.value) ||
+                          condition.valueLabel ||
+                          condition.value}
+                        "
+                      </span>
                     </>
                   )}
                 </div>

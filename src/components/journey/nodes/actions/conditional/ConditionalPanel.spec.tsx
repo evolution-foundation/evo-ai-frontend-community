@@ -143,6 +143,7 @@ describe('ConditionalPanel — pipeline stage picker', () => {
       field: PIPELINE_STAGE_FIELD,
       operator: 'equals',
       value: 'stage-2',
+      valueLabel: '[Sales] Won',
     });
   });
 

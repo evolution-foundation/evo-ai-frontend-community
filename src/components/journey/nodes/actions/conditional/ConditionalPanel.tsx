@@ -15,7 +15,12 @@ import {
   TabsTrigger,
 } from '@evoapi/design-system';
 import { GitBranch, Plus, Trash2, Copy } from 'lucide-react';
-import { ConditionalNodeData, ConditionalPath, Condition } from './ConditionalNode';
+import {
+  ConditionalNodeData,
+  ConditionalPath,
+  Condition,
+  PIPELINE_STAGE_FIELD,
+} from './ConditionalNode';
 import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
 import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { VariableInput, VariableSelect } from '@/components/journey/environment-manager';
@@ -23,7 +28,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { useLanguage } from '@/hooks/useLanguage';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 
-const PIPELINE_STAGE_FIELD = '{{conversation.pipeline_stage_id}}';
 const PIPELINE_STAGE_OPERATORS = ['equals', 'not_equals'];
 
 interface StageOption {
@@ -239,7 +243,8 @@ export function ConditionalPanel({
   );
 
   const handleFieldChange = (pathId: string, condition: Condition, field: string) => {
-    const updates: Partial<Condition> = { field };
+    // Any field change invalidates a previously denormalized value label.
+    const updates: Partial<Condition> = { field, valueLabel: undefined };
     if (field === PIPELINE_STAGE_FIELD) {
       // Pipeline-stage conditions only support id equality; reset incompatible
       // operator/value carried over from a previous field selection.
@@ -316,7 +321,12 @@ export function ConditionalPanel({
             {isPipelineStageField ? (
               <Select
                 value={condition.value || ''}
-                onValueChange={value => updateCondition(pathId, condition.id, { value })}
+                onValueChange={value =>
+                  updateCondition(pathId, condition.id, {
+                    value,
+                    valueLabel: stageOptions.find(option => option.id === value)?.label,
+                  })
+                }
               >
                 <SelectTrigger className="bg-sidebar border-sidebar-border text-sidebar-foreground">
                   <SelectValue
@@ -338,7 +348,12 @@ export function ConditionalPanel({
             ) : needsValue(condition.operator) ? (
               <VariableInput
                 value={condition.value || ''}
-                onChange={e => updateCondition(pathId, condition.id, { value: e.target.value })}
+                onChange={e =>
+                  updateCondition(pathId, condition.id, {
+                    value: e.target.value,
+                    valueLabel: undefined,
+                  })
+                }
                 placeholder={t('panels.conditional.value')}
                 className="bg-sidebar border-sidebar-border text-sidebar-foreground"
                 journeyId={journeyId}
@@ -451,7 +466,7 @@ export function ConditionalPanel({
           </Select>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={() => addCondition(path.id, 'trigger')}>
             <Plus className="w-4 h-4 mr-1" />
             {t('panels.conditional.trigger')}
