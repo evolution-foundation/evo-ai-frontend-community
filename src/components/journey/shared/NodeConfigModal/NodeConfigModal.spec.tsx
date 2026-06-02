@@ -375,6 +375,33 @@ describe('NodeConfigModal — variant="tabs"', () => {
     expect(screen.getByText('forced basic')).toBeTruthy();
   });
 
+  it('hides a force-mounted tab while inactive so its content does not leak (EVO-1276 review)', async () => {
+    // A force-mounted panel stays in the DOM (F1), but Radix leaves it
+    // hidden=false → without an inactive-hide rule its content visually leaks
+    // into the active tab. The modal must carry `data-[state=inactive]:hidden`
+    // so the force-mounted panel is hidden whenever it is not the active tab.
+    render(
+      <NodeConfigModal
+        {...baseProps}
+        variant="tabs"
+        tabs={[
+          { value: 'basic', label: 'Basic', forceMount: true, content: <div>forced basic</div> },
+          { value: 'advanced', label: 'Advanced', content: <div>advanced body</div> },
+        ]}
+      >
+        body
+      </NodeConfigModal>,
+    );
+    const forcedPanel = screen.getByText('forced basic').closest('[role="tabpanel"]') as HTMLElement;
+    // While Basic is the active tab it must be visible (no hidden state).
+    expect(forcedPanel.getAttribute('data-state')).toBe('active');
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Advanced' }));
+    // Still mounted, but now inactive AND carrying the Tailwind hide utility.
+    expect(forcedPanel.getAttribute('data-state')).toBe('inactive');
+    expect(forcedPanel.className).toContain('data-[state=inactive]:hidden');
+  });
+
   it('AC8 backward-compat: SendWebhookPanel-style usage (uncontrolled, defaultTab, string-encoded labels, no new props) is unaffected (EVO-1276)', async () => {
     // Mirrors SendWebhookPanel's exact prop shape: no header/value/badge/forceMount.
     render(

@@ -171,7 +171,13 @@ export function NodeConfigModal(props: NodeConfigModalProps) {
                 <TabsContent
                   key={tab.value}
                   value={tab.value}
-                  {...(tab.forceMount ? { forceMount: true } : {})}
+                  // Radix only unmounts inactive panels when NOT force-mounted.
+                  // A force-mounted panel stays in the DOM with hidden=false, so
+                  // its content leaks into other tabs — hide it with Tailwind
+                  // (the design-system TabsContent has no inactive-hide rule). See EVO-1276.
+                  {...(tab.forceMount
+                    ? { forceMount: true, className: 'data-[state=inactive]:hidden' }
+                    : {})}
                 >
                   {tab.content}
                 </TabsContent>
