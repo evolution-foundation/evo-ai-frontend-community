@@ -1,0 +1,242 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ContactEventsFilters event-name dropdown (EVO-1263) > matches snapshot 1`] = `
+<div>
+  <div
+    class="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-muted/30 p-3"
+  >
+    <div
+      class="flex min-w-[140px] flex-col gap-1"
+    >
+      <label
+        class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+        data-slot="label"
+        for="_r_5v_-event-type"
+      >
+        Type
+      </label>
+      <button
+        aria-autocomplete="none"
+        aria-controls="radix-_r_60_"
+        aria-expanded="false"
+        class="border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+        data-size="default"
+        data-slot="select-trigger"
+        data-state="closed"
+        dir="ltr"
+        id="_r_5v_-event-type"
+        role="combobox"
+        type="button"
+      >
+        <span
+          data-slot="select-value"
+          style="pointer-events: none;"
+        >
+          All types
+        </span>
+        <svg
+          aria-hidden="true"
+          class="lucide lucide-chevron-down size-4 opacity-50"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="m6 9 6 6 6-6"
+          />
+        </svg>
+      </button>
+    </div>
+    <div
+      class="flex min-w-[180px] flex-col gap-1"
+    >
+      <label
+        class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+        data-slot="label"
+        for="_r_5v_-event-name"
+      >
+        Name
+      </label>
+      <button
+        aria-autocomplete="none"
+        aria-controls="radix-_r_61_"
+        aria-expanded="false"
+        class="border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+        data-size="default"
+        data-slot="select-trigger"
+        data-state="closed"
+        dir="ltr"
+        id="_r_5v_-event-name"
+        role="combobox"
+        type="button"
+      >
+        <span
+          data-slot="select-value"
+          style="pointer-events: none;"
+        >
+          All names
+        </span>
+        <svg
+          aria-hidden="true"
+          class="lucide lucide-chevron-down size-4 opacity-50"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="m6 9 6 6 6-6"
+          />
+        </svg>
+      </button>
+    </div>
+    <div
+      class="flex min-w-[200px] flex-col gap-1"
+    >
+      <label
+        class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+        data-slot="label"
+        for="_r_5v_-channel"
+      >
+        Channel
+      </label>
+      <button
+        aria-autocomplete="none"
+        aria-controls="radix-_r_62_"
+        aria-expanded="false"
+        class="border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+        data-size="default"
+        data-slot="select-trigger"
+        data-state="closed"
+        dir="ltr"
+        id="_r_5v_-channel"
+        role="combobox"
+        type="button"
+      >
+        <span
+          data-slot="select-value"
+          style="pointer-events: none;"
+        >
+          All channels
+        </span>
+        <svg
+          aria-hidden="true"
+          class="lucide lucide-chevron-down size-4 opacity-50"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="m6 9 6 6 6-6"
+          />
+        </svg>
+      </button>
+    </div>
+    <div
+      class="flex min-w-[200px] flex-col gap-1"
+    >
+      <label
+        class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+        data-slot="label"
+        for="_r_5v_-campaign"
+      >
+        Campaign
+      </label>
+      <button
+        aria-controls="radix-_r_63_"
+        aria-expanded="false"
+        aria-haspopup="dialog"
+        class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3 w-full justify-between font-normal"
+        data-state="closed"
+        data-testid="campaign-filter-trigger"
+        id="_r_5v_-campaign"
+        role="combobox"
+        type="button"
+      >
+        <span
+          class="truncate text-left"
+        >
+          Filter by campaign
+        </span>
+        <span
+          class="ml-2 flex items-center gap-1"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-chevrons-up-down h-3.5 w-3.5 opacity-50"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m7 15 5 5 5-5"
+            />
+            <path
+              d="m7 9 5-5 5 5"
+            />
+          </svg>
+        </span>
+      </button>
+    </div>
+    <div
+      class="flex min-w-[150px] flex-col gap-1"
+    >
+      <label
+        class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+        data-slot="label"
+        for="_r_5v_-after"
+      >
+        From
+      </label>
+      <input
+        class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+        data-slot="input"
+        id="_r_5v_-after"
+        type="date"
+        value=""
+      />
+    </div>
+    <div
+      class="flex min-w-[150px] flex-col gap-1"
+    >
+      <label
+        class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+        data-slot="label"
+        for="_r_5v_-before"
+      >
+        To
+      </label>
+      <input
+        class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+        data-slot="input"
+        id="_r_5v_-before"
+        type="date"
+        value=""
+      />
+    </div>
+  </div>
+</div>
+`;

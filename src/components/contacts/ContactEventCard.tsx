@@ -15,6 +15,7 @@ import { useRelativeTime } from '@/lib/useRelativeTime';
 import { formatRelativeTime } from '@/lib/relativeTime';
 import { redactReplacer } from '@/lib/redactKeys';
 import { slugifyEventName } from '@/lib/slugifyEventName';
+import { getEvent, getEventLabel } from '@/lib/events-manifest';
 import type { ContactEvent, ContactEventType } from '@/types/contacts';
 
 interface ContactEventCardProps {
@@ -48,9 +49,14 @@ function ContactEventCardImpl({ event }: ContactEventCardProps) {
     : event.occurredAt;
 
   const Icon = ICON_BY_TYPE[event.eventType] ?? Activity;
-  const title = t(`events.names.${slugifyEventName(event.eventName)}`, {
-    defaultValue: event.eventName,
-  });
+  // Single source of truth for event labels (EVO-1263 AC2): for a canonical
+  // event use the manifest label so the timeline card matches the filter
+  // dropdown exactly. Non-canonical events (custom / behavioral) keep the
+  // existing i18n slug lookup, then fall back to the raw name.
+  const canonicalEntry = event.eventName !== 'custom' ? getEvent(event.eventName) : undefined;
+  const title = canonicalEntry
+    ? getEventLabel(event.eventName, currentLanguage)
+    : t(`events.names.${slugifyEventName(event.eventName)}`, { defaultValue: event.eventName });
   const propertiesId = `event-card-${event.id}-props`;
 
   const enriched = event.enriched;

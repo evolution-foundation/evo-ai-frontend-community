@@ -41,10 +41,55 @@ describe('frontend events manifest mirror', () => {
   it('groups events by category covering all 5 categories', () => {
     const grouped = Object.fromEntries(EVENT_CATEGORIES.map((c) => [c, getEventsByCategory(c)]));
     expect(grouped.contact.length).toBeGreaterThanOrEqual(6);
-    expect(grouped.conversation).toHaveLength(2);
+    // EVO-1263: 2 original (created/resolved) + 5 added (activity, first_reply,
+    // reply_time, bot_handoff, bot_resolved) to mirror EvoFlow::EVENT_NAMES.
+    expect(grouped.conversation).toHaveLength(7);
     expect(grouped.message.length).toBeGreaterThanOrEqual(4);
     expect(grouped.campaign.length).toBeGreaterThanOrEqual(4);
     expect(grouped.custom).toHaveLength(1);
+  });
+
+  // EVO-1263 (AC1): the manifest is a strict replica of the backend SSOT
+  // EvoFlow::EVENT_NAMES (lib/events/evo_flow_event_names.rb), which has 22
+  // canonical names including `custom`. This count is the single guard keeping
+  // the frontend manifest faithful to the backend enum — keep it strict.
+  it('mirrors the backend EvoFlow::EVENT_NAMES count exactly (22)', () => {
+    expect(EVENT_NAMES).toHaveLength(22);
+    expect(getEventCatalog()).toHaveLength(22);
+  });
+
+  // EVO-1263 (AC1): the 5 conversation events that previously existed only in
+  // the backend are now present with category/labels/schema. Schemas mirror
+  // EvoFlow::EventSchema exactly — conversation_id + source are the ONLY
+  // required fields; inbox_id is OPTIONAL on these 5 (unlike created/resolved).
+  describe('EVO-1263 new conversation events', () => {
+    const NEW_EVENTS = [
+      'conversation.activity',
+      'conversation.first_reply',
+      'conversation.reply_time',
+      'conversation.bot_handoff',
+      'conversation.bot_resolved',
+    ] as const;
+
+    it.each(NEW_EVENTS)('%s exists with conversation category, track dto and pt/en labels', (name) => {
+      const entry = getEvent(name);
+      expect(entry).toBeDefined();
+      expect(entry?.category).toBe('conversation');
+      expect(entry?.dtoType).toBe('track');
+      expect(entry?.labelPt.length).toBeGreaterThan(0);
+      expect(entry?.labelEn.length).toBeGreaterThan(0);
+    });
+
+    it.each(NEW_EVENTS)('%s requires exactly conversation_id + source, inbox_id optional', (name) => {
+      const entry = getEvent(name);
+      expect(Object.keys(entry!.schema.required).sort()).toEqual(['conversation_id', 'source']);
+      expect(entry!.schema.optional).toHaveProperty('inbox_id');
+    });
+
+    it('surfaces the new events through getEventCatalog (AC5 propagation)', () => {
+      const names = getEventCatalog().map((e) => e.eventName);
+      for (const n of NEW_EVENTS) expect(names).toContain(n);
+    });
   });
 
   it('returns undefined for an unknown event name', () => {
