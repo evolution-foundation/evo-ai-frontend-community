@@ -245,12 +245,16 @@ export function ConditionalPanel({
   const handleFieldChange = (pathId: string, condition: Condition, field: string) => {
     // Any field change invalidates a previously denormalized value label.
     const updates: Partial<Condition> = { field, valueLabel: undefined };
+    const wasPipelineStage = condition.field === PIPELINE_STAGE_FIELD;
     if (field === PIPELINE_STAGE_FIELD) {
       // Pipeline-stage conditions only support id equality; reset incompatible
       // operator/value carried over from a previous field selection.
       if (!PIPELINE_STAGE_OPERATORS.includes(condition.operator)) {
         updates.operator = 'equals';
       }
+      updates.value = '';
+    } else if (wasPipelineStage) {
+      // Leaving the stage field: drop the stale stage id left in the value input.
       updates.value = '';
     }
     updateCondition(pathId, condition.id, updates);
