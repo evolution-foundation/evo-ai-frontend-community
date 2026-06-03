@@ -672,6 +672,12 @@ function JourneyFlowEditor() {
             webhookSecret: triggerNode.data.webhookSecret,
             webhookMethod: triggerNode.data.webhookMethod,
             expectedHeaders: triggerNode.data.expectedHeaders,
+            pipelineId: triggerNode.data.pipelineId,
+            pipelineName: triggerNode.data.pipelineName,
+            fromStageId: triggerNode.data.fromStageId,
+            fromStageName: triggerNode.data.fromStageName,
+            toStageId: triggerNode.data.toStageId,
+            toStageName: triggerNode.data.toStageName,
           },
         }));
 
