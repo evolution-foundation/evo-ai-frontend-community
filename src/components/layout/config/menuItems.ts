@@ -39,6 +39,7 @@ export interface MenuItem {
   permissions?: string[];
   requireAll?: boolean;
   requiredRoleKey?: string;
+  badge?: number;
 }
 
 export interface SubMenuItem {

@@ -8,6 +8,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 
 import { chatService } from '@/services/chat/chatService';
 import { conversationAPI } from '@/services/conversations/conversationService';
+import { useUnreadConversationsStore } from '@/store/unreadConversationsStore';
 
 import { toast } from 'sonner';
 
@@ -553,12 +554,20 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
     }
   }, [state.conversations]);
 
-  const updateUnreadCount = useCallback((conversationId: string, count: number) => {
-    dispatch({
-      type: 'UPDATE_UNREAD_COUNT',
-      payload: { conversationId, count },
-    });
-  }, []);
+  const updateUnreadCount = useCallback(
+    (conversationId: string, count: number) => {
+      const previous = state.unreadCounts[String(conversationId)] || 0;
+      const delta = count - previous;
+      dispatch({
+        type: 'UPDATE_UNREAD_COUNT',
+        payload: { conversationId, count },
+      });
+      if (delta !== 0) {
+        useUnreadConversationsStore.getState().incrementBy(delta);
+      }
+    },
+    [state.unreadCounts],
+  );
 
   const updateConversationLastActivity = useCallback(
     (conversationId: string, lastActivityAt: string) => {
@@ -575,6 +584,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
       type: 'INCREMENT_UNREAD_COUNT',
       payload: { conversationId },
     });
+    useUnreadConversationsStore.getState().incrementBy(1);
   }, []);
 
   const addHiddenConversation = useCallback((conversation: Conversation) => {

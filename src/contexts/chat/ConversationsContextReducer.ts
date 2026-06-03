@@ -426,12 +426,10 @@ export function conversationsReducer(
 
       return {
         ...state,
-        // Atualizar unreadCounts
         unreadCounts: {
           ...state.unreadCounts,
           [conversationIdStr]: count,
         },
-        // Também atualizar unread_count no objeto da conversa para manter sincronizado
         conversations: state.conversations
           .filter(conv => conv !== null && conv !== undefined && conv.id)
           .map(conv =>

@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAppDataStore } from '@/store/appDataStore';
 import { useAuthStore } from '@/store/authStore';
 import { tourService } from '@/services/tours/tourService';
+import { useUnreadConversationsStore } from '@/store/unreadConversationsStore';
 import i18n from '@/i18n/config';
 import LoadingScreen from '@/components/LoadingScreen';
 interface AppInitializerProps {
@@ -102,6 +103,14 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ children }) => {
         // Non-critical: tours default to empty (all tours will show)
       });
   }, [user?.id, setTours]);
+
+  useEffect(() => {
+    if (!user?.id) {
+      useUnreadConversationsStore.getState().reset();
+      return;
+    }
+    useUnreadConversationsStore.getState().fetch();
+  }, [user?.id]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;

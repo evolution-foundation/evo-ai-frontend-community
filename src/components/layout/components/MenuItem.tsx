@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
 } from '@evoapi/design-system';
 import { MenuItem as MenuItemType } from '../config/menuItems';
+import { UnreadBadge } from '@/components/shared';
 import { cn } from '@/utils/cn';
 
 interface MenuItemProps {
@@ -32,7 +33,7 @@ export default function MenuItem({
       to={hasSubItems && !mobile && item.href === '#' ? '#' : item.href}
       onClick={onClick}
       className={cn(
-        'flex items-center gap-3 px-3 py-2.5 rounded-md transition-all group',
+        'relative flex items-center gap-3 px-3 py-2.5 rounded-md transition-all group',
         mobile ? 'w-full' : isCollapsed ? 'justify-center' : '',
         isActive
           ? mobile
@@ -49,13 +50,23 @@ export default function MenuItem({
           <div className="flex items-center gap-2 flex-1">
             <span className="font-medium">{item.name}</span>
           </div>
-          {hasSubItems && !mobile && (
+          {item.badge ? (
+            <UnreadBadge count={item.badge} className="ml-auto" />
+          ) : hasSubItems && !mobile ? (
             <div className="ml-auto">
               <ChevronRight className="h-4 w-4" />
             </div>
-          )}
+          ) : null}
         </>
       )}
+      {isCollapsed && !mobile && item.badge ? (
+        <span
+          aria-hidden="true"
+          className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold leading-none"
+        >
+          {item.badge < 100 ? item.badge : '99+'}
+        </span>
+      ) : null}
     </Link>
   );
 

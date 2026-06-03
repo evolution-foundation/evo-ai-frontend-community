@@ -968,5 +968,8 @@
     "addError": "Erro ao adicionar ao pipeline",
     "moveError": "Erro ao mover para o estágio",
     "removeError": "Erro ao remover do pipeline"
+  },
+  "unreadBadge": {
+    "ariaLabel": "{{count}} mensagens não lidas"
   }
 }

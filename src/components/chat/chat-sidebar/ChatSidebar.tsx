@@ -51,6 +51,7 @@ import { formatConversationTime, formatDetailedTime } from '@/utils/time/timeHel
 import { isPhoneBearingChannel } from '@/utils/channelUtils';
 import { formatContactPhone } from '@/utils/contact/formatContactPhone';
 import { findItemInPipeline } from '@/utils/chat/pipelineUtils';
+import { UnreadBadge } from '@/components/shared';
 import { ConversationSkeleton } from '../loading-states';
 import { NoConversations } from '../empty-states';
 import ContactAvatar from '../contact/ContactAvatar';
@@ -1216,15 +1217,12 @@ const ChatSidebar = ({
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                      {(() => {
-                        // ðŸ"µ INDICADOR PADRÃƒO: Bolinha pequena seguindo padrÃ£o do sistema
-                        const hasUnreadMessages =
-                          (conversations.getUnreadCount(conversation.id) || 0) > 0;
-
-                        return hasUnreadMessages ? (
-                          <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
-                        ) : null;
-                      })()}
+                      <UnreadBadge
+                        count={conversations.getUnreadCount(conversation.id) || 0}
+                        ariaLabel={t('unreadBadge.ariaLabel', {
+                          count: conversations.getUnreadCount(conversation.id) || 0,
+                        })}
+                      />
                     </div>
                   </div>
                 </div>,

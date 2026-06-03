@@ -965,5 +965,8 @@
     "addError": "Error adding to pipeline",
     "moveError": "Error moving to stage",
     "removeError": "Error removing from pipeline"
+  },
+  "unreadBadge": {
+    "ariaLabel": "{{count}} unread messages"
   }
 }
