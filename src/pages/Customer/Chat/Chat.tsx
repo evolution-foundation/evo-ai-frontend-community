@@ -804,6 +804,8 @@ const Chat = () => {
                 onBackClick={() => setMobileView('list')}
                 onCloseConversation={handleCloseConversation}
                 onContactSidebarOpen={() => setIsContactSidebarOpen(true)}
+                isContactSidebarOpen={isContactSidebarOpen}
+                onContactSidebarToggle={() => setIsContactSidebarOpen(v => !v)}
                 onMarkAsRead={handleMarkAsRead}
                 onMarkAsUnread={handleMarkAsUnread}
                 onMarkAsOpen={handleMarkAsOpen}
