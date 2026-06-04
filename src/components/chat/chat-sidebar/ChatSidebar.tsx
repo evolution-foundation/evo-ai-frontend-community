@@ -102,6 +102,12 @@ interface ChatSidebarProps {
   canBulkResolve?: boolean;
 }
 
+// Prefetch the next page well before the user reaches the end so the loading
+// state is not perceived while scrolling. Anticipated by ~1.5 viewport heights,
+// with a floor for short viewports.
+const PREFETCH_VIEWPORT_FACTOR = 1.5;
+const MIN_PREFETCH_DISTANCE_PX = 600;
+
 const ChatSidebar = ({
   mobileView,
   searchInput,
@@ -557,7 +563,11 @@ const ChatSidebar = ({
     if (!hasNextPage) return;
 
     const distanceToBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-    if (distanceToBottom > 120) return;
+    const prefetchThreshold = Math.max(
+      MIN_PREFETCH_DISTANCE_PX,
+      container.clientHeight * PREFETCH_VIEWPORT_FACTOR,
+    );
+    if (distanceToBottom > prefetchThreshold) return;
 
     // Update throttle timestamp only after confirming we are near the bottom
     lastScrollTimeRef.current = now;

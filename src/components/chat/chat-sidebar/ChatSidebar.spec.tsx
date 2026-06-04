@@ -411,7 +411,23 @@ describe('ChatSidebar scroll pagination (EVO-1407)', () => {
     await screen.findByText('Test Contact');
 
     const scrollEl = document.querySelector('[data-tour="chat-conversations-list"]')!;
-    setScrollDimensions(scrollEl, 800, 600, 680);
+    setScrollDimensions(scrollEl, 5000, 600, 4700);
+
+    await act(async () => { fireEvent.scroll(scrollEl); });
+
+    await waitFor(() => expect(loadMore).toHaveBeenCalledTimes(1));
+  });
+
+  it('prefetches well before reaching the bottom (CA-1b anticipated threshold)', async () => {
+    const loadMore = vi.fn().mockResolvedValue(undefined);
+    overrideContext = makePaginatedContext(true, loadMore);
+    render(<ChatSidebar {...defaultProps} />);
+    await screen.findByText('Test Contact');
+
+    const scrollEl = document.querySelector('[data-tour="chat-conversations-list"]')!;
+    // clientHeight 600 → threshold = max(600, 900) = 900px. distanceToBottom = 700px:
+    // far beyond the old 120px gate, yet still triggers the prefetch.
+    setScrollDimensions(scrollEl, 5000, 600, 3700);
 
     await act(async () => { fireEvent.scroll(scrollEl); });
 
@@ -425,7 +441,8 @@ describe('ChatSidebar scroll pagination (EVO-1407)', () => {
     await screen.findByText('Test Contact');
 
     const scrollEl = document.querySelector('[data-tour="chat-conversations-list"]')!;
-    setScrollDimensions(scrollEl, 800, 600, 0);
+    // distanceToBottom = 5000 - 0 - 600 = 4400px, well past the 900px threshold.
+    setScrollDimensions(scrollEl, 5000, 600, 0);
 
     await act(async () => { fireEvent.scroll(scrollEl); });
 
