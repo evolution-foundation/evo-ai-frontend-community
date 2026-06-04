@@ -296,7 +296,9 @@
     "status": "Estado:",
     "openConversation": "Abrir Conversación",
     "closeConversation": "Cerrar conversación",
-    "phoneNumber": "Número de teléfono"
+    "phoneNumber": "Número de teléfono",
+    "openContactPanel": "Abrir detalles del contacto",
+    "closeContactPanel": "Cerrar detalles del contacto"
   },
   "chatSidebar": {
     "searchPlaceholder": "Buscar conversaciones...",

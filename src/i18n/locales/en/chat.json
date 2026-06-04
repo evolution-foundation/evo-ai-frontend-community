@@ -301,7 +301,9 @@
     "status": "Status:",
     "openConversation": "Open Conversation",
     "closeConversation": "Close conversation",
-    "phoneNumber": "Phone number"
+    "phoneNumber": "Phone number",
+    "openContactPanel": "Open contact details",
+    "closeContactPanel": "Close contact details"
   },
   "chatSidebar": {
     "searchPlaceholder": "Search conversations...",
