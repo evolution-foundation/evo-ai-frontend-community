@@ -1,0 +1,30 @@
+{
+  "description": "Source-of-truth list of Customer Journey palette node types. The evo-flow Temporal executor MUST have a case for each, or the node no-ops at runtime (EVO-1634). Kept in sync with JourneyFlowEditor.tsx nodeTypes by journey-node-manifest.spec.ts.",
+  "nodeTypes": [
+    "add-label-node",
+    "assign-agent-node",
+    "assign-bot-node",
+    "assign-team-node",
+    "assign-to-pipeline-node",
+    "change-priority-node",
+    "conditional-node",
+    "defer-conversation-node",
+    "exit-journey-node",
+    "journey-trigger-node",
+    "mute-conversation-node",
+    "remove-label-node",
+    "resolve-conversation-node",
+    "scheduled-action-node",
+    "send-canned-response-node",
+    "send-email-team-node",
+    "send-message-node",
+    "send-transcript-node",
+    "send-webhook-node",
+    "set-variable-node",
+    "split-node",
+    "transfer-journey-node",
+    "update-contact-node",
+    "update-custom-attribute-node",
+    "wait-node"
+  ]
+}
