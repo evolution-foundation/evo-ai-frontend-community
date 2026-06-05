@@ -324,6 +324,14 @@
         "assignTo": "Atribuir conversa ao",
         "noPipelineSelected": "Nenhum pipeline selecionado"
       },
+      "sendCannedResponse": {
+        "name": "Enviar Resposta Rápida",
+        "description": "Envia uma resposta rápida pré-definida para a conversa",
+        "selectResponse": "Selecionar resposta rápida",
+        "responseNumber": "Resposta #{{responseId}}",
+        "sendingResponse": "Enviar resposta rápida",
+        "noResponseSelected": "Nenhuma resposta rápida selecionada"
+      },
       "muteConversation": {
         "name": "Silenciar Conversa",
         "description": "A conversa será silenciada e não gerará mais notificações para os atendentes"
@@ -884,6 +892,16 @@
       "conversationWillBeAssigned": "A conversa será atribuída ao pipeline",
       "replacesAnyPrevious": "isso substitui qualquer atribuição anterior de pipeline",
       "loadErrorBanner": "Não foi possível carregar os pipelines. Verifique sua conexão e reabra este node."
+    },
+    "sendCannedResponse": {
+      "title": "Configurar Enviar Resposta Rápida",
+      "loadDataError": "Erro ao carregar respostas rápidas:",
+      "response": "Resposta rápida",
+      "loadingResponses": "Carregando respostas rápidas...",
+      "selectResponse": "Selecione uma resposta rápida",
+      "noResponsesFound": "Nenhuma resposta rápida encontrada. Crie uma primeiro.",
+      "willSendResponse": "A conversa receberá a resposta rápida",
+      "loadErrorBanner": "Não foi possível carregar as respostas rápidas. Verifique sua conexão e reabra este node."
     },
     "changePriority": {
       "title": "Configurar Prioridade",

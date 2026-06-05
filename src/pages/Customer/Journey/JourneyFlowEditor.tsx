@@ -53,6 +53,7 @@ import {
   AssignTeamNode,
   AssignBotNode,
   AssignToPipelineNode,
+  SendCannedResponseNode,
   SendEmailTeamNode,
   SendTranscriptNode,
   MuteConversationNode,
@@ -80,6 +81,7 @@ import {
   AssignTeamPanel,
   AssignBotPanel,
   AssignToPipelinePanel,
+  SendCannedResponsePanel,
   SendEmailTeamPanel,
   SendTranscriptPanel,
   MuteConversationPanel,
@@ -102,6 +104,7 @@ import {
   MoveRight,
   ArrowRight,
   MessageSquare,
+  MessageSquareReply,
   Variable,
   Users,
   Mail,
@@ -175,6 +178,7 @@ function JourneyFlowEditor() {
       'assign-team-node': AssignTeamNode,
       'assign-bot-node': AssignBotNode,
       'assign-to-pipeline-node': AssignToPipelineNode,
+      'send-canned-response-node': SendCannedResponseNode,
       'send-email-team-node': SendEmailTeamNode,
       'send-transcript-node': SendTranscriptNode,
       'mute-conversation-node': MuteConversationNode,
@@ -309,6 +313,15 @@ function JourneyFlowEditor() {
         category: 'communication',
         description: t('flowEditor.nodes.sendMessage.description'),
         searchKeywords: ['chat', 'text', 'reply', 'whatsapp', 'sms', 'communicate', 'send'],
+      },
+      {
+        id: 'send-canned-response-node',
+        name: t('flowEditor.nodes.sendCannedResponse.name'),
+        icon: MessageSquareReply,
+        color: 'text-blue-400',
+        category: 'communication',
+        description: t('flowEditor.nodes.sendCannedResponse.description'),
+        searchKeywords: ['canned', 'quick', 'reply', 'preset', 'template', 'response', 'faq'],
       },
       {
         id: 'send-webhook-node',
@@ -468,6 +481,7 @@ function JourneyFlowEditor() {
       'exit-journey-node': flowTokens.node.exit.border,
       'transfer-journey-node': flowTokens.node.exit.border,
       'send-message-node': flowTokens.node.action.message.border,
+      'send-canned-response-node': flowTokens.node.action.message.border,
       'send-transcript-node': flowTokens.node.action.message.border,
       'send-email-team-node': flowTokens.node.action.message.border,
       'send-webhook-node': flowTokens.node.action.webhook.border,
@@ -542,6 +556,8 @@ function JourneyFlowEditor() {
           return <AssignBotPanel {...commonProps} />;
         case 'assign-to-pipeline-node':
           return <AssignToPipelinePanel {...commonProps} />;
+        case 'send-canned-response-node':
+          return <SendCannedResponsePanel {...commonProps} />;
         case 'send-email-team-node':
           return <SendEmailTeamPanel {...commonProps} />;
         case 'send-transcript-node':

@@ -324,6 +324,14 @@
         "assignTo": "Attribuer la conversation au",
         "noPipelineSelected": "Aucune pipeline sélectionnée"
       },
+      "sendCannedResponse": {
+        "name": "Envoyer une Réponse Prédéfinie",
+        "description": "Envoie une réponse prédéfinie à la conversation",
+        "selectResponse": "Sélectionner une réponse prédéfinie",
+        "responseNumber": "Réponse #{{responseId}}",
+        "sendingResponse": "Envoyer une réponse prédéfinie",
+        "noResponseSelected": "Aucune réponse prédéfinie sélectionnée"
+      },
       "muteConversation": {
         "name": "Mettre en sourdine la conversation",
         "description": "La conversation sera mise en sourdine et ne générera plus de notifications pour les Agents"
@@ -879,6 +887,16 @@
       "conversationWillBeAssigned": "La conversation sera attribuée au pipeline",
       "replacesAnyPrevious": "cela remplace toute attribution de pipeline précédente",
       "loadErrorBanner": "Impossible de charger les pipelines. Vérifiez votre connexion et rouvrez ce node."
+    },
+    "sendCannedResponse": {
+      "title": "Configurer Envoyer une Réponse Prédéfinie",
+      "loadDataError": "Erreur lors du chargement des réponses prédéfinies :",
+      "response": "Réponse prédéfinie",
+      "loadingResponses": "Chargement des réponses prédéfinies...",
+      "selectResponse": "Sélectionnez une réponse prédéfinie",
+      "noResponsesFound": "Aucune réponse prédéfinie trouvée. Créez-en une d'abord.",
+      "willSendResponse": "La conversation recevra la réponse prédéfinie",
+      "loadErrorBanner": "Impossible de charger les réponses prédéfinies. Vérifiez votre connexion et rouvrez ce nœud."
     },
     "changePriority": {
       "title": "Configure Priority",

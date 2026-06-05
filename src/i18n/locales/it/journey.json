@@ -336,6 +336,14 @@
         "assignTo": "Assegna conversazione alla",
         "noPipelineSelected": "Nessuna pipeline selezionata"
       },
+      "sendCannedResponse": {
+        "name": "Invia Risposta Predefinita",
+        "description": "Invia una risposta predefinita alla conversazione",
+        "selectResponse": "Seleziona risposta predefinita",
+        "responseNumber": "Risposta #{{responseId}}",
+        "sendingResponse": "Invia risposta predefinita",
+        "noResponseSelected": "Nessuna risposta predefinita selezionata"
+      },
       "muteConversation": {
         "name": "Silenzia Conversazione",
         "description": "La conversazione verrà silenziata e non genererà più notifiche per gli Agenti"
@@ -891,6 +899,16 @@
       "conversationWillBeAssigned": "La conversazione sarà assegnata alla pipeline",
       "replacesAnyPrevious": "questo sostituisce qualsiasi assegnazione precedente di pipeline",
       "loadErrorBanner": "Impossibile caricare le pipeline. Controlla la connessione e riapri questo node."
+    },
+    "sendCannedResponse": {
+      "title": "Configura Invia Risposta Predefinita",
+      "loadDataError": "Errore nel caricamento delle risposte predefinite:",
+      "response": "Risposta predefinita",
+      "loadingResponses": "Caricamento risposte predefinite...",
+      "selectResponse": "Seleziona una risposta predefinita",
+      "noResponsesFound": "Nessuna risposta predefinita trovata. Creane una prima.",
+      "willSendResponse": "La conversazione riceverà la risposta predefinita",
+      "loadErrorBanner": "Impossibile caricare le risposte predefinite. Controlla la connessione e riapri questo nodo."
     },
     "changePriority": {
       "title": "Configure Priority",

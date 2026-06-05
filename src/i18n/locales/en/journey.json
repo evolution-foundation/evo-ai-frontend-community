@@ -324,6 +324,14 @@
         "assignTo": "Assign conversation to",
         "noPipelineSelected": "No pipeline selected"
       },
+      "sendCannedResponse": {
+        "name": "Send Canned Response",
+        "description": "Sends a pre-written canned response to the conversation",
+        "selectResponse": "Select canned response",
+        "responseNumber": "Response #{{responseId}}",
+        "sendingResponse": "Send canned response",
+        "noResponseSelected": "No canned response selected"
+      },
       "muteConversation": {
         "name": "Mute Conversation",
         "description": "The conversation will be muted and will not generate notifications for Agents"
@@ -884,6 +892,16 @@
       "conversationWillBeAssigned": "The conversation will be assigned to the pipeline",
       "replacesAnyPrevious": "this replaces any previous pipeline assignment",
       "loadErrorBanner": "Could not load pipelines. Check your connection and try reopening this node."
+    },
+    "sendCannedResponse": {
+      "title": "Configure Send Canned Response",
+      "loadDataError": "Error loading canned responses:",
+      "response": "Canned response",
+      "loadingResponses": "Loading canned responses...",
+      "selectResponse": "Select a canned response",
+      "noResponsesFound": "No canned responses found. Create one first.",
+      "willSendResponse": "The conversation will receive the canned response",
+      "loadErrorBanner": "Could not load canned responses. Check your connection and try reopening this node."
     },
     "changePriority": {
       "title": "Configure Priority",

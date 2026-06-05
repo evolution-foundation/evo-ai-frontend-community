@@ -27,6 +27,7 @@ export * from './update-custom-attribute';
 
 // Messaging
 export * from './send-message';
+export * from './send-canned-response';
 export * from './send-transcript';
 export * from './send-email-team';
 
