@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { type Locale } from '@/i18n/config';
 import {
   Input,
   Label,
@@ -52,7 +53,7 @@ function SectionLayout({
 }
 
 export default function AccountSettings() {
-  const { t } = useLanguage('accountSettings');
+  const { t, changeLanguage } = useLanguage('accountSettings');
   const { can, isReady: permissionsReady } = useUserPermissions();
   const normalizeAccountLocale = (locale?: string | null): string => {
     if (!locale) return 'pt-BR';
@@ -192,12 +193,15 @@ export default function AccountSettings() {
 
     setSaving(true);
     try {
+      const normalizedLocale = normalizeAccountLocale(formData.locale);
       await accountService.updateAccount({
         name: formData.name,
-        locale: normalizeAccountLocale(formData.locale),
+        locale: normalizedLocale,
         domain: formData.domain,
         support_email: formData.supportEmail,
       });
+
+      changeLanguage(normalizedLocale as Locale);
 
       toast.success(t('messages.success.generalUpdated'));
       await loadAccountData(); // Recarregar dados
