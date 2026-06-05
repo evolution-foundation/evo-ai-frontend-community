@@ -345,6 +345,79 @@ describe('ChatSidebar pipeline', () => {
       });
     });
   });
+
+  const makeNestedPipeline = () => {
+    const item = {
+      id: 'item-99',
+      item_id: '42',
+      stage_id: 'stage-1',
+      pipeline_id: 'p1',
+      type: 'conversation',
+      is_lead: false,
+      created_at: '',
+      updated_at: '',
+    };
+    return {
+      id: 'p1',
+      name: 'Pipeline p1',
+      pipeline_type: 'custom' as const,
+      visibility: 'public' as const,
+      is_active: true,
+      stages: [
+        { id: 'stage-1', name: 'Lead', color: '#000', position: 0, created_at: '', updated_at: '', items: [item] },
+        { id: 'stage-2', name: 'Qualified', color: '#000', position: 1, created_at: '', updated_at: '', items: [] },
+      ],
+      items: [],
+      created_at: '',
+      updated_at: '',
+    };
+  };
+
+  it('moves stage via right-click when items are nested under stage.items (real API shape, EVO-1618)', async () => {
+    const pipeline = makeNestedPipeline();
+    vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [pipeline] } as never);
+    vi.mocked(pipelinesService.getPipelinesByConversation).mockResolvedValue([pipeline] as never);
+    vi.mocked(pipelinesService.moveItem).mockResolvedValue({ success: true, message: '' });
+
+    render(<ChatSidebar {...defaultProps} />);
+    await waitFor(() => expect(pipelinesService.getPipelines).toHaveBeenCalled());
+
+    const user = userEvent.setup();
+    await openContextMenuPipelineStage(user, 'Pipeline p1', 'Qualified');
+
+    await waitFor(() => {
+      expect(pipelinesService.moveItem).toHaveBeenCalledWith({
+        pipeline_id: 'p1',
+        item_id: 'item-99',
+        from_stage_id: 'stage-1',
+        to_stage_id: 'stage-2',
+      });
+      expect(pipelinesService.addItemToPipeline).not.toHaveBeenCalled();
+    });
+  });
+
+  it('shows moveError toast (no silent return) when the item cannot be resolved', async () => {
+    const pipeline = {
+      ...makeNestedPipeline(),
+      stages: [
+        { id: 'stage-1', name: 'Lead', color: '#000', position: 0, created_at: '', updated_at: '', items: [] },
+        { id: 'stage-2', name: 'Qualified', color: '#000', position: 1, created_at: '', updated_at: '', items: [] },
+      ],
+    };
+    vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [pipeline] } as never);
+    vi.mocked(pipelinesService.getPipelinesByConversation).mockResolvedValue([pipeline] as never);
+
+    render(<ChatSidebar {...defaultProps} />);
+    await waitFor(() => expect(pipelinesService.getPipelines).toHaveBeenCalled());
+
+    const user = userEvent.setup();
+    await openContextMenuPipelineStage(user, 'Pipeline p1', 'Qualified');
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('pipeline.moveError');
+      expect(pipelinesService.moveItem).not.toHaveBeenCalled();
+    });
+  });
 });
 
 const makePaginatedContext = (hasNextPage: boolean, loadMoreFn = vi.fn().mockResolvedValue(undefined)) => {

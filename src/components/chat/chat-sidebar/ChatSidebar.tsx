@@ -50,6 +50,7 @@ import {
 import { formatConversationTime, formatDetailedTime } from '@/utils/time/timeHelpers';
 import { isPhoneBearingChannel } from '@/utils/channelUtils';
 import { formatContactPhone } from '@/utils/contact/formatContactPhone';
+import { findItemInPipeline } from '@/utils/chat/pipelineUtils';
 import { ConversationSkeleton } from '../loading-states';
 import { NoConversations } from '../empty-states';
 import ContactAvatar from '../contact/ContactAvatar';
@@ -248,11 +249,12 @@ const ChatSidebar = ({
       const existingInOtherPipelines = currentPipelines.filter(p => p.id !== pipeline.id);
 
       if (existingInSamePipeline) {
-        const item = existingInSamePipeline.items?.find(
-          i => String(i.item_id) === convId,
-        );
+        const item = findItemInPipeline(existingInSamePipeline, convId);
         const itemId = item?.id;
-        if (!itemId) return;
+        if (!itemId) {
+          toast.error(t('pipeline.moveError'));
+          return;
+        }
         try {
           await pipelinesService.moveItem({
             pipeline_id: pipeline.id,
@@ -277,7 +279,7 @@ const ChatSidebar = ({
         if (existingInOtherPipelines.length > 0) {
           const removeResults = await Promise.allSettled(
             existingInOtherPipelines.map(p => {
-              const item = p.items?.find(i => String(i.item_id) === convId);
+              const item = findItemInPipeline(p, convId);
               return item?.id
                 ? pipelinesService.removeItemFromPipeline(p.id, item.id)
                 : Promise.resolve();
@@ -316,9 +318,12 @@ const ChatSidebar = ({
   const handleRemoveFromPipeline = useCallback(
     async (conversation: Conversation, pipeline: Pipeline) => {
       const convId = String(conversation.id);
-      const item = pipeline.items?.find(i => String(i.item_id) === convId);
+      const item = findItemInPipeline(pipeline, convId);
       const itemId = item?.id;
-      if (!itemId) return;
+      if (!itemId) {
+        toast.error(t('pipeline.removeError'));
+        return;
+      }
       try {
         await pipelinesService.removeItemFromPipeline(pipeline.id, itemId);
         toast.success(t('pipeline.removeSuccess'));
@@ -389,9 +394,9 @@ const ChatSidebar = ({
                   <>
                     {(pipeline.stages ?? []).map(stage => {
                       const convInThisPipeline = currentPipelines.find(p => p.id === pipeline.id);
-                      const currentItem = convInThisPipeline?.items?.find(
-                        i => String(i.item_id) === convId,
-                      );
+                      const currentItem = convInThisPipeline
+                        ? findItemInPipeline(convInThisPipeline, convId)
+                        : undefined;
                       const isCurrentStage = currentItem?.stage_id === stage.id;
 
                       return (
