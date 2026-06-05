@@ -11,13 +11,19 @@ interface UnreadConversationsState {
   reset: () => void;
 }
 
+let fetchSeq = 0;
+let latestApplied = 0;
+
 export const useUnreadConversationsStore = create<UnreadConversationsState>((set) => ({
   totalUnread: 0,
   isLoaded: false,
 
   fetch: async () => {
+    const seq = ++fetchSeq;
     try {
       const { unread_count } = await conversationAPI.getUnreadCount();
+      if (seq <= latestApplied) return;
+      latestApplied = seq;
       set({ totalUnread: Math.max(0, unread_count), isLoaded: true });
     } catch (error) {
       console.warn('Failed to fetch total unread count:', error);
