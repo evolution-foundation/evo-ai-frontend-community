@@ -557,13 +557,14 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
   const updateUnreadCount = useCallback(
     (conversationId: string, count: number) => {
       const previous = state.unreadCounts[String(conversationId)] || 0;
-      const delta = count - previous;
+      const wasUnread = previous > 0;
+      const isUnread = count > 0;
       dispatch({
         type: 'UPDATE_UNREAD_COUNT',
         payload: { conversationId, count },
       });
-      if (delta !== 0) {
-        useUnreadConversationsStore.getState().incrementBy(delta);
+      if (wasUnread !== isUnread) {
+        useUnreadConversationsStore.getState().incrementBy(isUnread ? 1 : -1);
       }
     },
     [state.unreadCounts],
@@ -580,12 +581,15 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
   );
 
   const incrementUnreadCount = useCallback((conversationId: string) => {
+    const previous = state.unreadCounts[String(conversationId)] || 0;
     dispatch({
       type: 'INCREMENT_UNREAD_COUNT',
       payload: { conversationId },
     });
-    useUnreadConversationsStore.getState().incrementBy(1);
-  }, []);
+    if (previous === 0) {
+      useUnreadConversationsStore.getState().incrementBy(1);
+    }
+  }, [state.unreadCounts]);
 
   const addHiddenConversation = useCallback((conversation: Conversation) => {
     dispatch({ type: 'ADD_HIDDEN_CONVERSATION', payload: conversation });

@@ -1152,35 +1152,23 @@ const ChatSidebar = ({
                         channelProvider={channelProvider}
                       />
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-2 min-w-0 flex-1">
-                            <p className="font-medium truncate">
-                              {conversation.contact?.name || t('chatSidebar.contactNoName')}
-                            </p>
-                            {Boolean(conversation.custom_attributes?.pinned) && (
-                              <Pin className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                            )}
-                            {/* ðŸ"Œ Indicador de Post do Facebook */}
-                            {conversation.additional_attributes?.conversation_type === 'post' && (
-                              <Badge
-                                variant="outline"
-                                className="h-4 px-1.5 text-[10px] bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-700 flex-shrink-0"
-                                title="Facebook Post"
-                              >
-                                <FileText className="h-2.5 w-2.5 mr-0.5" />
-                                Post
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                            {/* Timestamp */}
-                            <span
-                              className="text-xs text-muted-foreground"
-                              title={formatDetailedTime(conversation.timestamp)}
+                        <div className="flex items-center gap-2 min-w-0 mb-1">
+                          <p className="font-medium truncate">
+                            {conversation.contact?.name || t('chatSidebar.contactNoName')}
+                          </p>
+                          {Boolean(conversation.custom_attributes?.pinned) && (
+                            <Pin className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                          )}
+                          {conversation.additional_attributes?.conversation_type === 'post' && (
+                            <Badge
+                              variant="outline"
+                              className="h-4 px-1.5 text-[10px] bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-700 flex-shrink-0"
+                              title="Facebook Post"
                             >
-                              {formatConversationTime(conversation.timestamp)}
-                            </span>
-                          </div>
+                              <FileText className="h-2.5 w-2.5 mr-0.5" />
+                              Post
+                            </Badge>
+                          )}
                         </div>
 
                         {phoneDisplay && (
@@ -1216,7 +1204,13 @@ const ChatSidebar = ({
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                    <div className="flex flex-col items-end gap-1.5 flex-shrink-0 ml-2">
+                      <span
+                        className="text-xs text-muted-foreground leading-none"
+                        title={formatDetailedTime(conversation.timestamp)}
+                      >
+                        {formatConversationTime(conversation.timestamp)}
+                      </span>
                       <UnreadBadge
                         count={conversations.getUnreadCount(conversation.id) || 0}
                         ariaLabel={t('unreadBadge.ariaLabel', {
