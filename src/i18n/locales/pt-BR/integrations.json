@@ -1115,7 +1115,7 @@
     "apiVersion": "Instagram API Version",
     "redirectUri": "URI de Redirecionamento",
     "redirectUriDescription": "URL do FRONTEND onde o Instagram vai redirecionar após autenticação. Configure esta URL exata nas configurações do seu App Instagram (Facebook Developer Console).",
-    "enableHumanAgent": "Enable Human Agent",
+    "enableHumanAgent": "Habilitar Agente Humano",
     "enableHumanAgentDescription": "Habilita agente humano para canal Instagram para período de resposta mais longo.",
     "placeholders": {
       "appId": "ID da conta do Instagram Business",
