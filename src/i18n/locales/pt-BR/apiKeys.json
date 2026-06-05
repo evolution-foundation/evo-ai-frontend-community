@@ -56,7 +56,7 @@
     "updateSuccess": "Chave API atualizada com sucesso!",
     "deleteSuccess": "Chave API excluída com sucesso!",
     "requiredFields": "Todos os campos são obrigatórios",
-    "accountIdError": "Account ID not available"
+    "accountIdError": "ID da Conta não disponível"
   },
   "deleteDialog": {
     "title": "Excluir Chave API",

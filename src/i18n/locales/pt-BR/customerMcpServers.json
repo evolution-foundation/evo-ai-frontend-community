@@ -1,7 +1,7 @@
 {
   "title": "Servidores MCP",
   "errors": {
-    "accountNotFound": "Account ID not available",
+    "accountNotFound": "ID da Conta não disponível",
     "loadError": "Erro ao carregar servidores MCP"
   },
   "loading": {
