@@ -38,7 +38,7 @@ export default function EventSelector({ control, disabled }: Props) {
       name="event_name"
       render={({ field, fieldState }) => (
         <div className="space-y-2">
-          <label className="text-sm font-medium">{t('form.fields.event.label')}</label>
+          <label className="text-sm font-medium">{t('form.fields.event.label')} *</label>
           <Select
             value={field.value ?? ''}
             onValueChange={field.onChange}

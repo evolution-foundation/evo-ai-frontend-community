@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import AutomationForm from './AutomationForm';
 
@@ -30,6 +30,20 @@ vi.mock('@/services/pipelines/pipelinesService', () => ({
   pipelinesService: {
     getPipelines: vi.fn().mockResolvedValue({ data: [] }),
     getPipelineStages: vi.fn().mockResolvedValue({ data: [] }),
+  },
+}));
+
+// useAutomationFormData also loads canned responses + message templates
+// (added by EVO-1263). Mock them so the form-data load resolves in tests.
+vi.mock('@/services/cannedResponses/cannedResponsesService', () => ({
+  cannedResponsesService: {
+    getCannedResponses: vi.fn().mockResolvedValue({ data: [] }),
+  },
+}));
+
+vi.mock('@/services/channels/messageTemplatesService', () => ({
+  default: {
+    getTemplates: vi.fn().mockResolvedValue({ data: [] }),
   },
 }));
 
@@ -121,6 +135,36 @@ describe('AutomationForm', () => {
     await waitFor(() => {
       expect(screen.getAllByText(/form\.fields\.conditionRow\.from/).length).toBeGreaterThan(0);
       expect(screen.getAllByText(/form\.fields\.conditionRow\.to/).length).toBeGreaterThan(0);
+    });
+  });
+
+  it('enables the submit button with NO conditions once name + action are validly filled', async () => {
+    const { container } = renderForm('create');
+    await waitFor(() => {
+      expect(screen.getByText(/form\.title\.create/)).toBeTruthy();
+    });
+
+    const submit = screen.getByRole('button', {
+      name: /form\.buttons\.create/,
+    }) as HTMLButtonElement;
+
+    // Default action (send_message) has an empty message and name is blank → blocked.
+    expect(submit.disabled).toBe(true);
+
+    // Fill the name; still blocked because the action message is empty.
+    const nameInput = container.querySelector('input#name') as HTMLInputElement;
+    fireEvent.change(nameInput, { target: { value: 'My rule' } });
+    expect(submit.disabled).toBe(true);
+
+    // Fill the action message — WITHOUT adding any condition.
+    const msgInput = screen.getByPlaceholderText(
+      /params\.send_message/,
+    ) as HTMLInputElement;
+    fireEvent.change(msgInput, { target: { value: 'Hello' } });
+
+    // Conditions are empty (optional) and all required fields are valid → enabled.
+    await waitFor(() => {
+      expect(submit.disabled).toBe(false);
     });
   });
 

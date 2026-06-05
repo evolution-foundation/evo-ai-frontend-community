@@ -365,16 +365,15 @@ function ActionParamsRenderer({ control, index, actionName, formData, t }: Param
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <Input
-                    type="number"
                     value={
                       current.assigned_to_id != null && current.assigned_to_id !== ''
                         ? String(current.assigned_to_id)
                         : ''
                     }
                     onChange={(e) => {
-                      const raw = e.target.value;
-                      const num = raw === '' ? undefined : Number(raw);
-                      setField('assigned_to_id', Number.isNaN(num) ? undefined : num);
+                      // user ids are UUID strings — keep the raw value, don't coerce to Number
+                      const raw = e.target.value.trim();
+                      setField('assigned_to_id', raw === '' ? undefined : raw);
                     }}
                     placeholder={t('form.fields.actionRow.params.create_pipeline_task_assignee')}
                   />
@@ -417,19 +416,14 @@ function ActionParamsRenderer({ control, index, actionName, formData, t }: Param
               field.onChange([{ ...current, attachment_ids: parsed }]);
             };
             const setInbox = (raw: string) => {
-              if (raw === '') {
+              const trimmed = raw.trim();
+              if (trimmed === '') {
                 const next = { ...current };
                 delete (next as Record<string, unknown>).inbox_id;
                 field.onChange([{ ...next, attachment_ids: ids }]);
               } else {
-                const num = Number(raw);
-                field.onChange([
-                  {
-                    ...current,
-                    attachment_ids: ids,
-                    inbox_id: Number.isNaN(num) ? undefined : num,
-                  },
-                ]);
+                // inbox ids are UUID strings — keep the raw value
+                field.onChange([{ ...current, attachment_ids: ids, inbox_id: trimmed }]);
               }
             };
             return (
@@ -440,7 +434,6 @@ function ActionParamsRenderer({ control, index, actionName, formData, t }: Param
                   placeholder={t('form.fields.actionRow.params.send_attachment_ids')}
                 />
                 <Input
-                  type="number"
                   value={inboxId != null ? String(inboxId) : ''}
                   onChange={(e) => setInbox(e.target.value)}
                   placeholder={t('form.fields.actionRow.params.send_attachment_inbox')}

@@ -75,4 +75,23 @@ describe('actionRegistry', () => {
     const result = actionRegistry.create_pipeline_task.schema.safeParse(valid);
     expect(result.success).toBe(true);
   });
+
+  // Regression: team/agent ids are UUID strings in this app. The previous
+  // `number|null` schema rejected every real selection, so the form stayed
+  // invalid (submit button disabled) after picking a team or agent.
+  it('accepts UUID string ids and the null unassign sentinel for assign_team/assign_agent', () => {
+    const uuid = '9324e2c6-6365-4924-99d4-6cd7c2d5e9bc';
+    for (const actionName of ['assign_team', 'assign_agent'] as const) {
+      expect(actionRegistry[actionName].schema.safeParse([uuid]).success).toBe(true);
+      expect(actionRegistry[actionName].schema.safeParse([null]).success).toBe(true);
+    }
+  });
+
+  // Regression: same UUID-vs-number bug class for nested entity ids.
+  it('accepts UUID string ids for send_email_to_team.team_ids, send_attachment.inbox_id, create_pipeline_task.assigned_to_id', () => {
+    const uuid = '9324e2c6-6365-4924-99d4-6cd7c2d5e9bc';
+    expect(actionRegistry.send_email_to_team.schema.safeParse([{ team_ids: [uuid], message: 'hi' }]).success).toBe(true);
+    expect(actionRegistry.send_attachment.schema.safeParse([{ attachment_ids: [uuid], inbox_id: uuid }]).success).toBe(true);
+    expect(actionRegistry.create_pipeline_task.schema.safeParse([{ title: 'T', assigned_to_id: uuid }]).success).toBe(true);
+  });
 });

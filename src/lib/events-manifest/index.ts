@@ -32,7 +32,9 @@ export function getEventsByDtoType(dtoType: EventDtoType): EventCatalogEntry[] {
 export function getEventLabel(eventName: string, locale: Locale | string): string {
   const entry = getEvent(eventName);
   if (!entry) return eventName;
-  return locale.toString().toLowerCase().startsWith('pt') ? entry.labelPt : entry.labelEn;
+  // Defensive: a nullish locale (e.g. before i18n is ready, as in unit tests)
+  // must not crash the selector — fall back to English labels.
+  return String(locale ?? '').toLowerCase().startsWith('pt') ? entry.labelPt : entry.labelEn;
 }
 
 export function isCustomEvent(eventName: string): boolean {

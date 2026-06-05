@@ -54,13 +54,23 @@ export default function AutomationForm({ mode }: Props) {
   const methods = useForm<AutomationRuleFormData>({
     resolver: zodResolver(automationRuleSchema),
     defaultValues: DEFAULTS,
+    mode: 'onChange',
   });
   const {
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = methods;
+
+  // Gate the submit button on whether the current values would actually pass
+  // the schema. We derive this directly from `safeParse` instead of RHF's
+  // `formState.isValid`, which is unreliable here: with nested `useFieldArray`
+  // (conditions/actions) + Controllers, `isValid` does not consistently
+  // recompute the aggregate, leaving the button stuck disabled even after the
+  // form is fully and validly filled. This mirrors the exact onSubmit check.
+  const canSubmit = automationRuleSchema.safeParse(watch()).success;
 
   useEffect(() => {
     if (mode !== 'edit' || !id) return;
@@ -229,7 +239,7 @@ export default function AutomationForm({ mode }: Props) {
           >
             {t('form.buttons.cancel')}
           </Button>
-          <Button type="submit" disabled={submitting}>
+          <Button type="submit" disabled={submitting || !canSubmit}>
             {submitting
               ? t('form.buttons.saving')
               : mode === 'create'

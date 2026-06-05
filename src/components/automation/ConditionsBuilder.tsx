@@ -21,7 +21,12 @@ export default function ConditionsBuilder({ control, formData }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold">{t('form.fields.conditions.label')}</h3>
+        <h3 className="text-base font-semibold">
+          {t('form.fields.conditions.label')}{' '}
+          <span className="text-xs font-normal text-muted-foreground">
+            ({t('form.fields.conditions.optional')})
+          </span>
+        </h3>
         <Button
           type="button"
           variant="outline"

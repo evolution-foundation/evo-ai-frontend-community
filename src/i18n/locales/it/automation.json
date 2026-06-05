@@ -1,0 +1,249 @@
+{
+  "page": {
+    "title": "Automazioni",
+    "subtitle": "{{count}} regole di automazione",
+    "searchPlaceholder": "Cerca per nome",
+    "newAutomation": "Nuova automazione",
+    "bulkDelete": "Elimina selezionati",
+    "clearSelection": "Deseleziona ({{count}})",
+    "loading": "Caricamento...",
+    "empty": {
+      "title": "Nessuna automazione ancora",
+      "description": "Crea regole che si attivano su eventi come nuove conversazioni, contatti e cambi di fase della pipeline.",
+      "action": "Crea la tua prima automazione"
+    }
+  },
+  "table": {
+    "columns": {
+      "name": "Nome",
+      "event": "Evento",
+      "status": "Stato",
+      "actionsCount": "Azioni",
+      "createdAt": "Creato"
+    },
+    "status": {
+      "active": "Attiva",
+      "inactive": "Inattiva"
+    },
+    "actions": {
+      "edit": "Modifica",
+      "clone": "Clona",
+      "delete": "Elimina"
+    }
+  },
+  "form": {
+    "title": {
+      "create": "Nuova automazione",
+      "edit": "Modifica automazione"
+    },
+    "tabs": {
+      "settings": "Impostazioni",
+      "logs": "Log"
+    },
+    "fields": {
+      "name": "Nome",
+      "namePlaceholder": "es. Avvisa le vendite quando la conversazione entra in Vinta",
+      "description": "Descrizione",
+      "descriptionPlaceholder": "Contesto facoltativo per il tuo team",
+      "active": "Attiva",
+      "event": {
+        "label": "Evento trigger",
+        "placeholder": "Seleziona un evento",
+        "hint": "Suggerimento: per reagire a una transizione (es. stato passato da Aperto a Risolto, oppure un'etichetta è stata aggiunta), usa l'operatore \"Attributo cambiato\". Il semplice \"Uguale a\" si riattiva ad ogni aggiornamento finché il valore rimane lo stesso.",
+        "options": {
+          "conversation_created": "Conversazione creata",
+          "conversation_updated": "Conversazione aggiornata",
+          "conversation_opened": "Conversazione aperta",
+          "message_created": "Messaggio creato",
+          "pipeline_stage_updated": "Fase della pipeline aggiornata",
+          "contact_created": "Contatto creato",
+          "contact_updated": "Contatto aggiornato",
+          "conversation_resolved": "Conversazione risolta",
+          "conversation_status_changed": "Stato della conversazione cambiato"
+        }
+      },
+      "conditions": {
+        "label": "Condizioni",
+        "optional": "facoltativo",
+        "addRow": "Aggiungi condizione",
+        "empty": "Nessuna condizione — questa regola si attiverà ad ogni evento."
+      },
+      "actions": {
+        "label": "Azioni",
+        "addRow": "Aggiungi azione",
+        "empty": "Aggiungi almeno un'azione.",
+        "send_message": "Invia messaggio",
+        "send_canned_response": "Invia risposta predefinita",
+        "send_template": "Invia template",
+        "add_label": "Aggiungi etichetta",
+        "remove_label": "Rimuovi etichetta",
+        "send_email_to_team": "Invia email al team",
+        "assign_team": "Assegna team",
+        "assign_agent": "Assegna operatore",
+        "send_webhook_event": "Invia evento webhook",
+        "mute_conversation": "Silenzia conversazione",
+        "send_attachment": "Invia allegato",
+        "change_status": "Cambia stato",
+        "resolve_conversation": "Risolvi conversazione",
+        "snooze_conversation": "Posticipa conversazione",
+        "change_priority": "Cambia priorità",
+        "send_email_transcript": "Invia trascrizione via email",
+        "assign_to_pipeline": "Assegna alla pipeline",
+        "update_pipeline_stage": "Aggiorna fase della pipeline",
+        "create_pipeline_task": "Crea attività della pipeline"
+      },
+      "conditionRow": {
+        "attribute": "Attributo",
+        "operator": "Operatore",
+        "value": "Valore",
+        "from": "Da",
+        "to": "A",
+        "remove": "Rimuovi condizione",
+        "noValueNeeded": "Nessun valore necessario"
+      },
+      "boolean": {
+        "true": "Sì",
+        "false": "No"
+      },
+      "actionRow": {
+        "action": "Azione",
+        "remove": "Rimuovi azione",
+        "selectActionFirst": "Seleziona un'azione da configurare",
+        "noParams": "Nessun parametro richiesto",
+        "params": {
+          "send_message": "Contenuto del messaggio",
+          "send_canned_response": "Scegli una risposta predefinita",
+          "send_template": "Scegli un template",
+          "send_webhook_event": "URL del webhook",
+          "send_email_transcript": "Email del destinatario",
+          "assign_team": "Scegli un team",
+          "assign_agent": "Scegli un operatore",
+          "add_label": "Scegli un'etichetta",
+          "remove_label": "Scegli un'etichetta",
+          "change_priority": "Scegli una priorità",
+          "change_status": "Scegli uno stato",
+          "assign_to_pipeline": "Scegli una pipeline",
+          "update_pipeline_stage": "Scegli una fase della pipeline",
+          "send_email_to_team": "Corpo dell'email",
+          "create_pipeline_task": "Titolo dell'attività",
+          "create_pipeline_task_description": "Descrizione (facoltativo)",
+          "create_pipeline_task_type": "Tipo (facoltativo)",
+          "create_pipeline_task_priority": "Priorità (facoltativo)",
+          "create_pipeline_task_assignee": "ID utente assegnatario (facoltativo)",
+          "create_pipeline_task_due_in": "Scadenza tra (es. 2d, 1w)",
+          "send_attachment_ids": "ID allegati (separati da virgola)",
+          "send_attachment_inbox": "ID canale (facoltativo)"
+        }
+      },
+      "operators": {
+        "equal_to": "Uguale a",
+        "not_equal_to": "Diverso da",
+        "contains": "Contiene",
+        "does_not_contain": "Non contiene",
+        "is_present": "È presente",
+        "is_not_present": "Non è presente",
+        "is_greater_than": "Maggiore di",
+        "is_less_than": "Minore di",
+        "days_before": "Giorni prima",
+        "starts_with": "Inizia con",
+        "attribute_changed": "Attributo cambiato",
+        "is_in": "È in",
+        "is_not_in": "Non è in",
+        "labels": {
+          "equal_to": "Ha questa etichetta",
+          "not_equal_to": "Non ha questa etichetta",
+          "attribute_changed": "Etichetta cambiata"
+        }
+      },
+      "attributes": {
+        "status": "Stato",
+        "assignee_id": "Assegnatario",
+        "inbox_id": "Canale",
+        "team_id": "Team",
+        "priority": "Priorità",
+        "labels": "Etichette",
+        "country_code": "Codice paese",
+        "referer": "Referer",
+        "mail_subject": "Oggetto dell'email",
+        "content": "Contenuto del messaggio",
+        "message_type": "Tipo di messaggio",
+        "name": "Nome",
+        "email": "Email",
+        "phone_number": "Numero di telefono",
+        "identifier": "Identificatore",
+        "city": "Città",
+        "company": "Azienda",
+        "blocked": "Bloccato",
+        "pipeline_id": "Pipeline",
+        "pipeline_stage_id": "Fase della pipeline"
+      }
+    },
+    "buttons": {
+      "create": "Crea",
+      "update": "Salva",
+      "saving": "Salvataggio...",
+      "cancel": "Annulla"
+    }
+  },
+  "dialog": {
+    "delete": {
+      "title": "Elimina automazione",
+      "description": "Sei sicuro di voler eliminare \"{{name}}\"? Questa operazione non può essere annullata.",
+      "confirm": "Elimina",
+      "cancel": "Annulla",
+      "deleting": "Eliminazione..."
+    },
+    "bulkDelete": {
+      "title": "Elimina automazioni",
+      "description": "Sei sicuro di voler eliminare {{count}} automazioni? Questa operazione non può essere annullata.",
+      "confirm": "Elimina tutto",
+      "cancel": "Annulla",
+      "deleting": "Eliminazione..."
+    }
+  },
+  "logs": {
+    "title": "Log di esecuzione",
+    "description": "Esecuzioni più recenti di questa regola di automazione.",
+    "refresh": "Aggiorna",
+    "empty": "Nessuna esecuzione ancora registrata per questa regola.",
+    "filters": {
+      "all": "Tutti gli stati",
+      "matched": "Corrispondente",
+      "no_match": "Nessuna corrispondenza",
+      "skipped": "Saltato",
+      "error": "Errore"
+    },
+    "status": {
+      "matched": "Corrispondente",
+      "no_match": "Nessuna corrispondenza",
+      "skipped": "Saltato",
+      "error": "Errore"
+    },
+    "detail": {
+      "timeline": "Cronologia",
+      "payload": "Payload"
+    }
+  },
+  "messages": {
+    "loadError": "Impossibile caricare le automazioni",
+    "bulkDeletePartial": "{{success}} eliminati, {{failed}} non riusciti",
+    "ruleNotFound": "Regola di automazione non trovata",
+    "createSuccess": "Automazione creata",
+    "createError": "Impossibile creare l'automazione",
+    "updateSuccess": "Automazione aggiornata",
+    "updateError": "Impossibile aggiornare l'automazione",
+    "deleteSuccess": "Automazione eliminata",
+    "deleteError": "Impossibile eliminare l'automazione",
+    "bulkDeleteSuccess": "{{count}} automazioni eliminate",
+    "bulkDeleteError": "Impossibile eliminare le automazioni",
+    "cloneSuccess": "Automazione clonata",
+    "cloneError": "Impossibile clonare l'automazione",
+    "permissionDenied": {
+      "read": "Non hai il permesso di visualizzare le automazioni",
+      "create": "Non hai il permesso di creare automazioni",
+      "update": "Non hai il permesso di modificare le automazioni",
+      "delete": "Non hai il permesso di eliminare le automazioni",
+      "clone": "Non hai il permesso di clonare le automazioni"
+    }
+  }
+}

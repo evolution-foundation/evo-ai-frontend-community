@@ -64,6 +64,7 @@
       },
       "conditions": {
         "label": "Conditions",
+        "optional": "optional",
         "addRow": "Add condition",
         "empty": "No conditions — this rule will fire on every event."
       },

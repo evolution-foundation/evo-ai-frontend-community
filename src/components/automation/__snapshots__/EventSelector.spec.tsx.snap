@@ -9,6 +9,7 @@ exports[`Automation EventSelector (EVO-1263) > matches the closed-trigger snapsh
       class="text-sm font-medium"
     >
       Trigger event
+       *
     </label>
     <button
       aria-autocomplete="none"
