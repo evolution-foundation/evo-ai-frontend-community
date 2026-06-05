@@ -558,20 +558,13 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
 
   const updateUnreadCount = useCallback(
     (conversationId: string, count: number) => {
-      const previousCount = state.unreadCounts[conversationId] ?? 0;
       dispatch({
         type: 'UPDATE_UNREAD_COUNT',
         payload: { conversationId, count },
       });
-      const wasZero = previousCount === 0;
-      const isZero = count === 0;
-      if (wasZero && !isZero) {
-        useUnreadConversationsStore.getState().incrementBy(1);
-      } else if (!wasZero && isZero) {
-        useUnreadConversationsStore.getState().decrementBy(1);
-      }
+      useUnreadConversationsStore.getState().fetch();
     },
-    [state.unreadCounts],
+    [],
   );
 
   const updateConversationLastActivity = useCallback(
@@ -584,19 +577,13 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
     [],
   );
 
-  const incrementUnreadCount = useCallback(
-    (conversationId: string) => {
-      const previousCount = state.unreadCounts[conversationId] ?? 0;
-      dispatch({
-        type: 'INCREMENT_UNREAD_COUNT',
-        payload: { conversationId },
-      });
-      if (previousCount === 0) {
-        useUnreadConversationsStore.getState().incrementBy(1);
-      }
-    },
-    [state.unreadCounts],
-  );
+  const incrementUnreadCount = useCallback((conversationId: string) => {
+    dispatch({
+      type: 'INCREMENT_UNREAD_COUNT',
+      payload: { conversationId },
+    });
+    useUnreadConversationsStore.getState().fetch();
+  }, []);
 
   const addHiddenConversation = useCallback((conversation: Conversation) => {
     dispatch({ type: 'ADD_HIDDEN_CONVERSATION', payload: conversation });
