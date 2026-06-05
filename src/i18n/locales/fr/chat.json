@@ -907,6 +907,7 @@
     "removeError": "Erreur lors de la suppression du pipeline"
   },
   "unreadBadge": {
-    "ariaLabel": "{{count}} messages non lus"
+    "ariaLabel_one": "{{count}} message non lu",
+    "ariaLabel_other": "{{count}} messages non lus"
   }
 }

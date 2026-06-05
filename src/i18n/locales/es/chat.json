@@ -907,6 +907,7 @@
     "removeError": "Error al quitar del pipeline"
   },
   "unreadBadge": {
-    "ariaLabel": "{{count}} mensajes no leídos"
+    "ariaLabel_one": "{{count}} mensaje no leído",
+    "ariaLabel_other": "{{count}} mensajes no leídos"
   }
 }

@@ -970,6 +970,7 @@
     "removeError": "Erro ao remover do pipeline"
   },
   "unreadBadge": {
-    "ariaLabel": "{{count}} mensagens não lidas"
+    "ariaLabel_one": "{{count}} mensagem não lida",
+    "ariaLabel_other": "{{count}} mensagens não lidas"
   }
 }

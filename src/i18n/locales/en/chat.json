@@ -967,6 +967,7 @@
     "removeError": "Error removing from pipeline"
   },
   "unreadBadge": {
-    "ariaLabel": "{{count}} unread messages"
+    "ariaLabel_one": "{{count}} unread message",
+    "ariaLabel_other": "{{count}} unread messages"
   }
 }
