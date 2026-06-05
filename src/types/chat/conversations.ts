@@ -104,7 +104,7 @@ export interface ConversationsContextValue {
 
   // Context menu actions
   deleteConversation: (conversationId: string) => Promise<void>;
-  markAsRead: (conversationId: string) => Promise<void>;
+  markAsRead: (conversationId: string, options?: { silent?: boolean }) => Promise<void>;
   markAsUnread: (conversationId: string) => Promise<void>;
   markAsResolved: (conversationId: string) => Promise<void>;
   markAsPending: (conversationId: string) => Promise<void>;

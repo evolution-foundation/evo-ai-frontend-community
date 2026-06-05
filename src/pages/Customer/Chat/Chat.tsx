@@ -164,17 +164,10 @@ const Chat = () => {
     }
   }, [conversationId, isContactSidebarOpen]);
 
-  // Auto mark-as-read when a conversation becomes selected with unread > 0.
-  // Keyed on selectedConversationId (not conversationId) so it fires only after
-  // the URL-sync effect resolves to a real conversation; the unread > 0 guard
-  // prevents the double-fire in React StrictMode / re-mount.
   useEffect(() => {
     const selectedId = conversations.state.selectedConversationId;
     if (!selectedId) return;
-    if ((conversations.getUnreadCount(selectedId) || 0) <= 0) return;
-    conversations.markAsRead(selectedId).catch(() => {
-      // Non-fatal: existing markAsRead surfaces its own error toast
-    });
+    conversations.markAsRead(selectedId, { silent: true }).catch(() => {});
   }, [conversations.state.selectedConversationId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load conversations on mount

@@ -288,6 +288,8 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
           console.warn('updateConversationStatus: Invalid response', response);
         }
 
+        useUnreadConversationsStore.getState().fetch();
+
         const statusName = t(`contexts.conversations.statusNames.${status}`);
 
         toast.success(t('contexts.conversations.success.statusChanged', { status: statusName }));
@@ -556,18 +558,13 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
 
   const updateUnreadCount = useCallback(
     (conversationId: string, count: number) => {
-      const previous = state.unreadCounts[String(conversationId)] || 0;
-      const wasUnread = previous > 0;
-      const isUnread = count > 0;
       dispatch({
         type: 'UPDATE_UNREAD_COUNT',
         payload: { conversationId, count },
       });
-      if (wasUnread !== isUnread) {
-        useUnreadConversationsStore.getState().incrementBy(isUnread ? 1 : -1);
-      }
+      useUnreadConversationsStore.getState().fetch();
     },
-    [state.unreadCounts],
+    [],
   );
 
   const updateConversationLastActivity = useCallback(
@@ -581,15 +578,12 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
   );
 
   const incrementUnreadCount = useCallback((conversationId: string) => {
-    const previous = state.unreadCounts[String(conversationId)] || 0;
     dispatch({
       type: 'INCREMENT_UNREAD_COUNT',
       payload: { conversationId },
     });
-    if (previous === 0) {
-      useUnreadConversationsStore.getState().incrementBy(1);
-    }
-  }, [state.unreadCounts]);
+    useUnreadConversationsStore.getState().fetch();
+  }, []);
 
   const addHiddenConversation = useCallback((conversation: Conversation) => {
     dispatch({ type: 'ADD_HIDDEN_CONVERSATION', payload: conversation });
@@ -629,17 +623,19 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
   );
 
   const markAsRead = useCallback(
-    async (conversationId: string) => {
+    async (conversationId: string, options?: { silent?: boolean }) => {
       try {
         await conversationAPI.markAsRead(conversationId);
 
-        // Update local state - set unread count to 0
         dispatch({
           type: 'UPDATE_UNREAD_COUNT',
           payload: { conversationId, count: 0 },
         });
+        useUnreadConversationsStore.getState().fetch();
 
-        toast.success(t('contexts.conversations.success.markedAsRead'));
+        if (!options?.silent) {
+          toast.success(t('contexts.conversations.success.markedAsRead'));
+        }
       } catch (error) {
         console.error('Error marking conversation as read:', error);
         toast.error(t('contexts.conversations.errors.markAsRead'), {
@@ -659,12 +655,12 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
       try {
         await conversationAPI.markAsUnread(conversationId);
 
-        // Update local state - set unread count to 1 (or increment existing)
         const currentCount = state.unreadCounts[conversationId] || 0;
         dispatch({
           type: 'UPDATE_UNREAD_COUNT',
           payload: { conversationId, count: Math.max(1, currentCount) },
         });
+        useUnreadConversationsStore.getState().fetch();
 
         toast.success(t('contexts.conversations.success.markedAsUnread'));
       } catch (error) {
@@ -695,6 +691,8 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         } else {
           console.warn('Invalid updatedConversation', updatedConversation);
         }
+
+        useUnreadConversationsStore.getState().fetch();
 
         toast.success(t('contexts.conversations.success.markedAsResolved'));
       } catch (error) {
