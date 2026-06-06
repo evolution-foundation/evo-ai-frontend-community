@@ -17,6 +17,7 @@ export default function BaseDefaultEdge({
   targetPosition,
   style = {},
   selected,
+  data,
 }: EdgeProps) {
   const { setEdges } = useReactFlow();
 
@@ -30,8 +31,17 @@ export default function BaseDefaultEdge({
     borderRadius: 15,
   });
 
+  // EVO-1643: prefer the canvas-provided handler (passed via edge `data`),
+  // which removes the edge AND notifies the editor store. The bare setEdges
+  // fallback keeps standalone usage working but does not persist on save.
   const onEdgeClick = () => {
-    setEdges((edges) => edges.filter((edge) => edge.id !== id));
+    const deleteEdge = (data as { handleDeleteEdge?: (edgeId: string) => void } | undefined)
+      ?.handleDeleteEdge;
+    if (deleteEdge) {
+      deleteEdge(id);
+    } else {
+      setEdges((edges) => edges.filter((edge) => edge.id !== id));
+    }
   };
 
   return (

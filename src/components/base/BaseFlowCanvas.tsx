@@ -385,8 +385,24 @@ export function BaseFlowCanvas({
           data: { label: `${type} node` },
         };
 
-        // Adicionar o novo node
-        setNodes(nds => nds.concat(newNode));
+        // EVO-1643: drops bypass xyflow's NodeChange path, so the new node
+        // reached canvas state via setNodes but never the editor store — on
+        // save the snapshot kept only the trigger and dropped every action
+        // node. Mirror the EVO-1573 edge fix: set the bare value and fire the
+        // store callbacks after (keep setNodes pure so StrictMode's
+        // double-invoke can't double-notify).
+        const updatedNodes = nodes.concat(newNode);
+        setNodes(updatedNodes);
+        if (onFlowDataChange) {
+          onFlowDataChange(updatedNodes, edges);
+        }
+        if (onFlowDataChangeExtended) {
+          onFlowDataChangeExtended({
+            nodes: updatedNodes,
+            edges,
+            variables: flowVariables,
+          });
+        }
         
         // Limpar o type do DnD context para sair do modo de drag
         setType(null);
@@ -402,7 +418,18 @@ export function BaseFlowCanvas({
         }, 10);
       }
     },
-    [type, screenToFlowPosition, onDrop, setNodes, setType],
+    [
+      type,
+      screenToFlowPosition,
+      onDrop,
+      setNodes,
+      setType,
+      nodes,
+      edges,
+      onFlowDataChange,
+      onFlowDataChangeExtended,
+      flowVariables,
+    ],
   );
 
   // Context menu
@@ -503,14 +530,67 @@ export function BaseFlowCanvas({
     ...reactFlowProps,
   };
 
+  // EVO-1643: every mutation that bypasses xyflow's change pipeline must
+  // notify the editor store, otherwise the change is lost on the next save
+  // (same class as the drop fix). Compute the bare value, set it, fire the
+  // store callbacks after — never inside the updater (StrictMode purity).
   const handleDeleteEdge = useCallback(
-    (id: any) => {
-      setEdges(edges => {
-        const left = edges.filter((edge: any) => edge.id !== id);
-        return left;
-      });
+    (id: string) => {
+      const updatedEdges = edges.filter(edge => edge.id !== id);
+      setEdges(updatedEdges);
+      if (onFlowDataChange) {
+        onFlowDataChange(nodes, updatedEdges);
+      }
+      if (onFlowDataChangeExtended) {
+        onFlowDataChangeExtended({ nodes, edges: updatedEdges, variables: flowVariables });
+      }
     },
-    [setEdges],
+    [edges, setEdges, nodes, onFlowDataChange, onFlowDataChangeExtended, flowVariables],
+  );
+
+  const handleDeleteNode = useCallback(
+    (nodeId: string) => {
+      const updatedNodes = nodes.filter(node => node.id !== nodeId);
+      const updatedEdges = edges.filter(
+        edge => edge.source !== nodeId && edge.target !== nodeId,
+      );
+      setNodes(updatedNodes);
+      setEdges(updatedEdges);
+      if (onFlowDataChange) {
+        onFlowDataChange(updatedNodes, updatedEdges);
+      }
+      if (onFlowDataChangeExtended) {
+        onFlowDataChangeExtended({
+          nodes: updatedNodes,
+          edges: updatedEdges,
+          variables: flowVariables,
+        });
+      }
+    },
+    [nodes, edges, setNodes, setEdges, onFlowDataChange, onFlowDataChangeExtended, flowVariables],
+  );
+
+  const handleDuplicateNode = useCallback(
+    (nodeId: string) => {
+      const original = nodes.find(node => node.id === nodeId);
+      if (!original) return;
+      const copy: Node = {
+        ...original,
+        id: `${original.id}-copy-${Date.now()}`,
+        position: { x: original.position.x + 50, y: original.position.y + 50 },
+        selected: false,
+        dragging: false,
+      };
+      const updatedNodes = nodes.concat(copy);
+      setNodes(updatedNodes);
+      if (onFlowDataChange) {
+        onFlowDataChange(updatedNodes, edges);
+      }
+      if (onFlowDataChangeExtended) {
+        onFlowDataChangeExtended({ nodes: updatedNodes, edges, variables: flowVariables });
+      }
+    },
+    [nodes, edges, setNodes, onFlowDataChange, onFlowDataChangeExtended, flowVariables],
   );
 
   return (
@@ -654,7 +734,7 @@ export function BaseFlowCanvas({
             nodeId={contextMenu.nodeId}
             onClose={() => setContextMenu({ show: false, x: 0, y: 0 })}
             onDeleteNode={nodeId => {
-              setNodes(nds => nds.filter(n => n.id !== nodeId));
+              handleDeleteNode(nodeId);
               setContextMenu({ show: false, x: 0, y: 0 });
             }}
           />
@@ -665,7 +745,11 @@ export function BaseFlowCanvas({
             nodeId={contextMenu.nodeId}
             onClose={() => setContextMenu({ show: false, x: 0, y: 0 })}
             onDeleteNode={nodeId => {
-              setNodes(nds => nds.filter(n => n.id !== nodeId));
+              handleDeleteNode(nodeId);
+              setContextMenu({ show: false, x: 0, y: 0 });
+            }}
+            onDuplicateNode={nodeId => {
+              handleDuplicateNode(nodeId);
               setContextMenu({ show: false, x: 0, y: 0 });
             }}
           />

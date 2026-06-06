@@ -1,5 +1,6 @@
-import { act, render } from '@testing-library/react';
+import { act, fireEvent, render } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { useEffect } from 'react';
 
 beforeAll(() => {
   if (!window.matchMedia) {
@@ -33,12 +34,16 @@ vi.mock('@xyflow/react', async importOriginal => {
         </div>
       );
     }),
+    // jsdom has no real flow viewport; the drop handler only needs a position.
+    useReactFlow: () => ({
+      screenToFlowPosition: (p: { x: number; y: number }) => p,
+    }),
   };
 });
 
 import { ReactFlowProvider } from '@xyflow/react';
 import { BaseFlowCanvas } from './BaseFlowCanvas';
-import { DnDProvider } from '@/contexts/DnDContext';
+import { DnDProvider, useDnD } from '@/contexts/DnDContext';
 import { DarkModeProvider } from '@/contexts/ThemeContext';
 
 const NoopNode = () => <div />;
@@ -223,5 +228,179 @@ describe('BaseFlowCanvas — EVO-1573 edge propagation', () => {
     });
 
     expect(onFlowDataChange).not.toHaveBeenCalled();
+  });
+});
+
+// EVO-1643: dropping an action node from the palette went through handleDrop's
+// default branch, which added the node to canvas state via setNodes but never
+// notified the editor store — so the save snapshot kept only the trigger and
+// dropped every action node. These tests fail on pre-fix `develop`.
+function DnDTypeSetter({ value }: { value: string }) {
+  const { setType } = useDnD();
+  useEffect(() => {
+    setType(value);
+  }, [value, setType]);
+  return null;
+}
+
+function renderCanvasForDrop(opts: {
+  onFlowDataChange?: ReturnType<typeof vi.fn>;
+  onFlowDataChangeExtended?: ReturnType<typeof vi.fn>;
+  dndType: string;
+}) {
+  return render(
+    <DarkModeProvider>
+      <DnDProvider>
+        <ReactFlowProvider>
+          <DnDTypeSetter value={opts.dndType} />
+          <BaseFlowCanvas
+            nodeTypes={{ noop: NoopNode }}
+            initialNodes={
+              [{ id: 'trigger-1', type: 'noop', position: { x: 0, y: 0 }, data: {} }] as never
+            }
+            initialEdges={[] as never}
+            onFlowDataChange={opts.onFlowDataChange}
+            onFlowDataChangeExtended={opts.onFlowDataChangeExtended}
+          />
+        </ReactFlowProvider>
+      </DnDProvider>
+    </DarkModeProvider>,
+  );
+}
+
+describe('BaseFlowCanvas — EVO-1643 drop propagation', () => {
+  it('propagates a dropped node to onFlowDataChange so the save snapshot keeps it', () => {
+    const onFlowDataChange = vi.fn();
+    renderCanvasForDrop({ onFlowDataChange, dndType: 'send-canned-response-node' });
+
+    const props = reactFlowMocks.capturedProps.current!;
+    expect(props).toBeTruthy();
+    onFlowDataChange.mockClear();
+
+    act(() => {
+      (props.onDrop as (e: unknown) => void)({
+        preventDefault: () => {},
+        clientX: 120,
+        clientY: 120,
+      });
+    });
+
+    expect(onFlowDataChange).toHaveBeenCalled();
+    const lastCall = onFlowDataChange.mock.lastCall as
+      | [Array<{ id: string; type: string }>, unknown]
+      | undefined;
+    expect(lastCall).toBeTruthy();
+    expect(lastCall![0].map(n => n.id)).toContain('trigger-1');
+    expect(lastCall![0].some(n => n.type === 'send-canned-response-node')).toBe(true);
+    expect(lastCall![0]).toHaveLength(2);
+  });
+
+  it('propagates a dropped node via onFlowDataChangeExtended', () => {
+    const onFlowDataChangeExtended = vi.fn();
+    renderCanvasForDrop({ onFlowDataChangeExtended, dndType: 'assign-to-pipeline-node' });
+
+    const props = reactFlowMocks.capturedProps.current!;
+    onFlowDataChangeExtended.mockClear();
+
+    act(() => {
+      (props.onDrop as (e: unknown) => void)({
+        preventDefault: () => {},
+        clientX: 80,
+        clientY: 80,
+      });
+    });
+
+    expect(onFlowDataChangeExtended).toHaveBeenCalled();
+    const arg = onFlowDataChangeExtended.mock.lastCall?.[0] as {
+      nodes: Array<{ type: string }>;
+    };
+    expect(arg.nodes.some(n => n.type === 'assign-to-pipeline-node')).toBe(true);
+  });
+});
+
+// EVO-1643 (extended): node delete + duplicate (context menu) and edge delete
+// (trash button) also bypassed the store pre-fix. Each is now routed through a
+// BaseFlowCanvas handler that fires onFlowDataChange.
+describe('BaseFlowCanvas — EVO-1643 mutation propagation', () => {
+  function openContextMenu(props: Record<string, unknown>, nodeId: string) {
+    act(() => {
+      (props.onNodeContextMenu as (e: unknown, n: unknown) => void)(
+        { preventDefault: () => {}, clientX: 10, clientY: 10 },
+        { id: nodeId },
+      );
+    });
+  }
+
+  it('node delete via context menu removes the node + its edges and propagates', () => {
+    const onFlowDataChange = vi.fn();
+    const { container } = renderCanvas({
+      onFlowDataChange,
+      initialNodes: [
+        { id: 'trigger-1', type: 'noop', position: { x: 0, y: 0 }, data: {} },
+        { id: 'action-1', type: 'noop', position: { x: 200, y: 0 }, data: {} },
+      ],
+      initialEdges: [{ id: 'e1', source: 'trigger-1', target: 'action-1' }],
+    });
+    const props = reactFlowMocks.capturedProps.current!;
+    openContextMenu(props, 'action-1');
+    onFlowDataChange.mockClear();
+
+    const menu = container.querySelector('.context-menu');
+    expect(menu).toBeTruthy();
+    const buttons = menu!.querySelectorAll('button');
+    fireEvent.click(buttons[buttons.length - 1]); // last default action = delete
+
+    expect(onFlowDataChange).toHaveBeenCalled();
+    const lastCall = onFlowDataChange.mock.lastCall as [
+      Array<{ id: string }>,
+      Array<{ id: string }>,
+    ];
+    expect(lastCall[0].map(n => n.id)).toEqual(['trigger-1']);
+    expect(lastCall[1].map(e => e.id)).toEqual([]);
+  });
+
+  it('node duplicate via context menu adds a copy and propagates', () => {
+    const onFlowDataChange = vi.fn();
+    const { container } = renderCanvas({
+      onFlowDataChange,
+      initialNodes: [{ id: 'action-1', type: 'noop', position: { x: 0, y: 0 }, data: {} }],
+    });
+    const props = reactFlowMocks.capturedProps.current!;
+    openContextMenu(props, 'action-1');
+    onFlowDataChange.mockClear();
+
+    const menu = container.querySelector('.context-menu');
+    const buttons = menu!.querySelectorAll('button');
+    fireEvent.click(buttons[0]); // first default action = duplicate
+
+    expect(onFlowDataChange).toHaveBeenCalled();
+    const nodes = (onFlowDataChange.mock.lastCall as [Array<{ id: string }>, unknown])[0];
+    expect(nodes).toHaveLength(2);
+    expect(nodes.some(n => n.id.startsWith('action-1-copy-'))).toBe(true);
+  });
+
+  it('edge delete (handleDeleteEdge via edge data) propagates to onFlowDataChange', () => {
+    const onFlowDataChange = vi.fn();
+    renderCanvas({
+      onFlowDataChange,
+      initialEdges: [
+        { id: 'e1', source: 'n1', target: 'n2' },
+        { id: 'e2', source: 'n2', target: 'n1' },
+      ],
+    });
+    const props = reactFlowMocks.capturedProps.current!;
+    const handleDeleteEdge = (
+      props.defaultEdgeOptions as { data?: { handleDeleteEdge?: (id: string) => void } }
+    )?.data?.handleDeleteEdge;
+    expect(handleDeleteEdge).toBeTypeOf('function');
+    onFlowDataChange.mockClear();
+
+    act(() => {
+      handleDeleteEdge!('e1');
+    });
+
+    expect(onFlowDataChange).toHaveBeenCalled();
+    const lastCall = onFlowDataChange.mock.lastCall as [unknown, Array<{ id: string }>];
+    expect(lastCall[1].map(e => e.id)).toEqual(['e2']);
   });
 });
