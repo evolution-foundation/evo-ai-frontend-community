@@ -125,6 +125,8 @@
           "assign_to_pipeline": "Escolha um pipeline",
           "update_pipeline_stage": "Escolha um estágio",
           "send_email_to_team": "Corpo do email",
+          "send_email_to_team_teams": "Times",
+          "send_email_to_team_no_teams": "Nenhum time disponível",
           "create_pipeline_task": "Título da tarefa",
           "create_pipeline_task_description": "Descrição (opcional)",
           "create_pipeline_task_type": "Tipo (opcional)",

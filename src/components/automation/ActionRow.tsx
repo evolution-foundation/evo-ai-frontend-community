@@ -9,6 +9,7 @@ import {
   Input,
   Textarea,
   Button,
+  Checkbox,
 } from '@evoapi/design-system';
 import { Trash2 } from 'lucide-react';
 import {
@@ -313,15 +314,47 @@ function ActionParamsRenderer({ control, index, actionName, formData, t }: Param
               team_ids: [],
               message: '',
             };
+            const selectedIds = ((current.team_ids as Array<string | number>) ?? []).map(String);
+            const toggleTeam = (id: string) => {
+              const next = selectedIds.includes(id)
+                ? selectedIds.filter((t) => t !== id)
+                : [...selectedIds, id];
+              field.onChange([{ ...current, team_ids: next, message: current.message ?? '' }]);
+            };
             return (
-              <Textarea
-                value={(current.message as string) ?? ''}
-                onChange={(e) =>
-                  field.onChange([{ ...current, message: e.target.value }])
-                }
-                placeholder={t('form.fields.actionRow.params.send_email_to_team')}
-                rows={2}
-              />
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-muted-foreground">
+                  {t('form.fields.actionRow.params.send_email_to_team_teams')}
+                </label>
+                <div className="space-y-1 max-h-32 overflow-y-auto rounded-md border p-2">
+                  {formData.teams.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">
+                      {t('form.fields.actionRow.params.send_email_to_team_no_teams')}
+                    </p>
+                  ) : (
+                    formData.teams.map((team) => {
+                      const id = String(team.id);
+                      return (
+                        <label key={id} className="flex items-center gap-2 text-sm cursor-pointer">
+                          <Checkbox
+                            checked={selectedIds.includes(id)}
+                            onCheckedChange={() => toggleTeam(id)}
+                          />
+                          {team.name}
+                        </label>
+                      );
+                    })
+                  )}
+                </div>
+                <Textarea
+                  value={(current.message as string) ?? ''}
+                  onChange={(e) =>
+                    field.onChange([{ ...current, message: e.target.value }])
+                  }
+                  placeholder={t('form.fields.actionRow.params.send_email_to_team')}
+                  rows={2}
+                />
+              </div>
             );
           }}
         />
