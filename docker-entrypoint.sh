@@ -31,7 +31,9 @@ if [ "$APP_ENV" = "development" ]; then
   # Regex targets the directive token only — resilient to changes in surrounding CSP tokens.
   NGINX_CONF=/etc/nginx/conf.d/default.conf
 
-  sed -i "s|\(connect-src[^;]*\);|\1 http://localhost:*;|g" "$NGINX_CONF"
+  if ! grep -v "^[[:space:]]*#" "$NGINX_CONF" | grep -q "connect-src[^;]*http://localhost:\*"; then
+    sed -i "s|\(connect-src[^;]*\);|\1 http://localhost:*;|g" "$NGINX_CONF"
+  fi
   connect_result=$(grep -v "^[[:space:]]*#" "$NGINX_CONF" | grep -o "connect-src[^;]*" || true)
   if echo "$connect_result" | grep -q "http://localhost:\*"; then
     echo "[CSP] connect-src OK: $connect_result"
