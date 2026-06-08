@@ -13,12 +13,13 @@ import {
   MiniMap,
   ProOptions,
   applyNodeChanges,
+  applyEdgeChanges,
   type NodeChange,
+  type EdgeChange,
   type Node,
   type Edge,
   ConnectionLineType,
 } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
 import './BaseFlow.css';
 
 import { Button } from '@evoapi/design-system';
@@ -28,6 +29,8 @@ import { BaseFlowContextMenu } from './BaseFlowContextMenu';
 import { BaseFlowHelperLines } from './BaseFlowHelperLines';
 import BaseDefaultEdge from './BaseDefaultEdge';
 import { cn, getHelperLines, createMiniMapNodeColors } from '@/lib/utils';
+import { useDarkMode } from '@/hooks/useDarkMode';
+import { flowTokens } from '@/components/journey/_ui/tokens';
 
 // Edge types padrão
 const defaultEdgeTypes = {
@@ -170,6 +173,7 @@ export function BaseFlowCanvas({
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
   const { type, setPointerEvents, setType } = useDnD();
+  const { theme } = useDarkMode();
 
   // Estados do canvas
   const [nodes, setNodes, onNodesChangeInternal] = useNodesState(initialNodes);
@@ -272,24 +276,82 @@ export function BaseFlowCanvas({
   );
 
   const handleEdgesChange = useCallback(
-    (changes: any[]) => {
+    (changes: EdgeChange[]) => {
       onEdgesChangeInternal(changes);
+
+      // EVO-1573: real edge edits (add/remove/replace) must propagate to
+      // the editor store so the snapshot includes them on the next save;
+      // pre-fix, only handleNodesChange notified the store, which silently
+      // dropped fresh connections and deletes when no node was moved
+      // afterwards. Selection-type changes are volatile UI state and
+      // would mark the journey dirty without a real edit — the store
+      // already strips volatile fields for nodes (stripVolatileNodeFields)
+      // but has no equivalent for edges, so filter at the source here.
+      const persistChanges = changes.filter(c => c.type !== 'select');
+      if (persistChanges.length > 0) {
+        const updatedEdges = applyEdgeChanges(persistChanges, edges);
+        if (onFlowDataChange) {
+          onFlowDataChange(nodes, updatedEdges);
+        }
+        if (onFlowDataChangeExtended) {
+          onFlowDataChangeExtended({
+            nodes,
+            edges: updatedEdges,
+            variables: flowVariables,
+          });
+        }
+      }
+
       if (onEdgesChange) {
         onEdgesChange(changes);
       }
     },
-    [onEdgesChangeInternal, onEdgesChange],
+    [
+      onEdgesChangeInternal,
+      onEdgesChange,
+      onFlowDataChange,
+      onFlowDataChangeExtended,
+      nodes,
+      edges,
+      flowVariables,
+    ],
   );
 
   const handleConnect = useCallback(
     (connection: Parameters<OnConnect>[0]) => {
       const edge = { ...connection, animated: true, type: 'default' };
-      setEdges(eds => addEdge(edge, eds));
+      // EVO-1573: compute the updated edges from the closure and call
+      // setEdges with the bare value (NOT a functional updater) so the
+      // setter stays pure. React 18 StrictMode runs functional updaters
+      // twice to surface impurity — embedding side effects in the
+      // updater would fire onFlowDataChange twice per connection in dev.
+      // Match the shape of handleEdgesChange: state set first, side
+      // effects fired after.
+      const updatedEdges = addEdge(edge, edges);
+      setEdges(updatedEdges);
+      if (onFlowDataChange) {
+        onFlowDataChange(nodes, updatedEdges);
+      }
+      if (onFlowDataChangeExtended) {
+        onFlowDataChangeExtended({
+          nodes,
+          edges: updatedEdges,
+          variables: flowVariables,
+        });
+      }
       if (onConnect) {
         onConnect(connection);
       }
     },
-    [setEdges, onConnect],
+    [
+      setEdges,
+      edges,
+      onConnect,
+      onFlowDataChange,
+      onFlowDataChangeExtended,
+      nodes,
+      flowVariables,
+    ],
   );
 
   // Drag and drop
@@ -323,8 +385,24 @@ export function BaseFlowCanvas({
           data: { label: `${type} node` },
         };
 
-        // Adicionar o novo node
-        setNodes(nds => nds.concat(newNode));
+        // EVO-1643: drops bypass xyflow's NodeChange path, so the new node
+        // reached canvas state via setNodes but never the editor store — on
+        // save the snapshot kept only the trigger and dropped every action
+        // node. Mirror the EVO-1573 edge fix: set the bare value and fire the
+        // store callbacks after (keep setNodes pure so StrictMode's
+        // double-invoke can't double-notify).
+        const updatedNodes = nodes.concat(newNode);
+        setNodes(updatedNodes);
+        if (onFlowDataChange) {
+          onFlowDataChange(updatedNodes, edges);
+        }
+        if (onFlowDataChangeExtended) {
+          onFlowDataChangeExtended({
+            nodes: updatedNodes,
+            edges,
+            variables: flowVariables,
+          });
+        }
         
         // Limpar o type do DnD context para sair do modo de drag
         setType(null);
@@ -340,7 +418,18 @@ export function BaseFlowCanvas({
         }, 10);
       }
     },
-    [type, screenToFlowPosition, onDrop, setNodes, setType],
+    [
+      type,
+      screenToFlowPosition,
+      onDrop,
+      setNodes,
+      setType,
+      nodes,
+      edges,
+      onFlowDataChange,
+      onFlowDataChangeExtended,
+      flowVariables,
+    ],
   );
 
   // Context menu
@@ -382,12 +471,38 @@ export function BaseFlowCanvas({
     [configPanelSystem, onNodeClick],
   );
 
-  // 🆕 Função para atualizar node (sistema de painéis de configuração)
+  // 🆕 Função para atualizar node (sistema de painéis de configuração).
+  // Config-panel updates bypass xyflow's NodeChange path because they mutate
+  // `node.data` directly via `setNodes`. The parent's `onFlowDataChange`
+  // listener would otherwise never see the edit, so the journey editor's
+  // dirty/autosave/IDB pipeline would stay clean despite a real change in
+  // a panel field. Wire the callbacks here so the data path matches what
+  // `handleNodesChange` does for canvas-level edits.
+  //
+  // IMPORTANT: side effects (onFlowDataChange / onFlowDataChangeExtended)
+  // run AFTER setNodes returns, NOT inside the updater callback. Updaters
+  // must be pure — React (and StrictMode in particular) double-invokes
+  // them in dev to surface non-idempotency, which would cause the store
+  // notifications to fire twice. This mirrors the pattern used by
+  // `handleNodesChange` above.
   const updateNode = useCallback(
     (nodeId: string, newData: any) => {
-      setNodes(nds => nds.map(node => (node.id === nodeId ? { ...node, data: newData } : node)));
+      const updated = nodes.map(node =>
+        node.id === nodeId ? { ...node, data: newData } : node,
+      );
+      setNodes(updated);
+      if (onFlowDataChange) {
+        onFlowDataChange(updated, edges);
+      }
+      if (onFlowDataChangeExtended) {
+        onFlowDataChangeExtended({
+          nodes: updated,
+          edges,
+          variables: flowVariables,
+        });
+      }
     },
-    [setNodes],
+    [nodes, setNodes, onFlowDataChange, onFlowDataChangeExtended, edges, flowVariables],
   );
 
   // Controle de conexões
@@ -415,14 +530,67 @@ export function BaseFlowCanvas({
     ...reactFlowProps,
   };
 
+  // EVO-1643: every mutation that bypasses xyflow's change pipeline must
+  // notify the editor store, otherwise the change is lost on the next save
+  // (same class as the drop fix). Compute the bare value, set it, fire the
+  // store callbacks after — never inside the updater (StrictMode purity).
   const handleDeleteEdge = useCallback(
-    (id: any) => {
-      setEdges(edges => {
-        const left = edges.filter((edge: any) => edge.id !== id);
-        return left;
-      });
+    (id: string) => {
+      const updatedEdges = edges.filter(edge => edge.id !== id);
+      setEdges(updatedEdges);
+      if (onFlowDataChange) {
+        onFlowDataChange(nodes, updatedEdges);
+      }
+      if (onFlowDataChangeExtended) {
+        onFlowDataChangeExtended({ nodes, edges: updatedEdges, variables: flowVariables });
+      }
     },
-    [setEdges],
+    [edges, setEdges, nodes, onFlowDataChange, onFlowDataChangeExtended, flowVariables],
+  );
+
+  const handleDeleteNode = useCallback(
+    (nodeId: string) => {
+      const updatedNodes = nodes.filter(node => node.id !== nodeId);
+      const updatedEdges = edges.filter(
+        edge => edge.source !== nodeId && edge.target !== nodeId,
+      );
+      setNodes(updatedNodes);
+      setEdges(updatedEdges);
+      if (onFlowDataChange) {
+        onFlowDataChange(updatedNodes, updatedEdges);
+      }
+      if (onFlowDataChangeExtended) {
+        onFlowDataChangeExtended({
+          nodes: updatedNodes,
+          edges: updatedEdges,
+          variables: flowVariables,
+        });
+      }
+    },
+    [nodes, edges, setNodes, setEdges, onFlowDataChange, onFlowDataChangeExtended, flowVariables],
+  );
+
+  const handleDuplicateNode = useCallback(
+    (nodeId: string) => {
+      const original = nodes.find(node => node.id === nodeId);
+      if (!original) return;
+      const copy: Node = {
+        ...original,
+        id: `${original.id}-copy-${Date.now()}`,
+        position: { x: original.position.x + 50, y: original.position.y + 50 },
+        selected: false,
+        dragging: false,
+      };
+      const updatedNodes = nodes.concat(copy);
+      setNodes(updatedNodes);
+      if (onFlowDataChange) {
+        onFlowDataChange(updatedNodes, edges);
+      }
+      if (onFlowDataChangeExtended) {
+        onFlowDataChangeExtended({ nodes: updatedNodes, edges, variables: flowVariables });
+      }
+    },
+    [nodes, edges, setNodes, onFlowDataChange, onFlowDataChangeExtended, flowVariables],
   );
 
   return (
@@ -451,7 +619,7 @@ export function BaseFlowCanvas({
         snapToGrid={snapToGrid}
         snapGrid={snapGrid}
         proOptions={proOptions}
-        colorMode="dark"
+        colorMode={theme === 'dark' ? 'dark' : 'light'}
         deleteKeyCode={['Backspace', 'Delete']}
         multiSelectionKeyCode={['Meta', 'Ctrl']}
         panOnDrag={true}
@@ -490,6 +658,7 @@ export function BaseFlowCanvas({
             variant={backgroundVariant as any}
             gap={24}
             size={1.5}
+            color={flowTokens.canvas.grid}
             className="bg-sidebar"
           />
         )}
@@ -509,9 +678,9 @@ export function BaseFlowCanvas({
         {/* MiniMap */}
         {showMiniMap && (
           <MiniMap
-            className="bg-neutral-800/80 border border-neutral-700 rounded-lg shadow-lg"
-            nodeColor={node => defaultMiniMapColors[node.type || 'default'] || '#64748b'}
-            maskColor="rgba(21, 21, 21, 0.6)"
+            className="bg-flow-palette-bg/85 border border-flow-palette-divider rounded-lg shadow-lg backdrop-blur-sm"
+            nodeColor={node => defaultMiniMapColors[node.type || 'default'] || 'var(--color-muted-foreground)'}
+            maskColor="color-mix(in srgb, var(--color-foreground) 12%, transparent)"
           />
         )}
 
@@ -565,7 +734,7 @@ export function BaseFlowCanvas({
             nodeId={contextMenu.nodeId}
             onClose={() => setContextMenu({ show: false, x: 0, y: 0 })}
             onDeleteNode={nodeId => {
-              setNodes(nds => nds.filter(n => n.id !== nodeId));
+              handleDeleteNode(nodeId);
               setContextMenu({ show: false, x: 0, y: 0 });
             }}
           />
@@ -576,31 +745,31 @@ export function BaseFlowCanvas({
             nodeId={contextMenu.nodeId}
             onClose={() => setContextMenu({ show: false, x: 0, y: 0 })}
             onDeleteNode={nodeId => {
-              setNodes(nds => nds.filter(n => n.id !== nodeId));
+              handleDeleteNode(nodeId);
+              setContextMenu({ show: false, x: 0, y: 0 });
+            }}
+            onDuplicateNode={nodeId => {
+              handleDuplicateNode(nodeId);
               setContextMenu({ show: false, x: 0, y: 0 });
             }}
           />
         ))}
 
-      {/* 🆕 Sistema de painéis de configuração */}
       {configPanelSystem &&
         showConfigPanel &&
         configNodeData &&
         configPanelType &&
-        renderConfigPanel && (
-          <div className="absolute top-16 left-4 z-50">
-            {renderConfigPanel(
-              configPanelType,
-              configNodeData.data,
-              configNodeData.id,
-              updateNode,
-              () => {
-                setShowConfigPanel(false);
-                setConfigNodeData(null);
-                setConfigPanelType('');
-              },
-            )}
-          </div>
+        renderConfigPanel &&
+        renderConfigPanel(
+          configPanelType,
+          configNodeData.data,
+          configNodeData.id,
+          updateNode,
+          () => {
+            setShowConfigPanel(false);
+            setConfigNodeData(null);
+            setConfigPanelType('');
+          },
         )}
     </div>
   );

@@ -64,6 +64,7 @@
       },
       "conditions": {
         "label": "Conditions",
+        "optional": "optional",
         "addRow": "Add condition",
         "empty": "No conditions — this rule will fire on every event."
       },
@@ -124,6 +125,8 @@
           "assign_to_pipeline": "Pick a pipeline",
           "update_pipeline_stage": "Pick a pipeline stage",
           "send_email_to_team": "Email body",
+          "send_email_to_team_teams": "Teams",
+          "send_email_to_team_no_teams": "No teams available",
           "create_pipeline_task": "Task title",
           "create_pipeline_task_description": "Description (optional)",
           "create_pipeline_task_type": "Type (optional)",

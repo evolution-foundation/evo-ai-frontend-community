@@ -1,18 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  Button,
   Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Separator,
   Switch,
 } from '@evoapi/design-system';
 import { Settings as SettingsIcon } from 'lucide-react';
 import { UpdateCustomAttributeNodeData } from './UpdateCustomAttributeNode';
-import { BaseFlowPanel } from '@/components/base';
+import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
+import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { customAttributesService } from '@/services/customAttributes/customAttributesService';
 import type { CustomAttributeDefinition } from '@/types/settings';
 import { VariableInput } from '@/components/journey/environment-manager';
@@ -46,6 +45,7 @@ export function UpdateCustomAttributePanel({
   journeyId,
 }: UpdateCustomAttributePanelProps) {
   const { t } = useLanguage('journey');
+  const [originalData] = useState<UpdateCustomAttributeNodeData>(() => ({ ...data }));
   const [formData, setFormData] = useState<UpdateCustomAttributeNodeData>({
     ...data,
   });
@@ -79,20 +79,6 @@ export function UpdateCustomAttributePanel({
   };
 
   const handleSave = () => {
-    // Validação básica
-    if (!formData.attributeId) {
-      alert(t('panels.updateCustomAttribute.validation.selectAttribute'));
-      return;
-    }
-
-    if (
-      !formData.newValue ||
-      (formData.attributeDisplayType !== 'checkbox' && formData.newValue.trim() === '')
-    ) {
-      alert(t('panels.updateCustomAttribute.validation.enterValue'));
-      return;
-    }
-
     onUpdate(nodeId, formData);
     onClose();
   };
@@ -105,7 +91,7 @@ export function UpdateCustomAttributePanel({
       attributeId,
       attributeName: selectedAttribute?.attribute_display_name || '',
       attributeDisplayType: selectedAttribute?.attribute_display_type || '',
-      newValue: '', // Reset value when changing attribute
+      newValue: '',
     }));
   };
 
@@ -124,8 +110,13 @@ export function UpdateCustomAttributePanel({
   };
 
   const selectedAttribute = attributes.find(attr => attr.id === formData.attributeId);
-  const isValid =
-    formData.attributeId && formData.newValue !== undefined && formData.newValue !== '';
+  const isValid = Boolean(
+    formData.attributeId && formData.newValue !== undefined && formData.newValue !== '',
+  );
+  const dirty = useMemo(
+    () => JSON.stringify(formData) !== JSON.stringify(originalData),
+    [formData, originalData],
+  );
 
   const normalizeDateTimeLocalValue = (dateTimeValue: string) => {
     if (!dateTimeValue) return '';
@@ -242,22 +233,22 @@ export function UpdateCustomAttributePanel({
   };
 
   return (
-    <BaseFlowPanel
+    <NodeConfigModal
+      open
+      variant="simple"
       title={t('panels.updateCustomAttribute.title')}
-      icon={<SettingsIcon className="w-5 h-5 text-pink-500" />}
-      onClose={onClose}
-      width="w-[600px]"
+      icon={<SettingsIcon className="h-5 w-5 text-flow-node-control-fg" />}
+      onCancel={onClose}
+      onSave={handleSave}
+      dirty={dirty && isValid}
+      saveLabel={t('panels.updateCustomAttribute.actions.save')}
+      cancelLabel={t('panels.updateCustomAttribute.actions.cancel')}
     >
-      <Separator />
-
       <div className="space-y-4">
-        {/* Status de validação */}
         {!isValid && (
-          <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800/30">
-            <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-              {t('panels.updateCustomAttribute.incompleteConfig')}:
-            </p>
-            <ul className="text-xs text-yellow-700 dark:text-yellow-300 mt-1 list-disc list-inside">
+          <FlowFeedbackBanner variant="warn">
+            <p className="font-medium">{t('panels.updateCustomAttribute.incompleteConfig')}:</p>
+            <ul className="text-xs mt-1 list-disc list-inside">
               {!formData.attributeId && (
                 <li>{t('panels.updateCustomAttribute.selectAttribute')}</li>
               )}
@@ -265,10 +256,9 @@ export function UpdateCustomAttributePanel({
                 <li>{t('panels.updateCustomAttribute.configureValue')}</li>
               )}
             </ul>
-          </div>
+          </FlowFeedbackBanner>
         )}
 
-        {/* Seleção do atributo */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">
             {t('panels.updateCustomAttribute.customAttribute')}
@@ -313,14 +303,12 @@ export function UpdateCustomAttributePanel({
           </Select>
         </div>
 
-        {/* Erro ao carregar */}
         {error && (
-          <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30">
-            <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
-          </div>
+          <FlowFeedbackBanner variant="error">
+            <p>{error}</p>
+          </FlowFeedbackBanner>
         )}
 
-        {/* Campo de novo valor */}
         {selectedAttribute && (
           <div className="space-y-2">
             <Label className="text-sm font-medium">
@@ -335,10 +323,9 @@ export function UpdateCustomAttributePanel({
           </div>
         )}
 
-        {/* Preview da atualização */}
         {isValid && (
-          <div className="p-4 rounded-lg bg-pink-50 dark:bg-pink-950/20 border border-pink-200 dark:border-pink-800/30">
-            <p className="text-sm text-pink-800 dark:text-pink-200 mb-2">
+          <FlowFeedbackBanner variant="info">
+            <p className="mb-2">
               <strong>{t('panels.updateCustomAttribute.preview.title')}:</strong>
             </p>
             <div className="flex items-center gap-2">
@@ -346,8 +333,8 @@ export function UpdateCustomAttributePanel({
                 {ATTRIBUTE_TYPE_ICONS[selectedAttribute?.attribute_display_type || ''] || '⚙️'}
               </span>
               <span className="font-medium">{formData.attributeName}</span>
-              <span className="text-pink-600 dark:text-pink-400">→</span>
-              <span className="font-medium text-pink-700 dark:text-pink-300">
+              <span>→</span>
+              <span className="font-medium">
                 {selectedAttribute?.attribute_display_type === 'checkbox'
                   ? formData.newValue === 'true'
                     ? t('panels.updateCustomAttribute.booleanValues.true')
@@ -355,32 +342,17 @@ export function UpdateCustomAttributePanel({
                   : formData.newValue}
               </span>
             </div>
-            <p className="text-xs text-pink-600 dark:text-pink-400 mt-2">
-              {t('panels.updateCustomAttribute.preview.description')}
-            </p>
-          </div>
+            <p className="text-xs mt-2">{t('panels.updateCustomAttribute.preview.description')}</p>
+          </FlowFeedbackBanner>
         )}
 
-        {/* Ajuda */}
-        <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/30">
-          <p className="text-sm text-blue-800 dark:text-blue-200">
+        <FlowFeedbackBanner variant="info">
+          <p>
             <strong>{t('panels.updateCustomAttribute.help.title')}:</strong>{' '}
             {t('panels.updateCustomAttribute.help.description')}
           </p>
-        </div>
+        </FlowFeedbackBanner>
       </div>
-
-      {/* Botões de ação */}
-      <div className="flex gap-3 pt-2">
-        <Button variant="outline" onClick={onClose} className="flex-1 h-10">
-          {t('panels.updateCustomAttribute.actions.cancel')}
-        </Button>
-        <Button onClick={handleSave} className="flex-1 h-10" disabled={!isValid}>
-          {isValid
-            ? t('panels.updateCustomAttribute.actions.save')
-            : t('panels.updateCustomAttribute.actions.configureAttribute')}
-        </Button>
-      </div>
-    </BaseFlowPanel>
+    </NodeConfigModal>
   );
 }

@@ -59,6 +59,23 @@ describe('NodeConfigModal — common chrome', () => {
     expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
   });
 
+  it('keeps Save disabled when saveDisabled is true even if dirty (EVO-1275)', () => {
+    const { rerender } = render(
+      <NodeConfigModal {...baseProps} variant="simple" dirty saveDisabled>
+        body
+      </NodeConfigModal>,
+    );
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+
+    // Clearing saveDisabled (while still dirty) re-enables Save.
+    rerender(
+      <NodeConfigModal {...baseProps} variant="simple" dirty saveDisabled={false}>
+        body
+      </NodeConfigModal>,
+    );
+    expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
+  });
+
   it('disables both Save and Cancel while loading', () => {
     render(
       <NodeConfigModal {...baseProps} variant="simple" dirty loading>
@@ -149,13 +166,13 @@ describe('NodeConfigModal — common chrome', () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
-  it('announces "Saving…" to assistive tech while loading', () => {
+  it('announces the saving label to assistive tech while loading', () => {
     render(
       <NodeConfigModal {...baseProps} variant="simple" dirty loading>
         body
       </NodeConfigModal>,
     );
-    expect(screen.getByText('Saving…')).toBeTruthy();
+    expect(screen.getByText('Saving...')).toBeTruthy();
   });
 });
 
@@ -238,6 +255,176 @@ describe('NodeConfigModal — variant="tabs"', () => {
     expect(screen.getByText('advanced-pane')).toBeTruthy();
     await userEvent.click(screen.getByRole('tab', { name: 'Basic' }));
     expect((screen.getByLabelText('basic-input') as HTMLInputElement).value).toBe('changed');
+  });
+
+  it('renders the optional header slot above the tablist and omits it when undefined (EVO-1276)', () => {
+    const { rerender } = render(
+      <NodeConfigModal
+        {...baseProps}
+        variant="tabs"
+        tabs={TABS}
+        header={<div data-testid="tabs-header">type selector</div>}
+      >
+        body
+      </NodeConfigModal>,
+    );
+    const header = screen.getByTestId('tabs-header');
+    expect(header).toBeTruthy();
+    // The header must precede the tablist in document order.
+    const tablist = screen.getByRole('tablist');
+    expect(header.compareDocumentPosition(tablist) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    rerender(
+      <NodeConfigModal {...baseProps} variant="tabs" tabs={TABS}>
+        body
+      </NodeConfigModal>,
+    );
+    expect(screen.queryByTestId('tabs-header')).toBeNull();
+  });
+
+  it('renders a tab badge inside its trigger and omits it when undefined (EVO-1276)', () => {
+    const { rerender } = render(
+      <NodeConfigModal
+        {...baseProps}
+        variant="tabs"
+        tabs={[
+          { value: 'basic', label: 'Basic', content: <div>basic body</div> },
+          {
+            value: 'advanced',
+            label: 'Advanced',
+            content: <div>advanced body</div>,
+            badge: <span data-testid="adv-badge">2</span>,
+          },
+        ]}
+      >
+        body
+      </NodeConfigModal>,
+    );
+    const badge = screen.getByTestId('adv-badge');
+    expect(badge).toBeTruthy();
+    expect(within(screen.getByRole('tab', { name: /Advanced/ })).getByTestId('adv-badge')).toBeTruthy();
+
+    rerender(
+      <NodeConfigModal {...baseProps} variant="tabs" tabs={TABS}>
+        body
+      </NodeConfigModal>,
+    );
+    expect(screen.queryByTestId('adv-badge')).toBeNull();
+  });
+
+  it('follows the controlled value prop and still fires onTabChange on click (EVO-1276)', async () => {
+    const onTabChange = vi.fn();
+    const { rerender } = render(
+      <NodeConfigModal
+        {...baseProps}
+        variant="tabs"
+        tabs={TABS}
+        value="basic"
+        onTabChange={onTabChange}
+      >
+        body
+      </NodeConfigModal>,
+    );
+    expect(screen.getByText('basic body')).toBeTruthy();
+
+    // Driving `value` from the parent switches the visible tab.
+    rerender(
+      <NodeConfigModal
+        {...baseProps}
+        variant="tabs"
+        tabs={TABS}
+        value="advanced"
+        onTabChange={onTabChange}
+      >
+        body
+      </NodeConfigModal>,
+    );
+    expect(screen.getByText('advanced body')).toBeTruthy();
+
+    // A user click still reports the change so the parent can update `value`.
+    await userEvent.click(screen.getByRole('tab', { name: 'Basic' }));
+    expect(onTabChange).toHaveBeenCalledWith('basic');
+  });
+
+  it('keeps a forceMount tab mounted while inactive (default tabs unmount) (EVO-1276 F1)', async () => {
+    // Baseline: a default (non-forced) tab's content unmounts when inactive.
+    const { unmount } = render(
+      <NodeConfigModal {...baseProps} variant="tabs" tabs={TABS}>
+        body
+      </NodeConfigModal>,
+    );
+    await userEvent.click(screen.getByRole('tab', { name: 'Advanced' }));
+    expect(screen.queryByText('basic body')).toBeNull();
+    unmount();
+
+    // forceMount keeps the inactive tab's content in the DOM.
+    render(
+      <NodeConfigModal
+        {...baseProps}
+        variant="tabs"
+        tabs={[
+          { value: 'basic', label: 'Basic', forceMount: true, content: <div>forced basic</div> },
+          { value: 'advanced', label: 'Advanced', content: <div>advanced body</div> },
+        ]}
+      >
+        body
+      </NodeConfigModal>,
+    );
+    await userEvent.click(screen.getByRole('tab', { name: 'Advanced' }));
+    expect(screen.getByText('advanced body')).toBeTruthy();
+    expect(screen.getByText('forced basic')).toBeTruthy();
+  });
+
+  it('hides a force-mounted tab while inactive so its content does not leak (EVO-1276 review)', async () => {
+    // A force-mounted panel stays in the DOM (F1), but Radix leaves it
+    // hidden=false → without an inactive-hide rule its content visually leaks
+    // into the active tab. The modal must carry `data-[state=inactive]:hidden`
+    // so the force-mounted panel is hidden whenever it is not the active tab.
+    render(
+      <NodeConfigModal
+        {...baseProps}
+        variant="tabs"
+        tabs={[
+          { value: 'basic', label: 'Basic', forceMount: true, content: <div>forced basic</div> },
+          { value: 'advanced', label: 'Advanced', content: <div>advanced body</div> },
+        ]}
+      >
+        body
+      </NodeConfigModal>,
+    );
+    const forcedPanel = screen.getByText('forced basic').closest('[role="tabpanel"]') as HTMLElement;
+    // While Basic is the active tab it must be visible (no hidden state).
+    expect(forcedPanel.getAttribute('data-state')).toBe('active');
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Advanced' }));
+    // Still mounted, but now inactive AND carrying the Tailwind hide utility.
+    expect(forcedPanel.getAttribute('data-state')).toBe('inactive');
+    expect(forcedPanel.className).toContain('data-[state=inactive]:hidden');
+  });
+
+  it('AC8 backward-compat: SendWebhookPanel-style usage (uncontrolled, defaultTab, string-encoded labels, no new props) is unaffected (EVO-1276)', async () => {
+    // Mirrors SendWebhookPanel's exact prop shape: no header/value/badge/forceMount.
+    render(
+      <NodeConfigModal
+        {...baseProps}
+        variant="tabs"
+        defaultTab="basic"
+        tabs={[
+          { value: 'basic', label: 'Basic', content: <div>basic pane</div> },
+          { value: 'headers', label: 'Headers (2)', content: <div>headers pane</div> },
+          { value: 'auth', label: 'Authentication ✓', content: <div>auth pane</div> },
+        ]}
+      >
+        body
+      </NodeConfigModal>,
+    );
+    // String-encoded label markers (the existing tab-indicator convention) survive verbatim.
+    expect(screen.getByRole('tab', { name: 'Headers (2)' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Authentication ✓' })).toBeTruthy();
+    // Uncontrolled: clicking switches content with no controlling `value` prop.
+    expect(screen.getByText('basic pane')).toBeTruthy();
+    await userEvent.click(screen.getByRole('tab', { name: 'Authentication ✓' }));
+    expect(screen.getByText('auth pane')).toBeTruthy();
   });
 });
 

@@ -18,7 +18,8 @@
       "pipeline": "Pipeline",
       "history": "Historique",
       "notes": "Notes",
-      "attributes": "Attributs"
+      "attributes": "Attributs",
+      "events": "Événements"
     },
     "actions": {
       "startConversation": "Démarrer une Conversation",
@@ -603,5 +604,103 @@
     "contact": "Contact",
     "contactPlaceholder": "Rechercher un contact...",
     "noContactsFound": "Aucun contact trouvé"
+  },
+  "events": {
+    "timeline": {
+      "title": "Historique des événements",
+      "ariaLabel": "Chronologie des événements du contact",
+      "loading": "Chargement des événements...",
+      "loadingMore": "Chargement...",
+      "loadMore": "Charger plus",
+      "showing": "{{count}} événements",
+      "softCapped": "Affichage des {{cap}} derniers événements. Utilisez les filtres pour affiner.",
+      "empty": {
+        "default": "Ce contact n'a pas encore d'événements enregistrés.",
+        "withFilters": "Aucun événement ne correspond aux filtres appliqués."
+      },
+      "degraded": {
+        "banner": "Historique temporairement indisponible. Veuillez réessayer dans quelques instants.",
+        "retry": "Réessayer"
+      },
+      "error": {
+        "forbidden": "Vous n'avez pas la permission de voir l'historique de ce contact.",
+        "invalidFilters": "Filtres invalides. Vérifiez les champs et réessayez.",
+        "rateLimit": "Trop de requêtes. Veuillez patienter quelques secondes.",
+        "generic": "Échec du chargement des événements. Veuillez recharger la page.",
+        "retry": "Réessayer"
+      },
+      "crashed": {
+        "title": "Une erreur est survenue lors de l'affichage de l'historique.",
+        "reload": "Recharger"
+      }
+    },
+    "filters": {
+      "title": "Filtres",
+      "eventType": "Type",
+      "eventName": "Nom",
+      "channel": "Canal",
+      "campaign": "Campagne",
+      "campaignPlaceholder": "Filtrer par campagne",
+      "campaignSearchPlaceholder": "Rechercher des campagnes…",
+      "campaignLoading": "Chargement des campagnes…",
+      "campaignEmpty": "Aucune campagne trouvée",
+      "clearCampaign": "Effacer le filtre de campagne",
+      "occurredAfter": "Du",
+      "occurredBefore": "Au",
+      "clear": "Effacer les filtres",
+      "allEventNames": "Tous les noms"
+    },
+    "types": {
+      "_comment": "Les valeurs de termes de protocole (Identify/Track/Page/Screen/Segment) sont volontairement conservées non traduites dans toutes les locales.",
+      "all": "Tous les types",
+      "identify": "Identify",
+      "track": "Track",
+      "page": "Page",
+      "screen": "Screen",
+      "segment": "Segment"
+    },
+    "channels": {
+      "all": "Tous les canaux",
+      "api": "API",
+      "email": "Email",
+      "facebook": "Facebook (inclut la page Facebook)",
+      "instagram": "Instagram",
+      "line": "LINE",
+      "sms": "SMS",
+      "telegram": "Telegram",
+      "twilio_sms": "Twilio SMS",
+      "twitter": "Twitter (inclut le profil Twitter)",
+      "web_widget": "Site web",
+      "whatsapp": "WhatsApp"
+    },
+    "card": {
+      "expand": "Voir les détails",
+      "collapse": "Masquer les détails",
+      "properties": "Propriétés de l'événement",
+      "traits": "Attributs de l'événement",
+      "noData": "Aucune donnée supplémentaire pour cet événement",
+      "justNow": "à l'instant",
+      "enriched": {
+        "campaign": "Campagne : {{name}}",
+        "channel": "Canal : {{label}}",
+        "agent": "Agent : {{name}}"
+      }
+    },
+    "names": {
+      "contact_created": "Contact créé",
+      "contact_updated": "Contact mis à jour",
+      "contact_label_added": "Étiquette ajoutée",
+      "contact_label_removed": "Étiquette supprimée",
+      "contact_custom_attribute_changed": "Attribut personnalisé modifié",
+      "conversation_created": "Conversation créée",
+      "conversation_updated": "Conversation mise à jour",
+      "conversation_resolved": "Conversation résolue",
+      "conversation_activity": "Activité de la conversation",
+      "conversation_first_reply": "Première réponse",
+      "message_created": "Message envoyé",
+      "pipeline_conversation_created": "Conversation créée dans le pipeline",
+      "pipeline_conversation_updated": "Conversation mise à jour dans le pipeline",
+      "pipeline_stage_changed": "Étape du pipeline modifiée"
+    }
   }
 }

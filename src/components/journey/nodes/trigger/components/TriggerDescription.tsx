@@ -24,6 +24,8 @@ export function TriggerDescription({ triggerType }: TriggerDescriptionProps) {
         return t('triggerComponents.descriptions.label');
       case 'customAttribute':
         return t('triggerComponents.descriptions.customAttribute');
+      case 'pipelineStageChanged':
+        return t('triggerComponents.descriptions.pipelineStageChanged');
       default:
         return t('triggerComponents.descriptions.selectType');
     }

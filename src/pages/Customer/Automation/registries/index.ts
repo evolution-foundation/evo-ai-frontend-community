@@ -6,6 +6,14 @@ export * from './conditionTypeRegistry';
 export * from './conditionAttributeRegistry';
 export * from './actionRegistry';
 
+// Authoritative trigger list for the CRM automation engine (snake_case, its
+// own domain — distinct from evo-flow's EvoFlow::EVENT_NAMES). This stays the
+// source of truth for the option set AND the Zod enum below; it is NOT replaced
+// by the events manifest (EVO-1263 Open Risk: events like conversation_opened /
+// pipeline_stage_updated have no canonical evo-flow equivalent and dropping
+// them would break real automations). DISPLAY labels for the events that DO
+// have a canonical equivalent are sourced from the manifest in
+// components/automation/EventSelector.tsx (getEventLabel + resolveLegacyEventName).
 const automationEventNames = [
   'conversation_created',
   'conversation_updated',

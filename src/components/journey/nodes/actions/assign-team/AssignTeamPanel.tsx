@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Button,
   Label,
 } from '@evoapi/design-system';
 import { Users } from 'lucide-react';
 import { AssignTeamNodeData } from './AssignTeamNode';
 import { automationService } from '@/services/automation/automationService';
-import { BaseFlowPanel } from '@/components/base';
+import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
+import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface AssignTeamPanelProps {
@@ -24,6 +24,7 @@ interface AssignTeamPanelProps {
 export function AssignTeamPanel({ nodeId, data, onUpdate, onClose }: AssignTeamPanelProps) {
   const { t } = useLanguage('journey');
   const [teamId, setTeamId] = useState<string>(data.team_id?.toString() || '');
+  const [originalTeamId] = useState<string>(() => data.team_id?.toString() || '');
   const [formDataOptions, setFormDataOptions] = useState<{
     teams: any[];
   }>({
@@ -31,7 +32,6 @@ export function AssignTeamPanel({ nodeId, data, onUpdate, onClose }: AssignTeamP
   });
   const [loading, setLoading] = useState(true);
 
-  // Load form data options on mount
   useEffect(() => {
     const loadFormData = async () => {
       try {
@@ -64,7 +64,6 @@ export function AssignTeamPanel({ nodeId, data, onUpdate, onClose }: AssignTeamP
     onClose();
   };
 
-  // Update node with form data when available
   useEffect(() => {
     if (formDataOptions.teams.length > 0) {
       const updatedData: AssignTeamNodeData = {
@@ -75,79 +74,80 @@ export function AssignTeamPanel({ nodeId, data, onUpdate, onClose }: AssignTeamP
     }
   }, [formDataOptions, data, nodeId, onUpdate]);
 
+  const dirty = useMemo(() => teamId !== originalTeamId, [teamId, originalTeamId]);
+  const isValid = Boolean(teamId);
+
   return (
-    <BaseFlowPanel
+    <NodeConfigModal
+      open
+      variant="simple"
       title={t('panels.assignTeam.title')}
-      icon={<Users className="w-5 h-5 text-indigo-500" />}
-      onClose={onClose}
-      width="w-[420px]"
+      icon={<Users className="h-5 w-5 text-flow-node-action-pipeline-fg" />}
+      onCancel={onClose}
+      onSave={handleSave}
+      dirty={dirty && isValid}
+      loading={loading}
+      saveLabel={t('panels.actions.save')}
+      cancelLabel={t('panels.actions.cancel')}
     >
-      {/* Seleção de Equipe */}
-      <div className="space-y-2">
-        <Label className="text-sidebar-foreground font-medium">{t('panels.assignTeam.team')}</Label>
-        <Select value={teamId} onValueChange={setTeamId} disabled={loading}>
-          <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
-            <SelectValue
-              placeholder={
-                loading ? t('panels.assignTeam.loadingTeams') : t('panels.assignTeam.selectTeam')
-              }
-            />
-          </SelectTrigger>
-          <SelectContent className="bg-sidebar border-sidebar-border">
-            {formDataOptions.teams.map(team => (
-              <SelectItem
-                key={team.id}
-                value={team.id.toString()}
-                className="text-sidebar-foreground"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-medium">
-                    <Users className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="font-medium">{team.name}</div>
-                    <div className="text-xs text-sidebar-foreground/60">
-                      {team.description || t('panels.assignTeam.defaultDescription')}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label className="text-sidebar-foreground font-medium">
+            {t('panels.assignTeam.team')}
+          </Label>
+          <Select value={teamId} onValueChange={setTeamId} disabled={loading}>
+            <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+              <SelectValue
+                placeholder={
+                  loading ? t('panels.assignTeam.loadingTeams') : t('panels.assignTeam.selectTeam')
+                }
+              />
+            </SelectTrigger>
+            <SelectContent className="bg-sidebar border-sidebar-border">
+              {formDataOptions.teams.map(team => (
+                <SelectItem
+                  key={team.id}
+                  value={team.id.toString()}
+                  className="text-sidebar-foreground"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-flow-node-action-pipeline-bg text-flow-node-action-pipeline-fg flex items-center justify-center text-xs font-medium">
+                      <Users className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="font-medium">{team.name}</div>
+                      <div className="text-xs text-sidebar-foreground/60">
+                        {team.description || t('panels.assignTeam.defaultDescription')}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        {!loading && formDataOptions.teams.length === 0 && (
-          <p className="text-sm text-sidebar-foreground/60">
-            {t('panels.assignTeam.noTeamsFound')}
-          </p>
+          {!loading && formDataOptions.teams.length === 0 && (
+            <p className="text-sm text-sidebar-foreground/60">
+              {t('panels.assignTeam.noTeamsFound')}
+            </p>
+          )}
+        </div>
+
+        {teamId && (
+          <FlowFeedbackBanner variant="info">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              <span>
+                {t('panels.assignTeam.conversationWillBeAssigned')}{' '}
+                <strong>
+                  {formDataOptions.teams.find(team => team.id.toString() === teamId)?.name ||
+                    `${t('panels.assignTeam.team')} #${teamId}`}
+                </strong>
+              </span>
+            </div>
+          </FlowFeedbackBanner>
         )}
       </div>
-
-      {/* Preview da ação */}
-      {teamId && (
-        <div className="p-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-800/30">
-          <div className="flex items-center gap-2 text-sm">
-            <Users className="w-4 h-4 text-indigo-600" />
-            <span className="text-indigo-800 dark:text-indigo-200">
-              {t('panels.assignTeam.conversationWillBeAssigned')}{' '}
-              <strong>
-                {formDataOptions.teams.find(t => t.id.toString() === teamId)?.name ||
-                  `${t('panels.assignTeam.team')} #${teamId}`}
-              </strong>
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Botões de Ação */}
-      <div className="flex gap-3 pt-4">
-        <Button variant="outline" onClick={onClose} className="flex-1 h-10">
-          {t('panels.actions.cancel')}
-        </Button>
-        <Button onClick={handleSave} className="flex-1 h-10" disabled={!teamId || loading}>
-          {t('panels.actions.save')}
-        </Button>
-      </div>
-    </BaseFlowPanel>
+    </NodeConfigModal>
   );
 }

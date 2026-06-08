@@ -1,18 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  Button,
   Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Separator,
 } from '@evoapi/design-system';
 import { VariableInput } from '@/components/journey/environment-manager';
 import { UserCog } from 'lucide-react';
 import { UpdateContactNodeData } from './UpdateContactNode';
-import { BaseFlowPanel } from '@/components/base';
+import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
+import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface UpdateContactPanelProps {
@@ -54,6 +53,7 @@ export function UpdateContactPanel({
       placeholder: t('panels.updateContact.placeholders.identifier'),
     },
   ] as const;
+  const [originalData] = useState<UpdateContactNodeData>(() => ({ ...data }));
   const [formData, setFormData] = useState<UpdateContactNodeData>({
     ...data,
   });
@@ -63,17 +63,6 @@ export function UpdateContactPanel({
   }, [data]);
 
   const handleSave = () => {
-    // Validação básica
-    if (!formData.fieldToUpdate) {
-      alert(t('panels.updateContact.selectField'));
-      return;
-    }
-
-    if (!formData.newValue || formData.newValue.trim() === '') {
-      alert(t('panels.updateContact.enterValue'));
-      return;
-    }
-
     onUpdate(nodeId, formData);
     onClose();
   };
@@ -85,7 +74,7 @@ export function UpdateContactPanel({
       ...prev,
       fieldToUpdate: fieldId as UpdateContactNodeData['fieldToUpdate'],
       fieldLabel: selectedField?.label || '',
-      newValue: '', // Reset value when changing field
+      newValue: '',
     }));
   };
 
@@ -96,34 +85,39 @@ export function UpdateContactPanel({
     }));
   };
 
-  const isValid = formData.fieldToUpdate && formData.newValue && formData.newValue.trim() !== '';
+  const isValid = Boolean(
+    formData.fieldToUpdate && formData.newValue && formData.newValue.trim() !== '',
+  );
+  const dirty = useMemo(
+    () => JSON.stringify(formData) !== JSON.stringify(originalData),
+    [formData, originalData],
+  );
 
   return (
-    <BaseFlowPanel
+    <NodeConfigModal
+      open
+      variant="simple"
       title={t('panels.updateContact.title')}
-      icon={<UserCog className="w-5 h-5 text-cyan-500" />}
-      onClose={onClose}
-      width="w-[600px]"
+      icon={<UserCog className="h-5 w-5 text-flow-node-control-fg" />}
+      onCancel={onClose}
+      onSave={handleSave}
+      dirty={dirty && isValid}
+      saveLabel={t('panels.updateContact.actions.save')}
+      cancelLabel={t('panels.updateContact.actions.cancel')}
     >
-      <Separator />
-
       <div className="space-y-4">
-        {/* Status de validação */}
         {!isValid && (
-          <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800/30">
-            <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-              {t('panels.updateContact.incompleteConfig')}:
-            </p>
-            <ul className="text-xs text-yellow-700 dark:text-yellow-300 mt-1 list-disc list-inside">
+          <FlowFeedbackBanner variant="warn">
+            <p className="font-medium">{t('panels.updateContact.incompleteConfig')}:</p>
+            <ul className="text-xs mt-1 list-disc list-inside">
               {!formData.fieldToUpdate && <li>{t('panels.updateContact.selectField')}</li>}
               {!formData.newValue && formData.fieldToUpdate && (
                 <li>{t('panels.updateContact.enterValue')}</li>
               )}
             </ul>
-          </div>
+          </FlowFeedbackBanner>
         )}
 
-        {/* Seleção do campo */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">{t('panels.updateContact.fieldToUpdate')}</Label>
           <Select value={formData.fieldToUpdate || ''} onValueChange={handleFieldChange}>
@@ -134,7 +128,7 @@ export function UpdateContactPanel({
               {CONTACT_FIELDS.map(field => (
                 <SelectItem key={field.id} value={field.id} className="text-sidebar-foreground">
                   <div className="flex items-center gap-2">
-                    <UserCog className="w-4 h-4 text-cyan-500" />
+                    <UserCog className="w-4 h-4 text-flow-node-control-fg" />
                     <div>
                       <div className="font-medium">{field.label}</div>
                       <div className="text-xs text-muted-foreground">{field.placeholder}</div>
@@ -146,7 +140,6 @@ export function UpdateContactPanel({
           </Select>
         </div>
 
-        {/* Campo de novo valor */}
         {formData.fieldToUpdate && (
           <div className="space-y-2">
             <Label className="text-sm font-medium">{t('panels.updateContact.newValue')}</Label>
@@ -170,48 +163,32 @@ export function UpdateContactPanel({
           </div>
         )}
 
-        {/* Preview da atualização */}
         {isValid && (
-          <div className="p-4 rounded-lg bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-800/30">
-            <p className="text-sm text-cyan-800 dark:text-cyan-200 mb-2">
+          <FlowFeedbackBanner variant="info">
+            <p className="mb-2">
               <strong>{t('panels.updateContact.preview.title')}:</strong>
             </p>
             <div className="flex items-center gap-2">
-              <UserCog className="w-4 h-4 text-cyan-500" />
+              <UserCog className="w-4 h-4" />
               <span className="font-medium">{formData.fieldLabel}</span>
-              <span className="text-cyan-600 dark:text-cyan-400">→</span>
-              <span className="font-medium text-cyan-700 dark:text-cyan-300">
-                {formData.newValue}
-              </span>
+              <span>→</span>
+              <span className="font-medium">{formData.newValue}</span>
             </div>
-            <p className="text-xs text-cyan-600 dark:text-cyan-400 mt-2">
+            <p className="text-xs mt-2">
               {t('panels.updateContact.preview.description', {
                 field: formData.fieldLabel?.toLowerCase(),
               })}
             </p>
-          </div>
+          </FlowFeedbackBanner>
         )}
 
-        {/* Ajuda */}
-        <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/30">
-          <p className="text-sm text-blue-800 dark:text-blue-200">
+        <FlowFeedbackBanner variant="info">
+          <p>
             <strong>{t('panels.updateContact.help.title')}:</strong>{' '}
             {t('panels.updateContact.help.description')}
           </p>
-        </div>
+        </FlowFeedbackBanner>
       </div>
-
-      {/* Botões de ação */}
-      <div className="flex gap-3 pt-2">
-        <Button variant="outline" onClick={onClose} className="flex-1 h-10">
-          {t('panels.updateContact.actions.cancel')}
-        </Button>
-        <Button onClick={handleSave} className="flex-1 h-10" disabled={!isValid}>
-          {isValid
-            ? t('panels.updateContact.actions.save')
-            : t('panels.updateContact.actions.configureFields')}
-        </Button>
-      </div>
-    </BaseFlowPanel>
+    </NodeConfigModal>
   );
 }

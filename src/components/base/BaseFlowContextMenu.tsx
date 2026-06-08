@@ -1,4 +1,3 @@
-import { useReactFlow, Node, Edge } from "@xyflow/react";
 import { Copy, Trash2, Settings, type LucideIcon } from "lucide-react";
 import { useCallback } from "react";
 import { useLanguage } from '@/hooks/useLanguage';
@@ -20,6 +19,7 @@ export interface BaseFlowContextMenuProps {
   nodeId?: string;
   onClose: () => void;
   onDeleteNode: (nodeId: string) => void;
+  onDuplicateNode?: (nodeId: string) => void;
 
   // Configurações customizadas
   title?: string;
@@ -40,6 +40,7 @@ export function BaseFlowContextMenu({
   nodeId,
   onClose,
   onDeleteNode,
+  onDuplicateNode,
   title,
   actions = [],
   showDefaultActions = true,
@@ -50,46 +51,22 @@ export function BaseFlowContextMenu({
   itemClassName,
 }: BaseFlowContextMenuProps) {
   const { t } = useLanguage('common');
-  const { getNode, setNodes, addNodes, setEdges } = useReactFlow();
   const finalTitle = title || t('base.flow.node.options');
 
-  // Ações padrão
+  // Delegate mutations to the parent so they flow through the editor store
+  // (EVO-1643). Doing setNodes/addNodes here via useReactFlow bypassed
+  // onFlowDataChange, so duplicates/deletes were lost on the next save.
   const duplicateNode = useCallback(() => {
     if (!nodeId) return;
-
-    const node = getNode(nodeId);
-    if (!node) {
-      console.error(`Node with id ${nodeId} not found.`);
-      return;
-    }
-
-    const position = {
-      x: node.position.x + 50,
-      y: node.position.y + 50,
-    };
-
-    addNodes({
-      ...node,
-      id: `${node.id}-copy-${Date.now()}`,
-      position,
-      selected: false,
-      dragging: false,
-    });
-
+    onDuplicateNode?.(nodeId);
     onClose();
-  }, [nodeId, getNode, addNodes, onClose]);
+  }, [nodeId, onDuplicateNode, onClose]);
 
   const deleteNode = useCallback(() => {
     if (!nodeId) return;
-
-    setNodes((nodes: Node[]) => nodes.filter((node) => node.id !== nodeId));
-    setEdges((edges: Edge[]) =>
-      edges.filter((edge) => edge.source !== nodeId && edge.target !== nodeId),
-    );
-
     onDeleteNode(nodeId);
     onClose();
-  }, [nodeId, setNodes, setEdges, onDeleteNode, onClose]);
+  }, [nodeId, onDeleteNode, onClose]);
 
   const editNode = useCallback(() => {
     if (!nodeId) return;

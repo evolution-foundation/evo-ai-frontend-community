@@ -1,0 +1,30 @@
+{
+  "selector": {
+    "placeholder": "Selecciona un evento",
+    "searchPlaceholder": "Buscar evento...",
+    "noResults": "No se encontraron eventos",
+    "customLabel": "Evento personalizado",
+    "customBadge": "Custom"
+  },
+  "categories": {
+    "contact": "Eventos de Contacto",
+    "conversation": "Eventos de Conversación",
+    "message": "Eventos de Mensaje",
+    "campaign": "Eventos de Campaña",
+    "custom": "Personalizado"
+  },
+  "propertiesForm": {
+    "requiredSectionLabel": "Campos obligatorios",
+    "optionalSectionLabel": "Campos opcionales",
+    "addFieldLabel": "+ Añadir campo",
+    "customSectionLabel": "Propiedades personalizadas",
+    "customKeyPlaceholder": "clave",
+    "customValuePlaceholder": "valor",
+    "customAddLabel": "+ Añadir propiedad",
+    "requiredFieldMissing": "Campo obligatorio",
+    "customWarning": "Los eventos personalizados no se validan por schema",
+    "customRemoveAriaLabel": "Eliminar propiedad",
+    "addFieldSearchPlaceholder": "Buscar campo...",
+    "noResultsLabel": "No se encontraron campos"
+  }
+}

@@ -7,6 +7,7 @@
     "channels": "Canais",
     "openai": "OpenAI",
     "integrations": "Integracoes",
+    "evolutionHub": "Evo Hub",
     "inboundEmail": "E-mail de Entrada",
     "frontendRuntime": "Frontend Runtime"
   },
@@ -457,5 +458,34 @@
     },
     "save": "Salvar Configuração",
     "saving": "Salvando..."
+  },
+  "evolutionHub": {
+    "title": "Evo Hub",
+    "description": "Use o Evo Hub como camada de proxy para canais Meta (WhatsApp Cloud, Messenger, Instagram). Quando ativado, o CRM substitui chamadas diretas à Graph API pelas chamadas via Hub.",
+    "sections": {
+      "connection": "Conexão"
+    },
+    "fields": {
+      "enabled": "Usar Evo Hub",
+      "enabledHelp": "Quando ligado, todas as chamadas Meta (WA Cloud, Messenger, Instagram) passam pelo Hub configurado.",
+      "url": "URL do Hub",
+      "apiKey": "API Key",
+      "webhookSecret": "Segredo do Webhook (HMAC)",
+      "webhookSecretPlaceholder": "Segredo compartilhado para assinar webhooks",
+      "webhookSecretHelp": "Use uma string aleatória forte. O Hub usa esse segredo para assinar webhooks que envia ao CRM.",
+      "secretSet": "configurado"
+    },
+    "actions": {
+      "save": "Salvar",
+      "test": "Testar conexão",
+      "generateSecret": "Gerar segredo aleatório"
+    },
+    "messages": {
+      "saved": "Configuração do Evo Hub salva",
+      "saveError": "Falha ao salvar configuração",
+      "loadError": "Falha ao carregar configuração",
+      "testError": "Falha no teste de conexão",
+      "testUnknown": "Resposta desconhecida do Hub"
+    }
   }
 }

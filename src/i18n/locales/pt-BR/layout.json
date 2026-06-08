@@ -50,7 +50,8 @@
         "conversation_opened": "Conversa Aberta",
         "conversation_closed": "Conversa Fechada",
         "message_updated": "Mensagem Atualizada",
-        "message_deleted": "Mensagem Deletada"
+        "message_deleted": "Mensagem Deletada",
+        "channel_message": "Nova mensagem via {{channel}}"
       }
     }
   },
@@ -73,7 +74,7 @@
     "closeSubmenu": "Fechar submenu",
     "footer": {
       "brand": "Evo CRM",
-      "copyright": "© {{year}} Evolution Foundation. All rights reserved.",
+      "copyright": "© {{year}} Evolution Foundation. Todos os direitos reservados.",
       "documentation": "Documentação",
       "support": "Preciso de suporte"
     }
@@ -99,8 +100,8 @@
     },
     "agents": {
       "list": "Agentes de IA",
-      "customTools": "Custom Tools",
-      "customMcps": "Custom MCPs"
+      "customTools": "Ferramentas Personalizadas",
+      "customMcps": "MCPs Personalizados"
     },
     "settings": {
       "account": "Conta",

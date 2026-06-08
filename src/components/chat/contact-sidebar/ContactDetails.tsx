@@ -6,6 +6,7 @@ import { useConversations } from '@/hooks/chat/useConversations';
 
 import { contactsService } from '@/services/contacts/contactsService';
 import { formatContactPhone } from '@/utils/contact/formatContactPhone';
+import { unixTimestampToIso } from '@/utils/chat/contactTimestamp';
 
 import { Button } from '@evoapi/design-system/button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@evoapi/design-system/card';
@@ -50,10 +51,12 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({ contact }) => {
       .join(' ');
   };
 
-  const formatDate = (dateString?: string): string => {
+  const formatDate = (dateString?: string | number): string => {
     if (!dateString) return t('contactSidebar.contactDetails.notInformed');
-
-    const date = new Date(dateString);
+    const iso = unixTimestampToIso(dateString) ?? (typeof dateString === 'string' ? dateString : undefined);
+    if (!iso) return t('contactSidebar.contactDetails.notInformed');
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return t('contactSidebar.contactDetails.notInformed');
     return date.toLocaleDateString('pt-BR', {
       day: '2-digit',
       month: '2-digit',

@@ -43,11 +43,12 @@ class MacrosService {
     return extractData<MacroDeleteResponse>(response);
   }
 
-  // Execute macro
-  async executeMacro(data: MacroExecuteData): Promise<void> {
-    await api.post(`/macros/${data.macroId}/execute`, {
+  // Execute macro — returns execution results with status per action
+  async executeMacro(data: MacroExecuteData): Promise<{ data?: { executions?: Array<{ id: string; status: string; error_message?: string; actions_result?: Array<{ action: string; status: string; error?: string }> }> } }> {
+    const response = await api.post(`/macros/${data.macroId}/execute`, {
       conversation_ids: data.conversationIds,
     });
+    return response.data;
   }
 
   // Search macros (if implemented in backend)

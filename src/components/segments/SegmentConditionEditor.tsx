@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { Fragment, useState, useEffect, useCallback } from 'react';
 import {
   Select,
   SelectContent,
@@ -10,6 +10,14 @@ import {
   Button,
 } from '@evoapi/design-system';
 import { Trash2, Settings, Clock, Plus, X } from 'lucide-react';
+import {
+  EVENT_CATEGORIES,
+  getEventsByCategory,
+  getEventLabel,
+  resolveLegacyEventName,
+  type EventCategory,
+} from '@/lib/events-manifest';
+import { useLanguage } from '@/hooks/useLanguage';
 
 // Componentes especializados
 import ConditionTypeSelector from './ui/ConditionTypeSelector';
@@ -38,6 +46,64 @@ interface SegmentConditionEditorProps {
   index: number;
   onUpdate: (index: number, condition: SegmentNodeUnion) => void;
   onRemove: (index: number) => void;
+}
+
+// Category headers for the Performed/LastPerformed event selector. The 'custom'
+// category is intentionally omitted: free-form custom events were removed in
+// EVO-1263 (only canonical manifest events are selectable now).
+const SEGMENT_EVENT_CATEGORY_LABELS: Record<EventCategory, string> = {
+  contact: 'Eventos de Contato',
+  conversation: 'Eventos de Conversa',
+  message: 'Eventos de Mensagem',
+  campaign: 'Eventos de Campanha',
+  custom: 'Personalizado',
+};
+
+// Manifest-driven, category-grouped event picker shared by the Performed and
+// LastPerformed conditions. Stores the canonical dot-notation event name (e.g.
+// `contact.created`) — the SAME format evo-flow matches against in ClickHouse
+// (`event_name = '<event>'`). This replaces the old free-text input + hardcoded
+// snake_case templates, which never matched the stored canonical names.
+function ManifestEventSelect({
+  value,
+  onSelect,
+}: {
+  value: string;
+  onSelect: (eventName: string) => void;
+}) {
+  const { currentLanguage } = useLanguage();
+  // A persisted node may hold a legacy snake_case value (e.g. `contact_created`)
+  // from before EVO-1263, or a value already in canonical form. Resolve it so it
+  // matches a dot-notation <SelectItem> and the saved event still renders its
+  // label (AC6). Non-backend legacy values (no canonical equivalent) resolve to
+  // 'custom', which is not an option, so the picker shows the placeholder.
+  const resolved = resolveLegacyEventName(value);
+  const selected = resolved.selectorValue && resolved.selectorValue !== 'custom' ? resolved.selectorValue : '';
+  return (
+    <Select value={selected} onValueChange={(v) => v && onSelect(v)}>
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder="Selecione um evento" />
+      </SelectTrigger>
+      <SelectContent>
+        {EVENT_CATEGORIES.filter((category) => category !== 'custom').map((category) => {
+          const events = getEventsByCategory(category);
+          if (events.length === 0) return null;
+          return (
+            <Fragment key={category}>
+              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                {SEGMENT_EVENT_CATEGORY_LABELS[category]}
+              </div>
+              {events.map((entry) => (
+                <SelectItem key={entry.eventName} value={entry.eventName}>
+                  {getEventLabel(entry.eventName, currentLanguage)}
+                </SelectItem>
+              ))}
+            </Fragment>
+          );
+        })}
+      </SelectContent>
+    </Select>
+  );
 }
 
 export default function SegmentConditionEditor({
@@ -326,6 +392,42 @@ export default function SegmentConditionEditor({
     updateCondition();
   };
 
+  // Selecting a canonical event from the manifest. Stores the dot-notation name.
+  // For the events that have a dedicated property editor (custom attribute /
+  // label pickers) we eagerly load the aux data AND seed the keyed property so
+  // the special UI shows up — preserving the affordance the old per-event
+  // templates used to provide (the templates themselves were removed in
+  // EVO-1263, but this single keyed property is what gates the editors).
+  const handleEventSelect = (eventName: string) => {
+    let seeded: PropertyFilter[] | undefined;
+    if (eventName === 'contact.custom_attribute.changed') {
+      loadCustomAttributes();
+      seeded = [{ path: 'attributeName', operator: { type: 'Equals', value: '' } }];
+    } else if (eventName === 'contact.label.added' || eventName === 'contact.label.removed') {
+      loadLabels();
+      seeded = [{ path: 'labelName', operator: { type: 'Equals', value: '' } }];
+    }
+
+    if (!seeded) {
+      handlePropertyChange('event', eventName);
+      return;
+    }
+
+    // LastPerformed stores its filters under `whereProperties`; Performed under
+    // `properties`. Update + propagate directly (handlePropertyChange's
+    // updateCondition reads stale state).
+    const isLast = localCondition.type === 'LastPerformed';
+    const updated = {
+      ...localCondition,
+      event: eventName,
+      ...(isLast ? { whereProperties: seeded } : { properties: seeded }),
+    } as PerformedNode | LastPerformedNode;
+    setLocalCondition(updated);
+    setPerformedProperties(seeded);
+    setShowPropertyConfig(true);
+    onUpdate(index, updated);
+  };
+
   const handleOperatorChange = () => {
     if (localCondition.type === 'UserProperty') {
       const updated = {
@@ -463,369 +565,6 @@ export default function SegmentConditionEditor({
     }
   };
 
-  // Event templates with predefined properties
-  const applyEventTemplate = (templateKey: string) => {
-    const templates: Record<string, { event: string; properties?: PropertyFilter[] }> = {
-      // Eventos de Contato
-      contact_created: {
-        event: 'contact_created',
-        properties: [
-          { path: 'source', operator: { type: 'Equals', value: '' } },
-          { path: 'contact_type', operator: { type: 'Equals', value: 'lead' } },
-        ],
-      },
-      contact_updated: {
-        event: 'contact_updated',
-        properties: [
-          { path: 'changeCount', operator: { type: 'GreaterThanOrEqual', value: '1' } },
-          { path: 'changedFields', operator: { type: 'Contains', value: '' } },
-        ],
-      },
-      label_added: {
-        event: 'label_added',
-        properties: [
-          { path: 'labelName', operator: { type: 'Equals', value: '' } },
-          { path: 'labelId', operator: { type: 'Exists', value: undefined } },
-        ],
-      },
-      label_removed: {
-        event: 'label_removed',
-        properties: [
-          { path: 'labelName', operator: { type: 'Equals', value: '' } },
-          { path: 'labelId', operator: { type: 'Exists', value: undefined } },
-        ],
-      },
-      custom_attribute_changed: {
-        event: 'custom_attribute_changed',
-        properties: [
-          { path: 'attributeName', operator: { type: 'Equals', value: '' } },
-          { path: 'attributeValue', operator: { type: 'Exists', value: undefined } },
-          { path: 'changeType', operator: { type: 'Equals', value: 'modified' } },
-        ],
-      },
-
-      // Eventos de Conversa
-      conversation_created: {
-        event: 'conversation_created',
-        properties: [
-          { path: 'inbox_name', operator: { type: 'Equals', value: '' } },
-          { path: 'channel_type', operator: { type: 'Equals', value: 'Channel::Api' } },
-        ],
-      },
-      conversation_updated: {
-        event: 'conversation_updated',
-        properties: [
-          { path: 'changes', operator: { type: 'Contains', value: '' } },
-          { path: 'inbox_name', operator: { type: 'Equals', value: '' } },
-        ],
-      },
-      message_created: {
-        event: 'message_created',
-        properties: [
-          { path: 'message_type', operator: { type: 'Equals', value: 'incoming' } },
-          { path: 'content_type', operator: { type: 'Equals', value: 'text' } },
-          { path: 'channel_type', operator: { type: 'Equals', value: 'Channel::Api' } },
-        ],
-      },
-      message_updated: {
-        event: 'message_updated',
-        properties: [
-          { path: 'message_type', operator: { type: 'Equals', value: '' } },
-          { path: 'content_type', operator: { type: 'Equals', value: 'text' } },
-        ],
-      },
-
-      // Eventos de Pipeline
-      pipeline_conversation_added: {
-        event: 'pipeline_conversation_added',
-        properties: [
-          { path: 'pipeline_name', operator: { type: 'Equals', value: '' } },
-          { path: 'pipeline_stage_name', operator: { type: 'Equals', value: '' } },
-        ],
-      },
-      pipeline_stage_changed: {
-        event: 'pipeline_stage_changed',
-        properties: [
-          { path: 'pipeline_name', operator: { type: 'Equals', value: '' } },
-          { path: 'old_stage_name', operator: { type: 'Equals', value: '' } },
-          { path: 'new_stage_name', operator: { type: 'Equals', value: '' } },
-        ],
-      },
-      pipeline_custom_fields_updated: {
-        event: 'pipeline_custom_fields_updated',
-        properties: [
-          { path: 'pipeline_name', operator: { type: 'Equals', value: '' } },
-          { path: 'services_total_value', operator: { type: 'GreaterThan', value: '0' } },
-        ],
-      },
-
-      // Eventos de Segmento
-      segment_entered: {
-        event: 'segment_entered',
-        properties: [
-          { path: 'segmentName', operator: { type: 'Equals', value: '' } },
-          { path: 'changeType', operator: { type: 'Equals', value: 'entered' } },
-        ],
-      },
-      segment_exited: {
-        event: 'segment_exited',
-        properties: [
-          { path: 'segmentName', operator: { type: 'Equals', value: '' } },
-          { path: 'changeType', operator: { type: 'Equals', value: 'exited' } },
-        ],
-      },
-
-      // Eventos Personalizados
-      button_clicked: {
-        event: 'button_clicked',
-        properties: [
-          { path: 'button_id', operator: { type: 'Equals', value: '' } },
-          { path: 'page_url', operator: { type: 'Contains', value: '' } },
-          { path: 'button_text', operator: { type: 'Equals', value: '' } },
-        ],
-      },
-      page_viewed: {
-        event: 'page_viewed',
-        properties: [
-          { path: 'page_url', operator: { type: 'Equals', value: '' } },
-          { path: 'page_title', operator: { type: 'Contains', value: '' } },
-          { path: 'referrer', operator: { type: 'Exists', value: undefined } },
-        ],
-      },
-      form_submitted: {
-        event: 'form_submitted',
-        properties: [
-          { path: 'form_id', operator: { type: 'Equals', value: '' } },
-          { path: 'form_name', operator: { type: 'Equals', value: '' } },
-          { path: 'page_url', operator: { type: 'Contains', value: '' } },
-        ],
-      },
-      product_purchased: {
-        event: 'product_purchased',
-        properties: [
-          { path: 'product_id', operator: { type: 'Equals', value: '' } },
-          { path: 'product_name', operator: { type: 'Contains', value: '' } },
-          { path: 'price', operator: { type: 'GreaterThan', value: '0' } },
-          { path: 'currency', operator: { type: 'Equals', value: 'BRL' } },
-        ],
-      },
-      email_opened: {
-        event: 'email_opened',
-        properties: [
-          { path: 'campaign_id', operator: { type: 'Equals', value: '' } },
-          { path: 'subject', operator: { type: 'Contains', value: '' } },
-          { path: 'email_type', operator: { type: 'Equals', value: 'marketing' } },
-        ],
-      },
-      link_clicked: {
-        event: 'link_clicked',
-        properties: [
-          { path: 'link_url', operator: { type: 'Equals', value: '' } },
-          { path: 'link_text', operator: { type: 'Contains', value: '' } },
-          { path: 'source', operator: { type: 'Equals', value: 'email' } },
-        ],
-      },
-    };
-
-    const template = templates[templateKey];
-    if (!template) return;
-
-    // Special handling for custom_attribute_changed - load custom attributes
-    if (templateKey === 'custom_attribute_changed') {
-      loadCustomAttributes();
-    }
-
-    // Special handling for label events - load labels
-    if (templateKey === 'label_added' || templateKey === 'label_removed') {
-      loadLabels();
-    }
-
-    // Apply the template
-    const updatedCondition = {
-      ...localCondition,
-      event: template.event,
-      properties: template.properties,
-    } as PerformedNode;
-
-    setLocalCondition(updatedCondition);
-    setPerformedProperties(template.properties || []);
-    setShowPropertyConfig(!!(template.properties && template.properties.length > 0));
-    onUpdate(index, updatedCondition);
-  };
-
-  // Apply template for LastPerformed events
-  const applyLastPerformedTemplate = (templateKey: string) => {
-    const templates: Record<string, { event: string; properties?: PropertyFilter[] }> = {
-      // Eventos de Contato
-      contact_created: {
-        event: 'contact_created',
-        properties: [
-          { path: 'source', operator: { type: 'Equals', value: '' } },
-          { path: 'contact_type', operator: { type: 'Equals', value: 'lead' } },
-        ],
-      },
-      contact_updated: {
-        event: 'contact_updated',
-        properties: [
-          { path: 'changeCount', operator: { type: 'GreaterThanOrEqual', value: '1' } },
-          { path: 'changedFields', operator: { type: 'Contains', value: '' } },
-        ],
-      },
-      label_added: {
-        event: 'label_added',
-        properties: [{ path: 'labelName', operator: { type: 'Equals', value: '' } }],
-      },
-      label_removed: {
-        event: 'label_removed',
-        properties: [{ path: 'labelName', operator: { type: 'Equals', value: '' } }],
-      },
-      custom_attribute_changed: {
-        event: 'custom_attribute_changed',
-        properties: [
-          { path: 'attributeName', operator: { type: 'Equals', value: '' } },
-          { path: 'attributeValue', operator: { type: 'Exists', value: undefined } },
-        ],
-      },
-
-      // Eventos de Conversa
-      conversation_created: {
-        event: 'conversation_created',
-        properties: [
-          { path: 'inbox_name', operator: { type: 'Equals', value: '' } },
-          { path: 'channel_type', operator: { type: 'Equals', value: 'Channel::Api' } },
-        ],
-      },
-      conversation_updated: {
-        event: 'conversation_updated',
-        properties: [
-          { path: 'changes', operator: { type: 'Contains', value: '' } },
-          { path: 'inbox_name', operator: { type: 'Equals', value: '' } },
-        ],
-      },
-      message_created: {
-        event: 'message_created',
-        properties: [
-          { path: 'message_type', operator: { type: 'Equals', value: 'incoming' } },
-          { path: 'content_type', operator: { type: 'Equals', value: 'text' } },
-        ],
-      },
-      message_updated: {
-        event: 'message_updated',
-        properties: [
-          { path: 'message_type', operator: { type: 'Equals', value: '' } },
-          { path: 'content_type', operator: { type: 'Equals', value: 'text' } },
-        ],
-      },
-
-      // Eventos de Pipeline
-      pipeline_conversation_added: {
-        event: 'pipeline_conversation_added',
-        properties: [
-          { path: 'pipeline_name', operator: { type: 'Equals', value: '' } },
-          { path: 'pipeline_stage_name', operator: { type: 'Equals', value: '' } },
-        ],
-      },
-      pipeline_stage_changed: {
-        event: 'pipeline_stage_changed',
-        properties: [
-          { path: 'pipeline_name', operator: { type: 'Equals', value: '' } },
-          { path: 'new_stage_name', operator: { type: 'Equals', value: '' } },
-        ],
-      },
-      pipeline_custom_fields_updated: {
-        event: 'pipeline_custom_fields_updated',
-        properties: [
-          { path: 'pipeline_name', operator: { type: 'Equals', value: '' } },
-          { path: 'services_total_value', operator: { type: 'GreaterThan', value: '0' } },
-        ],
-      },
-
-      // Eventos de Segmento
-      segment_entered: {
-        event: 'segment_entered',
-        properties: [
-          { path: 'segmentName', operator: { type: 'Equals', value: '' } },
-          { path: 'changeType', operator: { type: 'Equals', value: 'entered' } },
-        ],
-      },
-      segment_exited: {
-        event: 'segment_exited',
-        properties: [
-          { path: 'segmentName', operator: { type: 'Equals', value: '' } },
-          { path: 'changeType', operator: { type: 'Equals', value: 'exited' } },
-        ],
-      },
-
-      // Eventos Personalizados
-      button_clicked: {
-        event: 'button_clicked',
-        properties: [
-          { path: 'button_id', operator: { type: 'Equals', value: '' } },
-          { path: 'page_url', operator: { type: 'Contains', value: '' } },
-        ],
-      },
-      page_viewed: {
-        event: 'page_viewed',
-        properties: [
-          { path: 'page_url', operator: { type: 'Equals', value: '' } },
-          { path: 'page_title', operator: { type: 'Contains', value: '' } },
-        ],
-      },
-      form_submitted: {
-        event: 'form_submitted',
-        properties: [
-          { path: 'form_id', operator: { type: 'Equals', value: '' } },
-          { path: 'form_name', operator: { type: 'Equals', value: '' } },
-        ],
-      },
-      product_purchased: {
-        event: 'product_purchased',
-        properties: [
-          { path: 'product_id', operator: { type: 'Equals', value: '' } },
-          { path: 'price', operator: { type: 'GreaterThan', value: '0' } },
-        ],
-      },
-      email_opened: {
-        event: 'email_opened',
-        properties: [
-          { path: 'campaign_id', operator: { type: 'Equals', value: '' } },
-          { path: 'subject', operator: { type: 'Contains', value: '' } },
-        ],
-      },
-      link_clicked: {
-        event: 'link_clicked',
-        properties: [
-          { path: 'link_url', operator: { type: 'Equals', value: '' } },
-          { path: 'source', operator: { type: 'Equals', value: 'email' } },
-        ],
-      },
-    };
-
-    const template = templates[templateKey];
-    if (!template) return;
-
-    // Special handling for custom_attribute_changed - load custom attributes
-    if (templateKey === 'custom_attribute_changed') {
-      loadCustomAttributes();
-    }
-
-    // Special handling for label events - load labels
-    if (templateKey === 'label_added' || templateKey === 'label_removed') {
-      loadLabels();
-    }
-
-    // Apply the template for LastPerformed
-    const updatedCondition = {
-      ...localCondition,
-      event: template.event,
-      whereProperties: template.properties,
-    } as LastPerformedNode;
-
-    setLocalCondition(updatedCondition);
-    setPerformedProperties(template.properties || []);
-    setShowPropertyConfig(!!(template.properties && template.properties.length > 0));
-    onUpdate(index, updatedCondition);
-  };
 
   return (
     <div className="border rounded-lg p-4 mb-4">
@@ -915,78 +654,10 @@ export default function SegmentConditionEditor({
             <div className="space-y-4">
               <div>
                 <Label className="text-sm font-medium mb-1">Nome do Evento</Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={(localCondition as PerformedNode).event}
-                    onChange={e => handlePropertyChange('event', e.target.value)}
-                    placeholder="Ex: button_clicked, page_viewed"
-                    className="flex-1"
-                  />
-                  <Select
-                    value=""
-                    onValueChange={templateKey => {
-                      if (templateKey) {
-                        applyEventTemplate(templateKey);
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Templates" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {/* Eventos de Contato */}
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                        Eventos de Contato
-                      </div>
-                      <SelectItem value="contact_created">Contato Criado</SelectItem>
-                      <SelectItem value="contact_updated">Contato Atualizado</SelectItem>
-                      <SelectItem value="label_added">Label Adicionada</SelectItem>
-                      <SelectItem value="label_removed">Label Removida</SelectItem>
-                      <SelectItem value="custom_attribute_changed">
-                        Atributo Personalizado
-                      </SelectItem>
-
-                      {/* Eventos de Conversa */}
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                        Eventos de Conversa
-                      </div>
-                      <SelectItem value="conversation_created">Conversa Criada</SelectItem>
-                      <SelectItem value="conversation_updated">Conversa Atualizada</SelectItem>
-                      <SelectItem value="message_created">Mensagem Criada</SelectItem>
-                      <SelectItem value="message_updated">Mensagem Atualizada</SelectItem>
-
-                      {/* Eventos de Pipeline */}
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                        Eventos de Pipeline
-                      </div>
-                      <SelectItem value="pipeline_conversation_added">
-                        Adicionado ao Pipeline
-                      </SelectItem>
-                      <SelectItem value="pipeline_stage_changed">Mudança de Estágio</SelectItem>
-                      <SelectItem value="pipeline_custom_fields_updated">
-                        Campos Personalizados
-                      </SelectItem>
-
-                      {/* Eventos de Segmento */}
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                        Eventos de Segmento
-                      </div>
-                      <SelectItem value="segment_entered">Entrou no Segmento</SelectItem>
-                      <SelectItem value="segment_exited">Saiu do Segmento</SelectItem>
-
-                      {/* Eventos Personalizados */}
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                        Eventos Personalizados
-                      </div>
-                      <SelectItem value="button_clicked">Botão Clicado</SelectItem>
-                      <SelectItem value="page_viewed">Página Visualizada</SelectItem>
-                      <SelectItem value="form_submitted">Formulário Enviado</SelectItem>
-                      <SelectItem value="product_purchased">Produto Comprado</SelectItem>
-                      <SelectItem value="email_opened">Email Aberto</SelectItem>
-                      <SelectItem value="link_clicked">Link Clicado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <ManifestEventSelect
+                  value={(localCondition as PerformedNode).event}
+                  onSelect={handleEventSelect}
+                />
               </div>
 
               <div className="flex gap-4">
@@ -1070,7 +741,7 @@ export default function SegmentConditionEditor({
                     {performedProperties.map((prop, i) => (
                       <div key={i} className="flex items-center gap-2 p-2 rounded border">
                         {/* Special handling for attributeName in custom_attribute_changed */}
-                        {(localCondition as PerformedNode).event === 'custom_attribute_changed' &&
+                        {(localCondition as PerformedNode).event === 'contact.custom_attribute.changed' &&
                         prop.path === 'attributeName' ? (
                           <Select
                             value={(prop.operator.value as string) || ''}
@@ -1116,8 +787,8 @@ export default function SegmentConditionEditor({
                             </SelectContent>
                           </Select>
                         ) : /* Special handling for labelName in label events */
-                        ((localCondition as PerformedNode).event === 'label_added' ||
-                            (localCondition as PerformedNode).event === 'label_removed') &&
+                        ((localCondition as PerformedNode).event === 'contact.label.added' ||
+                            (localCondition as PerformedNode).event === 'contact.label.removed') &&
                           prop.path === 'labelName' ? (
                           <Select
                             value={(prop.operator.value as string) || ''}
@@ -1260,78 +931,10 @@ export default function SegmentConditionEditor({
             <div className="space-y-4">
               <div>
                 <Label className="text-sm font-medium mb-1">Nome do Evento</Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={(localCondition as LastPerformedNode).event}
-                    onChange={e => handlePropertyChange('event', e.target.value)}
-                    placeholder="Ex: button_clicked, page_viewed"
-                    className="flex-1"
-                  />
-                  <Select
-                    value=""
-                    onValueChange={templateKey => {
-                      if (templateKey) {
-                        applyLastPerformedTemplate(templateKey);
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Templates" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {/* Eventos de Contato */}
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                        Eventos de Contato
-                      </div>
-                      <SelectItem value="contact_created">Contato Criado</SelectItem>
-                      <SelectItem value="contact_updated">Contato Atualizado</SelectItem>
-                      <SelectItem value="label_added">Label Adicionada</SelectItem>
-                      <SelectItem value="label_removed">Label Removida</SelectItem>
-                      <SelectItem value="custom_attribute_changed">
-                        Atributo Personalizado
-                      </SelectItem>
-
-                      {/* Eventos de Conversa */}
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                        Eventos de Conversa
-                      </div>
-                      <SelectItem value="conversation_created">Conversa Criada</SelectItem>
-                      <SelectItem value="conversation_updated">Conversa Atualizada</SelectItem>
-                      <SelectItem value="message_created">Mensagem Criada</SelectItem>
-                      <SelectItem value="message_updated">Mensagem Atualizada</SelectItem>
-
-                      {/* Eventos de Pipeline */}
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                        Eventos de Pipeline
-                      </div>
-                      <SelectItem value="pipeline_conversation_added">
-                        Adicionado ao Pipeline
-                      </SelectItem>
-                      <SelectItem value="pipeline_stage_changed">Mudança de Estágio</SelectItem>
-                      <SelectItem value="pipeline_custom_fields_updated">
-                        Campos Personalizados
-                      </SelectItem>
-
-                      {/* Eventos de Segmento */}
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                        Eventos de Segmento
-                      </div>
-                      <SelectItem value="segment_entered">Entrou no Segmento</SelectItem>
-                      <SelectItem value="segment_exited">Saiu do Segmento</SelectItem>
-
-                      {/* Eventos Personalizados */}
-                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                        Eventos Personalizados
-                      </div>
-                      <SelectItem value="button_clicked">Botão Clicado</SelectItem>
-                      <SelectItem value="page_viewed">Página Visualizada</SelectItem>
-                      <SelectItem value="form_submitted">Formulário Enviado</SelectItem>
-                      <SelectItem value="product_purchased">Produto Comprado</SelectItem>
-                      <SelectItem value="email_opened">Email Aberto</SelectItem>
-                      <SelectItem value="link_clicked">Link Clicado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <ManifestEventSelect
+                  value={(localCondition as LastPerformedNode).event}
+                  onSelect={handleEventSelect}
+                />
               </div>
 
               {/* Toggle Buttons */}
@@ -1388,7 +991,7 @@ export default function SegmentConditionEditor({
                       <div key={i} className="flex items-center gap-2 p-2 rounded border">
                         {/* Special handling for attributeName in custom_attribute_changed */}
                         {(localCondition as LastPerformedNode).event ===
-                          'custom_attribute_changed' && prop.path === 'attributeName' ? (
+                          'contact.custom_attribute.changed' && prop.path === 'attributeName' ? (
                           <Select
                             value={(prop.operator.value as string) || ''}
                             onValueChange={value => {
@@ -1443,8 +1046,8 @@ export default function SegmentConditionEditor({
                             </SelectContent>
                           </Select>
                         ) : /* Special handling for labelName in label events */
-                        ((localCondition as LastPerformedNode).event === 'label_added' ||
-                            (localCondition as LastPerformedNode).event === 'label_removed') &&
+                        ((localCondition as LastPerformedNode).event === 'contact.label.added' ||
+                            (localCondition as LastPerformedNode).event === 'contact.label.removed') &&
                           prop.path === 'labelName' ? (
                           <Select
                             value={(prop.operator.value as string) || ''}

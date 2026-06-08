@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@evoapi/design-system';
+import { useEffect, useState } from 'react';
 import { VolumeX } from 'lucide-react';
 import { MuteConversationNodeData } from './MuteConversationNode';
 import { automationService } from '@/services/automation/automationService';
-import { BaseFlowPanel } from '@/components/base';
+import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
+import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface MuteConversationPanelProps {
@@ -29,7 +29,6 @@ export function MuteConversationPanel({
   });
   const [loading, setLoading] = useState(true);
 
-  // Load form data options on mount
   useEffect(() => {
     const loadFormData = async () => {
       try {
@@ -53,7 +52,6 @@ export function MuteConversationPanel({
     const updatedData: MuteConversationNodeData = {
       ...data,
       formDataOptions,
-      // Backend compatibility - mute needs no parameters
       action_params: [],
     };
 
@@ -61,7 +59,6 @@ export function MuteConversationPanel({
     onClose();
   };
 
-  // Update node with form data when available
   useEffect(() => {
     if (formDataOptions.agents.length > 0 || formDataOptions.teams.length > 0) {
       const updatedData: MuteConversationNodeData = {
@@ -73,61 +70,48 @@ export function MuteConversationPanel({
   }, [formDataOptions, data, nodeId, onUpdate]);
 
   return (
-    <BaseFlowPanel
+    <NodeConfigModal
+      open
+      variant="simple"
       title={t('panels.muteConversation.title')}
-      icon={<VolumeX className="w-5 h-5 text-orange-500" />}
-      onClose={onClose}
-      width="w-[400px]"
+      icon={<VolumeX className="h-5 w-5 text-flow-node-control-fg" />}
+      onCancel={onClose}
+      onSave={handleSave}
+      dirty={!loading}
+      loading={loading}
+      saveLabel={t('panels.actions.save')}
+      cancelLabel={t('panels.actions.cancel')}
     >
-      {/* Explicação da ação */}
       <div className="space-y-4">
-        <div className="p-3 rounded-lg bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800/30">
-          <div className="text-sm text-orange-800 dark:text-orange-200">
-            <div className="font-medium mb-2">🔇 {t('panels.muteConversation.whatHappens')}</div>
-            <div className="space-y-2 text-xs">
-              <div>• {t('panels.muteConversation.noNotifications')}</div>
-              <div>• {t('panels.muteConversation.messagesKeepComing')}</div>
-              <div>• {t('panels.muteConversation.mutedStatus')}</div>
-              <div>• {t('panels.muteConversation.agentsCanUnmute')}</div>
-            </div>
+        <FlowFeedbackBanner variant="warn">
+          <div className="font-medium mb-2">🔇 {t('panels.muteConversation.whatHappens')}</div>
+          <div className="space-y-1 text-xs">
+            <div>• {t('panels.muteConversation.noNotifications')}</div>
+            <div>• {t('panels.muteConversation.messagesKeepComing')}</div>
+            <div>• {t('panels.muteConversation.mutedStatus')}</div>
+            <div>• {t('panels.muteConversation.agentsCanUnmute')}</div>
           </div>
-        </div>
+        </FlowFeedbackBanner>
 
-        {/* Informações técnicas */}
-        <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/30">
-          <div className="text-xs text-blue-800 dark:text-blue-200">
-            <div className="font-medium mb-1">💡 {t('panels.muteConversation.whenToUse')}</div>
-            <div className="space-y-1">
-              <div>• {t('panels.muteConversation.automatedConversations')}</div>
-              <div>• {t('panels.muteConversation.reduceNoise')}</div>
-              <div>• {t('panels.muteConversation.fullAutomation')}</div>
-              <div>• {t('panels.muteConversation.testing')}</div>
-            </div>
+        <FlowFeedbackBanner variant="info">
+          <div className="font-medium mb-1">💡 {t('panels.muteConversation.whenToUse')}</div>
+          <div className="space-y-1 text-xs">
+            <div>• {t('panels.muteConversation.automatedConversations')}</div>
+            <div>• {t('panels.muteConversation.reduceNoise')}</div>
+            <div>• {t('panels.muteConversation.fullAutomation')}</div>
+            <div>• {t('panels.muteConversation.testing')}</div>
           </div>
-        </div>
+        </FlowFeedbackBanner>
 
-        {/* Aviso importante */}
-        <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30">
-          <div className="text-xs text-amber-800 dark:text-amber-200">
-            <div className="font-medium mb-1">⚠️ {t('panels.muteConversation.important')}</div>
-            <div className="space-y-1">
-              <div>• {t('panels.muteConversation.cannotUndo')}</div>
-              <div>• {t('panels.muteConversation.agentsNeedManualUnmute')}</div>
-              <div>• {t('panels.muteConversation.useWithCare')}</div>
-            </div>
+        <FlowFeedbackBanner variant="warn">
+          <div className="font-medium mb-1">⚠️ {t('panels.muteConversation.important')}</div>
+          <div className="space-y-1 text-xs">
+            <div>• {t('panels.muteConversation.cannotUndo')}</div>
+            <div>• {t('panels.muteConversation.agentsNeedManualUnmute')}</div>
+            <div>• {t('panels.muteConversation.useWithCare')}</div>
           </div>
-        </div>
+        </FlowFeedbackBanner>
       </div>
-
-      {/* Botões de Ação */}
-      <div className="flex gap-3 pt-4">
-        <Button variant="outline" onClick={onClose} className="flex-1 h-10">
-          {t('panels.actions.cancel')}
-        </Button>
-        <Button onClick={handleSave} className="flex-1 h-10" disabled={loading}>
-          {t('panels.actions.save')}
-        </Button>
-      </div>
-    </BaseFlowPanel>
+    </NodeConfigModal>
   );
 }

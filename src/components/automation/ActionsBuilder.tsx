@@ -29,7 +29,7 @@ export default function ActionsBuilder({ control, formData }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold">{t('form.fields.actions.label')}</h3>
+        <h3 className="text-base font-semibold">{t('form.fields.actions.label')} *</h3>
         <Button
           type="button"
           variant="outline"

@@ -48,7 +48,39 @@
     "copyJson": "Copy JSON",
     "close": "Close",
     "viewIds": "Ver IDs",
-    "pause": "Pause"
+    "pause": "Pause",
+    "preview": "Preview",
+    "previewing": "Previewing…",
+    "form": "Form",
+    "canvas": "Canvas"
+  },
+  "preview": {
+    "result_one": "{{count}} contact matches this segment.",
+    "result_other": "{{count}} contacts match this segment.",
+    "sample": "e.g. {{ids}}",
+    "error": "Could not preview this segment."
+  },
+  "canvas": {
+    "title": "Segment canvas",
+    "subtitle": "Drag conditions from the panel; click a node to edit it",
+    "panelTitle": "Conditions",
+    "combineWith": "Combine with",
+    "selectNode": "Select a node on the canvas to edit it, or drag a new condition from the panel.",
+    "categories": {
+      "identity": { "label": "Identity", "description": "Who the contact is" },
+      "behavior": { "label": "Behavior", "description": "What the contact did" },
+      "messages": { "label": "Messages", "description": "Channel interactions" }
+    },
+    "nodes": {
+      "Everyone": { "label": "Everyone", "description": "All contacts in the account" },
+      "UserProperty": { "label": "User property", "description": "Filter by a contact property" },
+      "CustomAttribute": { "label": "Custom attribute", "description": "Filter by a custom attribute" },
+      "Label": { "label": "Label", "description": "Has / lacks a label" },
+      "Performed": { "label": "Performed event", "description": "Did a tracked event" },
+      "RandomBucket": { "label": "Random bucket", "description": "A random % of contacts" },
+      "Email": { "label": "Email", "description": "Email interaction" },
+      "WhatsApp": { "label": "Channel", "description": "Reached on a channel (WhatsApp/Web/SMS)" }
+    }
   },
   "messages": {
     "permissionDenied": {

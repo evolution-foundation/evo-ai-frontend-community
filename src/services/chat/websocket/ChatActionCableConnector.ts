@@ -16,6 +16,17 @@ export interface ChatEventHandlers {
   onNotificationCreated?: (data: unknown) => void;
   onNotificationUpdated?: (data: unknown) => void;
   onNotificationDeleted?: (data: unknown) => void;
+  onMacroExecutionCompleted?: (data: MacroExecutionCompletedEvent) => void;
+}
+
+export interface MacroExecutionCompletedEvent {
+  id: string;
+  macro_id: string;
+  macro_name: string;
+  conversation_id: string;
+  status: 'pending' | 'success' | 'failed';
+  error_message?: string;
+  actions_result?: Array<{ action: string; status: string; error?: string }>;
 }
 
 // Event types baseados no ActionCable do Evolution
@@ -347,6 +358,9 @@ export class ChatActionCableConnector extends BaseActionCableConnector {
     this.onEvent('notification.updated', this.onNotificationUpdated);
     this.onEvent('notification.deleted', this.onNotificationDeleted);
 
+    // Eventos de macro
+    this.onEvent('macro.execution.completed', this.onMacroExecutionCompleted);
+
     // Eventos de sistema
     this.onEvent('user:logout', this.onUserLogout);
     this.onEvent('page:reload', this.onPageReload);
@@ -437,6 +451,22 @@ export class ChatActionCableConnector extends BaseActionCableConnector {
       }),
     );
     this.chatEventHandlers.onNotificationDeleted?.(data);
+  };
+
+  /**
+   * Handler para resultado de execução de macro
+   */
+  private onMacroExecutionCompleted = (data: unknown): void => {
+    const eventData = data as MacroExecutionCompletedEvent;
+
+    if (eventData.status === 'failed') {
+      toast.error(
+        `Macro "${eventData.macro_name}" falhou: ${eventData.error_message || 'erro desconhecido'}`,
+        { duration: 8000 },
+      );
+    }
+
+    this.chatEventHandlers.onMacroExecutionCompleted?.(eventData);
   };
 
   /**

@@ -204,7 +204,7 @@ class JourneyService {
         params,
       });
       return {
-        data: response.data,
+        data: extractData(response),
       };
     } catch (error: any) {
       console.error('Erro ao buscar sessões da jornada:', error);
@@ -212,11 +212,16 @@ class JourneyService {
     }
   }
 
-  async getJourneySessionStats(journeyId: string): Promise<{ data: any }> {
+  async getJourneySessionStats(journeyId: string): Promise<{
+    data: {
+      total?: number;
+      byStatus?: Partial<Record<'active' | 'waiting' | 'paused' | 'completed' | 'failed' | 'cancelled', number>>;
+    };
+  }> {
     try {
       const response = await apiEvoFlow.get(`${this.getBaseUrl()}/${journeyId}/sessions/stats`);
       return {
-        data: response.data,
+        data: extractData(response),
       };
     } catch (error: any) {
       console.error('Erro ao buscar estatísticas de sessões:', error);
@@ -233,7 +238,7 @@ class JourneyService {
         `${this.getBaseUrl()}/${journeyId}/sessions/${sessionId}`,
       );
       return {
-        data: response.data,
+        data: extractData(response),
       };
     } catch (error: any) {
       console.error('Erro ao buscar sessão:', error);
@@ -263,7 +268,7 @@ class JourneyService {
         {},
       );
       return {
-        data: response.data,
+        data: extractData(response),
       };
     } catch (error: any) {
       console.error('Erro ao cancelar sessão:', error);
@@ -280,7 +285,7 @@ class JourneyService {
         `${this.getBaseUrl()}/${journeyId}/sessions/bulk/${status}`,
       );
       return {
-        data: response.data,
+        data: extractData(response),
       };
     } catch (error: any) {
       console.error('Erro ao deletar sessões em lote:', error);

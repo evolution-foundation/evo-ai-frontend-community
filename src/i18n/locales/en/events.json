@@ -1,0 +1,30 @@
+{
+  "selector": {
+    "placeholder": "Select an event",
+    "searchPlaceholder": "Search event...",
+    "noResults": "No events found",
+    "customLabel": "Custom event",
+    "customBadge": "Custom"
+  },
+  "categories": {
+    "contact": "Contact events",
+    "conversation": "Conversation events",
+    "message": "Message events",
+    "campaign": "Campaign events",
+    "custom": "Custom"
+  },
+  "propertiesForm": {
+    "requiredSectionLabel": "Required fields",
+    "optionalSectionLabel": "Optional fields",
+    "addFieldLabel": "+ Add field",
+    "customSectionLabel": "Custom properties",
+    "customKeyPlaceholder": "key",
+    "customValuePlaceholder": "value",
+    "customAddLabel": "+ Add property",
+    "requiredFieldMissing": "Required field",
+    "customWarning": "Custom events are not schema-validated",
+    "customRemoveAriaLabel": "Remove property",
+    "addFieldSearchPlaceholder": "Search field...",
+    "noResultsLabel": "No fields found"
+  }
+}

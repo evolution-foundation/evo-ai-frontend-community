@@ -169,9 +169,12 @@ export function CampaignTriggerConfig({ config, onChange }: CampaignTriggerConfi
     updateFormData({ expectedHeaders: headers });
   };
 
-  // Single-account: usar identificador estável para componentes de jornada que esperam journeyId
-  const journeyId = 'campaign-trigger';
-
+  // Os componentes de config abaixo (EventConfiguration etc.) são INTENCIONALMENTE os
+  // MESMOS compartilhados com o Flow Builder (JourneyTriggerPanel), do mesmo barrel
+  // `@/components/journey/nodes/trigger/components`. A única diferença é o contexto via
+  // props. Campanha NÃO tem jornada, então `journeyId` é omitido (prop opcional): o
+  // autocomplete de variáveis cai para variáveis de sistema sem disparar fetch a
+  // getJourneyVariables (EVO-1608, removendo o antigo sentinel 'campaign-trigger').
   return (
     <>
       <Separator className="my-4" />
@@ -200,9 +203,7 @@ export function CampaignTriggerConfig({ config, onChange }: CampaignTriggerConfi
               updateFormData({ eventProperties: props });
             }}
             variableMappings={[]}
-            onVariableMappingsChange={undefined}
-            journeyId={journeyId}
-          />
+            onVariableMappingsChange={undefined}          />
         )}
 
         {/* Configuração de Segmento */}
@@ -225,9 +226,7 @@ export function CampaignTriggerConfig({ config, onChange }: CampaignTriggerConfi
               updateFormData({ contactFields: fields });
             }}
             variableMappings={[]}
-            onVariableMappingsChange={undefined}
-            journeyId={journeyId}
-          />
+            onVariableMappingsChange={undefined}          />
         )}
 
         {/* Configuração de Etiqueta */}
@@ -250,9 +249,7 @@ export function CampaignTriggerConfig({ config, onChange }: CampaignTriggerConfi
             onOperatorChange={handleCustomAttributeOperatorChange}
             onValueChange={handleCustomAttributeValueChange}
             variableMappings={[]}
-            onVariableMappingsChange={undefined}
-            journeyId={journeyId}
-          />
+            onVariableMappingsChange={undefined}          />
         )}
 
         {/* Configuração de Webhook */}
@@ -261,9 +258,7 @@ export function CampaignTriggerConfig({ config, onChange }: CampaignTriggerConfi
             webhookUrl={formData.webhookUrl || ''}
             expectedHeaders={formData.expectedHeaders}
             onWebhookUrlChange={handleWebhookUrlChange}
-            onExpectedHeadersChange={handleExpectedHeadersChange}
-            journeyId={journeyId}
-            variableMappings={[]}
+            onExpectedHeadersChange={handleExpectedHeadersChange}            variableMappings={[]}
             onVariableMappingsChange={undefined}
           />
         )}

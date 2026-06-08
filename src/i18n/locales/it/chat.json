@@ -296,7 +296,9 @@
     "status": "Stato:",
     "openConversation": "Apri Conversazione",
     "closeConversation": "Chiudi conversazione",
-    "phoneNumber": "Numero di telefono"
+    "phoneNumber": "Numero di telefono",
+    "openContactPanel": "Apri dettagli contatto",
+    "closeContactPanel": "Chiudi dettagli contatto"
   },
   "chatSidebar": {
     "searchPlaceholder": "Cerca conversazioni...",
@@ -398,6 +400,14 @@
       },
       "notInformed": "Non informato",
       "copiedToClipboard": "Copiato negli appunti"
+    },
+    "customAttributes": {
+      "noAttributes": "Nessun attributo personalizzato configurato",
+      "updateSuccess": "Attributi aggiornati con successo",
+      "updateError": "Errore nell'aggiornamento degli attributi",
+      "refreshError": "Attributi salvati, ma ricaricamento dei dati del contatto fallito",
+      "yes": "Sì",
+      "no": "No"
     },
     "conversationActions": {
       "status": {

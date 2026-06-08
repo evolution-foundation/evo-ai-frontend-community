@@ -84,6 +84,8 @@ const defaultProps = {
   onBackClick: vi.fn(),
   onCloseConversation: vi.fn(),
   onContactSidebarOpen: vi.fn(),
+  isContactSidebarOpen: false,
+  onContactSidebarToggle: vi.fn(),
   onMarkAsRead: vi.fn(),
   onMarkAsUnread: vi.fn(),
   onMarkAsOpen: vi.fn(),
@@ -502,5 +504,49 @@ describe('ChatHeader pipeline', () => {
       expect(toast.error).toHaveBeenCalledWith('pipeline.moveError');
       expect(toast.error).not.toHaveBeenCalledWith('pipeline.addError');
     });
+  });
+});
+
+describe('ChatHeader contact panel', () => {
+  beforeEach(() => {
+    vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [] } as never);
+    vi.mocked(pipelinesService.getPipelinesByConversation).mockResolvedValue([]);
+  });
+
+  it('keeps avatar click opening the contact sidebar (existing behavior preserved)', async () => {
+    const onContactSidebarOpen = vi.fn();
+    render(<ChatHeader {...defaultProps} onContactSidebarOpen={onContactSidebarOpen} />);
+
+    const user = userEvent.setup();
+    await user.click(screen.getByTestId('contact-avatar'));
+
+    expect(onContactSidebarOpen).toHaveBeenCalledTimes(1);
+  });
+
+  it('toggles the contact sidebar from the dedicated header button', async () => {
+    const onContactSidebarToggle = vi.fn();
+    render(
+      <ChatHeader
+        {...defaultProps}
+        isContactSidebarOpen={false}
+        onContactSidebarToggle={onContactSidebarToggle}
+      />,
+    );
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'chatHeader.openContactPanel' }));
+
+    expect(onContactSidebarToggle).toHaveBeenCalledTimes(1);
+  });
+
+  it('reflects open state through the close label on the toggle button', () => {
+    render(<ChatHeader {...defaultProps} isContactSidebarOpen />);
+
+    expect(
+      screen.getByRole('button', { name: 'chatHeader.closeContactPanel' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'chatHeader.openContactPanel' }),
+    ).not.toBeInTheDocument();
   });
 });

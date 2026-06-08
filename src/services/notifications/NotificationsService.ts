@@ -34,12 +34,15 @@ class NotificationsService {
   // Get unread notifications count
   async getUnreadCount(): Promise<UnreadCountResponse> {
     const response = await api.get(`${this.baseUrl}/unread_count`);
-    // A API retorna apenas o número, então precisamos mapear para o formato esperado
     if (typeof response.data === 'number') {
       return { count: response.data };
     }
-    // Se vier no formato { unread_count: 6 }, mapear também
-    if (response.data.unread_count !== undefined) {
+    // Standard backend shape: { success, data: { unread_count: N }, meta, message }
+    if (response.data?.data?.unread_count !== undefined) {
+      return { count: response.data.data.unread_count };
+    }
+    // Legacy flat shape: { unread_count: N }
+    if (response.data?.unread_count !== undefined) {
       return { count: response.data.unread_count };
     }
     return extractData<any>(response);

@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Bot, Inbox } from 'lucide-react';
-import { BaseFlowPanel } from '@/components/base';
-import { Button, Separator } from '@evoapi/design-system';
+import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
+import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { useLanguage } from '@/hooks/useLanguage';
 
 export interface AssignBotPanelProps {
@@ -24,12 +24,14 @@ export function AssignBotPanel({ nodeId, data, onUpdate, onClose }: AssignBotPan
   const { t } = useLanguage('journey');
   const [selectedBotId, setSelectedBotId] = useState<string>(data.bot_id || '');
   const [selectedInboxId, setSelectedInboxId] = useState<string>(data.inbox_id || '');
+  const [originalSnapshot] = useState(() => ({
+    botId: data.bot_id || '',
+    inboxId: data.inbox_id || '',
+  }));
 
-  // Opções disponíveis
   const availableBots = data.formDataOptions?.bots || [];
   const availableInboxes = data.formDataOptions?.inboxes || [];
 
-  // Encontrar nomes pelos IDs
   const selectedBot = availableBots.find(bot => bot.id.toString() === selectedBotId);
   const selectedInbox = availableInboxes.find(inbox => inbox.id.toString() === selectedInboxId);
 
@@ -55,30 +57,35 @@ export function AssignBotPanel({ nodeId, data, onUpdate, onClose }: AssignBotPan
     onClose();
   };
 
-  const canSave = selectedBotId && selectedInboxId;
+  const dirty = useMemo(
+    () => selectedBotId !== originalSnapshot.botId || selectedInboxId !== originalSnapshot.inboxId,
+    [selectedBotId, selectedInboxId, originalSnapshot],
+  );
+  const canSave = Boolean(selectedBotId && selectedInboxId);
 
   return (
-    <BaseFlowPanel
+    <NodeConfigModal
+      open
+      variant="simple"
       title={t('panels.assignBot.title')}
-      icon={<Bot className="w-5 h-5 text-purple-500" />}
-      onClose={onClose}
-      width="w-[500px]"
+      icon={<Bot className="h-5 w-5 text-flow-node-action-pipeline-fg" />}
+      onCancel={handleCancel}
+      onSave={handleSave}
+      dirty={dirty && canSave}
+      saveLabel={t('panels.actions.save')}
+      cancelLabel={t('panels.actions.cancel')}
     >
-      <Separator />
-
       <div className="space-y-6">
-        {/* Descrição */}
-        <div className="p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800/30">
-          <p className="text-sm text-purple-800 dark:text-purple-200">
+        <FlowFeedbackBanner variant="info">
+          <p>
             <strong>{t('panels.assignBot.title')}:</strong> {t('panels.assignBot.description')}
           </p>
-        </div>
+        </FlowFeedbackBanner>
 
-        {/* Seleção do Bot */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Bot className="w-4 h-4 text-purple-500" />
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <Bot className="w-4 h-4 text-flow-node-action-pipeline-fg" />
+            <label className="text-sm font-medium text-foreground">
               {t('panels.assignBot.selectBot')}
             </label>
           </div>
@@ -86,9 +93,7 @@ export function AssignBotPanel({ nodeId, data, onUpdate, onClose }: AssignBotPan
           <select
             value={selectedBotId}
             onChange={e => setSelectedBotId(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
-                     bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
-                     focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring"
           >
             <option value="">{t('panels.assignBot.selectBotPlaceholder')}</option>
             {availableBots.map(bot => (
@@ -99,8 +104,8 @@ export function AssignBotPanel({ nodeId, data, onUpdate, onClose }: AssignBotPan
           </select>
 
           {selectedBot && (
-            <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded border">
-              <p className="text-xs text-gray-600 dark:text-gray-400">
+            <div className="p-2 bg-muted rounded border border-border">
+              <p className="text-xs text-muted-foreground">
                 <strong>{t('panels.assignBot.type')}:</strong> {selectedBot.bot_type || 'webhook'}
                 {selectedBot.description && (
                   <>
@@ -114,17 +119,16 @@ export function AssignBotPanel({ nodeId, data, onUpdate, onClose }: AssignBotPan
           )}
 
           {availableBots.length === 0 && (
-            <div className="p-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 rounded">
-              ⚠ {t('panels.assignBot.noBotsAvailable')}
-            </div>
+            <FlowFeedbackBanner variant="warn">
+              <p className="text-xs">⚠ {t('panels.assignBot.noBotsAvailable')}</p>
+            </FlowFeedbackBanner>
           )}
         </div>
 
-        {/* Seleção do Inbox */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Inbox className="w-4 h-4 text-blue-500" />
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <Inbox className="w-4 h-4 text-flow-node-action-message-fg" />
+            <label className="text-sm font-medium text-foreground">
               {t('panels.assignBot.selectInbox')}
             </label>
           </div>
@@ -132,9 +136,7 @@ export function AssignBotPanel({ nodeId, data, onUpdate, onClose }: AssignBotPan
           <select
             value={selectedInboxId}
             onChange={e => setSelectedInboxId(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
-                     bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
-                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring"
           >
             <option value="">{t('panels.assignBot.selectInboxPlaceholder')}</option>
             {availableInboxes.map(inbox => (
@@ -145,8 +147,8 @@ export function AssignBotPanel({ nodeId, data, onUpdate, onClose }: AssignBotPan
           </select>
 
           {selectedInbox && (
-            <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded border">
-              <p className="text-xs text-gray-600 dark:text-gray-400">
+            <div className="p-2 bg-muted rounded border border-border">
+              <p className="text-xs text-muted-foreground">
                 <strong>{t('panels.assignBot.channel')}:</strong>{' '}
                 {selectedInbox.channel_type || t('panels.assignBot.unknown')}
                 {selectedInbox.website_url && (
@@ -160,24 +162,21 @@ export function AssignBotPanel({ nodeId, data, onUpdate, onClose }: AssignBotPan
           )}
 
           {availableInboxes.length === 0 && (
-            <div className="p-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 rounded">
-              ⚠ {t('panels.assignBot.noInboxesAvailable')}
-            </div>
+            <FlowFeedbackBanner variant="warn">
+              <p className="text-xs">⚠ {t('panels.assignBot.noInboxesAvailable')}</p>
+            </FlowFeedbackBanner>
           )}
         </div>
 
-        {/* Preview da atribuição */}
         {selectedBot && selectedInbox && (
-          <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800/30">
+          <FlowFeedbackBanner variant="success">
             <div className="flex items-start gap-2">
-              <div className="flex-shrink-0 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center mt-0.5">
-                <span className="text-xs text-white font-bold">✓</span>
+              <div className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 bg-flow-feedback-success-fg text-flow-feedback-success-bg">
+                <span className="text-xs font-bold">✓</span>
               </div>
               <div>
-                <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                  {t('panels.assignBot.assignmentConfigured')}
-                </p>
-                <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                <p className="font-medium">{t('panels.assignBot.assignmentConfigured')}</p>
+                <p className="text-xs mt-1">
                   {t('panels.assignBot.assignmentPreview', {
                     botName: selectedBot.name,
                     inboxName: selectedInbox.name,
@@ -185,32 +184,19 @@ export function AssignBotPanel({ nodeId, data, onUpdate, onClose }: AssignBotPan
                 </p>
               </div>
             </div>
-          </div>
+          </FlowFeedbackBanner>
         )}
 
-        {/* Notas importantes */}
-        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800/30">
-          <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
-            ℹ️ {t('panels.assignBot.importantNotes')}
-          </h4>
-          <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+        <FlowFeedbackBanner variant="info">
+          <h4 className="text-sm font-medium mb-2">ℹ️ {t('panels.assignBot.importantNotes')}</h4>
+          <ul className="text-xs space-y-1">
             <li>• {t('panels.assignBot.note1')}</li>
             <li>• {t('panels.assignBot.note2')}</li>
             <li>• {t('panels.assignBot.note3')}</li>
             <li>• {t('panels.assignBot.note4')}</li>
           </ul>
-        </div>
+        </FlowFeedbackBanner>
       </div>
-
-      {/* Botões de ação */}
-      <div className="flex gap-3 pt-2">
-        <Button variant="outline" onClick={handleCancel} className="flex-1 h-10">
-          {t('panels.actions.cancel')}
-        </Button>
-        <Button onClick={handleSave} className="flex-1 h-10" disabled={!canSave}>
-          {t('panels.actions.save')}
-        </Button>
-      </div>
-    </BaseFlowPanel>
+    </NodeConfigModal>
   );
 }

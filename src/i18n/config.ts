@@ -79,6 +79,7 @@ import ptTemplates from './locales/pt/templates.json';
 import ptCustomAttributes from './locales/pt/customAttributes.json';
 import ptLabels from './locales/pt/labels.json';
 import ptMacros from './locales/pt/macros.json';
+import ptAutomation from './locales/pt/automation.json';
 import ptTeams from './locales/pt/teams.json';
 import ptUsers from './locales/pt/users.json';
 import ptMarketplace from './locales/pt/marketplace.json';
@@ -178,6 +179,7 @@ import esTemplates from './locales/es/templates.json';
 import esCustomAttributes from './locales/es/customAttributes.json';
 import esLabels from './locales/es/labels.json';
 import esMacros from './locales/es/macros.json';
+import esAutomation from './locales/es/automation.json';
 import esTeams from './locales/es/teams.json';
 import esUsers from './locales/es/users.json';
 import esMarketplace from './locales/es/marketplace.json';
@@ -227,6 +229,7 @@ import frTemplates from './locales/fr/templates.json';
 import frCustomAttributes from './locales/fr/customAttributes.json';
 import frLabels from './locales/fr/labels.json';
 import frMacros from './locales/fr/macros.json';
+import frAutomation from './locales/fr/automation.json';
 import frTeams from './locales/fr/teams.json';
 import frUsers from './locales/fr/users.json';
 import frMarketplace from './locales/fr/marketplace.json';
@@ -276,6 +279,7 @@ import itTemplates from './locales/it/templates.json';
 import itCustomAttributes from './locales/it/customAttributes.json';
 import itLabels from './locales/it/labels.json';
 import itMacros from './locales/it/macros.json';
+import itAutomation from './locales/it/automation.json';
 import itTeams from './locales/it/teams.json';
 import itUsers from './locales/it/users.json';
 import itMarketplace from './locales/it/marketplace.json';
@@ -308,21 +312,27 @@ import itTutorials from './locales/it/tutorials.json';
 import ptBRSegments from './locales/pt-BR/segments.json';
 import ptBRJourney from './locales/pt-BR/journey.json';
 import ptBRCampaigns from './locales/pt-BR/campaigns.json';
+import ptBREvents from './locales/pt-BR/events.json';
 import ptSegments from './locales/pt/segments.json';
 import ptJourney from './locales/pt/journey.json';
 import ptCampaigns from './locales/pt/campaigns.json';
+import ptEvents from './locales/pt/events.json';
 import enSegments from './locales/en/segments.json';
 import enJourney from './locales/en/journey.json';
 import enCampaigns from './locales/en/campaigns.json';
+import enEvents from './locales/en/events.json';
 import esSegments from './locales/es/segments.json';
 import esJourney from './locales/es/journey.json';
 import esCampaigns from './locales/es/campaigns.json';
+import esEvents from './locales/es/events.json';
 import frSegments from './locales/fr/segments.json';
 import frJourney from './locales/fr/journey.json';
 import frCampaigns from './locales/fr/campaigns.json';
+import frEvents from './locales/fr/events.json';
 import itSegments from './locales/it/segments.json';
 import itJourney from './locales/it/journey.json';
 import itCampaigns from './locales/it/campaigns.json';
+import itEvents from './locales/it/events.json';
 export const locales = ['en', 'pt-BR', 'pt', 'fr', 'it', 'es'] as const;
 export const defaultLocale = 'en' as const;
 
@@ -413,6 +423,7 @@ const resources = {
     segments: ptBRSegments,
     journey: ptBRJourney,
     campaigns: ptBRCampaigns,
+    events: ptBREvents,
   },
   pt: {
     auth: ptAuth,
@@ -443,6 +454,7 @@ const resources = {
     customAttributes: ptCustomAttributes,
     labels: ptLabels,
     macros: ptMacros,
+    automation: ptAutomation,
     teams: ptTeams,
     users: ptUsers,
     marketplace: ptMarketplace,
@@ -468,6 +480,7 @@ const resources = {
     segments: ptSegments,
     journey: ptJourney,
     campaigns: ptCampaigns,
+    events: ptEvents,
   },
   en: {
     auth: enAuth,
@@ -524,6 +537,7 @@ const resources = {
     segments: enSegments,
     journey: enJourney,
     campaigns: enCampaigns,
+    events: enEvents,
   },
   es: {
     auth: esAuth,
@@ -554,6 +568,7 @@ const resources = {
     customAttributes: esCustomAttributes,
     labels: esLabels,
     macros: esMacros,
+    automation: esAutomation,
     teams: esTeams,
     users: esUsers,
     marketplace: esMarketplace,
@@ -579,6 +594,7 @@ const resources = {
     segments: esSegments,
     journey: esJourney,
     campaigns: esCampaigns,
+    events: esEvents,
   },
   fr: {
     auth: frAuth,
@@ -609,6 +625,7 @@ const resources = {
     customAttributes: frCustomAttributes,
     labels: frLabels,
     macros: frMacros,
+    automation: frAutomation,
     teams: frTeams,
     users: frUsers,
     marketplace: frMarketplace,
@@ -634,6 +651,7 @@ const resources = {
     segments: frSegments,
     journey: frJourney,
     campaigns: frCampaigns,
+    events: frEvents,
   },
   it: {
     auth: itAuth,
@@ -664,6 +682,7 @@ const resources = {
     customAttributes: itCustomAttributes,
     labels: itLabels,
     macros: itMacros,
+    automation: itAutomation,
     teams: itTeams,
     users: itUsers,
     marketplace: itMarketplace,
@@ -689,6 +708,7 @@ const resources = {
     segments: itSegments,
     journey: itJourney,
     campaigns: itCampaigns,
+    events: itEvents,
   },
 };
 

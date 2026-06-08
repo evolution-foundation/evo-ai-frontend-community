@@ -14,13 +14,21 @@ export interface JourneyTriggerNodeData {
     | 'contactCreated'
     | 'contactUpdated'
     | 'label'
-    | 'customAttribute';
+    | 'customAttribute'
+    | 'pipelineStageChanged';
   // Configurações de evento
   eventName?: string;
   eventProperties?: Array<{
     path: string;
-    operator: { type: string; value?: any };
+    operator: { type: string; value?: unknown };
   }>;
+  // Configurações de pipeline stage changed (EVO-1266)
+  pipelineId?: string;
+  pipelineName?: string;
+  fromStageId?: string;
+  fromStageName?: string;
+  toStageId?: string;
+  toStageName?: string;
   // Configurações de segmento
   segmentId?: string;
   segmentName?: string;
@@ -29,7 +37,7 @@ export interface JourneyTriggerNodeData {
   contactFields?: Array<{
     field: string;
     operator: string;
-    value?: any;
+    value?: unknown;
   }>;
   // Configurações de etiqueta
   labelId?: string;
@@ -52,7 +60,7 @@ export interface JourneyTriggerNodeData {
   conditions?: Array<{
     field?: string;
     operator?: string;
-    value?: any;
+    value?: unknown;
     eventName?: string;
     segmentId?: string;
   }>;
@@ -94,6 +102,8 @@ export function JourneyTriggerNode({ selected, data, id }: JourneyTriggerNodePro
         return t('flowEditor.nodes.trigger.types.label');
       case 'customAttribute':
         return t('flowEditor.nodes.trigger.types.customAttribute');
+      case 'pipelineStageChanged':
+        return t('flowEditor.nodes.trigger.types.pipelineStageChanged');
       default:
         return t('flowEditor.nodes.trigger.label');
     }
@@ -184,6 +194,25 @@ export function JourneyTriggerNode({ selected, data, id }: JourneyTriggerNodePro
         }
         return t('flowEditor.nodes.trigger.descriptions.configureWebhook');
 
+      case 'pipelineStageChanged': {
+        const pipelineLabel = data.pipelineName || data.pipelineId;
+        if (!pipelineLabel) {
+          return t('flowEditor.nodes.trigger.descriptions.anyStageTransition');
+        }
+        const fromLabel = data.fromStageName || data.fromStageId;
+        const toLabel = data.toStageName || data.toStageId;
+        if (fromLabel && toLabel) {
+          return `${pipelineLabel}: ${fromLabel} → ${toLabel}`;
+        }
+        if (toLabel) {
+          return `${pipelineLabel} → ${toLabel}`;
+        }
+        if (fromLabel) {
+          return `${pipelineLabel}: ${fromLabel} →`;
+        }
+        return pipelineLabel;
+      }
+
       default:
         return t('flowEditor.nodes.trigger.descriptions.configureTrigger');
     }
@@ -206,12 +235,12 @@ export function JourneyTriggerNode({ selected, data, id }: JourneyTriggerNodePro
             <Play className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+            <h3 className="text-sm font-medium text-foreground truncate">
               {getTriggerLabel()}
             </h3>
           </div>
           <div className="flex-shrink-0">
-            <Settings className="w-3 h-3 text-gray-400" />
+            <Settings className="w-3 h-3 text-muted-foreground" />
           </div>
         </div>
 

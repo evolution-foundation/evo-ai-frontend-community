@@ -76,7 +76,7 @@ export default function NotificationPanel({
   };
 
   const handleOpenSettings = () => {
-    navigate('/settings/account');
+    navigate('/profile/notifications');
     onClose();
   };
 

@@ -22,6 +22,20 @@ export type NodeConfigModalTab = {
   value: string;
   label: string;
   content: ReactNode;
+  /**
+   * Optional indicator rendered next to the tab label (e.g. a count dot
+   * signalling "this tab has data"). Purely visual — carry any a11y text on
+   * the node itself (aria-label). Default-off: tabs that omit it render
+   * exactly as before. See EVO-1276.
+   */
+  badge?: ReactNode;
+  /**
+   * Keep this tab's content mounted (Radix `forceMount`) even while another tab
+   * is active, so local component state inside it survives tab switches.
+   * Default-off → inactive tabs unmount as before. Use sparingly: only for tabs
+   * whose local state can't be reconstructed from lifted props. See EVO-1276.
+   */
+  forceMount?: boolean;
 };
 
 type CommonProps = {
@@ -40,8 +54,16 @@ type CommonProps = {
   description?: string;
   loading?: boolean;
   dirty?: boolean;
+  /** Gate the Save button beyond dirty/loading — e.g. required-field validation. Defaults to false. */
+  saveDisabled?: boolean;
   saveLabel?: string;
   cancelLabel?: string;
+  /**
+   * Screen-reader-only text announced while `loading` is true. Default
+   * is English "Saving…"; consumers should pass a translated value so
+   * the audio feedback respects the user's locale.
+   */
+  savingAriaLabel?: string;
   /** Forwarded onto Dialog.Content's className via cn(). Useful for width overrides (e.g. max-w-4xl). */
   contentClassName?: string;
 };
@@ -56,6 +78,18 @@ type TabsVariantProps = CommonProps & {
   tabs: NodeConfigModalTab[];
   defaultTab?: string;
   onTabChange?: (value: string) => void;
+  /**
+   * Always-visible content rendered ABOVE the tab list (e.g. a type selector
+   * that must stay reachable from any tab). Omitted → no slot, identical to the
+   * pre-EVO-1276 layout. See EVO-1276.
+   */
+  header?: ReactNode;
+  /**
+   * Drives the active tab in controlled mode. When provided, the modal honors
+   * this value (and `onTabChange` becomes the change handler); when omitted, the
+   * tabs stay uncontrolled via `defaultTab`. See EVO-1276.
+   */
+  value?: string;
 };
 
 type DisclosureProps = CommonProps & {
@@ -78,8 +112,10 @@ export function NodeConfigModal(props: NodeConfigModalProps) {
     description,
     loading = false,
     dirty = false,
+    saveDisabled = false,
     saveLabel = 'Save',
     cancelLabel = 'Cancel',
+    savingAriaLabel = 'Saving...',
     contentClassName,
   } = props;
 
@@ -110,23 +146,39 @@ export function NodeConfigModal(props: NodeConfigModalProps) {
           </div>
         </DialogHeader>
 
-        <div className="px-6 py-4">
+        <div className="px-6 py-4 max-h-[70vh] overflow-y-auto">
           {props.variant === 'simple' ? props.children : null}
 
           {props.variant === 'tabs' ? (
             <Tabs
-              defaultValue={props.defaultTab ?? props.tabs[0]?.value}
+              {...(props.value !== undefined
+                ? { value: props.value }
+                : { defaultValue: props.defaultTab ?? props.tabs[0]?.value })}
               onValueChange={props.onTabChange}
             >
+              {props.header ? <div className="mb-4">{props.header}</div> : null}
               <TabsList className="mb-4">
                 {props.tabs.map((tab) => (
                   <TabsTrigger key={tab.value} value={tab.value}>
                     {tab.label}
+                    {tab.badge ? (
+                      <span className="ml-1.5 inline-flex items-center">{tab.badge}</span>
+                    ) : null}
                   </TabsTrigger>
                 ))}
               </TabsList>
               {props.tabs.map((tab) => (
-                <TabsContent key={tab.value} value={tab.value}>
+                <TabsContent
+                  key={tab.value}
+                  value={tab.value}
+                  // Radix only unmounts inactive panels when NOT force-mounted.
+                  // A force-mounted panel stays in the DOM with hidden=false, so
+                  // its content leaks into other tabs — hide it with Tailwind
+                  // (the design-system TabsContent has no inactive-hide rule). See EVO-1276.
+                  {...(tab.forceMount
+                    ? { forceMount: true, className: 'data-[state=inactive]:hidden' }
+                    : {})}
+                >
                   {tab.content}
                 </TabsContent>
               ))}
@@ -163,13 +215,13 @@ export function NodeConfigModal(props: NodeConfigModalProps) {
           </Button>
           <Button
             onClick={onSave}
-            disabled={!dirty || loading}
+            disabled={!dirty || loading || saveDisabled}
             className="flex-1 sm:flex-initial h-10"
           >
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                <span className="sr-only">Saving…</span>
+                <span className="sr-only">{savingAriaLabel}</span>
               </>
             ) : null}
             {saveLabel}

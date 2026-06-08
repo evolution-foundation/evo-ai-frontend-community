@@ -1,18 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  Button,
   Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Separator,
 } from '@evoapi/design-system';
 import { Settings, Hash, Calendar } from 'lucide-react';
 import { SetVariableNodeData } from './SetVariableNode';
-import { BaseFlowPanel } from '@/components/base';
-import { VariableInput, VariableSelect} from '@/components/journey/environment-manager';
+import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
+import { FlowFeedbackBanner } from '@/components/journey/_ui';
+import { VariableInput, VariableSelect } from '@/components/journey/environment-manager';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface SetVariablePanelProps {
@@ -22,7 +21,6 @@ interface SetVariablePanelProps {
   onClose: () => void;
   journeyId: string;
 }
-
 
 export function SetVariablePanel({
   nodeId,
@@ -116,13 +114,15 @@ export function SetVariablePanel({
     { value: 'timestamp', label: t('panels.setVariable.idCategories.timestamp'), description: '' },
   ];
 
-  const [formData, setFormData] = useState<SetVariableNodeData>({
+  const initialFormData: SetVariableNodeData = {
     variableName: '',
     operation: 'set',
     value: '',
     category: '',
     ...data,
-  });
+  };
+  const [originalData] = useState<SetVariableNodeData>(() => initialFormData);
+  const [formData, setFormData] = useState<SetVariableNodeData>(initialFormData);
 
   useEffect(() => {
     setFormData({
@@ -135,33 +135,20 @@ export function SetVariablePanel({
   }, [data]);
 
   const handleSave = () => {
-    const selectedOperation = OPERATIONS.find(op => op.value === formData.operation);
-
-    // Validações
-    if (!formData.variableName?.trim()) {
-      alert(t('panels.setVariable.validation.variableNameRequired'));
-      return;
-    }
-
-    if (selectedOperation?.needsValue && !formData.value?.trim()) {
-      alert(t('panels.setVariable.validation.valueRequired'));
-      return;
-    }
-
-    if (selectedOperation?.needsCategory && !formData.category) {
-      alert(t('panels.setVariable.validation.categoryRequired'));
-      return;
-    }
-
     onUpdate(nodeId, formData);
     onClose();
   };
 
   const selectedOperation = OPERATIONS.find(op => op.value === formData.operation);
-  const isValid =
+  const isValid = Boolean(
     formData.variableName &&
-    (!selectedOperation?.needsValue || formData.value) &&
-    (!selectedOperation?.needsCategory || formData.category);
+      (!selectedOperation?.needsValue || formData.value) &&
+      (!selectedOperation?.needsCategory || formData.category),
+  );
+  const dirty = useMemo(
+    () => JSON.stringify(formData) !== JSON.stringify(originalData),
+    [formData, originalData],
+  );
 
   const renderValueInput = () => {
     if (!selectedOperation?.needsValue) return null;
@@ -220,32 +207,33 @@ export function SetVariablePanel({
   const categories = getOperationsByCategory();
 
   return (
-    <BaseFlowPanel
+    <NodeConfigModal
+      open
+      variant="simple"
       title={t('panels.setVariable.title')}
-      icon={<Settings className="w-5 h-5 text-purple-500" />}
-      onClose={onClose}
-      width="w-[600px]"
+      icon={<Settings className="h-5 w-5 text-flow-node-control-fg" />}
+      onCancel={onClose}
+      onSave={handleSave}
+      dirty={dirty && isValid}
+      saveLabel={t('panels.setVariable.buttons.save')}
+      cancelLabel={t('panels.setVariable.buttons.cancel')}
     >
-      <Separator />
-
       <div className="space-y-4">
-        {/* Status de validação */}
         {!isValid && (
-          <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800/30">
-            <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-              {t('panels.setVariable.incompleteConfig')}:
-            </p>
-            <ul className="text-xs text-yellow-700 dark:text-yellow-300 mt-1 list-disc list-inside">
+          <FlowFeedbackBanner variant="warn">
+            <p className="font-medium">{t('panels.setVariable.incompleteConfig')}:</p>
+            <ul className="text-xs mt-1 list-disc list-inside">
               {!formData.variableName && <li>{t('panels.setVariable.enterVariableName')}</li>}
-              {selectedOperation?.needsValue && !formData.value && <li>{t('panels.setVariable.configureValue')}</li>}
+              {selectedOperation?.needsValue && !formData.value && (
+                <li>{t('panels.setVariable.configureValue')}</li>
+              )}
               {selectedOperation?.needsCategory && !formData.category && (
                 <li>{t('panels.setVariable.selectCategory')}</li>
               )}
             </ul>
-          </div>
+          </FlowFeedbackBanner>
         )}
 
-        {/* Nome da variável */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">{t('panels.setVariable.variable')}</Label>
           <VariableSelect
@@ -257,13 +245,12 @@ export function SetVariablePanel({
             showSystemVariables={false}
           />
           {formData.variableName && (
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-muted-foreground">
               {t('panels.setVariable.variable')}: {formData.variableName}
             </p>
           )}
         </div>
 
-        {/* Operação */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">{t('panels.setVariable.operation')}</Label>
           <Select
@@ -279,7 +266,6 @@ export function SetVariablePanel({
               <SelectValue placeholder={t('panels.setVariable.placeholders.selectOperation')} />
             </SelectTrigger>
             <SelectContent className="bg-sidebar border-sidebar-border max-h-[400px]">
-              {/* Personalizado */}
               <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
                 <div className="flex items-center gap-2">
                   <Settings className="w-3 h-3" />
@@ -296,13 +282,12 @@ export function SetVariablePanel({
                     <span>{operation.icon}</span>
                     <div className="flex flex-col">
                       <span className="font-medium">{operation.label}</span>
-                      <span className="text-xs text-gray-500">{operation.description}</span>
+                      <span className="text-xs text-muted-foreground">{operation.description}</span>
                     </div>
                   </div>
                 </SelectItem>
               ))}
 
-              {/* Numérico */}
               <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 mt-2">
                 <div className="flex items-center gap-2">
                   <Hash className="w-3 h-3" />
@@ -319,13 +304,12 @@ export function SetVariablePanel({
                     <span>{operation.icon}</span>
                     <div className="flex flex-col">
                       <span className="font-medium">{operation.label}</span>
-                      <span className="text-xs text-gray-500">{operation.description}</span>
+                      <span className="text-xs text-muted-foreground">{operation.description}</span>
                     </div>
                   </div>
                 </SelectItem>
               ))}
 
-              {/* Data e Hora */}
               <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 mt-2">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3 h-3" />
@@ -342,13 +326,12 @@ export function SetVariablePanel({
                     <span>{operation.icon}</span>
                     <div className="flex flex-col">
                       <span className="font-medium">{operation.label}</span>
-                      <span className="text-xs text-gray-500">{operation.description}</span>
+                      <span className="text-xs text-muted-foreground">{operation.description}</span>
                     </div>
                   </div>
                 </SelectItem>
               ))}
 
-              {/* Funções */}
               <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 mt-2">
                 <div className="flex items-center gap-2">
                   <Hash className="w-3 h-3" />
@@ -365,7 +348,7 @@ export function SetVariablePanel({
                     <span>{operation.icon}</span>
                     <div className="flex flex-col">
                       <span className="font-medium">{operation.label}</span>
-                      <span className="text-xs text-gray-500">{operation.description}</span>
+                      <span className="text-xs text-muted-foreground">{operation.description}</span>
                     </div>
                   </div>
                 </SelectItem>
@@ -374,13 +357,10 @@ export function SetVariablePanel({
           </Select>
 
           {selectedOperation && (
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {selectedOperation.description}
-            </p>
+            <p className="text-xs text-muted-foreground">{selectedOperation.description}</p>
           )}
         </div>
 
-        {/* Campo de valor (quando necessário) */}
         {selectedOperation?.needsValue && (
           <div className="space-y-2">
             <Label className="text-sm font-medium">
@@ -389,13 +369,12 @@ export function SetVariablePanel({
                 : t('panels.setVariable.value')}
             </Label>
             {renderValueInput()}
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-muted-foreground">
               {t('panels.setVariable.helperTexts.customValue')}
             </p>
           </div>
         )}
 
-        {/* Categoria para ID aleatório */}
         {selectedOperation?.needsCategory && (
           <div className="space-y-2">
             <Label className="text-sm font-medium">{t('panels.setVariable.idCategory')}</Label>
@@ -426,10 +405,9 @@ export function SetVariablePanel({
           </div>
         )}
 
-        {/* Preview da operação */}
         {isValid && (
-          <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/30">
-            <p className="text-sm text-purple-800 dark:text-purple-200 mb-2">
+          <FlowFeedbackBanner variant="info">
+            <p className="mb-2">
               <strong>{t('panels.setVariable.preview.variableConfigured')}:</strong>
             </p>
             <div className="flex items-center gap-2 mb-2">
@@ -437,30 +415,18 @@ export function SetVariablePanel({
               <span className="font-medium">
                 {formData.variableName?.replace(/[{}]/g, '') || formData.variableName}
               </span>
-              <span className="text-purple-600 dark:text-purple-400">←</span>
-              <span className="font-medium text-purple-700 dark:text-purple-300">
+              <span>←</span>
+              <span className="font-medium">
                 {selectedOperation?.label}
                 {formData.value && ` (${formData.value})`}
                 {formData.category &&
                   ` - ${ID_CATEGORIES.find(c => c.value === formData.category)?.label}`}
               </span>
             </div>
-            <p className="text-xs text-purple-600 dark:text-purple-400">
-              {selectedOperation?.description}
-            </p>
-          </div>
+            <p className="text-xs">{selectedOperation?.description}</p>
+          </FlowFeedbackBanner>
         )}
       </div>
-
-      {/* Botões de ação */}
-      <div className="flex gap-3 pt-2">
-        <Button variant="outline" onClick={onClose} className="flex-1 h-10">
-          {t('panels.setVariable.buttons.cancel')}
-        </Button>
-        <Button onClick={handleSave} className="flex-1 h-10" disabled={!isValid}>
-          {isValid ? t('panels.setVariable.buttons.save') : t('panels.setVariable.buttons.configureVariable')}
-        </Button>
-      </div>
-    </BaseFlowPanel>
+    </NodeConfigModal>
   );
 }

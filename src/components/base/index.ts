@@ -18,7 +18,6 @@ export type { BaseStatsGridProps } from './BaseStatsGrid';
 export { BaseFlowCanvas } from './BaseFlowCanvas';
 export { BaseFlowEditor } from './BaseFlowEditor';
 export { BaseFlowNode, NodeHeader, NodeContent } from './BaseFlowNode';
-export { BaseFlowPanel, PanelSection, FieldGroup, PanelActions, usePanelState } from './BaseFlowPanel';
 export { BaseNodePanel } from './BaseNodePanel';
 export { BaseFlowContextMenu } from './BaseFlowContextMenu';
 export { BaseFlowHelperLines } from './BaseFlowHelperLines';
@@ -63,14 +62,6 @@ export type {
   NodeHeaderProps,
   NodeContentProps
 } from './BaseFlowNode';
-
-export type {
-  BaseFlowPanelProps,
-  PanelSectionProps,
-  FieldGroupProps,
-  PanelActionsProps,
-  UsePanelStateOptions
-} from './BaseFlowPanel';
 
 export type {
   BaseNodePanelProps,

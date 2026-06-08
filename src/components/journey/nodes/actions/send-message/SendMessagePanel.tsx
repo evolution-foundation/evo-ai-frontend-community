@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Button,
   Select,
@@ -6,7 +6,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Separator,
   Badge,
   Card,
   Label,
@@ -26,7 +25,8 @@ import {
   Send,
 } from 'lucide-react';
 import { SendMessageNodeData } from './SendMessageNode';
-import { BaseFlowPanel } from '@/components/base';
+import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
+import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { automationService } from '@/services/automation/automationService';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -48,7 +48,6 @@ interface AttachmentFile {
   uploadProgress?: number;
 }
 
-// Tipos de inbox permitidos
 const ALLOWED_INBOX_TYPES = [
   'Channel::Email',
   'Channel::Whatsapp',
@@ -63,7 +62,6 @@ const ALLOWED_INBOX_TYPES = [
   'Channel::Twilio',
 ];
 
-// Ícones para cada tipo de inbox
 const getInboxIcon = (channelType: string) => {
   switch (channelType) {
     case 'Channel::Email':
@@ -123,7 +121,7 @@ const getChannelTypeName = (channelType: string) => {
 export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessagePanelProps) {
   const { t } = useLanguage('journey');
 
-  const [formData, setFormData] = useState<SendMessageNodeData>({
+  const initialFormData: SendMessageNodeData = {
     ...data,
     message: data.message || '',
     inboxId: data.inboxId || '',
@@ -133,7 +131,9 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
     attachment_ids: data.attachment_ids || [],
     attachment_names: data.attachment_names || [],
     attachment_count: data.attachment_count || 0,
-  });
+  };
+  const [originalData] = useState<SendMessageNodeData>(() => initialFormData);
+  const [formData, setFormData] = useState<SendMessageNodeData>(initialFormData);
 
   const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
   const [formDataOptions, setFormDataOptions] = useState<{
@@ -144,7 +144,6 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load form data options on mount
   useEffect(() => {
     const loadFormData = async () => {
       try {
@@ -152,7 +151,6 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
         const formDataResponse = await automationService.getFormData();
         setFormDataOptions(formDataResponse);
 
-        // Filtrar apenas inboxes dos tipos permitidos
         if (formDataResponse.inboxes) {
           const filtered = formDataResponse.inboxes.filter((inbox: any) =>
             ALLOWED_INBOX_TYPES.includes(inbox.channel_type),
@@ -160,7 +158,6 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
           setFilteredInboxes(filtered);
         }
 
-        // Load existing attachments if any
         if (data.attachment_ids && data.attachment_names) {
           const existingAttachments = data.attachment_ids.map((id, index) => ({
             id: id.toString(),
@@ -184,7 +181,6 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
 
   const handleFileSelect = (files: FileList) => {
     Array.from(files).forEach(file => {
-      // Check file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
         toast.error(t('panels.sendMessage.fileTooLarge', { fileName: file.name }));
         return;
@@ -207,7 +203,6 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
 
   const uploadFile = async (_file: File, tempId: string) => {
     try {
-      // Simulate upload progress
       for (let progress = 0; progress <= 100; progress += 10) {
         setAttachments(prev =>
           prev.map(att => (att.id === tempId ? { ...att, uploadProgress: progress } : att)),
@@ -215,7 +210,6 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
-      // Simulate successful upload
       const uploadedId = `uploaded-${Date.now()}`;
       setAttachments(prev =>
         prev.map(att => (att.id === tempId ? { ...att, id: uploadedId, status: 'uploaded' } : att)),
@@ -266,27 +260,12 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
   };
 
   const handleSave = () => {
-    if (!formData.message?.trim()) {
-      toast.error(t('panels.sendMessage.enterMessage'));
-      return;
-    }
-
-    if (!formData.useEventChannel && !formData.inboxId) {
-      toast.error(t('panels.sendMessage.selectChannelOrEvent'));
-      return;
-    }
-
-    if (formData.message.length > 1000) {
-      toast.error(t('panels.sendMessage.messageTooLong'));
-      return;
-    }
-
     const uploadedAttachments = attachments.filter(att => att.status === 'uploaded');
     const hasAttachments = uploadedAttachments.length > 0;
 
     const updatedData: SendMessageNodeData = {
       ...formData,
-      message: formData.message.trim(),
+      message: formData.message!.trim(),
       hasAttachment: hasAttachments,
       attachment_ids: hasAttachments ? uploadedAttachments.map(att => att.id) : [],
       attachment_names: hasAttachments ? uploadedAttachments.map(att => att.name) : [],
@@ -310,8 +289,8 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
   const getCharacterCount = () => formData.message?.length || 0;
   const getCharacterCountColor = () => {
     const count = getCharacterCount();
-    if (count > 1000) return 'text-red-600';
-    if (count > 800) return 'text-orange-600';
+    if (count > 1000) return 'text-flow-feedback-error-fg';
+    if (count > 800) return 'text-flow-feedback-warn-fg';
     return 'text-muted-foreground';
   };
 
@@ -323,24 +302,31 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
     getCharacterCount() <= 1000 &&
     !hasUploading
   );
+  const dirty = useMemo(
+    () =>
+      JSON.stringify(formData) !== JSON.stringify(originalData) ||
+      attachments.some(att => att.id.startsWith('uploaded-') || att.id.startsWith('temp-')),
+    [formData, originalData, attachments],
+  );
 
   return (
-    <BaseFlowPanel
+    <NodeConfigModal
+      open
+      variant="simple"
       title={t('panels.sendMessage.title')}
-      icon={<MessageSquare className="w-5 h-5 text-blue-500" />}
-      onClose={onClose}
-      width="w-[500px]"
+      icon={<MessageSquare className="h-5 w-5 text-flow-node-action-message-fg" />}
+      onCancel={onClose}
+      onSave={handleSave}
+      dirty={dirty && isValid}
+      saveLabel={t('panels.actions.save')}
+      cancelLabel={t('panels.actions.cancel')}
+      contentClassName="max-w-3xl"
     >
-      <Separator />
-
       <div className="space-y-4">
-        {/* Status de validação */}
         {!isValid && (
-          <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800/30">
-            <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-              {t('panels.sendMessage.incompleteConfig')}:
-            </p>
-            <ul className="text-xs text-yellow-700 dark:text-yellow-300 mt-1 list-disc list-inside">
+          <FlowFeedbackBanner variant="warn">
+            <p className="font-medium">{t('panels.sendMessage.incompleteConfig')}:</p>
+            <ul className="text-xs mt-1 list-disc list-inside">
               {!formData.message?.trim() && <li>{t('panels.sendMessage.enterMessage')}</li>}
               {!formData.useEventChannel && !formData.inboxId && (
                 <li>{t('panels.sendMessage.selectChannelOrEvent')}</li>
@@ -348,10 +334,9 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
               {getCharacterCount() > 1000 && <li>{t('panels.sendMessage.messageTooLong')}</li>}
               {hasUploading && <li>{t('panels.sendMessage.waitingUpload')}</li>}
             </ul>
-          </div>
+          </FlowFeedbackBanner>
         )}
 
-        {/* Opção de usar canal do evento */}
         <div className="space-y-3">
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -361,7 +346,6 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
                 setFormData(prev => ({
                   ...prev,
                   useEventChannel: !!checked,
-                  // Limpar seleção manual quando marcar para usar evento
                   inboxId: checked ? '' : prev.inboxId,
                   inboxName: checked ? '' : prev.inboxName,
                 }));
@@ -376,14 +360,13 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
           </p>
         </div>
 
-        {/* Seleção do Canal */}
         {!formData.useEventChannel && (
           <div className="space-y-2">
             <Label className="text-sm font-medium">{t('panels.sendMessage.sendChannel')}</Label>
 
             {loading ? (
-              <div className="flex items-center justify-center p-8 border-2 border-dashed rounded-lg">
-                <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mr-2" />
+              <div className="flex items-center justify-center p-8 border-2 border-dashed border-border rounded-lg">
+                <div className="animate-spin w-6 h-6 border-2 border-flow-node-action-message-fg border-t-transparent rounded-full mr-2" />
                 <span className="text-sm text-muted-foreground">
                   {t('panels.sendMessage.loadingChannels')}
                 </span>
@@ -426,7 +409,6 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
           </div>
         )}
 
-        {/* Campo da Mensagem */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">{t('panels.sendMessage.message')}</Label>
           <VariableTextarea
@@ -436,7 +418,6 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
             className="min-h-[120px] resize-none"
             disabled={loading}
             onVariableInsert={variable => {
-              // A variável já foi inserida pelo componente, apenas logamos para debug se necessário
               console.log('Variable inserted:', variable);
             }}
           />
@@ -447,19 +428,15 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
           </div>
         </div>
 
-        {/* Seção de Anexos */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">{t('panels.sendMessage.attachments')}</Label>
 
           <div
-            className={`
-              border-2 border-dashed rounded-lg p-4 text-center transition-colors
-              ${
-                isDragOver
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
-                  : 'border-border hover:border-blue-400'
-              }
-            `}
+            className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
+              isDragOver
+                ? 'border-flow-node-action-message-fg bg-flow-node-action-message-bg'
+                : 'border-border hover:border-flow-node-action-message-border'
+            }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -489,7 +466,6 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
           </div>
         </div>
 
-        {/* Lista de Anexos */}
         {attachments.length > 0 && (
           <div className="space-y-2">
             <Label className="text-sm font-medium">
@@ -499,17 +475,17 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
               {attachments.map(attachment => (
                 <div
                   key={attachment.id}
-                  className="flex items-center gap-3 p-2 rounded-md bg-muted/30 border"
+                  className="flex items-center gap-3 p-2 rounded-md bg-muted/30 border border-border"
                 >
                   <div className="flex-shrink-0">
                     {attachment.status === 'uploading' && (
-                      <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-flow-node-action-message-fg border-t-transparent rounded-full animate-spin" />
                     )}
                     {attachment.status === 'uploaded' && (
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-flow-feedback-success-fg" />
                     )}
                     {attachment.status === 'error' && (
-                      <AlertCircle className="w-4 h-4 text-red-500" />
+                      <AlertCircle className="w-4 h-4 text-flow-feedback-error-fg" />
                     )}
                   </div>
 
@@ -527,78 +503,51 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
                     </div>
                   </div>
 
-                  {/* eslint-disable-next-line no-restricted-syntax -- pre-EVO-1253 raw <button>; migration to <Button> tracked by EVO-1274 [10.4] modal refactor. */}
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => removeAttachment(attachment.id)}
-                    className="flex-shrink-0 p-1 rounded-md hover:bg-red-100 dark:hover:bg-red-900/20 text-red-500"
+                    className="flex-shrink-0 h-7 w-7 text-flow-feedback-error-fg hover:text-flow-feedback-error-fg"
+                    aria-label={t('panels.sendMessage.removeAttachmentLabel') || 'Remove attachment'}
                   >
                     <X className="w-3 h-3" />
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Preview da Configuração */}
         {formData.message?.trim() && (
-          <>
-            <Separator />
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-blue-500" />
-                <h4 className="text-sm font-medium">{t('panels.sendMessage.previewTitle')}</h4>
-              </div>
+          <FlowFeedbackBanner variant="info">
+            <div className="flex items-start gap-3">
+              <MessageSquare className="w-4 h-4 mt-1 shrink-0" />
+              <div className="flex-1">
+                <p className="font-medium">{t('panels.sendMessage.messageConfigured')}</p>
+                <p className="text-sm mt-1">"{formData.message.trim()}"</p>
 
-              <Card className="p-4 bg-blue-50 dark:bg-blue-950/10 border-blue-200 dark:border-blue-800">
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                      <MessageSquare className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                        {t('panels.sendMessage.messageConfigured')}
-                      </p>
-                      <p className="text-sm text-blue-800 dark:text-blue-200 mt-1">
-                        "{formData.message.trim()}"
-                      </p>
+                {(formData.useEventChannel || formData.inboxName) && (
+                  <Badge variant="outline" className="mt-2">
+                    {t('panels.sendMessage.channel')}:{' '}
+                    {formData.useEventChannel
+                      ? t('panels.sendMessage.eventChannel')
+                      : formData.inboxName}
+                  </Badge>
+                )}
 
-                      {(formData.useEventChannel || formData.inboxName) && (
-                        <Badge variant="outline" className="mt-2">
-                          {t('panels.sendMessage.channel')}:{' '}
-                          {formData.useEventChannel
-                            ? t('panels.sendMessage.eventChannel')
-                            : formData.inboxName}
-                        </Badge>
-                      )}
-
-                      {uploadedCount > 0 && (
-                        <div className="mt-2 flex items-center gap-1 text-xs text-blue-700 dark:text-blue-300">
-                          <Paperclip className="w-3 h-3" />
-                          {uploadedCount === 1
-                            ? t('panels.sendMessage.oneAttachment')
-                            : t('panels.sendMessage.multipleAttachments', { count: uploadedCount })}
-                        </div>
-                      )}
-                    </div>
+                {uploadedCount > 0 && (
+                  <div className="mt-2 flex items-center gap-1 text-xs">
+                    <Paperclip className="w-3 h-3" />
+                    {uploadedCount === 1
+                      ? t('panels.sendMessage.oneAttachment')
+                      : t('panels.sendMessage.multipleAttachments', { count: uploadedCount })}
                   </div>
-                </div>
-              </Card>
+                )}
+              </div>
             </div>
-          </>
+          </FlowFeedbackBanner>
         )}
       </div>
-
-      {/* Botões de ação */}
-      <div className="flex gap-3 pt-2">
-        <Button variant="outline" onClick={onClose} className="flex-1 h-10">
-          {t('panels.actions.cancel')}
-        </Button>
-        <Button onClick={handleSave} className="flex-1 h-10" disabled={!isValid}>
-          {isValid ? t('panels.actions.save') : t('panels.sendMessage.completeConfig')}
-        </Button>
-      </div>
-    </BaseFlowPanel>
+    </NodeConfigModal>
   );
 }

@@ -9,6 +9,7 @@ import {
   Input,
   Textarea,
   Button,
+  Checkbox,
 } from '@evoapi/design-system';
 import { Trash2 } from 'lucide-react';
 import {
@@ -313,15 +314,47 @@ function ActionParamsRenderer({ control, index, actionName, formData, t }: Param
               team_ids: [],
               message: '',
             };
+            const selectedIds = ((current.team_ids as Array<string | number>) ?? []).map(String);
+            const toggleTeam = (id: string) => {
+              const next = selectedIds.includes(id)
+                ? selectedIds.filter((t) => t !== id)
+                : [...selectedIds, id];
+              field.onChange([{ ...current, team_ids: next, message: current.message ?? '' }]);
+            };
             return (
-              <Textarea
-                value={(current.message as string) ?? ''}
-                onChange={(e) =>
-                  field.onChange([{ ...current, message: e.target.value }])
-                }
-                placeholder={t('form.fields.actionRow.params.send_email_to_team')}
-                rows={2}
-              />
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-muted-foreground">
+                  {t('form.fields.actionRow.params.send_email_to_team_teams')}
+                </label>
+                <div className="space-y-1 max-h-32 overflow-y-auto rounded-md border p-2">
+                  {formData.teams.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">
+                      {t('form.fields.actionRow.params.send_email_to_team_no_teams')}
+                    </p>
+                  ) : (
+                    formData.teams.map((team) => {
+                      const id = String(team.id);
+                      return (
+                        <label key={id} className="flex items-center gap-2 text-sm cursor-pointer">
+                          <Checkbox
+                            checked={selectedIds.includes(id)}
+                            onCheckedChange={() => toggleTeam(id)}
+                          />
+                          {team.name}
+                        </label>
+                      );
+                    })
+                  )}
+                </div>
+                <Textarea
+                  value={(current.message as string) ?? ''}
+                  onChange={(e) =>
+                    field.onChange([{ ...current, message: e.target.value }])
+                  }
+                  placeholder={t('form.fields.actionRow.params.send_email_to_team')}
+                  rows={2}
+                />
+              </div>
             );
           }}
         />
@@ -365,16 +398,15 @@ function ActionParamsRenderer({ control, index, actionName, formData, t }: Param
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <Input
-                    type="number"
                     value={
                       current.assigned_to_id != null && current.assigned_to_id !== ''
                         ? String(current.assigned_to_id)
                         : ''
                     }
                     onChange={(e) => {
-                      const raw = e.target.value;
-                      const num = raw === '' ? undefined : Number(raw);
-                      setField('assigned_to_id', Number.isNaN(num) ? undefined : num);
+                      // user ids are UUID strings — keep the raw value, don't coerce to Number
+                      const raw = e.target.value.trim();
+                      setField('assigned_to_id', raw === '' ? undefined : raw);
                     }}
                     placeholder={t('form.fields.actionRow.params.create_pipeline_task_assignee')}
                   />
@@ -417,19 +449,14 @@ function ActionParamsRenderer({ control, index, actionName, formData, t }: Param
               field.onChange([{ ...current, attachment_ids: parsed }]);
             };
             const setInbox = (raw: string) => {
-              if (raw === '') {
+              const trimmed = raw.trim();
+              if (trimmed === '') {
                 const next = { ...current };
                 delete (next as Record<string, unknown>).inbox_id;
                 field.onChange([{ ...next, attachment_ids: ids }]);
               } else {
-                const num = Number(raw);
-                field.onChange([
-                  {
-                    ...current,
-                    attachment_ids: ids,
-                    inbox_id: Number.isNaN(num) ? undefined : num,
-                  },
-                ]);
+                // inbox ids are UUID strings — keep the raw value
+                field.onChange([{ ...current, attachment_ids: ids, inbox_id: trimmed }]);
               }
             };
             return (
@@ -440,7 +467,6 @@ function ActionParamsRenderer({ control, index, actionName, formData, t }: Param
                   placeholder={t('form.fields.actionRow.params.send_attachment_ids')}
                 />
                 <Input
-                  type="number"
                   value={inboxId != null ? String(inboxId) : ''}
                   onChange={(e) => setInbox(e.target.value)}
                   placeholder={t('form.fields.actionRow.params.send_attachment_inbox')}

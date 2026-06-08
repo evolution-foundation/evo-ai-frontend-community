@@ -23,7 +23,15 @@ import {
   Archive,
   GitBranch,
   Check,
+  PanelRightOpen,
+  PanelRightClose,
 } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@evoapi/design-system/tooltip';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,6 +61,8 @@ interface ChatHeaderProps {
   onBackClick: () => void;
   onCloseConversation: () => void;
   onContactSidebarOpen: () => void;
+  isContactSidebarOpen: boolean;
+  onContactSidebarToggle: () => void;
   onMarkAsRead: (conversation: Conversation) => void;
   onMarkAsUnread: (conversation: Conversation) => void;
   onMarkAsOpen: (conversation: Conversation) => void;
@@ -83,6 +93,8 @@ const ChatHeader = ({
   onBackClick,
   onCloseConversation,
   onContactSidebarOpen,
+  isContactSidebarOpen,
+  onContactSidebarToggle,
   onMarkAsRead,
   onMarkAsUnread,
   onMarkAsOpen,
@@ -545,6 +557,10 @@ const ChatHeader = ({
     );
   };
 
+  const contactPanelLabel = isContactSidebarOpen
+    ? t('chatHeader.closeContactPanel')
+    : t('chatHeader.openContactPanel');
+
   return (
     <div className="flex-shrink-0 p-4 border-b bg-background/95 backdrop-blur-sm">
       <div className="flex items-center justify-between">
@@ -604,6 +620,32 @@ const ChatHeader = ({
 
           {/* Dropdown de ações da conversa */}
           {renderConversationStatusDropdown()}
+
+          {/* Botão abrir/fechar painel de contato */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onContactSidebarToggle}
+                  aria-label={contactPanelLabel}
+                  className={
+                    isContactSidebarOpen
+                      ? 'text-primary hover:text-primary/80'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }
+                >
+                  {isContactSidebarOpen ? (
+                    <PanelRightClose className="h-4 w-4" />
+                  ) : (
+                    <PanelRightOpen className="h-4 w-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{contactPanelLabel}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           {/* Botão fechar conversa */}
           <Button

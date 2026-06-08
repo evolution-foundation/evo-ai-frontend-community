@@ -19,6 +19,8 @@ export interface GlobalConfig {
   hasInstagramConfig?: boolean;
   hasEvolutionConfig?: boolean;
   hasEvolutionGoConfig?: boolean;
+  hasEvolutionHubConfig?: boolean;
+  evolutionHubEnabled?: boolean;
   hasTwitterConfig?: boolean;
   openaiConfigured?: boolean;
   enableAccountSignup?: boolean;

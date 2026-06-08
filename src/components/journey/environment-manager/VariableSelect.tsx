@@ -164,6 +164,7 @@ const VariableSelect = forwardRef<HTMLButtonElement, VariableSelectProps>(
                   t('environmentManager.categories.event'),
                   t('environmentManager.categories.webhook'),
                   t('environmentManager.categories.journey'),
+                  t('environmentManager.categories.conversation'),
                 ].map(category => {
                   const categoryVars = SYSTEM_VARIABLES.filter(v => v.category === category);
                   if (categoryVars.length === 0) return null;

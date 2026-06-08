@@ -8,7 +8,7 @@
   },
   "errors": {
     "accountNotFound": "Conta não encontrada",
-    "accountIdNotAvailable": "Account ID not available",
+    "accountIdNotAvailable": "ID da Conta não disponível",
     "loadError": "Erro ao carregar servidores MCP personalizados",
     "applyFiltersError": "Erro ao aplicar filtros",
     "deleteError": "Erro ao deletar servidor MCP personalizado",

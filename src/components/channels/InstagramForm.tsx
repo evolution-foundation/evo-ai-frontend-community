@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Button } from '@evoapi/design-system';
+import { Button, Input } from '@evoapi/design-system';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useGlobalConfig } from '@/contexts/GlobalConfigContext';
 import instagramService from '@/services/channels/instagramService';
 import { Instagram, AlertTriangle } from 'lucide-react';
+import HubConnectButton from '@/components/inbox/HubConnectButton';
 
 interface InstagramFormProps {
   onCancel?: () => void;
@@ -13,11 +14,38 @@ interface InstagramFormProps {
 export default function InstagramForm({ onCancel }: InstagramFormProps) {
   const { t } = useLanguage('instagram');
   const config = useGlobalConfig();
+  const hubEnabled = config.evolutionHubEnabled === true;
 
   const [isConnecting, setIsConnecting] = useState(false);
+  const [inboxName, setInboxName] = useState('');
 
   // Check if Instagram is properly configured
   const isInstagramConfigured = !!config.instagramAppId;
+
+  if (hubEnabled) {
+    return (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-foreground">
+            {t('channelName') || 'Channel Name'}
+          </label>
+          <Input
+            placeholder={t('channelNamePlaceholder') || 'Instagram Channel'}
+            value={inboxName}
+            onChange={(e) => setInboxName(e.target.value)}
+          />
+        </div>
+        <HubConnectButton channelType="instagram" name={inboxName} />
+        {onCancel && (
+          <div className="text-center">
+            <Button variant="outline" onClick={onCancel}>
+              {t('cancel') || 'Cancel'}
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   const handleInstagramConnect = async () => {
     if (!isInstagramConfigured) {

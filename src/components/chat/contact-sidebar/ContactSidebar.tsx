@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import { useLanguage } from '@/hooks/useLanguage';
+import { toast } from 'sonner';
 
 import { Button } from '@evoapi/design-system/button';
 import { Card, CardHeader, CardContent } from '@evoapi/design-system/card';
@@ -18,7 +19,9 @@ import ConversationPipelineItem from '@/components/pipelines/ConversationPipelin
 import { pipelinesService } from '@/services/pipelines';
 import type { Pipeline } from '@/types/analytics';
 
+import { contactsService } from '@/services/contacts';
 import { Contact, Conversation } from '@/types/chat/api';
+import { mergeFullContact } from '@/utils/chat/contactTimestamp';
 
 interface ContactSidebarProps {
   isOpen: boolean;
@@ -90,6 +93,12 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
   const [isMobile, setIsMobile] = useState(false);
   const [conversationPipelines, setConversationPipelines] = useState<Pipeline[]>([]);
   const [isLoadingPipelines, setIsLoadingPipelines] = useState(false);
+  const [enrichedContact, setEnrichedContact] = useState<Contact | null>(null);
+
+  const contactRef = useRef(contact);
+  useEffect(() => {
+    contactRef.current = contact;
+  });
 
   // Detectar se é mobile para controlar renderização
   useEffect(() => {
@@ -101,6 +110,45 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  useEffect(() => {
+    setEnrichedContact(null);
+    if (!isOpen || !contact?.id) return;
+    let cancelled = false;
+    contactsService.getContact(contact.id, true).then(full => {
+      if (cancelled) return;
+      const base = contactRef.current ?? contact;
+      setEnrichedContact(mergeFullContact(full as Contact, base));
+    }).catch(err => {
+      console.error('[ContactSidebar] Failed to fetch full contact data:', err);
+    });
+    return () => { cancelled = true; };
+  // contactRef tracks the latest contact object; full `contact` excluded to avoid
+  // re-fetching on every prop reference change — only re-fetch on id/open changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, contact?.id]);
+
+  // Propagate scalar field changes from the contact prop into enrichedContact while
+  // the sidebar is open — handles store/WebSocket updates with the same contact id.
+  useEffect(() => {
+    if (!isOpen || !contact) return;
+    setEnrichedContact(prev => {
+      if (!prev || prev.id !== contact.id) return prev;
+      return {
+        ...prev,
+        name: contact.name ?? prev.name,
+        phone_number: contact.phone_number ?? prev.phone_number,
+        email: contact.email ?? prev.email,
+        blocked: contact.blocked ?? prev.blocked,
+        avatar_url: contact.avatar_url ?? prev.avatar_url,
+        avatar: contact.avatar ?? prev.avatar,
+        thumbnail: contact.thumbnail ?? prev.thumbnail,
+      };
+    });
+  // Scalar fields used as deps intentionally instead of the full `contact` object
+  // to avoid re-running on every reference change.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, contact?.id, contact?.name, contact?.phone_number, contact?.email, contact?.blocked, contact?.avatar_url, contact?.avatar, contact?.thumbnail]);
 
   // Carregar pipelines da conversation uma única vez
   const loadConversationPipelines = useCallback(async () => {
@@ -130,6 +178,25 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
     await loadConversationPipelines();
     onFilterReload?.();
   }, [loadConversationPipelines, onFilterReload]);
+
+  const handleContactAttributeUpdate = useCallback(async () => {
+    const id = contactRef.current?.id;
+    if (id) {
+      try {
+        const full = await contactsService.getContact(id, true);
+        setEnrichedContact(prev => {
+          const base = prev ?? contactRef.current;
+          return base ? mergeFullContact(full as Contact, base) : null;
+        });
+      } catch (err) {
+        console.error('[ContactSidebar] Failed to refresh contact after attribute update:', err);
+        toast.error(t('contactSidebar.customAttributes.refreshError'));
+      }
+    }
+    await onFilterReload?.();
+  // t is stable (pure translation fn); omitted from deps intentionally.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onFilterReload]);
 
   // Calcular altura real do header dinamicamente
   useEffect(() => {
@@ -182,7 +249,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
       >
         {/* Header com Avatar e Info Básica + Close Button */}
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative">
-          <ContactHeader contact={contact} channelType={conversation?.inbox?.channel_type} />
+          <ContactHeader contact={enrichedContact ?? contact} channelType={conversation?.inbox?.channel_type} />
 
           {/* Close Button */}
           <Button
@@ -211,7 +278,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
 
             {showContactDetails && (
               <CardContent className="pt-0 px-3 pb-3">
-                <ContactDetails contact={contact} />
+                <ContactDetails contact={enrichedContact ?? contact} />
               </CardContent>
             )}
           </Card>
@@ -389,7 +456,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
           )}
 
           {/* 7. Contact Custom Attributes - Atributos personalizados do contato */}
-          {contact && (
+          {(enrichedContact ?? contact) !== null && (
             <Card>
               <CardHeader className="pb-2">
                 <CollapsibleHeader
@@ -404,8 +471,8 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
               {showContactAttributes && (
                 <CardContent className="pt-0 px-3 pb-3">
                   <EditableContactCustomAttributes
-                    contact={contact}
-                    onContactUpdate={onFilterReload}
+                    contact={(enrichedContact ?? contact) as Contact}
+                    onContactUpdate={handleContactAttributeUpdate}
                   />
                 </CardContent>
               )}

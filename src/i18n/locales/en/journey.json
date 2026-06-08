@@ -56,15 +56,32 @@
   },
   "flowEditor": {
     "title": "Journey Editor: {{name}}",
-    "subtitleFallback": "No description",
     "loading": "Loading journey...",
     "notFound": "Journey not found",
     "back": "Back",
     "save": "Save",
     "saving": "Saving...",
     "saved": "Saved",
-    "lastSaved": "Last save: {{time}}",
+    "viewSessions": "View sessions",
+    "lastSavedRelative": "Saved {{relative}}",
+    "lastSavedJustNow": "just now",
     "autoSaveInfo": "Auto-save in 10s",
+    "unsavedChangesTitle": "Unsaved changes",
+    "unsavedChangesBody": "You have unsaved changes that will be lost if you leave now.",
+    "stay": "Stay",
+    "leaveAnyway": "Leave anyway",
+    "recoveryTitle": "Recover unsaved work?",
+    "recoveryBody": "We found unsaved changes from {{when}} stored locally. Recover them or discard?",
+    "recover": "Recover",
+    "discard": "Discard",
+    "saveErrorBanner": "Save failed: {{reason}}. Retrying in {{seconds}}s.",
+    "saveErrorBannerNoRetry": "Save failed: {{reason}}. Click Save to try again.",
+    "saveErrorMessages": {
+      "network": "Network error",
+      "server": "Server error",
+      "unauthorized": "Not authorized",
+      "validation": "Invalid data"
+    },
     "saveSuccess": "Journey saved successfully",
     "saveError": "Unable to save journey",
     "loadError": "Unable to load journey",
@@ -91,7 +108,8 @@
           "contactCreated": "Contact Created",
           "contactUpdated": "Contact Updated",
           "label": "Label",
-          "customAttribute": "Custom Attribute"
+          "customAttribute": "Custom Attribute",
+          "pipelineStageChanged": "Pipeline Stage Changed"
         },
         "descriptions": {
           "manual": "Manual trigger",
@@ -130,7 +148,8 @@
           "daysWeek": "{{count}} day/week",
           "daysWeekPlural": "{{count}} days/week",
           "daysWeekAt": "{{count}} day/week at {{time}}",
-          "daysWeekPluralAt": "{{count}} days/week at {{time}}"
+          "daysWeekPluralAt": "{{count}} days/week at {{time}}",
+          "anyStageTransition": "Triggered on any stage transition"
         }
       },
       "wait": {
@@ -233,7 +252,8 @@
         "description": "Sends a message to the contact",
         "eventChannel": "Event Channel",
         "oneAttachment": "+ 1 attachment",
-        "multipleAttachments": "+ {{count}} attachments"
+        "multipleAttachments": "+ {{count}} attachments",
+        "channelLabel": "Channel:"
       },
       "sendWebhook": {
         "name": "Send Webhook",
@@ -292,6 +312,26 @@
         "assignTo": "Assign conversation to team",
         "noTeamSelected": "No team selected"
       },
+      "assignBot": {
+        "name": "Assign Bot",
+        "description": "Connects a specific bot to an inbox to automate responses"
+      },
+      "assignToPipeline": {
+        "name": "Assign to Pipeline",
+        "description": "Adds the conversation to a sales pipeline",
+        "selectPipeline": "Select pipeline",
+        "pipelineNumber": "Pipeline #{{pipelineId}}",
+        "assignTo": "Assign conversation to",
+        "noPipelineSelected": "No pipeline selected"
+      },
+      "sendCannedResponse": {
+        "name": "Send Canned Response",
+        "description": "Sends a pre-written canned response to the conversation",
+        "selectResponse": "Select canned response",
+        "responseNumber": "Response #{{responseId}}",
+        "sendingResponse": "Send canned response",
+        "noResponseSelected": "No canned response selected"
+      },
       "muteConversation": {
         "name": "Mute Conversation",
         "description": "The conversation will be muted and will not generate notifications for Agents"
@@ -310,25 +350,21 @@
       }
     },
     "categories": {
-      "actions": {
-        "label": "Actions",
-        "description": "Actions that can be executed in the journey"
+      "controlFlow": {
+        "label": "Control Flow",
+        "description": "Wait, branch and route the journey"
       },
       "communication": {
         "label": "Communication",
-        "description": "Sending messages and notifications"
-      },
-      "labels": {
-        "label": "Labels",
-        "description": "Label management"
+        "description": "Send messages, webhooks and notifications"
       },
       "contact": {
         "label": "Contact",
-        "description": "Contact management"
+        "description": "Update contact data, labels and assignments"
       },
       "conversation": {
-        "label": "Conversations",
-        "description": "Conversation management"
+        "label": "Conversation",
+        "description": "Mute, defer, resolve and prioritise conversations"
       }
     }
   },
@@ -427,6 +463,10 @@
         "currentStep": "Current Step",
         "startDateDescription": "Journey start date",
         "currentStepDescription": "Current step of the journey"
+      },
+      "conversation": {
+        "pipelineStageId": "Pipeline stage",
+        "pipelineStageIdDescription": "Current pipeline stage of the conversation"
       }
     },
     "categories": {
@@ -434,6 +474,7 @@
       "event": "Event",
       "webhook": "Webhook",
       "journey": "Journey",
+      "conversation": "Conversation",
       "others": "Others"
     },
     "form": {
@@ -841,6 +882,27 @@
       "selectInboxNode": "Select inbox",
       "assignBotAction": "Assign bot"
     },
+    "assignToPipeline": {
+      "title": "Configure Assign to Pipeline",
+      "loadDataError": "Error loading pipelines:",
+      "pipeline": "Pipeline",
+      "loadingPipelines": "Loading pipelines...",
+      "selectPipeline": "Select a pipeline",
+      "noPipelinesFound": "No pipelines found in the account.",
+      "conversationWillBeAssigned": "The conversation will be assigned to the pipeline",
+      "replacesAnyPrevious": "this replaces any previous pipeline assignment",
+      "loadErrorBanner": "Could not load pipelines. Check your connection and try reopening this node."
+    },
+    "sendCannedResponse": {
+      "title": "Configure Send Canned Response",
+      "loadDataError": "Error loading canned responses:",
+      "response": "Canned response",
+      "loadingResponses": "Loading canned responses...",
+      "selectResponse": "Select a canned response",
+      "noResponsesFound": "No canned responses found. Create one first.",
+      "willSendResponse": "The conversation will receive the canned response",
+      "loadErrorBanner": "Could not load canned responses. Check your connection and try reopening this node."
+    },
     "changePriority": {
       "title": "Configure Priority",
       "newPriority": "New priority",
@@ -911,7 +973,8 @@
         "eventProperties": "Event properties",
         "systemCurrentTime": "Current time",
         "systemCurrentDay": "Day of the week",
-        "systemCurrentDate": "Current date"
+        "systemCurrentDate": "Current date",
+        "conversationPipelineStage": "Pipeline stage"
       },
       "operators": {
         "equals": "Equals",
@@ -979,6 +1042,10 @@
       "emptyState": {
         "noPathsConfigured": "No path configured",
         "clickToCreateFirst": "Click on \"Add Path\" to create your first conditional path"
+      },
+      "placeholders": {
+        "selectVariable": "Select variable...",
+        "selectStage": "Select a stage..."
       }
     },
     "deferConversation": {
@@ -1143,7 +1210,13 @@
       },
       "nextCondition": "next condition",
       "cancel": "Cancel",
-      "save": "Save"
+      "save": "Save",
+      "tabs": {
+        "basic": "Basic",
+        "advanced": "Advanced",
+        "advancedBadgeLabel": "Advanced data configured"
+      },
+      "advancedHelp": "Map incoming event data to flow variables so later steps can reuse it. Reference a variable anywhere with {variable} syntax."
     },
     "setVariable": {
       "title": "Configure Set Variable",
@@ -1546,13 +1619,19 @@
         "webhookUrl": "https://example.com/webhook",
         "journeyId": "Select a journey",
         "taskTitle": "Enter task title",
-        "taskDescription": "Enter task description"
+        "taskDescription": "Enter task description",
+        "selectAction": "Select an action",
+        "selectChannel": "Select a channel",
+        "loadingChannels": "Loading channels...",
+        "loadingJourneys": "Loading journeys..."
       },
       "hints": {
-        "journeyId": "The ID of the journey to trigger"
+        "journeyId": "The ID of the journey to trigger",
+        "characterCount": "{{count}} characters"
       },
       "messages": {
-        "noChannelsConfigured": "No messaging channels configured. Please configure a WhatsApp, SMS, Email, or Telegram channel first in the Channels settings."
+        "noChannelsConfigured": "No messaging channels configured. Please configure a WhatsApp, SMS, Email, or Telegram channel first in the Channels settings.",
+        "noChannelsConfiguredInline": "No channels configured"
       }
     }
   },
@@ -1567,7 +1646,8 @@
       "contactCreated": "Contact Created",
       "contactUpdated": "Contact Updated",
       "label": "Label",
-      "customAttribute": "Custom Attribute"
+      "customAttribute": "Custom Attribute",
+      "pipelineStageChanged": "Pipeline Stage Changed"
     },
     "descriptions": {
       "manual": "Contacts will be added manually to the journey.",
@@ -1578,6 +1658,7 @@
       "contactUpdated": "The journey will be triggered when a contact is updated. You can configure specific fields to change.",
       "label": "The journey will be triggered when a label is applied to a contact.",
       "customAttribute": "The journey will be triggered based on custom attributes of the contact.",
+      "pipelineStageChanged": "The journey will be triggered when a contact moves between pipeline stages.",
       "selectType": "Select a trigger type to see its description."
     },
     "operators": {
@@ -1630,6 +1711,21 @@
         "atualizado": "Updated"
       }
     },
+    "pipelineStageChanged": {
+      "pipeline": "Pipeline",
+      "fromStage": "From stage",
+      "toStage": "To stage",
+      "selectPipeline": "Select a pipeline (optional)",
+      "loadingPipelines": "Loading pipelines...",
+      "loadingStages": "Loading stages...",
+      "noPipelinesFound": "No pipelines found in the account.",
+      "anyStage": "Any stage",
+      "anyPipeline": "any pipeline",
+      "anyStageTransition": "The journey will be triggered on any pipeline stage transition.",
+      "summary": "Triggered when a contact moves in {{pipeline}}, from {{from}} to {{to}}.",
+      "loadError": "Error loading pipelines:",
+      "loadErrorBanner": "Could not load pipelines. Check your connection and try reopening this node."
+    },
     "customAttribute": {
       "configuration": "Custom Attribute Configuration",
       "customAttribute": "Custom Attribute",
@@ -1680,7 +1776,15 @@
       "triggerForAnyOccurrence": "The trigger will be executed for any occurrence of the event.",
       "property": "Property",
       "value": "Value",
-      "captureEventData": "Capture Event Data"
+      "captureEventData": "Capture Event Data",
+      "customEventNamePlaceholder": "Type the custom event name (e.g. button_clicked)",
+      "customEventWarning": "Custom events have no schema validation. Use only for cases not covered by canonical events.",
+      "eventSwitch": {
+        "title": "Preserve compatible values?",
+        "body": "You changed the event. Keep the property values that also exist on the new event (same name and type), or clear them all?",
+        "preserve": "Preserve compatible",
+        "clear": "Clear all"
+      }
     },
     "label": {
       "configuration": "Label Configuration",
@@ -1765,6 +1869,7 @@
         "total": "Total",
         "active": "Active",
         "waiting": "Waiting",
+        "paused": "Paused",
         "completed": "Completed",
         "failed": "Failed",
         "cancelled": "Cancelled"

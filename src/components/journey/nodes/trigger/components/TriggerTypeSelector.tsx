@@ -50,6 +50,9 @@ export function TriggerTypeSelector({ value, onChange }: TriggerTypeSelectorProp
           <SelectItem value="customAttribute" className="text-sidebar-foreground">
             {t('triggerComponents.types.customAttribute')}
           </SelectItem>
+          <SelectItem value="pipelineStageChanged" className="text-sidebar-foreground">
+            {t('triggerComponents.types.pipelineStageChanged')}
+          </SelectItem>
         </SelectContent>
       </Select>
     </div>

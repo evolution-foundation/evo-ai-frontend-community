@@ -1,19 +1,22 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@evoapi/design-system';
+import { useState, useEffect, useMemo } from 'react';
 import { Play } from 'lucide-react';
 import { JourneyTriggerNodeData } from './JourneyTriggerNode';
-import { BaseFlowPanel } from '@/components/base';
+import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
 import { JourneyVariable } from '@/components/journey/environment-manager';
+import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   TriggerTypeSelector,
   TriggerDescription,
-  EventConfiguration,
+  EventBasicConfig,
+  EventAdvancedConfig,
   SegmentConfiguration,
   ContactConfiguration,
   LabelConfiguration,
   CustomAttributeConfiguration,
   WebhookConfiguration,
+  PipelineStageChangedConfiguration,
+  type PipelineStageChangedSelection,
 } from './components';
 
 interface JourneyTriggerPanelProps {
@@ -34,6 +37,11 @@ export function JourneyTriggerPanel({
   onVariablesChange,
 }: JourneyTriggerPanelProps) {
   const { t } = useLanguage('journey');
+  const [originalData] = useState<JourneyTriggerNodeData>(() => ({
+    ...data,
+    eventProperties: data.eventProperties || [],
+    contactFields: data.contactFields || [],
+  }));
   const [formData, setFormData] = useState<JourneyTriggerNodeData>(data);
   const [eventProperties, setEventProperties] = useState(data.eventProperties || []);
   const [contactFields, setContactFields] = useState(data.contactFields || []);
@@ -47,20 +55,38 @@ export function JourneyTriggerPanel({
     data.triggerType === 'customAttribute',
   );
   const [showWebhookConfig, setShowWebhookConfig] = useState(data.triggerType === 'webhook');
+  const [showPipelineStageChangedConfig, setShowPipelineStageChangedConfig] = useState(
+    data.triggerType === 'pipelineStageChanged',
+  );
+  // Required-field validity reported by EventBasicConfig. True (non-blocking)
+  // whenever the event config isn't shown, so other trigger types can always Save.
+  const [eventPropsValid, setEventPropsValid] = useState(true);
+  // Active tab for the event trigger's Básico/Avançado layout (EVO-1276).
+  const [activeTab, setActiveTab] = useState<'basico' | 'avancado'>('basico');
 
   useEffect(() => {
     setFormData(data);
     setEventProperties(data.eventProperties || []);
     setContactFields(data.contactFields || []);
+    if (data.triggerType !== 'event') setEventPropsValid(true);
+    setActiveTab('basico');
     setShowEventConfig(data.triggerType === 'event');
     setShowSegmentConfig(data.triggerType === 'segment');
     setShowContactConfig(['contactCreated', 'contactUpdated'].includes(data.triggerType));
     setShowLabelConfig(data.triggerType === 'label');
     setShowCustomAttributeConfig(data.triggerType === 'customAttribute');
     setShowWebhookConfig(data.triggerType === 'webhook');
+    setShowPipelineStageChangedConfig(data.triggerType === 'pipelineStageChanged');
   }, [data]);
 
   const handleSave = () => {
+    // Event-tabs path uses an enabled Save + this guard (instead of saveDisabled)
+    // so an invalid save snaps the user back to Básico where the inline
+    // required-field error lives, rather than silently doing nothing. See EVO-1276.
+    if (showEventConfig && !eventPropsValid) {
+      setActiveTab('basico');
+      return;
+    }
     const updatedData = {
       ...formData,
       eventProperties: showEventConfig ? eventProperties : undefined,
@@ -83,6 +109,13 @@ export function JourneyTriggerPanel({
       webhookSecret: showWebhookConfig ? formData.webhookSecret : undefined,
       webhookMethod: showWebhookConfig ? formData.webhookMethod : undefined,
       expectedHeaders: showWebhookConfig ? formData.expectedHeaders : undefined,
+      pipelineId: showPipelineStageChangedConfig ? formData.pipelineId : undefined,
+      pipelineName: showPipelineStageChangedConfig ? formData.pipelineName : undefined,
+      fromStageId: showPipelineStageChangedConfig ? formData.fromStageId : undefined,
+      fromStageName: showPipelineStageChangedConfig ? formData.fromStageName : undefined,
+      toStageId: showPipelineStageChangedConfig ? formData.toStageId : undefined,
+      toStageName: showPipelineStageChangedConfig ? formData.toStageName : undefined,
+      eventName: showPipelineStageChangedConfig ? 'pipeline.stage_changed' : formData.eventName,
     };
     onUpdate(nodeId, updatedData);
     onClose();
@@ -99,6 +132,21 @@ export function JourneyTriggerPanel({
     setShowLabelConfig(value === 'label');
     setShowCustomAttributeConfig(value === 'customAttribute');
     setShowWebhookConfig(value === 'webhook');
+    setShowPipelineStageChangedConfig(value === 'pipelineStageChanged');
+    if (value !== 'event') setEventPropsValid(true);
+    setActiveTab('basico');
+  };
+
+  const handlePipelineStageChangedChange = (next: PipelineStageChangedSelection) => {
+    setFormData(prev => ({
+      ...prev,
+      pipelineId: next.pipelineId,
+      pipelineName: next.pipelineName,
+      fromStageId: next.fromStageId,
+      fromStageName: next.fromStageName,
+      toStageId: next.toStageId,
+      toStageName: next.toStageName,
+    }));
   };
 
   const handleEventNameChange = (name: string) => {
@@ -146,33 +194,111 @@ export function JourneyTriggerPanel({
     setFormData(prev => ({ ...prev, expectedHeaders: headers }));
   };
 
+  const dirty = useMemo(
+    () =>
+      JSON.stringify({ ...formData, eventProperties, contactFields }) !==
+      JSON.stringify(originalData),
+    [formData, eventProperties, contactFields, originalData],
+  );
+
+  // Count only fully-filled mappings — an empty placeholder row (added via
+  // "New Variable" but not yet completed) must NOT light the Avançado badge.
+  // Mirrors VariableMapping's own `validMappings` notion. See EVO-1276 review M1.
+  const variableMappingsCount = (formData.variableMappings ?? []).filter(
+    m => m.sourcePath && m.variableName,
+  ).length;
+
+  // Shared chrome props for both the tabs (event) and simple (other types) modals.
+  const commonModalProps = {
+    open: true as const,
+    title: t('panels.trigger.title'),
+    icon: <Play className="w-5 h-5 text-green-500" />,
+    onCancel: onClose,
+    onSave: handleSave,
+    dirty,
+    saveLabel: t('panels.actions.save'),
+    cancelLabel: t('panels.actions.cancel'),
+    savingAriaLabel: t('modal.actions.saving'),
+    contentClassName: 'max-w-[800px]',
+  };
+
+  // Event trigger type: Básico/Avançado tabs (EVO-1276). Save is enabled and the
+  // empty-required-field case is handled by handleSave's guard, so the user is
+  // bounced to Básico where the inline error is visible.
+  if (showEventConfig) {
+    const advancedBadge =
+      variableMappingsCount > 0 ? (
+        <span
+          aria-label={t('panels.trigger.tabs.advancedBadgeLabel')}
+          className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium leading-none text-primary-foreground"
+        >
+          {variableMappingsCount}
+        </span>
+      ) : undefined;
+
+    return (
+      <NodeConfigModal
+        {...commonModalProps}
+        variant="tabs"
+        value={activeTab}
+        onTabChange={value => setActiveTab(value as 'basico' | 'avancado')}
+        header={
+          <div className="space-y-4">
+            <TriggerTypeSelector value={formData.triggerType} onChange={handleTriggerTypeChange} />
+            <TriggerDescription triggerType={formData.triggerType} />
+          </div>
+        }
+        tabs={[
+          {
+            value: 'basico',
+            label: t('panels.trigger.tabs.basic'),
+            // Kept mounted so the selector's local custom-event mode survives a
+            // tab switch even before a name is typed (lifted eventName can't
+            // encode the empty-custom case). See EVO-1276 review F1.
+            forceMount: true,
+            content: (
+              <EventBasicConfig
+                eventName={formData.eventName || ''}
+                eventProperties={eventProperties}
+                onEventNameChange={handleEventNameChange}
+                onEventPropertiesChange={setEventProperties}
+                onValidityChange={setEventPropsValid}
+                journeyId={journeyId}
+              />
+            ),
+          },
+          {
+            value: 'avancado',
+            label: t('panels.trigger.tabs.advanced'),
+            badge: advancedBadge,
+            content: (
+              <div className="space-y-4">
+                <FlowFeedbackBanner variant="info" className="text-xs">
+                  {t('panels.trigger.advancedHelp')}
+                </FlowFeedbackBanner>
+                <EventAdvancedConfig
+                  eventProperties={eventProperties}
+                  variableMappings={formData.variableMappings || []}
+                  onVariableMappingsChange={mappings =>
+                    setFormData(prev => ({ ...prev, variableMappings: mappings }))
+                  }
+                  journeyId={journeyId}
+                />
+              </div>
+            ),
+          },
+        ]}
+      />
+    );
+  }
+
   return (
-    <BaseFlowPanel
-      title={t('panels.trigger.title')}
-      icon={<Play className="w-5 h-5 text-green-500" />}
-      onClose={onClose}
-      width="w-[800px]"
-    >
+    <NodeConfigModal {...commonModalProps} variant="simple">
       {/* Tipo do Trigger */}
       <TriggerTypeSelector value={formData.triggerType} onChange={handleTriggerTypeChange} />
 
       {/* Descrição baseada no tipo */}
       <TriggerDescription triggerType={formData.triggerType} />
-
-      {/* Configuração de Evento */}
-      {showEventConfig && (
-        <EventConfiguration
-          eventName={formData.eventName || ''}
-          eventProperties={eventProperties}
-          onEventNameChange={handleEventNameChange}
-          onEventPropertiesChange={setEventProperties}
-          variableMappings={formData.variableMappings || []}
-          onVariableMappingsChange={mappings =>
-            setFormData(prev => ({ ...prev, variableMappings: mappings }))
-          }
-          journeyId={journeyId}
-        />
-      )}
 
       {/* Configuração de Segmento */}
       {showSegmentConfig && (
@@ -241,15 +367,20 @@ export function JourneyTriggerPanel({
         />
       )}
 
-      {/* Botões de ação */}
-      <div className="flex gap-3 pt-2">
-        <Button variant="outline" onClick={onClose} className="flex-1 h-10">
-          {t('panels.trigger.cancel')}
-        </Button>
-        <Button onClick={handleSave} className="flex-1 h-10">
-          {t('panels.trigger.save')}
-        </Button>
-      </div>
-    </BaseFlowPanel>
+      {/* Configuração de Pipeline Stage Changed (EVO-1266) */}
+      {showPipelineStageChangedConfig && (
+        <PipelineStageChangedConfiguration
+          selection={{
+            pipelineId: formData.pipelineId,
+            pipelineName: formData.pipelineName,
+            fromStageId: formData.fromStageId,
+            fromStageName: formData.fromStageName,
+            toStageId: formData.toStageId,
+            toStageName: formData.toStageName,
+          }}
+          onChange={handlePipelineStageChangedChange}
+        />
+      )}
+    </NodeConfigModal>
   );
 }

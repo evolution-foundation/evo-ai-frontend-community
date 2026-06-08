@@ -1,17 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  Button,
   Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Separator,
 } from '@evoapi/design-system';
 import { Tag } from 'lucide-react';
 import { AddLabelNodeData } from './AddLabelNode';
-import { BaseFlowPanel } from '@/components/base';
+import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
+import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { labelsService } from '@/services/contacts/labelsService';
 import type { Label as LabelType } from '@/types/settings';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -25,9 +24,8 @@ interface AddLabelPanelProps {
 
 export function AddLabelPanel({ nodeId, data, onUpdate, onClose }: AddLabelPanelProps) {
   const { t } = useLanguage('journey');
-  const [formData, setFormData] = useState<AddLabelNodeData>({
-    ...data,
-  });
+  const [originalData] = useState<AddLabelNodeData>(() => ({ ...data }));
+  const [formData, setFormData] = useState<AddLabelNodeData>({ ...data });
   const [labels, setLabels] = useState<LabelType[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,12 +54,6 @@ export function AddLabelPanel({ nodeId, data, onUpdate, onClose }: AddLabelPanel
   };
 
   const handleSave = () => {
-    // Validação básica
-    if (!formData.labelId) {
-      alert(t('panels.addLabel.selectLabelAlert'));
-      return;
-    }
-
     onUpdate(nodeId, formData);
     onClose();
   };
@@ -77,31 +69,34 @@ export function AddLabelPanel({ nodeId, data, onUpdate, onClose }: AddLabelPanel
     }));
   };
 
-  const isValid = formData.labelId && formData.labelName;
+  const isValid = Boolean(formData.labelId && formData.labelName);
+  const dirty = useMemo(
+    () => JSON.stringify(formData) !== JSON.stringify(originalData),
+    [formData, originalData],
+  );
 
   return (
-    <BaseFlowPanel
+    <NodeConfigModal
+      open
+      variant="simple"
       title={t('panels.addLabel.title')}
-      icon={<Tag className="w-5 h-5 text-green-500" />}
-      onClose={onClose}
-      width="w-[600px]"
+      icon={<Tag className="h-5 w-5 text-flow-node-action-label-fg" />}
+      onCancel={onClose}
+      onSave={handleSave}
+      dirty={dirty && isValid}
+      saveLabel={t('panels.actions.save')}
+      cancelLabel={t('panels.actions.cancel')}
     >
-      <Separator />
-
       <div className="space-y-4">
-        {/* Status de validação */}
         {!isValid && (
-          <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800/30">
-            <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-              {t('panels.addLabel.incompleteConfig')}:
-            </p>
-            <ul className="text-xs text-yellow-700 dark:text-yellow-300 mt-1 list-disc list-inside">
+          <FlowFeedbackBanner variant="warn">
+            <p className="font-medium">{t('panels.addLabel.incompleteConfig')}:</p>
+            <ul className="text-xs mt-1 list-disc list-inside">
               <li>{t('panels.addLabel.selectLabel')}</li>
             </ul>
-          </div>
+          </FlowFeedbackBanner>
         )}
 
-        {/* Seleção da etiqueta */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">{t('panels.addLabel.labelToAdd')}</Label>
           <Select
@@ -139,17 +134,15 @@ export function AddLabelPanel({ nodeId, data, onUpdate, onClose }: AddLabelPanel
           </Select>
         </div>
 
-        {/* Erro ao carregar */}
         {error && (
-          <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30">
-            <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
-          </div>
+          <FlowFeedbackBanner variant="error">
+            <p>{error}</p>
+          </FlowFeedbackBanner>
         )}
 
-        {/* Preview da etiqueta selecionada */}
         {formData.labelId && formData.labelName && (
-          <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30">
-            <p className="text-sm text-green-800 dark:text-green-200 mb-2">
+          <FlowFeedbackBanner variant="success">
+            <p className="mb-2">
               <strong>{t('panels.addLabel.selectedLabel')}:</strong>
             </p>
             <div className="flex items-center gap-2">
@@ -159,29 +152,17 @@ export function AddLabelPanel({ nodeId, data, onUpdate, onClose }: AddLabelPanel
               />
               <span className="font-medium">{formData.labelName}</span>
             </div>
-            <p className="text-xs text-green-600 dark:text-green-400 mt-2">
-              {t('panels.addLabel.description')}
-            </p>
-          </div>
+            <p className="text-xs mt-2">{t('panels.addLabel.description')}</p>
+          </FlowFeedbackBanner>
         )}
 
-        {/* Ajuda */}
-        <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/30">
-          <p className="text-sm text-blue-800 dark:text-blue-200">
-            <strong>💡 {t('panels.addLabel.tip')}:</strong> {t('panels.addLabel.tipDescription')}
+        <FlowFeedbackBanner variant="info">
+          <p>
+            <strong>💡 {t('panels.addLabel.tip')}:</strong>{' '}
+            {t('panels.addLabel.tipDescription')}
           </p>
-        </div>
+        </FlowFeedbackBanner>
       </div>
-
-      {/* Botões de ação */}
-      <div className="flex gap-3 pt-2">
-        <Button variant="outline" onClick={onClose} className="flex-1 h-10">
-          {t('panels.actions.cancel')}
-        </Button>
-        <Button onClick={handleSave} className="flex-1 h-10" disabled={!isValid}>
-          {isValid ? t('panels.actions.save') : t('panels.addLabel.selectLabelButton')}
-        </Button>
-      </div>
-    </BaseFlowPanel>
+    </NodeConfigModal>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, ChangeEvent, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Button,
   Tabs,
@@ -45,12 +46,47 @@ import { getModifierKey } from '@/utils/platform';
 import { normalizeAvatarUrl } from '@/utils/avatarUrl';
 import { ProfilePhotoUploader, TwoFactorSetup } from '@/components/shared/profile';
 
+const SECTION_TO_TAB: Record<string, string> = {
+  'personal-data': 'dados',
+  'interface': 'interface',
+  'notifications': 'notificacoes',
+  'security': 'seguranca',
+};
+
+const TAB_TO_SECTION: Record<string, string> = {
+  'dados': 'personal-data',
+  'interface': 'interface',
+  'notificacoes': 'notifications',
+  'seguranca': 'security',
+};
+
 const Profile = () => {
   const { user, refreshUser, logout } = useAuth();
   const { t } = useLanguage('profile');
   const normalizedUserAvatar = normalizeAvatarUrl(user?.avatar_url);
   const modifierKey = getModifierKey(); // 'Cmd' on Mac, 'Ctrl' on others
-  const [activeTab, setActiveTab] = useState('dados');
+  const { section } = useParams<{ section?: string }>();
+  const navigate = useNavigate();
+  const initialTab = (section && SECTION_TO_TAB[section]) || 'dados';
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  // H1: sync tab when browser back/forward changes the section param without remount
+  useEffect(() => {
+    const tab = (section && SECTION_TO_TAB[section]) || 'dados';
+    setActiveTab(tab);
+  }, [section]);
+
+  // M1: canonicalize the URL — /profile → /profile/personal-data; invalid sections → same
+  useEffect(() => {
+    if (!section || !SECTION_TO_TAB[section]) {
+      navigate('/profile/personal-data', { replace: true });
+    }
+  }, []);
+
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab);
+    navigate(`/profile/${TAB_TO_SECTION[tab]}`, { replace: true });
+  }, [navigate]);
   const [isLoading, setIsLoading] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('');
@@ -1166,7 +1202,7 @@ const Profile = () => {
         <p className="text-muted-foreground mt-2">{t('subtitle')}</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="grid w-full grid-cols-4 mb-8">
           <TabsTrigger value="dados">{t('tabs.personalData')}</TabsTrigger>
           <TabsTrigger value="interface">{t('tabs.interface')}</TabsTrigger>

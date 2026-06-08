@@ -963,3 +963,24 @@ The component is composite (consumes `Dialog`, `Tabs`, `Collapsible`, `Button` f
 Promotion criterion check (per D7 of step 5): `<NodeConfigModal>` is flow-specific (consumes `flow-panel-*` tokens that don't exist outside Flow Builder). It does **NOT** graduate to `@evoapi/design-system` — stays local under `journey/shared/`. Promotion would require ≥1 external consumer outside Flow Builder, which by definition cannot happen for a chrome that depends on `flow-*` tokens.
 
 Downstream effect: EVO-1274 [10.4] (refazer 21 modais) is now formally unblocked. It will apply `<NodeConfigModal>` plus the Button / Typography contracts to every existing node configuration modal.
+
+---
+
+## Follow-through — EVO-1269 JourneyEditorHeader landed (2026-05-20)
+
+The panel chrome tokens (`--color-flow-panel-header-bg`, `--color-flow-panel-divider`) declared by EVO-1253 are consumed by `<JourneyEditorHeader>` shipped under EVO-1269. Location: `src/components/journey/shared/JourneyEditorHeader/`.
+
+The component:
+
+- Implements the 3-zone layout (navigation / identity / actions) the card requested for Pain #8a.
+- Provides ESC keyboard shortcut for Back navigation, with defensive checks to skip when focus is in form controls or `contenteditable` elements (Radix Dialog still catches Escape first when a modal is open).
+- Collapses secondary actions (`View sessions`) into a kebab `DropdownMenu` below 1024px. `EnvironmentManager` stays inline at all sizes (component refactor out of scope; follow-up if needed).
+- Lifted state mandatory — zero `useState`, every dynamic value driven by props.
+
+Consumer: `src/pages/Customer/Journey/JourneyFlowEditor.tsx` now renders `<JourneyEditorHeader>` directly above `<BaseFlowEditor showHeader={false}>`. The previous ~80 lines of inline header JSX inside `JourneyFlowEditor.tsx` are now expressed as ~22 lines of prop wiring.
+
+`journey/shared/` is the new convention for composite components that combine `_ui/` primitives + design-system primitives + flow tokens. `_ui/` stays reserved for primitive bridges (FlowNode, FlowCategoryBadge, FlowFeedbackBanner).
+
+Promotion criterion check: stays local under `journey/shared/`. The component consumes `flow-panel-*` tokens that don't exist outside the Flow Builder, and its semantics (Back / Save / Sessions / Environment) are specific to the Journey Editor surface.
+
+Downstream effect: no card was blocked by EVO-1269. The deliverable is purely Pain #8a remediation — header hierarchy + responsive layout — visible to end users immediately on merge.

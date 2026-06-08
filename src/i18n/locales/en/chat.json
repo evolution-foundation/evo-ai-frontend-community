@@ -301,7 +301,9 @@
     "status": "Status:",
     "openConversation": "Open Conversation",
     "closeConversation": "Close conversation",
-    "phoneNumber": "Phone number"
+    "phoneNumber": "Phone number",
+    "openContactPanel": "Open contact details",
+    "closeContactPanel": "Close contact details"
   },
   "chatSidebar": {
     "searchPlaceholder": "Search conversations...",
@@ -416,6 +418,7 @@
       "noAttributes": "No custom attributes configured",
       "updateSuccess": "Attributes updated successfully",
       "updateError": "Error updating attributes",
+      "refreshError": "Attributes saved, but failed to reload contact data",
       "yes": "Yes",
       "no": "No"
     },
@@ -467,6 +470,8 @@
       "actions": "actions",
       "executeSuccess": "Macro \"{{name}}\" executed successfully",
       "executeError": "Error executing macro \"{{name}}\"",
+      "executePartialError": "Macro \"{{name}}\" completed with failures",
+      "executeQueued": "Macro \"{{name}}\" queued — waiting for webhook",
       "dialog": {
         "title": "Execute Macro",
         "description": "Are you sure you want to execute the macro {{name}}? This action will apply {{count}} {{actionLabel}} to this conversation.",

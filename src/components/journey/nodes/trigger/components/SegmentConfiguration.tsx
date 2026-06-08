@@ -56,6 +56,8 @@ export function SegmentConfiguration({
     };
 
     loadSegments();
+    // loadingSegments is a guard flag, not an input — including it would re-run the fetch on every toggle.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t]);
 
   const selectedSegment = availableSegments.find(s => s.id === segmentId);

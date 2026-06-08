@@ -29,12 +29,19 @@ interface SessionsViewerProps {
   onClose: () => void;
 }
 
+type SessionStatus = 'active' | 'waiting' | 'paused' | 'completed' | 'failed' | 'cancelled';
+
+interface SessionStats {
+  total?: number;
+  byStatus?: Partial<Record<SessionStatus, number>>;
+}
+
 interface JourneySession {
   id: string;
   journeyId: string;
   contactId: string;
   accountId: string;
-  status: 'active' | 'waiting' | 'paused' | 'completed' | 'failed' | 'cancelled';
+  status: SessionStatus;
   currentNodeId?: string;
   variables: Record<string, any>;
   context?: Record<string, any>;
@@ -107,7 +114,7 @@ export function SessionsViewer({ journeyId, journeyName, onClose }: SessionsView
 
   const statusConfig = getStatusConfig();
   const [sessions, setSessions] = useState<JourneySession[]>([]);
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<SessionStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState<JourneySession | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -200,43 +207,49 @@ export function SessionsViewer({ journeyId, journeyName, onClose }: SessionsView
 
         {/* Stats Cards */}
         {stats && (
-          <div className="p-6 border-b border-sidebar-border">
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-              <Card className="bg-sidebar-accent">
+          <div className="p-6 border-b border-sidebar-border" data-testid="sessions-stats-grid">
+            <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
+              <Card className="bg-sidebar-accent" data-testid="sessions-stat-total">
                 <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-sidebar-foreground">{stats.total}</div>
+                  <div className="text-2xl font-bold text-sidebar-foreground">{stats.total ?? 0}</div>
                   <div className="text-xs text-sidebar-foreground/60 mt-1">{t('sessions.viewer.stats.total')}</div>
                 </CardContent>
               </Card>
-              <Card className="bg-green-500/10 border-green-500/20">
+              <Card className="bg-green-500/10 border-green-500/20" data-testid="sessions-stat-active">
                 <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-green-500">{stats.byStatus.active}</div>
+                  <div className="text-2xl font-bold text-green-500">{stats.byStatus?.active ?? 0}</div>
                   <div className="text-xs text-sidebar-foreground/60 mt-1">{t('sessions.viewer.stats.active')}</div>
                 </CardContent>
               </Card>
-              <Card className="bg-blue-500/10 border-blue-500/20">
+              <Card className="bg-blue-500/10 border-blue-500/20" data-testid="sessions-stat-waiting">
                 <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-blue-500">{stats.byStatus.waiting}</div>
+                  <div className="text-2xl font-bold text-blue-500">{stats.byStatus?.waiting ?? 0}</div>
                   <div className="text-xs text-sidebar-foreground/60 mt-1">{t('sessions.viewer.stats.waiting')}</div>
                 </CardContent>
               </Card>
-              <Card className="bg-emerald-500/10 border-emerald-500/20">
+              <Card className="bg-yellow-500/10 border-yellow-500/20" data-testid="sessions-stat-paused">
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-yellow-500">{stats.byStatus?.paused ?? 0}</div>
+                  <div className="text-xs text-sidebar-foreground/60 mt-1">{t('sessions.viewer.stats.paused')}</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-emerald-500/10 border-emerald-500/20" data-testid="sessions-stat-completed">
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-emerald-500">
-                    {stats.byStatus.completed}
+                    {stats.byStatus?.completed ?? 0}
                   </div>
                   <div className="text-xs text-sidebar-foreground/60 mt-1">{t('sessions.viewer.stats.completed')}</div>
                 </CardContent>
               </Card>
-              <Card className="bg-red-500/10 border-red-500/20">
+              <Card className="bg-red-500/10 border-red-500/20" data-testid="sessions-stat-failed">
                 <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-red-500">{stats.byStatus.failed}</div>
+                  <div className="text-2xl font-bold text-red-500">{stats.byStatus?.failed ?? 0}</div>
                   <div className="text-xs text-sidebar-foreground/60 mt-1">{t('sessions.viewer.stats.failed')}</div>
                 </CardContent>
               </Card>
-              <Card className="bg-gray-500/10 border-gray-500/20">
+              <Card className="bg-gray-500/10 border-gray-500/20" data-testid="sessions-stat-cancelled">
                 <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-gray-500">{stats.byStatus.cancelled}</div>
+                  <div className="text-2xl font-bold text-gray-500">{stats.byStatus?.cancelled ?? 0}</div>
                   <div className="text-xs text-sidebar-foreground/60 mt-1">{t('sessions.viewer.stats.cancelled')}</div>
                 </CardContent>
               </Card>

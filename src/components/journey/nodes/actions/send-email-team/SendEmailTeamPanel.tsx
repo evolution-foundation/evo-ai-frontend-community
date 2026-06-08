@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Button, Label, Textarea, Checkbox } from '@evoapi/design-system';
+import { useEffect, useMemo, useState } from 'react';
+import { Label, Textarea, Checkbox } from '@evoapi/design-system';
 import { Mail } from 'lucide-react';
 import { SendEmailTeamNodeData } from './SendEmailTeamNode';
 import { automationService } from '@/services/automation/automationService';
-import { BaseFlowPanel } from '@/components/base';
+import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
+import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface SendEmailTeamPanelProps {
@@ -19,6 +20,10 @@ export function SendEmailTeamPanel({ nodeId, data, onUpdate, onClose }: SendEmai
     data.team_ids?.map(id => id.toString()) || [],
   );
   const [message, setMessage] = useState<string>(data.message || '');
+  const [originalSnapshot] = useState(() => ({
+    selectedTeams: (data.team_ids?.map(id => id.toString()) || []).slice().sort().join(','),
+    message: data.message || '',
+  }));
   const [formDataOptions, setFormDataOptions] = useState<{
     teams: any[];
   }>({
@@ -26,7 +31,6 @@ export function SendEmailTeamPanel({ nodeId, data, onUpdate, onClose }: SendEmai
   });
   const [loading, setLoading] = useState(true);
 
-  // Load form data options on mount
   useEffect(() => {
     const loadFormData = async () => {
       try {
@@ -72,7 +76,6 @@ export function SendEmailTeamPanel({ nodeId, data, onUpdate, onClose }: SendEmai
     onClose();
   };
 
-  // Update node with form data when available
   useEffect(() => {
     if (formDataOptions.teams.length > 0) {
       const updatedData: SendEmailTeamNodeData = {
@@ -83,97 +86,103 @@ export function SendEmailTeamPanel({ nodeId, data, onUpdate, onClose }: SendEmai
     }
   }, [formDataOptions, data, nodeId, onUpdate]);
 
-  const getCharacterCount = () => {
-    return message.length;
-  };
+  const getCharacterCount = () => message.length;
 
   const getCharacterCountColor = () => {
     const count = getCharacterCount();
-    if (count > 500) return 'text-red-600';
-    if (count > 400) return 'text-orange-600';
+    if (count > 500) return 'text-flow-feedback-error-fg';
+    if (count > 400) return 'text-flow-feedback-warn-fg';
     return 'text-sidebar-foreground/60';
   };
 
-  return (
-    <BaseFlowPanel
-      title={t('panels.sendEmailTeam.title')}
-      icon={<Mail className="w-5 h-5 text-purple-500" />}
-      onClose={onClose}
-      width="w-[420px]"
-    >
-      {/* Seleção de Equipes */}
-      <div className="space-y-2">
-        <Label className="text-sidebar-foreground font-medium">
-          {t('panels.sendEmailTeam.teams')}
-        </Label>
+  const isValid = selectedTeams.length > 0 && message.trim().length > 0 && getCharacterCount() <= 500;
+  const dirty = useMemo(() => {
+    const currentTeamsKey = selectedTeams.slice().sort().join(',');
+    return currentTeamsKey !== originalSnapshot.selectedTeams || message !== originalSnapshot.message;
+  }, [selectedTeams, message, originalSnapshot]);
 
-        {loading ? (
-          <div className="text-sm text-sidebar-foreground/60">
-            {t('panels.sendEmailTeam.loadingTeams')}
-          </div>
-        ) : (
-          <div className="space-y-2 max-h-48 overflow-y-auto">
-            {formDataOptions.teams.length === 0 ? (
-              <p className="text-sm text-sidebar-foreground/60">
-                {t('panels.sendEmailTeam.noTeamsFound')}
-              </p>
-            ) : (
-              formDataOptions.teams.map(team => (
-                <div
-                  key={team.id}
-                  className="flex items-center space-x-3 p-2 rounded-md hover:bg-sidebar-accent cursor-pointer"
-                  onClick={() => handleTeamToggle(team.id.toString())}
-                >
-                  <Checkbox
-                    checked={selectedTeams.includes(team.id.toString())}
-                    onCheckedChange={() => handleTeamToggle(team.id.toString())}
-                  />
-                  <div className="flex items-center gap-2 flex-1">
-                    <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-medium">
-                      <Mail className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-sidebar-foreground">{team.name}</div>
-                      <div className="text-xs text-sidebar-foreground/60">
-                        {team.description || t('panels.sendEmailTeam.node.defaultTeamDescription')}
+  return (
+    <NodeConfigModal
+      open
+      variant="simple"
+      title={t('panels.sendEmailTeam.title')}
+      icon={<Mail className="h-5 w-5 text-flow-node-action-message-fg" />}
+      onCancel={onClose}
+      onSave={handleSave}
+      dirty={dirty && isValid}
+      loading={loading}
+      saveLabel={t('actions.save')}
+      cancelLabel={t('actions.cancel')}
+    >
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label className="text-sidebar-foreground font-medium">
+            {t('panels.sendEmailTeam.teams')}
+          </Label>
+
+          {loading ? (
+            <div className="text-sm text-sidebar-foreground/60">
+              {t('panels.sendEmailTeam.loadingTeams')}
+            </div>
+          ) : (
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {formDataOptions.teams.length === 0 ? (
+                <p className="text-sm text-sidebar-foreground/60">
+                  {t('panels.sendEmailTeam.noTeamsFound')}
+                </p>
+              ) : (
+                formDataOptions.teams.map(team => (
+                  <div
+                    key={team.id}
+                    className="flex items-center space-x-3 p-2 rounded-md hover:bg-sidebar-accent cursor-pointer"
+                    onClick={() => handleTeamToggle(team.id.toString())}
+                  >
+                    <Checkbox
+                      checked={selectedTeams.includes(team.id.toString())}
+                      onCheckedChange={() => handleTeamToggle(team.id.toString())}
+                    />
+                    <div className="flex items-center gap-2 flex-1">
+                      <div className="w-8 h-8 rounded-full bg-flow-node-action-message-bg text-flow-node-action-message-fg flex items-center justify-center text-xs font-medium">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="font-medium text-sidebar-foreground">{team.name}</div>
+                        <div className="text-xs text-sidebar-foreground/60">
+                          {team.description || t('panels.sendEmailTeam.node.defaultTeamDescription')}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Campo de Mensagem */}
-      <div className="space-y-2">
-        <Label className="text-sidebar-foreground font-medium">
-          {t('panels.sendEmailTeam.messageLabel')}
-        </Label>
-        <Textarea
-          value={message}
-          onChange={e => setMessage(e.target.value)}
-          placeholder={t('panels.sendEmailTeam.messagePlaceholder')}
-          className="min-h-[100px] resize-none bg-sidebar border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/50"
-          disabled={loading}
-        />
-
-        {/* Contador de caracteres */}
-        <div className="flex justify-between items-center text-xs">
-          <span className="text-sidebar-foreground/50">
-            {t('panels.sendEmailTeam.messageHelp')}
-          </span>
-          <span className={getCharacterCountColor()}>
-            {t('panels.sendEmailTeam.characterCount', { count: getCharacterCount() })}
-          </span>
+                ))
+              )}
+            </div>
+          )}
         </div>
-      </div>
 
-      {/* Preview das equipes selecionadas */}
-      {selectedTeams.length > 0 && (
-        <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/30">
-          <div className="text-sm text-purple-800 dark:text-purple-200">
+        <div className="space-y-2">
+          <Label className="text-sidebar-foreground font-medium">
+            {t('panels.sendEmailTeam.messageLabel')}
+          </Label>
+          <Textarea
+            value={message}
+            onChange={e => setMessage(e.target.value)}
+            placeholder={t('panels.sendEmailTeam.messagePlaceholder')}
+            className="min-h-[100px] resize-none bg-sidebar border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/50"
+            disabled={loading}
+          />
+
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-sidebar-foreground/50">
+              {t('panels.sendEmailTeam.messageHelp')}
+            </span>
+            <span className={getCharacterCountColor()}>
+              {t('panels.sendEmailTeam.characterCount', { count: getCharacterCount() })}
+            </span>
+          </div>
+        </div>
+
+        {selectedTeams.length > 0 && (
+          <FlowFeedbackBanner variant="info">
             <div className="font-medium mb-1">
               {t('panels.sendEmailTeam.preview.title')}{' '}
               {selectedTeams.length === 1
@@ -181,52 +190,31 @@ export function SendEmailTeamPanel({ nodeId, data, onUpdate, onClose }: SendEmai
                 : t('panels.sendEmailTeam.preview.multipleTeams', { count: selectedTeams.length })}
               :
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1 text-xs">
               {selectedTeams.slice(0, 3).map(teamId => {
-                const team = formDataOptions.teams.find(t => t.id.toString() === teamId);
+                const team = formDataOptions.teams.find(team => team.id.toString() === teamId);
                 return (
-                  <div key={teamId} className="text-xs">
-                    📧 {team?.name || `Equipe #${teamId}`}
-                  </div>
+                  <div key={teamId}>📧 {team?.name || `Equipe #${teamId}`}</div>
                 );
               })}
               {selectedTeams.length > 3 && (
-                <div className="text-xs text-purple-600 dark:text-purple-400">
+                <div className="text-xs">
                   {t('panels.sendEmailTeam.preview.moreTeams', { count: selectedTeams.length - 3 })}
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          </FlowFeedbackBanner>
+        )}
 
-      {/* Informações sobre o email */}
-      <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/30">
-        <div className="text-xs text-blue-800 dark:text-blue-200">
+        <FlowFeedbackBanner variant="info">
           <div className="font-medium mb-1">{t('panels.sendEmailTeam.info.title')}</div>
-          <div className="space-y-1">
+          <div className="space-y-1 text-xs">
             <div>{t('panels.sendEmailTeam.info.point1')}</div>
             <div>{t('panels.sendEmailTeam.info.point2')}</div>
             <div>{t('panels.sendEmailTeam.info.point3')}</div>
           </div>
-        </div>
+        </FlowFeedbackBanner>
       </div>
-
-      {/* Botões de Ação */}
-      <div className="flex gap-3 pt-4">
-        <Button variant="outline" onClick={onClose} className="flex-1 h-10">
-          {t('actions.cancel')}
-        </Button>
-        <Button
-          onClick={handleSave}
-          className="flex-1 h-10"
-          disabled={
-            selectedTeams.length === 0 || !message.trim() || loading || getCharacterCount() > 500
-          }
-        >
-          {t('actions.save')}
-        </Button>
-      </div>
-    </BaseFlowPanel>
+    </NodeConfigModal>
   );
 }

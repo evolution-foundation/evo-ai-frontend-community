@@ -18,7 +18,8 @@
       "pipeline": "Pipeline",
       "history": "History",
       "notes": "Notes",
-      "attributes": "Attributes"
+      "attributes": "Attributes",
+      "events": "Events"
     },
     "actions": {
       "startConversation": "Start Conversation",
@@ -611,5 +612,103 @@
     "contact": "Contact",
     "contactPlaceholder": "Search for a contact...",
     "noContactsFound": "No contacts found"
+  },
+  "events": {
+    "timeline": {
+      "title": "Events history",
+      "ariaLabel": "Contact events timeline",
+      "loading": "Loading events...",
+      "loadingMore": "Loading more...",
+      "loadMore": "Load more",
+      "showing": "{{count}} events",
+      "softCapped": "Showing the latest {{cap}} events. Use filters to narrow the list.",
+      "empty": {
+        "default": "This contact has no events yet.",
+        "withFilters": "No events match the applied filters."
+      },
+      "degraded": {
+        "banner": "Events history is temporarily unavailable. Please try again in a moment.",
+        "retry": "Try again"
+      },
+      "error": {
+        "forbidden": "You don't have permission to view this contact's history.",
+        "invalidFilters": "Invalid filters. Review the fields and try again.",
+        "rateLimit": "Too many requests. Please wait a few seconds.",
+        "generic": "Failed to load events. Try reloading the page.",
+        "retry": "Try again"
+      },
+      "crashed": {
+        "title": "Something went wrong while showing the history.",
+        "reload": "Reload"
+      }
+    },
+    "filters": {
+      "title": "Filters",
+      "eventType": "Type",
+      "eventName": "Name",
+      "channel": "Channel",
+      "campaign": "Campaign",
+      "campaignPlaceholder": "Filter by campaign",
+      "campaignSearchPlaceholder": "Search campaigns…",
+      "campaignLoading": "Loading campaigns…",
+      "campaignEmpty": "No campaigns found",
+      "clearCampaign": "Clear campaign filter",
+      "occurredAfter": "From",
+      "occurredBefore": "To",
+      "clear": "Clear filters",
+      "allEventNames": "All names"
+    },
+    "types": {
+      "_comment": "Protocol-term values (Identify/Track/Page/Screen/Segment) are intentionally kept untranslated across locales.",
+      "all": "All types",
+      "identify": "Identify",
+      "track": "Track",
+      "page": "Page",
+      "screen": "Screen",
+      "segment": "Segment"
+    },
+    "channels": {
+      "all": "All channels",
+      "api": "API",
+      "email": "Email",
+      "facebook": "Facebook (includes Facebook Page)",
+      "instagram": "Instagram",
+      "line": "LINE",
+      "sms": "SMS",
+      "telegram": "Telegram",
+      "twilio_sms": "Twilio SMS",
+      "twitter": "Twitter (includes Twitter Profile)",
+      "web_widget": "Website",
+      "whatsapp": "WhatsApp"
+    },
+    "card": {
+      "expand": "Show details",
+      "collapse": "Hide details",
+      "properties": "Event properties",
+      "traits": "Event traits",
+      "noData": "No additional data for this event",
+      "justNow": "just now",
+      "enriched": {
+        "campaign": "Campaign: {{name}}",
+        "channel": "Channel: {{label}}",
+        "agent": "Agent: {{name}}"
+      }
+    },
+    "names": {
+      "contact_created": "Contact created",
+      "contact_updated": "Contact updated",
+      "contact_label_added": "Label added",
+      "contact_label_removed": "Label removed",
+      "contact_custom_attribute_changed": "Custom attribute changed",
+      "conversation_created": "Conversation created",
+      "conversation_updated": "Conversation updated",
+      "conversation_resolved": "Conversation resolved",
+      "conversation_activity": "Conversation activity",
+      "conversation_first_reply": "First reply",
+      "message_created": "Message sent",
+      "pipeline_conversation_created": "Pipeline conversation created",
+      "pipeline_conversation_updated": "Pipeline conversation updated",
+      "pipeline_stage_changed": "Pipeline stage changed"
+    }
   }
 }

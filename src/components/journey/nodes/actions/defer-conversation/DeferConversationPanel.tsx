@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  Button,
   Label,
   Input,
   Select,
@@ -12,7 +11,8 @@ import {
 import { Clock } from 'lucide-react';
 import { DeferConversationNodeData } from './DeferConversationNode';
 import { automationService } from '@/services/automation/automationService';
-import { BaseFlowPanel } from '@/components/base';
+import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
+import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface DeferConversationPanelProps {
@@ -37,11 +37,15 @@ export function DeferConversationPanel({
     if (data.snooze_until) {
       return new Date(data.snooze_until).toISOString().slice(0, 16);
     }
-    // Default to 1 hour from now
     const defaultDate = new Date();
     defaultDate.setHours(defaultDate.getHours() + 1);
     return defaultDate.toISOString().slice(0, 16);
   });
+  const [originalSnapshot] = useState(() => ({
+    snoozeType: data.snooze_type || 'duration',
+    snoozeDuration: data.snooze_duration || 1,
+    snoozeUntil: data.snooze_until ? new Date(data.snooze_until).toISOString().slice(0, 16) : '',
+  }));
   const [formDataOptions, setFormDataOptions] = useState<{
     agents: any[];
     teams: any[];
@@ -51,7 +55,6 @@ export function DeferConversationPanel({
   });
   const [loading, setLoading] = useState(true);
 
-  // Load form data options on mount
   useEffect(() => {
     const loadFormData = async () => {
       try {
@@ -78,7 +81,6 @@ export function DeferConversationPanel({
       snooze_duration: snoozeType === 'duration' ? snoozeDuration : undefined,
       snooze_until: snoozeType === 'until_date' ? new Date(snoozeUntil).toISOString() : undefined,
       formDataOptions,
-      // Backend compatibility - snooze needs no parameters
       action_params: [],
     };
 
@@ -86,7 +88,6 @@ export function DeferConversationPanel({
     onClose();
   };
 
-  // Update node with form data when available
   useEffect(() => {
     if (formDataOptions.agents.length > 0 || formDataOptions.teams.length > 0) {
       const updatedData: DeferConversationNodeData = {
@@ -102,87 +103,101 @@ export function DeferConversationPanel({
     return date > new Date();
   };
 
+  const isValid =
+    !(snoozeType === 'duration' && snoozeDuration < 1) &&
+    !(snoozeType === 'until_date' && (!snoozeUntil || !isValidDateTime(snoozeUntil)));
+
+  const dirty = useMemo(
+    () =>
+      snoozeType !== originalSnapshot.snoozeType ||
+      snoozeDuration !== originalSnapshot.snoozeDuration ||
+      snoozeUntil !== originalSnapshot.snoozeUntil,
+    [snoozeType, snoozeDuration, snoozeUntil, originalSnapshot],
+  );
+
   return (
-    <BaseFlowPanel
+    <NodeConfigModal
+      open
+      variant="simple"
       title={t('panels.deferConversation.title')}
-      icon={<Clock className="w-5 h-5 text-yellow-500" />}
-      onClose={onClose}
-      width="w-[420px]"
+      icon={<Clock className="h-5 w-5 text-flow-node-control-fg" />}
+      onCancel={onClose}
+      onSave={handleSave}
+      dirty={dirty && isValid}
+      loading={loading}
+      saveLabel={t('actions.save')}
+      cancelLabel={t('actions.cancel')}
     >
-      {/* Tipo de adiamento */}
-      <div className="space-y-2">
-        <Label className="text-sidebar-foreground font-medium">
-          {t('panels.deferConversation.defermentType')}
-        </Label>
-        <Select
-          value={snoozeType}
-          onValueChange={(value: 'duration' | 'until_date') => setSnoozeType(value)}
-          disabled={loading}
-        >
-          <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-sidebar border-sidebar-border">
-            <SelectItem value="duration" className="text-sidebar-foreground">
-              {t('panels.deferConversation.types.duration')}
-            </SelectItem>
-            <SelectItem value="until_date" className="text-sidebar-foreground">
-              {t('panels.deferConversation.types.until_date')}
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Configuração por duração */}
-      {snoozeType === 'duration' && (
+      <div className="space-y-4">
         <div className="space-y-2">
           <Label className="text-sidebar-foreground font-medium">
-            {t('panels.deferConversation.duration.label')}
+            {t('panels.deferConversation.defermentType')}
           </Label>
-          <Input
-            type="number"
-            value={snoozeDuration}
-            onChange={e => setSnoozeDuration(Math.max(1, parseInt(e.target.value) || 1))}
-            min="1"
-            max="8760"
-            className="bg-sidebar border-sidebar-border text-sidebar-foreground"
+          <Select
+            value={snoozeType}
+            onValueChange={(value: 'duration' | 'until_date') => setSnoozeType(value)}
             disabled={loading}
-          />
-          <p className="text-xs text-sidebar-foreground/60">
-            {t('panels.deferConversation.duration.min')}
-          </p>
+          >
+            <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-sidebar border-sidebar-border">
+              <SelectItem value="duration" className="text-sidebar-foreground">
+                {t('panels.deferConversation.types.duration')}
+              </SelectItem>
+              <SelectItem value="until_date" className="text-sidebar-foreground">
+                {t('panels.deferConversation.types.until_date')}
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      )}
 
-      {/* Configuração por data */}
-      {snoozeType === 'until_date' && (
-        <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
-            {t('panels.deferConversation.dateTime.label')}
-          </Label>
-          <Input
-            type="datetime-local"
-            value={snoozeUntil}
-            onChange={e => setSnoozeUntil(e.target.value)}
-            className="bg-sidebar border-sidebar-border text-sidebar-foreground"
-            disabled={loading}
-          />
-          {snoozeUntil && !isValidDateTime(snoozeUntil) && (
-            <p className="text-xs text-red-600">
-              {t('panels.deferConversation.dateTime.futureError')}
+        {snoozeType === 'duration' && (
+          <div className="space-y-2">
+            <Label className="text-sidebar-foreground font-medium">
+              {t('panels.deferConversation.duration.label')}
+            </Label>
+            <Input
+              type="number"
+              value={snoozeDuration}
+              onChange={e => setSnoozeDuration(Math.max(1, parseInt(e.target.value) || 1))}
+              min="1"
+              max="8760"
+              className="bg-sidebar border-sidebar-border text-sidebar-foreground"
+              disabled={loading}
+            />
+            <p className="text-xs text-sidebar-foreground/60">
+              {t('panels.deferConversation.duration.min')}
             </p>
-          )}
-          <p className="text-xs text-sidebar-foreground/60">
-            {t('panels.deferConversation.dateTime.description')}
-          </p>
-        </div>
-      )}
+          </div>
+        )}
 
-      {/* Preview da configuração */}
-      {(snoozeType === 'duration' && snoozeDuration > 0) ||
-      (snoozeType === 'until_date' && snoozeUntil && isValidDateTime(snoozeUntil)) ? (
-        <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800/30">
-          <div className="text-sm text-yellow-800 dark:text-yellow-200">
+        {snoozeType === 'until_date' && (
+          <div className="space-y-2">
+            <Label className="text-sidebar-foreground font-medium">
+              {t('panels.deferConversation.dateTime.label')}
+            </Label>
+            <Input
+              type="datetime-local"
+              value={snoozeUntil}
+              onChange={e => setSnoozeUntil(e.target.value)}
+              className="bg-sidebar border-sidebar-border text-sidebar-foreground"
+              disabled={loading}
+            />
+            {snoozeUntil && !isValidDateTime(snoozeUntil) && (
+              <FlowFeedbackBanner variant="error">
+                <p className="text-xs">{t('panels.deferConversation.dateTime.futureError')}</p>
+              </FlowFeedbackBanner>
+            )}
+            <p className="text-xs text-sidebar-foreground/60">
+              {t('panels.deferConversation.dateTime.description')}
+            </p>
+          </div>
+        )}
+
+        {((snoozeType === 'duration' && snoozeDuration > 0) ||
+          (snoozeType === 'until_date' && snoozeUntil && isValidDateTime(snoozeUntil))) && (
+          <FlowFeedbackBanner variant="warn">
             <div className="font-medium mb-1">{t('panels.deferConversation.preview.title')}</div>
             <div className="text-xs">
               {snoozeType === 'duration' ? (
@@ -208,40 +223,19 @@ export function DeferConversationPanel({
                 />
               )}
             </div>
-          </div>
-        </div>
-      ) : null}
+          </FlowFeedbackBanner>
+        )}
 
-      {/* Informações sobre adiamento */}
-      <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/30">
-        <div className="text-xs text-blue-800 dark:text-blue-200">
+        <FlowFeedbackBanner variant="info">
           <div className="font-medium mb-1">{t('panels.deferConversation.info.title')}</div>
-          <div className="space-y-1">
+          <div className="space-y-1 text-xs">
             <div>{t('panels.deferConversation.info.point1')}</div>
             <div>{t('panels.deferConversation.info.point2')}</div>
             <div>{t('panels.deferConversation.info.point3')}</div>
             <div>{t('panels.deferConversation.info.point4')}</div>
           </div>
-        </div>
+        </FlowFeedbackBanner>
       </div>
-
-      {/* Botões de Ação */}
-      <div className="flex gap-3 pt-4">
-        <Button variant="outline" onClick={onClose} className="flex-1 h-10">
-          {t('actions.cancel')}
-        </Button>
-        <Button
-          onClick={handleSave}
-          className="flex-1 h-10"
-          disabled={
-            loading ||
-            (snoozeType === 'duration' && snoozeDuration < 1) ||
-            (snoozeType === 'until_date' && (!snoozeUntil || !isValidDateTime(snoozeUntil)))
-          }
-        >
-          {t('actions.save')}
-        </Button>
-      </div>
-    </BaseFlowPanel>
+    </NodeConfigModal>
   );
 }

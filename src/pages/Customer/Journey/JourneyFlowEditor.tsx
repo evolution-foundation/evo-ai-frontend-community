@@ -1,13 +1,37 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@evoapi/design-system';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Button,
+} from '@evoapi/design-system';
 import { toast } from 'sonner';
 import { journeyService } from '@/services';
 import type { Journey } from '@/types/automation';
 import { useLanguage } from '@/hooks/useLanguage';
 import { BaseFlowEditor, type NodeType, type NodeCategory } from '@/components/base';
-import { EnvironmentManager, type JourneyVariable } from '@/components/journey/environment-manager';
+import { EnvironmentManager } from '@/components/journey/environment-manager';
+import { JourneyEditorHeader } from '@/components/journey/shared/JourneyEditorHeader';
 import { SessionsViewer } from '@/components/journey/SessionsViewer';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { formatRelativeTime } from '@/lib/relativeTime';
+import { useRelativeTime } from '@/lib/useRelativeTime';
+import {
+  useFlowEditorStore,
+  registerAutosaveTrigger,
+  normalizeNodesForPersist,
+  type FlowSnapshot,
+} from '@/store/flowEditor/useFlowEditorStore';
+import { loadSnapshot } from '@/store/flowEditor/idbSnapshot';
+import { loadLastSavedAt } from '@/store/flowEditor/lastSavedMark';
+import { FlowFeedbackBanner } from '@/components/journey/_ui';
+import { flowTokens } from '@/components/journey/_ui/tokens';
 
 // Importar todos os nodes da jornada por categoria
 import { JourneyTriggerNode } from '@/components/journey/nodes/trigger/JourneyTriggerNode';
@@ -27,6 +51,9 @@ import {
   SetVariableNode,
   AssignAgentNode,
   AssignTeamNode,
+  AssignBotNode,
+  AssignToPipelineNode,
+  SendCannedResponseNode,
   SendEmailTeamNode,
   SendTranscriptNode,
   MuteConversationNode,
@@ -52,6 +79,9 @@ import {
   SetVariablePanel,
   AssignAgentPanel,
   AssignTeamPanel,
+  AssignBotPanel,
+  AssignToPipelinePanel,
+  SendCannedResponsePanel,
   SendEmailTeamPanel,
   SendTranscriptPanel,
   MuteConversationPanel,
@@ -74,6 +104,7 @@ import {
   MoveRight,
   ArrowRight,
   MessageSquare,
+  MessageSquareReply,
   Variable,
   Users,
   Mail,
@@ -81,29 +112,50 @@ import {
   Volume2,
   CheckCircle,
   AlertTriangle,
-  ArrowLeft,
-  Save,
   Clock,
-  Activity,
+  Bot,
+  Workflow,
 } from 'lucide-react';
 
-export default function JourneyFlowEditor() {
+/**
+ * Map common save-failure error shapes to translation keys so the banner
+ * shows a friendly message instead of "Request failed with status code 500".
+ */
+function friendlySaveErrorMessage(
+  error: unknown,
+  t: (key: string) => string,
+): string {
+  if (typeof error === 'object' && error !== null && 'response' in error) {
+    const status = (error as { response?: { status?: number } }).response?.status;
+    if (status === undefined) return t('flowEditor.saveErrorMessages.network');
+    if (status >= 500) return t('flowEditor.saveErrorMessages.server');
+    if (status === 401 || status === 403) return t('flowEditor.saveErrorMessages.unauthorized');
+    if (status === 422) return t('flowEditor.saveErrorMessages.validation');
+  }
+  if (error instanceof Error && error.message) return error.message;
+  return t('flowEditor.saveError');
+}
+
+function JourneyFlowEditor() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { t } = useLanguage('journey');
+  const { t, currentLanguage } = useLanguage('journey');
 
   const [journey, setJourney] = useState<Journey | null>(null);
   const [loading, setLoading] = useState(true);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [journeyVariables, setJourneyVariables] = useState<JourneyVariable[]>([]);
-  const [showSessionsViewer, setShowSessionsViewer] = useState(false);
+  const status = useFlowEditorStore((s) => s.status);
+  const lastSavedAt = useFlowEditorStore((s) => s.lastSavedAt);
+  const lastError = useFlowEditorStore((s) => s.lastError);
+  const retryScheduled = useFlowEditorStore((s) => s.retryScheduled);
+  const nextRetryDelayMs = useFlowEditorStore((s) => s.nextRetryDelayMs);
+  const recoveryCandidate = useFlowEditorStore((s) => s.recoveryCandidate);
+  const recoveryEpoch = useFlowEditorStore((s) => s.recoveryEpoch);
+  const currentSnapshot = useFlowEditorStore((s) => s.currentSnapshot);
 
-  const currentFlowDataRef = useRef<{ nodes: any[]; edges: any[]; variables?: string[] } | null>(
-    null,
-  );
-  const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isSaving = status === 'saving';
+  const hasUnsavedChanges = status !== 'idle';
+  const relativeNow = useRelativeTime(lastSavedAt);
+  const [showSessionsViewer, setShowSessionsViewer] = useState(false);
 
   // Node types mapping para Journey
   const nodeTypes = useMemo(
@@ -124,6 +176,9 @@ export default function JourneyFlowEditor() {
       'set-variable-node': SetVariableNode,
       'assign-agent-node': AssignAgentNode,
       'assign-team-node': AssignTeamNode,
+      'assign-bot-node': AssignBotNode,
+      'assign-to-pipeline-node': AssignToPipelineNode,
+      'send-canned-response-node': SendCannedResponseNode,
       'send-email-team-node': SendEmailTeamNode,
       'send-transcript-node': SendTranscriptNode,
       'mute-conversation-node': MuteConversationNode,
@@ -152,27 +207,21 @@ export default function JourneyFlowEditor() {
     [],
   );
 
-  const initialEdges: never[] = [];
+  const initialEdges = useMemo<never[]>(() => [], []);
 
   // Definir categorias para o NodePanel
   const nodePanelCategories: NodeCategory[] = [
     {
-      value: 'actions',
-      label: t('flowEditor.categories.actions.label'),
+      value: 'controlFlow',
+      label: t('flowEditor.categories.controlFlow.label'),
       icon: MoveRight,
-      description: t('flowEditor.categories.actions.description'),
+      description: t('flowEditor.categories.controlFlow.description'),
     },
     {
       value: 'communication',
       label: t('flowEditor.categories.communication.label'),
       icon: Send,
       description: t('flowEditor.categories.communication.description'),
-    },
-    {
-      value: 'labels',
-      label: t('flowEditor.categories.labels.label'),
-      icon: Tag,
-      description: t('flowEditor.categories.labels.description'),
     },
     {
       value: 'contact',
@@ -182,7 +231,7 @@ export default function JourneyFlowEditor() {
     },
     {
       value: 'conversation',
-      label: t('flowEditor.categories.conversation.labels'),
+      label: t('flowEditor.categories.conversation.label'),
       icon: MessageSquare,
       description: t('flowEditor.categories.conversation.description'),
     },
@@ -190,62 +239,69 @@ export default function JourneyFlowEditor() {
 
   // Definir tipos de nodes para o NodePanel
   const nodePanelNodeTypes: Record<string, NodeType[]> = {
-    actions: [
+    controlFlow: [
       {
         id: 'wait-node',
         name: t('flowEditor.nodes.wait.name'),
         icon: ClockIcon,
         color: 'text-blue-400',
-        category: 'actions',
+        category: 'controlFlow',
         description: t('flowEditor.nodes.wait.description'),
+        searchKeywords: ['delay', 'pause', 'sleep', 'timer', 'hold'],
       },
       {
         id: 'scheduled-action-node',
         name: t('flowEditor.nodes.scheduledAction.name'),
         icon: Clock,
         color: 'text-orange-400',
-        category: 'actions',
+        category: 'controlFlow',
         description: t('flowEditor.nodes.scheduledAction.description'),
+        searchKeywords: ['schedule', 'defer', 'queue', 'later', 'cron', 'timer'],
       },
       {
         id: 'conditional-node',
         name: t('flowEditor.nodes.conditional.name'),
         icon: GitBranch,
         color: 'text-yellow-400',
-        category: 'actions',
+        category: 'controlFlow',
         description: t('flowEditor.nodes.conditional.description'),
+        searchKeywords: ['branch', 'if', 'condition', 'route', 'switch', 'decision'],
       },
       {
         id: 'split-node',
         name: t('flowEditor.nodes.split.name'),
         icon: Split,
         color: 'text-indigo-400',
-        category: 'actions',
+        category: 'controlFlow',
         description: t('flowEditor.nodes.split.description'),
+        searchKeywords: ['ab', 'a/b', 'test', 'distribute', 'random', 'variant', 'experiment'],
       },
       {
         id: 'exit-journey-node',
         name: t('flowEditor.nodes.exitJourney.name'),
         icon: LogOut,
         color: 'text-red-400',
-        category: 'actions',
+        category: 'controlFlow',
         description: t('flowEditor.nodes.exitJourney.description'),
+        searchKeywords: ['exit', 'leave', 'terminate', 'end', 'stop', 'finish'],
       },
       {
         id: 'transfer-journey-node',
         name: t('flowEditor.nodes.transferJourney.name'),
         icon: ArrowRight,
         color: 'text-orange-400',
-        category: 'actions',
+        category: 'controlFlow',
         description: t('flowEditor.nodes.transferJourney.description'),
+        searchKeywords: ['transfer', 'move', 'redirect', 'switch', 'jump', 'journey'],
       },
       {
         id: 'set-variable-node',
         name: t('flowEditor.nodes.setVariable.name'),
         icon: Variable,
         color: 'text-purple-400',
-        category: 'actions',
+        category: 'controlFlow',
         description: t('flowEditor.nodes.setVariable.description'),
+        searchKeywords: ['variable', 'store', 'save', 'assign', 'set', 'value'],
       },
     ],
     communication: [
@@ -256,6 +312,16 @@ export default function JourneyFlowEditor() {
         color: 'text-blue-400',
         category: 'communication',
         description: t('flowEditor.nodes.sendMessage.description'),
+        searchKeywords: ['chat', 'text', 'reply', 'whatsapp', 'sms', 'communicate', 'send'],
+      },
+      {
+        id: 'send-canned-response-node',
+        name: t('flowEditor.nodes.sendCannedResponse.name'),
+        icon: MessageSquareReply,
+        color: 'text-blue-400',
+        category: 'communication',
+        description: t('flowEditor.nodes.sendCannedResponse.description'),
+        searchKeywords: ['canned', 'quick', 'reply', 'preset', 'template', 'response', 'faq'],
       },
       {
         id: 'send-webhook-node',
@@ -264,6 +330,7 @@ export default function JourneyFlowEditor() {
         color: 'text-purple-400',
         category: 'communication',
         description: t('flowEditor.nodes.sendWebhook.description'),
+        searchKeywords: ['http', 'api', 'request', 'post', 'integration', 'callback', 'rest'],
       },
       {
         id: 'send-email-team-node',
@@ -272,6 +339,7 @@ export default function JourneyFlowEditor() {
         color: 'text-emerald-400',
         category: 'communication',
         description: t('flowEditor.nodes.sendEmailTeam.description'),
+        searchKeywords: ['email', 'mail', 'team', 'notify', 'internal'],
       },
       {
         id: 'send-transcript-node',
@@ -280,24 +348,7 @@ export default function JourneyFlowEditor() {
         color: 'text-teal-400',
         category: 'communication',
         description: t('flowEditor.nodes.sendTranscript.description'),
-      },
-    ],
-    labels: [
-      {
-        id: 'add-label-node',
-        name: t('flowEditor.nodes.addLabel.name'),
-        icon: Tag,
-        color: 'text-green-400',
-        category: 'labels',
-        description: t('flowEditor.nodes.addLabel.description'),
-      },
-      {
-        id: 'remove-label-node',
-        name: t('flowEditor.nodes.removeLabel.name'),
-        icon: Trash2,
-        color: 'text-red-400',
-        category: 'labels',
-        description: t('flowEditor.nodes.removeLabel.description'),
+        searchKeywords: ['transcript', 'export', 'history', 'log', 'summary'],
       },
     ],
     contact: [
@@ -308,6 +359,7 @@ export default function JourneyFlowEditor() {
         color: 'text-cyan-400',
         category: 'contact',
         description: t('flowEditor.nodes.updateContact.description'),
+        searchKeywords: ['edit', 'modify', 'change', 'profile', 'data'],
       },
       {
         id: 'update-custom-attribute-node',
@@ -316,6 +368,25 @@ export default function JourneyFlowEditor() {
         color: 'text-pink-400',
         category: 'contact',
         description: t('flowEditor.nodes.updateCustomAttribute.description'),
+        searchKeywords: ['attribute', 'field', 'custom', 'metadata', 'property'],
+      },
+      {
+        id: 'add-label-node',
+        name: t('flowEditor.nodes.addLabel.name'),
+        icon: Tag,
+        color: 'text-green-400',
+        category: 'contact',
+        description: t('flowEditor.nodes.addLabel.description'),
+        searchKeywords: ['tag', 'classify', 'mark', 'categorize', 'etiqueta'],
+      },
+      {
+        id: 'remove-label-node',
+        name: t('flowEditor.nodes.removeLabel.name'),
+        icon: Trash2,
+        color: 'text-red-400',
+        category: 'contact',
+        description: t('flowEditor.nodes.removeLabel.description'),
+        searchKeywords: ['untag', 'unmark', 'delete', 'label', 'etiqueta'],
       },
       {
         id: 'assign-agent-node',
@@ -324,6 +395,7 @@ export default function JourneyFlowEditor() {
         color: 'text-violet-400',
         category: 'contact',
         description: t('flowEditor.nodes.assignAgent.description'),
+        searchKeywords: ['user', 'operator', 'handoff', 'agent', 'route'],
       },
       {
         id: 'assign-team-node',
@@ -332,6 +404,25 @@ export default function JourneyFlowEditor() {
         color: 'text-sky-400',
         category: 'contact',
         description: t('flowEditor.nodes.assignTeam.description'),
+        searchKeywords: ['team', 'group', 'queue', 'handoff', 'route'],
+      },
+      {
+        id: 'assign-bot-node',
+        name: t('flowEditor.nodes.assignBot.name'),
+        icon: Bot,
+        color: 'text-purple-400',
+        category: 'contact',
+        description: t('flowEditor.nodes.assignBot.description'),
+        searchKeywords: ['bot', 'automation', 'ai', 'assistant', 'automate'],
+      },
+      {
+        id: 'assign-to-pipeline-node',
+        name: t('flowEditor.nodes.assignToPipeline.name'),
+        icon: Workflow,
+        color: 'text-amber-400',
+        category: 'contact',
+        description: t('flowEditor.nodes.assignToPipeline.description'),
+        searchKeywords: ['pipeline', 'funnel', 'sales', 'stage', 'crm', 'deal'],
       },
     ],
     conversation: [
@@ -342,6 +433,7 @@ export default function JourneyFlowEditor() {
         color: 'text-gray-400',
         category: 'conversation',
         description: t('flowEditor.nodes.muteConversation.description'),
+        searchKeywords: ['mute', 'silence', 'quiet', 'hide', 'suppress'],
       },
       {
         id: 'defer-conversation-node',
@@ -350,6 +442,7 @@ export default function JourneyFlowEditor() {
         color: 'text-yellow-400',
         category: 'conversation',
         description: t('flowEditor.nodes.deferConversation.description'),
+        searchKeywords: ['snooze', 'defer', 'postpone', 'delay', 'later'],
       },
       {
         id: 'resolve-conversation-node',
@@ -358,6 +451,7 @@ export default function JourneyFlowEditor() {
         color: 'text-green-400',
         category: 'conversation',
         description: t('flowEditor.nodes.resolveConversation.description'),
+        searchKeywords: ['resolve', 'close', 'complete', 'finish', 'done'],
       },
       {
         id: 'change-priority-node',
@@ -366,36 +460,44 @@ export default function JourneyFlowEditor() {
         color: 'text-indigo-400',
         category: 'conversation',
         description: t('flowEditor.nodes.changePriority.description'),
+        searchKeywords: ['priority', 'urgent', 'importance', 'vip', 'escalate'],
       },
     ],
   };
 
-  // Cores para o MiniMap
+  // Maps each node type to a flow-* design-system token via the
+  // typed `flowTokens` object from `@/components/journey/_ui/tokens`
+  // (EVO-1253 contract for consumers outside Tailwind className). Nodes
+  // without a direct subtype match in the current taxonomy fall back to
+  // action-pipeline (see EVO-1259 audit §G3).
   const miniMapNodeColors = useMemo(
     () => ({
-      'journey-trigger-node': '#10b981', // verde para trigger
-      'wait-node': '#3b82f6', // azul para wait
-      'scheduled-action-node': '#fb923c', // orange para scheduled action
-      'conditional-node': '#eab308', // amarelo para condicional
-      'split-node': '#6366f1', // indigo para split
-      'exit-journey-node': '#ef4444', // vermelho para sair da jornada
-      'send-webhook-node': '#a855f7', // purple para webhook
-      'add-label-node': '#10b981', // verde para adicionar etiqueta
-      'remove-label-node': '#ef4444', // vermelho para remover etiqueta
-      'update-contact-node': '#06b6d4', // cyan para atualizar contato
-      'update-custom-attribute-node': '#ec4899', // pink para atributo personalizado
-      'transfer-journey-node': '#fb923c', // orange para transferir jornada
-      'send-message-node': '#3b82f6', // blue para enviar mensagem
-      'set-variable-node': '#a855f7', // purple para definir variável
-      'assign-agent-node': '#8b5cf6', // violet para atribuir agente
-      'assign-team-node': '#0ea5e9', // sky para atribuir equipe
-      'send-email-team-node': '#10b981', // emerald para enviar email equipe
-      'send-transcript-node': '#14b8a6', // teal para enviar transcrição
-      'mute-conversation-node': '#64748b', // gray para silenciar conversa
-      'defer-conversation-node': '#eab308', // yellow para adiar conversa
-      'resolve-conversation-node': '#10b981', // green para resolver conversa
-      'change-priority-node': '#6366f1', // indigo para alterar prioridade
-      default: '#64748b', // cinza para outros
+      'journey-trigger-node': flowTokens.node.trigger.border,
+      'conditional-node': flowTokens.node.condition.border,
+      'wait-node': flowTokens.node.control.border,
+      'split-node': flowTokens.node.control.border,
+      'scheduled-action-node': flowTokens.node.control.border,
+      'set-variable-node': flowTokens.node.control.border,
+      'exit-journey-node': flowTokens.node.exit.border,
+      'transfer-journey-node': flowTokens.node.exit.border,
+      'send-message-node': flowTokens.node.action.message.border,
+      'send-canned-response-node': flowTokens.node.action.message.border,
+      'send-transcript-node': flowTokens.node.action.message.border,
+      'send-email-team-node': flowTokens.node.action.message.border,
+      'send-webhook-node': flowTokens.node.action.webhook.border,
+      'add-label-node': flowTokens.node.action.label.border,
+      'remove-label-node': flowTokens.node.action.label.border,
+      'update-contact-node': flowTokens.node.action.pipeline.border,
+      'update-custom-attribute-node': flowTokens.node.action.pipeline.border,
+      'assign-agent-node': flowTokens.node.action.pipeline.border,
+      'assign-team-node': flowTokens.node.action.pipeline.border,
+      'assign-bot-node': flowTokens.node.action.pipeline.border,
+      'assign-to-pipeline-node': flowTokens.node.action.pipeline.border,
+      'change-priority-node': flowTokens.node.action.pipeline.border,
+      'mute-conversation-node': flowTokens.node.action.pipeline.border,
+      'defer-conversation-node': flowTokens.node.action.pipeline.border,
+      'resolve-conversation-node': flowTokens.node.action.pipeline.border,
+      default: 'var(--color-muted-foreground)',
     }),
     [],
   );
@@ -417,7 +519,6 @@ export default function JourneyFlowEditor() {
         onUpdate,
         onClose,
         journeyId: id, // ID da jornada atual (now guaranteed to be string)
-        onVariablesChange: handleVariablesChange, // Callback para sincronizar variáveis
       };
 
       switch (nodeType) {
@@ -451,6 +552,12 @@ export default function JourneyFlowEditor() {
           return <AssignAgentPanel {...commonProps} />;
         case 'assign-team-node':
           return <AssignTeamPanel {...commonProps} />;
+        case 'assign-bot-node':
+          return <AssignBotPanel {...commonProps} />;
+        case 'assign-to-pipeline-node':
+          return <AssignToPipelinePanel {...commonProps} />;
+        case 'send-canned-response-node':
+          return <SendCannedResponsePanel {...commonProps} />;
         case 'send-email-team-node':
           return <SendEmailTeamPanel {...commonProps} />;
         case 'send-transcript-node':
@@ -475,19 +582,32 @@ export default function JourneyFlowEditor() {
 
     try {
       setLoading(true);
-      const response = await journeyService.getJourney(id);
+      const [response, recovery] = await Promise.all([
+        journeyService.getJourney(id),
+        loadSnapshot(id),
+      ]);
       setJourney(response);
 
-      // Ensure flowData has proper array structure
       const flowData = response.flowData || {};
-      currentFlowDataRef.current = {
-        nodes: Array.isArray(flowData.nodes) ? flowData.nodes : [],
-        edges: Array.isArray(flowData.edges) ? flowData.edges : [],
+      const serverSnapshot: FlowSnapshot = {
+        nodes: (Array.isArray(flowData.nodes) ? flowData.nodes : []) as never,
+        edges: (Array.isArray(flowData.edges) ? flowData.edges : []) as never,
       };
 
-      // Variáveis agora são carregadas via API dedicada (useJourneyVariables)
+      // Prefer a client-persisted save mark over response.updatedAt because
+      // the server timestamp has come back stale/timezone-shifted in
+      // practice, causing the header to read "Saved 2 hours ago" right
+      // after a fresh save.
+      const localMark = loadLastSavedAt(id);
+      const serverMark = response.updatedAt ? new Date(response.updatedAt) : null;
+      const lastSavedAt = localMark ?? serverMark ?? new Date();
 
-      setLastSaved(new Date());
+      useFlowEditorStore.getState().hydrate({
+        journeyId: id,
+        server: serverSnapshot,
+        lastSavedAt,
+        recovery,
+      });
     } catch (error) {
       console.error('Erro ao carregar jornada:', error);
       toast.error(t('flowEditor.loadError'));
@@ -503,20 +623,30 @@ export default function JourneyFlowEditor() {
     }
   }, [id, loadJourney]);
 
-  const handleVariablesChange = useCallback(
-    (variables: JourneyVariable[]) => {
-      setJourneyVariables(variables);
-      setHasUnsavedChanges(true);
-    },
-    [id],
-  );
+  const journeyRef = useRef<Journey | null>(null);
+  useEffect(() => {
+    journeyRef.current = journey;
+  }, [journey]);
 
-  const saveChanges = useCallback(async () => {
-    if (!journey || !journey.id || !hasUnsavedChanges || isSaving) return;
+  const saveChanges = useCallback(async (opts?: { silent?: boolean }) => {
+    const currentJourney = journeyRef.current;
+    const store = useFlowEditorStore.getState();
+    const snapshot = store.currentSnapshot;
+    if (
+      !currentJourney?.id ||
+      !snapshot ||
+      store.status === 'saving' ||
+      store.status === 'idle'
+    ) {
+      return;
+    }
 
-    setIsSaving(true);
+    store.beginSave({ resetRetryBudget: !opts?.silent });
     try {
-      const flowData = currentFlowDataRef.current || { nodes: [], edges: [], variables: [] };
+      const flowData = {
+        nodes: normalizeNodesForPersist(snapshot.nodes),
+        edges: snapshot.edges,
+      };
 
       // Extrair triggers dos nodes
       const nodes = Array.isArray(flowData.nodes) ? flowData.nodes : [];
@@ -558,71 +688,125 @@ export default function JourneyFlowEditor() {
             webhookSecret: triggerNode.data.webhookSecret,
             webhookMethod: triggerNode.data.webhookMethod,
             expectedHeaders: triggerNode.data.expectedHeaders,
+            pipelineId: triggerNode.data.pipelineId,
+            pipelineName: triggerNode.data.pipelineName,
+            fromStageId: triggerNode.data.fromStageId,
+            fromStageName: triggerNode.data.fromStageName,
+            toStageId: triggerNode.data.toStageId,
+            toStageName: triggerNode.data.toStageName,
           },
         }));
 
       const updatedJourney = {
-        ...journey,
-        flowData: flowData,
+        ...currentJourney,
+        flowData: flowData as Journey['flowData'],
         flowTriggers,
-      };
+      } as Journey;
 
-      await journeyService.updateJourney(journey.id, updatedJourney);
+      await journeyService.updateJourney(currentJourney.id, updatedJourney);
       setJourney(updatedJourney);
-      setHasUnsavedChanges(false);
-      setLastSaved(new Date());
-      toast.success(t('flowEditor.saveSuccess'));
+      // Pass the snapshot we captured at beginSave time as the synced
+      // baseline. If the user edited during the API roundtrip, the store
+      // compares currentSnapshot against this and stays `dirty` so the
+      // next autosave tick picks up the unsynced edits (atomic update
+      // requirement of EVO-1258).
+      useFlowEditorStore.getState().commitSave(new Date(), snapshot);
+      if (!opts?.silent) {
+        toast.success(t('flowEditor.saveSuccess'));
+      }
     } catch (error) {
       console.error('Erro ao salvar jornada:', error);
-      toast.error(t('flowEditor.saveError'));
-    } finally {
-      setIsSaving(false);
+      const message = friendlySaveErrorMessage(error, t);
+      useFlowEditorStore.getState().failSave(message);
     }
-  }, [journey, hasUnsavedChanges, isSaving, journeyVariables]);
+  }, [t]);
 
-  // Auto-save quando variáveis mudarem (com delay)
-  useEffect(() => {
-    if (journeyVariables.length > 0 && hasUnsavedChanges) {
-      const timeoutId = setTimeout(() => {
-        saveChanges();
-      }, 1000);
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [journeyVariables, hasUnsavedChanges, saveChanges]);
-
-  // Handle flow data changes
-  const handleFlowDataChange = useCallback((flowData: any) => {
-    const hasChanges = JSON.stringify(currentFlowDataRef.current) !== JSON.stringify(flowData);
-    currentFlowDataRef.current = flowData;
-    if (hasChanges) {
-      setHasUnsavedChanges(true);
-    }
+  const handleFlowDataChange = useCallback((flowData: { nodes: unknown[]; edges: unknown[] }) => {
+    useFlowEditorStore
+      .getState()
+      .setFlow(flowData.nodes as never[], flowData.edges as never[]);
   }, []);
 
-  // Auto-save every 10 seconds
+  // Register the autosave trigger so the store-owned debounced timer can fire
+  // saveChanges when the editor has been dirty for 5s without a new edit.
+  // Autosaves run silently — the header status indicator is the only feedback,
+  // because a toast every 5s of active editing was noise.
   useEffect(() => {
-    if (hasUnsavedChanges) {
-      autoSaveIntervalRef.current = setInterval(() => {
-        saveChanges();
-      }, 10000);
-    } else {
-      if (autoSaveIntervalRef.current) {
-        clearInterval(autoSaveIntervalRef.current);
-        autoSaveIntervalRef.current = null;
-      }
-    }
+    return registerAutosaveTrigger(() => {
+      void saveChanges({ silent: true });
+    });
+  }, [saveChanges]);
 
+  // Tear the store down on unmount so a re-mount under a different journeyId
+  // does not see stale state.
+  useEffect(() => {
     return () => {
-      if (autoSaveIntervalRef.current) {
-        clearInterval(autoSaveIntervalRef.current);
-      }
+      useFlowEditorStore.getState().reset();
     };
-  }, [hasUnsavedChanges, saveChanges]);
+  }, []);
 
-  const handleBack = () => {
-    navigate('/journeys');
-  };
+  const [pendingLeaveTarget, setPendingLeaveTarget] = useState<string | null>(null);
+
+  const requestNavigate = useCallback(
+    (target: string) => {
+      if (hasUnsavedChanges) {
+        setPendingLeaveTarget(target);
+      } else {
+        navigate(target);
+      }
+    },
+    [hasUnsavedChanges, navigate],
+  );
+
+  const handleBack = useCallback(() => {
+    requestNavigate('/journeys');
+  }, [requestNavigate]);
+
+  const cancelLeave = useCallback(() => {
+    setPendingLeaveTarget(null);
+  }, []);
+
+  const confirmLeave = useCallback(() => {
+    if (pendingLeaveTarget) {
+      navigate(pendingLeaveTarget);
+      setPendingLeaveTarget(null);
+    }
+  }, [navigate, pendingLeaveTarget]);
+
+  // Native browser dialog for refresh / close tab / address-bar navigation
+  // while the editor has unsaved changes. Modern browsers ignore custom message
+  // strings; setting `returnValue` is what triggers the prompt.
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const handler = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [hasUnsavedChanges]);
+
+  // Preparar dados do flow para o BaseFlowEditor.
+  // SOURCE OF TRUTH: store.currentSnapshot, NOT journey.flowData. The
+  // store is updated by every edit AND by acceptRecovery, so reading
+  // from it is the only way the canvas remount on recovery (key change
+  // via recoveryEpoch) actually picks up the recovered nodes. Reading
+  // from journey.flowData would seed the canvas with server data even
+  // after the user accepted recovery, because journey is only refreshed
+  // on save success.
+  // Declared BEFORE the loading/!journey early returns so the hook
+  // order stays stable across renders (rules-of-hooks). Before hydrate
+  // the store snapshot is null, so we fall back to the initial nodes/edges.
+  const flowData = useMemo(
+    () => ({
+      nodes:
+        Array.isArray(currentSnapshot?.nodes) && currentSnapshot.nodes.length > 0
+          ? currentSnapshot.nodes
+          : initialNodes,
+      edges: Array.isArray(currentSnapshot?.edges) ? currentSnapshot.edges : initialEdges,
+    }),
+    [currentSnapshot, initialNodes, initialEdges],
+  );
 
   if (loading) {
     return (
@@ -648,107 +832,128 @@ export default function JourneyFlowEditor() {
     );
   }
 
-  // Preparar dados do flow para o BaseFlowEditor
-  const flowData = {
-    nodes:
-      Array.isArray(journey.flowData?.nodes) && journey.flowData.nodes.length > 0
-        ? journey.flowData.nodes
-        : initialNodes,
-    edges: Array.isArray(journey.flowData?.edges) ? journey.flowData.edges : initialEdges,
-  };
-
   return (
     <div className="h-screen flex flex-col">
-      {/* Usar BaseFlowEditor com todas as configurações da jornada */}
-      <BaseFlowEditor
-        // Configurações básicas
+      <JourneyEditorHeader
+        onBack={handleBack}
+        backLabel={t('flowEditor.back')}
         title={t('flowEditor.title', { name: journey.name })}
-        subtitle={journey.description || t('flowEditor.subtitleFallback')}
-        // Dados do flow
+        subtitle={journey.description || undefined}
+        onViewSessions={() => setShowSessionsViewer(true)}
+        viewSessionsLabel={t('flowEditor.viewSessions')}
+        environmentSlot={<EnvironmentManager journeyId={id} />}
+        onSave={saveChanges}
+        hasUnsavedChanges={hasUnsavedChanges}
+        isSaving={isSaving}
+        lastSaved={lastSavedAt}
+        saveLabel={t('flowEditor.save')}
+        savingLabel={t('flowEditor.saving')}
+        savedLabel={t('flowEditor.saved')}
+        lastSavedFormatter={(date) =>
+          t('flowEditor.lastSavedRelative', {
+            relative: formatRelativeTime(date, relativeNow, {
+              locale: currentLanguage,
+              justNowLabel: t('flowEditor.lastSavedJustNow'),
+            }),
+          })
+        }
+        unsavedChangesHint={t('flowEditor.autoSaveInfo')}
+      />
+
+      {status === 'error' && lastError ? (
+        <FlowFeedbackBanner variant="error" className="mx-4 mt-2">
+          <p>
+            {retryScheduled && nextRetryDelayMs !== null
+              ? t('flowEditor.saveErrorBanner', {
+                  reason: lastError,
+                  seconds: Math.round(nextRetryDelayMs / 1000),
+                })
+              : t('flowEditor.saveErrorBannerNoRetry', { reason: lastError })}
+          </p>
+        </FlowFeedbackBanner>
+      ) : null}
+
+      <AlertDialog
+        open={recoveryCandidate !== null}
+        onOpenChange={(open) => {
+          if (!open) useFlowEditorStore.getState().rejectRecovery();
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('flowEditor.recoveryTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {recoveryCandidate
+                ? t('flowEditor.recoveryBody', {
+                    when: formatRelativeTime(recoveryCandidate.timestamp, relativeNow, {
+                      locale: currentLanguage,
+                      justNowLabel: t('flowEditor.lastSavedJustNow'),
+                    }),
+                  })
+                : ''}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => useFlowEditorStore.getState().rejectRecovery()}
+            >
+              {t('flowEditor.discard')}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => useFlowEditorStore.getState().acceptRecovery()}
+            >
+              {t('flowEditor.recover')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={pendingLeaveTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) cancelLeave();
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('flowEditor.unsavedChangesTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('flowEditor.unsavedChangesBody')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelLeave}>
+              {t('flowEditor.stay')}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmLeave}>
+              {t('flowEditor.leaveAnyway')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <BaseFlowEditor
+        key={`flow-canvas-${recoveryEpoch}`}
         flowData={flowData}
         isLoading={loading}
         isSaving={isSaving}
-        // Callbacks
         onSave={saveChanges}
         onFlowDataChange={handleFlowDataChange}
-        // Configurações de auto-save
-        autoSave={true}
-        autoSaveInterval={10000}
-        // Configurações visuais
-        showHeader={true}
+        autoSave={false}
+        showHeader={false}
         showToolbar={false}
-        // Header customizado com botão à esquerda
-        headerLeftActions={
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBack}
-            className="text-sidebar-foreground hover:bg-sidebar-accent"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t('flowEditor.back')}
-          </Button>
-        }
-        // Ações à direita do header
-        headerActions={
-          <div className="flex items-center gap-3">
-            {/* Status de auto-save */}
-            <div className="flex items-center gap-2 text-xs text-sidebar-foreground/60">
-              <Clock className="h-3 w-3" />
-              {lastSaved && (
-                <span>
-                  {t('flowEditor.lastSaved', { time: lastSaved.toLocaleTimeString() })}
-                  {hasUnsavedChanges && ` • ${t('flowEditor.autoSaveInfo')}`}
-                </span>
-              )}
-            </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowSessionsViewer(true)}
-              className="flex items-center gap-2"
-            >
-              <Activity className="h-4 w-4" />
-              Ver Sessões
-            </Button>
-
-            <EnvironmentManager journeyId={id} />
-
-            <Button
-              variant={hasUnsavedChanges ? 'default' : 'outline'}
-              size="sm"
-              onClick={saveChanges}
-              disabled={isSaving || !hasUnsavedChanges}
-              className="min-w-[100px]"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              {isSaving
-                ? t('flowEditor.saving')
-                : hasUnsavedChanges
-                  ? t('flowEditor.save')
-                  : t('flowEditor.saved')}
-            </Button>
-          </div>
-        }
-        // Configurações específicas da jornada para o BaseFlowCanvas
         nodeTypes={nodeTypes}
         renderConfigPanel={renderConfigPanel}
-        // Configurações do NodePanel integrado
         nodePanelNodeTypes={nodePanelNodeTypes}
         nodePanelCategories={nodePanelCategories}
         nodePanelTitle={t('flowEditor.nodePanel.title')}
         nodePanelSubtitle={t('flowEditor.nodePanel.subtitle')}
-        // Configurações ReactFlow
         showMiniMap={true}
         showControls={true}
         showBackground={true}
         backgroundVariant="dots"
         miniMapNodeColors={miniMapNodeColors}
-        // Helper lines e configurações avançadas
         customHelperLines={true}
         configPanelSystem={true}
-        // Classes CSS
         className="h-full bg-sidebar"
         canvasWrapperClassName="flex-1"
       />
@@ -781,5 +986,13 @@ export default function JourneyFlowEditor() {
         />
       )}
     </div>
+  );
+}
+
+export default function JourneyFlowEditorPage() {
+  return (
+    <ErrorBoundary>
+      <JourneyFlowEditor />
+    </ErrorBoundary>
   );
 }

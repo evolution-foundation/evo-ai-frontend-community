@@ -1,17 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  Button,
   Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Separator,
 } from '@evoapi/design-system';
 import { Clock, Zap, GitBranch } from 'lucide-react';
 import { WaitNodeData } from './WaitNode';
-import { BaseFlowPanel } from '@/components/base';
+import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
 import {
   WaitTimeConfig,
   WaitEventConfig,
@@ -58,10 +56,12 @@ export function WaitPanel({ nodeId, data, onUpdate, onClose, journeyId }: WaitPa
     },
   ];
 
-  const [formData, setFormData] = useState<WaitNodeData>({
+  const initialFormData: WaitNodeData = {
     ...data,
     waitType: data.waitType || 'time',
-  });
+  };
+  const [originalData] = useState<WaitNodeData>(() => initialFormData);
+  const [formData, setFormData] = useState<WaitNodeData>(initialFormData);
 
   useEffect(() => {
     setFormData({
@@ -71,7 +71,6 @@ export function WaitPanel({ nodeId, data, onUpdate, onClose, journeyId }: WaitPa
   }, [data]);
 
   const handleSave = () => {
-    // Validações baseadas no tipo de wait
     const updatedData = { ...formData };
 
     switch (formData.waitType) {
@@ -80,24 +79,20 @@ export function WaitPanel({ nodeId, data, onUpdate, onClose, journeyId }: WaitPa
         updatedData.timeUnit = formData.timeUnit || 'minutes';
         break;
       case 'event':
-        // hasTimeout é opcional para event
         if (updatedData.hasTimeout) {
           updatedData.maxWaitTime = updatedData.maxWaitTime || 1;
           updatedData.maxWaitUnit = updatedData.maxWaitUnit || 'hours';
         }
-        // enableFallback é opcional para event
         if (updatedData.enableFallback) {
           updatedData.fallbackTime = updatedData.fallbackTime || 1;
           updatedData.fallbackUnit = updatedData.fallbackUnit || 'hours';
         }
         break;
       case 'condition':
-        // hasTimeout é opcional para condition
         if (updatedData.hasTimeout) {
           updatedData.maxWaitTime = updatedData.maxWaitTime || 1;
           updatedData.maxWaitUnit = updatedData.maxWaitUnit || 'hours';
         }
-        // enableFallback é opcional para condition
         if (updatedData.enableFallback) {
           updatedData.fallbackTime = updatedData.fallbackTime || 1;
           updatedData.fallbackUnit = updatedData.fallbackUnit || 'hours';
@@ -117,7 +112,6 @@ export function WaitPanel({ nodeId, data, onUpdate, onClose, journeyId }: WaitPa
     setFormData(prev => ({
       ...prev,
       waitType: value,
-      // Resetar dados específicos quando muda o tipo
       ...(value !== 'time' && {
         duration: undefined,
         timeUnit: undefined,
@@ -181,18 +175,24 @@ export function WaitPanel({ nodeId, data, onUpdate, onClose, journeyId }: WaitPa
 
   const currentOption = getCurrentWaitTypeOption();
   const IconComponent = currentOption.icon;
+  const dirty = useMemo(
+    () => JSON.stringify(formData) !== JSON.stringify(originalData),
+    [formData, originalData],
+  );
 
   return (
-    <BaseFlowPanel
+    <NodeConfigModal
+      open
+      variant="simple"
       title={t('panels.wait.title')}
-      icon={<IconComponent className="w-5 h-5 text-blue-500" />}
-      onClose={onClose}
-      width="w-[600px]"
+      icon={<IconComponent className="h-5 w-5 text-flow-node-action-message-fg" />}
+      onCancel={onClose}
+      onSave={handleSave}
+      dirty={dirty}
+      saveLabel={t('panels.actions.save')}
+      cancelLabel={t('panels.actions.cancel')}
     >
-      <Separator />
-
       <div className="space-y-4">
-        {/* Seletor de Tipo de Espera */}
         <div className="space-y-2">
           <Label className="text-sidebar-foreground font-medium">{t('panels.wait.waitType')}</Label>
           <Select value={formData.waitType} onValueChange={handleWaitTypeChange}>
@@ -222,7 +222,6 @@ export function WaitPanel({ nodeId, data, onUpdate, onClose, journeyId }: WaitPa
           </Select>
         </div>
 
-        {/* Seção de Configuração Específica */}
         <div className="space-y-4">
           <Label className="text-sidebar-foreground font-medium">
             {t('panels.wait.configuration')} - {currentOption.label}
@@ -230,16 +229,6 @@ export function WaitPanel({ nodeId, data, onUpdate, onClose, journeyId }: WaitPa
           {renderConfigurationSection()}
         </div>
       </div>
-
-      {/* Botões de ação */}
-      <div className="flex gap-3 pt-2">
-        <Button variant="outline" onClick={onClose} className="flex-1 h-10">
-          {t('panels.actions.cancel')}
-        </Button>
-        <Button onClick={handleSave} className="flex-1 h-10">
-          {t('panels.actions.save')}
-        </Button>
-      </div>
-    </BaseFlowPanel>
+    </NodeConfigModal>
   );
 }

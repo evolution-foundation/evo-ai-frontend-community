@@ -301,7 +301,9 @@
     "status": "Status:",
     "openConversation": "Abrir Conversa",
     "closeConversation": "Fechar conversa",
-    "phoneNumber": "Número de telefone"
+    "phoneNumber": "Número de telefone",
+    "openContactPanel": "Abrir detalhes do contato",
+    "closeContactPanel": "Fechar detalhes do contato"
   },
   "chatSidebar": {
     "searchPlaceholder": "Buscar conversas...",
@@ -416,6 +418,7 @@
       "noAttributes": "Nenhum atributo personalizado configurado",
       "updateSuccess": "Atributos atualizados com sucesso",
       "updateError": "Erro ao atualizar atributos",
+      "refreshError": "Atributos salvos, mas falhou ao recarregar dados do contato",
       "yes": "Sim",
       "no": "Não"
     },
@@ -467,6 +470,8 @@
       "actions": "ações",
       "executeSuccess": "Macro \"{{name}}\" executada com sucesso",
       "executeError": "Erro ao executar macro \"{{name}}\"",
+      "executePartialError": "Macro \"{{name}}\" executada com falhas",
+      "executeQueued": "Macro \"{{name}}\" enfileirada — aguardando webhook",
       "dialog": {
         "title": "Executar Macro",
         "description": "Você tem certeza que deseja executar a macro {{name}}? Esta ação aplicará {{count}} {{actionLabel}} nesta conversa.",
