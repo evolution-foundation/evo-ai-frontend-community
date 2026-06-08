@@ -10,7 +10,7 @@ import {
   DialogTitle,
   Input,
 } from '@evoapi/design-system';
-import { Trash2, Grid3X3, List, Layers } from 'lucide-react';
+import { Trash2, Grid3X3, List, Layers, LayoutGrid } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 
@@ -23,7 +23,9 @@ import {
   ChannelsTable,
   ChannelsPagination,
   ChannelCard,
+  ChannelTypeHub,
 } from '@/components/channels';
+import { ChannelTypeStatus } from '@/utils/channelStatus';
 import EmptyState from '@/components/base/EmptyState';
 // table types imported where needed in ChannelsTable
 import { useNavigate } from 'react-router-dom';
@@ -42,7 +44,7 @@ export default function Channels() {
   const [totalCount, setTotalCount] = useState(0);
   const [perPage, setPerPage] = useState(24);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [viewMode, setViewMode] = useState<'overview' | 'cards' | 'table'>('overview');
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
     channel: Inbox | null;
@@ -97,6 +99,29 @@ export default function Channels() {
   const openChannelSettings = useCallback(
     (inbox: Inbox) => {
       navigate(`/channels/${inbox.id}/settings`);
+    },
+    [navigate],
+  );
+
+  const handleAddType = useCallback(() => {
+    if (permissionsLoading || !permissionsReady) {
+      return;
+    }
+
+    if (!can('channels', 'create')) {
+      toast.error(t('permissions.createDenied'));
+      return;
+    }
+    navigate('/channels/new');
+  }, [navigate, can, permissionsLoading, permissionsReady, t]);
+
+  const handleManageType = useCallback(
+    (typeStatus: ChannelTypeStatus) => {
+      if (typeStatus.total === 1) {
+        navigate(`/channels/${typeStatus.inboxes[0].id}/settings`);
+        return;
+      }
+      setViewMode('cards');
     },
     [navigate],
   );
@@ -185,10 +210,19 @@ export default function Channels() {
       <div className="flex items-center justify-end mb-3" data-tour="channels-view-toggle">
         <div className="flex items-center border rounded-lg">
           <Button
+            variant={viewMode === 'overview' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('overview')}
+            className="border-0 rounded-r-none"
+            title={t('overview.tabLabel')}
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </Button>
+          <Button
             variant={viewMode === 'cards' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('cards')}
-            className="border-0 rounded-r-none"
+            className="border-0 rounded-none"
           >
             <Grid3X3 className="h-4 w-4" />
           </Button>
@@ -204,7 +238,14 @@ export default function Channels() {
       </div>
 
       <div className="flex-1 overflow-auto" data-tour="channels-list">
-        {isLoadingInboxes ? (
+        {viewMode === 'overview' ? (
+          <ChannelTypeHub
+            inboxes={inboxes}
+            isLoading={isLoadingInboxes}
+            onAdd={handleAddType}
+            onManage={handleManageType}
+          />
+        ) : isLoadingInboxes ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, idx) => (
               <Skeleton key={idx} className="h-28" />
@@ -241,7 +282,7 @@ export default function Channels() {
       </div>
 
       {/* Pagination */}
-      {totalCount > 0 && (
+      {viewMode !== 'overview' && totalCount > 0 && (
         <div data-tour="channels-pagination">
           <ChannelsPagination
             currentPage={currentPage}

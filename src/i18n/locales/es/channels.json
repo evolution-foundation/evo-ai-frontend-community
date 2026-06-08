@@ -1619,5 +1619,35 @@
     "cancel": "Cancelar",
     "confirm": "Eliminar Canal",
     "deleting": "Eliminando..."
+  },
+  "overview": {
+    "tabLabel": "Resumen",
+    "title": "Resumen de canales",
+    "subtitle": "Mira todos los tipos de canal, su estado y cómo configurarlos.",
+    "statusLabel": {
+      "active": "Activo",
+      "attention": "Requiere atención",
+      "available": "Disponible"
+    },
+    "summary": {
+      "active": "{{count}} activo(s)",
+      "attention": "{{count}} con atención",
+      "notConfigured": "No configurado"
+    },
+    "actions": {
+      "add": "Agregar",
+      "manage": "Gestionar",
+      "howToConfigure": "Cómo configurar"
+    },
+    "help": {
+      "website": "Inserta un widget de chat en vivo en tu sitio web para hablar con los visitantes en tiempo real.",
+      "whatsapp": "Conecta WhatsApp mediante un proveedor (WhatsApp Cloud, Evolution, Twilio y otros) para enviar y recibir mensajes.",
+      "telegram": "Conecta un bot de Telegram con su token para recibir y responder mensajes.",
+      "instagram": "Vincula tu cuenta profesional de Instagram para gestionar mensajes directos desde la bandeja.",
+      "facebook": "Vincula una página de Facebook para gestionar conversaciones de Messenger desde la bandeja.",
+      "sms": "Envía y recibe SMS mediante un proveedor como Twilio o Bandwidth.",
+      "email": "Conecta un buzón (Gmail u Outlook) para convertir correos en conversaciones.",
+      "api": "Usa la API de canales para integrar cualquier sistema propio o personalizado."
+    }
   }
 }

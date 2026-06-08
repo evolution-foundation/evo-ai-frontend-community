@@ -1702,5 +1702,35 @@
     "cancel": "Cancel",
     "confirm": "Delete Channel",
     "deleting": "Deleting..."
+  },
+  "overview": {
+    "tabLabel": "Overview",
+    "title": "Channel overview",
+    "subtitle": "See every channel type, its status, and how to set it up.",
+    "statusLabel": {
+      "active": "Active",
+      "attention": "Needs attention",
+      "available": "Available"
+    },
+    "summary": {
+      "active": "{{count}} active",
+      "attention": "{{count}} need attention",
+      "notConfigured": "Not configured"
+    },
+    "actions": {
+      "add": "Add",
+      "manage": "Manage",
+      "howToConfigure": "How to set up"
+    },
+    "help": {
+      "website": "Embed a live-chat widget on your website so visitors can talk to your team in real time.",
+      "whatsapp": "Connect WhatsApp through a provider (WhatsApp Cloud, Evolution, Twilio and others) to send and receive messages.",
+      "telegram": "Connect a Telegram bot using its token to receive and reply to messages from Telegram users.",
+      "instagram": "Link your Instagram professional account to handle direct messages from the inbox.",
+      "facebook": "Link a Facebook page to manage Messenger conversations from the inbox.",
+      "sms": "Send and receive SMS through a provider such as Twilio or Bandwidth.",
+      "email": "Connect a mailbox (Gmail or Outlook) to turn emails into conversations.",
+      "api": "Use the channel API to integrate any custom or in-house system."
+    }
   }
 }
