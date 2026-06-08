@@ -908,6 +908,8 @@
   },
   "unreadBadge": {
     "ariaLabel_one": "{{count}} message non lu",
-    "ariaLabel_other": "{{count}} messages non lus"
+    "ariaLabel_other": "{{count}} messages non lus",
+    "menuAriaLabel_one": "{{count}} conversation non lue",
+    "menuAriaLabel_other": "{{count}} conversations non lues"
   }
 }

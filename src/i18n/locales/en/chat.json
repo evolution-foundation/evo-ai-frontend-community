@@ -968,6 +968,8 @@
   },
   "unreadBadge": {
     "ariaLabel_one": "{{count}} unread message",
-    "ariaLabel_other": "{{count}} unread messages"
+    "ariaLabel_other": "{{count}} unread messages",
+    "menuAriaLabel_one": "{{count}} unread conversation",
+    "menuAriaLabel_other": "{{count}} unread conversations"
   }
 }

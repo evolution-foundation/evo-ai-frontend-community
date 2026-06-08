@@ -911,6 +911,8 @@
   },
   "unreadBadge": {
     "ariaLabel_one": "{{count}} mensagem não lida",
-    "ariaLabel_other": "{{count}} mensagens não lidas"
+    "ariaLabel_other": "{{count}} mensagens não lidas",
+    "menuAriaLabel_one": "{{count}} conversa não lida",
+    "menuAriaLabel_other": "{{count}} conversas não lidas"
   }
 }

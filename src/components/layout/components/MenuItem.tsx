@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ChevronRight } from 'lucide-react';
 import {
   Tooltip,
@@ -26,7 +27,12 @@ export default function MenuItem({
   isActive,
   onClick,
 }: MenuItemProps) {
+  const { t } = useTranslation('chat');
   const hasSubItems = item.subItems && item.subItems.length > 0;
+  const badgeAriaLabel =
+    item.badge && item.badge > 0
+      ? t('unreadBadge.menuAriaLabel', { count: item.badge })
+      : undefined;
 
   const menuItem = (
     <Link
@@ -51,7 +57,11 @@ export default function MenuItem({
             <span className="font-medium">{item.name}</span>
           </div>
           {item.badge ? (
-            <UnreadBadge count={item.badge} className="ml-auto" />
+            <UnreadBadge
+              count={item.badge}
+              ariaLabel={badgeAriaLabel}
+              className="ml-auto"
+            />
           ) : hasSubItems && !mobile ? (
             <div className="ml-auto">
               <ChevronRight className="h-4 w-4" />
@@ -76,6 +86,9 @@ export default function MenuItem({
         <TooltipTrigger asChild>{menuItem}</TooltipTrigger>
         <TooltipContent side="right">
           <p className="font-medium">{item.name}</p>
+          {badgeAriaLabel ? (
+            <p className="text-xs text-muted-foreground">{badgeAriaLabel}</p>
+          ) : null}
         </TooltipContent>
       </Tooltip>
     );
