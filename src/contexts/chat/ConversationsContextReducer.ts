@@ -1,5 +1,7 @@
 import { ConversationsState, ConversationsAction } from '@/types/chat/conversations';
 import { Conversation } from '@/types/chat/api';
+import { PaginationMeta } from '@/types/core';
+import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 import { matchesConversationId } from '@/utils/chat/conversationMatcher';
 
 // Helper para verificar se uma conversa foi marcada como lida no localStorage
@@ -139,10 +141,35 @@ export function conversationsReducer(
         existingById.set(String(conv.id), conv);
       });
 
+      const mergedConversations = Array.from(existingById.values());
+
+      // A load-more page must never shrink the authoritative count. If a later
+      // page reports a missing/zero total (e.g. parse fallback for a differently
+      // shaped response), keep the previous total instead of overwriting it —
+      // otherwise the displayed count drops to 0 and has_next_page turns false,
+      // killing the infinite scroll mid-list.
+      const incoming = action.payload.pagination;
+      const prev = state.conversationsPagination;
+      const pageSize = incoming.page_size || prev?.page_size || DEFAULT_PAGE_SIZE;
+      const total = incoming.total && incoming.total > 0 ? incoming.total : (prev?.total ?? mergedConversations.length);
+      const total_pages =
+        incoming.total_pages && incoming.total_pages > 0
+          ? incoming.total_pages
+          : (prev?.total_pages || Math.max(1, Math.ceil(total / pageSize)));
+      const page = incoming.page || (prev?.page ?? 1) + 1;
+      const mergedPagination: PaginationMeta = {
+        ...incoming,
+        page,
+        page_size: pageSize,
+        total,
+        total_pages,
+        has_next_page: page < total_pages,
+      };
+
       return {
         ...state,
-        conversations: Array.from(existingById.values()),
-        conversationsPagination: action.payload.pagination,
+        conversations: mergedConversations,
+        conversationsPagination: mergedPagination,
         conversationsLoading: false,
         conversationsError: null,
         unreadCounts: {

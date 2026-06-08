@@ -15,9 +15,9 @@ export const useFilterHandlers = () => {
       return new Promise<void>((resolve, reject) => {
         filters.applyFilters(
           apiFilters,
-          (conversationsResult, pagination) => {
+          (conversationsResult, pagination, query) => {
             // Atualizar o estado das conversas com os resultados do filtro
-            conversations.setConversations(conversationsResult, pagination);
+            conversations.setConversations(conversationsResult, pagination, query);
 
             // 💾 PERSISTIR: Salvar filtros aplicados no localStorage
             saveConversationFilters(newFilters);
@@ -53,8 +53,8 @@ export const useFilterHandlers = () => {
       if (filters.state.activeFilters.length > 0) {
         await filters.applyFilters(
           filters.state.activeFilters,
-          (conversationsResult, pagination) => {
-            conversations.setConversations(conversationsResult, pagination);
+          (conversationsResult, pagination, query) => {
+            conversations.setConversations(conversationsResult, pagination, query);
           },
           error => {
             console.error('❌ Erro ao recarregar filtros:', error);
@@ -65,8 +65,8 @@ export const useFilterHandlers = () => {
       else if (filters.state.searchTerm.trim().length > 0) {
         await filters.applySearch(
           filters.state.searchTerm,
-          (conversationsResult, pagination) => {
-            conversations.setConversations(conversationsResult, pagination);
+          (conversationsResult, pagination, query) => {
+            conversations.setConversations(conversationsResult, pagination, query);
           },
           error => {
             console.error('❌ Erro ao recarregar busca:', error);

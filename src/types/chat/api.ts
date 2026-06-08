@@ -380,6 +380,13 @@ export interface MessageListParams {
   after?: string;
 }
 
+// Describes the query that produced the current conversation list, so pagination
+// (load-more) can replay the SAME request for the next page instead of falling
+// back to an unfiltered GET.
+export type ConversationsQuery =
+  | { kind: 'list'; params: ConversationListParams }
+  | { kind: 'filter'; request: FilterRequest };
+
 // Aliases para compatibilidade com código legado
 export type ConversationParams = ConversationListParams;
 export type MessageParams = SendMessageRequest;

@@ -396,4 +396,65 @@ describe('ConversationsContext reducer', () => {
       expect(matchesConversationId(b, '42')).toBe(true);
     });
   });
+
+  describe('APPEND_CONVERSATIONS pagination (EVO-1671)', () => {
+    const baseState = (total: number, page = 1, totalPages = 5) => ({
+      ...initialState,
+      conversations: [makeConversation({ id: 'c1', uuid: 'c1' })],
+      conversationsPagination: {
+        page,
+        page_size: 20,
+        total,
+        total_pages: totalPages,
+        has_next_page: page < totalPages,
+      },
+    });
+
+    it('preserves the previous total when the appended page reports total 0', () => {
+      const state = baseState(81, 1, 5);
+      const next = conversationsReducer(state, {
+        type: 'APPEND_CONVERSATIONS',
+        payload: {
+          conversations: [makeConversation({ id: 'c2', uuid: 'c2' })],
+          pagination: { page: 2, page_size: 20, total: 0, total_pages: 0 },
+        },
+      });
+
+      expect(next.conversationsPagination?.total).toBe(81);
+      expect(next.conversationsPagination?.total_pages).toBe(5);
+      expect(next.conversationsPagination?.page).toBe(2);
+      expect(next.conversationsPagination?.has_next_page).toBe(true);
+      expect(next.conversations).toHaveLength(2);
+    });
+
+    it('keeps has_next_page false once the last page is appended', () => {
+      const state = baseState(81, 4, 5);
+      const next = conversationsReducer(state, {
+        type: 'APPEND_CONVERSATIONS',
+        payload: {
+          conversations: [makeConversation({ id: 'c2', uuid: 'c2' })],
+          pagination: { page: 5, page_size: 20, total: 81, total_pages: 5 },
+        },
+      });
+
+      expect(next.conversationsPagination?.total).toBe(81);
+      expect(next.conversationsPagination?.page).toBe(5);
+      expect(next.conversationsPagination?.has_next_page).toBe(false);
+    });
+
+    it('honors a valid total from the appended page', () => {
+      const state = baseState(40, 1, 2);
+      const next = conversationsReducer(state, {
+        type: 'APPEND_CONVERSATIONS',
+        payload: {
+          conversations: [makeConversation({ id: 'c2', uuid: 'c2' })],
+          pagination: { page: 2, page_size: 20, total: 42, total_pages: 3 },
+        },
+      });
+
+      expect(next.conversationsPagination?.total).toBe(42);
+      expect(next.conversationsPagination?.total_pages).toBe(3);
+      expect(next.conversationsPagination?.has_next_page).toBe(true);
+    });
+  });
 });

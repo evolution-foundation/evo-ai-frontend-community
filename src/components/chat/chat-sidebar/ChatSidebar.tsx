@@ -995,8 +995,8 @@ const ChatSidebar = ({
         {/* Filter Actions */}
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">
-            {(conversations.state.conversationsPagination?.total ?? visibleConversations.length)}{' '}
-            {(conversations.state.conversationsPagination?.total ?? visibleConversations.length) === 1
+            {(conversations.state.conversationsPagination?.total || visibleConversations.length)}{' '}
+            {(conversations.state.conversationsPagination?.total || visibleConversations.length) === 1
               ? t('chatSidebar.conversation')
               : t('chatSidebar.conversations')}
           </span>

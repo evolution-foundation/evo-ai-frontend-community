@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 import { extractConversationsData } from '@/utils/chat/responseHelpers';
 import { isActionNotSupported } from '@/utils/chat/actionSupport';
 
-import { Contact, Conversation, ConversationListParams } from '@/types/chat/api';
+import { Contact, Conversation, ConversationListParams, ConversationsQuery } from '@/types/chat/api';
 import { PaginationMeta } from '@/types/core';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 import { matchesConversationId } from '@/utils/chat/conversationMatcher';
@@ -28,6 +28,9 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
   const loadingSpecificRef = useRef<Set<string>>(new Set());
   const selectionLockRef = useRef(false);
   const lastCleanupRef = useRef(0);
+  // The query that produced the current list, so load-more replays the SAME
+  // request for the next page instead of an unfiltered GET /conversations.
+  const currentQueryRef = useRef<ConversationsQuery>({ kind: 'list', params: { status: 'open' } });
 
   const findConversationByAnyId = useCallback(
     (conversationId: string) => {
@@ -53,6 +56,11 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
       try {
         const requestedPage = Number(params?.page || 1);
         const shouldAppend = requestedPage > 1;
+        if (!shouldAppend) {
+          const listParams: ConversationListParams = { ...(params ?? {}) };
+          delete listParams.page;
+          currentQueryRef.current = { kind: 'list', params: listParams };
+        }
         const response = await chatService.getConversations(params);
 
         if (!response || !response.data) {
@@ -117,8 +125,31 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
       return;
     }
 
-    await loadConversations({ page: currentPage + 1 });
-  }, [state.conversationsPagination, state.conversationsLoading, loadConversations]);
+    const nextPage = currentPage + 1;
+    const query = currentQueryRef.current;
+
+    // Advanced-filter lists came from POST /conversations/filter; replay that
+    // same request for the next page (loadConversations only knows GET).
+    if (query.kind === 'filter') {
+      loadingRef.current = true;
+      dispatch({ type: 'SET_CONVERSATIONS_LOADING', payload: true });
+      try {
+        const response = await chatService.filterConversations({ ...query.request, page: nextPage });
+        const { conversations, pagination: nextPagination } = extractConversationsData(response);
+        dispatch({ type: 'APPEND_CONVERSATIONS', payload: { conversations, pagination: nextPagination } });
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : t('contexts.conversations.errors.loadConversations');
+        dispatch({ type: 'SET_CONVERSATIONS_ERROR', payload: errorMessage });
+        dispatch({ type: 'SET_CONVERSATIONS_LOADING', payload: false });
+      } finally {
+        loadingRef.current = false;
+      }
+      return;
+    }
+
+    await loadConversations({ ...query.params, page: nextPage });
+  }, [state.conversationsPagination, state.conversationsLoading, loadConversations, t]);
 
   const loadSpecificConversation = useCallback(
     async (conversationId: string): Promise<Conversation | null> => {
@@ -187,7 +218,10 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
   );
 
   const setConversations = useCallback(
-    (conversations: Conversation[], pagination: PaginationMeta) => {
+    (conversations: Conversation[], pagination: PaginationMeta, query?: ConversationsQuery) => {
+      if (query) {
+        currentQueryRef.current = query;
+      }
       dispatch({ type: 'SET_CONVERSATIONS', payload: { conversations, pagination } });
     },
     [],
