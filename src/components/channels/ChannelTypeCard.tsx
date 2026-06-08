@@ -70,7 +70,9 @@ export default function ChannelTypeCard({ typeStatus, onAdd, onManage }: Channel
 
         <div className="flex items-center justify-between mt-auto pt-1">
           <ChannelStatusBadge status={status} />
-          <span className="text-xs text-sidebar-foreground/60 truncate ml-2">{summary}</span>
+          {isConfigured && (
+            <span className="text-xs text-sidebar-foreground/60 truncate ml-2">{summary}</span>
+          )}
         </div>
       </CardContent>
 
