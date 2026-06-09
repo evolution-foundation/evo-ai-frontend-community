@@ -53,6 +53,7 @@ import {
   AssignTeamNode,
   AssignBotNode,
   AssignToPipelineNode,
+  MoveToPipelineStageNode,
   SendCannedResponseNode,
   SendEmailTeamNode,
   SendTranscriptNode,
@@ -81,6 +82,7 @@ import {
   AssignTeamPanel,
   AssignBotPanel,
   AssignToPipelinePanel,
+  MoveToPipelineStagePanel,
   SendCannedResponsePanel,
   SendEmailTeamPanel,
   SendTranscriptPanel,
@@ -178,6 +180,7 @@ function JourneyFlowEditor() {
       'assign-team-node': AssignTeamNode,
       'assign-bot-node': AssignBotNode,
       'assign-to-pipeline-node': AssignToPipelineNode,
+      'move-to-pipeline-stage-node': MoveToPipelineStageNode,
       'send-canned-response-node': SendCannedResponseNode,
       'send-email-team-node': SendEmailTeamNode,
       'send-transcript-node': SendTranscriptNode,
@@ -424,6 +427,15 @@ function JourneyFlowEditor() {
         description: t('flowEditor.nodes.assignToPipeline.description'),
         searchKeywords: ['pipeline', 'funnel', 'sales', 'stage', 'crm', 'deal'],
       },
+      {
+        id: 'move-to-pipeline-stage-node',
+        name: t('flowEditor.nodes.moveToPipelineStage.name'),
+        icon: Workflow,
+        color: 'text-amber-400',
+        category: 'contact',
+        description: t('flowEditor.nodes.moveToPipelineStage.description'),
+        searchKeywords: ['pipeline', 'stage', 'move', 'funnel', 'sales', 'crm'],
+      },
     ],
     conversation: [
       {
@@ -493,6 +505,7 @@ function JourneyFlowEditor() {
       'assign-team-node': flowTokens.node.action.pipeline.border,
       'assign-bot-node': flowTokens.node.action.pipeline.border,
       'assign-to-pipeline-node': flowTokens.node.action.pipeline.border,
+      'move-to-pipeline-stage-node': flowTokens.node.action.pipeline.border,
       'change-priority-node': flowTokens.node.action.pipeline.border,
       'mute-conversation-node': flowTokens.node.action.pipeline.border,
       'defer-conversation-node': flowTokens.node.action.pipeline.border,
@@ -556,6 +569,8 @@ function JourneyFlowEditor() {
           return <AssignBotPanel {...commonProps} />;
         case 'assign-to-pipeline-node':
           return <AssignToPipelinePanel {...commonProps} />;
+        case 'move-to-pipeline-stage-node':
+          return <MoveToPipelineStagePanel {...commonProps} />;
         case 'send-canned-response-node':
           return <SendCannedResponsePanel {...commonProps} />;
         case 'send-email-team-node':

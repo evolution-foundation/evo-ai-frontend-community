@@ -324,6 +324,12 @@
         "assignTo": "Atribuir conversa ao",
         "noPipelineSelected": "Nenhum pipeline selecionado"
       },
+      "moveToPipelineStage": {
+        "name": "Mover para Stage do Pipeline",
+        "description": "Move a conversa para um stage específico do pipeline",
+        "moveTo": "Mover conversa para",
+        "noStageSelected": "Nenhum stage selecionado"
+      },
       "sendCannedResponse": {
         "name": "Enviar Resposta Rápida",
         "description": "Envia uma resposta rápida pré-definida para a conversa",
@@ -891,6 +897,20 @@
       "noPipelinesFound": "Nenhum pipeline encontrado na conta.",
       "conversationWillBeAssigned": "A conversa será atribuída ao pipeline",
       "replacesAnyPrevious": "isso substitui qualquer atribuição anterior de pipeline",
+      "loadErrorBanner": "Não foi possível carregar os pipelines. Verifique sua conexão e reabra este node."
+    },
+    "moveToPipelineStage": {
+      "title": "Configurar Mover para Stage do Pipeline",
+      "loadDataError": "Erro ao carregar pipelines:",
+      "loadStagesError": "Erro ao carregar stages:",
+      "pipeline": "Pipeline",
+      "stage": "Stage",
+      "loadingPipelines": "Carregando pipelines...",
+      "loadingStages": "Carregando stages...",
+      "selectPipeline": "Selecione um pipeline",
+      "selectStage": "Selecione um stage",
+      "noStagesFound": "Nenhum stage encontrado neste pipeline.",
+      "conversationWillMove": "A conversa será movida para o stage",
       "loadErrorBanner": "Não foi possível carregar os pipelines. Verifique sua conexão e reabra este node."
     },
     "sendCannedResponse": {

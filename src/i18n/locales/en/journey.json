@@ -324,6 +324,12 @@
         "assignTo": "Assign conversation to",
         "noPipelineSelected": "No pipeline selected"
       },
+      "moveToPipelineStage": {
+        "name": "Move to Pipeline Stage",
+        "description": "Moves the conversation to a specific pipeline stage",
+        "moveTo": "Move conversation to",
+        "noStageSelected": "No stage selected"
+      },
       "sendCannedResponse": {
         "name": "Send Canned Response",
         "description": "Sends a pre-written canned response to the conversation",
@@ -891,6 +897,20 @@
       "noPipelinesFound": "No pipelines found in the account.",
       "conversationWillBeAssigned": "The conversation will be assigned to the pipeline",
       "replacesAnyPrevious": "this replaces any previous pipeline assignment",
+      "loadErrorBanner": "Could not load pipelines. Check your connection and try reopening this node."
+    },
+    "moveToPipelineStage": {
+      "title": "Configure Move to Pipeline Stage",
+      "loadDataError": "Error loading pipelines:",
+      "loadStagesError": "Error loading stages:",
+      "pipeline": "Pipeline",
+      "stage": "Stage",
+      "loadingPipelines": "Loading pipelines...",
+      "loadingStages": "Loading stages...",
+      "selectPipeline": "Select a pipeline",
+      "selectStage": "Select a stage",
+      "noStagesFound": "No stages found in this pipeline.",
+      "conversationWillMove": "The conversation will move to stage",
       "loadErrorBanner": "Could not load pipelines. Check your connection and try reopening this node."
     },
     "sendCannedResponse": {

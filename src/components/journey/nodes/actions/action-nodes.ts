@@ -39,6 +39,7 @@ export * from './assign-agent';
 export * from './assign-team';
 export * from './assign-bot';
 export * from './assign-to-pipeline';
+export * from './move-to-pipeline-stage';
 
 // Conversation Management
 export * from './mute-conversation';
