@@ -37,11 +37,12 @@ import {
   // CalendarClock,
   Merge,
   Trash,
+  Lock,
 } from 'lucide-react';
 // import { ScheduledActionsList } from '@/components/scheduledActions';
 import { Contact } from '@/types/contacts';
 import ContactAvatar from '@/components/chat/contact/ContactAvatar';
-import { formatContactPhone } from '@/utils/contact/formatContactPhone';
+import { useContactPiiMasking } from '@/hooks/useContactPiiMasking';
 import ContactPipelineItem from '@/components/pipelines/ContactPipelineItem';
 import ContactEventsTab from './ContactEventsTab';
 import ContactEventsErrorBoundary from './ContactEventsErrorBoundary';
@@ -72,6 +73,8 @@ export default function ContactDetails({
 }: ContactDetailsProps) {
   const { t } = useLanguage('contacts');
   const { can } = useUserPermissions();
+  const { shouldMask, maskPhone, maskEmail } = useContactPiiMasking();
+  const protectedTitle = shouldMask ? t('card.dataProtectedTooltip') : undefined;
   const [activeTab, setActiveTab] = useState('pipeline'); // Changed from 'scheduled-actions' to 'pipeline' (scheduled actions disabled)
   const [companiesSearch, setCompaniesSearch] = useState('');
   const [personsSearch, setPersonsSearch] = useState('');
@@ -250,13 +253,17 @@ export default function ContactDetails({
               {contact.email && (
                 <div className="flex items-center flex-wrap gap-2 mb-2">
                   <Mail className="h-4 w-4" />
-                  <span className="truncate">{contact.email}</span>
+                  {shouldMask && <Lock className="h-3 w-3" aria-label={protectedTitle} />}
+                  <span className="truncate" title={protectedTitle}>
+                    {maskEmail(contact.email)}
+                  </span>
                 </div>
               )}
               {contact.phone_number && (
                 <div className="flex items-center flex-wrap gap-2 mb-2">
                   <Phone className="h-4 w-4" />
-                  <span>{formatContactPhone(contact.phone_number)}</span>
+                  {shouldMask && <Lock className="h-3 w-3" aria-label={protectedTitle} />}
+                  <span title={protectedTitle}>{maskPhone(contact.phone_number)}</span>
                 </div>
               )}
             </div>
@@ -355,8 +362,25 @@ export default function ContactDetails({
                                   <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </div>
                                 <div className="text-sm text-muted-foreground space-y-1">
-                                  {company.email && <div className="truncate">{company.email}</div>}
-                                  {company.phone_number && <div>{formatContactPhone(company.phone_number)}</div>}
+                                  {company.email && (
+                                    <div
+                                      className="truncate flex items-center gap-1"
+                                      title={protectedTitle}
+                                    >
+                                      {shouldMask && (
+                                        <Lock className="h-3 w-3 flex-shrink-0" aria-label={protectedTitle} />
+                                      )}
+                                      {maskEmail(company.email)}
+                                    </div>
+                                  )}
+                                  {company.phone_number && (
+                                    <div className="flex items-center gap-1" title={protectedTitle}>
+                                      {shouldMask && (
+                                        <Lock className="h-3 w-3 flex-shrink-0" aria-label={protectedTitle} />
+                                      )}
+                                      {maskPhone(company.phone_number)}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                               <ContactTypeBadge type="company" />
@@ -414,8 +438,25 @@ export default function ContactDetails({
                                   <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </div>
                                 <div className="text-sm text-muted-foreground space-y-1">
-                                  {person.email && <div className="truncate">{person.email}</div>}
-                                  {person.phone_number && <div>{formatContactPhone(person.phone_number)}</div>}
+                                  {person.email && (
+                                    <div
+                                      className="truncate flex items-center gap-1"
+                                      title={protectedTitle}
+                                    >
+                                      {shouldMask && (
+                                        <Lock className="h-3 w-3 flex-shrink-0" aria-label={protectedTitle} />
+                                      )}
+                                      {maskEmail(person.email)}
+                                    </div>
+                                  )}
+                                  {person.phone_number && (
+                                    <div className="flex items-center gap-1" title={protectedTitle}>
+                                      {shouldMask && (
+                                        <Lock className="h-3 w-3 flex-shrink-0" aria-label={protectedTitle} />
+                                      )}
+                                      {maskPhone(person.phone_number)}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                               <ContactTypeBadge type="person" />

@@ -22,6 +22,10 @@
     "accountDeletion": {
       "title": "Suppression du Compte",
       "description": "Supprimez définitivement votre compte et toutes les données"
+    },
+    "maskContactPii": {
+      "title": "Masquer les Données du Contact",
+      "description": "Masque le téléphone, e-mail et identifiant pour les utilisateurs non-admin, décourageant le contact avec les leads hors système."
     }
   },
   "fields": {
@@ -80,7 +84,9 @@
       "audioTranscriptionDisabled": "Transcription audio désactivée",
       "accountDeleted": "Compte marqué pour suppression",
       "deletionCancelled": "Suppression du compte annulée",
-      "accountIdCopied": "ID du compte copié dans le presse-papiers"
+      "accountIdCopied": "ID du compte copié dans le presse-papiers",
+      "maskPiiEnabled": "Masquage des données du contact activé",
+      "maskPiiDisabled": "Masquage des données du contact désactivé"
     },
     "error": {
       "loadFailed": "Impossible de charger les données du compte",
@@ -90,7 +96,8 @@
       "audioTranscriptionFailed": "Erreur lors de la modification de la transcription audio",
       "deleteFailed": "Erreur lors du marquage du compte pour suppression",
       "cancelDeletionFailed": "Erreur lors de l'annulation de la suppression",
-      "minTime": "Le délai minimum est de 10 minutes"
+      "minTime": "Le délai minimum est de 10 minutes",
+      "maskPiiFailed": "Échec de la mise à jour du masquage des données du contact"
     }
   },
   "validation": {

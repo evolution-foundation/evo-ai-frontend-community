@@ -399,7 +399,9 @@
         "lastActivity": "Dernière activité"
       },
       "notInformed": "Non renseigné",
-      "copiedToClipboard": "Copié dans le presse-papiers"
+      "copiedToClipboard": "Copié dans le presse-papiers",
+      "maskedValueCopied": "Valeur masquée copiée — demandez à un admin l’accès complet si nécessaire",
+      "dataProtectedTooltip": "Données protégées par la politique du compte"
     },
     "customAttributes": {
       "noAttributes": "Aucun attribut personnalisé configuré",

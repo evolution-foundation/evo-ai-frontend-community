@@ -7,7 +7,8 @@
       "viewDetails": "Ver detalhes",
       "edit": "Editar contato",
       "delete": "Deletar contato"
-    }
+    },
+    "dataProtectedTooltip": "Dados protegidos pela política da conta"
   },
   "details": {
     "title": "Detalhes do Contato",

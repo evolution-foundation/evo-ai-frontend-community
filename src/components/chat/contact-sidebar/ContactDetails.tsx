@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 
 import { useLanguage } from '@/hooks/useLanguage';
 import { useConversations } from '@/hooks/chat/useConversations';
+import { useContactPiiMasking } from '@/hooks/useContactPiiMasking';
 
 import { contactsService } from '@/services/contacts/contactsService';
-import { formatContactPhone } from '@/utils/contact/formatContactPhone';
 import { unixTimestampToIso } from '@/utils/chat/contactTimestamp';
 
 import { Button } from '@evoapi/design-system/button';
@@ -23,6 +23,7 @@ import {
   Copy,
   Hash,
   Edit,
+  Lock,
 } from 'lucide-react';
 
 import { toast } from 'sonner';
@@ -40,6 +41,7 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({ contact }) => {
   const { t } = useLanguage('chat');
 
   const { updateContactInConversations } = useConversations();
+  const { shouldMask, maskPhone, maskEmail, maskIdentifier } = useContactPiiMasking();
 
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<FullContact | null>(null);
@@ -140,26 +142,31 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({ contact }) => {
           {contact?.phone_number && (
             <InfoField
               label={t('contactSidebar.contactDetails.fields.phone')}
-              value={formatContactPhone(contact.phone_number)}
-              copyValue={contact.phone_number}
+              value={maskPhone(contact.phone_number)}
+              copyValue={shouldMask ? maskPhone(contact.phone_number) : contact.phone_number}
               icon={<Phone className="h-4 w-4" />}
               copyable
+              isMasked={shouldMask}
             />
           )}
           {contact?.identifier && (
             <InfoField
               label={t('contactSidebar.contactDetails.fields.identifier')}
-              value={contact.identifier}
+              value={maskIdentifier(contact.identifier)}
+              copyValue={shouldMask ? maskIdentifier(contact.identifier) : contact.identifier}
               icon={<Hash className="h-4 w-4" />}
               copyable
+              isMasked={shouldMask}
             />
           )}
           {contact?.email && (
             <InfoField
               label={t('contactSidebar.contactDetails.fields.email')}
-              value={contact.email}
+              value={maskEmail(contact.email)}
+              copyValue={shouldMask ? maskEmail(contact.email) : contact.email}
               icon={<Mail className="h-4 w-4" />}
               copyable
+              isMasked={shouldMask}
             />
           )}
           {/* {contact?.location && (
@@ -309,6 +316,7 @@ interface InfoFieldProps {
   // the unformatted raw should be copied so integrations like `wa.me/<digits>`
   // keep working.
   copyValue?: string | null;
+  isMasked?: boolean;
 }
 
 const InfoField: React.FC<InfoFieldProps> = ({
@@ -317,6 +325,7 @@ const InfoField: React.FC<InfoFieldProps> = ({
   icon,
   copyable = false,
   copyValue,
+  isMasked = false,
 }) => {
   const { t } = useLanguage('chat');
 
@@ -324,9 +333,17 @@ const InfoField: React.FC<InfoFieldProps> = ({
     const target = copyValue ?? value;
     if (target) {
       navigator.clipboard.writeText(target);
-      toast.success(t('contactSidebar.contactDetails.copiedToClipboard'));
+      toast.success(
+        isMasked
+          ? t('contactSidebar.contactDetails.maskedValueCopied')
+          : t('contactSidebar.contactDetails.copiedToClipboard')
+      );
     }
   };
+
+  const protectedTitle = isMasked
+    ? t('contactSidebar.contactDetails.dataProtectedTooltip')
+    : undefined;
 
   return (
     <div className="flex items-center justify-between py-2 border-b border-border/50">
@@ -336,7 +353,10 @@ const InfoField: React.FC<InfoFieldProps> = ({
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium truncate max-w-48">
+        {isMasked && value && (
+          <Lock className="h-3 w-3 text-muted-foreground" aria-label={protectedTitle} />
+        )}
+        <span className="text-sm font-medium truncate max-w-48" title={protectedTitle}>
           {value || t('contactSidebar.contactDetails.notInformed')}
         </span>
 

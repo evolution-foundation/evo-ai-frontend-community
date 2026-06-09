@@ -399,7 +399,9 @@
         "lastActivity": "Ultima attività"
       },
       "notInformed": "Non informato",
-      "copiedToClipboard": "Copiato negli appunti"
+      "copiedToClipboard": "Copiato negli appunti",
+      "maskedValueCopied": "Valore mascherato copiato — chiedi accesso all’admin se ti serve il dato completo",
+      "dataProtectedTooltip": "Dati protetti dalla politica dell’account"
     },
     "customAttributes": {
       "noAttributes": "Nessun attributo personalizzato configurato",

@@ -1,9 +1,9 @@
 import { useLanguage } from '@/hooks/useLanguage';
-import { MessageSquare, Edit, Trash, Users } from 'lucide-react';
+import { MessageSquare, Edit, Trash, Users, Lock } from 'lucide-react';
 import { Contact } from '@/types/contacts';
 import { BaseTable, TableColumn, TableAction } from '@/components/base';
 import ContactAvatar from '@/components/chat/contact/ContactAvatar';
-import { formatContactPhone } from '@/utils/contact/formatContactPhone';
+import { useContactPiiMasking } from '@/hooks/useContactPiiMasking';
 import ContactStatusBadge from './ContactStatusBadge';
 import ContactTagsList from './ContactTagsList';
 import ContactTypeBadge from './ContactTypeBadge';
@@ -39,6 +39,8 @@ export default function ContactsTable({
   onSort,
 }: ContactsTableProps) {
   const { t } = useLanguage('contacts');
+  const { shouldMask, maskPhone, maskEmail } = useContactPiiMasking();
+  const protectedTitle = shouldMask ? t('card.dataProtectedTooltip') : undefined;
   const contactsList = contacts || [];
 
   // const formatLastActivity = (date: string) => {
@@ -69,12 +71,24 @@ export default function ContactsTable({
               {contact.name || t('table.noName')}
             </div>
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              {contact.email && <span className="truncate">{contact.email}</span>}
+              {contact.email && (
+                <span className="truncate flex items-center gap-1" title={protectedTitle}>
+                  {shouldMask && (
+                    <Lock className="h-3 w-3 flex-shrink-0" aria-label={protectedTitle} />
+                  )}
+                  {maskEmail(contact.email)}
+                </span>
+              )}
               {contact.email && contact.phone_number && (
                 <span className="text-muted-foreground/50">|</span>
               )}
               {contact.phone_number && (
-                <span className="whitespace-nowrap">{formatContactPhone(contact.phone_number)}</span>
+                <span className="whitespace-nowrap flex items-center gap-1" title={protectedTitle}>
+                  {shouldMask && (
+                    <Lock className="h-3 w-3 flex-shrink-0" aria-label={protectedTitle} />
+                  )}
+                  {maskPhone(contact.phone_number)}
+                </span>
               )}
             </div>
           </div>

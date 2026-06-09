@@ -412,7 +412,9 @@
         "lastActivity": "Last activity"
       },
       "notInformed": "Not informed",
-      "copiedToClipboard": "Copied to clipboard"
+      "copiedToClipboard": "Copied to clipboard",
+      "maskedValueCopied": "Masked value copied — ask an admin for full access if needed",
+      "dataProtectedTooltip": "Data protected by account policy"
     },
     "customAttributes": {
       "noAttributes": "No custom attributes configured",

@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- N/A
+- **EVO-1551** Visual masking of contact PII (phone, email, WhatsApp identifier) on five render sites (chat sidebar, chat header, contact card, contacts table, contact details). Controlled by new `account.settings.mask_contact_pii` toggle in Account Settings (default OFF). Admin users always see full data; non-admin users see masked values with a `Lock` icon affordance, tooltip, and clipboard receiving the masked string. i18n added in 6 locales. Frontend-only feature — the API still returns full values.
 
 ### Changed
 
