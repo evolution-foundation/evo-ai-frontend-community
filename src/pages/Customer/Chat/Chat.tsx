@@ -164,6 +164,12 @@ const Chat = () => {
     }
   }, [conversationId, isContactSidebarOpen]);
 
+  useEffect(() => {
+    const selectedId = conversations.state.selectedConversationId;
+    if (!selectedId) return;
+    conversations.markAsRead(selectedId, { silent: true }).catch(() => {});
+  }, [conversations.state.selectedConversationId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Load conversations on mount
   useEffect(() => {
     if (!permissionsReady) {

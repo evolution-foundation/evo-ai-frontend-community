@@ -175,6 +175,12 @@ export const conversationAPI = {
     return extractData<any>(response);
   },
 
+  // Aggregate unread incoming-message count across all accessible conversations
+  async getUnreadCount(): Promise<{ unread_count: number }> {
+    const response = await api.get('/conversations/unread_count');
+    return extractData<{ unread_count: number }>(response);
+  },
+
   // Mark conversation as unread
   async markAsUnread(conversationId: string): Promise<Conversation> {
     const response = await api.post(`/conversations/${conversationId}/unread`);

@@ -905,5 +905,11 @@
     "addError": "Error al agregar al pipeline",
     "moveError": "Error al mover a la etapa",
     "removeError": "Error al quitar del pipeline"
+  },
+  "unreadBadge": {
+    "ariaLabel_one": "{{count}} mensaje no leído",
+    "ariaLabel_other": "{{count}} mensajes no leídos",
+    "menuAriaLabel_one": "{{count}} conversación no leída",
+    "menuAriaLabel_other": "{{count}} conversaciones no leídas"
   }
 }

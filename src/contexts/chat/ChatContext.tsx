@@ -312,8 +312,9 @@ function useChatIntegration() {
               console.warn('Failed to update read conversation in localStorage:', error);
             }
 
-            // Atualizar estado local para garantir que está marcada como lida
-            conversations.updateUnreadCount(targetConversationId, 0);
+            conversations.markAsRead(targetConversationId, { silent: true }).catch(() => {
+              conversations.updateUnreadCount(targetConversationId, 0);
+            });
           } else if (!isConversationOpen && isIncomingMessage) {
             try {
               const saved = localStorage.getItem('crm-chat-state');

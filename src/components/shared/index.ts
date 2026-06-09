@@ -6,3 +6,4 @@
 
 export { PhoneInput } from './PhoneInput';
 export { TaxIdInput } from './TaxIdInput';
+export { UnreadBadge } from './UnreadBadge';
