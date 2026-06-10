@@ -54,6 +54,7 @@ import {
   AssignBotNode,
   AssignToPipelineNode,
   MoveToPipelineStageNode,
+  CreatePipelineTaskNode,
   SendCannedResponseNode,
   SendEmailTeamNode,
   SendTranscriptNode,
@@ -83,6 +84,7 @@ import {
   AssignBotPanel,
   AssignToPipelinePanel,
   MoveToPipelineStagePanel,
+  CreatePipelineTaskPanel,
   SendCannedResponsePanel,
   SendEmailTeamPanel,
   SendTranscriptPanel,
@@ -117,6 +119,7 @@ import {
   Clock,
   Bot,
   Workflow,
+  ClipboardList,
 } from 'lucide-react';
 
 /**
@@ -181,6 +184,7 @@ function JourneyFlowEditor() {
       'assign-bot-node': AssignBotNode,
       'assign-to-pipeline-node': AssignToPipelineNode,
       'move-to-pipeline-stage-node': MoveToPipelineStageNode,
+      'create-pipeline-task-node': CreatePipelineTaskNode,
       'send-canned-response-node': SendCannedResponseNode,
       'send-email-team-node': SendEmailTeamNode,
       'send-transcript-node': SendTranscriptNode,
@@ -436,6 +440,15 @@ function JourneyFlowEditor() {
         description: t('flowEditor.nodes.moveToPipelineStage.description'),
         searchKeywords: ['pipeline', 'stage', 'move', 'funnel', 'sales', 'crm'],
       },
+      {
+        id: 'create-pipeline-task-node',
+        name: t('flowEditor.nodes.createPipelineTask.name'),
+        icon: ClipboardList,
+        color: 'text-amber-400',
+        category: 'contact',
+        description: t('flowEditor.nodes.createPipelineTask.description'),
+        searchKeywords: ['task', 'todo', 'pipeline', 'follow up', 'crm', 'reminder'],
+      },
     ],
     conversation: [
       {
@@ -506,6 +519,7 @@ function JourneyFlowEditor() {
       'assign-bot-node': flowTokens.node.action.pipeline.border,
       'assign-to-pipeline-node': flowTokens.node.action.pipeline.border,
       'move-to-pipeline-stage-node': flowTokens.node.action.pipeline.border,
+      'create-pipeline-task-node': flowTokens.node.action.pipeline.border,
       'change-priority-node': flowTokens.node.action.pipeline.border,
       'mute-conversation-node': flowTokens.node.action.pipeline.border,
       'defer-conversation-node': flowTokens.node.action.pipeline.border,
@@ -571,6 +585,8 @@ function JourneyFlowEditor() {
           return <AssignToPipelinePanel {...commonProps} />;
         case 'move-to-pipeline-stage-node':
           return <MoveToPipelineStagePanel {...commonProps} />;
+        case 'create-pipeline-task-node':
+          return <CreatePipelineTaskPanel {...commonProps} />;
         case 'send-canned-response-node':
           return <SendCannedResponsePanel {...commonProps} />;
         case 'send-email-team-node':
