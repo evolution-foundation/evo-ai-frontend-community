@@ -54,7 +54,11 @@ export default function useLiveChannelStatus(inboxes: Inbox[]): LiveChannelStatu
   const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
 
   const targetsKey = useMemo(
-    () => inboxes.filter(isLiveCheckable).map(inbox => String(inbox.id)).join(','),
+    () =>
+      inboxes
+        .filter(isLiveCheckable)
+        .map(inbox => `${inbox.id}:${evolutionInstanceName(inbox)}`)
+        .join(','),
     [inboxes],
   );
 
