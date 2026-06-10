@@ -1,22 +1,36 @@
-import { Inbox } from '@/types/channels/inbox';
+import { Inbox, InboxConnectionState } from '@/types/channels/inbox';
 import { ChannelType, ChannelTypeId } from '@/types/channels/providers';
 
 /**
- * Derived channel health used by the Channels overview hub.
+ * Channel health used by the Channels overview hub.
  *
- * This is a FRONTEND-ONLY derivation: the `/inboxes` API does not expose live
- * connectivity (no last_sync / connection_state / health), only the
- * `reauthorization_required` flag. We therefore derive a coarse status from the
- * client data we already have instead of probing each channel at load time.
+ * Since EVO-1674 the `/inboxes` API exposes the REAL connection state
+ * (`connection_state` / `health_source` / `last_sync`), event-fed per channel
+ * type on the backend. The hub renders that state — optionally overlaid by a
+ * live Evolution instance check (`useLiveChannelStatus`) — instead of deriving
+ * it from `reauthorization_required` alone.
  */
-export type ChannelHealthStatus = 'active' | 'attention' | 'available';
+export type ChannelHealthStatus = 'active' | 'attention' | 'error' | 'available';
+
+/** Live overlay map (inbox id -> freshly fetched state) from useLiveChannelStatus. */
+export type LiveStatusOverlay = Record<string, InboxConnectionState>;
+
+export interface InboxConnectionInfo {
+  inbox: Inbox;
+  state: InboxConnectionState;
+  /** True when the channel type has no health signal at all (explicit degrade). */
+  unmonitored: boolean;
+}
 
 export interface ChannelTypeStatus {
   type: ChannelType;
   inboxes: Inbox[];
+  /** Per-inbox resolved connectivity, in the order of `inboxes`. */
+  inboxStates: InboxConnectionInfo[];
   total: number;
   activeCount: number;
   attentionCount: number;
+  errorCount: number;
   status: ChannelHealthStatus;
 }
 
@@ -47,12 +61,33 @@ export function normalizeChannelTypeId(channelType?: string | null): ChannelType
 }
 
 /**
- * Status of a single configured inbox. A configured inbox is always either
- * `active` or `attention` — `available` only applies to a channel TYPE that has
- * no configured inboxes at all.
+ * The real connection state of an inbox: live overlay wins, then the
+ * API-provided state, then a legacy fallback for payloads predating EVO-1674.
  */
-export function deriveInboxStatus(inbox: Inbox): Exclude<ChannelHealthStatus, 'available'> {
-  return inbox.reauthorization_required ? 'attention' : 'active';
+export function resolveInboxConnectionState(
+  inbox: Inbox,
+  live?: LiveStatusOverlay,
+): InboxConnectionState {
+  const liveState = live?.[String(inbox.id)];
+  if (liveState) return liveState;
+  if (inbox.connection_state) return inbox.connection_state;
+  return inbox.reauthorization_required ? 'error' : 'unknown';
+}
+
+/**
+ * Hub-level status of a single configured inbox. A configured inbox is never
+ * `available` — that only applies to a channel TYPE with no inboxes at all.
+ * `unknown` counts as active: it means the type has no health signal
+ * (explicit degrade), not that the channel is broken.
+ */
+export function deriveInboxStatus(
+  inbox: Inbox,
+  live?: LiveStatusOverlay,
+): Exclude<ChannelHealthStatus, 'available'> {
+  const state = resolveInboxConnectionState(inbox, live);
+  if (state === 'error' || state === 'disconnected') return 'error';
+  if (state === 'pending') return 'attention';
+  return 'active';
 }
 
 /**
@@ -63,24 +98,53 @@ export function deriveInboxStatus(inbox: Inbox): Exclude<ChannelHealthStatus, 'a
 export function buildChannelTypeStatuses(
   channelTypes: ChannelType[],
   inboxes: Inbox[],
+  live?: LiveStatusOverlay,
 ): ChannelTypeStatus[] {
   return channelTypes.map(type => {
     const matched = inboxes.filter(inbox => normalizeChannelTypeId(inbox.channel_type) === type.type);
-    const attentionCount = matched.filter(inbox => deriveInboxStatus(inbox) === 'attention').length;
-    const activeCount = matched.length - attentionCount;
+    const inboxStates: InboxConnectionInfo[] = matched.map(inbox => ({
+      inbox,
+      state: resolveInboxConnectionState(inbox, live),
+      unmonitored: inbox.health_source === 'none',
+    }));
+
+    const errorCount = matched.filter(inbox => deriveInboxStatus(inbox, live) === 'error').length;
+    const attentionCount = matched.filter(inbox => deriveInboxStatus(inbox, live) === 'attention').length;
+    const activeCount = matched.length - errorCount - attentionCount;
 
     let status: ChannelHealthStatus = 'available';
     if (matched.length > 0) {
-      status = attentionCount > 0 ? 'attention' : 'active';
+      if (errorCount > 0) status = 'error';
+      else if (attentionCount > 0) status = 'attention';
+      else status = 'active';
     }
 
     return {
       type,
       inboxes: matched,
+      inboxStates,
       total: matched.length,
       activeCount,
       attentionCount,
+      errorCount,
       status,
     };
   });
+}
+
+/**
+ * Compact relative timestamp for `last_sync` (epoch seconds), localized via
+ * Intl. Returns null when there is nothing to show.
+ */
+export function formatLastSync(epochSeconds: number | null | undefined, locale: string): string | null {
+  if (!epochSeconds) return null;
+
+  const diffMs = epochSeconds * 1000 - Date.now();
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+  const absMs = Math.abs(diffMs);
+
+  if (absMs < 60_000) return rtf.format(Math.round(diffMs / 1000), 'second');
+  if (absMs < 3_600_000) return rtf.format(Math.round(diffMs / 60_000), 'minute');
+  if (absMs < 86_400_000) return rtf.format(Math.round(diffMs / 3_600_000), 'hour');
+  return rtf.format(Math.round(diffMs / 86_400_000), 'day');
 }
