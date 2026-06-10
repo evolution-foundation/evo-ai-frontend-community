@@ -9,6 +9,14 @@ export interface SendMessageNodeData {
   inboxId?: string;
   inboxName?: string;
 
+  // Template mode (EVO-1255): 'text' keeps the free-form message; 'template'
+  // sends a CRM message template (mandatory for WhatsApp Cloud channels).
+  messageMode?: 'text' | 'template';
+  templateId?: string;
+  templateName?: string;
+  templateLanguage?: string;
+  templateParams?: Record<string, string>;
+
   // Opção para usar canal do evento gerado
   useEventChannel?: boolean;
 
@@ -41,7 +49,15 @@ interface SendMessageNodeProps {
 export function SendMessageNode({ selected, data, id }: SendMessageNodeProps) {
   const { t } = useLanguage('journey');
 
+  const isTemplateMode = data.messageMode === 'template';
+
   const getDisplayText = () => {
+    if (isTemplateMode) {
+      return data.templateName
+        ? `${t('flowEditor.nodes.sendMessage.templateLabel')} ${data.templateName}`
+        : t('flowEditor.nodes.sendMessage.templateNotSelected');
+    }
+
     if (!data.message || data.message.trim() === '') {
       return t('flowEditor.nodes.sendMessage.description');
     }
