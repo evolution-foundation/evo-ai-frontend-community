@@ -29,13 +29,13 @@ export const fetchRoleActions = async (filters?: {
   if (filters?.page) params.append('page', filters.page.toString());
   if (filters?.per_page) params.append('per_page', filters.per_page.toString());
 
-  const response = await apiAuth.get(`/api/v1/resource_actions?${params.toString()}`);
+  const response = await apiAuth.get(`/resource_actions?${params.toString()}`);
   return extractResponse<RoleAction>(response) as RoleActionsResponse;
 };
 
 
 export const fetchActionsForPermissions = async (): Promise<Record<string, RoleAction[]>> => {
-  const response = await apiAuth.get('/api/v1/resource_actions/for_permissions');
+  const response = await apiAuth.get('/resource_actions/for_permissions');
   return extractData<any>(response);
 };
 
@@ -60,7 +60,7 @@ export const fetchRoles = async (filters?: {
   if (filters?.exclude_with_permissions) params.append('exclude_with_permissions', 'true');
   if (filters?.type) params.append('type', filters.type);
 
-  const response = await apiAuth.get(`/api/v1/roles?${params.toString()}`);
+  const response = await apiAuth.get(`/roles?${params.toString()}`);
   return extractResponse<Role>(response) as RoleResponse;
 };
 
@@ -78,22 +78,22 @@ export const fetchRolesFull = async (filters?: {
 };
 
 export const fetchRolesWithoutPermissions = async (): Promise<Role[]> => {
-  const response = await apiAuth.get('/api/v1/roles?exclude_with_permissions=true');
+  const response = await apiAuth.get('/roles?exclude_with_permissions=true');
   return extractData<any>(response);
 };
 
 export const createRole = async (role: RoleCreate): Promise<Role> => {
-  const response = await apiAuth.post('/api/v1/roles', { role });
+  const response = await apiAuth.post('/roles', { role });
   return extractData<any>(response);
 };
 
 export const updateRole = async (id: string, role: RoleUpdate): Promise<Role> => {
-  const response = await apiAuth.put(`/api/v1/roles/${id}`, { role });
+  const response = await apiAuth.put(`/roles/${id}`, { role });
   return extractData<any>(response);
 };
 
 export const deleteRole = async (id: string): Promise<void> => {
-  await apiAuth.delete(`/api/v1/roles/${id}`);
+  await apiAuth.delete(`/roles/${id}`);
 };
 
 // Role Permissions API
@@ -107,12 +107,12 @@ export const fetchRolePermissions = async (filters?: RolePermissionFilters): Pro
   if (filters?.page) params.append('page', filters.page.toString());
   if (filters?.per_page) params.append('per_page', filters.per_page.toString());
 
-  const response = await apiAuth.get(`/api/v1/role_permissions?${params.toString()}`);
+  const response = await apiAuth.get(`/role_permissions?${params.toString()}`);
   return extractResponse<RolePermission>(response) as RolePermissionsResponse;
 };
 
 export const createRolePermission = async (data: RolePermissionCreate): Promise<RolePermission> => {
-  const response = await apiAuth.post('/api/v1/role_permissions', {
+  const response = await apiAuth.post('/role_permissions', {
     role_permission: {
       role_id: data.role_id,
       permission_keys: data.permission_keys
@@ -122,7 +122,7 @@ export const createRolePermission = async (data: RolePermissionCreate): Promise<
 };
 
 export const updateRolePermission = async (id: string, data: RolePermissionUpdate): Promise<RolePermission> => {
-  const response = await apiAuth.put(`/api/v1/role_permissions/${id}`, {
+  const response = await apiAuth.put(`/role_permissions/${id}`, {
     role_permission: {
       role_id: data.role_id,
       permission_keys: data.permission_keys
@@ -132,5 +132,5 @@ export const updateRolePermission = async (id: string, data: RolePermissionUpdat
 };
 
 export const deleteRolePermission = async (id: string): Promise<void> => {
-  await apiAuth.delete(`/api/v1/role_permissions/${id}`);
+  await apiAuth.delete(`/role_permissions/${id}`);
 };
