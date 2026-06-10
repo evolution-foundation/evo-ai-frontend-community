@@ -1,0 +1,101 @@
+{
+  "page": {
+    "title": "Modelos de Mensagem",
+    "description": "Gerencie modelos de mensagem globais, independentes de canal."
+  },
+  "newTemplate": "Novo Modelo",
+  "searchPlaceholder": "Buscar por nome...",
+  "table": {
+    "name": "Nome",
+    "category": "Categoria",
+    "status": "Status",
+    "language": "Idioma",
+    "actions": "Ações"
+  },
+  "status": {
+    "approved": "Aprovado",
+    "pending": "Aguardando aprovação",
+    "rejected": "Rejeitado",
+    "paused": "Pausado",
+    "inactive": "Inativo",
+    "unknown": "Desconhecido",
+    "active": "Ativo"
+  },
+  "categories": {
+    "marketing": "Marketing",
+    "utility": "Utilitário",
+    "authentication": "Autenticação",
+    "transactional": "Transacional"
+  },
+  "emptyState": {
+    "title": "Nenhum modelo ainda",
+    "description": "Crie seu primeiro modelo de mensagem global.",
+    "searchEmpty": "Nenhum modelo corresponde à sua busca.",
+    "noInboxes": "É necessário uma caixa de entrada",
+    "noInboxesDescription": "Modelos de mensagem globais exigem pelo menos uma caixa de entrada. Crie uma caixa de entrada primeiro."
+  },
+  "deleteDialog": {
+    "title": "Excluir modelo",
+    "message": "Tem certeza de que deseja excluir \"{{name}}\"?",
+    "warning": "Esta ação não pode ser desfeita.",
+    "cancel": "Cancelar",
+    "confirm": "Excluir"
+  },
+  "messages": {
+    "loadError": "Falha ao carregar os modelos.",
+    "createSuccess": "Modelo criado com sucesso.",
+    "createError": "Falha ao criar o modelo.",
+    "updateSuccess": "Modelo atualizado com sucesso.",
+    "updateError": "Falha ao atualizar o modelo.",
+    "deleteSuccess": "Modelo excluído com sucesso.",
+    "deleteError": "Falha ao excluir o modelo.",
+    "permissionDenied": {
+      "read": "Você não tem permissão para visualizar modelos.",
+      "create": "Você não tem permissão para criar modelos.",
+      "update": "Você não tem permissão para editar modelos.",
+      "delete": "Você não tem permissão para excluir modelos."
+    }
+  },
+  "form": {
+    "createTitle": "Novo Modelo",
+    "editTitle": "Editar Modelo",
+    "provider": "Provedor",
+    "providers": {
+      "generic": "Genérico",
+      "email": "E-mail"
+    },
+    "name": "Nome",
+    "namePlaceholder": "ex.: mensagem_boas_vindas",
+    "category": "Categoria",
+    "categories": {
+      "marketing": "Marketing",
+      "utility": "Utilitário",
+      "authentication": "Autenticação",
+      "transactional": "Transacional"
+    },
+    "language": "Idioma",
+    "subject": "Assunto",
+    "subjectPlaceholder": "Assunto do e-mail",
+    "content": "Conteúdo",
+    "contentPlaceholder": "Digite o conteúdo da mensagem.",
+    "variablesHelp": "Use a sintaxe {{variable}} para valores dinâmicos",
+    "variables": "Variáveis",
+    "variableLabel": "Rótulo",
+    "variableExample": "Exemplo",
+    "variableSource": "Origem",
+    "active": "Ativo",
+    "activeHelp": "Modelos inativos ficam ocultos na seleção.",
+    "cancel": "Cancelar",
+    "create": "Criar",
+    "save": "Salvar",
+    "errors": {
+      "requiredFields": "Nome e conteúdo são obrigatórios."
+    },
+    "categoryReset": "Categoria redefinida para um valor suportado pelo provedor selecionado."
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Próximo",
+    "pageOf": "Página {{page}} de {{total}}"
+  }
+}

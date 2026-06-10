@@ -110,6 +110,7 @@
       "labels": "Etichette",
       "customAttributes": "Attributi Personalizzati",
       "cannedResponses": "Risposte Predefinite",
+      "messageTemplates": "Modelli di Messaggio",
       "macros": "Macro",
       "templates": "Modelli",
       "integrations": "Integrazioni",

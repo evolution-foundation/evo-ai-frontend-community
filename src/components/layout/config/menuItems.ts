@@ -13,6 +13,7 @@ import {
   Clock,
   Code,
   MessageCircle,
+  LayoutTemplate,
   Key,
   Tags,
   TestTube,
@@ -224,6 +225,13 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         href: '/settings/canned-responses',
         icon: MessageCircle,
         resource: 'canned_responses',
+        action: 'read',
+      },
+      {
+        name: t('menu.settings.messageTemplates'),
+        href: '/settings/message-templates',
+        icon: LayoutTemplate,
+        resource: 'message_templates',
         action: 'read',
       },
       {

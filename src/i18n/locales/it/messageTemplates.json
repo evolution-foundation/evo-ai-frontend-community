@@ -1,0 +1,101 @@
+{
+  "page": {
+    "title": "Modelli di Messaggio",
+    "description": "Gestisci modelli di messaggio globali, indipendenti dal canale."
+  },
+  "newTemplate": "Nuovo Modello",
+  "searchPlaceholder": "Cerca per nome...",
+  "table": {
+    "name": "Nome",
+    "category": "Categoria",
+    "status": "Stato",
+    "language": "Lingua",
+    "actions": "Azioni"
+  },
+  "status": {
+    "approved": "Approvato",
+    "pending": "In attesa di approvazione",
+    "rejected": "Rifiutato",
+    "paused": "In pausa",
+    "inactive": "Inattivo",
+    "unknown": "Sconosciuto",
+    "active": "Attivo"
+  },
+  "categories": {
+    "marketing": "Marketing",
+    "utility": "Utilità",
+    "authentication": "Autenticazione",
+    "transactional": "Transazionale"
+  },
+  "emptyState": {
+    "title": "Nessun modello ancora",
+    "description": "Crea il tuo primo modello di messaggio globale.",
+    "searchEmpty": "Nessun modello corrisponde alla tua ricerca.",
+    "noInboxes": "È richiesta una casella di posta",
+    "noInboxesDescription": "I modelli di messaggio globali richiedono almeno una casella di posta. Crea prima una casella di posta."
+  },
+  "deleteDialog": {
+    "title": "Elimina modello",
+    "message": "Sei sicuro di voler eliminare \"{{name}}\"?",
+    "warning": "Questa azione non può essere annullata.",
+    "cancel": "Annulla",
+    "confirm": "Elimina"
+  },
+  "messages": {
+    "loadError": "Impossibile caricare i modelli.",
+    "createSuccess": "Modello creato con successo.",
+    "createError": "Impossibile creare il modello.",
+    "updateSuccess": "Modello aggiornato con successo.",
+    "updateError": "Impossibile aggiornare il modello.",
+    "deleteSuccess": "Modello eliminato con successo.",
+    "deleteError": "Impossibile eliminare il modello.",
+    "permissionDenied": {
+      "read": "Non hai il permesso di visualizzare i modelli.",
+      "create": "Non hai il permesso di creare modelli.",
+      "update": "Non hai il permesso di modificare i modelli.",
+      "delete": "Non hai il permesso di eliminare i modelli."
+    }
+  },
+  "form": {
+    "createTitle": "Nuovo Modello",
+    "editTitle": "Modifica Modello",
+    "provider": "Provider",
+    "providers": {
+      "generic": "Generico",
+      "email": "E-mail"
+    },
+    "name": "Nome",
+    "namePlaceholder": "es. messaggio_benvenuto",
+    "category": "Categoria",
+    "categories": {
+      "marketing": "Marketing",
+      "utility": "Utilità",
+      "authentication": "Autenticazione",
+      "transactional": "Transazionale"
+    },
+    "language": "Lingua",
+    "subject": "Oggetto",
+    "subjectPlaceholder": "Oggetto dell'e-mail",
+    "content": "Contenuto",
+    "contentPlaceholder": "Inserisci il contenuto del messaggio.",
+    "variablesHelp": "Usa la sintassi {{variable}} per i valori dinamici",
+    "variables": "Variabili",
+    "variableLabel": "Etichetta",
+    "variableExample": "Esempio",
+    "variableSource": "Origine",
+    "active": "Attivo",
+    "activeHelp": "I modelli inattivi sono nascosti dalla selezione.",
+    "cancel": "Annulla",
+    "create": "Crea",
+    "save": "Salva",
+    "errors": {
+      "requiredFields": "Nome e contenuto sono obbligatori."
+    },
+    "categoryReset": "Categoria reimpostata su un valore supportato dal provider selezionato."
+  },
+  "pagination": {
+    "previous": "Precedente",
+    "next": "Successivo",
+    "pageOf": "Pagina {{page}} di {{total}}"
+  }
+}

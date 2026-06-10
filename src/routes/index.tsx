@@ -58,6 +58,7 @@ import JourneyFlowEditor from '@/pages/Customer/Journey/JourneyFlowEditor';
 import Campaigns from '@/pages/Customer/Campaigns/Campaigns';
 import NewCampaign from '@/pages/Customer/Campaigns/NewCampaign/NewCampaign';
 import CannedResponses from '@/pages/Customer/Settings/CannedResponses';
+import MessageTemplates from '@/pages/Customer/Settings/MessageTemplates';
 import { Macros } from '@/pages/Customer/Settings/Macros';
 import Products from '@/pages/Customer/Settings/Products';
 import Templates from '@/pages/Customer/Settings/Templates/Templates';
@@ -732,6 +733,21 @@ const AppRouter = () => {
                   <MainLayout>
                     <PermissionRoute resource="canned_responses" action="read">
                       <CannedResponses />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/settings/message-templates"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="message_templates" action="read">
+                      <MessageTemplates />
                     </PermissionRoute>
                   </MainLayout>
                 </CustomerRoute>

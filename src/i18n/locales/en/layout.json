@@ -110,6 +110,7 @@
       "labels": "Labels",
       "customAttributes": "Custom Attributes",
       "cannedResponses": "Canned Responses",
+      "messageTemplates": "Message Templates",
       "macros": "Macros",
       "templates": "Templates",
       "integrations": "Integrations",

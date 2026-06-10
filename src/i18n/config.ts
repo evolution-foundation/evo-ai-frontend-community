@@ -24,6 +24,7 @@ import ptBRLayout from './locales/pt-BR/layout.json';
 import ptBRCommon from './locales/pt-BR/common.json';
 import ptBRAccountSettings from './locales/pt-BR/accountSettings.json';
 import ptBRCannedResponses from './locales/pt-BR/cannedResponses.json';
+import ptBRMessageTemplates from './locales/pt-BR/messageTemplates.json';
 import ptBRProducts from './locales/pt-BR/products.json';
 import ptBRTemplates from './locales/pt-BR/templates.json';
 import ptBRCustomAttributes from './locales/pt-BR/customAttributes.json';
@@ -74,6 +75,7 @@ import ptLayout from './locales/pt/layout.json';
 import ptCommon from './locales/pt/common.json';
 import ptAccountSettings from './locales/pt/accountSettings.json';
 import ptCannedResponses from './locales/pt/cannedResponses.json';
+import ptMessageTemplates from './locales/pt/messageTemplates.json';
 import ptProducts from './locales/pt/products.json';
 import ptTemplates from './locales/pt/templates.json';
 import ptCustomAttributes from './locales/pt/customAttributes.json';
@@ -124,6 +126,7 @@ import enLayout from './locales/en/layout.json';
 import enCommon from './locales/en/common.json';
 import enAccountSettings from './locales/en/accountSettings.json';
 import enCannedResponses from './locales/en/cannedResponses.json';
+import enMessageTemplates from './locales/en/messageTemplates.json';
 import enProducts from './locales/en/products.json';
 import enTemplates from './locales/en/templates.json';
 import enCustomAttributes from './locales/en/customAttributes.json';
@@ -174,6 +177,7 @@ import esLayout from './locales/es/layout.json';
 import esCommon from './locales/es/common.json';
 import esAccountSettings from './locales/es/accountSettings.json';
 import esCannedResponses from './locales/es/cannedResponses.json';
+import esMessageTemplates from './locales/es/messageTemplates.json';
 import esProducts from './locales/es/products.json';
 import esTemplates from './locales/es/templates.json';
 import esCustomAttributes from './locales/es/customAttributes.json';
@@ -224,6 +228,7 @@ import frLayout from './locales/fr/layout.json';
 import frCommon from './locales/fr/common.json';
 import frAccountSettings from './locales/fr/accountSettings.json';
 import frCannedResponses from './locales/fr/cannedResponses.json';
+import frMessageTemplates from './locales/fr/messageTemplates.json';
 import frProducts from './locales/fr/products.json';
 import frTemplates from './locales/fr/templates.json';
 import frCustomAttributes from './locales/fr/customAttributes.json';
@@ -274,6 +279,7 @@ import itLayout from './locales/it/layout.json';
 import itCommon from './locales/it/common.json';
 import itAccountSettings from './locales/it/accountSettings.json';
 import itCannedResponses from './locales/it/cannedResponses.json';
+import itMessageTemplates from './locales/it/messageTemplates.json';
 import itProducts from './locales/it/products.json';
 import itTemplates from './locales/it/templates.json';
 import itCustomAttributes from './locales/it/customAttributes.json';
@@ -392,6 +398,7 @@ const resources = {
     common: ptBRCommon,
     accountSettings: ptBRAccountSettings,
     cannedResponses: ptBRCannedResponses,
+    messageTemplates: ptBRMessageTemplates,
     products: ptBRProducts,
     templates: ptBRTemplates,
     customAttributes: ptBRCustomAttributes,
@@ -449,6 +456,7 @@ const resources = {
     common: ptCommon,
     accountSettings: ptAccountSettings,
     cannedResponses: ptCannedResponses,
+    messageTemplates: ptMessageTemplates,
     products: ptProducts,
     templates: ptTemplates,
     customAttributes: ptCustomAttributes,
@@ -506,6 +514,7 @@ const resources = {
     common: enCommon,
     accountSettings: enAccountSettings,
     cannedResponses: enCannedResponses,
+    messageTemplates: enMessageTemplates,
     products: enProducts,
     templates: enTemplates,
     customAttributes: enCustomAttributes,
@@ -563,6 +572,7 @@ const resources = {
     common: esCommon,
     accountSettings: esAccountSettings,
     cannedResponses: esCannedResponses,
+    messageTemplates: esMessageTemplates,
     products: esProducts,
     templates: esTemplates,
     customAttributes: esCustomAttributes,
@@ -620,6 +630,7 @@ const resources = {
     common: frCommon,
     accountSettings: frAccountSettings,
     cannedResponses: frCannedResponses,
+    messageTemplates: frMessageTemplates,
     products: frProducts,
     templates: frTemplates,
     customAttributes: frCustomAttributes,
@@ -677,6 +688,7 @@ const resources = {
     common: itCommon,
     accountSettings: itAccountSettings,
     cannedResponses: itCannedResponses,
+    messageTemplates: itMessageTemplates,
     products: itProducts,
     templates: itTemplates,
     customAttributes: itCustomAttributes,

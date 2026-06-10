@@ -110,6 +110,7 @@
       "labels": "Etiquetas",
       "customAttributes": "Atributos Personalizados",
       "cannedResponses": "Respuestas Rápidas",
+      "messageTemplates": "Plantillas de Mensaje",
       "macros": "Macros",
       "templates": "Plantillas",
       "integrations": "Integraciones",

@@ -1,0 +1,101 @@
+{
+  "page": {
+    "title": "Message Templates",
+    "description": "Manage global, channel-independent message templates."
+  },
+  "newTemplate": "New Template",
+  "searchPlaceholder": "Search by name...",
+  "table": {
+    "name": "Name",
+    "category": "Category",
+    "status": "Status",
+    "language": "Language",
+    "actions": "Actions"
+  },
+  "status": {
+    "approved": "Approved",
+    "pending": "Pending approval",
+    "rejected": "Rejected",
+    "paused": "Paused",
+    "inactive": "Inactive",
+    "unknown": "Unknown",
+    "active": "Active"
+  },
+  "categories": {
+    "marketing": "Marketing",
+    "utility": "Utility",
+    "authentication": "Authentication",
+    "transactional": "Transactional"
+  },
+  "emptyState": {
+    "title": "No templates yet",
+    "description": "Create your first global message template.",
+    "searchEmpty": "No templates match your search.",
+    "noInboxes": "An inbox is required",
+    "noInboxesDescription": "Global message templates require at least one inbox. Create an inbox first."
+  },
+  "deleteDialog": {
+    "title": "Delete template",
+    "message": "Are you sure you want to delete \"{{name}}\"?",
+    "warning": "This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete"
+  },
+  "messages": {
+    "loadError": "Failed to load templates.",
+    "createSuccess": "Template created successfully.",
+    "createError": "Failed to create template.",
+    "updateSuccess": "Template updated successfully.",
+    "updateError": "Failed to update template.",
+    "deleteSuccess": "Template deleted successfully.",
+    "deleteError": "Failed to delete template.",
+    "permissionDenied": {
+      "read": "You don't have permission to view templates.",
+      "create": "You don't have permission to create templates.",
+      "update": "You don't have permission to edit templates.",
+      "delete": "You don't have permission to delete templates."
+    }
+  },
+  "form": {
+    "createTitle": "New Template",
+    "editTitle": "Edit Template",
+    "provider": "Provider",
+    "providers": {
+      "generic": "Generic",
+      "email": "Email"
+    },
+    "name": "Name",
+    "namePlaceholder": "e.g. welcome_message",
+    "category": "Category",
+    "categories": {
+      "marketing": "Marketing",
+      "utility": "Utility",
+      "authentication": "Authentication",
+      "transactional": "Transactional"
+    },
+    "language": "Language",
+    "subject": "Subject",
+    "subjectPlaceholder": "Email subject",
+    "content": "Content",
+    "contentPlaceholder": "Type the message content.",
+    "variablesHelp": "Use {{variable}} syntax for dynamic values",
+    "variables": "Variables",
+    "variableLabel": "Label",
+    "variableExample": "Example",
+    "variableSource": "Source",
+    "active": "Active",
+    "activeHelp": "Inactive templates are hidden from selection.",
+    "cancel": "Cancel",
+    "create": "Create",
+    "save": "Save",
+    "errors": {
+      "requiredFields": "Name and content are required."
+    },
+    "categoryReset": "Category reset to a value supported by the selected provider."
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{page}} of {{total}}"
+  }
+}

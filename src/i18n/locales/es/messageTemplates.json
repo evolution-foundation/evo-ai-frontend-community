@@ -1,0 +1,101 @@
+{
+  "page": {
+    "title": "Plantillas de Mensaje",
+    "description": "Gestiona plantillas de mensaje globales, independientes del canal."
+  },
+  "newTemplate": "Nueva Plantilla",
+  "searchPlaceholder": "Buscar por nombre...",
+  "table": {
+    "name": "Nombre",
+    "category": "Categoría",
+    "status": "Estado",
+    "language": "Idioma",
+    "actions": "Acciones"
+  },
+  "status": {
+    "approved": "Aprobada",
+    "pending": "Pendiente de aprobación",
+    "rejected": "Rechazada",
+    "paused": "Pausada",
+    "inactive": "Inactiva",
+    "unknown": "Desconocido",
+    "active": "Activa"
+  },
+  "categories": {
+    "marketing": "Marketing",
+    "utility": "Utilidad",
+    "authentication": "Autenticación",
+    "transactional": "Transaccional"
+  },
+  "emptyState": {
+    "title": "Aún no hay plantillas",
+    "description": "Crea tu primera plantilla de mensaje global.",
+    "searchEmpty": "Ninguna plantilla coincide con tu búsqueda.",
+    "noInboxes": "Se requiere una bandeja de entrada",
+    "noInboxesDescription": "Las plantillas de mensaje globales requieren al menos una bandeja de entrada. Crea una bandeja de entrada primero."
+  },
+  "deleteDialog": {
+    "title": "Eliminar plantilla",
+    "message": "¿Seguro que deseas eliminar \"{{name}}\"?",
+    "warning": "Esta acción no se puede deshacer.",
+    "cancel": "Cancelar",
+    "confirm": "Eliminar"
+  },
+  "messages": {
+    "loadError": "Error al cargar las plantillas.",
+    "createSuccess": "Plantilla creada correctamente.",
+    "createError": "Error al crear la plantilla.",
+    "updateSuccess": "Plantilla actualizada correctamente.",
+    "updateError": "Error al actualizar la plantilla.",
+    "deleteSuccess": "Plantilla eliminada correctamente.",
+    "deleteError": "Error al eliminar la plantilla.",
+    "permissionDenied": {
+      "read": "No tienes permiso para ver plantillas.",
+      "create": "No tienes permiso para crear plantillas.",
+      "update": "No tienes permiso para editar plantillas.",
+      "delete": "No tienes permiso para eliminar plantillas."
+    }
+  },
+  "form": {
+    "createTitle": "Nueva Plantilla",
+    "editTitle": "Editar Plantilla",
+    "provider": "Proveedor",
+    "providers": {
+      "generic": "Genérico",
+      "email": "Correo electrónico"
+    },
+    "name": "Nombre",
+    "namePlaceholder": "ej.: mensaje_bienvenida",
+    "category": "Categoría",
+    "categories": {
+      "marketing": "Marketing",
+      "utility": "Utilidad",
+      "authentication": "Autenticación",
+      "transactional": "Transaccional"
+    },
+    "language": "Idioma",
+    "subject": "Asunto",
+    "subjectPlaceholder": "Asunto del correo",
+    "content": "Contenido",
+    "contentPlaceholder": "Escribe el contenido del mensaje.",
+    "variablesHelp": "Usa la sintaxis {{variable}} para valores dinámicos",
+    "variables": "Variables",
+    "variableLabel": "Etiqueta",
+    "variableExample": "Ejemplo",
+    "variableSource": "Origen",
+    "active": "Activa",
+    "activeHelp": "Las plantillas inactivas se ocultan en la selección.",
+    "cancel": "Cancelar",
+    "create": "Crear",
+    "save": "Guardar",
+    "errors": {
+      "requiredFields": "El nombre y el contenido son obligatorios."
+    },
+    "categoryReset": "Categoría restablecida a un valor compatible con el proveedor seleccionado."
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "pageOf": "Página {{page}} de {{total}}"
+  }
+}
