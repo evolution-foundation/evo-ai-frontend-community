@@ -330,6 +330,12 @@
         "moveTo": "Mover conversa para",
         "noStageSelected": "Nenhum stage selecionado"
       },
+      "createPipelineTask": {
+        "name": "Criar Tarefa no Pipeline",
+        "description": "Cria uma tarefa no pipeline item da conversa",
+        "willCreate": "Criar tarefa",
+        "noTitle": "Sem título definido"
+      },
       "sendCannedResponse": {
         "name": "Enviar Resposta Rápida",
         "description": "Envia uma resposta rápida pré-definida para a conversa",
@@ -912,6 +918,33 @@
       "noStagesFound": "Nenhum stage encontrado neste pipeline.",
       "conversationWillMove": "A conversa será movida para o stage",
       "loadErrorBanner": "Não foi possível carregar os pipelines. Verifique sua conexão e reabra este node."
+    },
+    "createPipelineTask": {
+      "title": "Configurar Criar Tarefa no Pipeline",
+      "loadDataError": "Erro ao carregar agentes:",
+      "taskTitle": "Título",
+      "taskTitlePlaceholder": "ex.: Dar follow-up com {contact.name}",
+      "variablesHint": "Suporta variáveis como {contact.name}.",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Detalhes opcionais",
+      "assignee": "Responsável",
+      "noAssignee": "Sem responsável",
+      "dueDate": "Vencimento",
+      "priority": "Prioridade",
+      "due": {
+        "none": "Sem vencimento",
+        "in1h": "Em 1 hora",
+        "in4h": "Em 4 horas",
+        "in1d": "Em 1 dia",
+        "in3d": "Em 3 dias",
+        "in1w": "Em 1 semana"
+      },
+      "priorities": {
+        "low": "Baixa",
+        "medium": "Média",
+        "high": "Alta",
+        "urgent": "Urgente"
+      }
     },
     "sendCannedResponse": {
       "title": "Configurar Enviar Resposta Rápida",

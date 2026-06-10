@@ -330,6 +330,12 @@
         "moveTo": "Move conversation to",
         "noStageSelected": "No stage selected"
       },
+      "createPipelineTask": {
+        "name": "Create Pipeline Task",
+        "description": "Creates a task on the conversation's pipeline item",
+        "willCreate": "Create task",
+        "noTitle": "No title set"
+      },
       "sendCannedResponse": {
         "name": "Send Canned Response",
         "description": "Sends a pre-written canned response to the conversation",
@@ -912,6 +918,33 @@
       "noStagesFound": "No stages found in this pipeline.",
       "conversationWillMove": "The conversation will move to stage",
       "loadErrorBanner": "Could not load pipelines. Check your connection and try reopening this node."
+    },
+    "createPipelineTask": {
+      "title": "Configure Create Pipeline Task",
+      "loadDataError": "Error loading agents:",
+      "taskTitle": "Title",
+      "taskTitlePlaceholder": "e.g. Follow up with {contact.name}",
+      "variablesHint": "Supports variables like {contact.name}.",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional details",
+      "assignee": "Assignee",
+      "noAssignee": "No assignee",
+      "dueDate": "Due date",
+      "priority": "Priority",
+      "due": {
+        "none": "No due date",
+        "in1h": "In 1 hour",
+        "in4h": "In 4 hours",
+        "in1d": "In 1 day",
+        "in3d": "In 3 days",
+        "in1w": "In 1 week"
+      },
+      "priorities": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "urgent": "Urgent"
+      }
     },
     "sendCannedResponse": {
       "title": "Configure Send Canned Response",
