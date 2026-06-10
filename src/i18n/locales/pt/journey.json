@@ -253,7 +253,9 @@
         "eventChannel": "Canal do Evento",
         "oneAttachment": "+ 1 anexo",
         "multipleAttachments": "+ {{count}} anexos",
-        "channelLabel": "Canal:"
+        "channelLabel": "Canal:",
+        "templateLabel": "Template:",
+        "templateNotSelected": "Template não selecionado"
       },
       "sendWebhook": {
         "name": "Enviar Webhook",
@@ -666,7 +668,23 @@
       "oneAttachment": "1 attachment",
       "multipleAttachments": "{{count}} attachments",
       "completeConfig": "Complete the Configuration",
-      "waitingUpload": "Wait for the upload of the attachments"
+      "waitingUpload": "Wait for the upload of the attachments",
+      "mode": "Modo",
+      "modeText": "Texto livre",
+      "modeTemplate": "Template de mensagem",
+      "templateRequiredForCloud": "O WhatsApp Cloud exige um template aprovado pela Meta — o modo Template é obrigatório.",
+      "template": "Template",
+      "chooseTemplate": "Escolha um template",
+      "loadingTemplates": "A carregar templates...",
+      "noTemplates": "Nenhum template ativo para este canal",
+      "templatePreview": "Pré-visualização",
+      "templateVariables": "Variáveis do template",
+      "selectChannelForTemplate": "Selecione um canal para listar os templates",
+      "selectTemplateValidation": "Selecione um template",
+      "templateUnavailable": "O template selecionado já não está disponível",
+      "fillRequiredVariables": "Preencha as variáveis obrigatórias",
+      "templatesLoadError": "Erro ao carregar os templates",
+      "templateConfigured": "Template configurado"
     },
     "sendWebhook": {
       "title": "Configure Webhook",

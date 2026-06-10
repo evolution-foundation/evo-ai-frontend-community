@@ -253,7 +253,9 @@
         "eventChannel": "Canal del Evento",
         "oneAttachment": "+ 1 adjunto",
         "multipleAttachments": "+ {{count}} adjuntos",
-        "channelLabel": "Canal:"
+        "channelLabel": "Canal:",
+        "templateLabel": "Plantilla:",
+        "templateNotSelected": "Plantilla no seleccionada"
       },
       "sendWebhook": {
         "name": "Enviar Webhook",
@@ -666,7 +668,23 @@
       "oneAttachment": "1 attachment",
       "multipleAttachments": "{{count}} attachments",
       "completeConfig": "Complete the Configuration",
-      "waitingUpload": "Wait for the upload of the attachments"
+      "waitingUpload": "Wait for the upload of the attachments",
+      "mode": "Modo",
+      "modeText": "Texto libre",
+      "modeTemplate": "Plantilla de mensaje",
+      "templateRequiredForCloud": "WhatsApp Cloud exige una plantilla aprobada por Meta — el modo Plantilla es obligatorio.",
+      "template": "Plantilla",
+      "chooseTemplate": "Elige una plantilla",
+      "loadingTemplates": "Cargando plantillas...",
+      "noTemplates": "No hay plantillas activas para este canal",
+      "templatePreview": "Vista previa",
+      "templateVariables": "Variables de la plantilla",
+      "selectChannelForTemplate": "Selecciona un canal para listar las plantillas",
+      "selectTemplateValidation": "Selecciona una plantilla",
+      "templateUnavailable": "La plantilla seleccionada ya no está disponible",
+      "fillRequiredVariables": "Completa las variables obligatorias",
+      "templatesLoadError": "Error al cargar las plantillas",
+      "templateConfigured": "Plantilla configurada"
     },
     "sendWebhook": {
       "title": "Configure Webhook",

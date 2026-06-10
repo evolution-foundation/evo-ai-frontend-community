@@ -28,8 +28,17 @@ import { SendMessageNodeData } from './SendMessageNode';
 import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
 import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { automationService } from '@/services/automation/automationService';
+import MessageTemplateService from '@/services/channels/messageTemplatesService';
+import type { MessageTemplate } from '@/types/channels/inbox';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
+
+// WhatsApp Cloud requires a Meta-approved template for bot-initiated messages
+// outside the 24h window — both STI spellings exist across the codebase.
+const isWhatsappCloudInbox = (inbox: { channel_type?: string; provider?: string } | undefined) =>
+  !!inbox &&
+  (inbox.channel_type === 'Channel::WhatsappCloud' ||
+    (inbox.channel_type === 'Channel::Whatsapp' && inbox.provider === 'whatsapp_cloud'));
 
 interface SendMessagePanelProps {
   nodeId: string;
@@ -126,6 +135,11 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
     message: data.message || '',
     inboxId: data.inboxId || '',
     inboxName: data.inboxName || '',
+    messageMode: data.messageMode || 'text',
+    templateId: data.templateId || '',
+    templateName: data.templateName || '',
+    templateLanguage: data.templateLanguage || '',
+    templateParams: data.templateParams || {},
     useEventChannel: data.useEventChannel || false,
     hasAttachment: data.hasAttachment || false,
     attachment_ids: data.attachment_ids || [],
@@ -141,8 +155,54 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
   }>({});
   const [loading, setLoading] = useState(true);
   const [filteredInboxes, setFilteredInboxes] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<MessageTemplate[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isTemplateMode = formData.messageMode === 'template';
+  const selectedInbox = filteredInboxes.find(
+    (inbox: { id: string | number }) => String(inbox.id) === String(formData.inboxId),
+  );
+  const isCloudInbox = isWhatsappCloudInbox(selectedInbox);
+  const selectedTemplate = templates.find(
+    template => String(template.id) === String(formData.templateId),
+  );
+
+  // WhatsApp Cloud forces template mode (Meta-approved templates only).
+  useEffect(() => {
+    if (isCloudInbox && formData.messageMode !== 'template') {
+      setFormData(prev => ({ ...prev, messageMode: 'template' }));
+    }
+  }, [isCloudInbox, formData.messageMode]);
+
+  useEffect(() => {
+    if (!isTemplateMode || !formData.inboxId) {
+      setTemplates([]);
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingTemplates(true);
+    MessageTemplateService.getTemplates(formData.inboxId, { active: true, per_page: -1 })
+      .then(response => {
+        if (!cancelled) setTemplates(Array.isArray(response.data) ? response.data : []);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setTemplates([]);
+          toast.error(t('panels.sendMessage.templatesLoadError'));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingTemplates(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTemplateMode, formData.inboxId]);
 
   useEffect(() => {
     const loadFormData = async () => {
@@ -251,11 +311,52 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
   };
 
   const handleInboxChange = (inboxId: string) => {
-    const selectedInbox = filteredInboxes.find((inbox: any) => inbox.id === inboxId);
+    const inbox = filteredInboxes.find(
+      (item: { id: string | number }) => String(item.id) === inboxId,
+    );
+    // Templates are channel-scoped: switching inbox invalidates the selection.
     setFormData(prev => ({
       ...prev,
       inboxId,
-      inboxName: selectedInbox?.name || '',
+      inboxName: inbox?.name || '',
+      templateId: '',
+      templateName: '',
+      templateLanguage: '',
+      templateParams: {},
+      messageMode: isWhatsappCloudInbox(inbox) ? 'template' : prev.messageMode,
+    }));
+  };
+
+  const handleModeChange = (mode: 'text' | 'template') => {
+    if (isCloudInbox && mode === 'text') return;
+    setFormData(prev => ({
+      ...prev,
+      messageMode: mode,
+      // Template mode needs an explicit inbox: the event channel is unknown
+      // at config time, so there is no template list to pick from.
+      useEventChannel: mode === 'template' ? false : prev.useEventChannel,
+    }));
+  };
+
+  const handleTemplateChange = (templateId: string) => {
+    const template = templates.find(item => String(item.id) === templateId);
+    const defaults: Record<string, string> = {};
+    (template?.variables ?? []).forEach(variable => {
+      if (variable.name) defaults[variable.name] = variable.default_value || '';
+    });
+    setFormData(prev => ({
+      ...prev,
+      templateId,
+      templateName: template?.name || '',
+      templateLanguage: template?.language || '',
+      templateParams: defaults,
+    }));
+  };
+
+  const handleTemplateParamChange = (name: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      templateParams: { ...(prev.templateParams ?? {}), [name]: value },
     }));
   };
 
@@ -296,12 +397,29 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
 
   const uploadedCount = attachments.filter(att => att.status === 'uploaded').length;
   const hasUploading = attachments.some(att => att.status === 'uploading');
-  const isValid = !!(
-    formData.message?.trim() &&
-    (formData.useEventChannel || formData.inboxId) &&
-    getCharacterCount() <= 1000 &&
-    !hasUploading
-  );
+  const missingRequiredVariables = isTemplateMode
+    ? (selectedTemplate?.variables ?? []).filter(
+        variable =>
+          variable.required &&
+          variable.name &&
+          !(formData.templateParams?.[variable.name] ?? '').trim(),
+      )
+    : [];
+  const isValid = isTemplateMode
+    ? !!(
+        formData.inboxId &&
+        formData.templateId &&
+        !loadingTemplates &&
+        selectedTemplate &&
+        missingRequiredVariables.length === 0 &&
+        !hasUploading
+      )
+    : !!(
+        formData.message?.trim() &&
+        (formData.useEventChannel || formData.inboxId) &&
+        getCharacterCount() <= 1000 &&
+        !hasUploading
+      );
   const dirty = useMemo(
     () =>
       JSON.stringify(formData) !== JSON.stringify(originalData) ||
@@ -327,38 +445,85 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
           <FlowFeedbackBanner variant="warn">
             <p className="font-medium">{t('panels.sendMessage.incompleteConfig')}:</p>
             <ul className="text-xs mt-1 list-disc list-inside">
-              {!formData.message?.trim() && <li>{t('panels.sendMessage.enterMessage')}</li>}
-              {!formData.useEventChannel && !formData.inboxId && (
+              {!isTemplateMode && !formData.message?.trim() && (
+                <li>{t('panels.sendMessage.enterMessage')}</li>
+              )}
+              {!isTemplateMode && !formData.useEventChannel && !formData.inboxId && (
                 <li>{t('panels.sendMessage.selectChannelOrEvent')}</li>
               )}
-              {getCharacterCount() > 1000 && <li>{t('panels.sendMessage.messageTooLong')}</li>}
+              {!isTemplateMode && getCharacterCount() > 1000 && (
+                <li>{t('panels.sendMessage.messageTooLong')}</li>
+              )}
+              {isTemplateMode && !formData.inboxId && (
+                <li>{t('panels.sendMessage.selectChannelForTemplate')}</li>
+              )}
+              {isTemplateMode && formData.inboxId && !formData.templateId && !loadingTemplates && (
+                <li>{t('panels.sendMessage.selectTemplateValidation')}</li>
+              )}
+              {isTemplateMode &&
+                !!formData.templateId &&
+                !selectedTemplate &&
+                !loadingTemplates && <li>{t('panels.sendMessage.templateUnavailable')}</li>}
+              {isTemplateMode && missingRequiredVariables.length > 0 && (
+                <li>{t('panels.sendMessage.fillRequiredVariables')}</li>
+              )}
               {hasUploading && <li>{t('panels.sendMessage.waitingUpload')}</li>}
             </ul>
           </FlowFeedbackBanner>
         )}
 
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="useEventChannel"
-              checked={formData.useEventChannel}
-              onCheckedChange={checked => {
-                setFormData(prev => ({
-                  ...prev,
-                  useEventChannel: !!checked,
-                  inboxId: checked ? '' : prev.inboxId,
-                  inboxName: checked ? '' : prev.inboxName,
-                }));
-              }}
-            />
-            <Label htmlFor="useEventChannel" className="text-sm font-medium cursor-pointer">
-              {t('panels.sendMessage.useEventChannel')}
-            </Label>
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{t('panels.sendMessage.mode')}</Label>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={isTemplateMode ? 'outline' : 'default'}
+              disabled={isCloudInbox}
+              onClick={() => handleModeChange('text')}
+            >
+              {t('panels.sendMessage.modeText')}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={isTemplateMode ? 'default' : 'outline'}
+              onClick={() => handleModeChange('template')}
+            >
+              {t('panels.sendMessage.modeTemplate')}
+            </Button>
           </div>
-          <p className="text-xs text-muted-foreground">
-            {t('panels.sendMessage.useEventChannelDescription')}
-          </p>
+          {isCloudInbox && (
+            <p className="text-xs text-muted-foreground">
+              {t('panels.sendMessage.templateRequiredForCloud')}
+            </p>
+          )}
         </div>
+
+        {!isTemplateMode && (
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="useEventChannel"
+                checked={formData.useEventChannel}
+                onCheckedChange={checked => {
+                  setFormData(prev => ({
+                    ...prev,
+                    useEventChannel: !!checked,
+                    inboxId: checked ? '' : prev.inboxId,
+                    inboxName: checked ? '' : prev.inboxName,
+                  }));
+                }}
+              />
+              <Label htmlFor="useEventChannel" className="text-sm font-medium cursor-pointer">
+                {t('panels.sendMessage.useEventChannel')}
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t('panels.sendMessage.useEventChannelDescription')}
+            </p>
+          </div>
+        )}
 
         {!formData.useEventChannel && (
           <div className="space-y-2">
@@ -409,25 +574,136 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
           </div>
         )}
 
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('panels.sendMessage.message')}</Label>
-          <VariableTextarea
-            value={formData.message || ''}
-            onChange={e => setFormData(prev => ({ ...prev, message: e.target.value }))}
-            placeholder={t('panels.sendMessage.messagePlaceholder')}
-            className="min-h-[120px] resize-none"
-            disabled={loading}
-            onVariableInsert={variable => {
-              console.log('Variable inserted:', variable);
-            }}
-          />
+        {isTemplateMode ? (
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">{t('panels.sendMessage.template')}</Label>
+              {!formData.inboxId ? (
+                <p className="text-xs text-muted-foreground">
+                  {t('panels.sendMessage.selectChannelForTemplate')}
+                </p>
+              ) : loadingTemplates ? (
+                <div className="flex items-center gap-2 p-3 border border-dashed border-border rounded-lg">
+                  <div className="animate-spin w-4 h-4 border-2 border-flow-node-action-message-fg border-t-transparent rounded-full" />
+                  <span className="text-sm text-muted-foreground">
+                    {t('panels.sendMessage.loadingTemplates')}
+                  </span>
+                </div>
+              ) : templates.length === 0 ? (
+                <Card className="p-4 text-center">
+                  <AlertCircle className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-xs text-muted-foreground">
+                    {t('panels.sendMessage.noTemplates')}
+                  </p>
+                </Card>
+              ) : (
+                <Select value={formData.templateId} onValueChange={handleTemplateChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={t('panels.sendMessage.chooseTemplate')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templates.map(template => (
+                      <SelectItem key={template.id} value={String(template.id)}>
+                        <div className="flex items-center gap-2">
+                          <span>{template.name}</span>
+                          {template.language && (
+                            <span className="text-xs text-muted-foreground">
+                              ({template.language})
+                            </span>
+                          )}
+                          {template.category && (
+                            <Badge variant="outline" className="text-[10px]">
+                              {template.category}
+                            </Badge>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
 
-          <div className="flex justify-between items-center text-xs">
-            <span className="text-muted-foreground">{t('panels.sendMessage.useVariables')}</span>
-            <span className={getCharacterCountColor()}>{getCharacterCount()}/1000</span>
+            {selectedTemplate && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
+                  {t('panels.sendMessage.templatePreview')}
+                </Label>
+                <Card className="p-3 space-y-2">
+                  {Array.isArray(selectedTemplate.components) &&
+                  selectedTemplate.components.length > 0 ? (
+                    selectedTemplate.components.map((component, index) =>
+                      component?.text ? (
+                        <p
+                          key={index}
+                          className={
+                            component.type === 'BODY'
+                              ? 'text-sm whitespace-pre-wrap'
+                              : 'text-xs text-muted-foreground whitespace-pre-wrap'
+                          }
+                        >
+                          {component.text}
+                        </p>
+                      ) : null,
+                    )
+                  ) : (
+                    <p className="text-sm whitespace-pre-wrap">{selectedTemplate.content}</p>
+                  )}
+                </Card>
+              </div>
+            )}
+
+            {selectedTemplate && (selectedTemplate.variables?.length ?? 0) > 0 && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
+                  {t('panels.sendMessage.templateVariables')}
+                </Label>
+                <div className="space-y-2">
+                  {selectedTemplate.variables!.map(variable =>
+                    variable.name ? (
+                      <div key={variable.name} className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">
+                          {variable.label || variable.name}
+                          {variable.required && <span className="text-flow-feedback-error-fg"> *</span>}
+                        </Label>
+                        <VariableTextarea
+                          value={formData.templateParams?.[variable.name] ?? ''}
+                          onChange={e => handleTemplateParamChange(variable.name!, e.target.value)}
+                          placeholder={variable.example || `{{${variable.name}}}`}
+                          className="min-h-[40px] resize-none"
+                        />
+                      </div>
+                    ) : null,
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t('panels.sendMessage.useVariables')}
+                </p>
+              </div>
+            )}
           </div>
-        </div>
+        ) : (
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">{t('panels.sendMessage.message')}</Label>
+            <VariableTextarea
+              value={formData.message || ''}
+              onChange={e => setFormData(prev => ({ ...prev, message: e.target.value }))}
+              placeholder={t('panels.sendMessage.messagePlaceholder')}
+              className="min-h-[120px] resize-none"
+              disabled={loading}
+              onVariableInsert={variable => {
+                console.log('Variable inserted:', variable);
+              }}
+            />
 
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-muted-foreground">{t('panels.sendMessage.useVariables')}</span>
+              <span className={getCharacterCountColor()}>{getCharacterCount()}/1000</span>
+            </div>
+          </div>
+        )}
+
+        {!isTemplateMode && (
         <div className="space-y-2">
           <Label className="text-sm font-medium">{t('panels.sendMessage.attachments')}</Label>
 
@@ -465,8 +741,9 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
             />
           </div>
         </div>
+        )}
 
-        {attachments.length > 0 && (
+        {!isTemplateMode && attachments.length > 0 && (
           <div className="space-y-2">
             <Label className="text-sm font-medium">
               {t('panels.sendMessage.attachmentsList', { count: attachments.length })}
@@ -518,13 +795,23 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
           </div>
         )}
 
-        {formData.message?.trim() && (
+        {(isTemplateMode ? !!selectedTemplate : !!formData.message?.trim()) && (
           <FlowFeedbackBanner variant="info">
             <div className="flex items-start gap-3">
               <MessageSquare className="w-4 h-4 mt-1 shrink-0" />
               <div className="flex-1">
-                <p className="font-medium">{t('panels.sendMessage.messageConfigured')}</p>
-                <p className="text-sm mt-1">"{formData.message.trim()}"</p>
+                <p className="font-medium">
+                  {isTemplateMode
+                    ? t('panels.sendMessage.templateConfigured')
+                    : t('panels.sendMessage.messageConfigured')}
+                </p>
+                <p className="text-sm mt-1">
+                  {isTemplateMode
+                    ? `${selectedTemplate?.name}${
+                        selectedTemplate?.language ? ` (${selectedTemplate.language})` : ''
+                      }`
+                    : `"${formData.message?.trim()}"`}
+                </p>
 
                 {(formData.useEventChannel || formData.inboxName) && (
                   <Badge variant="outline" className="mt-2">

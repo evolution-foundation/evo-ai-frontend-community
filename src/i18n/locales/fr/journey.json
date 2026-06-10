@@ -253,7 +253,9 @@
         "eventChannel": "Canal de l'événement",
         "oneAttachment": "+ 1 pièce jointe",
         "multipleAttachments": "+ {{count}} pièces jointes",
-        "channelLabel": "Canal :"
+        "channelLabel": "Canal :",
+        "templateLabel": "Modèle :",
+        "templateNotSelected": "Aucun modèle sélectionné"
       },
       "sendWebhook": {
         "name": "Envoyer un webhook",
@@ -666,7 +668,23 @@
       "oneAttachment": "1 attachment",
       "multipleAttachments": "{{count}} attachments",
       "completeConfig": "Complete the Configuration",
-      "waitingUpload": "Wait for the upload of the attachments"
+      "waitingUpload": "Wait for the upload of the attachments",
+      "mode": "Mode",
+      "modeText": "Texte libre",
+      "modeTemplate": "Modèle de message",
+      "templateRequiredForCloud": "WhatsApp Cloud exige un modèle approuvé par Meta — le mode Modèle est obligatoire.",
+      "template": "Modèle",
+      "chooseTemplate": "Choisissez un modèle",
+      "loadingTemplates": "Chargement des modèles...",
+      "noTemplates": "Aucun modèle actif pour ce canal",
+      "templatePreview": "Aperçu",
+      "templateVariables": "Variables du modèle",
+      "selectChannelForTemplate": "Sélectionnez un canal pour lister les modèles",
+      "selectTemplateValidation": "Sélectionnez un modèle",
+      "templateUnavailable": "Le modèle sélectionné n'est plus disponible",
+      "fillRequiredVariables": "Renseignez les variables obligatoires",
+      "templatesLoadError": "Échec du chargement des modèles",
+      "templateConfigured": "Modèle configuré"
     },
     "sendWebhook": {
       "title": "Configure Webhook",
