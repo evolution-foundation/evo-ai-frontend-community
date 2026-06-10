@@ -1710,13 +1710,26 @@
     "statusLabel": {
       "active": "Active",
       "attention": "Needs attention",
+      "error": "Error",
       "available": "Available"
     },
     "summary": {
       "active": "{{count}} active",
       "attention": "{{count}} need attention",
+      "error": "{{count}} with errors",
       "notConfigured": "Not configured"
     },
+    "inboxState": {
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "pending": "Testing",
+      "error": "Error",
+      "unknown": "Unknown",
+      "unmonitored": "Not monitored",
+      "checking": "Checking..."
+    },
+    "liveCheckFailed": "Live check failed — showing the last known state",
+    "moreInboxes": "+{{count}} more inboxes",
     "actions": {
       "add": "Add",
       "manage": "Manage",
