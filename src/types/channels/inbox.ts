@@ -6,6 +6,15 @@ import type { PaginatedResponse, PaginationMeta, StandardResponse } from '@/type
 // Inbox Types
 // ============================================
 
+/** Live connection state exposed by /inboxes (EVO-1674). */
+export type InboxConnectionState = 'connected' | 'disconnected' | 'pending' | 'error' | 'unknown';
+
+/**
+ * How trustworthy the connection state is: event-fed by the provider,
+ * assumed from stored configuration, or unsupported by the channel type.
+ */
+export type InboxHealthSource = 'provider_event' | 'stored_flag' | 'none';
+
 export interface Channel {
   id: string;
   phone_number: string;
@@ -46,6 +55,11 @@ export interface Inbox {
   lock_to_single_conversation?: boolean;
   // Auth/status
   reauthorization_required?: boolean;
+  // Live channel health (EVO-1674)
+  connection_state?: InboxConnectionState;
+  health_source?: InboxHealthSource;
+  /** Epoch seconds of the last known connectivity change. */
+  last_sync?: number | null;
   // Sender settings
   sender_name_type?: string;
   business_name?: string;

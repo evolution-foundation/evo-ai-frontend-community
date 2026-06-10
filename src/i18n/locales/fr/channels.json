@@ -1646,13 +1646,26 @@
     "statusLabel": {
       "active": "Actif",
       "attention": "Attention requise",
+      "error": "En erreur",
       "available": "Disponible"
     },
     "summary": {
       "active": "{{count}} actif(s)",
       "attention": "{{count}} à vérifier",
+      "error": "{{count}} en erreur",
       "notConfigured": "Non configuré"
     },
+    "inboxState": {
+      "connected": "Connecté",
+      "disconnected": "Déconnecté",
+      "pending": "En test",
+      "error": "Erreur",
+      "unknown": "Inconnu",
+      "unmonitored": "Non surveillé",
+      "checking": "Vérification..."
+    },
+    "liveCheckFailed": "La vérification en direct a échoué — affichage du dernier état connu",
+    "moreInboxes": "+{{count}} autres boîtes de réception",
     "actions": {
       "add": "Ajouter",
       "manage": "Gérer",

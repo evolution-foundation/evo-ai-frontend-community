@@ -4,6 +4,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { Inbox } from '@/types/channels/inbox';
 import { getChannelTypes } from '@/constants/channelTypes';
 import { buildChannelTypeStatuses, ChannelTypeStatus } from '@/utils/channelStatus';
+import useLiveChannelStatus from '@/hooks/channels/useLiveChannelStatus';
 import ChannelTypeCard from './ChannelTypeCard';
 
 interface ChannelTypeHubProps {
@@ -15,12 +16,13 @@ interface ChannelTypeHubProps {
 
 export default function ChannelTypeHub({ inboxes, isLoading, onAdd, onManage }: ChannelTypeHubProps) {
   const { t, currentLanguage } = useLanguage('channels');
+  const { states: liveStates, loadingIds, failedIds } = useLiveChannelStatus(inboxes);
 
   // getChannelTypes() reads translated labels, so recompute when language changes.
   const typeStatuses = useMemo(
-    () => buildChannelTypeStatuses(getChannelTypes(), inboxes),
+    () => buildChannelTypeStatuses(getChannelTypes(), inboxes, liveStates),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [inboxes, currentLanguage],
+    [inboxes, liveStates, currentLanguage],
   );
 
   if (isLoading) {
@@ -46,6 +48,8 @@ export default function ChannelTypeHub({ inboxes, isLoading, onAdd, onManage }: 
             typeStatus={typeStatus}
             onAdd={onAdd}
             onManage={onManage}
+            liveLoadingIds={loadingIds}
+            liveFailedIds={failedIds}
           />
         ))}
       </div>
