@@ -105,10 +105,11 @@ interface ChatSidebarProps {
 }
 
 // Prefetch the next page well before the user reaches the end so the loading
-// state is not perceived while scrolling. Anticipated by ~1.5 viewport heights,
-// with a floor for short viewports.
-const PREFETCH_VIEWPORT_FACTOR = 1.5;
-const MIN_PREFETCH_DISTANCE_PX = 600;
+// state is not perceived while scrolling. Anticipated by ~2.5 viewport heights
+// (EVO-1672: 1.5 was outrun by fast scrolling / slow connections), with a
+// floor for short viewports. loadMore stays sequential via loadingMoreRef.
+const PREFETCH_VIEWPORT_FACTOR = 2.5;
+const MIN_PREFETCH_DISTANCE_PX = 1000;
 
 const ChatSidebar = ({
   mobileView,
@@ -580,27 +581,21 @@ const ChatSidebar = ({
     loadingMoreRef.current = true;
     setIsLoadingMoreConversations(true);
 
-    const scrollTop = container.scrollTop;
-
     try {
       await conversations.loadMoreConversations();
     } finally {
+      // EVO-1672: no forced scrollTop restore here. It compensated for the
+      // full-list remount (now gone — the list stays mounted during loadMore)
+      // and, with the wider prefetch, it yanked the user back to wherever the
+      // trigger fired if they kept scrolling during the request. Appending
+      // below the viewport does not move scrollTop natively.
       setIsLoadingMoreConversations(false);
-      // Release lock inside RAF so the scroll restoration fires before new events can re-enter
-      requestAnimationFrame(() => {
-        if (sidebarScrollRef.current) {
-          sidebarScrollRef.current.scrollTop = scrollTop;
-        }
-        loadingMoreRef.current = false;
-      });
+      loadingMoreRef.current = false;
     }
   }, [conversations]);
 
   const handleLoadMoreClick = useCallback(async () => {
     if (loadingMoreRef.current || isLoadingMoreConversations || !hasNextPage) return;
-
-    const container = sidebarScrollRef.current;
-    const savedScrollTop = container?.scrollTop ?? 0;
 
     loadingMoreRef.current = true;
     setIsLoadingMoreConversations(true);
@@ -608,12 +603,7 @@ const ChatSidebar = ({
       await conversations.loadMoreConversations();
     } finally {
       setIsLoadingMoreConversations(false);
-      requestAnimationFrame(() => {
-        if (sidebarScrollRef.current) {
-          sidebarScrollRef.current.scrollTop = savedScrollTop;
-        }
-        loadingMoreRef.current = false;
-      });
+      loadingMoreRef.current = false;
     }
   }, [conversations, hasNextPage, isLoadingMoreConversations]);
 
@@ -1068,7 +1058,12 @@ const ChatSidebar = ({
       >
         {!conversations ? (
           <ConversationSkeleton count={8} />
-        ) : conversations.state.conversationsLoading || filters.state.isApplyingFilters ? (
+        ) : (conversations.state.conversationsLoading && visibleConversations.length === 0) ||
+          filters.state.isApplyingFilters ? (
+          // EVO-1672: the full-list skeleton is for the EMPTY/initial load only.
+          // loadMore flips the shared conversationsLoading flag too, and swapping
+          // the whole list mid-scroll loses the user's position (flicker + jump);
+          // with items on screen the bottom cushion is the loading feedback.
           <ConversationSkeleton count={8} />
         ) : conversations.state.conversationsError ? (
           <div className="p-4 text-center">
@@ -1223,9 +1218,12 @@ const ChatSidebar = ({
               );
             })}
 
+            {/* EVO-1672: proportional cushion (~half a viewport) so fast
+                scroll / slow networks read as a deliberate "loading more"
+                affordance instead of a blank gap with pop-in. */}
             {isLoadingMoreConversations && (
               <div className="border-t border-border/40">
-                <ConversationSkeleton count={1} />
+                <ConversationSkeleton count={5} />
               </div>
             )}
 

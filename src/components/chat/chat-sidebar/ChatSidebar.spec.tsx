@@ -59,7 +59,9 @@ vi.mock('@/utils/chat/mediaLabels', () => ({
 }));
 
 vi.mock('../loading-states', () => ({
-  ConversationSkeleton: () => <div data-testid="skeleton" />,
+  ConversationSkeleton: ({ count }: { count?: number }) => (
+    <div data-testid="skeleton" data-count={count} />
+  ),
 }));
 
 vi.mock('../empty-states', () => ({
@@ -498,9 +500,10 @@ describe('ChatSidebar scroll pagination (EVO-1407)', () => {
     await screen.findByText('Test Contact');
 
     const scrollEl = document.querySelector('[data-tour="chat-conversations-list"]')!;
-    // clientHeight 600 → threshold = max(600, 900) = 900px. distanceToBottom = 700px:
-    // far beyond the old 120px gate, yet still triggers the prefetch.
-    setScrollDimensions(scrollEl, 5000, 600, 3700);
+    // EVO-1672: clientHeight 600 → threshold = max(1000, 1500) = 1500px.
+    // distanceToBottom = 1400px — beyond the previous 900px threshold, yet
+    // still triggers, pinning the widened lookahead.
+    setScrollDimensions(scrollEl, 5000, 600, 3000);
 
     await act(async () => { fireEvent.scroll(scrollEl); });
 
@@ -514,12 +517,39 @@ describe('ChatSidebar scroll pagination (EVO-1407)', () => {
     await screen.findByText('Test Contact');
 
     const scrollEl = document.querySelector('[data-tour="chat-conversations-list"]')!;
-    // distanceToBottom = 5000 - 0 - 600 = 4400px, well past the 900px threshold.
+    // distanceToBottom = 5000 - 0 - 600 = 4400px, well past the 1500px threshold.
     setScrollDimensions(scrollEl, 5000, 600, 0);
 
     await act(async () => { fireEvent.scroll(scrollEl); });
 
     expect(loadMore).not.toHaveBeenCalled();
+  });
+
+  it('keeps the loaded list visible when conversationsLoading flips with items on screen (EVO-1672)', async () => {
+    // loadMore flips the shared conversationsLoading flag; the full-list
+    // skeleton (count=8) must NOT replace an already-populated list — that
+    // loses the scroll position and reads as the whole list vanishing.
+    overrideContext = makePaginatedContext(true);
+    overrideContext.conversations.state.conversationsLoading = true as never;
+    render(<ChatSidebar {...defaultProps} />);
+
+    expect(await screen.findByText('Test Contact')).toBeInTheDocument();
+    expect(screen.queryByTestId('skeleton')).not.toBeInTheDocument();
+  });
+
+  it('renders a multi-row loading cushion during load-more (EVO-1672)', async () => {
+    let resolveFn!: () => void;
+    const loadMore = vi.fn().mockReturnValue(new Promise<void>(res => { resolveFn = res; }));
+    overrideContext = makePaginatedContext(true, loadMore);
+    render(<ChatSidebar {...defaultProps} />);
+    const btn = await screen.findByText('Carregar mais');
+
+    act(() => { fireEvent.click(btn); });
+
+    await waitFor(() => expect(screen.getByTestId('skeleton')).toBeInTheDocument());
+    expect(screen.getByTestId('skeleton').dataset.count).toBe('5');
+
+    await act(async () => { resolveFn(); });
   });
 
   it('does not load more after last page (CA-3)', async () => {
