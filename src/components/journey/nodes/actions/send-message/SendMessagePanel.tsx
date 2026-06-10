@@ -361,7 +361,11 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
   };
 
   const handleSave = () => {
-    const uploadedAttachments = attachments.filter(att => att.status === 'uploaded');
+    // Attachments belong to free-text mode only; a mode switch must not leak
+    // previously uploaded files into a template send.
+    const uploadedAttachments = isTemplateMode
+      ? []
+      : attachments.filter(att => att.status === 'uploaded');
     const hasAttachments = uploadedAttachments.length > 0;
 
     const updatedData: SendMessageNodeData = {
