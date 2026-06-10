@@ -922,6 +922,7 @@
     "createPipelineTask": {
       "title": "Configurar Criar Tarefa no Pipeline",
       "loadDataError": "Erro ao carregar agentes:",
+      "loadErrorBanner": "Não foi possível carregar os agentes. Verifique sua conexão e reabra este node.",
       "taskTitle": "Título",
       "taskTitlePlaceholder": "ex.: Dar follow-up com {contact.name}",
       "variablesHint": "Suporta variáveis como {contact.name}.",

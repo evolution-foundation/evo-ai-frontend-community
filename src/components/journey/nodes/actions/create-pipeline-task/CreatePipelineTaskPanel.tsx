@@ -9,7 +9,7 @@ import {
   Input,
   Textarea,
 } from '@evoapi/design-system';
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, AlertCircle } from 'lucide-react';
 import {
   CreatePipelineTaskNodeData,
   CreatePipelineTaskAgentOption,
@@ -17,6 +17,7 @@ import {
 } from './CreatePipelineTaskNode';
 import { automationService } from '@/services/automation/automationService';
 import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
+import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface CreatePipelineTaskPanelProps {
@@ -56,15 +57,18 @@ export function CreatePipelineTaskPanel({
     data.formDataOptions?.agents || [],
   );
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     const loadFormData = async () => {
       try {
         setLoading(true);
+        setLoadError(false);
         const formData = await automationService.getFormData();
         setAgents(formData.agents || []);
       } catch (error) {
         console.error(t('panels.createPipelineTask.loadDataError'), error);
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
@@ -117,6 +121,15 @@ export function CreatePipelineTaskPanel({
       cancelLabel={t('panels.actions.cancel')}
     >
       <div className="space-y-4">
+        {loadError && (
+          <FlowFeedbackBanner variant="error">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4" />
+              <span>{t('panels.createPipelineTask.loadErrorBanner')}</span>
+            </div>
+          </FlowFeedbackBanner>
+        )}
+
         <div className="space-y-2">
           <Label className="text-sidebar-foreground font-medium">
             {t('panels.createPipelineTask.taskTitle')}

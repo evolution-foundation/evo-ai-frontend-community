@@ -922,6 +922,7 @@
     "createPipelineTask": {
       "title": "Configure Create Pipeline Task",
       "loadDataError": "Error loading agents:",
+      "loadErrorBanner": "Could not load agents. Check your connection and try reopening this node.",
       "taskTitle": "Title",
       "taskTitlePlaceholder": "e.g. Follow up with {contact.name}",
       "variablesHint": "Supports variables like {contact.name}.",
