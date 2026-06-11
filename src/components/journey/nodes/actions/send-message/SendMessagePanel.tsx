@@ -413,11 +413,28 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
 
   const handleVariableSourceChange = (name: string, source: TemplateVariableSource) => {
     // Switching source resets the source-specific inputs; fallback survives.
-    handleVariableMappingChange(name, {
-      source,
-      path: undefined,
-      value: source === 'fixed' ? (formData.templateParams?.[name] ?? '') : undefined,
-      expression: undefined,
+    // Seeded inside the functional update so rapid switches never read a
+    // stale templateParams snapshot from the render closure.
+    setFormData(prev => {
+      const mappings = prev.templateVariables ?? [];
+      const current = mappings.find(mapping => mapping.variable === name) ?? {
+        variable: name,
+        source: 'fixed' as TemplateVariableSource,
+      };
+      const next: TemplateVariableMapping = {
+        ...current,
+        source,
+        path: undefined,
+        value: source === 'fixed' ? (prev.templateParams?.[name] ?? '') : undefined,
+        expression: undefined,
+      };
+      return {
+        ...prev,
+        templateVariables: [
+          ...mappings.filter(mapping => mapping.variable !== name),
+          next,
+        ],
+      };
     });
   };
 
