@@ -22,6 +22,10 @@
     "accountDeletion": {
       "title": "Exclusão da Conta",
       "description": "Exclua permanentemente sua conta e todos os dados"
+    },
+    "maskContactPii": {
+      "title": "Mascarar Dados do Contacto",
+      "description": "Oculta telefone, email e identificador para utilizadores não-admin, desencorajando contacto com leads fora do sistema."
     }
   },
   "fields": {
@@ -80,7 +84,9 @@
       "audioTranscriptionDisabled": "Transcrição de áudio desabilitada",
       "accountDeleted": "Conta marcada para exclusão",
       "deletionCancelled": "Exclusão da conta cancelada",
-      "accountIdCopied": "ID da conta copiado para a área de transferência"
+      "accountIdCopied": "ID da conta copiado para a área de transferência",
+      "maskPiiEnabled": "Mascaramento de dados do contacto activado",
+      "maskPiiDisabled": "Mascaramento de dados do contacto desactivado"
     },
     "error": {
       "loadFailed": "Não foi possível carregar os dados da conta",
@@ -90,7 +96,8 @@
       "audioTranscriptionFailed": "Erro ao alterar transcrição de áudio",
       "deleteFailed": "Erro ao marcar conta para exclusão",
       "cancelDeletionFailed": "Erro ao cancelar exclusão",
-      "minTime": "Tempo mínimo é de 10 minutos"
+      "minTime": "Tempo mínimo é de 10 minutos",
+      "maskPiiFailed": "Erro ao actualizar mascaramento de dados do contacto"
     }
   },
   "validation": {

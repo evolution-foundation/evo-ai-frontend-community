@@ -22,6 +22,10 @@
     "accountDeletion": {
       "title": "Eliminación de la cuenta",
       "description": "Elimine permanentemente su cuenta y todos los datos"
+    },
+    "maskContactPii": {
+      "title": "Enmascarar Datos del Contacto",
+      "description": "Oculta teléfono, email e identificador para usuarios no admin, desalentando el contacto con leads fuera del sistema."
     }
   },
   "fields": {
@@ -80,7 +84,9 @@
       "audioTranscriptionDisabled": "Transcripción de audio deshabilitada",
       "accountDeleted": "Cuenta marcada para eliminación",
       "deletionCancelled": "Eliminación de la cuenta cancelada",
-      "accountIdCopied": "ID de la cuenta copiado al portapapeles"
+      "accountIdCopied": "ID de la cuenta copiado al portapapeles",
+      "maskPiiEnabled": "Enmascaramiento de datos del contacto activado",
+      "maskPiiDisabled": "Enmascaramiento de datos del contacto desactivado"
     },
     "error": {
       "loadFailed": "No se pudieron cargar los datos de la cuenta",
@@ -90,7 +96,8 @@
       "audioTranscriptionFailed": "Error al cambiar la transcripción de audio",
       "deleteFailed": "Error al marcar la cuenta para su eliminación",
       "cancelDeletionFailed": "Error al cancelar la eliminación",
-      "minTime": "El tiempo mínimo es de 10 minutos"
+      "minTime": "El tiempo mínimo es de 10 minutos",
+      "maskPiiFailed": "Error al actualizar el enmascaramiento de datos del contacto"
     }
   },
   "validation": {

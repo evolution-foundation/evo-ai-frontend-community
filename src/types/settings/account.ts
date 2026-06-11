@@ -70,6 +70,7 @@ export interface Account {
     auto_resolve_ignore_waiting?: boolean;
     auto_resolve_label?: string;
     audio_transcriptions?: boolean;
+    mask_contact_pii?: boolean;
   };
   custom_attributes?: {
     marked_for_deletion_at?: string;
@@ -111,6 +112,15 @@ export interface UpdateAccount {
   auto_resolve_ignore_waiting?: boolean;
   auto_resolve_label?: string | null;
   audio_transcriptions?: boolean;
+  mask_contact_pii?: boolean;
+  settings?: {
+    auto_resolve_after?: number;
+    auto_resolve_message?: string;
+    auto_resolve_ignore_waiting?: boolean;
+    auto_resolve_label?: string;
+    audio_transcriptions?: boolean;
+    mask_contact_pii?: boolean;
+  };
 }
 
 // Form data options for account forms

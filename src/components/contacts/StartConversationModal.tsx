@@ -269,11 +269,19 @@ export default function StartConversationModal({
     setLoading(true);
     try {
       // Build conversation data - match Vue implementation structure
+      // EVO-1551: when the PII masking flag is on, the backend omits
+      // source_id from /contactable_inboxes for PII-derived channels (WA/
+      // SMS/Email/Twilio) and rebuilds it server-side from contact_id +
+      // inbox_id. Only send source_id when the server actually gave us one
+      // (Instagram, BSUID-only WhatsApp, web widget, etc.) — sending an
+      // empty string used to break the builder.
       const conversationData: ConversationCreateData = {
         contact_id: contact.id,
         inbox_id: selectedInboxId,
-        source_id: selectedInbox?.source_id || '',
       };
+      if (selectedInbox?.source_id) {
+        conversationData.source_id = selectedInbox.source_id;
+      }
 
       // Add message or template params
       // Backend will process templates (both WhatsApp and Email) based on template_params

@@ -399,7 +399,9 @@
         "lastActivity": "Última actividad"
       },
       "notInformed": "No informado",
-      "copiedToClipboard": "Copiado al portapapeles"
+      "copiedToClipboard": "Copiado al portapapeles",
+      "maskedValueCopied": "Valor enmascarado copiado — pide acceso al admin si necesitas el dato completo",
+      "dataProtectedTooltip": "Datos protegidos por la política de la cuenta"
     },
     "customAttributes": {
       "noAttributes": "No hay atributos personalizados configurados",

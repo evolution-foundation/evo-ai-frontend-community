@@ -7,7 +7,8 @@
       "viewDetails": "View details",
       "edit": "Edit contact",
       "delete": "Delete contact"
-    }
+    },
+    "dataProtectedTooltip": "Data protected by account policy"
   },
   "details": {
     "title": "Contact Details",

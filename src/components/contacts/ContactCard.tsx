@@ -1,9 +1,9 @@
 import { useLanguage } from '@/hooks/useLanguage';
 import { Button, Card, CardContent } from '@evoapi/design-system';
-import { Edit, MessageSquare, Eye, Trash } from 'lucide-react';
+import { Edit, MessageSquare, Eye, Trash, Lock } from 'lucide-react';
 import { Contact } from '@/types/contacts';
 import ContactAvatar from '@/components/chat/contact/ContactAvatar';
-import { formatContactPhone } from '@/utils/contact/formatContactPhone';
+import { useContactPiiMasking } from '@/hooks/useContactPiiMasking';
 import ContactStatusBadge from './ContactStatusBadge';
 import ContactTagsList from './ContactTagsList';
 import ContactTypeBadge from './ContactTypeBadge';
@@ -25,6 +25,8 @@ export default function ContactCard({
   onDelete,
 }: ContactCardProps) {
   const { t } = useLanguage('contacts');
+  const { shouldMask, maskPhone, maskEmail } = useContactPiiMasking();
+  const protectedTitle = shouldMask ? t('card.dataProtectedTooltip') : undefined;
 
   return (
     <Card className="group relative bg-sidebar border-sidebar-border hover:bg-sidebar-accent/30 transition-all duration-300 hover:shadow-lg hover:shadow-black/10 overflow-hidden">
@@ -39,7 +41,13 @@ export default function ContactCard({
               {contact.name}
             </h3>
             {contact.email && (
-              <p className="text-xs text-sidebar-foreground/60 truncate">{contact.email}</p>
+              <p
+                className="text-xs text-sidebar-foreground/60 truncate flex items-center gap-1"
+                title={protectedTitle}
+              >
+                {shouldMask && <Lock className="h-3 w-3 flex-shrink-0" aria-label={protectedTitle} />}
+                {maskEmail(contact.email)}
+              </p>
             )}
           </div>
           <div className="flex flex-col gap-2">
@@ -55,7 +63,12 @@ export default function ContactCard({
           </div>
           <div className="flex items-center justify-between">
             <span>{t('card.phone')}</span>
-            <span className="font-mono">{formatContactPhone(contact.phone_number)}</span>
+            <span className="font-mono flex items-center gap-1" title={protectedTitle}>
+              {shouldMask && contact.phone_number && (
+                <Lock className="h-3 w-3 flex-shrink-0" aria-label={protectedTitle} />
+              )}
+              {maskPhone(contact.phone_number)}
+            </span>
           </div>
           {contact.labels && contact.labels.length > 0 && (
             <div className="pt-2">

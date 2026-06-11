@@ -412,7 +412,9 @@
         "lastActivity": "Última atividade"
       },
       "notInformed": "Não informado",
-      "copiedToClipboard": "Copiado para a área de transferência"
+      "copiedToClipboard": "Copiado para a área de transferência",
+      "maskedValueCopied": "Valor mascarado copiado — peça acesso ao admin se precisar do dado completo",
+      "dataProtectedTooltip": "Dados protegidos pela política da conta"
     },
     "customAttributes": {
       "noAttributes": "Nenhum atributo personalizado configurado",

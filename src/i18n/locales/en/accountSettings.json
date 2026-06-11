@@ -22,6 +22,10 @@
     "accountDeletion": {
       "title": "Account Deletion",
       "description": "Permanently delete your account and all data"
+    },
+    "maskContactPii": {
+      "title": "Mask Contact Data",
+      "description": "Hide phone, email and identifier from non-admin users to discourage contacting leads outside the system."
     }
   },
   "fields": {
@@ -80,7 +84,9 @@
       "audioTranscriptionDisabled": "Audio transcription disabled",
       "accountDeleted": "Account marked for deletion",
       "deletionCancelled": "Account deletion cancelled",
-      "accountIdCopied": "Account ID copied to clipboard"
+      "accountIdCopied": "Account ID copied to clipboard",
+      "maskPiiEnabled": "Contact data masking enabled",
+      "maskPiiDisabled": "Contact data masking disabled"
     },
     "error": {
       "loadFailed": "Failed to load account data",
@@ -90,7 +96,8 @@
       "audioTranscriptionFailed": "Error changing audio transcription",
       "deleteFailed": "Error marking account for deletion",
       "cancelDeletionFailed": "Error cancelling deletion",
-      "minTime": "Minimum time is 10 minutes"
+      "minTime": "Minimum time is 10 minutes",
+      "maskPiiFailed": "Failed to update contact data masking"
     }
   },
   "validation": {
