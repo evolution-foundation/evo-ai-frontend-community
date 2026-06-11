@@ -110,6 +110,10 @@ describe('journey i18n parity (EVO-1260)', () => {
     // tech-term phrases (with optional required-marker asterisk)
     'Bearer Token', 'Bearer Token *', 'API Key', 'API Key *',
     'Basic Auth', 'Headers HTTP', 'Templates JSON', 'Bot:',
+    // "Template" is the established pt-BR loanword across the Send Message
+    // block (Template de mensagem, Escolha um template, …) — kept identical
+    // to EN by design, so the labels match the surrounding copy.
+    'Template', 'Template:',
     // strings whose only "language" content is the variable placeholder
     'Webhook {{method}}', 'Basic auth: {{username}}', 'Timeout: {{timeout}}s',
     // sample literals used as placeholders in form fields

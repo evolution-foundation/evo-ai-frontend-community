@@ -715,7 +715,7 @@
       "variableFields": {
         "contact": {
           "name": "Nome",
-          "email": "Email",
+          "email": "E-mail",
           "phone_number": "Telefone",
           "identifier": "Identificador"
         },
@@ -957,7 +957,7 @@
       "loadDataError": "Erro ao carregar pipelines:",
       "loadStagesError": "Erro ao carregar stages:",
       "pipeline": "Pipeline",
-      "stage": "Stage",
+      "stage": "Etapa",
       "loadingPipelines": "Carregando pipelines...",
       "loadingStages": "Carregando stages...",
       "selectPipeline": "Selecione um pipeline",
