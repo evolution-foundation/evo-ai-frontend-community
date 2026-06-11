@@ -700,6 +700,35 @@
       "selectTemplateValidation": "Select a template",
       "templateUnavailable": "The selected template is no longer available",
       "fillRequiredVariables": "Fill in the required variables",
+      "invalidExpression": "Custom expression has unbalanced braces or parentheses",
+      "chooseField": "Choose a field",
+      "expressionPlaceholder": "E.g.: {{contact.name}} ({{pipeline.pipeline_stage.name}})",
+      "fallbackPlaceholder": "Fallback if empty (optional)",
+      "variableSourcesHint": "Pick a source for each template variable; contact, conversation and pipeline fields are resolved when the flow runs",
+      "variableSources": {
+        "fixed": "Fixed value",
+        "contact": "Contact",
+        "conversation": "Conversation",
+        "pipeline": "Pipeline",
+        "expression": "Custom expression"
+      },
+      "variableFields": {
+        "contact": {
+          "name": "Name",
+          "email": "Email",
+          "phone_number": "Phone",
+          "identifier": "Identifier"
+        },
+        "conversation": {
+          "display_id": "Conversation number",
+          "status": "Status"
+        },
+        "pipeline": {
+          "pipeline_stage_name": "Stage name",
+          "pipeline_name": "Pipeline name",
+          "entered_at": "Entered stage at"
+        }
+      },
       "templatesLoadError": "Failed to load templates",
       "templateConfigured": "Template configured"
     },

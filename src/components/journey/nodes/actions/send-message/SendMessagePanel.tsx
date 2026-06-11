@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Button,
+  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -24,7 +25,12 @@ import {
   Phone,
   Send,
 } from 'lucide-react';
-import { SendMessageNodeData } from './SendMessageNode';
+import {
+  SendMessageNodeData,
+  TemplateVariableMapping,
+  TemplateVariableSource,
+} from './SendMessageNode';
+import { isBalancedExpression } from '@/utils/templateVariables';
 import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
 import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { automationService } from '@/services/automation/automationService';
@@ -56,6 +62,23 @@ interface AttachmentFile {
   status: 'uploading' | 'uploaded' | 'error';
   uploadProgress?: number;
 }
+
+// EVO-1267: curated field paths per root source — every entry must be
+// resolvable by the CRM's TemplateVariableResolver (attribute or arity-0
+// reader on the root record).
+const SOURCE_FIELD_PATHS: Record<'contact' | 'conversation' | 'pipeline', string[]> = {
+  contact: ['name', 'email', 'phone_number', 'identifier'],
+  conversation: ['display_id', 'status'],
+  pipeline: ['pipeline_stage.name', 'pipeline.name', 'entered_at'],
+};
+
+const VARIABLE_SOURCES: TemplateVariableSource[] = [
+  'fixed',
+  'contact',
+  'conversation',
+  'pipeline',
+  'expression',
+];
 
 const ALLOWED_INBOX_TYPES = [
   'Channel::Email',
@@ -140,6 +163,7 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
     templateName: data.templateName || '',
     templateLanguage: data.templateLanguage || '',
     templateParams: data.templateParams || {},
+    templateVariables: data.templateVariables || [],
     useEventChannel: data.useEventChannel || false,
     hasAttachment: data.hasAttachment || false,
     attachment_ids: data.attachment_ids || [],
@@ -350,14 +374,68 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
       templateName: template?.name || '',
       templateLanguage: template?.language || '',
       templateParams: defaults,
+      templateVariables: [],
     }));
   };
 
-  const handleTemplateParamChange = (name: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      templateParams: { ...(prev.templateParams ?? {}), [name]: value },
-    }));
+  // EVO-1267: a variable without an explicit mapping defaults to 'fixed' with
+  // the template's default value — the exact pre-10.19 behavior. The plain
+  // templateParams dict stays as the default/legacy layer; mappings win at
+  // runtime (send-message node merges with mapping precedence).
+  const getVariableMapping = (name: string): TemplateVariableMapping =>
+    formData.templateVariables?.find(mapping => mapping.variable === name) ?? {
+      variable: name,
+      source: 'fixed',
+      value: formData.templateParams?.[name] ?? '',
+    };
+
+  const handleVariableMappingChange = (
+    name: string,
+    patch: Partial<TemplateVariableMapping>,
+  ) => {
+    setFormData(prev => {
+      const mappings = prev.templateVariables ?? [];
+      const current = mappings.find(mapping => mapping.variable === name) ?? {
+        variable: name,
+        source: 'fixed' as TemplateVariableSource,
+        value: prev.templateParams?.[name] ?? '',
+      };
+      const next = { ...current, ...patch };
+      return {
+        ...prev,
+        templateVariables: [
+          ...mappings.filter(mapping => mapping.variable !== name),
+          next,
+        ],
+      };
+    });
+  };
+
+  const handleVariableSourceChange = (name: string, source: TemplateVariableSource) => {
+    // Switching source resets the source-specific inputs; fallback survives.
+    // Seeded inside the functional update so rapid switches never read a
+    // stale templateParams snapshot from the render closure.
+    setFormData(prev => {
+      const mappings = prev.templateVariables ?? [];
+      const current = mappings.find(mapping => mapping.variable === name) ?? {
+        variable: name,
+        source: 'fixed' as TemplateVariableSource,
+      };
+      const next: TemplateVariableMapping = {
+        ...current,
+        source,
+        path: undefined,
+        value: source === 'fixed' ? (prev.templateParams?.[name] ?? '') : undefined,
+        expression: undefined,
+      };
+      return {
+        ...prev,
+        templateVariables: [
+          ...mappings.filter(mapping => mapping.variable !== name),
+          next,
+        ],
+      };
+    });
   };
 
   const handleSave = () => {
@@ -401,12 +479,36 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
 
   const uploadedCount = attachments.filter(att => att.status === 'uploaded').length;
   const hasUploading = attachments.some(att => att.status === 'uploading');
+
+  const isMappingFilled = (mapping: TemplateVariableMapping): boolean => {
+    switch (mapping.source) {
+      case 'fixed':
+        return !!(mapping.value ?? '').trim();
+      case 'expression':
+        return !!(mapping.expression ?? '').trim() && isBalancedExpression(mapping.expression!);
+      default:
+        return !!mapping.path;
+    }
+  };
+
+  const templateVariableNames = isTemplateMode
+    ? (selectedTemplate?.variables ?? []).map(variable => variable.name).filter(Boolean)
+    : [];
+  // AC3: an unbalanced custom expression blocks Save even on optional vars.
+  const invalidExpressionVariables = templateVariableNames
+    .map(name => getVariableMapping(name!))
+    .filter(
+      mapping =>
+        mapping.source === 'expression' &&
+        !!(mapping.expression ?? '').trim() &&
+        !isBalancedExpression(mapping.expression!),
+    );
   const missingRequiredVariables = isTemplateMode
     ? (selectedTemplate?.variables ?? []).filter(
         variable =>
           variable.required &&
           variable.name &&
-          !(formData.templateParams?.[variable.name] ?? '').trim(),
+          !isMappingFilled(getVariableMapping(variable.name)),
       )
     : [];
   const isValid = isTemplateMode
@@ -416,6 +518,7 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
         !loadingTemplates &&
         selectedTemplate &&
         missingRequiredVariables.length === 0 &&
+        invalidExpressionVariables.length === 0 &&
         !hasUploading
       )
     : !!(
@@ -470,6 +573,9 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
                 !loadingTemplates && <li>{t('panels.sendMessage.templateUnavailable')}</li>}
               {isTemplateMode && missingRequiredVariables.length > 0 && (
                 <li>{t('panels.sendMessage.fillRequiredVariables')}</li>
+              )}
+              {isTemplateMode && invalidExpressionVariables.length > 0 && (
+                <li>{t('panels.sendMessage.invalidExpression')}</li>
               )}
               {hasUploading && <li>{t('panels.sendMessage.waitingUpload')}</li>}
             </ul>
@@ -662,26 +768,125 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
                 <Label className="text-sm font-medium">
                   {t('panels.sendMessage.templateVariables')}
                 </Label>
-                <div className="space-y-2">
-                  {selectedTemplate.variables!.map(variable =>
-                    variable.name ? (
+                <div className="space-y-3">
+                  {selectedTemplate.variables!.map(variable => {
+                    if (!variable.name) return null;
+                    const mapping = getVariableMapping(variable.name);
+                    const isRootSource =
+                      mapping.source === 'contact' ||
+                      mapping.source === 'conversation' ||
+                      mapping.source === 'pipeline';
+                    const expressionInvalid =
+                      mapping.source === 'expression' &&
+                      !!(mapping.expression ?? '').trim() &&
+                      !isBalancedExpression(mapping.expression!);
+
+                    return (
                       <div key={variable.name} className="space-y-1">
                         <Label className="text-xs text-muted-foreground">
                           {variable.label || variable.name}
-                          {variable.required && <span className="text-flow-feedback-error-fg"> *</span>}
+                          {variable.required && (
+                            <span className="text-flow-feedback-error-fg"> *</span>
+                          )}
                         </Label>
-                        <VariableTextarea
-                          value={formData.templateParams?.[variable.name] ?? ''}
-                          onChange={e => handleTemplateParamChange(variable.name!, e.target.value)}
-                          placeholder={variable.example || `{{${variable.name}}}`}
-                          className="min-h-[40px] resize-none"
-                        />
+                        <div className="flex gap-2">
+                          <Select
+                            value={mapping.source}
+                            onValueChange={source =>
+                              handleVariableSourceChange(
+                                variable.name!,
+                                source as TemplateVariableSource,
+                              )
+                            }
+                          >
+                            <SelectTrigger className="w-44 shrink-0">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {VARIABLE_SOURCES.map(source => (
+                                <SelectItem key={source} value={source}>
+                                  {t(`panels.sendMessage.variableSources.${source}`)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+
+                          {mapping.source === 'fixed' && (
+                            <Input
+                              value={mapping.value ?? ''}
+                              onChange={e =>
+                                handleVariableMappingChange(variable.name!, {
+                                  value: e.target.value,
+                                })
+                              }
+                              placeholder={variable.example || variable.name}
+                            />
+                          )}
+
+                          {isRootSource && (
+                            <Select
+                              value={mapping.path ?? ''}
+                              onValueChange={path =>
+                                handleVariableMappingChange(variable.name!, { path })
+                              }
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue
+                                  placeholder={t('panels.sendMessage.chooseField')}
+                                />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {SOURCE_FIELD_PATHS[
+                                  mapping.source as keyof typeof SOURCE_FIELD_PATHS
+                                ].map(path => (
+                                  <SelectItem key={path} value={path}>
+                                    {t(
+                                      `panels.sendMessage.variableFields.${mapping.source}.${path.replace(/\./g, '_')}`,
+                                    )}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+
+                          {mapping.source === 'expression' && (
+                            <div className="w-full space-y-1">
+                              <VariableTextarea
+                                value={mapping.expression ?? ''}
+                                onChange={e =>
+                                  handleVariableMappingChange(variable.name!, {
+                                    expression: e.target.value,
+                                  })
+                                }
+                                placeholder={t('panels.sendMessage.expressionPlaceholder')}
+                                className="min-h-[40px] resize-none"
+                              />
+                              {expressionInvalid && (
+                                <p className="text-xs text-flow-feedback-error-fg">
+                                  {t('panels.sendMessage.invalidExpression')}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        {mapping.source !== 'fixed' && (
+                          <Input
+                            value={mapping.fallback ?? ''}
+                            onChange={e =>
+                              handleVariableMappingChange(variable.name!, {
+                                fallback: e.target.value,
+                              })
+                            }
+                            placeholder={t('panels.sendMessage.fallbackPlaceholder')}
+                            className="text-xs"
+                          />
+                        )}
                       </div>
-                    ) : null,
-                  )}
+                    );
+                  })}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {t('panels.sendMessage.useVariables')}
+                  {t('panels.sendMessage.variableSourcesHint')}
                 </p>
               </div>
             )}

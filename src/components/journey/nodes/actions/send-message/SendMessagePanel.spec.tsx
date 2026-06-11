@@ -126,3 +126,74 @@ describe('SendMessagePanel template mode (EVO-1255)', () => {
     expect(screen.queryByText('panels.sendMessage.attachments')).toBeNull();
   });
 });
+
+describe('SendMessagePanel variable source mappings (EVO-1267)', () => {
+  const twoVarTemplate = {
+    ...template,
+    content: 'Olá {{first_name}}, deal {{deal_value}}!',
+    variables: [
+      { name: 'first_name', label: 'First name', required: true },
+      { name: 'deal_value', label: 'Deal value', required: false },
+    ],
+  };
+
+  beforeEach(() => {
+    mockedGetTemplates.mockReset().mockResolvedValue({
+      success: true,
+      data: [twoVarTemplate],
+    } as unknown as Awaited<ReturnType<typeof MessageTemplateService.getTemplates>>);
+  });
+
+  it('AC1: renders one source dropdown per detected template variable', async () => {
+    renderPanel({
+      inboxId: 'i2',
+      messageMode: 'template',
+      templateId: 'tpl-1',
+      message: '',
+    });
+
+    await waitFor(() => expect(mockedGetTemplates).toHaveBeenCalled());
+    expect(await screen.findByText('First name')).toBeInTheDocument();
+    expect(screen.getByText('Deal value')).toBeInTheDocument();
+    // Both variables default to the 'fixed' source (pre-10.19 behavior).
+    expect(screen.getAllByText('panels.sendMessage.variableSources.fixed')).toHaveLength(2);
+  });
+
+  it('AC3: an unbalanced custom expression flags the panel and disables Save', async () => {
+    renderPanel({
+      inboxId: 'i2',
+      messageMode: 'template',
+      templateId: 'tpl-1',
+      message: '',
+      templateVariables: [
+        { variable: 'first_name', source: 'expression', expression: '{{contact.name' },
+      ],
+    });
+
+    await waitFor(() => expect(mockedGetTemplates).toHaveBeenCalled());
+    expect(
+      (await screen.findAllByText('panels.sendMessage.invalidExpression')).length,
+    ).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: 'panels.actions.save' })).toBeDisabled();
+  });
+
+  it('shows the curated field picker and fallback input for root sources', async () => {
+    renderPanel({
+      inboxId: 'i2',
+      messageMode: 'template',
+      templateId: 'tpl-1',
+      message: '',
+      templateVariables: [
+        { variable: 'first_name', source: 'contact', path: 'name', fallback: 'amigo' },
+      ],
+    });
+
+    await waitFor(() => expect(mockedGetTemplates).toHaveBeenCalled());
+    expect(
+      await screen.findByText('panels.sendMessage.variableFields.contact.name'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('panels.sendMessage.fallbackPlaceholder'),
+    ).toBeInTheDocument();
+  });
+});

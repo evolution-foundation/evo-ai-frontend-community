@@ -700,6 +700,35 @@
       "selectTemplateValidation": "Selecione um template",
       "templateUnavailable": "O template selecionado não está mais disponível",
       "fillRequiredVariables": "Preencha as variáveis obrigatórias",
+      "invalidExpression": "Expressão custom com chaves ou parênteses desbalanceados",
+      "chooseField": "Escolha um campo",
+      "expressionPlaceholder": "Ex.: {{contact.name}} ({{pipeline.pipeline_stage.name}})",
+      "fallbackPlaceholder": "Fallback se vazio (opcional)",
+      "variableSourcesHint": "Escolha a fonte de cada variável do template; campos de contato, conversa e pipeline são resolvidos na execução do flow",
+      "variableSources": {
+        "fixed": "Valor fixo",
+        "contact": "Contato",
+        "conversation": "Conversa",
+        "pipeline": "Pipeline",
+        "expression": "Expressão custom"
+      },
+      "variableFields": {
+        "contact": {
+          "name": "Nome",
+          "email": "E-mail",
+          "phone_number": "Telefone",
+          "identifier": "Identificador"
+        },
+        "conversation": {
+          "display_id": "Número da conversa",
+          "status": "Status"
+        },
+        "pipeline": {
+          "pipeline_stage_name": "Nome do estágio",
+          "pipeline_name": "Nome do pipeline",
+          "entered_at": "Entrou no estágio em"
+        }
+      },
       "templatesLoadError": "Erro ao carregar os templates",
       "templateConfigured": "Template configurado"
     },
@@ -928,7 +957,7 @@
       "loadDataError": "Erro ao carregar pipelines:",
       "loadStagesError": "Erro ao carregar stages:",
       "pipeline": "Pipeline",
-      "stage": "Stage",
+      "stage": "Etapa",
       "loadingPipelines": "Carregando pipelines...",
       "loadingStages": "Carregando stages...",
       "selectPipeline": "Selecione um pipeline",
