@@ -683,6 +683,35 @@
       "selectTemplateValidation": "Selecciona una plantilla",
       "templateUnavailable": "La plantilla seleccionada ya no está disponible",
       "fillRequiredVariables": "Completa las variables obligatorias",
+      "invalidExpression": "Expresión personalizada con llaves o paréntesis desbalanceados",
+      "chooseField": "Elige un campo",
+      "expressionPlaceholder": "Ej.: {{contact.name}} ({{pipeline.pipeline_stage.name}})",
+      "fallbackPlaceholder": "Valor de respaldo si está vacío (opcional)",
+      "variableSourcesHint": "Elige la fuente de cada variable de la plantilla; los campos de contacto, conversación y pipeline se resuelven al ejecutar el flujo",
+      "variableSources": {
+        "fixed": "Valor fijo",
+        "contact": "Contacto",
+        "conversation": "Conversación",
+        "pipeline": "Pipeline",
+        "expression": "Expresión personalizada"
+      },
+      "variableFields": {
+        "contact": {
+          "name": "Nombre",
+          "email": "Email",
+          "phone_number": "Teléfono",
+          "identifier": "Identificador"
+        },
+        "conversation": {
+          "display_id": "Número de conversación",
+          "status": "Estado"
+        },
+        "pipeline": {
+          "pipeline_stage_name": "Nombre de la etapa",
+          "pipeline_name": "Nombre del pipeline",
+          "entered_at": "Entró en la etapa el"
+        }
+      },
       "templatesLoadError": "Error al cargar las plantillas",
       "templateConfigured": "Plantilla configurada"
     },

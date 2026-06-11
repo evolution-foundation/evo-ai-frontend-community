@@ -683,6 +683,35 @@
       "selectTemplateValidation": "Sélectionnez un modèle",
       "templateUnavailable": "Le modèle sélectionné n'est plus disponible",
       "fillRequiredVariables": "Renseignez les variables obligatoires",
+      "invalidExpression": "Expression personnalisée avec accolades ou parenthèses non équilibrées",
+      "chooseField": "Choisissez un champ",
+      "expressionPlaceholder": "Ex. : {{contact.name}} ({{pipeline.pipeline_stage.name}})",
+      "fallbackPlaceholder": "Valeur de repli si vide (optionnel)",
+      "variableSourcesHint": "Choisissez la source de chaque variable du modèle ; les champs contact, conversation et pipeline sont résolus à l'exécution du flux",
+      "variableSources": {
+        "fixed": "Valeur fixe",
+        "contact": "Contact",
+        "conversation": "Conversation",
+        "pipeline": "Pipeline",
+        "expression": "Expression personnalisée"
+      },
+      "variableFields": {
+        "contact": {
+          "name": "Nom",
+          "email": "Email",
+          "phone_number": "Téléphone",
+          "identifier": "Identifiant"
+        },
+        "conversation": {
+          "display_id": "Numéro de conversation",
+          "status": "Statut"
+        },
+        "pipeline": {
+          "pipeline_stage_name": "Nom de l'étape",
+          "pipeline_name": "Nom du pipeline",
+          "entered_at": "Entré dans l'étape le"
+        }
+      },
       "templatesLoadError": "Échec du chargement des modèles",
       "templateConfigured": "Modèle configuré"
     },

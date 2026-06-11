@@ -108,3 +108,22 @@ export const buildInitialVariableParams = (
     acc[variable.name] = variable.default_value ?? variable.example ?? '';
     return acc;
   }, {});
+
+// EVO-1267: basic syntax gate for custom variable expressions — every '('
+// needs its ')' and every '{' its '}' (so "{{contact.name}" can never be
+// saved). Resolution semantics stay server-side; this only blocks Save on
+// obviously broken input.
+export const isBalancedExpression = (expression: string): boolean => {
+  let parens = 0;
+  let braces = 0;
+
+  for (const char of expression) {
+    if (char === '(') parens += 1;
+    else if (char === ')') parens -= 1;
+    else if (char === '{') braces += 1;
+    else if (char === '}') braces -= 1;
+    if (parens < 0 || braces < 0) return false;
+  }
+
+  return parens === 0 && braces === 0;
+};

@@ -2,6 +2,26 @@ import { MessageSquare, Settings, Paperclip } from 'lucide-react';
 import { BaseFlowNode } from '@/components/base';
 import { useLanguage } from '@/hooks/useLanguage';
 
+// EVO-1267: maps one template placeholder to a value source. Root sources
+// (contact/conversation/pipeline) resolve server-side against the live
+// conversation; 'fixed' is a literal; 'expression' is a template string that
+// may mix several {{root.path}} placeholders.
+export type TemplateVariableSource =
+  | 'contact'
+  | 'conversation'
+  | 'pipeline'
+  | 'fixed'
+  | 'expression';
+
+export interface TemplateVariableMapping {
+  variable: string;
+  source: TemplateVariableSource;
+  path?: string;
+  value?: string;
+  expression?: string;
+  fallback?: string;
+}
+
 export interface SendMessageNodeData {
   label?: string;
   description?: string;
@@ -16,6 +36,9 @@ export interface SendMessageNodeData {
   templateName?: string;
   templateLanguage?: string;
   templateParams?: Record<string, string>;
+  // Variable source mappings (EVO-1267); wins over templateParams on the
+  // same variable name at runtime.
+  templateVariables?: TemplateVariableMapping[];
 
   // Opção para usar canal do evento gerado
   useEventChannel?: boolean;
