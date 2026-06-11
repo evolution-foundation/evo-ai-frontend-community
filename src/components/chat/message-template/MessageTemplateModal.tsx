@@ -22,6 +22,7 @@ interface MessageTemplateModalProps {
   onSend: (payload: {
     message: string;
     templateParams?: {
+      id: string;
       name: string;
       category: string;
       language: string;
@@ -112,6 +113,7 @@ const MessageTemplateModal: React.FC<MessageTemplateModalProps> = ({
   const handleSendMessage = async (payload: {
     message: string;
     templateParams: {
+      id: string;
       name: string;
       category: string;
       language: string;

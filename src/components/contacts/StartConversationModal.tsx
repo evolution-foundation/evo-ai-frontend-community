@@ -281,6 +281,7 @@ export default function StartConversationModal({
         conversationData.message = {
           content: '', // Backend will populate this from template
           template_params: {
+            id: selectedTemplate.id, // EVO-1235: canonical key — backend resolves id-first (global-aware)
             name: selectedTemplate.name,
             category: selectedTemplate.category || 'UTILITY',
             language: selectedTemplate.language,

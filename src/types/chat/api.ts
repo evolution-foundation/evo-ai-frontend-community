@@ -304,6 +304,7 @@ export interface CreateConversationRequest {
     content: string;
     private?: boolean;
     template_params?: {
+      id?: string;
       name: string;
       category: string;
       language: string;
@@ -335,6 +336,7 @@ export interface SendMessageRequest {
   attachments?: File[];
   message_type: MessageTypeValue;
   template_params?: {
+    id?: string;
     name: string;
     category: string;
     language: string;
