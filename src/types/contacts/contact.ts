@@ -23,7 +23,11 @@ export interface ContactableInboxes {
   updated_at: number;
   available?: boolean;
   can_create_conversation?: boolean;
-  source_id: string;
+  // EVO-1551: backend omits source_id (returns null) for PII-derived
+  // channels (WhatsApp/SMS/Email/Twilio) when the contact PII masking flag
+  // is on. The server regenerates it from `contact_id + inbox_id` on
+  // POST /conversations, so callers must NOT echo a null/empty value back.
+  source_id: string | null;
   channel: Channel;
 }
 
