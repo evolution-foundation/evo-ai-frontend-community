@@ -39,64 +39,52 @@ describe('inferTemplateProvider', () => {
 });
 
 describe('globalMessageTemplatesService', () => {
-  it('lists templates in ?global=true mode', async () => {
+  it('lists templates from the flat endpoint with no inbox/channel filter', async () => {
     apiMock.get.mockResolvedValue({ data: { success: true, data: [], meta: {} } });
-    await GlobalMessageTemplateService.getTemplates('inbox-1', { per_page: 20 });
+    await GlobalMessageTemplateService.getTemplates({ per_page: 20 });
     expect(apiMock.get).toHaveBeenCalledWith(
-      '/inboxes/inbox-1/message_templates',
-      expect.objectContaining({ params: expect.objectContaining({ global: true, per_page: 20 }) }),
+      '/message_templates',
+      expect.objectContaining({ params: expect.objectContaining({ per_page: 20 }) }),
     );
   });
 
   it('creates with provider nested inside message_template (read via params.dig backend-side)', async () => {
     apiMock.post.mockResolvedValue({ data: { data: { id: 't1' } } });
     await GlobalMessageTemplateService.createTemplate(
-      'inbox-1',
       { name: 'x', content: 'y' } as never,
       'email',
     );
-    expect(apiMock.post).toHaveBeenCalledWith(
-      '/inboxes/inbox-1/message_templates',
-      {
-        message_template: {
-          name: 'x',
-          content: 'y',
-          provider: 'email',
-          settings: { global_provider: 'email' },
-        },
+    expect(apiMock.post).toHaveBeenCalledWith('/message_templates', {
+      message_template: {
+        name: 'x',
+        content: 'y',
+        provider: 'email',
+        settings: { global_provider: 'email' },
       },
-      { params: { global: true } },
-    );
+    });
   });
 
   it('unwraps the PUT response envelope (data.template)', async () => {
     apiMock.put.mockResolvedValue({ data: { data: { template: { id: 't1', name: 'z' } } } });
     const result = await GlobalMessageTemplateService.updateTemplate(
-      'inbox-1',
       't1',
       { name: 'z', content: 'c' } as never,
       'generic',
     );
     expect(result).toEqual({ id: 't1', name: 'z' });
-    expect(apiMock.put).toHaveBeenCalledWith(
-      '/inboxes/inbox-1/message_templates/t1',
-      {
-        message_template: {
-          name: 'z',
-          content: 'c',
-          provider: 'generic',
-          settings: { global_provider: 'generic' },
-        },
+    expect(apiMock.put).toHaveBeenCalledWith('/message_templates/t1', {
+      message_template: {
+        name: 'z',
+        content: 'c',
+        provider: 'generic',
+        settings: { global_provider: 'generic' },
       },
-      { params: { global: true } },
-    );
+    });
   });
 
-  it('deletes in ?global=true mode', async () => {
+  it('deletes from the flat endpoint', async () => {
     apiMock.delete.mockResolvedValue({ data: { success: true } });
-    await GlobalMessageTemplateService.deleteTemplate('inbox-1', 't1');
-    expect(apiMock.delete).toHaveBeenCalledWith('/inboxes/inbox-1/message_templates/t1', {
-      params: { global: true },
-    });
+    await GlobalMessageTemplateService.deleteTemplate('t1');
+    expect(apiMock.delete).toHaveBeenCalledWith('/message_templates/t1');
   });
 });
