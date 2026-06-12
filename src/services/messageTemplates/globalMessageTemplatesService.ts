@@ -7,8 +7,8 @@ import { extractData, extractResponse } from '@/utils/apiHelpers';
  * Global (channel-independent) message templates — EVO-1233 [6.4].
  *
  * These hit the flat, account-scoped `/message_templates` endpoint (EVO-1716).
- * With NO `inbox_id`/`channel_id` filter the backend lists/creates/updates/
- * deletes channel-less (`channel_id IS NULL`) templates. WhatsApp Cloud is
+ * With NO `inbox_id` filter the backend lists/creates/updates/deletes
+ * channel-less (`channel_id IS NULL`) templates. WhatsApp Cloud is
  * intentionally NOT handled here (channel-bound; stays in the per-channel
  * Message Templates tab).
  */
@@ -76,9 +76,8 @@ export const inferTemplateProvider = (template: MessageTemplate): GlobalTemplate
 const GlobalMessageTemplateService = {
   /**
    * List global (channel-less) templates with pagination + search. With no
-   * `inbox_id`/`channel_id` filter the flat endpoint returns channel-less
-   * templates. Never pass `per_page: -1` — that backend branch hardcodes
-   * `total_pages: 1`.
+   * `inbox_id` filter the flat endpoint returns channel-less templates. Never
+   * pass `per_page: -1` — that backend branch hardcodes `total_pages: 1`.
    */
   async getTemplates(params?: GlobalTemplatesQuery): Promise<MessageTemplateResponse> {
     const response = await api.get(`/message_templates`, { params });
