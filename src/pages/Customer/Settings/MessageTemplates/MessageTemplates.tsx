@@ -22,8 +22,6 @@ import {
 import { ChevronLeft, ChevronRight, Edit, LayoutTemplate, Plus, Search, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
-import { useAppDataStore } from '@/store/appDataStore';
-import EmptyState from '@/components/base/EmptyState';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 import { extractError } from '@/utils/apiHelpers';
 import GlobalMessageTemplateService, {
@@ -36,13 +34,6 @@ import type { MessageTemplate, TemplateFormData } from '@/types';
 export default function MessageTemplates() {
   const { t } = useLanguage('messageTemplates');
   const { can } = useUserPermissions();
-  const inboxes = useAppDataStore(s => s.inboxes);
-  const fetchInboxes = useAppDataStore(s => s.fetchInboxes);
-
-  // The global endpoints are member routes under /inboxes/:id (the inbox is a
-  // routing placeholder, ignored in ?global=true mode), but it must still be a
-  // real, viewable inbox id.
-  const placeholderInboxId = inboxes[0]?.id;
 
   const [templates, setTemplates] = useState<MessageTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,12 +48,6 @@ export default function MessageTemplates() {
   const [deleteTarget, setDeleteTarget] = useState<MessageTemplate | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    if (inboxes.length === 0) {
-      fetchInboxes().catch(() => undefined);
-    }
-  }, [inboxes.length, fetchInboxes]);
-
   // Debounce search: server-side filtering is authoritative (no client re-filter).
   useEffect(() => {
     const id = setTimeout(() => {
@@ -73,10 +58,6 @@ export default function MessageTemplates() {
   }, [searchQuery]);
 
   const loadTemplates = useCallback(async () => {
-    if (!placeholderInboxId) {
-      setIsLoading(false);
-      return;
-    }
     if (!can('message_templates', 'read')) {
       toast.error(t('messages.permissionDenied.read'));
       setIsLoading(false);
@@ -84,7 +65,7 @@ export default function MessageTemplates() {
     }
     setIsLoading(true);
     try {
-      const response = await GlobalMessageTemplateService.getTemplates(placeholderInboxId, {
+      const response = await GlobalMessageTemplateService.getTemplates({
         page,
         per_page: DEFAULT_PAGE_SIZE,
         search: debouncedSearch || undefined,
@@ -97,7 +78,7 @@ export default function MessageTemplates() {
     } finally {
       setIsLoading(false);
     }
-  }, [placeholderInboxId, can, t, debouncedSearch, page]);
+  }, [can, t, debouncedSearch, page]);
 
   useEffect(() => {
     loadTemplates();
@@ -122,18 +103,12 @@ export default function MessageTemplates() {
   };
 
   const handleSave = async (formData: TemplateFormData, provider: GlobalTemplateProvider) => {
-    if (!placeholderInboxId) return;
     try {
       if (editing?.id) {
-        await GlobalMessageTemplateService.updateTemplate(
-          placeholderInboxId,
-          editing.id,
-          formData,
-          provider,
-        );
+        await GlobalMessageTemplateService.updateTemplate(editing.id, formData, provider);
         toast.success(t('messages.updateSuccess'));
       } else {
-        await GlobalMessageTemplateService.createTemplate(placeholderInboxId, formData, provider);
+        await GlobalMessageTemplateService.createTemplate(formData, provider);
         toast.success(t('messages.createSuccess'));
       }
       setEditing(null);
@@ -153,10 +128,10 @@ export default function MessageTemplates() {
   };
 
   const confirmDelete = async () => {
-    if (!placeholderInboxId || !deleteTarget?.id) return;
+    if (!deleteTarget?.id) return;
     setIsDeleting(true);
     try {
-      await GlobalMessageTemplateService.deleteTemplate(placeholderInboxId, deleteTarget.id);
+      await GlobalMessageTemplateService.deleteTemplate(deleteTarget.id);
       toast.success(t('messages.deleteSuccess'));
       setDeleteTarget(null);
       await loadTemplates();
@@ -177,19 +152,6 @@ export default function MessageTemplates() {
       </Badge>
     );
   };
-
-  // No inbox exists -> the placeholder-inbox routing constraint can't be met.
-  if (!isLoading && !placeholderInboxId) {
-    return (
-      <div className="p-6">
-        <EmptyState
-          icon={LayoutTemplate}
-          title={t('emptyState.noInboxes')}
-          description={t('emptyState.noInboxesDescription')}
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="p-6 space-y-6">

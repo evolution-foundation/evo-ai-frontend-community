@@ -117,7 +117,10 @@ export const getChannelTemplateConfig = (channelType: string) => {
 
 const MessageTemplateService = {
   /**
-   * Get all templates for an inbox with pagination support
+   * Get all templates for an inbox with pagination support. Hits the flat,
+   * account-scoped `/message_templates` endpoint (EVO-1716) and passes
+   * `inbox_id` so the backend resolves the inbox's channel and returns that
+   * channel's templates.
    */
   async getTemplates(
     inboxId: string,
@@ -130,10 +133,9 @@ const MessageTemplateService = {
     },
   ): Promise<MessageTemplateResponse> {
     try {
-      const response = await api.get<MessageTemplateResponse>(
-        `/inboxes/${inboxId}/message_templates`,
-        { params },
-      );
+      const response = await api.get<MessageTemplateResponse>(`/message_templates`, {
+        params: { ...params, inbox_id: inboxId },
+      });
 
       return extractResponse<MessageTemplate>(response) as MessageTemplateResponse;
     } catch (error) {
@@ -166,7 +168,8 @@ const MessageTemplateService = {
     try {
       const backendTemplate = this.transformToBackendFormat(templateData, channelType);
 
-      const { data } = await api.post(`/inboxes/${inboxId}/message_templates`, {
+      const { data } = await api.post(`/message_templates`, {
+        inbox_id: inboxId,
         message_template: backendTemplate,
       });
       return data;
@@ -188,7 +191,8 @@ const MessageTemplateService = {
     try {
       const backendTemplate = this.transformToBackendFormat(templateData, channelType);
 
-      const { data } = await api.put(`/inboxes/${inboxId}/message_templates/${templateId}`, {
+      const { data } = await api.put(`/message_templates/${templateId}`, {
+        inbox_id: inboxId,
         message_template: backendTemplate,
       });
       return data;
@@ -203,7 +207,9 @@ const MessageTemplateService = {
    */
   async deleteTemplate(inboxId: string, templateId: string): Promise<void> {
     try {
-      await api.delete(`/inboxes/${inboxId}/message_templates/${templateId}`);
+      await api.delete(`/message_templates/${templateId}`, {
+        params: { inbox_id: inboxId },
+      });
     } catch (error) {
       console.error('MessageTemplateService.deleteTemplate error:', error);
       throw error;

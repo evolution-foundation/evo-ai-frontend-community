@@ -53,11 +53,10 @@ beforeEach(() => {
 });
 
 describe('MessageTemplates page', () => {
-  it('lists global templates using the placeholder inbox id and global query', async () => {
+  it('lists global templates from the flat endpoint (no inbox arg)', async () => {
     render(<MessageTemplates />);
     expect(await screen.findByText('welcome')).toBeInTheDocument();
     expect(h.service.getTemplates).toHaveBeenCalledWith(
-      'inbox-1',
       expect.objectContaining({ sort_by: 'name' }),
     );
   });
@@ -67,13 +66,6 @@ describe('MessageTemplates page', () => {
     await screen.findByText('welcome');
     fireEvent.click(screen.getByText('newTemplate'));
     expect(await screen.findByText('form.createTitle')).toBeInTheDocument();
-  });
-
-  it('renders the no-inboxes empty state when no inbox exists (placeholder constraint)', async () => {
-    h.inboxes = [];
-    render(<MessageTemplates />);
-    expect(await screen.findByText('emptyState.noInboxes')).toBeInTheDocument();
-    expect(h.service.getTemplates).not.toHaveBeenCalled();
   });
 
   it('paginates: shows controls and refetches the next page', async () => {
@@ -87,7 +79,6 @@ describe('MessageTemplates page', () => {
     fireEvent.click(await screen.findByText('pagination.next'));
     await waitFor(() =>
       expect(h.service.getTemplates).toHaveBeenLastCalledWith(
-        'inbox-1',
         expect.objectContaining({ page: 2 }),
       ),
     );
