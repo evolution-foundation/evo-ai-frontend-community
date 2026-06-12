@@ -16,6 +16,7 @@ let latestApplied = 0;
 let inFlight: Promise<void> | null = null;
 let pending: Promise<void> | null = null;
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+let trailingRequested = false;
 
 const FETCH_DEBOUNCE_MS = 400;
 
@@ -24,7 +25,10 @@ export const useUnreadConversationsStore = create<UnreadConversationsState>((set
   isLoaded: false,
 
   fetch: async () => {
-    if (inFlight) return inFlight;
+    if (inFlight) {
+      trailingRequested = true;
+      return inFlight;
+    }
     if (pending) return pending;
 
     pending = new Promise<void>((resolve) => {
@@ -42,7 +46,12 @@ export const useUnreadConversationsStore = create<UnreadConversationsState>((set
             console.warn('Failed to fetch total unread count:', error);
           } finally {
             inFlight = null;
+            const shouldTrail = trailingRequested;
+            trailingRequested = false;
             resolve();
+            if (shouldTrail) {
+              useUnreadConversationsStore.getState().fetch();
+            }
           }
         })();
       }, FETCH_DEBOUNCE_MS);
@@ -65,6 +74,8 @@ export const useUnreadConversationsStore = create<UnreadConversationsState>((set
     }
     pending = null;
     inFlight = null;
+    trailingRequested = false;
+    latestApplied = fetchSeq;
     set({ totalUnread: 0, isLoaded: false });
   },
 }));

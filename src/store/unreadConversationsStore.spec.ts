@@ -110,6 +110,73 @@ describe('useUnreadConversationsStore.reset', () => {
     expect(useUnreadConversationsStore.getState().totalUnread).toBe(0);
     expect(useUnreadConversationsStore.getState().isLoaded).toBe(false);
   });
+
+  it('neutralizes an in-flight GET so it cannot resurrect the badge after reset', async () => {
+    let resolveGet: (v: { unread_count: number }) => void = () => {};
+    mockedGetUnreadCount.mockImplementationOnce(
+      () => new Promise((resolve) => {
+        resolveGet = resolve;
+      }),
+    );
+
+    useUnreadConversationsStore.getState().fetch();
+    await vi.advanceTimersByTimeAsync(401);
+    expect(mockedGetUnreadCount).toHaveBeenCalledTimes(1);
+
+    useUnreadConversationsStore.getState().reset();
+    expect(useUnreadConversationsStore.getState().totalUnread).toBe(0);
+    expect(useUnreadConversationsStore.getState().isLoaded).toBe(false);
+
+    resolveGet({ unread_count: 42 });
+    await flushMicrotasks();
+
+    expect(useUnreadConversationsStore.getState().totalUnread).toBe(0);
+    expect(useUnreadConversationsStore.getState().isLoaded).toBe(false);
+  });
+});
+
+describe('useUnreadConversationsStore.fetch trailing re-fetch', () => {
+  it('re-arms one trailing GET when fetch() is called during an in-flight request', async () => {
+    let resolveFirst: (v: { unread_count: number }) => void = () => {};
+    mockedGetUnreadCount
+      .mockImplementationOnce(
+        () => new Promise((resolve) => {
+          resolveFirst = resolve;
+        }),
+      )
+      .mockResolvedValueOnce({ unread_count: 7 });
+
+    useUnreadConversationsStore.getState().fetch();
+    await vi.advanceTimersByTimeAsync(401);
+    expect(mockedGetUnreadCount).toHaveBeenCalledTimes(1);
+
+    useUnreadConversationsStore.getState().fetch();
+    useUnreadConversationsStore.getState().fetch();
+    expect(mockedGetUnreadCount).toHaveBeenCalledTimes(1);
+
+    resolveFirst({ unread_count: 3 });
+    await flushMicrotasks();
+    expect(useUnreadConversationsStore.getState().totalUnread).toBe(3);
+
+    await vi.advanceTimersByTimeAsync(401);
+    await flushMicrotasks();
+
+    expect(mockedGetUnreadCount).toHaveBeenCalledTimes(2);
+    expect(useUnreadConversationsStore.getState().totalUnread).toBe(7);
+  });
+
+  it('does not re-arm a trailing GET when no fetch() arrived during the in-flight window', async () => {
+    mockedGetUnreadCount.mockResolvedValueOnce({ unread_count: 4 });
+
+    useUnreadConversationsStore.getState().fetch();
+    await vi.advanceTimersByTimeAsync(450);
+    await flushMicrotasks();
+    expect(mockedGetUnreadCount).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(1000);
+    await flushMicrotasks();
+    expect(mockedGetUnreadCount).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('useUnreadConversationsStore.setTotal / incrementBy / decrementBy', () => {
