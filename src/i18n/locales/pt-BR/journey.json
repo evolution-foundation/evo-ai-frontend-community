@@ -84,6 +84,10 @@
     },
     "saveSuccess": "Jornada salva com sucesso",
     "saveError": "Não foi possível salvar a jornada",
+    "validation": {
+      "danglingExitWarning": "Jornada salva, mas estes nós não chegam a um nó de Sair da Jornada, então ela não vai concluir: {{nodes}}",
+      "danglingExitBanner": "Esta jornada não vai concluir: estes nós não têm caminho até um nó de Sair da Jornada: {{nodes}}"
+    },
     "loadError": "Não foi possível carregar a jornada",
     "status": {
       "active": "Ativa",

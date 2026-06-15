@@ -84,6 +84,10 @@
     },
     "saveSuccess": "Jornada guardada con éxito",
     "saveError": "No fue posible guardar la jornada",
+    "validation": {
+      "danglingExitWarning": "Jornada guardada, pero estos nodos no llegan a un nodo de Salir de la Jornada, así que no se completará: {{nodes}}",
+      "danglingExitBanner": "Esta jornada no se completará: estos nodos no tienen un camino hasta un nodo de Salir de la Jornada: {{nodes}}"
+    },
     "loadError": "No fue posible cargar la jornada",
     "status": {
       "active": "Activa",

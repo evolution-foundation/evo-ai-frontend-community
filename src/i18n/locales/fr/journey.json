@@ -84,6 +84,10 @@
     },
     "saveSuccess": "Parcours enregistré avec succès",
     "saveError": "Impossible d'enregistrer le parcours",
+    "validation": {
+      "danglingExitWarning": "Parcours enregistré, mais ces nœuds n'atteignent pas un nœud de Sortie du parcours, il ne se terminera donc pas : {{nodes}}",
+      "danglingExitBanner": "Ce parcours ne se terminera pas : ces nœuds n'ont pas de chemin vers un nœud de Sortie du parcours : {{nodes}}"
+    },
     "loadError": "Impossible de charger le parcours",
     "status": {
       "active": "Actif",

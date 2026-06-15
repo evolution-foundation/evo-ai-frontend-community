@@ -84,6 +84,10 @@
     },
     "saveSuccess": "Journey saved successfully",
     "saveError": "Unable to save journey",
+    "validation": {
+      "danglingExitWarning": "Journey saved, but these nodes don't reach an Exit Journey node, so it won't complete: {{nodes}}",
+      "danglingExitBanner": "This journey won't complete: these nodes have no path to an Exit Journey node: {{nodes}}"
+    },
     "loadError": "Unable to load journey",
     "status": {
       "active": "Active",

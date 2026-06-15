@@ -84,6 +84,10 @@
     },
     "saveSuccess": "Percorso salvato con successo",
     "saveError": "Impossibile salvare il percorso",
+    "validation": {
+      "danglingExitWarning": "Percorso salvato, ma questi nodi non raggiungono un nodo di Uscita dal percorso, quindi non verrà completato: {{nodes}}",
+      "danglingExitBanner": "Questo percorso non verrà completato: questi nodi non hanno un percorso verso un nodo di Uscita dal percorso: {{nodes}}"
+    },
     "loadError": "Impossibile caricare il percorso",
     "status": {
       "active": "Attivo",
