@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { journeyService } from '@/services';
 import type { Journey } from '@/types/automation';
 import { useLanguage } from '@/hooks/useLanguage';
+import { validateJourneyTerminalPaths } from '@/utils/journeyFlowValidation';
 import { BaseFlowEditor, type NodeType, type NodeCategory } from '@/components/base';
 import { EnvironmentManager } from '@/components/journey/environment-manager';
 import { JourneyEditorHeader } from '@/components/journey/shared/JourneyEditorHeader';
@@ -156,6 +157,16 @@ function JourneyFlowEditor() {
   const recoveryCandidate = useFlowEditorStore((s) => s.recoveryCandidate);
   const recoveryEpoch = useFlowEditorStore((s) => s.recoveryEpoch);
   const currentSnapshot = useFlowEditorStore((s) => s.currentSnapshot);
+  const danglingNodes = useMemo(
+    () =>
+      currentSnapshot
+        ? validateJourneyTerminalPaths(
+            currentSnapshot.nodes,
+            currentSnapshot.edges,
+          ).danglingNodes
+        : [],
+    [currentSnapshot],
+  );
 
   const isSaving = status === 'saving';
   const hasUnsavedChanges = status !== 'idle';
@@ -743,7 +754,19 @@ function JourneyFlowEditor() {
       // requirement of EVO-1258).
       useFlowEditorStore.getState().commitSave(new Date(), snapshot);
       if (!opts?.silent) {
-        toast.success(t('flowEditor.saveSuccess'));
+        const { danglingNodes } = validateJourneyTerminalPaths(
+          snapshot.nodes,
+          snapshot.edges,
+        );
+        if (danglingNodes.length > 0) {
+          toast.warning(
+            t('flowEditor.validation.danglingExitWarning', {
+              nodes: danglingNodes.map((node) => node.label).join(', '),
+            }),
+          );
+        } else {
+          toast.success(t('flowEditor.saveSuccess'));
+        }
       }
     } catch (error) {
       console.error('Erro ao salvar jornada:', error);
@@ -900,6 +923,16 @@ function JourneyFlowEditor() {
                   seconds: Math.round(nextRetryDelayMs / 1000),
                 })
               : t('flowEditor.saveErrorBannerNoRetry', { reason: lastError })}
+          </p>
+        </FlowFeedbackBanner>
+      ) : null}
+
+      {danglingNodes.length > 0 ? (
+        <FlowFeedbackBanner variant="warn" className="mx-4 mt-2">
+          <p>
+            {t('flowEditor.validation.danglingExitBanner', {
+              nodes: danglingNodes.map((node) => node.label).join(', '),
+            })}
           </p>
         </FlowFeedbackBanner>
       ) : null}
