@@ -29,6 +29,20 @@ describe('validateJourneyTerminalPaths', () => {
     expect(result.danglingNodes).toEqual([]);
   });
 
+  it('treats a transfer-journey-node as a valid terminal path', () => {
+    const nodes = [
+      node('t', 'journey-trigger-node'),
+      node('a', 'send-message-node'),
+      node('x', 'transfer-journey-node'),
+    ];
+    const result = validateJourneyTerminalPaths(nodes, [
+      edge('t', 'a'),
+      edge('a', 'x'),
+    ]);
+    expect(result.isValid).toBe(true);
+    expect(result.danglingNodes).toEqual([]);
+  });
+
   it('flags a terminal action node with no exit', () => {
     const nodes = [
       node('t', 'journey-trigger-node'),

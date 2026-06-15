@@ -2,6 +2,12 @@ import type { Node, Edge } from '@xyflow/react';
 
 const TRIGGER_NODE_TYPE = 'journey-trigger-node';
 const EXIT_NODE_TYPE = 'exit-journey-node';
+const TRANSFER_NODE_TYPE = 'transfer-journey-node';
+
+// Nodes that legitimately end a path: the runtime terminates the loop cleanly
+// for both exit and transfer (transfer hands the contact to a target journey),
+// so neither leaves the session dangling.
+const TERMINAL_NODE_TYPES = new Set([EXIT_NODE_TYPE, TRANSFER_NODE_TYPE]);
 
 export interface DanglingNode {
   id: string;
@@ -20,10 +26,11 @@ function labelFor(node: Node): string {
 
 /**
  * Walks the flow from each trigger node and reports terminal nodes (reachable,
- * with no outgoing edge) that are not an `exit-journey-node`. Such nodes leave
- * the journey "running" for up to 30 days instead of completing (EVO-1691), so
- * the editor warns about them on save (EVO-1692). A lone trigger (no downstream)
- * counts as dangling too. Cyclic paths with no exit are not detected.
+ * with no outgoing edge) that are not a terminating node (`exit-journey-node`
+ * or `transfer-journey-node`). Such nodes leave the journey "running" for up to
+ * 30 days instead of completing (EVO-1691), so the editor warns about them on
+ * save (EVO-1692). A lone trigger (no downstream) counts as dangling too.
+ * Cyclic paths with no exit are not detected.
  */
 export function validateJourneyTerminalPaths(
   nodes: Node[],
@@ -54,7 +61,7 @@ export function validateJourneyTerminalPaths(
 
     const targets = outgoing.get(id) ?? [];
     if (targets.length === 0) {
-      if (node.type !== EXIT_NODE_TYPE) {
+      if (!node.type || !TERMINAL_NODE_TYPES.has(node.type)) {
         danglingNodes.push({ id: node.id, label: labelFor(node) });
       }
       continue;
