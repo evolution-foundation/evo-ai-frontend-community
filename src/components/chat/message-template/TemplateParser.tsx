@@ -109,7 +109,7 @@ const TemplateParser: React.FC<TemplateParserProps> = ({ template, channelType, 
     const payload = {
       message: '', // Backend will populate from template
       templateParams: {
-        id: template.id, // EVO-1235: canonical key — backend resolves id-first (global-aware)
+        id: template.id ?? '', // EVO-1235: canonical key — backend resolves id-first (global-aware)
         name: template.name,
         category: template.category || 'UTILITY',
         language: template.language,
