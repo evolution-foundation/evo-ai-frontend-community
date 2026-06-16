@@ -57,42 +57,48 @@ export default function JourneyModal({ open, onClose, journey, onSave }: Journey
     try {
       setLoading(true);
 
-      const payload = {
+      const basePayload = {
         name: formData.name.trim(),
         description: formData.description.trim() || undefined,
         isActive: formData.isActive,
-        flowData: {
-          nodes: [
-            {
-              id: 'journey-trigger-node',
-              type: 'journey-trigger-node',
-              position: { x: -100, y: 100 },
-              data: {
-                label: t('modal.defaultTrigger.label'),
-                description: t('modal.defaultTrigger.description'),
-                triggerType: 'manual',
-                conditions: [],
-              },
-            },
-          ],
-          edges: [],
-          variables: [],
-        },
-        flowTriggers: [
-          {
-            id: 'default-trigger',
-            type: TriggerType.Manual,
-            name: t('modal.defaultTrigger.name'),
-            enabled: true,
-          },
-        ],
       };
 
       if (journey?.id) {
-        await journeyService.updateJourney(journey.id, payload);
+        // Metadata-only edit: never resend flowData/flowTriggers — the backend
+        // replaces the stored flow wholesale, so a trigger-only payload would
+        // wipe the flow built in the editor (EVO-1745).
+        await journeyService.updateJourney(journey.id, basePayload);
         toast.success(t('modal.messages.updateSuccess'));
       } else {
-        await journeyService.createJourney(payload);
+        const createPayload = {
+          ...basePayload,
+          flowData: {
+            nodes: [
+              {
+                id: 'journey-trigger-node',
+                type: 'journey-trigger-node',
+                position: { x: -100, y: 100 },
+                data: {
+                  label: t('modal.defaultTrigger.label'),
+                  description: t('modal.defaultTrigger.description'),
+                  triggerType: 'manual',
+                  conditions: [],
+                },
+              },
+            ],
+            edges: [],
+            variables: [],
+          },
+          flowTriggers: [
+            {
+              id: 'default-trigger',
+              type: TriggerType.Manual,
+              name: t('modal.defaultTrigger.name'),
+              enabled: true,
+            },
+          ],
+        };
+        await journeyService.createJourney(createPayload);
         toast.success(t('modal.messages.createSuccess'));
       }
 
