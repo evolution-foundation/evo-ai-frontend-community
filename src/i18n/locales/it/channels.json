@@ -417,6 +417,16 @@
         "placeholder": "Siamo spiacenti, siamo al di fuori degli orari di lavoro...",
         "help": "Questo messaggio verrà inviato al di fuori degli orari di lavoro"
       },
+      "useTemplate": {
+        "label": "Usa modello globale",
+        "description": "Invia un modello di messaggio globale invece del testo libero"
+      },
+      "template": {
+        "label": "Modello",
+        "placeholder": "Seleziona un modello globale",
+        "empty": "Nessun modello globale disponibile",
+        "help": "Gestisci i modelli globali in Impostazioni → Modelli di messaggio"
+      },
       "timezone": {
         "label": "Fuso Orario",
         "placeholder": "Seleziona il fuso orario"
@@ -1064,6 +1074,16 @@
       "message": {
         "label": "Messaggio di Saluto",
         "placeholder": "Inserisci qui il messaggio di benvenuto..."
+      },
+      "useTemplate": {
+        "label": "Usa modello globale",
+        "description": "Invia un modello di messaggio globale invece del testo libero"
+      },
+      "template": {
+        "label": "Modello",
+        "placeholder": "Seleziona un modello globale",
+        "empty": "Nessun modello globale disponibile",
+        "help": "Gestisci i modelli globali in Impostazioni → Modelli di messaggio"
       }
     },
     "webWidgetAdvanced": {

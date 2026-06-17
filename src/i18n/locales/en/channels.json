@@ -434,6 +434,16 @@
         "placeholder": "Sorry, we're outside business hours...",
         "help": "This message will be sent when outside business hours"
       },
+      "useTemplate": {
+        "label": "Use global template",
+        "description": "Send a global message template instead of free text"
+      },
+      "template": {
+        "label": "Template",
+        "placeholder": "Select a global template",
+        "empty": "No global templates available",
+        "help": "Manage global templates in Settings → Message Templates"
+      },
       "timezone": {
         "label": "Timezone",
         "placeholder": "Select timezone"
@@ -1126,6 +1136,16 @@
       "message": {
         "label": "Greeting Message",
         "placeholder": "Enter your welcome message here..."
+      },
+      "useTemplate": {
+        "label": "Use global template",
+        "description": "Send a global message template instead of free text"
+      },
+      "template": {
+        "label": "Template",
+        "placeholder": "Select a global template",
+        "empty": "No global templates available",
+        "help": "Manage global templates in Settings → Message Templates"
       }
     },
     "webWidgetAdvanced": {

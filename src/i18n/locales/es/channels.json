@@ -418,6 +418,16 @@
         "placeholder": "Disculpe, estamos fuera del horario de funcionamiento...",
         "help": "Este mensaje será enviado cuando esté fuera del horario"
       },
+      "useTemplate": {
+        "label": "Usar plantilla global",
+        "description": "Enviar una plantilla de mensaje global en lugar de texto libre"
+      },
+      "template": {
+        "label": "Plantilla",
+        "placeholder": "Selecciona una plantilla global",
+        "empty": "No hay plantillas globales disponibles",
+        "help": "Gestiona plantillas globales en Configuración → Plantillas de Mensaje"
+      },
       "timezone": {
         "label": "Zona Horaria",
         "placeholder": "Seleccione la zona horaria"
@@ -1104,6 +1114,16 @@
       "message": {
         "label": "Mensaje de Saludo",
         "placeholder": "Digite aquí el mensaje de bienvenida..."
+      },
+      "useTemplate": {
+        "label": "Usar plantilla global",
+        "description": "Enviar una plantilla de mensaje global en lugar de texto libre"
+      },
+      "template": {
+        "label": "Plantilla",
+        "placeholder": "Selecciona una plantilla global",
+        "empty": "No hay plantillas globales disponibles",
+        "help": "Gestiona plantillas globales en Configuración → Plantillas de Mensaje"
       }
     },
     "webWidgetAdvanced": {

@@ -49,6 +49,7 @@ export interface Inbox {
   // Communication settings
   greeting_enabled?: boolean;
   greeting_message?: string;
+  greeting_message_template_id?: string | null;
   enable_email_collect?: boolean;
   allow_messages_after_resolved?: boolean;
   continuity_via_email?: boolean;
@@ -79,6 +80,7 @@ export interface Inbox {
   // Business hours
   working_hours_enabled?: boolean;
   out_of_office_message?: string;
+  out_of_office_message_template_id?: string | null;
   working_hours?: unknown[];
   timezone?: string;
   // CSAT

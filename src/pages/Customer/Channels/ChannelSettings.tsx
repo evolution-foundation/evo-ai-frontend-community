@@ -91,6 +91,7 @@ interface ChannelSettingsData {
   // Communication settings
   greeting_enabled: boolean;
   greeting_message: string;
+  greeting_message_template_id?: string | null;
   enable_email_collect: boolean;
   allow_messages_after_resolved: boolean;
   continuity_via_email: boolean;
@@ -297,6 +298,7 @@ export default function ChannelSettings() {
     display_name: '',
     greeting_enabled: false,
     greeting_message: '',
+    greeting_message_template_id: null,
     enable_email_collect: false,
     allow_messages_after_resolved: true,
     continuity_via_email: true,
@@ -415,6 +417,7 @@ export default function ChannelSettings() {
         locale: data.locale || null,
         greeting_enabled: data.greeting_enabled === true,
         greeting_message: data.greeting_message || '',
+        greeting_message_template_id: data.greeting_message_template_id || null,
         enable_email_collect: data.enable_email_collect === true,
         allow_messages_after_resolved: data.allow_messages_after_resolved !== false,
         continuity_via_email: data.continuity_via_email !== false,
@@ -452,6 +455,7 @@ export default function ChannelSettings() {
         allow_messages_after_resolved: formData.allow_messages_after_resolved,
         greeting_enabled: formData.greeting_enabled,
         greeting_message: formData.greeting_message || '',
+        greeting_message_template_id: formData.greeting_message_template_id || null,
         portal_id: formData.portal_id || null,
         lock_to_single_conversation: formData.lock_to_single_conversation,
         default_conversation_status: formData.default_conversation_status || null,
@@ -771,6 +775,7 @@ export default function ChannelSettings() {
                 inboxId={inboxId}
                 workingHoursEnabled={inbox?.working_hours_enabled === true}
                 outOfOfficeMessage={inbox?.out_of_office_message || ''}
+                outOfOfficeMessageTemplateId={inbox?.out_of_office_message_template_id || null}
                 workingHours={Array.isArray(inbox?.working_hours) ? inbox.working_hours : []}
                 timezone={inbox?.timezone || 'UTC'}
                 onUpdate={async data => {
@@ -779,6 +784,7 @@ export default function ChannelSettings() {
                     id: inboxId,
                     working_hours_enabled: data.working_hours_enabled,
                     out_of_office_message: data.out_of_office_message,
+                    out_of_office_message_template_id: data.out_of_office_message_template_id,
                     working_hours: data.working_hours,
                     timezone: data.timezone,
                   };

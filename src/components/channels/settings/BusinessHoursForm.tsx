@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 
 import BusinessDay from './BusinessDay';
+import GlobalTemplateSelect from './GlobalTemplateSelect';
 import {
   TimeSlot,
   TimeZone,
@@ -32,11 +33,13 @@ interface BusinessHoursFormProps {
   inboxId: string;
   workingHoursEnabled?: boolean;
   outOfOfficeMessage?: string;
+  outOfOfficeMessageTemplateId?: string | null;
   workingHours?: unknown[];
   timezone?: string;
   onUpdate?: (data: {
     working_hours_enabled: boolean;
     out_of_office_message: string;
+    out_of_office_message_template_id: string | null;
     working_hours: unknown[];
     timezone: string;
   }) => Promise<void>;
@@ -45,6 +48,7 @@ interface BusinessHoursFormProps {
 export default function BusinessHoursForm({
   workingHoursEnabled = false,
   outOfOfficeMessage = '',
+  outOfOfficeMessageTemplateId = null,
   workingHours = [],
   timezone,
   onUpdate,
@@ -53,6 +57,8 @@ export default function BusinessHoursForm({
   const defaultTz = getDefaultTimezone();
   const [isBusinessHoursEnabled, setIsBusinessHoursEnabled] = useState(workingHoursEnabled);
   const [unavailableMessage, setUnavailableMessage] = useState(outOfOfficeMessage);
+  const [templateId, setTemplateId] = useState<string | null>(outOfOfficeMessageTemplateId);
+  const [useTemplate, setUseTemplate] = useState(!!outOfOfficeMessageTemplateId);
   const [selectedTimeZone, setSelectedTimeZone] = useState<TimeZone>(defaultTz);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(defaultTimeSlot);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -63,6 +69,8 @@ export default function BusinessHoursForm({
   useEffect(() => {
     setIsBusinessHoursEnabled(workingHoursEnabled);
     setUnavailableMessage(outOfOfficeMessage || '');
+    setTemplateId(outOfOfficeMessageTemplateId ?? null);
+    if (outOfOfficeMessageTemplateId) setUseTemplate(true);
 
     // Parse working hours from API format
     const slots =
@@ -75,7 +83,7 @@ export default function BusinessHoursForm({
     const tzOptions = getTimeZoneOptions();
     const foundTimeZone = tzOptions.find(tz => tz.value === timezone);
     setSelectedTimeZone(foundTimeZone || getDefaultTimezone());
-  }, [workingHoursEnabled, outOfOfficeMessage, workingHours, timezone]);
+  }, [workingHoursEnabled, outOfOfficeMessage, outOfOfficeMessageTemplateId, workingHours, timezone]);
 
   // Check if there are validation errors
   const hasErrors = timeSlots.some(slot => slot.from && slot.to && !slot.valid);
@@ -97,6 +105,7 @@ export default function BusinessHoursForm({
       const updateData = {
         working_hours_enabled: isBusinessHoursEnabled,
         out_of_office_message: unavailableMessage,
+        out_of_office_message_template_id: useTemplate ? templateId : null,
         working_hours: timeSlotTransform(timeSlots),
         timezone: selectedTimeZone.value,
       };
@@ -152,18 +161,55 @@ export default function BusinessHoursForm({
               <div className="space-y-6">
                 {/* Unavailable Message */}
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-foreground">
-                    {t('settings.businessHours.unavailableMessage.label')}
-                  </label>
-                  <Textarea
-                    value={unavailableMessage}
-                    onChange={e => setUnavailableMessage(e.target.value)}
-                    placeholder={t('settings.businessHours.unavailableMessage.placeholder')}
-                    className="min-h-[100px]"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {t('settings.businessHours.unavailableMessage.help')}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-sm font-medium text-foreground">
+                        {t('settings.businessHours.useTemplate.label')}
+                      </label>
+                      <p className="text-xs text-muted-foreground">
+                        {t('settings.businessHours.useTemplate.description')}
+                      </p>
+                    </div>
+                    <Switch
+                      checked={useTemplate}
+                      onCheckedChange={checked => {
+                        setUseTemplate(checked);
+                        if (!checked) setTemplateId(null);
+                      }}
+                    />
+                  </div>
+
+                  {useTemplate ? (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-foreground">
+                        {t('settings.businessHours.template.label')}
+                      </label>
+                      <GlobalTemplateSelect
+                        value={templateId}
+                        onChange={setTemplateId}
+                        placeholder={t('settings.businessHours.template.placeholder')}
+                        emptyText={t('settings.businessHours.template.empty')}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        {t('settings.businessHours.template.help')}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-foreground">
+                        {t('settings.businessHours.unavailableMessage.label')}
+                      </label>
+                      <Textarea
+                        value={unavailableMessage}
+                        onChange={e => setUnavailableMessage(e.target.value)}
+                        placeholder={t('settings.businessHours.unavailableMessage.placeholder')}
+                        className="min-h-[100px]"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        {t('settings.businessHours.unavailableMessage.help')}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Timezone Selection */}
