@@ -10,7 +10,9 @@
     "category": "Categoría",
     "status": "Estado",
     "language": "Idioma",
-    "actions": "Acciones"
+    "actions": "Acciones",
+    "edit": "Editar",
+    "delete": "Eliminar"
   },
   "status": {
     "approved": "Aprobada",
