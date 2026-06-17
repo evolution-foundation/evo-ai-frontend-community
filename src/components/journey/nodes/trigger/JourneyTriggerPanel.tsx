@@ -92,11 +92,11 @@ export function JourneyTriggerPanel({
       eventProperties: showEventConfig ? eventProperties : undefined,
       segmentId: showSegmentConfig ? formData.segmentId : undefined,
       segmentName: showSegmentConfig ? formData.segmentName : undefined,
-      segmentAction: showSegmentConfig ? formData.segmentAction : undefined,
+      segmentAction: showSegmentConfig ? (formData.segmentAction ?? 'entered') : undefined,
       contactFields: showContactConfig ? contactFields : undefined,
       labelId: showLabelConfig ? formData.labelId : undefined,
       labelName: showLabelConfig ? formData.labelName : undefined,
-      labelAction: showLabelConfig ? formData.labelAction : undefined,
+      labelAction: showLabelConfig ? (formData.labelAction ?? 'applied') : undefined,
       customAttributeName: showCustomAttributeConfig ? formData.customAttributeName : undefined,
       customAttributeDisplayName: showCustomAttributeConfig
         ? formData.customAttributeDisplayName
