@@ -123,13 +123,13 @@ export function JourneyTriggerNode({ selected, data, id }: JourneyTriggerNodePro
       case 'segment':
         if (data.segmentId && data.segmentName) {
           const action =
-            data.segmentAction === 'entered'
+            data.segmentAction !== 'exited'
               ? t('flowEditor.nodes.trigger.descriptions.segmentEnters')
               : t('flowEditor.nodes.trigger.descriptions.segmentExits');
           return `Quando ${action} "${data.segmentName}"`;
         } else if (data.segmentId) {
           const action =
-            data.segmentAction === 'entered'
+            data.segmentAction !== 'exited'
               ? t('flowEditor.nodes.trigger.descriptions.whenEnters')
               : t('flowEditor.nodes.trigger.descriptions.whenExits');
           return `${action} ${t('flowEditor.nodes.trigger.descriptions.segment')}`;
@@ -163,13 +163,13 @@ export function JourneyTriggerNode({ selected, data, id }: JourneyTriggerNodePro
       case 'label':
         if (data.labelId && data.labelName) {
           const action =
-            data.labelAction === 'applied'
+            data.labelAction !== 'removed'
               ? t('flowEditor.nodes.trigger.descriptions.applied')
               : t('flowEditor.nodes.trigger.descriptions.removed');
           return `"${data.labelName}" ${action}`;
         } else if (data.labelId) {
           const action =
-            data.labelAction === 'applied'
+            data.labelAction !== 'removed'
               ? t('flowEditor.nodes.trigger.descriptions.applied')
               : t('flowEditor.nodes.trigger.descriptions.removed');
           return `${t('flowEditor.nodes.trigger.types.label')} ${action}`;
