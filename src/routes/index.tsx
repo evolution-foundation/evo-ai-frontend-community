@@ -12,6 +12,7 @@ import MainLayout from '@/components/layout/MainLayout';
 
 // Páginas públicas
 import Auth from '@/pages/Auth';
+import KeycloakCallback from '@/pages/Auth/KeycloakCallback';
 import EmailConfirmation from '@/components/auth/EmailConfirmation';
 import ResetPassword from '@/components/auth/ResetPassword';
 import InstagramCallback from '@/pages/InstagramCallback';
@@ -189,6 +190,16 @@ const AppRouter = () => {
             element={
               <PublicRoute>
                 <ResetPassword />
+              </PublicRoute>
+            }
+          />
+
+          {/* Keycloak PKCE Callback */}
+          <Route
+            path="/keycloak/callback"
+            element={
+              <PublicRoute>
+                <KeycloakCallback />
               </PublicRoute>
             }
           />

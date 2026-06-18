@@ -83,7 +83,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     getAuthHeader: () => {
-      const token = get().accessToken || localStorage.getItem('access_token');
+      const stateToken = get().accessToken;
+      const lsToken = localStorage.getItem('access_token');
+      const token = stateToken || lsToken;
       if (token) {
         return { Authorization: `Bearer ${token}` };
       }

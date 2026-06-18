@@ -50,7 +50,8 @@ authApi.interceptors.request.use((config) => {
     '/auth/forgot-password',
     '/auth/reset-password',
     '/auth/login',
-    '/auth/register'
+    '/auth/register',
+    '/auth/keycloak_exchange'
     // Removido '/auth/refresh' para permitir que o Authorization header seja enviado
     // Isso permite que o refresh funcione mesmo quando cookies não são compartilhados entre domínios diferentes do ngrok
   ];
@@ -109,7 +110,8 @@ authApi.interceptors.response.use(
         '/auth/login',
         '/auth/register',
         '/auth/refresh',
-        '/auth/validate'
+        '/auth/validate',
+        '/auth/keycloak_exchange'
       ].some(route => originalRequest.url?.includes(route));
 
       if (isPublicRoute) {

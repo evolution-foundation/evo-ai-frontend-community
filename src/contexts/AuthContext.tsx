@@ -24,7 +24,7 @@ interface AuthContextType {
     userData: UserResponse,
     loginData: { access_token?: string },
   ) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<boolean>;
   refreshUser: () => Promise<void>;
   verifyMfaCode: (code: string) => Promise<void>;
   clearMfaState: () => void;
@@ -56,7 +56,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const isWidgetPublicRoute =
       window.location.pathname === '/widget' ||
-      window.location.pathname.startsWith('/survey/responses/');
+      window.location.pathname.startsWith('/survey/responses/') ||
+      window.location.pathname === '/keycloak/callback';
     if (isWidgetPublicRoute) {
       validityCheckCalled.current = true;
       setLoading(false);
@@ -112,9 +113,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = async () => {
+  const logout = async (): Promise<boolean> => {
+    let keycloakLogoutUrl: string | undefined;
     try {
-      await authServiceLogout();
+      const result = await authServiceLogout();
+      keycloakLogoutUrl = result?.keycloakLogoutUrl;
     } catch (error) {
       console.error('Error during logout service call:', error);
     }
@@ -122,6 +125,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     clearUser();
     useAppDataStore.getState().clearAppData();
     setMfaState(null);
+
+    if (keycloakLogoutUrl) {
+      window.location.href = keycloakLogoutUrl;
+      return true;
+    }
+    return false;
   };
 
   const verifyMfaCode = async (code: string) => {

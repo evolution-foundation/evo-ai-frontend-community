@@ -11,9 +11,9 @@ interface RouterGuardProps {
 }
 
 const SPECIAL_ROUTES = {
-  PUBLIC_ROUTES: ['/auth', '/login', '/register', '/widget', '/setup'],
+  PUBLIC_ROUTES: ['/auth', '/login', '/register', '/widget', '/setup', '/keycloak/callback'],
   // Routes that bypass the "redirect authenticated users to /conversations" rule
-  AUTH_EXEMPT_ROUTES: ['/setup/onboarding'],
+  AUTH_EXEMPT_ROUTES: ['/setup/onboarding', '/keycloak/callback'],
 };
 
 const RouterGuard: React.FC<RouterGuardProps> = ({ children }) => {

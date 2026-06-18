@@ -28,8 +28,10 @@ import {
   SelectValue,
   Switch,
   Checkbox,
+  Badge,
 } from '@evoapi/design-system';
-import { AlertTriangle, Mail, Volume2, Bell, Keyboard, Play, Check, X } from 'lucide-react';
+import { AlertTriangle, Mail, Volume2, Bell, Keyboard, Play, Check, X, ShieldCheck } from 'lucide-react';
+import { Role } from '@/types/auth';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuthStore } from '@/store/authStore';
@@ -87,6 +89,7 @@ const Profile = () => {
     setActiveTab(tab);
     navigate(`/profile/${TAB_TO_SECTION[tab]}`, { replace: true });
   }, [navigate]);
+  const [profileRoles, setProfileRoles] = useState<Role[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('');
@@ -194,6 +197,10 @@ const Profile = () => {
           // Fazer chamada para /profile para buscar dados completos
           const response = await profileService.getProfile();
           const profileUser = response.user;
+
+          if (Array.isArray(profileUser.roles)) {
+            setProfileRoles(profileUser.roles as Role[]);
+          }
 
           setUserData(prev => ({
             ...prev,
@@ -555,6 +562,23 @@ const Profile = () => {
             )}
           </div>
         </div>
+
+        {profileRoles.length > 0 && (
+          <>
+            <Separator />
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Roles
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {profileRoles.map(r => (
+                  <Badge key={r.id} variant="secondary">{r.name}</Badge>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
         <div className="flex justify-end">
           <Button onClick={handleSaveProfile} disabled={isLoading} className="min-w-[120px]">

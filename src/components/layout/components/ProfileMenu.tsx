@@ -25,6 +25,7 @@ interface User {
   lastName?: string;
   avatar_url?: string;
   role?: Role;
+  roles?: Role[];
 }
 
 interface ProfileMenuProps {
@@ -105,6 +106,8 @@ export default function ProfileMenu({
     setLogoutDialogOpen,
   );
 
+  const roles = user.roles?.length ? user.roles : user.role ? [user.role] : []
+
   if (mobile) {
     return (
       <div className="p-4 border-t border-sidebar-border bg-sidebar">
@@ -118,8 +121,14 @@ export default function ProfileMenu({
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium text-sidebar-foreground truncate">{userName}</div>
             <div className="text-xs text-muted-foreground truncate">{userEmail}</div>
-            {user.role && (
-              <div className="text-xs text-sidebar-primary truncate mt-0.5">{user.role.name}</div>
+            {roles.length > 0 && (
+              <div className="flex flex-col gap-0.5 mt-1">
+                {roles.map(role => (
+                  <span key={role.id} className="text-xs text-primary font-medium">
+                    {role.name}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
         </div>
@@ -173,8 +182,14 @@ export default function ProfileMenu({
             <div className="flex flex-col">
               <span className="text-sm font-medium">{userName}</span>
               <span className="text-xs text-muted-foreground">{userEmail}</span>
-              {user.role && (
-                <span className="text-xs text-primary font-medium">{user.role.name}</span>
+              {roles.length > 0 && (
+                <div className="flex flex-col gap-0.5 mt-1">
+                  {roles.map(role => (
+                    <span key={role.id} className="text-xs text-primary font-medium">
+                      {role.name}
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
           </div>

@@ -116,9 +116,11 @@ export const resendConfirmation = async (
   return extractData<any>(response);
 };
 
-export const logout = async (): Promise<void> => {
-  await apiAuth.post('/auth/logout', {});
+export const logout = async (): Promise<{ keycloakLogoutUrl?: string }> => {
+  const response = await apiAuth.post('/auth/logout', {});
   useAuthStore.getState().setAccessToken(null);
+  const data = extractData<{ keycloak_logout_url?: string }>(response);
+  return { keycloakLogoutUrl: data?.keycloak_logout_url };
 };
 
 export const validateToken = async (): Promise<UserResponse> => {

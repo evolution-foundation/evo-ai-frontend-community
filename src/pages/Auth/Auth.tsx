@@ -25,6 +25,7 @@ import { useRecaptcha } from '@/hooks/useRecaptcha';
 import { useLanguage } from '@/hooks/useLanguage';
 import MfaVerification from '@/components/auth/MfaVerification';
 import { twoFactorService } from '@/services/profile/twoFactorService';
+import { isKeycloakEnabled, buildKeycloakAuthUrl } from '@/services/auth/keycloakService';
 
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -44,6 +45,7 @@ export const Auth: React.FC = () => {
   const { executeRecaptcha } = useRecaptcha({
     autoLoad: false,
   });
+
   const { t, currentLanguage, changeLanguage } = useLanguage('auth');
   const globalConfig = useGlobalConfig();
 
@@ -56,10 +58,17 @@ export const Auth: React.FC = () => {
   const [loginError, setLoginError] = useState('');
   const [registerError, setRegisterError] = useState('');
   const [forgotPasswordError, setForgotPasswordError] = useState('');
+  const [isKeycloakLoading, setIsKeycloakLoading] = useState(false);
 
   // Ref para controlar se o toast de sessão expirada já foi mostrado
   const sessionExpiredToastShown = useRef(false);
 
+  const handleKeycloakLogin = async () => {
+    setIsKeycloakLoading(true);
+    const redirectUri = `${window.location.origin}/keycloak/callback`;
+    const url = await buildKeycloakAuthUrl(redirectUri);
+    window.location.href = url;
+  }
   // Se signup estiver desabilitado e activeTab for 'register', mudar para 'login'
   useEffect(() => {
     if (!enableAccountSignup && activeTab === 'register') {
@@ -513,6 +522,30 @@ export const Auth: React.FC = () => {
                     {t('auth.login.forgotPasswordLink')}
                   </button>
                 </div>
+
+                {isKeycloakEnabled() && (
+                  <>
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t"/>
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">
+                          {t('auth.login.orContinueWith')}
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      disabled={isKeycloakLoading}
+                      onClick={handleKeycloakLogin}
+                    >
+                      {isKeycloakLoading ? t('auth.login.signingIn') : 'Keycloak'}
+                    </Button>
+                  </>
+                )}
               </TabsContent>
 
               {/* Aba de Cadastro - apenas se signup estiver habilitado */}
