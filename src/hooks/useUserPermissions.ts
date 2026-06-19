@@ -4,6 +4,7 @@ import { useAuthStore } from '@/store/authStore';
 import { usePermissionsConfig } from '@/hooks/usePermissionsConfig';
 import { permissionsService } from '@/services/permissions';
 import { PermissionsContext } from '@/contexts/PermissionsContext';
+import { ROLE_KEYS } from '@/constants/roles';
 
 /**
  * Hook para verificar permissões do usuário logado
@@ -15,6 +16,8 @@ import { PermissionsContext } from '@/contexts/PermissionsContext';
  */
 export const useUserPermissions = () => {
   const { user } = useAuth();
+  // Super admin (installation owner) bypasses granular permission checks — full access.
+  const isSuperAdmin = user?.role?.key === ROLE_KEYS.SUPER_ADMIN;
   const {
     isValidPermission,
     createPermission,
@@ -129,6 +132,7 @@ export const useUserPermissions = () => {
    * @returns boolean
    */
   const can = (resource: string, action: string, type: 'account' | 'user' = 'account'): boolean => {
+    if (isSuperAdmin) return true;
     const permission = createPermission(resource, action);
     const permissionsArray =
       type === 'user' ? effectiveUserPermissions : effectiveAccountPermissions;
@@ -173,6 +177,7 @@ export const useUserPermissions = () => {
    * @returns boolean
    */
   const canAny = (permissions: string[], type: 'account' | 'user' = 'account'): boolean => {
+    if (isSuperAdmin) return true;
     const permissionsArray =
       type === 'user' ? effectiveUserPermissions : effectiveAccountPermissions;
 
@@ -199,6 +204,7 @@ export const useUserPermissions = () => {
    * @returns boolean
    */
   const canAll = (permissions: string[], type: 'account' | 'user' = 'account'): boolean => {
+    if (isSuperAdmin) return true;
     const permissionsArray =
       type === 'user' ? effectiveUserPermissions : effectiveAccountPermissions;
 
@@ -228,6 +234,7 @@ export const useUserPermissions = () => {
    * Isso garante que isValidPermission() funcione corretamente
    */
   const isReady =
+    isSuperAdmin ||
     (!configLoading &&
       !effectiveLoading &&
       effectiveAccountPermissions.length > 0);
