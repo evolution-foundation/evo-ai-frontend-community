@@ -1,6 +1,6 @@
 import api from '@/services/core/api';
 import { extractData, extractResponse } from '@/utils/apiHelpers';
-import { CrmForm, CrmFormPayload } from '@/types/crmForms';
+import { CrmForm, CrmFormPayload, FormLead } from '@/types/crmForms';
 
 /**
  * Service para o CRUD admin de formulários de captura de lead (B14.04 / EVO-1841).
@@ -26,6 +26,12 @@ class CrmFormsService {
 
   async remove(id: string): Promise<void> {
     await api.delete(`${this.baseUrl}/${id}`);
+  }
+
+  async getLeads(id: string): Promise<{ leads: FormLead[]; count: number }> {
+    const response = await api.get(`${this.baseUrl}/${id}/leads`);
+    const env = extractResponse<FormLead>(response);
+    return { leads: env.data, count: (env.meta?.count as number) ?? env.data.length };
   }
 }
 

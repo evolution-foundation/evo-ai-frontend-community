@@ -20,7 +20,7 @@ import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { crmFormsService } from '@/services/crmForms/crmFormsService';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import { customAttributesService } from '@/services/customAttributes/customAttributesService';
-import type { CrmForm, CrmFormPayload } from '@/types/crmForms';
+import type { CrmForm, CrmFormPayload, FormLead } from '@/types/crmForms';
 import type { Pipeline } from '@/types/analytics/pipelines';
 import type { CustomAttributeDefinition } from '@/types/settings';
 import CrmFormModal from '@/components/crmForms/CrmFormModal';
@@ -40,6 +40,9 @@ export default function CrmForms() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<CrmForm | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<CrmForm | null>(null);
+  const [leadsForm, setLeadsForm] = useState<CrmForm | null>(null);
+  const [leads, setLeads] = useState<FormLead[]>([]);
+  const [leadsLoading, setLeadsLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -109,6 +112,26 @@ export default function CrmForms() {
     toast.success('Link copiado.');
   };
 
+  const openLeads = async (form: CrmForm) => {
+    setLeadsForm(form);
+    setLeads([]);
+    setLeadsLoading(true);
+    try {
+      const { leads: list } = await crmFormsService.getLeads(form.id);
+      setLeads(list);
+    } catch {
+      toast.error('Erro ao carregar leads.');
+    } finally {
+      setLeadsLoading(false);
+    }
+  };
+
+  const stageLabel = (lead: FormLead) => {
+    const pipe = pipelines.find(p => p.id === lead.pipeline_id);
+    const stage = pipe?.stages?.find(s => s.id === lead.pipeline_stage_id);
+    return [pipe?.name, stage?.name].filter(Boolean).join(' › ') || '—';
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -139,6 +162,7 @@ export default function CrmForms() {
                 <TableHead>Nome</TableHead>
                 <TableHead>Link público</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Leads</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -158,6 +182,14 @@ export default function CrmForms() {
                     <Badge variant={form.published ? 'default' : 'secondary'}>
                       {form.published ? 'Publicado' : 'Rascunho'}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <button
+                      onClick={() => openLeads(form)}
+                      className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+                    >
+                      {form.leads_count ?? 0}
+                    </button>
                   </TableCell>
                   <TableCell className="text-right whitespace-nowrap">
                     {canUpdate && (
@@ -212,6 +244,45 @@ export default function CrmForms() {
               Excluir
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!leadsForm} onOpenChange={v => !v && setLeadsForm(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Leads — {leadsForm?.title || leadsForm?.name}</DialogTitle>
+          </DialogHeader>
+          {leadsLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+            </div>
+          ) : leads.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-6 text-center">Nenhum lead capturado ainda.</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Contato</TableHead>
+                  <TableHead>Destino</TableHead>
+                  <TableHead>Data</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {leads.map(lead => (
+                  <TableRow key={lead.id}>
+                    <TableCell>
+                      <div className="font-medium">{lead.contact?.name || '—'}</div>
+                      <div className="text-xs text-muted-foreground">{lead.contact?.email}</div>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{stageLabel(lead)}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {lead.created_at ? new Date(lead.created_at).toLocaleString() : '—'}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </DialogContent>
       </Dialog>
     </div>

@@ -43,8 +43,17 @@ export interface CrmForm {
   default_stage_id?: string;
   published: boolean;
   public_path?: string;
+  leads_count?: number;
   created_at?: string;
   updated_at?: string;
+}
+
+export interface FormLead {
+  id: string;
+  contact?: { id: string; name?: string; email?: string } | null;
+  pipeline_id?: string;
+  pipeline_stage_id?: string;
+  created_at?: string;
 }
 
 export interface CrmFormPayload {
