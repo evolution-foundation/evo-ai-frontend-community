@@ -636,7 +636,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         )}
 
         {/* Input Area */}
-        <CardContent className="p-4 px-4 py-4 relative">
+        <CardContent className="p-3 md:p-4 relative">
           {/* 🎯 CANNED RESPONSES: Dropdown de sugestões */}
           {showCannedResponses && (
             <CannedResponsesList
@@ -815,7 +815,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
                   return false;
                 }}
                 disabled={isDisabled || isSending || (isPendingConversation && replyMode !== ReplyMode.NOTE)}
-                className="min-h-[100px]"
+                className="min-h-[56px] md:min-h-[100px]"
                 showToolbar={!isPendingConversation}
               />
             </div>
