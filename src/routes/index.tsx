@@ -26,6 +26,7 @@ import MondayCallback from '@/pages/MondayCallback';
 import AtlassianCallback from '@/pages/AtlassianCallback';
 import MicrosoftCallback from '@/pages/MicrosoftCallback';
 import SurveyResponse from '@/pages/Public/Survey/SurveyResponse';
+import PublicChatPage from '@/pages/Public/Chat/ChatPage';
 
 // Páginas customer
 import Dashboard from '@/pages/Customer/Dashboard';
@@ -372,6 +373,16 @@ const AppRouter = () => {
             element={
               <PublicRoute>
                 <SurveyResponse />
+              </PublicRoute>
+            }
+          />
+
+          {/* Public chat page route (B14.03) */}
+          <Route
+            path="/chat/:slug"
+            element={
+              <PublicRoute>
+                <PublicChatPage />
               </PublicRoute>
             }
           />
