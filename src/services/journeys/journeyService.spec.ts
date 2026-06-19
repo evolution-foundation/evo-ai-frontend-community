@@ -94,3 +94,45 @@ describe('journeyService session methods — envelope unwrap', () => {
     expect(result.data.deleted).toBe(5);
   });
 });
+
+describe('journeyService variable methods — envelope unwrap (EVO-1836)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('getJourneyVariables unwraps the { success, data } envelope into the variables array', async () => {
+    const vars = [{ id: 'var_1', name: 'lead_score', type: 'number', defaultValue: '0' }];
+    vi.mocked(apiEvoFlow.get).mockResolvedValue({
+      data: { success: true, data: vars },
+    } as never);
+
+    const result = await journeyService.getJourneyVariables('journey-1');
+
+    expect(apiEvoFlow.get).toHaveBeenCalledWith('/journeys/journey-1/variables');
+    expect(Array.isArray(result.data)).toBe(true);
+    expect(result.data).toEqual(vars);
+  });
+
+  it('getJourneyVariables returns [] when the unwrapped payload is not an array', async () => {
+    vi.mocked(apiEvoFlow.get).mockResolvedValue({
+      data: { success: true, data: null },
+    } as never);
+
+    const result = await journeyService.getJourneyVariables('journey-1');
+
+    expect(result.data).toEqual([]);
+  });
+
+  it('updateJourneyVariables returns the variables array, not the envelope object (the crash regression)', async () => {
+    const vars = [{ id: 'var_1', name: 'lead_score', type: 'number', defaultValue: '0' }];
+    vi.mocked(apiEvoFlow.post).mockResolvedValue({
+      data: { success: true, data: vars, meta: { timestamp: 'x' } },
+    } as never);
+
+    const result = await journeyService.updateJourneyVariables('journey-1', vars);
+
+    expect(apiEvoFlow.post).toHaveBeenCalledWith('/journeys/journey-1/variables', vars);
+    expect(Array.isArray(result.data)).toBe(true);
+    expect(result.data).toEqual(vars);
+  });
+});

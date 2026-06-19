@@ -61,6 +61,14 @@ describe('MessageTemplates page', () => {
     );
   });
 
+  it('fetches exactly once on mount (no infinite render/fetch loop)', async () => {
+    render(<MessageTemplates />);
+    await screen.findByText('welcome');
+    // Flush any stray effect re-runs that an unstable dependency would trigger.
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(h.service.getTemplates).toHaveBeenCalledTimes(1);
+  });
+
   it('opens the create modal when "New Template" is clicked', async () => {
     render(<MessageTemplates />);
     await screen.findByText('welcome');
@@ -72,11 +80,13 @@ describe('MessageTemplates page', () => {
     h.service.getTemplates.mockResolvedValue({
       success: true,
       data: [{ id: 't1', name: 'welcome', language: 'en_US', category: 'MARKETING' }],
-      meta: { pagination: { total_pages: 2 } },
+      meta: { pagination: { total_pages: 2, total: 40, page_size: 20 } },
       message: '',
     });
     render(<MessageTemplates />);
-    fireEvent.click(await screen.findByText('pagination.next'));
+    await screen.findByText('welcome');
+    // BasePagination renders page-number buttons (1, 2) — click page 2.
+    fireEvent.click(screen.getByRole('button', { name: '2' }));
     await waitFor(() =>
       expect(h.service.getTemplates).toHaveBeenLastCalledWith(
         expect.objectContaining({ page: 2 }),

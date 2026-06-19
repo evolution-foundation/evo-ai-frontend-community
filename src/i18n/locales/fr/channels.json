@@ -417,6 +417,16 @@
         "placeholder": "Désolé, nous sommes en dehors des horaires d'ouverture...",
         "help": "Ce message sera envoyé en dehors des horaires d'ouverture"
       },
+      "useTemplate": {
+        "label": "Utiliser un modèle global",
+        "description": "Envoyer un modèle de message global au lieu d'un texte libre"
+      },
+      "template": {
+        "label": "Modèle",
+        "placeholder": "Sélectionnez un modèle global",
+        "empty": "Aucun modèle global disponible",
+        "help": "Gérez les modèles globaux dans Paramètres → Modèles de message"
+      },
       "timezone": {
         "label": "Fuseau Horaire",
         "placeholder": "Sélectionnez le fuseau horaire"
@@ -1064,6 +1074,16 @@
       "message": {
         "label": "Message d'Accueil",
         "placeholder": "Entrez ici le message de bienvenue..."
+      },
+      "useTemplate": {
+        "label": "Utiliser un modèle global",
+        "description": "Envoyer un modèle de message global au lieu d'un texte libre"
+      },
+      "template": {
+        "label": "Modèle",
+        "placeholder": "Sélectionnez un modèle global",
+        "empty": "Aucun modèle global disponible",
+        "help": "Gérez les modèles globaux dans Paramètres → Modèles de message"
       }
     },
     "webWidgetAdvanced": {

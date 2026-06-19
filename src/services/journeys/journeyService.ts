@@ -133,7 +133,7 @@ class JourneyService {
         {},
       );
       return {
-        data: response.data,
+        data: extractData<Journey>(response),
       };
     } catch (error: any) {
       console.error('Erro ao duplicar jornada:', error);
@@ -146,8 +146,9 @@ class JourneyService {
   ): Promise<{ data: Journey[] }> {
     try {
       const response = await apiEvoFlow.get(`${this.getBaseUrl()}/trigger-type/${triggerType}`);
+      const data = extractData<Journey[]>(response);
       return {
-        data: response.data || [],
+        data: Array.isArray(data) ? data : [],
       };
     } catch (error: any) {
       console.error('Erro ao buscar jornadas por tipo de trigger:', error);
@@ -161,8 +162,9 @@ class JourneyService {
     try {
       const response = await apiEvoFlow.get(`${this.getBaseUrl()}/${id}/variables`);
 
+      const data = extractData<unknown[]>(response);
       return {
-        data: Array.isArray(response.data) ? response.data : [],
+        data: Array.isArray(data) ? data : [],
       };
     } catch (error: any) {
       console.error('❌ Erro ao buscar variáveis da jornada:', error);
@@ -177,8 +179,9 @@ class JourneyService {
   ): Promise<{ data: any[] }> {
     try {
       const response = await apiEvoFlow.post(`${this.getBaseUrl()}/${id}/variables`, variables);
+      const data = extractData<unknown[]>(response);
       return {
-        data: response.data || [],
+        data: Array.isArray(data) ? data : [],
       };
     } catch (error: any) {
       console.error('Erro ao atualizar variáveis da jornada:', error);

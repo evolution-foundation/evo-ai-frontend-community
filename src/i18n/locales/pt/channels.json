@@ -434,6 +434,16 @@
         "placeholder": "Desculpe, estamos fora do horário de funcionamento...",
         "help": "Esta mensagem será enviada quando estiver fora do horário"
       },
+      "useTemplate": {
+        "label": "Usar template global",
+        "description": "Enviar um template de mensagem global em vez de texto livre"
+      },
+      "template": {
+        "label": "Template",
+        "placeholder": "Selecione um template global",
+        "empty": "Nenhum template global disponível",
+        "help": "Gerencie templates globais em Configurações → Templates de Mensagem"
+      },
       "timezone": {
         "label": "Fuso Horário",
         "placeholder": "Selecione o fuso horário"
@@ -1121,6 +1131,16 @@
       "message": {
         "label": "Mensagem de Saudação",
         "placeholder": "Digite aqui a mensagem de boas-vindas..."
+      },
+      "useTemplate": {
+        "label": "Usar template global",
+        "description": "Enviar um template de mensagem global em vez de texto livre"
+      },
+      "template": {
+        "label": "Template",
+        "placeholder": "Selecione um template global",
+        "empty": "Nenhum template global disponível",
+        "help": "Gerencie templates globais em Configurações → Templates de Mensagem"
       }
     },
     "webWidgetAdvanced": {

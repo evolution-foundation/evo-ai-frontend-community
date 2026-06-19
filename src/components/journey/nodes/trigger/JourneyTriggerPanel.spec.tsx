@@ -20,6 +20,15 @@ vi.mock('@/hooks/useJourneyVariables', () => ({
   }),
 }));
 
+// Label/Segment config blocks fetch options on mount; stub the services so the
+// label/segment trigger tests don't hit the network (was logging a 401).
+vi.mock('@/services/contacts/labelsService', () => ({
+  labelsService: { getLabels: vi.fn().mockResolvedValue({ data: [] }) },
+}));
+vi.mock('@/services/segments/segmentsService', () => ({
+  segmentsService: { getSegments: vi.fn().mockResolvedValue({ data: [] }) },
+}));
+
 function renderPanel(data: Partial<JourneyTriggerNodeData> = {}) {
   const onUpdate = vi.fn();
   const onClose = vi.fn();
@@ -190,5 +199,59 @@ describe('JourneyTriggerPanel — event trigger tabs (EVO-1276)', () => {
     // Trigger-type selector + Save chrome still present.
     expect(screen.getAllByRole('combobox').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByRole('button', { name: 'Save' })).toBeTruthy();
+  });
+});
+
+describe('JourneyTriggerPanel — label/segment action round-trip (EVO-1754)', () => {
+  // Switch the header trigger-type selector (the first combobox), which both
+  // dirties the form (enabling Save) and reveals that type's config — mirroring
+  // a user creating the trigger from the default event type.
+  async function selectTriggerType(
+    user: ReturnType<typeof userEvent.setup>,
+    option: RegExp,
+  ) {
+    await user.click(screen.getAllByRole('combobox')[0]);
+    const listbox = await screen.findByRole('listbox');
+    await user.click(within(listbox).getByText(option));
+  }
+
+  it('persists labelAction "applied" when a Label trigger is saved without touching the action', async () => {
+    const user = userEvent.setup();
+    const { onUpdate } = renderPanel();
+
+    await selectTriggerType(user, /^Label$/);
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    const saved = onUpdate.mock.calls[0][1] as JourneyTriggerNodeData;
+    // Regression: the dropdown shows "Applied" by default, so Save must persist
+    // 'applied' — not undefined, which the canvas card rendered as "removed".
+    expect(saved.labelAction).toBe('applied');
+  });
+
+  it('preserves an explicitly chosen labelAction "removed" through Save', async () => {
+    const user = userEvent.setup();
+    const { onUpdate } = renderPanel();
+
+    await selectTriggerType(user, /^Label$/);
+    // The label-action select is the second combobox; "Removed" is its second
+    // option (after the default "Applied") — picked by index to stay locale-agnostic.
+    await user.click(screen.getAllByRole('combobox')[1]);
+    const actionList = await screen.findByRole('listbox');
+    await user.click(within(actionList).getAllByRole('option')[1]);
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    const saved = onUpdate.mock.calls[0][1] as JourneyTriggerNodeData;
+    expect(saved.labelAction).toBe('removed');
+  });
+
+  it('persists segmentAction "entered" when a Segment trigger is saved without touching the action', async () => {
+    const user = userEvent.setup();
+    const { onUpdate } = renderPanel();
+
+    await selectTriggerType(user, /^Segment$/);
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    const saved = onUpdate.mock.calls[0][1] as JourneyTriggerNodeData;
+    expect(saved.segmentAction).toBe('entered');
   });
 });

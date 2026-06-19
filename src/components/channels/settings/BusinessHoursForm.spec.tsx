@@ -60,6 +60,12 @@ vi.mock('@evoapi/design-system', async () => {
   };
 });
 
+vi.mock('./GlobalTemplateSelect', () => ({
+  default: ({ value }: { value?: string | null }) => (
+    <div data-testid="global-template-select">{value || 'none'}</div>
+  ),
+}));
+
 describe('BusinessHoursForm', () => {
   const mockOnUpdate = vi.fn().mockResolvedValue(undefined);
   const defaultProps = {
@@ -90,9 +96,22 @@ describe('BusinessHoursForm', () => {
   describe('Button disabled state', () => {
     it('should not disable button when business hours is disabled even if there are validation errors', () => {
       render(<BusinessHoursForm {...defaultProps} workingHoursEnabled={false} />);
-      
+
       const updateButton = screen.getByRole('button', { name: /settings\.businessHours\.buttons\.update/i });
       expect(updateButton).not.toBeDisabled();
+    });
+  });
+
+  describe('Out-of-office template', () => {
+    it('starts in template mode when an out-of-office template id is set', () => {
+      render(
+        <BusinessHoursForm
+          {...defaultProps}
+          workingHoursEnabled={true}
+          outOfOfficeMessageTemplateId="tpl-9"
+        />,
+      );
+      expect(screen.getByTestId('global-template-select')).toHaveTextContent('tpl-9');
     });
   });
 });

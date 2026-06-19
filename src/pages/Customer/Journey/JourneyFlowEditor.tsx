@@ -16,6 +16,7 @@ import { journeyService } from '@/services';
 import type { Journey } from '@/types/automation';
 import { useLanguage } from '@/hooks/useLanguage';
 import { validateJourneyTerminalPaths } from '@/utils/journeyFlowValidation';
+import { buildFlowTriggers } from './journeyFlowTriggers';
 import { BaseFlowEditor, type NodeType, type NodeCategory } from '@/components/base';
 import { EnvironmentManager } from '@/components/journey/environment-manager';
 import { JourneyEditorHeader } from '@/components/journey/shared/JourneyEditorHeader';
@@ -690,54 +691,9 @@ function JourneyFlowEditor() {
         edges: snapshot.edges,
       };
 
-      // Extrair triggers dos nodes
-      const nodes = Array.isArray(flowData.nodes) ? flowData.nodes : [];
-      const flowTriggers = nodes
-        .filter((node: any) => node.type === 'journey-trigger-node')
-        .map((triggerNode: any) => ({
-          id: triggerNode.id,
-          type: triggerNode.data.triggerType || 'Manual',
-          name: `${triggerNode.data.triggerType || 'manual'} trigger`,
-          enabled: true,
-          conditions: {
-            eventName: triggerNode.data.eventName,
-            segmentId: triggerNode.data.segmentId,
-            labelId: triggerNode.data.labelId,
-            attributeName: triggerNode.data.customAttributeName,
-            webhookUrl: triggerNode.data.webhookUrl,
-          },
-          metadata: {
-            // Salvar todos os dados específicos no metadata
-            triggerType: triggerNode.data.triggerType,
-            eventName: triggerNode.data.eventName,
-            eventProperties: triggerNode.data.eventProperties,
-            contactFields: triggerNode.data.contactFields,
-            labelId: triggerNode.data.labelId,
-            labelName: triggerNode.data.labelName,
-            labelAction: triggerNode.data.labelAction,
-            customAttributeName: triggerNode.data.customAttributeName,
-            customAttributeDisplayName: triggerNode.data.customAttributeDisplayName,
-            customAttributeOperator: triggerNode.data.customAttributeOperator,
-            customAttributeValue: triggerNode.data.customAttributeValue,
-            scheduleType: triggerNode.data.scheduleType,
-            scheduleDate: triggerNode.data.scheduleDate,
-            scheduleTime: triggerNode.data.scheduleTime,
-            recurringPattern: triggerNode.data.recurringPattern,
-            recurringDays: triggerNode.data.recurringDays,
-            recurringTime: triggerNode.data.recurringTime,
-            recurringInterval: triggerNode.data.recurringInterval,
-            webhookUrl: triggerNode.data.webhookUrl,
-            webhookSecret: triggerNode.data.webhookSecret,
-            webhookMethod: triggerNode.data.webhookMethod,
-            expectedHeaders: triggerNode.data.expectedHeaders,
-            pipelineId: triggerNode.data.pipelineId,
-            pipelineName: triggerNode.data.pipelineName,
-            fromStageId: triggerNode.data.fromStageId,
-            fromStageName: triggerNode.data.fromStageName,
-            toStageId: triggerNode.data.toStageId,
-            toStageName: triggerNode.data.toStageName,
-          },
-        }));
+      // Extrair triggers dos nodes (ver journeyFlowTriggers.ts — o metadata
+      // alimenta os matchers do evo-flow, incl. labelAction/segmentAction).
+      const flowTriggers = buildFlowTriggers(flowData.nodes);
 
       const updatedJourney = {
         ...currentJourney,
