@@ -196,7 +196,7 @@ const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines, conta
           <DialogTitle className="text-xl">{initial ? t('modal.editTitle') : t('modal.createTitle')}</DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[calc(90vh-140px)] px-6 py-4">
+        <ScrollArea className="max-h-[calc(90vh-80px)] px-6 py-4">
           <div className="space-y-6">
             {/* Básico */}
             <section className="space-y-4">
@@ -388,17 +388,17 @@ const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines, conta
             </section>
 
             {error && <p className="text-sm text-destructive">{error}</p>}
+
+            <div className="flex gap-3 pt-4">
+              <Button variant="outline" onClick={onClose} disabled={saving} className="flex-1">
+                {t('modal.cancel')}
+              </Button>
+              <Button onClick={handleSave} disabled={saving} className="flex-1">
+                {saving ? t('modal.saving') : t('modal.save')}
+              </Button>
+            </div>
           </div>
         </ScrollArea>
-
-        <div className="flex justify-end gap-2 px-6 py-4 border-t">
-          <Button variant="outline" onClick={onClose} disabled={saving}>
-            {t('modal.cancel')}
-          </Button>
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? t('modal.saving') : t('modal.save')}
-          </Button>
-        </div>
       </DialogContent>
     </Dialog>
   );
