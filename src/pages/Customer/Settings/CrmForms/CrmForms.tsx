@@ -19,8 +19,10 @@ import {
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { crmFormsService } from '@/services/crmForms/crmFormsService';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
+import { customAttributesService } from '@/services/customAttributes/customAttributesService';
 import type { CrmForm, CrmFormPayload } from '@/types/crmForms';
 import type { Pipeline } from '@/types/analytics/pipelines';
+import type { CustomAttributeDefinition } from '@/types/settings';
 import CrmFormModal from '@/components/crmForms/CrmFormModal';
 
 export default function CrmForms() {
@@ -31,6 +33,8 @@ export default function CrmForms() {
 
   const [forms, setForms] = useState<CrmForm[]>([]);
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
+  const [contactAttrs, setContactAttrs] = useState<CustomAttributeDefinition[]>([]);
+  const [dealAttrs, setDealAttrs] = useState<CustomAttributeDefinition[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -40,12 +44,16 @@ export default function CrmForms() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [list, pipes] = await Promise.all([
+      const [list, pipes, cAttrs, dAttrs] = await Promise.all([
         crmFormsService.list(),
         pipelinesService.getPipelines(),
+        customAttributesService.getCustomAttributes('contact_attribute'),
+        customAttributesService.getCustomAttributes('pipeline_item_attribute'),
       ]);
       setForms(list);
       setPipelines(pipes.data);
+      setContactAttrs(cAttrs.data);
+      setDealAttrs(dAttrs.data);
     } catch {
       toast.error('Erro ao carregar formulários.');
     } finally {
@@ -183,6 +191,8 @@ export default function CrmForms() {
         saving={saving}
         initial={editing}
         pipelines={pipelines}
+        contactAttrs={contactAttrs}
+        dealAttrs={dealAttrs}
       />
 
       <Dialog open={!!deleteTarget} onOpenChange={v => !v && setDeleteTarget(null)}>

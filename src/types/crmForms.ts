@@ -1,5 +1,7 @@
 export type CrmFieldType = 'text' | 'email' | 'tel' | 'number' | 'textarea' | 'select' | 'checkbox';
-export type FieldMapsTo = 'name' | 'email' | 'phone' | 'company' | '';
+// Typed mapping kind. `maps_to` may also hold a legacy standard-field string
+// ('name'|'email'|'phone'|'company') for forms created before B14.06.
+export type MapKind = 'contact' | 'contact_attribute' | 'deal_value' | 'deal_attribute';
 export type RoutingOp = 'equals' | 'not_equals' | 'contains';
 
 export interface CrmFormField {
@@ -8,7 +10,8 @@ export interface CrmFormField {
   type: CrmFieldType;
   required?: boolean;
   placeholder?: string;
-  maps_to?: FieldMapsTo;
+  maps_to?: string; // MapKind (or legacy standard-field string)
+  maps_to_key?: string; // attribute/standard key for the chosen kind
   options?: string[];
 }
 

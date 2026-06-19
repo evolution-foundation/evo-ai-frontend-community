@@ -16,18 +16,21 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
+  SelectGroup,
+  SelectLabel,
 } from '@evoapi/design-system';
 import { Trash2, Plus } from 'lucide-react';
 import type { Pipeline } from '@/types/analytics/pipelines';
-import type {
-  CrmForm,
-  CrmFormField,
-  CrmFormPayload,
-  CrmFieldType,
-  FieldMapsTo,
-  RoutingOp,
-  RoutingRule,
-} from '@/types/crmForms';
+import type { CustomAttributeDefinition } from '@/types/settings';
+import type { CrmForm, CrmFormField, CrmFormPayload, CrmFieldType, RoutingOp, RoutingRule } from '@/types/crmForms';
+import {
+  encodeTarget,
+  decodeTarget,
+  buildTargetGroups,
+  suggestFieldFromAttribute,
+  attrForTarget,
+  NONE_TARGET,
+} from '@/services/crmForms/crmFormTargets';
 
 interface CrmFormModalProps {
   open: boolean;
@@ -36,16 +39,11 @@ interface CrmFormModalProps {
   saving: boolean;
   initial: CrmForm | null;
   pipelines: Pipeline[];
+  contactAttrs: CustomAttributeDefinition[];
+  dealAttrs: CustomAttributeDefinition[];
 }
 
 const FIELD_TYPES: CrmFieldType[] = ['text', 'email', 'tel', 'number', 'textarea', 'select', 'checkbox'];
-const MAPS_TO: { value: string; label: string }[] = [
-  { value: '__none__', label: '— sem mapeamento —' },
-  { value: 'name', label: 'name' },
-  { value: 'email', label: 'email' },
-  { value: 'phone', label: 'phone' },
-  { value: 'company', label: 'company' },
-];
 const ROUTING_OPS: RoutingOp[] = ['equals', 'not_equals', 'contains'];
 const NONE = '__none__';
 
@@ -73,7 +71,15 @@ const Choose = ({ value, onChange, options, placeholder, className }: ChooseProp
 
 const emptyField = (): CrmFormField => ({ key: '', label: '', type: 'text', required: false, maps_to: '' });
 
-const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines }: CrmFormModalProps) => {
+// Standard contact key behind a field's mapping (legacy string or typed), for client-side coverage checks.
+const contactStdKey = (f: CrmFormField): string | null => {
+  const mt = f.maps_to || '';
+  if (['name', 'email', 'phone', 'company'].includes(mt)) return mt;
+  if (mt === 'contact') return f.maps_to_key || null;
+  return null;
+};
+
+const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines, contactAttrs, dealAttrs }: CrmFormModalProps) => {
   const [name, setName] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -100,8 +106,8 @@ const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines }: Crm
       initial?.fields?.length
         ? initial.fields
         : [
-            { key: 'name', label: 'Nome', type: 'text', required: true, maps_to: 'name' },
-            { key: 'email', label: 'E-mail', type: 'email', required: true, maps_to: 'email' },
+            { key: 'name', label: 'Nome', type: 'text', required: true, maps_to: 'contact', maps_to_key: 'name' },
+            { key: 'email', label: 'E-mail', type: 'email', required: true, maps_to: 'contact', maps_to_key: 'email' },
           ],
     );
     setRules(initial?.routing_rules ?? []);
@@ -109,6 +115,8 @@ const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines }: Crm
     setDefaultStageId(initial?.default_stage_id ?? '');
     setError(null);
   }, [open, initial]);
+
+  const targetGroups = buildTargetGroups(contactAttrs, dealAttrs);
 
   const stageOptions = (pipelineId?: string) => [
     { value: NONE, label: '— nenhum —' },
@@ -121,14 +129,27 @@ const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines }: Crm
   const updateRule = (idx: number, patch: Partial<RoutingRule>) =>
     setRules(prev => prev.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
 
+  // Apply a chosen mapping target: set maps_to/maps_to_key and, for custom
+  // attributes, suggest the field type/options from its display type.
+  const applyTarget = (idx: number, value: string) => {
+    const patch: Partial<CrmFormField> = decodeTarget(value);
+    const attr = attrForTarget(value, contactAttrs, dealAttrs);
+    if (attr) {
+      const suggestion = suggestFieldFromAttribute(attr);
+      patch.type = suggestion.type;
+      if (suggestion.options) patch.options = suggestion.options;
+    }
+    updateField(idx, patch);
+  };
+
   const handleSave = () => {
     setError(null);
     if (!name.trim()) return setError('Informe o nome do formulário.');
     if (!defaultPipelineId) return setError('Selecione o pipeline padrão.');
 
-    const mapped = fields.map(f => f.maps_to).filter(Boolean);
-    if (!mapped.includes('email')) return setError('Inclua um campo mapeado para "email".');
-    if (!mapped.includes('name')) return setError('Inclua um campo mapeado para "name".');
+    const std = fields.map(contactStdKey);
+    if (!std.includes('email')) return setError('Inclua um campo mapeado para o e-mail do contato.');
+    if (!std.includes('name')) return setError('Inclua um campo mapeado para o nome do contato.');
     if (fields.some(f => !f.key.trim())) return setError('Todo campo precisa de uma chave (key).');
 
     const payload: CrmFormPayload = {
@@ -206,50 +227,63 @@ const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines }: Crm
               </Button>
             </div>
             {fields.map((f, idx) => (
-              <div key={idx} className="grid grid-cols-12 gap-2 items-center border border-border rounded-md p-2">
-                <Input
-                  className="col-span-2"
-                  placeholder="key"
-                  value={f.key}
-                  onChange={e => updateField(idx, { key: e.target.value })}
-                />
-                <Input
-                  className="col-span-3"
-                  placeholder="label"
-                  value={f.label ?? ''}
-                  onChange={e => updateField(idx, { label: e.target.value })}
-                />
-                <Choose
-                  className="col-span-2"
-                  value={f.type}
-                  onChange={v => updateField(idx, { type: v as CrmFieldType })}
-                  options={FIELD_TYPES.map(t => ({ value: t, label: t }))}
-                />
-                <Choose
-                  className="col-span-2"
-                  value={f.maps_to || NONE}
-                  onChange={v => updateField(idx, { maps_to: (v === NONE ? '' : v) as FieldMapsTo })}
-                  options={MAPS_TO}
-                />
-                <label className="col-span-2 flex items-center gap-1 text-xs text-foreground">
-                  <Checkbox
-                    checked={!!f.required}
-                    onCheckedChange={c => updateField(idx, { required: c === true })}
+              <div key={idx} className="space-y-2 border border-border rounded-md p-2">
+                <div className="grid grid-cols-12 gap-2 items-center">
+                  <Input
+                    className="col-span-2"
+                    placeholder="key"
+                    value={f.key}
+                    onChange={e => updateField(idx, { key: e.target.value })}
                   />
-                  obrig.
-                </label>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="col-span-1 text-destructive"
-                  onClick={() => setFields(prev => prev.filter((_, i) => i !== idx))}
-                  aria-label="remover campo"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                  <Input
+                    className="col-span-3"
+                    placeholder="label"
+                    value={f.label ?? ''}
+                    onChange={e => updateField(idx, { label: e.target.value })}
+                  />
+                  <Choose
+                    className="col-span-2"
+                    value={f.type}
+                    onChange={v => updateField(idx, { type: v as CrmFieldType })}
+                    options={FIELD_TYPES.map(t => ({ value: t, label: t }))}
+                  />
+                  {/* Destino: mesma lista de contextos que a submissão pública aceita */}
+                  <div className="col-span-3">
+                    <Select value={encodeTarget(f)} onValueChange={v => applyTarget(idx, v)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="mapear para…" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={NONE_TARGET}>— sem mapeamento —</SelectItem>
+                        {targetGroups.map(g => (
+                          <SelectGroup key={g.label}>
+                            <SelectLabel>{g.label}</SelectLabel>
+                            {g.options.map(o => (
+                              <SelectItem key={o.value} value={o.value}>
+                                {o.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <label className="col-span-1 flex items-center gap-1 text-xs text-foreground">
+                    <Checkbox checked={!!f.required} onCheckedChange={c => updateField(idx, { required: c === true })} />
+                    obrig.
+                  </label>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="col-span-1 text-destructive"
+                    onClick={() => setFields(prev => prev.filter((_, i) => i !== idx))}
+                    aria-label="remover campo"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
                 {f.type === 'select' && (
                   <Input
-                    className="col-span-12"
                     placeholder="Opções separadas por vírgula"
                     value={(f.options ?? []).join(', ')}
                     onChange={e =>
