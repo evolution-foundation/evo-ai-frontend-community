@@ -27,6 +27,7 @@ import AtlassianCallback from '@/pages/AtlassianCallback';
 import MicrosoftCallback from '@/pages/MicrosoftCallback';
 import SurveyResponse from '@/pages/Public/Survey/SurveyResponse';
 import PublicChatPage from '@/pages/Public/Chat/ChatPage';
+import FormPage from '@/pages/Public/Form/FormPage';
 
 // Páginas customer
 import Dashboard from '@/pages/Customer/Dashboard';
@@ -373,6 +374,16 @@ const AppRouter = () => {
             element={
               <PublicRoute>
                 <SurveyResponse />
+              </PublicRoute>
+            }
+          />
+
+          {/* Public lead-capture form route (B14.02) */}
+          <Route
+            path="/f/:slug"
+            element={
+              <PublicRoute>
+                <FormPage />
               </PublicRoute>
             }
           />
