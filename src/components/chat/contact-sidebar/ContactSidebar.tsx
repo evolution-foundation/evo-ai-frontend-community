@@ -196,24 +196,6 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onFilterReload]);
 
-  // Calcular altura real do header dinamicamente
-  useEffect(() => {
-    const calculateHeaderHeight = () => {
-      // Procurar o AppBar do MainLayout
-      const appBar = document.querySelector(
-        '[class*="flex-shrink-0"][class*="bg-sidebar"][class*="border-b"]',
-      );
-      if (appBar) {
-        const height = appBar.getBoundingClientRect().height;
-        document.documentElement.style.setProperty('--header-height', `${height}px`);
-      }
-    };
-
-    calculateHeaderHeight();
-    window.addEventListener('resize', calculateHeaderHeight);
-    return () => window.removeEventListener('resize', calculateHeaderHeight);
-  }, []);
-
   // No mobile, esconder completamente quando fechado
   // No desktop, manter no DOM para animação
   if (!isOpen && isMobile) return null;
@@ -223,8 +205,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
       {/* Mobile Backdrop */}
       {isOpen && isMobile && (
         <div
-          className="fixed left-0 right-0 bottom-0 bg-black/50 z-30"
-          style={{ top: 'var(--header-height, 60px)' }}
+          className="fixed inset-0 bg-black/50 z-30"
           onClick={onClose}
         />
       )}
@@ -232,18 +213,14 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
       {/* Sidebar */}
       <div
         className={`
-        border-l bg-background flex flex-col
-        fixed md:static left-0 md:left-auto right-0 md:right-auto bottom-0 md:bottom-auto z-40 md:z-auto
+        border-l bg-background flex flex-col h-full
+        fixed inset-0 md:static md:inset-auto z-40 md:z-auto
         transform transition-all duration-300 ease-in-out overflow-hidden
         ${isOpen
-            ? 'w-full md:w-96 translate-x-0 md:translate-x-0 md:opacity-100'
+            ? 'w-full md:w-96 translate-x-0 md:opacity-100'
             : 'w-full md:w-0 translate-x-full md:translate-x-0 md:opacity-0'
           }
       `}
-        style={{
-          top: isMobile ? 'var(--header-height, 60px)' : 'auto',
-          height: isMobile ? 'calc(100vh - var(--header-height, 60px))' : '100%',
-        }}
       >
         {/* Header com Avatar e Info Básica + Close Button */}
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative">
