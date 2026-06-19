@@ -105,3 +105,24 @@ describe('ContactSidebar — fetch lifecycle', () => {
     expect(mockGetContact).toHaveBeenCalledWith('1', true);
   });
 });
+
+describe('ContactSidebar — drawer declutter (EVO-1782)', () => {
+  beforeEach(() => {
+    mockGetContact.mockReset();
+    mockGetContact.mockResolvedValue(makeContact('1'));
+  });
+
+  it('drops the dead Contact Notes / Previous Conversations stub sections, keeps Pipeline', async () => {
+    let view!: ReturnType<typeof render>;
+    await act(async () => {
+      view = render(<ContactSidebar {...defaultProps} />);
+      await new Promise(r => setTimeout(r, 0));
+    });
+
+    // Removed stub sections must not render
+    expect(view.queryByText('contactSidebar.sections.contactNotes.title')).toBeNull();
+    expect(view.queryByText('contactSidebar.sections.previousConversations.title')).toBeNull();
+    // A kept section still renders
+    expect(view.queryByText('contactSidebar.sections.pipeline.title')).not.toBeNull();
+  });
+});
