@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Copy } from 'lucide-react';
+import { Plus, Pencil, Trash2, Copy, Loader2, FileText } from 'lucide-react';
 import {
   Button,
   Badge,
@@ -9,12 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Select,
   SelectTrigger,
   SelectValue,
@@ -23,6 +17,7 @@ import {
 } from '@evoapi/design-system';
 import BaseHeader from '@/components/base/BaseHeader';
 import BasePagination from '@/components/base/BasePagination';
+import EmptyState from '@/components/base/EmptyState';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { crmFormsService } from '@/services/crmForms/crmFormsService';
@@ -66,7 +61,6 @@ export default function CrmForms() {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState<PaginationMeta>(EMPTY_PAGINATION);
 
-  // Debounce the search input into the actual query.
   useEffect(() => {
     const id = setTimeout(() => {
       setSearch(searchInput);
@@ -214,53 +208,74 @@ export default function CrmForms() {
         </Select>
       </div>
 
-      <div className="flex-1 overflow-auto mt-4">
+      <div className="flex-1 overflow-auto mt-6">
         {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : forms.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            {search || published !== 'all' ? 'Nenhum formulário para esse filtro.' : 'Nenhum formulário ainda.'}
-          </div>
+          <EmptyState
+            icon={FileText}
+            title={search || published !== 'all' ? 'Nenhum formulário encontrado' : 'Nenhum formulário ainda'}
+            description={
+              search || published !== 'all'
+                ? 'Ajuste a busca ou o filtro de status.'
+                : 'Crie formulários públicos que geram leads no pipeline.'
+            }
+            action={
+              canCreate && !(search || published !== 'all')
+                ? { label: 'Novo formulário', onClick: openCreate }
+                : undefined
+            }
+            className="h-full"
+          />
         ) : (
-          <div className="border border-border rounded-lg">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Link público</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Leads</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+          <div className="rounded-md border border-sidebar-border overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-sidebar-border bg-sidebar-accent/50">
+                  <th className="px-4 py-3 text-left font-medium text-sidebar-foreground">Nome</th>
+                  <th className="px-4 py-3 text-left font-medium text-sidebar-foreground hidden md:table-cell">
+                    Link público
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-sidebar-foreground hidden sm:table-cell">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-sidebar-foreground hidden sm:table-cell">
+                    Leads
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-sidebar-foreground">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
                 {forms.map(form => (
-                  <TableRow key={form.id}>
-                    <TableCell className="font-medium">{form.title || form.name}</TableCell>
-                    <TableCell>
+                  <tr
+                    key={form.id}
+                    className="border-b border-sidebar-border last:border-0 hover:bg-sidebar-accent/30 transition-colors"
+                  >
+                    <td className="px-4 py-3 font-medium text-sidebar-foreground">{form.title || form.name}</td>
+                    <td className="px-4 py-3 hidden md:table-cell">
                       <button
                         onClick={() => copyLink(form)}
-                        className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                        className="inline-flex items-center gap-1 text-sidebar-foreground/60 hover:text-sidebar-foreground"
                       >
                         <Copy className="w-3.5 h-3.5" /> /f/{form.slug}
                       </button>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={form.published ? 'default' : 'secondary'}>
+                    </td>
+                    <td className="px-4 py-3 hidden sm:table-cell">
+                      <Badge variant={form.published ? 'default' : 'secondary'} className="text-xs">
                         {form.published ? 'Publicado' : 'Rascunho'}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
+                    </td>
+                    <td className="px-4 py-3 text-right tabular-nums hidden sm:table-cell">
                       <button
                         onClick={() => openLeads(form)}
-                        className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+                        className="text-sidebar-foreground/80 hover:text-sidebar-foreground underline-offset-2 hover:underline"
                       >
                         {form.leads_count ?? 0}
                       </button>
-                    </TableCell>
-                    <TableCell className="text-right whitespace-nowrap">
+                    </td>
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
                       {canUpdate && (
                         <Button variant="ghost" size="icon" onClick={() => openEdit(form)} aria-label="editar">
                           <Pencil className="w-4 h-4" />
@@ -277,11 +292,11 @@ export default function CrmForms() {
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       )}
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
+              </tbody>
+            </table>
           </div>
         )}
       </div>
@@ -334,34 +349,36 @@ export default function CrmForms() {
           </DialogHeader>
           {leadsLoading ? (
             <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : leads.length === 0 ? (
             <p className="text-sm text-muted-foreground py-6 text-center">Nenhum lead capturado ainda.</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Contato</TableHead>
-                  <TableHead>Destino</TableHead>
-                  <TableHead>Data</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {leads.map(lead => (
-                  <TableRow key={lead.id}>
-                    <TableCell>
-                      <div className="font-medium">{lead.contact?.name || '—'}</div>
-                      <div className="text-xs text-muted-foreground">{lead.contact?.email}</div>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{stageLabel(lead)}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {lead.created_at ? new Date(lead.created_at).toLocaleString() : '—'}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="rounded-md border border-sidebar-border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-sidebar-border bg-sidebar-accent/50">
+                    <th className="px-4 py-3 text-left font-medium text-sidebar-foreground">Contato</th>
+                    <th className="px-4 py-3 text-left font-medium text-sidebar-foreground">Destino</th>
+                    <th className="px-4 py-3 text-left font-medium text-sidebar-foreground">Data</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leads.map(lead => (
+                    <tr key={lead.id} className="border-b border-sidebar-border last:border-0">
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-sidebar-foreground">{lead.contact?.name || '—'}</div>
+                        <div className="text-xs text-sidebar-foreground/60">{lead.contact?.email}</div>
+                      </td>
+                      <td className="px-4 py-3 text-sidebar-foreground/70">{stageLabel(lead)}</td>
+                      <td className="px-4 py-3 text-sidebar-foreground/70">
+                        {lead.created_at ? new Date(lead.created_at).toLocaleString() : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </DialogContent>
       </Dialog>
