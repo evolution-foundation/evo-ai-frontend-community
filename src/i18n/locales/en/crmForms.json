@@ -85,7 +85,8 @@
       "required": "req.",
       "mapTo": "map to…",
       "optionsPlaceholder": "Comma-separated options",
-      "remove": "remove field"
+      "remove": "remove field",
+      "type": "Type"
     },
     "targets": {
       "none": "— no mapping —",

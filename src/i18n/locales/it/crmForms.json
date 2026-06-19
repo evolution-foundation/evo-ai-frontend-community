@@ -85,7 +85,8 @@
       "required": "obblig.",
       "mapTo": "mappa su…",
       "optionsPlaceholder": "Opzioni separate da virgola",
-      "remove": "rimuovi campo"
+      "remove": "rimuovi campo",
+      "type": "Tipo"
     },
     "targets": {
       "none": "— nessuna mappatura —",

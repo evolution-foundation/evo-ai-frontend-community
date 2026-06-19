@@ -85,7 +85,8 @@
       "required": "oblig.",
       "mapTo": "asignar a…",
       "optionsPlaceholder": "Opciones separadas por comas",
-      "remove": "eliminar campo"
+      "remove": "eliminar campo",
+      "type": "Tipo"
     },
     "targets": {
       "none": "— sin asignación —",

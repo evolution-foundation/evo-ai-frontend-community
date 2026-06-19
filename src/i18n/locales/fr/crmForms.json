@@ -85,7 +85,8 @@
       "required": "oblig.",
       "mapTo": "associer à…",
       "optionsPlaceholder": "Options séparées par des virgules",
-      "remove": "supprimer le champ"
+      "remove": "supprimer le champ",
+      "type": "Type"
     },
     "targets": {
       "none": "— aucune association —",
