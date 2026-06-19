@@ -1,6 +1,6 @@
 import api from '@/services/core/api';
 import { extractData, extractResponse } from '@/utils/apiHelpers';
-import { CrmForm, CrmFormPayload, FormLead } from '@/types/crmForms';
+import { CrmForm, CrmFormPayload, FormLead, PaginationMeta } from '@/types/crmForms';
 
 /**
  * Service para o CRUD admin de formulários de captura de lead (B14.04 / EVO-1841).
@@ -9,9 +9,15 @@ import { CrmForm, CrmFormPayload, FormLead } from '@/types/crmForms';
 class CrmFormsService {
   private readonly baseUrl = '/crm_forms';
 
-  async list(): Promise<CrmForm[]> {
-    const response = await api.get(this.baseUrl);
-    return extractResponse<CrmForm>(response).data;
+  async list(params?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    published?: boolean;
+  }): Promise<{ data: CrmForm[]; meta: { pagination?: PaginationMeta } }> {
+    const response = await api.get(this.baseUrl, { params });
+    const env = extractResponse<CrmForm>(response);
+    return { data: env.data, meta: env.meta };
   }
 
   async create(payload: CrmFormPayload): Promise<CrmForm> {

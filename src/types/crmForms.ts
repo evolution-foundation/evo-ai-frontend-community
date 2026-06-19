@@ -48,6 +48,15 @@ export interface CrmForm {
   updated_at?: string;
 }
 
+export interface PaginationMeta {
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+  has_next_page?: boolean;
+  has_previous_page?: boolean;
+}
+
 export interface FormLead {
   id: string;
   contact?: { id: string; name?: string; email?: string } | null;

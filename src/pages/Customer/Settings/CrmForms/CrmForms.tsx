@@ -15,15 +15,30 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
 } from '@evoapi/design-system';
+import BaseHeader from '@/components/base/BaseHeader';
+import BasePagination from '@/components/base/BasePagination';
+import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { crmFormsService } from '@/services/crmForms/crmFormsService';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import { customAttributesService } from '@/services/customAttributes/customAttributesService';
-import type { CrmForm, CrmFormPayload, FormLead } from '@/types/crmForms';
+import type { CrmForm, CrmFormPayload, FormLead, PaginationMeta } from '@/types/crmForms';
 import type { Pipeline } from '@/types/analytics/pipelines';
 import type { CustomAttributeDefinition } from '@/types/settings';
 import CrmFormModal from '@/components/crmForms/CrmFormModal';
+
+const EMPTY_PAGINATION: PaginationMeta = {
+  page: 1,
+  page_size: DEFAULT_PAGE_SIZE,
+  total: 0,
+  total_pages: 0,
+};
 
 export default function CrmForms() {
   const { can, isReady } = useUserPermissions();
@@ -44,29 +59,62 @@ export default function CrmForms() {
   const [leads, setLeads] = useState<FormLead[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(false);
 
-  const load = useCallback(async () => {
+  // List controls (server-side filter / search / pagination)
+  const [searchInput, setSearchInput] = useState('');
+  const [search, setSearch] = useState('');
+  const [published, setPublished] = useState<'all' | 'true' | 'false'>('all');
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<PaginationMeta>(EMPTY_PAGINATION);
+
+  // Debounce the search input into the actual query.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 350);
+    return () => clearTimeout(id);
+  }, [searchInput]);
+
+  const loadForms = useCallback(async () => {
     setLoading(true);
     try {
-      const [list, pipes, cAttrs, dAttrs] = await Promise.all([
-        crmFormsService.list(),
-        pipelinesService.getPipelines(),
-        customAttributesService.getCustomAttributes('contact_attribute'),
-        customAttributesService.getCustomAttributes('pipeline_item_attribute'),
-      ]);
-      setForms(list);
-      setPipelines(pipes.data);
-      setContactAttrs(cAttrs.data);
-      setDealAttrs(dAttrs.data);
+      const { data, meta } = await crmFormsService.list({
+        page,
+        pageSize: DEFAULT_PAGE_SIZE,
+        search: search || undefined,
+        published: published === 'all' ? undefined : published === 'true',
+      });
+      setForms(data);
+      setPagination(meta.pagination ?? EMPTY_PAGINATION);
     } catch {
       toast.error('Erro ao carregar formulários.');
     } finally {
       setLoading(false);
     }
+  }, [page, search, published]);
+
+  const loadContext = useCallback(async () => {
+    try {
+      const [pipes, cAttrs, dAttrs] = await Promise.all([
+        pipelinesService.getPipelines(),
+        customAttributesService.getCustomAttributes('contact_attribute'),
+        customAttributesService.getCustomAttributes('pipeline_item_attribute'),
+      ]);
+      setPipelines(pipes.data);
+      setContactAttrs(cAttrs.data);
+      setDealAttrs(dAttrs.data);
+    } catch {
+      /* selectors degrade to standard targets only */
+    }
   }, []);
 
   useEffect(() => {
-    if (isReady) load();
-  }, [isReady, load]);
+    if (isReady) loadContext();
+  }, [isReady, loadContext]);
+
+  useEffect(() => {
+    if (isReady) loadForms();
+  }, [isReady, loadForms]);
 
   const openCreate = () => {
     setEditing(null);
@@ -84,7 +132,7 @@ export default function CrmForms() {
       else await crmFormsService.create(payload);
       toast.success('Formulário salvo.');
       setModalOpen(false);
-      load();
+      loadForms();
     } catch (error: unknown) {
       const msg = (error as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error
         ?.message;
@@ -100,7 +148,7 @@ export default function CrmForms() {
       await crmFormsService.remove(deleteTarget.id);
       toast.success('Formulário excluído.');
       setDeleteTarget(null);
-      load();
+      loadForms();
     } catch {
       toast.error('Erro ao excluir.');
     }
@@ -133,87 +181,119 @@ export default function CrmForms() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-foreground">Formulários de captura</h1>
-          <p className="text-sm text-muted-foreground">
-            Crie formulários públicos que geram leads no pipeline.
-          </p>
-        </div>
-        {canCreate && (
-          <Button onClick={openCreate}>
-            <Plus className="w-4 h-4 mr-1" /> Novo formulário
-          </Button>
+    <div className="h-full flex flex-col p-4">
+      <BaseHeader
+        title="Formulários de captura"
+        subtitle={`${pagination.total} formulário${pagination.total !== 1 ? 's' : ''} · geram leads no pipeline`}
+        searchPlaceholder="Buscar por nome, título ou slug…"
+        searchValue={searchInput}
+        onSearchChange={setSearchInput}
+        primaryAction={
+          canCreate
+            ? { label: 'Novo formulário', icon: <Plus className="h-4 w-4" />, onClick: openCreate }
+            : undefined
+        }
+      />
+
+      <div className="flex items-center gap-2 mt-4">
+        <Select
+          value={published}
+          onValueChange={v => {
+            setPublished(v as 'all' | 'true' | 'false');
+            setPage(1);
+          }}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os status</SelectItem>
+            <SelectItem value="true">Publicados</SelectItem>
+            <SelectItem value="false">Rascunhos</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex-1 overflow-auto mt-4">
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          </div>
+        ) : forms.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            {search || published !== 'all' ? 'Nenhum formulário para esse filtro.' : 'Nenhum formulário ainda.'}
+          </div>
+        ) : (
+          <div className="border border-border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Link público</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Leads</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {forms.map(form => (
+                  <TableRow key={form.id}>
+                    <TableCell className="font-medium">{form.title || form.name}</TableCell>
+                    <TableCell>
+                      <button
+                        onClick={() => copyLink(form)}
+                        className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                      >
+                        <Copy className="w-3.5 h-3.5" /> /f/{form.slug}
+                      </button>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={form.published ? 'default' : 'secondary'}>
+                        {form.published ? 'Publicado' : 'Rascunho'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <button
+                        onClick={() => openLeads(form)}
+                        className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+                      >
+                        {form.leads_count ?? 0}
+                      </button>
+                    </TableCell>
+                    <TableCell className="text-right whitespace-nowrap">
+                      {canUpdate && (
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(form)} aria-label="editar">
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                      )}
+                      {canDelete && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setDeleteTarget(form)}
+                          aria-label="excluir"
+                          className="text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </div>
 
-      {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-        </div>
-      ) : forms.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">Nenhum formulário ainda.</div>
-      ) : (
-        <div className="border border-border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Link público</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Leads</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {forms.map(form => (
-                <TableRow key={form.id}>
-                  <TableCell className="font-medium">{form.title || form.name}</TableCell>
-                  <TableCell>
-                    <button
-                      onClick={() => copyLink(form)}
-                      className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
-                    >
-                      <Copy className="w-3.5 h-3.5" /> /f/{form.slug}
-                    </button>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={form.published ? 'default' : 'secondary'}>
-                      {form.published ? 'Publicado' : 'Rascunho'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <button
-                      onClick={() => openLeads(form)}
-                      className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
-                    >
-                      {form.leads_count ?? 0}
-                    </button>
-                  </TableCell>
-                  <TableCell className="text-right whitespace-nowrap">
-                    {canUpdate && (
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(form)} aria-label="editar">
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                    )}
-                    {canDelete && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteTarget(form)}
-                        aria-label="excluir"
-                        className="text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+      {pagination.total > 0 && (
+        <BasePagination
+          currentPage={pagination.page}
+          totalPages={pagination.total_pages}
+          totalItems={pagination.total}
+          itemsPerPage={pagination.page_size}
+          onPageChange={setPage}
+        />
       )}
 
       <CrmFormModal
