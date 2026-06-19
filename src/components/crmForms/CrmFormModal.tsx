@@ -6,6 +6,16 @@ import {
   DialogTitle,
   DialogFooter,
   Button,
+  Input,
+  Textarea,
+  Label,
+  Switch,
+  Checkbox,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
 } from '@evoapi/design-system';
 import { Trash2, Plus } from 'lucide-react';
 import type { Pipeline } from '@/types/analytics/pipelines';
@@ -29,11 +39,37 @@ interface CrmFormModalProps {
 }
 
 const FIELD_TYPES: CrmFieldType[] = ['text', 'email', 'tel', 'number', 'textarea', 'select', 'checkbox'];
-const MAPS_TO: FieldMapsTo[] = ['', 'name', 'email', 'phone', 'company'];
+const MAPS_TO: { value: string; label: string }[] = [
+  { value: '__none__', label: '— sem mapeamento —' },
+  { value: 'name', label: 'name' },
+  { value: 'email', label: 'email' },
+  { value: 'phone', label: 'phone' },
+  { value: 'company', label: 'company' },
+];
 const ROUTING_OPS: RoutingOp[] = ['equals', 'not_equals', 'contains'];
+const NONE = '__none__';
 
-const inputClass =
-  'w-full p-2 text-sm border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring';
+interface ChooseProps {
+  value?: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+  className?: string;
+}
+const Choose = ({ value, onChange, options, placeholder, className }: ChooseProps) => (
+  <Select value={value || undefined} onValueChange={onChange}>
+    <SelectTrigger className={className}>
+      <SelectValue placeholder={placeholder} />
+    </SelectTrigger>
+    <SelectContent>
+      {options.map(o => (
+        <SelectItem key={o.value} value={o.value}>
+          {o.label}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
+);
 
 const emptyField = (): CrmFormField => ({ key: '', label: '', type: 'text', required: false, maps_to: '' });
 
@@ -74,7 +110,11 @@ const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines }: Crm
     setError(null);
   }, [open, initial]);
 
-  const stagesFor = (pipelineId?: string) => pipelines.find(p => p.id === pipelineId)?.stages ?? [];
+  const stageOptions = (pipelineId?: string) => [
+    { value: NONE, label: '— nenhum —' },
+    ...(pipelines.find(p => p.id === pipelineId)?.stages ?? []).map(s => ({ value: s.id, label: s.name })),
+  ];
+  const pipelineOptions = pipelines.map(p => ({ value: p.id, label: p.name }));
 
   const updateField = (idx: number, patch: Partial<CrmFormField>) =>
     setFields(prev => prev.map((f, i) => (i === idx ? { ...f, ...patch } : f)));
@@ -101,13 +141,7 @@ const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines }: Crm
         logo_url: logoUrl || undefined,
         success_message: successMessage || undefined,
       },
-      fields: fields.map(f => ({
-        ...f,
-        options:
-          f.type === 'select' && typeof (f.options as unknown) === 'string'
-            ? String(f.options).split(',').map(o => o.trim()).filter(Boolean)
-            : f.options,
-      })),
+      fields,
       routing_rules: rules.filter(r => r.pipeline_id),
       default_pipeline_id: defaultPipelineId,
       default_stage_id: defaultStageId || undefined,
@@ -126,23 +160,41 @@ const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines }: Crm
           {/* Básico */}
           <section className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground">Básico</h3>
-            <input className={inputClass} placeholder="Nome (interno)" value={name} onChange={e => setName(e.target.value)} />
-            <input className={inputClass} placeholder="Título público" value={title} onChange={e => setTitle(e.target.value)} />
-            <textarea className={inputClass} placeholder="Descrição" value={description} onChange={e => setDescription(e.target.value)} />
-            <label className="flex items-center gap-2 text-sm text-foreground">
-              <input type="checkbox" checked={published} onChange={e => setPublished(e.target.checked)} />
-              Publicado
-            </label>
+            <div className="space-y-1">
+              <Label>Nome (interno)</Label>
+              <Input value={name} onChange={e => setName(e.target.value)} placeholder="Ex.: Contato site" />
+            </div>
+            <div className="space-y-1">
+              <Label>Título público</Label>
+              <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Ex.: Fale com a gente" />
+            </div>
+            <div className="space-y-1">
+              <Label>Descrição</Label>
+              <Textarea value={description} onChange={e => setDescription(e.target.value)} />
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch checked={published} onCheckedChange={setPublished} id="published" />
+              <Label htmlFor="published">Publicado</Label>
+            </div>
           </section>
 
           {/* Aparência */}
           <section className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground">Aparência</h3>
             <div className="grid grid-cols-2 gap-3">
-              <input className={inputClass} placeholder="Cor primária (#hex)" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} />
-              <input className={inputClass} placeholder="URL do logo" value={logoUrl} onChange={e => setLogoUrl(e.target.value)} />
+              <div className="space-y-1">
+                <Label>Cor primária</Label>
+                <Input value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} placeholder="#1E40AF" />
+              </div>
+              <div className="space-y-1">
+                <Label>URL do logo</Label>
+                <Input value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="https://…" />
+              </div>
             </div>
-            <input className={inputClass} placeholder="Mensagem de sucesso" value={successMessage} onChange={e => setSuccessMessage(e.target.value)} />
+            <div className="space-y-1">
+              <Label>Mensagem de sucesso</Label>
+              <Input value={successMessage} onChange={e => setSuccessMessage(e.target.value)} />
+            </div>
           </section>
 
           {/* Campos */}
@@ -155,21 +207,58 @@ const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines }: Crm
             </div>
             {fields.map((f, idx) => (
               <div key={idx} className="grid grid-cols-12 gap-2 items-center border border-border rounded-md p-2">
-                <input className={`${inputClass} col-span-2`} placeholder="key" value={f.key} onChange={e => updateField(idx, { key: e.target.value })} />
-                <input className={`${inputClass} col-span-3`} placeholder="label" value={f.label ?? ''} onChange={e => updateField(idx, { label: e.target.value })} />
-                <select className={`${inputClass} col-span-2`} value={f.type} onChange={e => updateField(idx, { type: e.target.value as CrmFieldType })}>
-                  {FIELD_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-                <select className={`${inputClass} col-span-2`} value={f.maps_to ?? ''} onChange={e => updateField(idx, { maps_to: e.target.value as FieldMapsTo })}>
-                  {MAPS_TO.map(m => <option key={m} value={m}>{m || 'maps_to…'}</option>)}
-                </select>
+                <Input
+                  className="col-span-2"
+                  placeholder="key"
+                  value={f.key}
+                  onChange={e => updateField(idx, { key: e.target.value })}
+                />
+                <Input
+                  className="col-span-3"
+                  placeholder="label"
+                  value={f.label ?? ''}
+                  onChange={e => updateField(idx, { label: e.target.value })}
+                />
+                <Choose
+                  className="col-span-2"
+                  value={f.type}
+                  onChange={v => updateField(idx, { type: v as CrmFieldType })}
+                  options={FIELD_TYPES.map(t => ({ value: t, label: t }))}
+                />
+                <Choose
+                  className="col-span-2"
+                  value={f.maps_to || NONE}
+                  onChange={v => updateField(idx, { maps_to: (v === NONE ? '' : v) as FieldMapsTo })}
+                  options={MAPS_TO}
+                />
                 <label className="col-span-2 flex items-center gap-1 text-xs text-foreground">
-                  <input type="checkbox" checked={!!f.required} onChange={e => updateField(idx, { required: e.target.checked })} />
+                  <Checkbox
+                    checked={!!f.required}
+                    onCheckedChange={c => updateField(idx, { required: c === true })}
+                  />
                   obrig.
                 </label>
-                <button className="col-span-1 text-destructive flex justify-center" onClick={() => setFields(prev => prev.filter((_, i) => i !== idx))} aria-label="remover campo">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="col-span-1 text-destructive"
+                  onClick={() => setFields(prev => prev.filter((_, i) => i !== idx))}
+                  aria-label="remover campo"
+                >
                   <Trash2 className="w-4 h-4" />
-                </button>
+                </Button>
+                {f.type === 'select' && (
+                  <Input
+                    className="col-span-12"
+                    placeholder="Opções separadas por vírgula"
+                    value={(f.options ?? []).join(', ')}
+                    onChange={e =>
+                      updateField(idx, {
+                        options: e.target.value.split(',').map(o => o.trim()).filter(Boolean),
+                      })
+                    }
+                  />
+                )}
               </div>
             ))}
           </section>
@@ -178,14 +267,21 @@ const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines }: Crm
           <section className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground">Destino padrão</h3>
             <div className="grid grid-cols-2 gap-3">
-              <select className={inputClass} value={defaultPipelineId} onChange={e => { setDefaultPipelineId(e.target.value); setDefaultStageId(''); }}>
-                <option value="">Pipeline…</option>
-                {pipelines.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-              <select className={inputClass} value={defaultStageId} onChange={e => setDefaultStageId(e.target.value)}>
-                <option value="">Estágio…</option>
-                {stagesFor(defaultPipelineId).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
+              <Choose
+                value={defaultPipelineId}
+                onChange={v => {
+                  setDefaultPipelineId(v);
+                  setDefaultStageId('');
+                }}
+                options={pipelineOptions}
+                placeholder="Pipeline…"
+              />
+              <Choose
+                value={defaultStageId || NONE}
+                onChange={v => setDefaultStageId(v === NONE ? '' : v)}
+                options={stageOptions(defaultPipelineId)}
+                placeholder="Estágio…"
+              />
             </div>
           </section>
 
@@ -193,31 +289,58 @@ const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines }: Crm
           <section className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-foreground">Regras de roteamento</h3>
-              <Button variant="outline" size="sm" onClick={() => setRules(prev => [...prev, { field: '', op: 'equals', value: '', pipeline_id: '', stage_id: '' }])}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setRules(prev => [...prev, { field: '', op: 'equals', value: '', pipeline_id: '', stage_id: '' }])}
+              >
                 <Plus className="w-4 h-4 mr-1" /> Regra
               </Button>
             </div>
             {rules.map((r, idx) => (
               <div key={idx} className="grid grid-cols-12 gap-2 items-center border border-border rounded-md p-2">
-                <select className={`${inputClass} col-span-2`} value={r.field ?? ''} onChange={e => updateRule(idx, { field: e.target.value })}>
-                  <option value="">campo…</option>
-                  {fields.filter(f => f.key).map(f => <option key={f.key} value={f.key}>{f.key}</option>)}
-                </select>
-                <select className={`${inputClass} col-span-2`} value={r.op ?? 'equals'} onChange={e => updateRule(idx, { op: e.target.value as RoutingOp })}>
-                  {ROUTING_OPS.map(o => <option key={o} value={o}>{o}</option>)}
-                </select>
-                <input className={`${inputClass} col-span-2`} placeholder="valor" value={r.value ?? ''} onChange={e => updateRule(idx, { value: e.target.value })} />
-                <select className={`${inputClass} col-span-3`} value={r.pipeline_id} onChange={e => updateRule(idx, { pipeline_id: e.target.value, stage_id: '' })}>
-                  <option value="">pipeline…</option>
-                  {pipelines.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
-                <select className={`${inputClass} col-span-2`} value={r.stage_id ?? ''} onChange={e => updateRule(idx, { stage_id: e.target.value })}>
-                  <option value="">estágio…</option>
-                  {stagesFor(r.pipeline_id).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-                <button className="col-span-1 text-destructive flex justify-center" onClick={() => setRules(prev => prev.filter((_, i) => i !== idx))} aria-label="remover regra">
+                <Choose
+                  className="col-span-2"
+                  value={r.field}
+                  onChange={v => updateRule(idx, { field: v })}
+                  options={fields.filter(f => f.key).map(f => ({ value: f.key, label: f.key }))}
+                  placeholder="campo…"
+                />
+                <Choose
+                  className="col-span-2"
+                  value={r.op ?? 'equals'}
+                  onChange={v => updateRule(idx, { op: v as RoutingOp })}
+                  options={ROUTING_OPS.map(o => ({ value: o, label: o }))}
+                />
+                <Input
+                  className="col-span-2"
+                  placeholder="valor"
+                  value={r.value ?? ''}
+                  onChange={e => updateRule(idx, { value: e.target.value })}
+                />
+                <Choose
+                  className="col-span-3"
+                  value={r.pipeline_id}
+                  onChange={v => updateRule(idx, { pipeline_id: v, stage_id: '' })}
+                  options={pipelineOptions}
+                  placeholder="pipeline…"
+                />
+                <Choose
+                  className="col-span-2"
+                  value={r.stage_id || NONE}
+                  onChange={v => updateRule(idx, { stage_id: v === NONE ? '' : v })}
+                  options={stageOptions(r.pipeline_id)}
+                  placeholder="estágio…"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="col-span-1 text-destructive"
+                  onClick={() => setRules(prev => prev.filter((_, i) => i !== idx))}
+                  aria-label="remover regra"
+                >
                   <Trash2 className="w-4 h-4" />
-                </button>
+                </Button>
               </div>
             ))}
           </section>
@@ -226,8 +349,12 @@ const CrmFormModal = ({ open, onClose, onSave, saving, initial, pipelines }: Crm
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={saving}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving}>{saving ? 'Salvando…' : 'Salvar'}</Button>
+          <Button variant="outline" onClick={onClose} disabled={saving}>
+            Cancelar
+          </Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? 'Salvando…' : 'Salvar'}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

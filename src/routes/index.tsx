@@ -772,7 +772,7 @@ const AppRouter = () => {
           />
 
           <Route
-            path="/crm-forms"
+            path="/settings/crm-forms"
             element={
               <PrivateRoute>
                 <CustomerRoute>

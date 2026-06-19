@@ -3,11 +3,18 @@ import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, Copy } from 'lucide-react';
 import {
   Button,
+  Badge,
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@evoapi/design-system';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { crmFormsService } from '@/services/crmForms/crmFormsService';
@@ -99,7 +106,9 @@ export default function CrmForms() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-foreground">Formulários de captura</h1>
-          <p className="text-sm text-muted-foreground">Crie formulários públicos que geram leads no pipeline.</p>
+          <p className="text-sm text-muted-foreground">
+            Crie formulários públicos que geram leads no pipeline.
+          </p>
         </div>
         {canCreate && (
           <Button onClick={openCreate}>
@@ -115,55 +124,55 @@ export default function CrmForms() {
       ) : forms.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">Nenhum formulário ainda.</div>
       ) : (
-        <div className="border border-border rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-muted-foreground">
-              <tr>
-                <th className="text-left font-medium px-4 py-2">Nome</th>
-                <th className="text-left font-medium px-4 py-2">Link público</th>
-                <th className="text-left font-medium px-4 py-2">Status</th>
-                <th className="px-4 py-2" />
-              </tr>
-            </thead>
-            <tbody>
+        <div className="border border-border rounded-lg">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>Link público</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {forms.map(form => (
-                <tr key={form.id} className="border-t border-border">
-                  <td className="px-4 py-2 text-foreground">{form.title || form.name}</td>
-                  <td className="px-4 py-2">
+                <TableRow key={form.id}>
+                  <TableCell className="font-medium">{form.title || form.name}</TableCell>
+                  <TableCell>
                     <button
                       onClick={() => copyLink(form)}
                       className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
                     >
                       <Copy className="w-3.5 h-3.5" /> /f/{form.slug}
                     </button>
-                  </td>
-                  <td className="px-4 py-2">
-                    <span
-                      className={`text-xs px-2 py-0.5 rounded-full ${
-                        form.published
-                          ? 'bg-green-500/10 text-green-600 dark:text-green-400'
-                          : 'bg-muted text-muted-foreground'
-                      }`}
-                    >
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={form.published ? 'default' : 'secondary'}>
                       {form.published ? 'Publicado' : 'Rascunho'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 text-right whitespace-nowrap">
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right whitespace-nowrap">
                     {canUpdate && (
-                      <button onClick={() => openEdit(form)} className="p-1 text-muted-foreground hover:text-foreground" aria-label="editar">
+                      <Button variant="ghost" size="icon" onClick={() => openEdit(form)} aria-label="editar">
                         <Pencil className="w-4 h-4" />
-                      </button>
+                      </Button>
                     )}
                     {canDelete && (
-                      <button onClick={() => setDeleteTarget(form)} className="p-1 text-destructive" aria-label="excluir">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeleteTarget(form)}
+                        aria-label="excluir"
+                        className="text-destructive"
+                      >
                         <Trash2 className="w-4 h-4" />
-                      </button>
+                      </Button>
                     )}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
 
@@ -182,11 +191,16 @@ export default function CrmForms() {
             <DialogTitle>Excluir formulário</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Tem certeza que deseja excluir “{deleteTarget?.title || deleteTarget?.name}”? Esta ação não pode ser desfeita.
+            Tem certeza que deseja excluir “{deleteTarget?.title || deleteTarget?.name}”? Esta ação não pode
+            ser desfeita.
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Cancelar</Button>
-            <Button variant="destructive" onClick={handleDelete}>Excluir</Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Excluir
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

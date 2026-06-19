@@ -116,14 +116,6 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
     action: 'read',
   },
   {
-    // TODO(EVO-1841 AC7): mover para chave i18n (menu.customer.crmForms) nas 6 locales.
-    name: 'Formulários de captura',
-    href: '/crm-forms',
-    icon: FileText,
-    resource: 'crm_forms',
-    action: 'read',
-  },
-  {
     name: t('menu.customer.automation'),
     href: '/automation',
     icon: Workflow,
@@ -248,6 +240,14 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         href: '/settings/macros',
         icon: Settings,
         resource: 'macros',
+        action: 'read',
+      },
+      {
+        // TODO(EVO-1841 AC7): trocar por chave i18n (menu.settings.crmForms) nas 6 locales.
+        name: 'Formulários de captura',
+        href: '/settings/crm-forms',
+        icon: FileText,
+        resource: 'crm_forms',
         action: 'read',
       },
       {
