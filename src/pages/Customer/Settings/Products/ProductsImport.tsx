@@ -23,6 +23,7 @@ import {
   autoMap,
   BULK_FIELDS,
   MAX_BULK_ROWS,
+  normalizeServerErrorMessage,
   REQUIRED_FIELDS,
   unmappedRequiredFields,
   validateAll,
@@ -388,7 +389,7 @@ export default function ProductsImport() {
                               msgs.map((msg, i) => (
                                 <li key={`${field}-${i}`}>
                                   <strong>{field}:</strong>{' '}
-                                  {t(`import.serverErrors.${msg}`, { defaultValue: msg })}
+                                  {t(`import.serverErrors.${normalizeServerErrorMessage(msg)}`, { defaultValue: msg })}
                                 </li>
                               )),
                             )}

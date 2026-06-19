@@ -193,7 +193,9 @@
       "must_be_integer": "doit être un entier",
       "invalid_url": "doit être une URL http(s) valide",
       "invalid_number": "n’est pas un nombre valide",
-      "duplicated_within_batch": "dupliqué dans le lot"
+      "duplicated_within_batch": "dupliqué dans le lot",
+      "taken": "est déjà utilisé",
+      "invalid_value": "n’est pas une valeur valide"
     }
   },
   "pipelinePanel": {

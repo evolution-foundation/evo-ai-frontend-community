@@ -67,6 +67,12 @@ const URL_REGEXP = /^https?:\/\/\S+$/;
 function parseNumber(raw: string): number | null {
   const trimmed = raw.trim();
   if (trimmed === '') return null;
+  // A lone comma followed by exactly three digits is ambiguous: "1,000" could
+  // be 1000 (US thousands grouping) or 1.000 (BR/ES decimal). Reject it instead
+  // of silently guessing — the user must use a dot for the decimal point or drop
+  // the grouping. ("1,50"/"1,5" stay valid BR decimals; multiple separators
+  // already fall through to NaN below.)
+  if (/^-?\d{1,3},\d{3}$/.test(trimmed)) return NaN;
   // Tolerate comma decimals (BR/ES locales export "1,50" instead of "1.50").
   const normalized = trimmed.includes(',') && !trimmed.includes('.') ? trimmed.replace(',', '.') : trimmed;
   const n = Number(normalized);
@@ -80,6 +86,28 @@ function parseLabels(raw: string): string[] | undefined {
     .split(/[,;|]/)
     .map((l) => l.trim())
     .filter((l) => l.length > 0);
+}
+
+/**
+ * Bridges a server (Rails) validation message onto the stable codes used by
+ * `import.serverErrors.*`. Client-side errors already carry those codes, so they
+ * pass through untouched; the raw ActiveModel strings the 422 / dry-run response
+ * carries (e.g. "has already been taken", "can't be blank") are mapped so the
+ * error table localizes them instead of leaking English in pt-BR/es/fr/it.
+ * Unknown messages fall through to the raw text (rendered via i18n defaultValue).
+ */
+export function normalizeServerErrorMessage(message: string): string {
+  const m = message.trim().toLowerCase();
+  if (m.includes('already been taken')) return 'taken';
+  if (m.includes("can't be blank") || m.includes('can’t be blank') || m.includes('cannot be blank')) return 'required';
+  if (m.includes('duplicated within batch')) return 'duplicated_within_batch';
+  if (m.includes('too long')) return 'too_long';
+  if (m.includes('not a number')) return 'invalid_number';
+  if (m.includes('greater than or equal')) return 'must_be_non_negative';
+  if (m.includes('must be an integer') || m.includes('not an integer')) return 'must_be_integer';
+  if (m.includes('not included in the list')) return 'invalid_value';
+  if (m.includes('not a valid') && m.includes('url')) return 'invalid_url';
+  return message;
 }
 
 /**
