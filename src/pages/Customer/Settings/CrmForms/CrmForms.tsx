@@ -19,6 +19,7 @@ import BaseHeader from '@/components/base/BaseHeader';
 import BasePagination from '@/components/base/BasePagination';
 import EmptyState from '@/components/base/EmptyState';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
+import { useLanguage } from '@/hooks/useLanguage';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { crmFormsService } from '@/services/crmForms/crmFormsService';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
@@ -36,6 +37,7 @@ const EMPTY_PAGINATION: PaginationMeta = {
 };
 
 export default function CrmForms() {
+  const { t } = useLanguage('crmForms');
   const { can, isReady } = useUserPermissions();
   const canCreate = can('crm_forms', 'create');
   const canUpdate = can('crm_forms', 'update');
@@ -54,7 +56,6 @@ export default function CrmForms() {
   const [leads, setLeads] = useState<FormLead[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(false);
 
-  // List controls (server-side filter / search / pagination)
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
   const [published, setPublished] = useState<'all' | 'true' | 'false'>('all');
@@ -81,11 +82,11 @@ export default function CrmForms() {
       setForms(data);
       setPagination(meta.pagination ?? EMPTY_PAGINATION);
     } catch {
-      toast.error('Erro ao carregar formulários.');
+      toast.error(t('messages.loadError'));
     } finally {
       setLoading(false);
     }
-  }, [page, search, published]);
+  }, [page, search, published, t]);
 
   const loadContext = useCallback(async () => {
     try {
@@ -124,13 +125,13 @@ export default function CrmForms() {
     try {
       if (editing) await crmFormsService.update(editing.id, payload);
       else await crmFormsService.create(payload);
-      toast.success('Formulário salvo.');
+      toast.success(t('messages.saved'));
       setModalOpen(false);
       loadForms();
     } catch (error: unknown) {
       const msg = (error as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error
         ?.message;
-      toast.error(msg || 'Erro ao salvar formulário.');
+      toast.error(msg || t('messages.saveError'));
     } finally {
       setSaving(false);
     }
@@ -140,18 +141,18 @@ export default function CrmForms() {
     if (!deleteTarget) return;
     try {
       await crmFormsService.remove(deleteTarget.id);
-      toast.success('Formulário excluído.');
+      toast.success(t('messages.deleted'));
       setDeleteTarget(null);
       loadForms();
     } catch {
-      toast.error('Erro ao excluir.');
+      toast.error(t('messages.deleteError'));
     }
   };
 
   const copyLink = (form: CrmForm) => {
     const url = `${window.location.origin}/f/${form.slug}`;
     navigator.clipboard?.writeText(url);
-    toast.success('Link copiado.');
+    toast.success(t('actions.linkCopied'));
   };
 
   const openLeads = async (form: CrmForm) => {
@@ -162,7 +163,7 @@ export default function CrmForms() {
       const { leads: list } = await crmFormsService.getLeads(form.id);
       setLeads(list);
     } catch {
-      toast.error('Erro ao carregar leads.');
+      toast.error(t('messages.leadsError'));
     } finally {
       setLeadsLoading(false);
     }
@@ -174,17 +175,19 @@ export default function CrmForms() {
     return [pipe?.name, stage?.name].filter(Boolean).join(' › ') || '—';
   };
 
+  const isFiltered = !!search || published !== 'all';
+
   return (
     <div className="h-full flex flex-col p-4">
       <BaseHeader
-        title="Formulários de captura"
-        subtitle={`${pagination.total} formulário${pagination.total !== 1 ? 's' : ''} · geram leads no pipeline`}
-        searchPlaceholder="Buscar por nome, título ou slug…"
+        title={t('header.title')}
+        subtitle={t('header.subtitle', { count: pagination.total })}
+        searchPlaceholder={t('header.searchPlaceholder')}
         searchValue={searchInput}
         onSearchChange={setSearchInput}
         primaryAction={
           canCreate
-            ? { label: 'Novo formulário', icon: <Plus className="h-4 w-4" />, onClick: openCreate }
+            ? { label: t('header.newForm'), icon: <Plus className="h-4 w-4" />, onClick: openCreate }
             : undefined
         }
       />
@@ -201,9 +204,9 @@ export default function CrmForms() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos os status</SelectItem>
-            <SelectItem value="true">Publicados</SelectItem>
-            <SelectItem value="false">Rascunhos</SelectItem>
+            <SelectItem value="all">{t('filter.all')}</SelectItem>
+            <SelectItem value="true">{t('filter.published')}</SelectItem>
+            <SelectItem value="false">{t('filter.draft')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -216,17 +219,9 @@ export default function CrmForms() {
         ) : forms.length === 0 ? (
           <EmptyState
             icon={FileText}
-            title={search || published !== 'all' ? 'Nenhum formulário encontrado' : 'Nenhum formulário ainda'}
-            description={
-              search || published !== 'all'
-                ? 'Ajuste a busca ou o filtro de status.'
-                : 'Crie formulários públicos que geram leads no pipeline.'
-            }
-            action={
-              canCreate && !(search || published !== 'all')
-                ? { label: 'Novo formulário', onClick: openCreate }
-                : undefined
-            }
+            title={isFiltered ? t('empty.titleFiltered') : t('empty.title')}
+            description={isFiltered ? t('empty.descriptionFiltered') : t('empty.description')}
+            action={canCreate && !isFiltered ? { label: t('empty.action'), onClick: openCreate } : undefined}
             className="h-full"
           />
         ) : (
@@ -234,17 +229,17 @@ export default function CrmForms() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-sidebar-border bg-sidebar-accent/50">
-                  <th className="px-4 py-3 text-left font-medium text-sidebar-foreground">Nome</th>
+                  <th className="px-4 py-3 text-left font-medium text-sidebar-foreground">{t('table.name')}</th>
                   <th className="px-4 py-3 text-left font-medium text-sidebar-foreground hidden md:table-cell">
-                    Link público
+                    {t('table.publicLink')}
                   </th>
                   <th className="px-4 py-3 text-left font-medium text-sidebar-foreground hidden sm:table-cell">
-                    Status
+                    {t('table.status')}
                   </th>
                   <th className="px-4 py-3 text-right font-medium text-sidebar-foreground hidden sm:table-cell">
-                    Leads
+                    {t('table.leads')}
                   </th>
-                  <th className="px-4 py-3 text-right font-medium text-sidebar-foreground">Ações</th>
+                  <th className="px-4 py-3 text-right font-medium text-sidebar-foreground">{t('table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -264,7 +259,7 @@ export default function CrmForms() {
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell">
                       <Badge variant={form.published ? 'default' : 'secondary'} className="text-xs">
-                        {form.published ? 'Publicado' : 'Rascunho'}
+                        {form.published ? t('status.published') : t('status.draft')}
                       </Badge>
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums hidden sm:table-cell">
@@ -277,7 +272,7 @@ export default function CrmForms() {
                     </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       {canUpdate && (
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(form)} aria-label="editar">
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(form)} aria-label={t('actions.edit')}>
                           <Pencil className="w-4 h-4" />
                         </Button>
                       )}
@@ -286,7 +281,7 @@ export default function CrmForms() {
                           variant="ghost"
                           size="icon"
                           onClick={() => setDeleteTarget(form)}
-                          aria-label="excluir"
+                          aria-label={t('actions.delete')}
                           className="text-destructive"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -325,18 +320,17 @@ export default function CrmForms() {
       <Dialog open={!!deleteTarget} onOpenChange={v => !v && setDeleteTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Excluir formulário</DialogTitle>
+            <DialogTitle>{t('delete.title')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Tem certeza que deseja excluir “{deleteTarget?.title || deleteTarget?.name}”? Esta ação não pode
-            ser desfeita.
+            {t('delete.description', { name: deleteTarget?.title || deleteTarget?.name })}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              Cancelar
+              {t('delete.cancel')}
             </Button>
             <Button variant="destructive" onClick={handleDelete}>
-              Excluir
+              {t('delete.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -345,22 +339,22 @@ export default function CrmForms() {
       <Dialog open={!!leadsForm} onOpenChange={v => !v && setLeadsForm(null)}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Leads — {leadsForm?.title || leadsForm?.name}</DialogTitle>
+            <DialogTitle>{t('leads.title', { name: leadsForm?.title || leadsForm?.name })}</DialogTitle>
           </DialogHeader>
           {leadsLoading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : leads.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-6 text-center">Nenhum lead capturado ainda.</p>
+            <p className="text-sm text-muted-foreground py-6 text-center">{t('leads.empty')}</p>
           ) : (
             <div className="rounded-md border border-sidebar-border overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-sidebar-border bg-sidebar-accent/50">
-                    <th className="px-4 py-3 text-left font-medium text-sidebar-foreground">Contato</th>
-                    <th className="px-4 py-3 text-left font-medium text-sidebar-foreground">Destino</th>
-                    <th className="px-4 py-3 text-left font-medium text-sidebar-foreground">Data</th>
+                    <th className="px-4 py-3 text-left font-medium text-sidebar-foreground">{t('leads.contact')}</th>
+                    <th className="px-4 py-3 text-left font-medium text-sidebar-foreground">{t('leads.destination')}</th>
+                    <th className="px-4 py-3 text-left font-medium text-sidebar-foreground">{t('leads.date')}</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -49,34 +49,37 @@ export function decodeTarget(value: string): { maps_to: string; maps_to_key: str
   return { maps_to: '', maps_to_key: '' };
 }
 
+type Translator = (key: string) => string;
+
 /** Grouped target options built from the available context definitions. */
 export function buildTargetGroups(
   contactAttrs: CustomAttributeDefinition[],
   dealAttrs: CustomAttributeDefinition[],
+  t: Translator,
 ): TargetGroup[] {
   return [
     {
-      label: 'Contato',
+      label: t('modal.targets.groupContact'),
       options: [
-        { value: 'contact:name', label: 'Nome' },
-        { value: 'contact:email', label: 'E-mail' },
-        { value: 'contact:phone', label: 'Telefone' },
-        { value: 'contact:company', label: 'Empresa' },
+        { value: 'contact:name', label: t('modal.targets.contactName') },
+        { value: 'contact:email', label: t('modal.targets.contactEmail') },
+        { value: 'contact:phone', label: t('modal.targets.contactPhone') },
+        { value: 'contact:company', label: t('modal.targets.contactCompany') },
       ],
     },
     {
-      label: 'Contato — campos personalizados',
+      label: t('modal.targets.groupContactCustom'),
       options: contactAttrs.map(a => ({
         value: `cattr:${a.attribute_key}`,
         label: a.attribute_display_name || a.attribute_key,
       })),
     },
     {
-      label: 'Negócio',
-      options: [{ value: 'deal_value', label: 'Valor' }],
+      label: t('modal.targets.groupDeal'),
+      options: [{ value: 'deal_value', label: t('modal.targets.dealValue') }],
     },
     {
-      label: 'Negócio — campos personalizados',
+      label: t('modal.targets.groupDealCustom'),
       options: dealAttrs.map(a => ({
         value: `dattr:${a.attribute_key}`,
         label: a.attribute_display_name || a.attribute_key,

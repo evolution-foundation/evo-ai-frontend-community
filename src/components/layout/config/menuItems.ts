@@ -243,8 +243,7 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         action: 'read',
       },
       {
-        // TODO(EVO-1841 AC7): trocar por chave i18n (menu.settings.crmForms) nas 6 locales.
-        name: 'Formulários de captura',
+        name: t('menu.settings.crmForms'),
         href: '/settings/crm-forms',
         icon: FileText,
         resource: 'crm_forms',

@@ -117,7 +117,8 @@
       "accessTokens": "Jetons D'accès",
       "roles": "Profils et Permissions",
       "admin": "Paramètres Admin",
-      "segments": "Segments"
+      "segments": "Segments",
+      "crmForms": "Formulaires de capture"
     }
   }
 }

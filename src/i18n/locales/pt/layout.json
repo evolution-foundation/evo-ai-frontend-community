@@ -117,7 +117,8 @@
       "accessTokens": "Tokens de Acesso",
       "roles": "Perfis e Permissões",
       "admin": "Configurações Admin",
-      "segments": "Segmentos"
+      "segments": "Segmentos",
+      "crmForms": "Formulários de captura"
     }
   }
 }

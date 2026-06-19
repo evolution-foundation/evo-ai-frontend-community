@@ -1,0 +1,126 @@
+{
+  "header": {
+    "title": "Formularios de captación",
+    "subtitle": "{{count}} formulario · genera leads en el pipeline",
+    "subtitle_plural": "{{count}} formularios · generan leads en el pipeline",
+    "searchPlaceholder": "Buscar por nombre, título o slug…",
+    "newForm": "Nuevo formulario"
+  },
+  "filter": {
+    "all": "Todos los estados",
+    "published": "Publicados",
+    "draft": "Borradores"
+  },
+  "table": {
+    "name": "Nombre",
+    "publicLink": "Enlace público",
+    "status": "Estado",
+    "leads": "Leads",
+    "actions": "Acciones"
+  },
+  "status": {
+    "published": "Publicado",
+    "draft": "Borrador"
+  },
+  "empty": {
+    "title": "Aún no hay formularios",
+    "titleFiltered": "No se encontraron formularios",
+    "description": "Cree formularios públicos que generan leads en el pipeline.",
+    "descriptionFiltered": "Ajuste la búsqueda o el filtro de estado.",
+    "action": "Nuevo formulario"
+  },
+  "actions": {
+    "edit": "editar",
+    "delete": "eliminar",
+    "linkCopied": "Enlace copiado."
+  },
+  "messages": {
+    "loadError": "Error al cargar los formularios.",
+    "saved": "Formulario guardado.",
+    "saveError": "Error al guardar el formulario.",
+    "deleted": "Formulario eliminado.",
+    "deleteError": "Error al eliminar.",
+    "leadsError": "Error al cargar los leads."
+  },
+  "delete": {
+    "title": "Eliminar formulario",
+    "description": "¿Seguro que desea eliminar “{{name}}”? Esta acción no se puede deshacer.",
+    "cancel": "Cancelar",
+    "confirm": "Eliminar"
+  },
+  "leads": {
+    "title": "Leads — {{name}}",
+    "empty": "Aún no se han captado leads.",
+    "contact": "Contacto",
+    "destination": "Destino",
+    "date": "Fecha"
+  },
+  "modal": {
+    "createTitle": "Nuevo formulario",
+    "editTitle": "Editar formulario",
+    "sections": {
+      "basic": "Básico",
+      "appearance": "Apariencia",
+      "fields": "Campos",
+      "defaultDestination": "Destino predeterminado",
+      "routing": "Reglas de enrutamiento"
+    },
+    "basic": {
+      "name": "Nombre (interno)",
+      "namePlaceholder": "Ej.: Contacto web",
+      "title": "Título público",
+      "titlePlaceholder": "Ej.: Hable con nosotros",
+      "description": "Descripción",
+      "published": "Publicado"
+    },
+    "appearance": {
+      "primaryColor": "Color primario",
+      "logoUrl": "URL del logo",
+      "successMessage": "Mensaje de éxito"
+    },
+    "fields": {
+      "add": "Campo",
+      "key": "key",
+      "label": "label",
+      "required": "oblig.",
+      "mapTo": "asignar a…",
+      "optionsPlaceholder": "Opciones separadas por comas",
+      "remove": "eliminar campo"
+    },
+    "targets": {
+      "none": "— sin asignación —",
+      "groupContact": "Contacto",
+      "groupContactCustom": "Contacto — campos personalizados",
+      "groupDeal": "Negocio",
+      "groupDealCustom": "Negocio — campos personalizados",
+      "contactName": "Nombre",
+      "contactEmail": "E-mail",
+      "contactPhone": "Teléfono",
+      "contactCompany": "Empresa",
+      "dealValue": "Valor"
+    },
+    "destination": {
+      "pipeline": "Pipeline…",
+      "stage": "Etapa…",
+      "stageNone": "— ninguno —"
+    },
+    "routing": {
+      "add": "Regla",
+      "field": "campo…",
+      "value": "valor",
+      "pipeline": "pipeline…",
+      "stage": "etapa…",
+      "remove": "eliminar regla"
+    },
+    "errors": {
+      "name": "Indique el nombre del formulario.",
+      "pipeline": "Seleccione el pipeline predeterminado.",
+      "email": "Incluya un campo asignado al e-mail del contacto.",
+      "nameField": "Incluya un campo asignado al nombre del contacto.",
+      "fieldKey": "Cada campo necesita una clave (key)."
+    },
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando…"
+  }
+}
