@@ -27,6 +27,7 @@ import {
   Megaphone,
   Route,
   ShieldCheck,
+  FileText,
 } from 'lucide-react';
 
 export interface MenuItem {
@@ -112,6 +113,14 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
     href: '/products',
     icon: Package,
     resource: 'products',
+    action: 'read',
+  },
+  {
+    // TODO(EVO-1841 AC7): mover para chave i18n (menu.customer.crmForms) nas 6 locales.
+    name: 'Formulários de captura',
+    href: '/crm-forms',
+    icon: FileText,
+    resource: 'crm_forms',
     action: 'read',
   },
   {

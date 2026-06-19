@@ -61,6 +61,7 @@ import CannedResponses from '@/pages/Customer/Settings/CannedResponses';
 import MessageTemplates from '@/pages/Customer/Settings/MessageTemplates';
 import { Macros } from '@/pages/Customer/Settings/Macros';
 import Products from '@/pages/Customer/Settings/Products';
+import CrmForms from '@/pages/Customer/Settings/CrmForms';
 import Templates from '@/pages/Customer/Settings/Templates/Templates';
 import { Integrations } from '@/pages/Customer/Settings/Integrations';
 import EmailTemplateEditor from '@/pages/Customer/Settings/EmailTemplateEditor';
@@ -763,6 +764,21 @@ const AppRouter = () => {
                   <MainLayout>
                     <PermissionRoute resource="products" action="read">
                       <Products />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/crm-forms"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="crm_forms" action="read">
+                      <CrmForms />
                     </PermissionRoute>
                   </MainLayout>
                 </CustomerRoute>
