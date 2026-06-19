@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 
 import { useLanguage } from '@/hooks/useLanguage';
@@ -15,8 +14,6 @@ import {
   Phone,
   Mail,
   // MapPin,
-  Settings,
-  Info,
   Clock,
   Calendar,
   Activity,
@@ -45,13 +42,6 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({ contact }) => {
 
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<FullContact | null>(null);
-
-  const formatCustomAttributeKey = (key: string): string => {
-    return key
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
 
   const formatDate = (dateString?: string | number): string => {
     if (!dateString) return t('contactSidebar.contactDetails.notInformed');
@@ -184,92 +174,6 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({ contact }) => {
           </Button>
         </CardFooter>
       </Card>
-
-      {/* Custom Attributes */}
-      {contact?.custom_attributes &&
-        Object.keys(contact.custom_attributes).length > 0 &&
-        (() => {
-          // Filtrar atributos com valores válidos
-          const validAttributes = Object.entries(contact.custom_attributes).filter(([_, value]) => {
-            if (!value) return false;
-            const stringValue = String(value);
-            // Ignorar valores vazios, null, undefined, ou "[object Object]"
-            return (
-              stringValue &&
-              stringValue.trim() !== '' &&
-              stringValue !== 'null' &&
-              stringValue !== 'undefined' &&
-              stringValue !== '[object Object]' &&
-              stringValue.toLowerCase() !== 'not informed'
-            );
-          });
-
-          if (validAttributes.length === 0) return null;
-
-          return (
-            <Card className="border-0 shadow-none bg-muted/20">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  {t('contactSidebar.contactDetails.sections.customAttributes')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0 space-y-2">
-                {validAttributes.map(([key, value]) => (
-                  <InfoField
-                    key={key}
-                    label={formatCustomAttributeKey(key)}
-                    value={String(value)}
-                  />
-                ))}
-              </CardContent>
-            </Card>
-          );
-        })()}
-
-      {/* Additional Attributes */}
-      {contact?.additional_attributes &&
-        Object.keys(contact.additional_attributes).length > 0 &&
-        (() => {
-          // Filtrar atributos com valores válidos
-          const validAttributes = Object.entries(contact.additional_attributes).filter(
-            ([_, value]) => {
-              if (!value) return false;
-              const stringValue = String(value);
-              // Ignorar valores vazios, null, undefined, ou "[object Object]"
-              return (
-                stringValue &&
-                stringValue.trim() !== '' &&
-                stringValue !== 'null' &&
-                stringValue !== 'undefined' &&
-                stringValue !== '[object Object]' &&
-                stringValue.toLowerCase() !== 'not informed'
-              );
-            },
-          );
-
-          if (validAttributes.length === 0) return null;
-
-          return (
-            <Card className="border-0 shadow-none bg-muted/20">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Info className="h-4 w-4" />
-                  {t('contactSidebar.contactDetails.sections.additionalInfo')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0 space-y-2">
-                {validAttributes.map(([key, value]) => (
-                  <InfoField
-                    key={key}
-                    label={formatCustomAttributeKey(key)}
-                    value={String(value)}
-                  />
-                ))}
-              </CardContent>
-            </Card>
-          );
-        })()}
 
       {/* Timestamps */}
       <Card className="border-0 shadow-none bg-muted/20">
