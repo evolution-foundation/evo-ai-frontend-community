@@ -8,6 +8,7 @@ export interface ChatPageAppearance {
 export interface ChatPageConfig {
   slug: string;
   title?: string;
+  description?: string;
   appearance: ChatPageAppearance;
   website_token: string;
 }

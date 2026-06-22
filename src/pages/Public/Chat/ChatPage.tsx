@@ -70,6 +70,12 @@ const PublicChatPage = () => {
         )}
       </header>
 
+      {config.description && (
+        <div className="px-4 py-2 border-b border-border bg-background">
+          <p className="text-sm text-muted-foreground">{config.description}</p>
+        </div>
+      )}
+
       <main className="flex-1 min-h-0">
         <iframe
           src={widgetUrl}
