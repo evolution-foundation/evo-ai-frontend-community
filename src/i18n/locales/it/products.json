@@ -31,8 +31,10 @@
       "price": "Prezzo",
       "status": "Stato",
       "variants": "Varianti",
-      "actions": "Azioni"
-    }
+      "actions": "Azioni",
+      "stock": "Scorte"
+    },
+    "outOfStock": "Esaurito"
   },
   "modal": {
     "createTitle": "Crea prodotto",

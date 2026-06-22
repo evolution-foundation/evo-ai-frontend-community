@@ -2,6 +2,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { Button, Badge } from '@evoapi/design-system';
 import { Pencil, Trash2, Package, Cloud } from 'lucide-react';
 import type { Product } from '@/types/products';
+import { stockInfo } from './productStock';
 
 interface Props {
   products: Product[];
@@ -56,6 +57,7 @@ export default function ProductsTable({
             <th className="px-3 py-2">{t('table.columns.sku')}</th>
             <th className="px-3 py-2">{t('table.columns.kind')}</th>
             <th className="px-3 py-2">{t('table.columns.price')}</th>
+            <th className="px-3 py-2">{t('table.columns.stock')}</th>
             <th className="px-3 py-2">{t('table.columns.status')}</th>
             <th className="px-3 py-2">{t('table.columns.variants')}</th>
             <th className="px-3 py-2 text-right">{t('table.columns.actions')}</th>
@@ -64,6 +66,7 @@ export default function ProductsTable({
         <tbody>
           {products.map((product) => {
             const Icon = product.kind === 'digital' ? Cloud : Package;
+            const stock = stockInfo(product);
             return (
               <tr key={product.id} className="border-t hover:bg-muted/30">
                 <td className="px-3 py-2">
@@ -74,6 +77,15 @@ export default function ProductsTable({
                 <td className="px-3 py-2">{t(`kind.${product.kind}`)}</td>
                 <td className="px-3 py-2 font-mono text-xs">
                   {formatPrice(product.default_price, product.currency)}
+                </td>
+                <td className="px-3 py-2">
+                  {stock == null ? (
+                    <span className="text-muted-foreground">—</span>
+                  ) : stock === 0 ? (
+                    <span className="text-destructive font-medium">{t('table.outOfStock')}</span>
+                  ) : (
+                    stock
+                  )}
                 </td>
                 <td className="px-3 py-2">
                   <Badge variant={STATUS_VARIANT[product.status] ?? 'outline'}>
