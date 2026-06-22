@@ -7,6 +7,7 @@
   "header": {
     "searchPlaceholder": "Search by name, SKU or description",
     "new": "New product",
+    "import": "Import CSV",
     "filters": {
       "kindAll": "All kinds",
       "statusAll": "All statuses"
@@ -101,6 +102,101 @@
     "updateError": "Failed to update product",
     "deleteSuccess": "Product deleted",
     "deleteError": "Failed to delete product"
+  },
+  "import": {
+    "title": "Import products from CSV",
+    "subtitle": "Upload a CSV with up to {{max}} rows. The file is parsed locally, validated against the catalog rules and sent to the bulk endpoint in a single transaction.",
+    "back": "Back to products",
+    "forbidden": "You do not have permission to import products.",
+    "success": "{{count}} products imported successfully",
+    "tabs": {
+      "upload": "1. Upload",
+      "mapping": "2. Mapping",
+      "preview": "3. Preview",
+      "done": "4. Done"
+    },
+    "upload": {
+      "hint": "Select a UTF-8 CSV file with a header row. Limit: {{max}} rows.",
+      "selectFile": "Select CSV"
+    },
+    "mapping": {
+      "file": "{{name}} — {{count}} row(s)",
+      "changeFile": "Change file",
+      "csvHeader": "CSV column",
+      "sample": "First-row sample",
+      "field": "Maps to",
+      "ignore": "(ignore)",
+      "missingRequired": "Required fields not mapped: {{fields}}",
+      "back": "Back",
+      "next": "Continue"
+    },
+    "fields": {
+      "name": "Name",
+      "slug": "Slug",
+      "kind": "Kind",
+      "description": "Description",
+      "sku": "SKU",
+      "default_price": "Default price",
+      "currency": "Currency",
+      "purchase_url": "Purchase URL",
+      "status": "Status",
+      "stock_quantity": "Stock quantity",
+      "labels": "Labels"
+    },
+    "preview": {
+      "valid": "Valid rows",
+      "invalid": "Client-invalid rows",
+      "conflicts": "Server conflicts",
+      "runDryRun": "Run dry-run",
+      "import": "Import",
+      "backToMapping": "Back to mapping",
+      "errorsHeading": "{{count}} row(s) need attention",
+      "row": "Row",
+      "sku": "SKU",
+      "errors": "Errors"
+    },
+    "done": {
+      "title": "Import complete",
+      "subtitle": "All rows were saved successfully.",
+      "backToList": "Back to products",
+      "importAnother": "Import another file"
+    },
+    "errors": {
+      "emptyFile": "The CSV file has no header row.",
+      "tooManyRows": "CSV has {{received}} rows, but the limit is {{max}}.",
+      "duplicateHeaders": "CSV has duplicated column headers: {{headers}}. Rename them before uploading.",
+      "emptyHeader": "CSV has empty column header(s) at position: {{columns}}. Name every column before uploading.",
+      "noDataRows": "The CSV has only a header — no data rows to import.",
+      "parseError": "Failed to parse CSV at line {{line}}: {{message}}",
+      "readError": "Could not read the selected file.",
+      "missingRequired": "Map the required fields before continuing: {{fields}}",
+      "noValidRows": "There are no valid rows to send.",
+      "network": "Network error. Please try again.",
+      "unauthorized": "Your session expired. Sign in again.",
+      "forbidden": "You do not have permission to bulk-import products.",
+      "rateLimited": "Rate limit reached (10 requests/minute). Wait a moment and try again.",
+      "dryRunInvalid": "Dry-run flagged {{count}} row(s). Fix them and try again.",
+      "serverInvalid": "The server rejected {{count}} row(s). The whole batch was rolled back."
+    },
+    "parseErrorCodes": {
+      "invalid_delimiter": "invalid delimiter",
+      "unexpected_quote": "unexpected quote inside an unquoted field",
+      "unterminated_quoted_field": "unterminated quoted field"
+    },
+    "serverErrors": {
+      "required": "is required",
+      "too_long": "is too long",
+      "invalid_kind": "must be physical or digital",
+      "invalid_status": "must be active, inactive or draft",
+      "invalid_currency": "must be BRL, USD or EUR",
+      "must_be_non_negative": "must be greater than or equal to zero",
+      "must_be_integer": "must be an integer",
+      "invalid_url": "must be a valid http(s) URL",
+      "invalid_number": "is not a valid number",
+      "duplicated_within_batch": "duplicated within batch",
+      "taken": "has already been taken",
+      "invalid_value": "is not a valid value"
+    }
   },
   "pipelinePanel": {
     "title": "Sold products",

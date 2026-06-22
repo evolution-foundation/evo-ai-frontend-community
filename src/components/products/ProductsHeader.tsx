@@ -8,7 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@evoapi/design-system';
-import { PlusIcon, Search } from 'lucide-react';
+import { PlusIcon, Search, Upload } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import type { ProductKind, ProductStatus } from '@/types/products';
 
 interface Props {
@@ -68,10 +69,20 @@ export default function ProductsHeader({
           </SelectContent>
         </Select>
       </div>
-      <Button onClick={onCreate} disabled={!canCreate}>
-        <PlusIcon className="h-4 w-4 mr-2" />
-        {t('header.new')}
-      </Button>
+      <div className="flex gap-2">
+        {canCreate && (
+          <Button variant="outline" asChild>
+            <Link to="/products/import">
+              <Upload className="h-4 w-4 mr-2" />
+              {t('header.import')}
+            </Link>
+          </Button>
+        )}
+        <Button onClick={onCreate} disabled={!canCreate}>
+          <PlusIcon className="h-4 w-4 mr-2" />
+          {t('header.new')}
+        </Button>
+      </div>
     </div>
   );
 }

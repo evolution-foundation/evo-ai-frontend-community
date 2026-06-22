@@ -396,21 +396,40 @@
     "selectAgent": "Select agent...",
     "selectPipeline": "Select pipeline...",
     "selectLabel": "Select label...",
+    "selectAgentBot": "Select AI agent...",
+    "selectTemplate": "Select template...",
     "noOtherStages": "No other stages available",
     "noOtherPipelines": "No other pipelines available",
     "noStagesInPipeline": "No stages in the selected pipeline",
     "noAgents": "No agents available",
+    "noAgentBots": "No AI agents available",
+    "noTemplates": "No templates available",
     "noLabels": "No labels available",
+    "aiMessagePlaceholder": "What should the agent say? (optional)",
+    "directMessagePlaceholder": "Message to send...",
+    "finalizeMessagePlaceholder": "Closing message (optional)...",
+    "inactivity": {
+      "minutes": "minutes",
+      "base": {
+        "no_customer_reply": "Customer not replying",
+        "stage_stagnation": "Stuck in stage"
+      }
+    },
     "triggers": {
       "label_added": "Label added",
       "conversation_status_changed": "Conversation status changed",
-      "custom_attribute_updated": "Custom attribute updated"
+      "custom_attribute_updated": "Custom attribute updated",
+      "inactivity": "On inactivity"
     },
     "actions": {
       "move_to_stage": "Move to stage",
       "move_to_pipeline": "Move to another pipeline",
       "assign_agent": "Assign agent",
-      "apply_label": "Apply label"
+      "apply_label": "Apply label",
+      "send_ai_message": "Message via AI agent",
+      "send_direct_message": "Direct message",
+      "send_template": "Send template",
+      "finalize": "End conversation"
     }
   },
   "editStage": {

@@ -26,6 +26,9 @@ import type { StageAutomationRule } from '@/types/analytics/pipelines';
 import type { Label as ConversationLabel } from '@/types/settings/labels';
 import { labelsService } from '@/services/contacts/labelsService';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
+import agentBotsService from '@/services/channels/agentBotsService';
+import globalMessageTemplatesService from '@/services/messageTemplates/globalMessageTemplatesService';
+import type { AgentBotOption, MessageTemplateOption } from './StageAutomationRules';
 import { LocalAttributeDefinition, LocalAttributeDefinitionPayload } from '@/types/pipelines/localAttributeDefinition';
 import PipelineStageCustomAttributes from './PipelineStageCustomAttributes';
 import StageAutomationRules, { type PipelineWithStages } from './StageAutomationRules';
@@ -85,6 +88,8 @@ export default function EditStageModal({
   const [automationRules, setAutomationRules] = useState<StageAutomationRule[]>([]);
   const [labels, setLabels] = useState<ConversationLabel[]>([]);
   const [pipelinesWithStages, setPipelinesWithStages] = useState<PipelineWithStages[]>([]);
+  const [agentBots, setAgentBots] = useState<AgentBotOption[]>([]);
+  const [messageTemplates, setMessageTemplates] = useState<MessageTemplateOption[]>([]);
 
   const stageColors = getStageColors(t);
 
@@ -101,6 +106,43 @@ export default function EditStageModal({
         if (cancelled) return;
         setLabels([]);
       });
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  // Agent bots (for send_ai_message) and channel-less templates (for
+  // send_template). These are the real AgentBot records, not human assignees.
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+
+    agentBotsService
+      .getAll()
+      .then(bots => {
+        if (cancelled) return;
+        setAgentBots(bots.map(b => ({ id: String(b.id), name: b.name })));
+      })
+      .catch(() => {
+        if (!cancelled) setAgentBots([]);
+      });
+
+    globalMessageTemplatesService
+      .getTemplates()
+      .then(res => {
+        if (cancelled) return;
+        setMessageTemplates(
+          (res.data ?? []).map(tpl => ({
+            id: String(tpl.id),
+            name: tpl.name,
+            language: tpl.language,
+          })),
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setMessageTemplates([]);
+      });
+
     return () => {
       cancelled = true;
     };
@@ -363,6 +405,8 @@ export default function EditStageModal({
               agents={agents}
               labels={labels}
               pipelines={pipelinesWithStages}
+              agentBots={agentBots}
+              messageTemplates={messageTemplates}
             />
           </TabsContent>
 

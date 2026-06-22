@@ -562,7 +562,7 @@ const ChatHeader = ({
     : t('chatHeader.openContactPanel');
 
   return (
-    <div className="flex-shrink-0 p-4 border-b bg-background/95 backdrop-blur-sm">
+    <div className="flex-shrink-0 p-3 md:p-4 border-b bg-background/95 backdrop-blur-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Back button for mobile */}
@@ -630,11 +630,11 @@ const ChatHeader = ({
                   size="sm"
                   onClick={onContactSidebarToggle}
                   aria-label={contactPanelLabel}
-                  className={
+                  className={`hidden md:inline-flex ${
                     isContactSidebarOpen
                       ? 'text-primary hover:text-primary/80'
                       : 'text-muted-foreground hover:text-foreground'
-                  }
+                  }`}
                 >
                   {isContactSidebarOpen ? (
                     <PanelRightClose className="h-4 w-4" />

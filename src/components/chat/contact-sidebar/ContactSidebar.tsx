@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Button } from '@evoapi/design-system/button';
 import { Card, CardHeader, CardContent } from '@evoapi/design-system/card';
 import { Badge } from '@evoapi/design-system/badge';
-import { X, User, FileText, MessageSquare, Clock, ChevronDown, Zap, GitBranch, Tag, Info } from 'lucide-react';
+import { X, User, Clock, ChevronDown, Zap, GitBranch, Tag, Info } from 'lucide-react';
 
 import ContactHeader from './ContactHeader';
 import ContactDetails from './ContactDetails';
@@ -84,9 +84,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
   // Estados para controlar seções expandidas/colapsadas (padrão Agents.tsx)
   const [showContactDetails, setShowContactDetails] = useState(false);
   const [showMacros, setShowMacros] = useState(false);
-  const [showPipeline, setShowPipeline] = useState(false);
-  const [showContactNotes, setShowContactNotes] = useState(false);
-  const [showPreviousConversations, setShowPreviousConversations] = useState(false);
+  const [showPipeline, setShowPipeline] = useState(true);
   const [showConversationInfo, setShowConversationInfo] = useState(false);
   const [showConversationAttributes, setShowConversationAttributes] = useState(false);
   const [showContactAttributes, setShowContactAttributes] = useState(false);
@@ -198,24 +196,6 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onFilterReload]);
 
-  // Calcular altura real do header dinamicamente
-  useEffect(() => {
-    const calculateHeaderHeight = () => {
-      // Procurar o AppBar do MainLayout
-      const appBar = document.querySelector(
-        '[class*="flex-shrink-0"][class*="bg-sidebar"][class*="border-b"]',
-      );
-      if (appBar) {
-        const height = appBar.getBoundingClientRect().height;
-        document.documentElement.style.setProperty('--header-height', `${height}px`);
-      }
-    };
-
-    calculateHeaderHeight();
-    window.addEventListener('resize', calculateHeaderHeight);
-    return () => window.removeEventListener('resize', calculateHeaderHeight);
-  }, []);
-
   // No mobile, esconder completamente quando fechado
   // No desktop, manter no DOM para animação
   if (!isOpen && isMobile) return null;
@@ -225,8 +205,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
       {/* Mobile Backdrop */}
       {isOpen && isMobile && (
         <div
-          className="fixed left-0 right-0 bottom-0 bg-black/50 z-30"
-          style={{ top: 'var(--header-height, 60px)' }}
+          className="fixed inset-0 bg-black/50 z-30"
           onClick={onClose}
         />
       )}
@@ -234,18 +213,14 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
       {/* Sidebar */}
       <div
         className={`
-        border-l bg-background flex flex-col
-        fixed md:static left-0 md:left-auto right-0 md:right-auto bottom-0 md:bottom-auto z-40 md:z-auto
+        border-l bg-background flex flex-col h-full
+        fixed inset-0 md:static md:inset-auto z-40 md:z-auto
         transform transition-all duration-300 ease-in-out overflow-hidden
         ${isOpen
-            ? 'w-full md:w-96 translate-x-0 md:translate-x-0 md:opacity-100'
+            ? 'w-full md:w-96 translate-x-0 md:opacity-100'
             : 'w-full md:w-0 translate-x-full md:translate-x-0 md:opacity-0'
           }
       `}
-        style={{
-          top: isMobile ? 'var(--header-height, 60px)' : 'auto',
-          height: isMobile ? 'calc(100vh - var(--header-height, 60px))' : '100%',
-        }}
       >
         {/* Header com Avatar e Info Básica + Close Button */}
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative">
@@ -336,52 +311,6 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
               )}
             </Card>
           )}
-
-          {/* 4. Contact Notes - Notas do contato */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CollapsibleHeader
-                title={t('contactSidebar.sections.contactNotes.title')}
-                description={t('contactSidebar.sections.contactNotes.description')}
-                icon={<FileText className="h-4 w-4 text-orange-500" />}
-                count={0}
-                isOpen={showContactNotes}
-                onToggle={() => setShowContactNotes(!showContactNotes)}
-              />
-            </CardHeader>
-
-            {showContactNotes && (
-              <CardContent className="pt-0 px-3 pb-3">
-                <div className="text-sm text-muted-foreground p-2 rounded bg-muted/30">
-                  {/* TODO: Implementar ContactNotes real */}
-                  {t('contactSidebar.sections.contactNotes.noNotes')}
-                </div>
-              </CardContent>
-            )}
-          </Card>
-
-          {/* 4. Previous Conversations - Conversas anteriores */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CollapsibleHeader
-                title={t('contactSidebar.sections.previousConversations.title')}
-                description={t('contactSidebar.sections.previousConversations.description')}
-                icon={<MessageSquare className="h-4 w-4 text-purple-500" />}
-                count={0}
-                isOpen={showPreviousConversations}
-                onToggle={() => setShowPreviousConversations(!showPreviousConversations)}
-              />
-            </CardHeader>
-
-            {showPreviousConversations && (
-              <CardContent className="pt-0 px-3 pb-3">
-                <div className="text-sm text-muted-foreground p-2 rounded bg-muted/30">
-                  {/* TODO: Implementar ContactConversations real */}
-                  {t('contactSidebar.sections.previousConversations.loading')}
-                </div>
-              </CardContent>
-            )}
-          </Card>
 
           {/* 5. Conversation Info - Informações da conversa */}
           <Card>

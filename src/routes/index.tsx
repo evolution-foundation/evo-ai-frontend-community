@@ -62,7 +62,7 @@ import NewCampaign from '@/pages/Customer/Campaigns/NewCampaign/NewCampaign';
 import CannedResponses from '@/pages/Customer/Settings/CannedResponses';
 import MessageTemplates from '@/pages/Customer/Settings/MessageTemplates';
 import { Macros } from '@/pages/Customer/Settings/Macros';
-import Products from '@/pages/Customer/Settings/Products';
+import Products, { ProductsImport } from '@/pages/Customer/Settings/Products';
 import CrmForms from '@/pages/Customer/Settings/CrmForms';
 import ChatPages from '@/pages/Customer/Settings/ChatPages';
 import Templates from '@/pages/Customer/Settings/Templates/Templates';
@@ -817,6 +817,21 @@ const AppRouter = () => {
                   <MainLayout>
                     <PermissionRoute resource="chat_pages" action="read">
                       <ChatPages />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/products/import"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="products" action="create">
+                      <ProductsImport />
                     </PermissionRoute>
                   </MainLayout>
                 </CustomerRoute>

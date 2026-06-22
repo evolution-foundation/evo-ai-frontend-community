@@ -8,15 +8,35 @@ import {
   SelectTrigger,
   SelectValue,
   Input,
+  Textarea,
 } from '@evoapi/design-system';
 import { PlusIcon, TrashIcon } from 'lucide-react';
-import type { StageAutomationRule, StageAutomationTrigger, StageAutomationAction } from '@/types/analytics/pipelines';
+import type {
+  StageAutomationRule,
+  StageAutomationTrigger,
+  StageAutomationAction,
+  InactivityBase,
+  InactivityTriggerValue,
+} from '@/types/analytics/pipelines';
 import type { PipelineStage } from '@/types/analytics';
 import type { Label } from '@/types/settings/labels';
 
 interface Agent {
   id: string;
   name: string;
+}
+
+// Minimal shapes the picker needs — the parent modal passes these in (agent
+// bots come from agentBotsService.getAll, NOT the human-assignee list).
+export interface AgentBotOption {
+  id: string;
+  name: string;
+}
+
+export interface MessageTemplateOption {
+  id: string;
+  name: string;
+  language?: string;
 }
 
 export interface PipelineWithStages {
@@ -35,19 +55,37 @@ interface StageAutomationRulesProps {
   agents?: Agent[];
   labels?: Label[];
   pipelines?: PipelineWithStages[];
+  agentBots?: AgentBotOption[];
+  messageTemplates?: MessageTemplateOption[];
 }
 
-const EMPTY_RULE: StageAutomationRule = {
+function newRuleId() {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
+  return `rule-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+const makeEmptyRule = (): StageAutomationRule => ({
+  id: newRuleId(),
   trigger: 'label_added',
   trigger_value: '',
   action: 'move_to_stage',
   action_value: '',
-};
+});
 
 const CONVERSATION_STATUSES = ['open', 'resolved', 'pending', 'snoozed'] as const;
+const INACTIVITY_MINUTES = [2, 5, 10, 15, 30, 60] as const;
+const INACTIVITY_BASES: InactivityBase[] = ['no_customer_reply', 'stage_stagnation'];
 
 const ANY_VALUE_SENTINEL = '__any__';
 const PLACEHOLDER_SENTINEL = '__placeholder__';
+
+// trigger_value is an object for the inactivity trigger, a string otherwise.
+function asInactivityValue(value: StageAutomationRule['trigger_value']): InactivityTriggerValue {
+  if (value && typeof value === 'object') {
+    return { minutes: value.minutes ?? INACTIVITY_MINUTES[1], base: value.base ?? 'no_customer_reply' };
+  }
+  return { minutes: INACTIVITY_MINUTES[1], base: 'no_customer_reply' };
+}
 
 function generateKey() {
   return `rule-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -63,6 +101,8 @@ export default function StageAutomationRules({
   agents = [],
   labels = [],
   pipelines = [],
+  agentBots = [],
+  messageTemplates = [],
 }: StageAutomationRulesProps) {
   const { t } = useLanguage('pipelines');
 
@@ -80,7 +120,7 @@ export default function StageAutomationRules({
     }
   }, [rules.length]);
 
-  const addRule = () => onChange([...rules, { ...EMPTY_RULE }]);
+  const addRule = () => onChange([...rules, makeEmptyRule()]);
 
   const removeRule = (index: number) => onChange(rules.filter((_, i) => i !== index));
 
@@ -92,6 +132,51 @@ export default function StageAutomationRules({
 
   const renderTriggerValue = (rule: StageAutomationRule, index: number) => {
     if (rule.trigger === 'custom_attribute_updated') return null;
+
+    if (rule.trigger === 'inactivity') {
+      const iv = asInactivityValue(rule.trigger_value);
+      return (
+        <div className="flex-1 grid grid-cols-2 gap-2">
+          <Select
+            value={String(iv.minutes)}
+            onValueChange={v =>
+              updateRule(index, { trigger_value: { ...iv, minutes: parseInt(v, 10) } })
+            }
+            disabled={disabled}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {INACTIVITY_MINUTES.map(m => (
+                <SelectItem key={m} value={String(m)}>
+                  {m} {t('stageAutomation.inactivity.minutes')}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={iv.base}
+            onValueChange={v =>
+              updateRule(index, { trigger_value: { ...iv, base: v as InactivityBase } })
+            }
+            disabled={disabled}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {INACTIVITY_BASES.map(b => (
+                <SelectItem key={b} value={b}>
+                  {t(`stageAutomation.inactivity.base.${b}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      );
+    }
 
     if (rule.trigger === 'label_added') {
       return (
@@ -314,6 +399,89 @@ export default function StageAutomationRules({
       );
     }
 
+    if (rule.action === 'send_ai_message') {
+      return (
+        <div className="flex-1 space-y-2">
+          <Select
+            value={rule.action_value || ''}
+            onValueChange={v => updateRule(index, { action_value: v })}
+            disabled={disabled}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t('stageAutomation.selectAgentBot')} />
+            </SelectTrigger>
+            <SelectContent>
+              {agentBots.length === 0 ? (
+                <SelectItem value={PLACEHOLDER_SENTINEL} disabled>
+                  {t('stageAutomation.noAgentBots')}
+                </SelectItem>
+              ) : (
+                agentBots.map(b => (
+                  <SelectItem key={b.id} value={b.id}>
+                    {b.name}
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+          <Textarea
+            rows={2}
+            maxLength={512}
+            placeholder={t('stageAutomation.aiMessagePlaceholder')}
+            value={rule.ai_message ?? ''}
+            onChange={e => updateRule(index, { ai_message: e.target.value })}
+            disabled={disabled}
+          />
+        </div>
+      );
+    }
+
+    if (rule.action === 'send_direct_message' || rule.action === 'finalize') {
+      return (
+        <Textarea
+          className="flex-1"
+          rows={2}
+          maxLength={512}
+          placeholder={
+            rule.action === 'finalize'
+              ? t('stageAutomation.finalizeMessagePlaceholder')
+              : t('stageAutomation.directMessagePlaceholder')
+          }
+          value={rule.action_value}
+          onChange={e => updateRule(index, { action_value: e.target.value })}
+          disabled={disabled}
+        />
+      );
+    }
+
+    if (rule.action === 'send_template') {
+      return (
+        <Select
+          value={rule.action_value || ''}
+          onValueChange={v => updateRule(index, { action_value: v })}
+          disabled={disabled}
+        >
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder={t('stageAutomation.selectTemplate')} />
+          </SelectTrigger>
+          <SelectContent>
+            {messageTemplates.length === 0 ? (
+              <SelectItem value={PLACEHOLDER_SENTINEL} disabled>
+                {t('stageAutomation.noTemplates')}
+              </SelectItem>
+            ) : (
+              messageTemplates.map(tpl => (
+                <SelectItem key={tpl.id} value={tpl.id}>
+                  {tpl.name}
+                  {tpl.language ? ` (${tpl.language})` : ''}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
+      );
+    }
+
     return (
       <Input
         className="flex-1"
@@ -361,7 +529,16 @@ export default function StageAutomationRules({
               <div className="flex gap-2">
                 <Select
                   value={rule.trigger}
-                  onValueChange={v => updateRule(index, { trigger: v as StageAutomationTrigger, trigger_value: '' })}
+                  onValueChange={v => {
+                    const trigger = v as StageAutomationTrigger;
+                    updateRule(index, {
+                      trigger,
+                      trigger_value:
+                        trigger === 'inactivity'
+                          ? { minutes: INACTIVITY_MINUTES[1], base: 'no_customer_reply' }
+                          : '',
+                    });
+                  }}
                   disabled={disabled}
                 >
                   <SelectTrigger className="w-[200px]">
@@ -371,6 +548,7 @@ export default function StageAutomationRules({
                     <SelectItem value="label_added">{t('stageAutomation.triggers.label_added')}</SelectItem>
                     <SelectItem value="conversation_status_changed">{t('stageAutomation.triggers.conversation_status_changed')}</SelectItem>
                     <SelectItem value="custom_attribute_updated">{t('stageAutomation.triggers.custom_attribute_updated')}</SelectItem>
+                    <SelectItem value="inactivity">{t('stageAutomation.triggers.inactivity')}</SelectItem>
                   </SelectContent>
                 </Select>
                 {renderTriggerValue(rule, index)}
@@ -393,6 +571,10 @@ export default function StageAutomationRules({
                     <SelectItem value="move_to_pipeline">{t('stageAutomation.actions.move_to_pipeline')}</SelectItem>
                     <SelectItem value="assign_agent">{t('stageAutomation.actions.assign_agent')}</SelectItem>
                     <SelectItem value="apply_label">{t('stageAutomation.actions.apply_label')}</SelectItem>
+                    <SelectItem value="send_ai_message">{t('stageAutomation.actions.send_ai_message')}</SelectItem>
+                    <SelectItem value="send_direct_message">{t('stageAutomation.actions.send_direct_message')}</SelectItem>
+                    <SelectItem value="send_template">{t('stageAutomation.actions.send_template')}</SelectItem>
+                    <SelectItem value="finalize">{t('stageAutomation.actions.finalize')}</SelectItem>
                   </SelectContent>
                 </Select>
                 {renderActionValue(rule, index)}

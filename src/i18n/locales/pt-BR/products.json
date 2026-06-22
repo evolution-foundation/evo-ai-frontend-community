@@ -7,6 +7,7 @@
   "header": {
     "searchPlaceholder": "Buscar por nome, SKU ou descrição",
     "new": "Novo produto",
+    "import": "Importar CSV",
     "filters": {
       "kindAll": "Todos os tipos",
       "statusAll": "Todos os status"
@@ -101,6 +102,101 @@
     "updateError": "Falha ao atualizar produto",
     "deleteSuccess": "Produto excluído",
     "deleteError": "Falha ao excluir produto"
+  },
+  "import": {
+    "title": "Importar produtos via CSV",
+    "subtitle": "Envie um CSV com até {{max}} linhas. O arquivo é analisado localmente, validado contra as regras do catálogo e enviado em uma única transação.",
+    "back": "Voltar para produtos",
+    "forbidden": "Você não tem permissão para importar produtos.",
+    "success": "{{count}} produtos importados com sucesso",
+    "tabs": {
+      "upload": "1. Envio",
+      "mapping": "2. Mapeamento",
+      "preview": "3. Pré-visualização",
+      "done": "4. Concluído"
+    },
+    "upload": {
+      "hint": "Selecione um arquivo CSV UTF-8 com linha de cabeçalho. Limite: {{max}} linhas.",
+      "selectFile": "Selecionar CSV"
+    },
+    "mapping": {
+      "file": "{{name}} — {{count}} linha(s)",
+      "changeFile": "Trocar arquivo",
+      "csvHeader": "Coluna CSV",
+      "sample": "Exemplo (1ª linha)",
+      "field": "Mapear para",
+      "ignore": "(ignorar)",
+      "missingRequired": "Campos obrigatórios não mapeados: {{fields}}",
+      "back": "Voltar",
+      "next": "Continuar"
+    },
+    "fields": {
+      "name": "Nome",
+      "slug": "Slug",
+      "kind": "Tipo",
+      "description": "Descrição",
+      "sku": "SKU",
+      "default_price": "Preço padrão",
+      "currency": "Moeda",
+      "purchase_url": "URL de compra",
+      "status": "Status",
+      "stock_quantity": "Estoque",
+      "labels": "Etiquetas"
+    },
+    "preview": {
+      "valid": "Linhas válidas",
+      "invalid": "Linhas inválidas (cliente)",
+      "conflicts": "Conflitos no servidor",
+      "runDryRun": "Executar dry-run",
+      "import": "Importar",
+      "backToMapping": "Voltar ao mapeamento",
+      "errorsHeading": "{{count}} linha(s) precisam de atenção",
+      "row": "Linha",
+      "sku": "SKU",
+      "errors": "Erros"
+    },
+    "done": {
+      "title": "Importação concluída",
+      "subtitle": "Todas as linhas foram salvas com sucesso.",
+      "backToList": "Voltar para produtos",
+      "importAnother": "Importar outro arquivo"
+    },
+    "errors": {
+      "emptyFile": "O arquivo CSV não possui linha de cabeçalho.",
+      "tooManyRows": "O CSV tem {{received}} linhas, mas o limite é {{max}}.",
+      "duplicateHeaders": "O CSV tem colunas com nomes duplicados: {{headers}}. Renomeie antes de subir.",
+      "emptyHeader": "O CSV tem colunas sem nome na(s) posição(ões): {{columns}}. Nomeie todas as colunas antes de subir.",
+      "noDataRows": "O CSV só contém o cabeçalho — não há linhas para importar.",
+      "parseError": "Falha ao ler o CSV na linha {{line}}: {{message}}",
+      "readError": "Não foi possível ler o arquivo selecionado.",
+      "missingRequired": "Mapeie os campos obrigatórios antes de continuar: {{fields}}",
+      "noValidRows": "Não há linhas válidas para enviar.",
+      "network": "Erro de rede. Tente novamente.",
+      "unauthorized": "Sua sessão expirou. Faça login novamente.",
+      "forbidden": "Você não tem permissão para importar produtos em lote.",
+      "rateLimited": "Limite de requisições atingido (10/min). Aguarde um instante e tente novamente.",
+      "dryRunInvalid": "O dry-run sinalizou {{count}} linha(s). Corrija e tente de novo.",
+      "serverInvalid": "O servidor rejeitou {{count}} linha(s). Todo o lote foi revertido."
+    },
+    "parseErrorCodes": {
+      "invalid_delimiter": "delimitador inválido",
+      "unexpected_quote": "aspa inesperada dentro de campo sem aspas",
+      "unterminated_quoted_field": "campo com aspa aberta sem fechamento"
+    },
+    "serverErrors": {
+      "required": "é obrigatório",
+      "too_long": "é longo demais",
+      "invalid_kind": "deve ser físico ou digital",
+      "invalid_status": "deve ser ativo, inativo ou rascunho",
+      "invalid_currency": "deve ser BRL, USD ou EUR",
+      "must_be_non_negative": "deve ser maior ou igual a zero",
+      "must_be_integer": "deve ser um número inteiro",
+      "invalid_url": "deve ser uma URL http(s) válida",
+      "invalid_number": "não é um número válido",
+      "duplicated_within_batch": "duplicado dentro do lote",
+      "taken": "já está em uso",
+      "invalid_value": "não é um valor válido"
+    }
   },
   "pipelinePanel": {
     "title": "Produtos vendidos",

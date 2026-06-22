@@ -22,7 +22,7 @@ export const COMMON_ALLOWED = new Set<string>([
   'min', 'h', 'd', 's', 'ms', 'B', 'KB', 'MB', 'GB',
   // --- data-type / generic tech nouns kept as loanwords in pt-BR ---
   'Array', 'Buffer', 'String', 'Checkbox', 'Regex', 'Script', 'CSV', 'PDF',
-  'SKU', 'Labels', 'Link', 'Login', 'Loop', 'Macros', 'Manual', 'Marketing',
+  'SKU', 'Slug', 'Labels', 'Link', 'Login', 'Loop', 'Macros', 'Manual', 'Marketing',
   'Notification', 'Payload', 'Performance', 'Placeholder', 'Plain', 'Preview',
   'Provider', 'Sandbox', 'Scopes', 'Sidebar', 'Studio', 'Timeline', 'Timezone',
   'Web', 'Website', 'Inbox', 'Interface', 'Item', 'Dashboard', 'Canvas',

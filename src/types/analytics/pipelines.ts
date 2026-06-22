@@ -1,18 +1,42 @@
 import type { PaginatedResponse, StandardResponse, PaginationMeta } from '@/types/core';
 import type { Contact } from '@/types/contacts';
 
-export type StageAutomationTrigger = 'label_added' | 'conversation_status_changed' | 'custom_attribute_updated';
+export type StageAutomationTrigger =
+  | 'label_added'
+  | 'conversation_status_changed'
+  | 'custom_attribute_updated'
+  | 'inactivity';
 export type StageAutomationAction =
   | 'move_to_stage'
   | 'move_to_pipeline'
   | 'assign_agent'
-  | 'apply_label';
+  | 'apply_label'
+  | 'send_ai_message'
+  | 'send_direct_message'
+  | 'send_template'
+  | 'finalize';
+
+export type InactivityBase = 'no_customer_reply' | 'stage_stagnation';
+
+// trigger_value for the 'inactivity' trigger carries the timer config as an
+// object; all other triggers keep using a plain string.
+export interface InactivityTriggerValue {
+  minutes: number;
+  base: InactivityBase;
+}
 
 export interface StageAutomationRule {
+  // Stable id (uuid) for inactivity idempotency. Optional for back-compat with
+  // legacy rules saved before this field existed (backend falls back to a hash).
+  id?: string;
   trigger: StageAutomationTrigger;
-  trigger_value: string;
+  trigger_value: string | InactivityTriggerValue;
   action: StageAutomationAction;
+  // For send_ai_message: action_value holds the agent_bot id. For other actions
+  // it holds the stage/agent/label id, template id, or raw text.
   action_value: string;
+  // Optional suggested text passed to the AI for the send_ai_message action.
+  ai_message?: string;
 }
 
 export interface PipelinesResponse extends PaginatedResponse<Pipeline> {}

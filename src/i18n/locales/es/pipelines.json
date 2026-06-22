@@ -362,16 +362,35 @@
     "noAgents": "No hay agentes disponibles",
     "anyLabel": "Cualquier etiqueta",
     "noLabels": "No hay etiquetas disponibles",
+    "selectAgentBot": "Seleccionar agente de IA...",
+    "selectTemplate": "Seleccionar plantilla...",
+    "noAgentBots": "No hay agentes de IA disponibles",
+    "noTemplates": "No hay plantillas disponibles",
+    "aiMessagePlaceholder": "¿Qué debe decir el agente? (opcional)",
+    "directMessagePlaceholder": "Mensaje a enviar...",
+    "finalizeMessagePlaceholder": "Mensaje de cierre (opcional)...",
+    "inactivity": {
+      "minutes": "minutos",
+      "base": {
+        "no_customer_reply": "Cliente sin responder",
+        "stage_stagnation": "Detenido en la etapa"
+      }
+    },
     "triggers": {
       "label_added": "Etiqueta agregada",
       "conversation_status_changed": "Estado de conversación cambiado",
-      "custom_attribute_updated": "Atributo personalizado actualizado"
+      "custom_attribute_updated": "Atributo personalizado actualizado",
+      "inactivity": "Por inactividad"
     },
     "actions": {
       "move_to_stage": "Mover a etapa",
       "move_to_pipeline": "Mover a otro pipeline",
       "assign_agent": "Asignar agente",
-      "apply_label": "Aplicar etiqueta"
+      "apply_label": "Aplicar etiqueta",
+      "send_ai_message": "Mensaje vía agente de IA",
+      "send_direct_message": "Mensaje directo",
+      "send_template": "Enviar plantilla",
+      "finalize": "Finalizar atención"
     }
   },
   "editStage": {

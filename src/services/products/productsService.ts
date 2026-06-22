@@ -11,6 +11,9 @@ import {
   ProductVariantFormData,
   PipelineItemProductLink,
   PipelineItemProductsResponse,
+  ProductBulkPayload,
+  ProductBulkRealResponse,
+  ProductBulkDryRunResponse,
 } from '@/types/products';
 
 class ProductsService {
@@ -55,6 +58,25 @@ class ProductsService {
 
     const response = await api.patch(`${this.baseUrl}/${id}`, { product: payload });
     return extractData<ProductResponse>(response).data;
+  }
+
+  /**
+   * Bulk-create products in one transaction (EVO-1555 S1).
+   * `dry_run: true` runs the same validation/transaction pipeline and rolls
+   * back, returning a preview payload — see EVO-1736 (S1.1).
+   */
+  async bulkProducts(
+    payload: ProductBulkPayload & { dry_run: true },
+  ): Promise<ProductBulkDryRunResponse>;
+  async bulkProducts(payload: ProductBulkPayload): Promise<ProductBulkRealResponse>;
+  async bulkProducts(
+    payload: ProductBulkPayload & { dry_run?: boolean },
+  ): Promise<ProductBulkRealResponse | ProductBulkDryRunResponse> {
+    const { dry_run, ...body } = payload;
+    const response = await api.post(`${this.baseUrl}/bulk`, body, {
+      params: dry_run ? { dry_run: true } : undefined,
+    });
+    return response.data;
   }
 
   async deleteProduct(id: string): Promise<ProductDeleteResponse> {

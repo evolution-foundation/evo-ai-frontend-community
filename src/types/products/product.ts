@@ -88,6 +88,53 @@ export interface ProductsListParams {
   status?: ProductStatus;
 }
 
+/* ---------- Bulk import (EVO-1555 S1 + S1.1 dry-run) ---------- */
+
+export interface ProductBulkItem {
+  name: string;
+  kind?: ProductKind;
+  slug?: string;
+  description?: string;
+  sku?: string;
+  default_price?: number;
+  currency?: ProductCurrency;
+  purchase_url?: string;
+  status?: ProductStatus;
+  stock_quantity?: number;
+  labels?: string[];
+  metadata?: Record<string, unknown>;
+}
+
+export interface ProductBulkPayload {
+  products: ProductBulkItem[];
+  dry_run?: boolean;
+}
+
+export interface ProductBulkServerError {
+  index: number;
+  sku: string | null;
+  errors: Record<string, string[]>;
+}
+
+export interface ProductBulkRealResponse {
+  success: true;
+  data: Product[];
+  meta: { created: number; updated: number; skipped: number };
+  message: string;
+}
+
+export interface ProductBulkDryRunResponse {
+  success: true;
+  data: {
+    dry_run: true;
+    would_create: Array<{ index: number; sku: string | null; name: string; labels?: string[] }>;
+    would_update: unknown[];
+    would_skip: unknown[];
+    errors: ProductBulkServerError[];
+  };
+  meta: { created: number; updated: number; skipped: number; errors: number };
+}
+
 export interface ProductsResponse extends PaginatedResponse<Product> {}
 export interface ProductResponse extends StandardResponse<Product> {}
 export interface ProductDeleteResponse extends StandardResponse<{ id: string }> {}
