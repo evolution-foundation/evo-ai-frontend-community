@@ -232,6 +232,7 @@
     "urlInvalid": "Introduza um URL válido (http/https)",
     "requiredLegend": "Os campos marcados com * são obrigatórios",
     "skuTaken": "Este SKU já está em uso",
-    "variantPriceCurrency": "em {{currency}}"
+    "variantPriceCurrency": "em {{currency}}",
+    "fixErrors": "Preencha os campos obrigatórios para continuar."
   }
 }

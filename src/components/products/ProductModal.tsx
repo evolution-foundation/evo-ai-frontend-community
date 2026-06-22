@@ -84,6 +84,8 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
   const [labelsText, setLabelsText] = useState('');
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [activeTab, setActiveTab] = useState('general');
 
   const isEdit = useMemo(() => Boolean(product?.id), [product]);
   const isPhysical = form.kind === 'physical';
@@ -113,6 +115,8 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
     }
     setNewFiles([]);
     setTouched({});
+    setSubmitAttempted(false);
+    setActiveTab('general');
   }, [open, product]);
 
   const clientErrors = useMemo<Record<string, string>>(() => {
@@ -125,7 +129,7 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
   }, [form.name, form.default_price, form.purchase_url, t]);
 
   const fieldError = (key: string): string | undefined =>
-    errors?.[key] ?? (touched[key] ? clientErrors[key] : undefined);
+    errors?.[key] ?? (submitAttempted || touched[key] ? clientErrors[key] : undefined);
 
   const markTouched = (key: string) => setTouched((prev) => ({ ...prev, [key]: true }));
   const canSubmit = Object.keys(clientErrors).length === 0;
@@ -161,8 +165,11 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
   };
 
   const handleSubmit = async () => {
-    setTouched({ name: true, default_price: true, purchase_url: true });
-    if (!canSubmit) return;
+    setSubmitAttempted(true);
+    if (!canSubmit) {
+      setActiveTab('general');
+      return;
+    }
 
     const labels = labelsText
       .split(',')
@@ -192,7 +199,7 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
           <DialogDescription>{t('modal.subtitle')}</DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="general" className="flex-1 overflow-hidden flex flex-col">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
           <TabsList className="grid grid-cols-4 w-full">
             <TabsTrigger value="general">{t('modal.tabs.general')}</TabsTrigger>
             <TabsTrigger value="media">{t('modal.tabs.media')}</TabsTrigger>
@@ -500,11 +507,15 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
         </Tabs>
 
         <DialogFooter className="pt-2 items-center">
-          <p className="text-xs text-muted-foreground mr-auto">{t('validation.requiredLegend')}</p>
+          <p
+            className={`text-xs mr-auto ${submitAttempted && !canSubmit ? 'text-destructive' : 'text-muted-foreground'}`}
+          >
+            {submitAttempted && !canSubmit ? t('validation.fixErrors') : t('validation.requiredLegend')}
+          </p>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             {t('actions.cancel')}
           </Button>
-          <Button onClick={handleSubmit} disabled={loading || !canSubmit}>
+          <Button onClick={handleSubmit} disabled={loading}>
             {loading ? t('actions.saving') : isEdit ? t('actions.update') : t('actions.create')}
           </Button>
         </DialogFooter>

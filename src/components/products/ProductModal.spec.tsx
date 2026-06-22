@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import ProductModal from './ProductModal';
 import type { Product } from '@/types/products';
 
@@ -43,10 +43,15 @@ describe('ProductModal (EVO-1783 Phase 1)', () => {
     expect(document.getElementById('p-stock')).not.toBeNull();
   });
 
-  it('disables submit when required fields are empty on create', () => {
-    render(<ProductModal open product={null} loading={false} onOpenChange={noop} onSubmit={onSubmit} />);
+  it('keeps submit clickable and reveals validation instead of a silent disabled button', () => {
+    const submitSpy = vi.fn(async () => {});
+    render(<ProductModal open product={null} loading={false} onOpenChange={noop} onSubmit={submitSpy} />);
     const button = screen.getByText('actions.create').closest('button') as HTMLButtonElement;
-    expect(button.disabled).toBe(true);
+    expect(button.disabled).toBe(false);
+    fireEvent.click(button);
+    expect(submitSpy).not.toHaveBeenCalled();
+    expect(screen.getByText('validation.nameRequired')).toBeTruthy();
+    expect(screen.getByText('validation.fixErrors')).toBeTruthy();
   });
 
   it('renders a server field error inline (AC4 — SKU uniqueness)', () => {
