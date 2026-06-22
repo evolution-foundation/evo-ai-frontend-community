@@ -378,7 +378,18 @@
       "identifier": "Identifiant",
       "created_at": "Date de Création",
       "last_activity_at": "Dernière Activité",
-      "type": "Type de Contact"
+      "type": "Type de Contact",
+      "labels": "Étiquettes",
+      "country_code": "Pays",
+      "city": "Ville",
+      "company": "Entreprise",
+      "blocked": "Bloqué"
+    },
+    "options": {
+      "blocked": {
+        "true": "Bloqué",
+        "false": "Non bloqué"
+      }
     }
   },
   "import": {

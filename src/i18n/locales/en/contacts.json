@@ -386,7 +386,18 @@
       "identifier": "Identifier",
       "created_at": "Creation Date",
       "last_activity_at": "Last Activity",
-      "type": "Contact Type"
+      "type": "Contact Type",
+      "labels": "Labels",
+      "country_code": "Country",
+      "city": "City",
+      "company": "Company",
+      "blocked": "Blocked"
+    },
+    "options": {
+      "blocked": {
+        "true": "Blocked",
+        "false": "Not blocked"
+      }
     }
   },
   "import": {

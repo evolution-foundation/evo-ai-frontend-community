@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import BaseFilter from '@/components/base/BaseFilter';
 import {
@@ -5,6 +6,7 @@ import {
   CONTACT_FILTER_TYPES,
   DEFAULT_CONTACT_FILTER,
 } from '@/types/core';
+import { useContactFilterOptions } from '@/hooks/contacts/useContactFilterOptions';
 
 interface ContactsFilterProps {
   open: boolean;
@@ -24,6 +26,15 @@ export default function ContactsFilter({
   onClearFilters,
 }: ContactsFilterProps) {
   const { t } = useLanguage('contacts');
+  const { labels } = useContactFilterOptions({ enabled: open });
+
+  const enrichedFilterTypes = useMemo(
+    () =>
+      CONTACT_FILTER_TYPES.map(filterType =>
+        filterType.attributeKey === 'labels' ? { ...filterType, options: labels } : filterType,
+      ),
+    [labels],
+  );
 
   return (
     <BaseFilter
@@ -33,7 +44,7 @@ export default function ContactsFilter({
       onFiltersChange={onFiltersChange}
       onApplyFilters={onApplyFilters}
       onClearFilters={onClearFilters}
-      filterTypes={CONTACT_FILTER_TYPES}
+      filterTypes={enrichedFilterTypes}
       defaultFilter={DEFAULT_CONTACT_FILTER}
       title={t('filter.title')}
       description={t('filter.description')}

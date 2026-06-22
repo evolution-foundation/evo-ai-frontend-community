@@ -103,6 +103,51 @@ export const CONTACT_FILTER_TYPES: FilterType[] = [
     filterOperators: OPERATOR_TYPES_5,
     attribute_type: 'standard',
   },
+  {
+    attributeKey: 'labels',
+    attributeI18nKey: 'filter.attributes.labels',
+    inputType: 'search_select',
+    dataType: 'text',
+    filterOperators: OPERATOR_TYPES_1,
+    attribute_type: 'standard',
+    options: [], // populated dynamically (labels) in ContactsFilter
+  },
+  {
+    attributeKey: 'country_code',
+    attributeI18nKey: 'filter.attributes.country_code',
+    inputType: 'plain_text',
+    dataType: 'text',
+    filterOperators: OPERATOR_TYPES_1,
+    attribute_type: 'standard',
+  },
+  {
+    attributeKey: 'city',
+    attributeI18nKey: 'filter.attributes.city',
+    inputType: 'plain_text',
+    dataType: 'text',
+    filterOperators: OPERATOR_TYPES_3,
+    attribute_type: 'standard',
+  },
+  {
+    attributeKey: 'company',
+    attributeI18nKey: 'filter.attributes.company',
+    inputType: 'plain_text',
+    dataType: 'text',
+    filterOperators: OPERATOR_TYPES_3,
+    attribute_type: 'standard',
+  },
+  {
+    attributeKey: 'blocked',
+    attributeI18nKey: 'filter.attributes.blocked',
+    inputType: 'search_select',
+    dataType: 'text',
+    filterOperators: OPERATOR_TYPES_1,
+    attribute_type: 'standard',
+    options: [
+      { label: 'filter.options.blocked.true', value: 'true' },
+      { label: 'filter.options.blocked.false', value: 'false' },
+    ],
+  },
 ];
 
 // Filtro padrão genérico
