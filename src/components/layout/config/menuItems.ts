@@ -190,7 +190,7 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         href: '/settings/users',
         icon: Users2,
         resource: 'users',
-        action: 'read',
+        action: 'manage',
       },
       {
         name: t('menu.settings.teams'),

@@ -656,7 +656,7 @@ const AppRouter = () => {
               <PrivateRoute>
                 <CustomerRoute>
                   <MainLayout>
-                    <PermissionRoute resource="users" action="read">
+                    <PermissionRoute resource="users" action="manage">
                       <Users />
                     </PermissionRoute>
                   </MainLayout>

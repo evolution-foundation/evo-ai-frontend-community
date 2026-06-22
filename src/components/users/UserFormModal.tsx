@@ -31,8 +31,12 @@ interface UserFormModalProps {
 export default function UserFormModal({ isOpen, onClose, user, onSuccess }: UserFormModalProps) {
   const { t } = useLanguage('users');
 
-  // Buscar system roles
+  // Buscar system roles (todos os tipos) + roles customizadas type:'account'.
+  // Atendentes podem receber tanto as roles base (agent/account_owner) quanto
+  // roles customizadas type:'account' (ex.: "Converse"). O backend passou a
+  // retornar essas roles account em account_user_roles (RBAC split).
   const { roles: systemRoles, error: rolesError } = useRoles();
+  const { roles: accountRoles } = useRoles({ type: 'account' });
 
   // Deduplicar roles por chave para evitar que apareçam duplicados ou que a seleção marque múltiplos
   const uniqueRoles = useMemo(() => {
@@ -42,19 +46,21 @@ export default function UserFormModal({ isOpen, onClose, user, onSuccess }: User
       { id: 'role-account-owner', key: 'account_owner', name: 'Account Owner', type: 'user' },
     ];
 
-    // Filtramos os papéis vindos do sistema
-    const userRoleTypes = ['user', null, undefined];
-    const filteredSystemRoles = systemRoles.filter(
-      role => !!role.key && (userRoleTypes.includes(role.type as any) || !role.type)
+    // Roles atribuíveis a atendentes: type 'user' (compat legado), 'account'
+    // (atendentes customizados) ou sem type definido.
+    const assignableRoleTypes = ['user', 'account', null, undefined];
+    const filteredSystemRoles = [...systemRoles, ...accountRoles].filter(
+      role => !!role.key && (assignableRoleTypes.includes(role.type as any) || !role.type)
     );
 
-    // Combinamos e removemos duplicatas (dando preferência ao que vem do sistema se existir)
+    // Combinamos e removemos duplicatas por key (dando preferência ao que vem
+    // do sistema/account se existir).
     return Array.from(
       new Map(
         [...baseRoles, ...filteredSystemRoles].map(role => [role.key, role])
       ).values()
     );
-  }, [systemRoles]);
+  }, [systemRoles, accountRoles]);
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<UserFormData>({
