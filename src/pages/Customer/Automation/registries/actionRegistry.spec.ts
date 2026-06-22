@@ -21,6 +21,7 @@ const BACKEND_ACTION_NAMES = [
   'assign_to_pipeline',
   'update_pipeline_stage',
   'create_pipeline_task',
+  'update_custom_attribute',
 ];
 
 describe('actionRegistry', () => {
