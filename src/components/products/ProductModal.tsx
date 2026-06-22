@@ -202,7 +202,7 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
           <TabsList className="grid grid-cols-4 w-full">
             <TabsTrigger value="general">{t('modal.tabs.general')}</TabsTrigger>
-            <TabsTrigger value="media">{t('modal.tabs.media')}</TabsTrigger>
+            <TabsTrigger value="media" disabled>{t('modal.tabs.mediaSoon')}</TabsTrigger>
             <TabsTrigger value="variants">{t('modal.tabs.variants')}</TabsTrigger>
             <TabsTrigger value="labels">{t('modal.tabs.labels')}</TabsTrigger>
           </TabsList>

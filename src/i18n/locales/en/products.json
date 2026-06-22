@@ -42,7 +42,8 @@
       "general": "General",
       "media": "Media",
       "variants": "Variants",
-      "labels": "Categories"
+      "labels": "Categories",
+      "mediaSoon": "Media (soon)"
     }
   },
   "fields": {
