@@ -87,16 +87,11 @@ function dataWithContactCondition(field = '{{contact.email}}'): ConditionalNodeD
   } as ConditionalNodeData;
 }
 
-// The field picker (VariableSelect) is the combobox showing the
-// "Select a variable..." placeholder while no field is selected.
+// The field picker (VariableSelect) carries a stable, locale-independent test
+// id (see ConditionalPanel's `triggerTestId`) so the lookup does not depend on
+// localized placeholder copy. Use the first one (single-condition fixtures).
 function getFieldTrigger(): HTMLElement {
-  // The field picker shows a "Select variable…" style placeholder while empty;
-  // match the `variable` stem across locales (variable/variável/variabile).
-  const trigger = screen
-    .getAllByRole('combobox')
-    .find(el => /variabl|variáv|variabil/i.test(el.textContent || ''));
-  if (!trigger) throw new Error('field picker trigger not found');
-  return trigger;
+  return screen.getAllByTestId('conditional-field-select')[0];
 }
 
 // The value picker is one of several comboboxes in the panel; identify it by

@@ -33,6 +33,7 @@ export interface VariableSelectProps {
   showContactAttributes?: boolean;
   disabled?: boolean;
   journeyId?: string; // Para buscar variáveis da jornada
+  triggerTestId?: string; // Stable hook for the trigger (locale-independent tests)
 }
 
 const VariableSelect = forwardRef<HTMLButtonElement, VariableSelectProps>(
@@ -48,6 +49,7 @@ const VariableSelect = forwardRef<HTMLButtonElement, VariableSelectProps>(
       showContactAttributes = false,
       disabled = false,
       journeyId,
+      triggerTestId,
       ...props
     },
     ref,
@@ -153,6 +155,7 @@ const VariableSelect = forwardRef<HTMLButtonElement, VariableSelectProps>(
         >
           <SelectTrigger
             ref={ref}
+            data-testid={triggerTestId}
             className={cn(
               'w-full bg-sidebar border-sidebar-border text-sidebar-foreground',
               className,
@@ -229,7 +232,14 @@ const VariableSelect = forwardRef<HTMLButtonElement, VariableSelectProps>(
                 <div className="px-2 py-1 text-xs font-medium text-gray-500">
                   {t('environmentManager.categories.contactAttributes')}
                 </div>
-                {contactAttributes.map(attribute => (
+                {contactAttributes
+                  .slice()
+                  .sort((a, b) =>
+                    (a.attribute_display_name || a.attribute_key || '').localeCompare(
+                      b.attribute_display_name || b.attribute_key || '',
+                    ),
+                  )
+                  .map(attribute => (
                   <SelectItem
                     key={attribute.id}
                     value={`{{contact.customAttributes.${attribute.attribute_key}}}`}
