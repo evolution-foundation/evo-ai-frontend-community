@@ -189,7 +189,8 @@ export type AutomationActionType =
   | 'send_email_transcript'
   | 'assign_to_pipeline'
   | 'update_pipeline_stage'
-  | 'create_pipeline_task';
+  | 'create_pipeline_task'
+  | 'update_custom_attribute';
 
 // Flow builder state interface
 export interface AutomationFlowBuilderState {

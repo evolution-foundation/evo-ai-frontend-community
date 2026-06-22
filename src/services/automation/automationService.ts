@@ -199,7 +199,7 @@ class AutomationService {
         teams: getResultData(teamsRes),
         labels: getResultData(labelsRes),
         campaigns: [],
-        customAttributes: [], // TODO: Implementar busca de custom attributes se necessário
+        customAttributes: [], // fetched in useAutomationFormData via customAttributesService
       };
     } catch (error: any) {
       console.error('Erro ao buscar dados do formulário:', error);

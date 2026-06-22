@@ -84,6 +84,17 @@ const sendTemplateSchema = z.tuple([
   }),
 ]);
 
+// Custom attribute is unique per (key, model); carry the model so the backend
+// disambiguates the lookup and the write target. Value is a string (empty = set
+// empty), cast at read/query time — consistent with the journey/CRM contract.
+const updateCustomAttributeSchema = z.tuple([
+  z.object({
+    custom_attribute_key: z.string().min(1),
+    custom_attribute_model: z.string().min(1),
+    custom_attribute_value: z.string(),
+  }),
+]);
+
 export interface ActionDescriptor {
   actionName: AutomationActionType;
   schema: z.ZodTypeAny;
@@ -205,6 +216,12 @@ export const actionRegistry: Record<AutomationActionType, ActionDescriptor> = {
     schema: createPipelineTaskSchema,
     defaultParams: [{ title: '' }],
     i18nKey: 'form.fields.actions.create_pipeline_task',
+  },
+  update_custom_attribute: {
+    actionName: 'update_custom_attribute',
+    schema: updateCustomAttributeSchema,
+    defaultParams: [{ custom_attribute_key: '', custom_attribute_model: '', custom_attribute_value: '' }],
+    i18nKey: 'form.fields.actions.update_custom_attribute',
   },
 };
 

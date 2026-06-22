@@ -90,6 +90,7 @@ const actionUnionSchema = z.discriminatedUnion('action_name', [
   z.object({ action_name: z.literal('assign_to_pipeline'), action_params: actionRegistry.assign_to_pipeline.schema }),
   z.object({ action_name: z.literal('update_pipeline_stage'), action_params: actionRegistry.update_pipeline_stage.schema }),
   z.object({ action_name: z.literal('create_pipeline_task'), action_params: actionRegistry.create_pipeline_task.schema }),
+  z.object({ action_name: z.literal('update_custom_attribute'), action_params: actionRegistry.update_custom_attribute.schema }),
 ]);
 
 export const automationRuleSchema = z.object({

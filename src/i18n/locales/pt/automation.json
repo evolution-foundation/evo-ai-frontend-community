@@ -90,7 +90,8 @@
         "send_email_transcript": "Enviar transcrição por email",
         "assign_to_pipeline": "Atribuir ao pipeline",
         "update_pipeline_stage": "Atualizar estágio do pipeline",
-        "create_pipeline_task": "Criar tarefa do pipeline"
+        "create_pipeline_task": "Criar tarefa do pipeline",
+        "update_custom_attribute": "Atualizar atributo personalizado"
       },
       "conditionRow": {
         "attribute": "Atributo",
@@ -134,8 +135,15 @@
           "create_pipeline_task_assignee": "ID do responsável (opcional)",
           "create_pipeline_task_due_in": "Vencimento (ex.: 2d, 1w)",
           "send_attachment_ids": "IDs dos anexos separados por vírgula",
-          "send_attachment_inbox": "ID do canal (opcional)"
+          "send_attachment_inbox": "ID do canal (opcional)",
+          "update_custom_attribute": "Escolha um atributo personalizado",
+          "update_custom_attribute_value": "Valor"
         }
+      },
+      "customAttributeModels": {
+        "conversation_attribute": "Conversa",
+        "contact_attribute": "Contacto",
+        "pipeline_item_attribute": "Item de pipeline"
       },
       "operators": {
         "equal_to": "Igual a",

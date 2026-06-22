@@ -3,6 +3,8 @@ import { automationService } from '@/services/automation/automationService';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import { cannedResponsesService } from '@/services/cannedResponses/cannedResponsesService';
 import messageTemplatesService from '@/services/channels/messageTemplatesService';
+import { customAttributesService } from '@/services/customAttributes/customAttributesService';
+import type { CustomAttributeDefinition } from '@/types/settings';
 
 export interface MessageTemplateVariable {
   name: string;
@@ -42,6 +44,7 @@ export interface AutomationFormData {
   messageTypes: AutomationFormDataOption[];
   cannedResponses: AutomationFormDataOption[];
   messageTemplates: MessageTemplateOption[];
+  customAttributes: CustomAttributeDefinition[];
 }
 
 const HARDCODED_PRIORITIES: AutomationFormDataOption[] = [
@@ -87,6 +90,7 @@ export function useAutomationFormData(): {
     messageTypes: HARDCODED_MESSAGE_TYPES,
     cannedResponses: [],
     messageTemplates: [],
+    customAttributes: [],
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -96,10 +100,11 @@ export function useAutomationFormData(): {
 
     const load = async () => {
       try {
-        const [formDataResult, pipelinesResult, cannedResult] = await Promise.allSettled([
+        const [formDataResult, pipelinesResult, cannedResult, customAttrsResult] = await Promise.allSettled([
           automationService.getFormData(),
           pipelinesService.getPipelines().catch(() => null),
           cannedResponsesService.getCannedResponses().catch(() => null),
+          customAttributesService.getCustomAttributes().catch(() => null),
         ]);
 
         if (cancelled) return;
@@ -172,6 +177,11 @@ export function useAutomationFormData(): {
             ? (cannedResult.value as { data?: { id: string | number; short_code?: string; content?: string }[] }).data ?? []
             : [];
 
+        const customAttributes =
+          customAttrsResult.status === 'fulfilled' && customAttrsResult.value
+            ? (customAttrsResult.value as { data?: CustomAttributeDefinition[] }).data ?? []
+            : [];
+
         setData({
           inboxes: inboxesArray.map(toOption),
           agents: (formData.agents ?? []).map(toOption),
@@ -187,6 +197,7 @@ export function useAutomationFormData(): {
             name: c.short_code ? `/${c.short_code}` : (c.content ?? String(c.id)).slice(0, 60),
           })),
           messageTemplates: allTemplates,
+          customAttributes,
         });
       } catch (e) {
         if (!cancelled) setError(e as Error);

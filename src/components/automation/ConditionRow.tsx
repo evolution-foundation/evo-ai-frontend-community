@@ -27,7 +27,10 @@ interface Props {
   onRemove: () => void;
 }
 
-const optionLoaderToData: Record<string, keyof AutomationFormData> = {
+// customAttributes is a value-editor data source (actions side), never a
+// condition option-loader target — exclude it so formData[optionsKey] stays a
+// union of {id,name} option lists.
+const optionLoaderToData: Record<string, Exclude<keyof AutomationFormData, 'customAttributes'>> = {
   pipelines: 'pipelines',
   pipeline_stages: 'pipelineStages',
   agents: 'agents',

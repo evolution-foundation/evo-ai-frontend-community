@@ -20,6 +20,16 @@ import {
 import type { AutomationFormData } from '@/hooks/automation/useAutomationFormData';
 import type { AutomationActionType } from '@/types/automation';
 import type { MessageTemplateVariable } from '@/hooks/automation/useAutomationFormData';
+import CustomAttributeValueInput from './CustomAttributeValueInput';
+
+// Custom attribute models that map to a concrete record in automation scope and
+// can therefore be written by the update_custom_attribute action (EVO-1751).
+// pipeline / pipeline_stage attributes are config-level (no per-run record).
+const UPDATABLE_ATTRIBUTE_MODELS: string[] = [
+  'conversation_attribute',
+  'contact_attribute',
+  'pipeline_item_attribute',
+];
 
 interface Props {
   control: Control<AutomationRuleFormData>;
@@ -477,6 +487,9 @@ function ActionParamsRenderer({ control, index, actionName, formData, t }: Param
         />
       );
 
+    case 'update_custom_attribute':
+      return <CustomAttributeParam control={control} index={index} formData={formData} t={t} />;
+
     default:
       return null;
   }
@@ -538,6 +551,82 @@ function SelectParam({ control, index, options, placeholder, coerce = 'single' }
               ))}
             </SelectContent>
           </Select>
+        );
+      }}
+    />
+  );
+}
+
+function CustomAttributeParam({
+  control,
+  index,
+  formData,
+  t,
+}: {
+  control: Control<AutomationRuleFormData>;
+  index: number;
+  formData: AutomationFormData;
+  t: (key: string) => string;
+}) {
+  const options = formData.customAttributes.filter((attr) =>
+    UPDATABLE_ATTRIBUTE_MODELS.includes(attr.attribute_model),
+  );
+
+  return (
+    <Controller
+      control={control}
+      name={`actions.${index}.action_params`}
+      render={({ field }) => {
+        const current = (Array.isArray(field.value) ? field.value[0] : undefined) as
+          | { custom_attribute_key?: string; custom_attribute_model?: string; custom_attribute_value?: string }
+          | undefined;
+        const selectedKey = current?.custom_attribute_key ?? '';
+        const selectedModel = current?.custom_attribute_model ?? '';
+        const selectedAttribute = options.find(
+          (attr) => attr.attribute_key === selectedKey && attr.attribute_model === selectedModel,
+        );
+        const composite = selectedAttribute
+          ? `${selectedAttribute.attribute_model}::${selectedAttribute.attribute_key}`
+          : '';
+
+        const pickAttribute = (value: string) => {
+          const sep = value.indexOf('::');
+          const model = value.slice(0, sep);
+          const key = value.slice(sep + 2);
+          field.onChange([{ custom_attribute_key: key, custom_attribute_model: model, custom_attribute_value: '' }]);
+        };
+        const setValue = (value: string) => {
+          field.onChange([
+            { custom_attribute_key: selectedKey, custom_attribute_model: selectedModel, custom_attribute_value: value },
+          ]);
+        };
+
+        return (
+          <div className="space-y-2">
+            <Select value={composite} onValueChange={pickAttribute}>
+              <SelectTrigger>
+                <SelectValue placeholder={t('form.fields.actionRow.params.update_custom_attribute')} />
+              </SelectTrigger>
+              <SelectContent>
+                {options.map((attr) => (
+                  <SelectItem
+                    key={`${attr.attribute_model}::${attr.attribute_key}`}
+                    value={`${attr.attribute_model}::${attr.attribute_key}`}
+                  >
+                    {`${attr.attribute_display_name} · ${t(`form.fields.customAttributeModels.${attr.attribute_model}`)}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedAttribute && (
+              <CustomAttributeValueInput
+                attribute={selectedAttribute}
+                value={current?.custom_attribute_value ?? ''}
+                onChange={setValue}
+                placeholder={t('form.fields.actionRow.params.update_custom_attribute_value')}
+              />
+            )}
+          </div>
         );
       }}
     />
