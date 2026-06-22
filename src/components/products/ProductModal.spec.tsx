@@ -67,4 +67,15 @@ describe('ProductModal (EVO-1783 Phase 1)', () => {
     );
     expect(screen.getByText('has already been taken')).toBeTruthy();
   });
+
+  it('keeps an empty price as null (not 0) and blocks submit (AC3)', () => {
+    const submitSpy = vi.fn(async () => {});
+    render(<ProductModal open product={null} loading={false} onOpenChange={noop} onSubmit={submitSpy} />);
+    fireEvent.change(document.getElementById('p-name') as HTMLInputElement, { target: { value: 'X' } });
+    const priceInput = document.getElementById('p-price') as HTMLInputElement;
+    expect(priceInput.value).toBe('');
+    fireEvent.click(screen.getByText('actions.create').closest('button') as HTMLButtonElement);
+    expect(submitSpy).not.toHaveBeenCalled();
+    expect(screen.getByText('validation.priceRequired')).toBeTruthy();
+  });
 });

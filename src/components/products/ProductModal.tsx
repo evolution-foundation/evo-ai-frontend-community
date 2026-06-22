@@ -21,7 +21,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@evoapi/design-system';
-import { Plus, Trash2, Upload, X } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import type {
   Product,
   ProductFormData,
@@ -82,7 +82,6 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
   const [form, setForm] = useState<ProductFormState>(emptyForm());
   const [variants, setVariants] = useState<ProductVariantFormData[]>([]);
   const [labelsText, setLabelsText] = useState('');
-  const [newFiles, setNewFiles] = useState<File[]>([]);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
@@ -113,7 +112,6 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
       setVariants([]);
       setLabelsText('');
     }
-    setNewFiles([]);
     setTouched({});
     setSubmitAttempted(false);
     setActiveTab('general');
@@ -155,15 +153,6 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
     );
   };
 
-  const handleFilesSelected = (files: FileList | null) => {
-    if (!files) return;
-    setNewFiles((prev) => [...prev, ...Array.from(files)]);
-  };
-
-  const handleRemoveNewFile = (index: number) => {
-    setNewFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
   const handleSubmit = async () => {
     setSubmitAttempted(true);
     if (!canSubmit) {
@@ -188,7 +177,7 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
       })),
     };
 
-    await onSubmit(payload, newFiles.length > 0 ? newFiles : undefined);
+    await onSubmit(payload);
   };
 
   return (
@@ -200,9 +189,17 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="grid grid-cols-4 w-full">
+          {/*
+            Media tab intentionally omitted: product image upload is not wired
+            end-to-end — the backend (products_controller#attach_images) only
+            attaches ActiveStorage signed_ids and explicitly drops raw multipart
+            files, which is all the client currently sends. Re-add a
+            <TabsTrigger value="media"> + <TabsContent value="media"> (file picker
+            + product.images preview, see git history) once a direct-upload /
+            signed_id flow exists.
+          */}
+          <TabsList className="grid grid-cols-3 w-full">
             <TabsTrigger value="general">{t('modal.tabs.general')}</TabsTrigger>
-            <TabsTrigger value="media" disabled>{t('modal.tabs.mediaSoon')}</TabsTrigger>
             <TabsTrigger value="variants">{t('modal.tabs.variants')}</TabsTrigger>
             <TabsTrigger value="labels">{t('modal.tabs.labels')}</TabsTrigger>
           </TabsList>
@@ -227,7 +224,13 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
 
               <div className="space-y-1.5">
                 <Label htmlFor="p-kind">{t('fields.kind')}</Label>
-                <Select value={form.kind} onValueChange={(v) => setForm({ ...form, kind: v as ProductKind })}>
+                <Select
+                  value={form.kind}
+                  onValueChange={(v) => {
+                    const kind = v as ProductKind;
+                    setForm({ ...form, kind, stock_quantity: kind === 'physical' ? form.stock_quantity : null });
+                  }}
+                >
                   <SelectTrigger id="p-kind">
                     <SelectValue />
                   </SelectTrigger>
@@ -357,57 +360,6 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
             </div>
           </TabsContent>
 
-          <TabsContent value="media" className="space-y-3 overflow-y-auto pt-4">
-            <div className="border-2 border-dashed rounded-md p-6 text-center">
-              <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground mb-2">{t('media.uploadHint')}</p>
-              <label htmlFor="p-media-upload" className="inline-block">
-                <input
-                  id="p-media-upload"
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => handleFilesSelected(e.target.files)}
-                />
-                <span className="inline-flex items-center gap-2 text-sm font-medium text-primary cursor-pointer">
-                  <Plus className="h-4 w-4" />
-                  {t('media.selectFiles')}
-                </span>
-              </label>
-            </div>
-
-            {product?.images && product.images.length > 0 && (
-              <div>
-                <p className="text-sm font-medium mb-2">{t('media.existing')}</p>
-                <div className="grid grid-cols-3 gap-3">
-                  {product.images.map((image) => (
-                    <div key={image.id} className="border rounded overflow-hidden">
-                      <img src={image.url} alt={image.filename} className="w-full h-32 object-cover" />
-                      <div className="px-2 py-1 text-xs truncate">{image.filename}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {newFiles.length > 0 && (
-              <div>
-                <p className="text-sm font-medium mb-2">{t('media.pending')}</p>
-                <ul className="space-y-1">
-                  {newFiles.map((file, idx) => (
-                    <li key={idx} className="flex items-center justify-between text-sm border rounded px-2 py-1">
-                      <span className="truncate">{file.name}</span>
-                      <Button variant="ghost" size="icon" onClick={() => handleRemoveNewFile(idx)}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </TabsContent>
-
           <TabsContent value="variants" className="space-y-3 overflow-y-auto pt-4">
             {!isPhysical && (
               <p className="text-xs text-muted-foreground">{t('variants.digitalHint')}</p>
@@ -427,6 +379,7 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
                       <Label htmlFor={`p-variant-${idx}-name`} className="text-xs">{t('variants.name')}</Label>
                       <Input
                         id={`p-variant-${idx}-name`}
+                        aria-required="true"
                         value={variant.name}
                         onChange={(e) => handleVariantChange(idx, { name: e.target.value })}
                         placeholder={t('variants.namePlaceholder')}
