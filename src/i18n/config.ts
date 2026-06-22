@@ -27,6 +27,7 @@ import ptBRCannedResponses from './locales/pt-BR/cannedResponses.json';
 import ptBRMessageTemplates from './locales/pt-BR/messageTemplates.json';
 import ptBRProducts from './locales/pt-BR/products.json';
 import ptBRCrmForms from './locales/pt-BR/crmForms.json';
+import ptBRChatPages from './locales/pt-BR/chatPages.json';
 import ptBRTemplates from './locales/pt-BR/templates.json';
 import ptBRCustomAttributes from './locales/pt-BR/customAttributes.json';
 import ptBRLabels from './locales/pt-BR/labels.json';
@@ -79,6 +80,7 @@ import ptCannedResponses from './locales/pt/cannedResponses.json';
 import ptMessageTemplates from './locales/pt/messageTemplates.json';
 import ptProducts from './locales/pt/products.json';
 import ptCrmForms from './locales/pt/crmForms.json';
+import ptChatPages from './locales/pt/chatPages.json';
 import ptTemplates from './locales/pt/templates.json';
 import ptCustomAttributes from './locales/pt/customAttributes.json';
 import ptLabels from './locales/pt/labels.json';
@@ -131,6 +133,7 @@ import enCannedResponses from './locales/en/cannedResponses.json';
 import enMessageTemplates from './locales/en/messageTemplates.json';
 import enProducts from './locales/en/products.json';
 import enCrmForms from './locales/en/crmForms.json';
+import enChatPages from './locales/en/chatPages.json';
 import enTemplates from './locales/en/templates.json';
 import enCustomAttributes from './locales/en/customAttributes.json';
 import enLabels from './locales/en/labels.json';
@@ -183,6 +186,7 @@ import esCannedResponses from './locales/es/cannedResponses.json';
 import esMessageTemplates from './locales/es/messageTemplates.json';
 import esProducts from './locales/es/products.json';
 import esCrmForms from './locales/es/crmForms.json';
+import esChatPages from './locales/es/chatPages.json';
 import esTemplates from './locales/es/templates.json';
 import esCustomAttributes from './locales/es/customAttributes.json';
 import esLabels from './locales/es/labels.json';
@@ -235,6 +239,7 @@ import frCannedResponses from './locales/fr/cannedResponses.json';
 import frMessageTemplates from './locales/fr/messageTemplates.json';
 import frProducts from './locales/fr/products.json';
 import frCrmForms from './locales/fr/crmForms.json';
+import frChatPages from './locales/fr/chatPages.json';
 import frTemplates from './locales/fr/templates.json';
 import frCustomAttributes from './locales/fr/customAttributes.json';
 import frLabels from './locales/fr/labels.json';
@@ -287,6 +292,7 @@ import itCannedResponses from './locales/it/cannedResponses.json';
 import itMessageTemplates from './locales/it/messageTemplates.json';
 import itProducts from './locales/it/products.json';
 import itCrmForms from './locales/it/crmForms.json';
+import itChatPages from './locales/it/chatPages.json';
 import itTemplates from './locales/it/templates.json';
 import itCustomAttributes from './locales/it/customAttributes.json';
 import itLabels from './locales/it/labels.json';
@@ -407,6 +413,7 @@ const resources = {
     messageTemplates: ptBRMessageTemplates,
     products: ptBRProducts,
     crmForms: ptBRCrmForms,
+    chatPages: ptBRChatPages,
     templates: ptBRTemplates,
     customAttributes: ptBRCustomAttributes,
     labels: ptBRLabels,
@@ -466,6 +473,7 @@ const resources = {
     messageTemplates: ptMessageTemplates,
     products: ptProducts,
     crmForms: ptCrmForms,
+    chatPages: ptChatPages,
     templates: ptTemplates,
     customAttributes: ptCustomAttributes,
     labels: ptLabels,
@@ -525,6 +533,7 @@ const resources = {
     messageTemplates: enMessageTemplates,
     products: enProducts,
     crmForms: enCrmForms,
+    chatPages: enChatPages,
     templates: enTemplates,
     customAttributes: enCustomAttributes,
     labels: enLabels,
@@ -584,6 +593,7 @@ const resources = {
     messageTemplates: esMessageTemplates,
     products: esProducts,
     crmForms: esCrmForms,
+    chatPages: esChatPages,
     templates: esTemplates,
     customAttributes: esCustomAttributes,
     labels: esLabels,
@@ -643,6 +653,7 @@ const resources = {
     messageTemplates: frMessageTemplates,
     products: frProducts,
     crmForms: frCrmForms,
+    chatPages: frChatPages,
     templates: frTemplates,
     customAttributes: frCustomAttributes,
     labels: frLabels,
@@ -702,6 +713,7 @@ const resources = {
     messageTemplates: itMessageTemplates,
     products: itProducts,
     crmForms: itCrmForms,
+    chatPages: itChatPages,
     templates: itTemplates,
     customAttributes: itCustomAttributes,
     labels: itLabels,

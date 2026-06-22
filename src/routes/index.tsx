@@ -64,6 +64,7 @@ import MessageTemplates from '@/pages/Customer/Settings/MessageTemplates';
 import { Macros } from '@/pages/Customer/Settings/Macros';
 import Products from '@/pages/Customer/Settings/Products';
 import CrmForms from '@/pages/Customer/Settings/CrmForms';
+import ChatPages from '@/pages/Customer/Settings/ChatPages';
 import Templates from '@/pages/Customer/Settings/Templates/Templates';
 import { Integrations } from '@/pages/Customer/Settings/Integrations';
 import EmailTemplateEditor from '@/pages/Customer/Settings/EmailTemplateEditor';
@@ -801,6 +802,21 @@ const AppRouter = () => {
                   <MainLayout>
                     <PermissionRoute resource="crm_forms" action="read">
                       <CrmForms />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/settings/chat-pages"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="chat_pages" action="read">
+                      <ChatPages />
                     </PermissionRoute>
                   </MainLayout>
                 </CustomerRoute>

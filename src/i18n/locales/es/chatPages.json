@@ -1,0 +1,81 @@
+{
+  "header": {
+    "title": "Páginas de chat",
+    "subtitle": "{{count}} página · enlace público de chat",
+    "subtitle_plural": "{{count}} páginas · enlaces públicos de chat",
+    "searchPlaceholder": "Buscar por título o slug…",
+    "newPage": "Nueva página"
+  },
+  "filter": {
+    "all": "Todos los estados",
+    "published": "Publicadas",
+    "draft": "Borradores"
+  },
+  "table": {
+    "name": "Nombre",
+    "publicLink": "Enlace público",
+    "widget": "Widget",
+    "status": "Estado",
+    "actions": "Acciones"
+  },
+  "status": {
+    "published": "Publicada",
+    "draft": "Borrador"
+  },
+  "empty": {
+    "title": "Aún no hay páginas de chat",
+    "titleFiltered": "No se encontraron páginas de chat",
+    "description": "Crea una página pública que incrusta un web widget en un enlace amigable.",
+    "descriptionFiltered": "Ajusta la búsqueda o el filtro de estado.",
+    "action": "Nueva página"
+  },
+  "actions": {
+    "edit": "editar",
+    "delete": "eliminar",
+    "linkCopied": "Enlace copiado."
+  },
+  "messages": {
+    "loadError": "No se pudieron cargar las páginas de chat.",
+    "saved": "Página de chat guardada.",
+    "saveError": "No se pudo guardar la página de chat.",
+    "deleted": "Página de chat eliminada.",
+    "deleteError": "No se pudo eliminar."
+  },
+  "delete": {
+    "title": "Eliminar página de chat",
+    "description": "¿Seguro que deseas eliminar «{{name}}»? Esta acción no se puede deshacer.",
+    "cancel": "Cancelar",
+    "confirm": "Eliminar"
+  },
+  "modal": {
+    "createTitle": "Nueva página de chat",
+    "editTitle": "Editar página de chat",
+    "sections": {
+      "basic": "Básico",
+      "widget": "Widget",
+      "appearance": "Apariencia"
+    },
+    "basic": {
+      "title": "Título público",
+      "titlePlaceholder": "p. ej.: Habla con nosotros",
+      "description": "Descripción",
+      "published": "Publicada"
+    },
+    "widget": {
+      "label": "Web widget",
+      "placeholder": "Selecciona un widget…",
+      "empty": "No se encontró ningún web widget. Crea primero una bandeja de web widget.",
+      "unknown": "Widget actual (no listado)"
+    },
+    "appearance": {
+      "primaryColor": "Color primario",
+      "logoUrl": "URL del logo"
+    },
+    "errors": {
+      "widget": "Selecciona el web widget a incrustar."
+    },
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando…"
+  }
+}

@@ -118,7 +118,8 @@
       "roles": "Perfiles y Permisos",
       "admin": "Configuración Admin",
       "segments": "Segmentos",
-      "crmForms": "Formularios de captación"
+      "crmForms": "Formularios de captación",
+      "chatPages": "Páginas de chat"
     }
   }
 }

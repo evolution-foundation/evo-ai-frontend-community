@@ -250,6 +250,13 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         action: 'read',
       },
       {
+        name: t('menu.settings.chatPages'),
+        href: '/settings/chat-pages',
+        icon: MessageSquare,
+        resource: 'chat_pages',
+        action: 'read',
+      },
+      {
         name: t('menu.settings.templates'),
         href: '/settings/templates',
         icon: Package,

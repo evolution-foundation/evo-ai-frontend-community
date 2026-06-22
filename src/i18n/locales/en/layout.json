@@ -118,7 +118,8 @@
       "roles": "Roles & Permissions",
       "admin": "Admin Settings",
       "segments": "Segments",
-      "crmForms": "Lead capture forms"
+      "crmForms": "Lead capture forms",
+      "chatPages": "Chat pages"
     }
   }
 }
