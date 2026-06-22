@@ -1,0 +1,138 @@
+{
+  "header": {
+    "title": "Formulários de captura",
+    "subtitle": "{{count}} formulário · geram leads no pipeline",
+    "subtitle_plural": "{{count}} formulários · geram leads no pipeline",
+    "searchPlaceholder": "Buscar por nome, título ou slug…",
+    "newForm": "Novo formulário"
+  },
+  "filter": {
+    "all": "Todos os status",
+    "published": "Publicados",
+    "draft": "Rascunhos"
+  },
+  "table": {
+    "name": "Nome",
+    "publicLink": "Link público",
+    "status": "Status",
+    "leads": "Leads",
+    "actions": "Ações"
+  },
+  "status": {
+    "published": "Publicado",
+    "draft": "Rascunho"
+  },
+  "empty": {
+    "title": "Nenhum formulário ainda",
+    "titleFiltered": "Nenhum formulário encontrado",
+    "description": "Crie formulários públicos que geram leads no pipeline.",
+    "descriptionFiltered": "Ajuste a busca ou o filtro de status.",
+    "action": "Novo formulário"
+  },
+  "actions": {
+    "edit": "editar",
+    "delete": "excluir",
+    "linkCopied": "Link copiado."
+  },
+  "messages": {
+    "loadError": "Erro ao carregar formulários.",
+    "saved": "Formulário salvo.",
+    "saveError": "Erro ao salvar formulário.",
+    "deleted": "Formulário excluído.",
+    "deleteError": "Erro ao excluir.",
+    "leadsError": "Erro ao carregar leads."
+  },
+  "delete": {
+    "title": "Excluir formulário",
+    "description": "Tem certeza que deseja excluir “{{name}}”? Esta ação não pode ser desfeita.",
+    "cancel": "Cancelar",
+    "confirm": "Excluir"
+  },
+  "leads": {
+    "title": "Leads — {{name}}",
+    "empty": "Nenhum lead capturado ainda.",
+    "contact": "Contato",
+    "destination": "Destino",
+    "date": "Data"
+  },
+  "modal": {
+    "createTitle": "Novo formulário",
+    "editTitle": "Editar formulário",
+    "sections": {
+      "basic": "Básico",
+      "appearance": "Aparência",
+      "fields": "Campos",
+      "defaultDestination": "Destino padrão",
+      "routing": "Regras de roteamento"
+    },
+    "basic": {
+      "name": "Nome (interno)",
+      "namePlaceholder": "Ex.: Contato site",
+      "title": "Título público",
+      "titlePlaceholder": "Ex.: Fale com a gente",
+      "description": "Descrição",
+      "published": "Publicado"
+    },
+    "appearance": {
+      "primaryColor": "Cor primária",
+      "logoUrl": "URL do logo",
+      "successMessage": "Mensagem de sucesso"
+    },
+    "fields": {
+      "add": "Campo",
+      "key": "key",
+      "label": "label",
+      "required": "obrig.",
+      "mapTo": "mapear para…",
+      "optionsPlaceholder": "Opções separadas por vírgula",
+      "remove": "remover campo",
+      "type": "Tipo"
+    },
+    "targets": {
+      "none": "— sem mapeamento —",
+      "groupContact": "Contato",
+      "groupContactCustom": "Contato — campos personalizados",
+      "groupDeal": "Negócio",
+      "groupDealCustom": "Negócio — campos personalizados",
+      "contactName": "Nome",
+      "contactEmail": "E-mail",
+      "contactPhone": "Telefone",
+      "contactCompany": "Empresa",
+      "dealValue": "Valor"
+    },
+    "destination": {
+      "pipeline": "Pipeline…",
+      "stage": "Estágio…",
+      "stageNone": "— nenhum —"
+    },
+    "routing": {
+      "add": "Regra",
+      "field": "campo…",
+      "value": "valor",
+      "pipeline": "pipeline…",
+      "stage": "estágio…",
+      "remove": "remover regra"
+    },
+    "errors": {
+      "name": "Informe o nome do formulário.",
+      "pipeline": "Selecione o pipeline padrão.",
+      "email": "Inclua um campo mapeado para o e-mail do contato.",
+      "nameField": "Inclua um campo mapeado para o nome do contato.",
+      "fieldKey": "Todo campo precisa de uma chave (key)."
+    },
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "saving": "Salvando…"
+  },
+  "public": {
+    "loadError": "Não foi possível carregar o formulário. Tente novamente.",
+    "notFoundTitle": "Formulário não encontrado",
+    "notFoundDescription": "O link pode estar incorreto ou indisponível.",
+    "requiredField": "{{label}} é obrigatório",
+    "submitError": "Não foi possível enviar. Verifique os campos e tente novamente.",
+    "selectPlaceholder": "Selecione...",
+    "successMessage": "Recebemos seus dados. Obrigado!",
+    "submit": "Enviar",
+    "submitting": "Enviando..."
+  }
+}

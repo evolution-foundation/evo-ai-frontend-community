@@ -26,6 +26,8 @@ import MondayCallback from '@/pages/MondayCallback';
 import AtlassianCallback from '@/pages/AtlassianCallback';
 import MicrosoftCallback from '@/pages/MicrosoftCallback';
 import SurveyResponse from '@/pages/Public/Survey/SurveyResponse';
+import PublicChatPage from '@/pages/Public/Chat/ChatPage';
+import FormPage from '@/pages/Public/Form/FormPage';
 
 // Páginas customer
 import Dashboard from '@/pages/Customer/Dashboard';
@@ -61,6 +63,8 @@ import CannedResponses from '@/pages/Customer/Settings/CannedResponses';
 import MessageTemplates from '@/pages/Customer/Settings/MessageTemplates';
 import { Macros } from '@/pages/Customer/Settings/Macros';
 import Products, { ProductsImport } from '@/pages/Customer/Settings/Products';
+import CrmForms from '@/pages/Customer/Settings/CrmForms';
+import ChatPages from '@/pages/Customer/Settings/ChatPages';
 import Templates from '@/pages/Customer/Settings/Templates/Templates';
 import { Integrations } from '@/pages/Customer/Settings/Integrations';
 import EmailTemplateEditor from '@/pages/Customer/Settings/EmailTemplateEditor';
@@ -371,6 +375,26 @@ const AppRouter = () => {
             element={
               <PublicRoute>
                 <SurveyResponse />
+              </PublicRoute>
+            }
+          />
+
+          {/* Public lead-capture form route (B14.02) */}
+          <Route
+            path="/f/:slug"
+            element={
+              <PublicRoute>
+                <FormPage />
+              </PublicRoute>
+            }
+          />
+
+          {/* Public chat page route (B14.03) */}
+          <Route
+            path="/chat/:slug"
+            element={
+              <PublicRoute>
+                <PublicChatPage />
               </PublicRoute>
             }
           />
@@ -763,6 +787,36 @@ const AppRouter = () => {
                   <MainLayout>
                     <PermissionRoute resource="products" action="read">
                       <Products />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/settings/crm-forms"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="crm_forms" action="read">
+                      <CrmForms />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/settings/chat-pages"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="chat_pages" action="read">
+                      <ChatPages />
                     </PermissionRoute>
                   </MainLayout>
                 </CustomerRoute>

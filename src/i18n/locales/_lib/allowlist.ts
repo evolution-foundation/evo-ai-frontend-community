@@ -135,6 +135,12 @@ export const PER_FILE_ALLOWED: Record<string, Set<string>> = {
     'AI Assistant Agent', 'Customer Support Bot', 'Data Analysis Agent',
   ]),
   'pipelines.json': new Set(['Euro (EUR)']),
+  'crmForms.json': new Set([
+    'Leads', 'Leads — {{name}}', 'E-mail', 'Pipeline…', 'pipeline…', 'key', 'label',
+  ]),
+  'chatPages.json': new Set([
+    'Widget', 'Web widget',
+  ]),
   'profile.json': new Set(['Enter (↵)', 'Cmd + Enter (⌘ + ↵)']),
   'sms.json': new Set([
     'SMS via {{provider}}', 'SMS {{provider}}', 'Account SID', 'Auth Token',

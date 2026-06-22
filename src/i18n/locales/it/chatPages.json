@@ -1,0 +1,85 @@
+{
+  "header": {
+    "title": "Pagine di chat",
+    "subtitle": "{{count}} pagina · link pubblico di chat",
+    "subtitle_plural": "{{count}} pagine · link pubblici di chat",
+    "searchPlaceholder": "Cerca per titolo o slug…",
+    "newPage": "Nuova pagina"
+  },
+  "filter": {
+    "all": "Tutti gli stati",
+    "published": "Pubblicate",
+    "draft": "Bozze"
+  },
+  "table": {
+    "name": "Nome",
+    "publicLink": "Link pubblico",
+    "widget": "Widget",
+    "status": "Stato",
+    "actions": "Azioni"
+  },
+  "status": {
+    "published": "Pubblicata",
+    "draft": "Bozza"
+  },
+  "empty": {
+    "title": "Ancora nessuna pagina di chat",
+    "titleFiltered": "Nessuna pagina di chat trovata",
+    "description": "Crea una pagina pubblica che incorpora un web widget con un link semplice.",
+    "descriptionFiltered": "Modifica la ricerca o il filtro di stato.",
+    "action": "Nuova pagina"
+  },
+  "actions": {
+    "edit": "modifica",
+    "delete": "elimina",
+    "linkCopied": "Link copiato."
+  },
+  "messages": {
+    "loadError": "Impossibile caricare le pagine di chat.",
+    "saved": "Pagina di chat salvata.",
+    "saveError": "Impossibile salvare la pagina di chat.",
+    "deleted": "Pagina di chat eliminata.",
+    "deleteError": "Impossibile eliminare."
+  },
+  "delete": {
+    "title": "Elimina pagina di chat",
+    "description": "Vuoi davvero eliminare «{{name}}»? Questa azione non può essere annullata.",
+    "cancel": "Annulla",
+    "confirm": "Elimina"
+  },
+  "modal": {
+    "createTitle": "Nuova pagina di chat",
+    "editTitle": "Modifica pagina di chat",
+    "sections": {
+      "basic": "Base",
+      "widget": "Widget",
+      "appearance": "Aspetto"
+    },
+    "basic": {
+      "title": "Titolo pubblico",
+      "titlePlaceholder": "es.: Parla con noi",
+      "description": "Descrizione",
+      "published": "Pubblicata"
+    },
+    "widget": {
+      "label": "Web widget",
+      "placeholder": "Seleziona un widget…",
+      "empty": "Nessun web widget trovato. Crea prima una casella web widget.",
+      "unknown": "Widget attuale (non elencato)"
+    },
+    "appearance": {
+      "primaryColor": "Colore primario",
+      "logoUrl": "URL del logo"
+    },
+    "errors": {
+      "widget": "Seleziona il web widget da incorporare."
+    },
+    "cancel": "Annulla",
+    "save": "Salva",
+    "saving": "Salvataggio…"
+  },
+  "public": {
+    "notFoundTitle": "Pagina di chat non trovata",
+    "notFoundDescription": "Il link potrebbe essere errato o non disponibile."
+  }
+}

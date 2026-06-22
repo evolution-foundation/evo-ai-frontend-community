@@ -1,0 +1,85 @@
+{
+  "header": {
+    "title": "Páginas de chat",
+    "subtitle": "{{count}} página · link público de chat",
+    "subtitle_plural": "{{count}} páginas · links públicos de chat",
+    "searchPlaceholder": "Buscar por título ou slug…",
+    "newPage": "Nova página"
+  },
+  "filter": {
+    "all": "Todos os status",
+    "published": "Publicadas",
+    "draft": "Rascunhos"
+  },
+  "table": {
+    "name": "Nome",
+    "publicLink": "Link público",
+    "widget": "Widget",
+    "status": "Status",
+    "actions": "Ações"
+  },
+  "status": {
+    "published": "Publicada",
+    "draft": "Rascunho"
+  },
+  "empty": {
+    "title": "Nenhuma página de chat ainda",
+    "titleFiltered": "Nenhuma página de chat encontrada",
+    "description": "Crie uma página pública que embute um web widget num link amigável.",
+    "descriptionFiltered": "Ajuste a busca ou o filtro de status.",
+    "action": "Nova página"
+  },
+  "actions": {
+    "edit": "editar",
+    "delete": "excluir",
+    "linkCopied": "Link copiado."
+  },
+  "messages": {
+    "loadError": "Falha ao carregar as páginas de chat.",
+    "saved": "Página de chat salva.",
+    "saveError": "Falha ao salvar a página de chat.",
+    "deleted": "Página de chat excluída.",
+    "deleteError": "Falha ao excluir."
+  },
+  "delete": {
+    "title": "Excluir página de chat",
+    "description": "Tem certeza de que deseja excluir “{{name}}”? Esta ação não pode ser desfeita.",
+    "cancel": "Cancelar",
+    "confirm": "Excluir"
+  },
+  "modal": {
+    "createTitle": "Nova página de chat",
+    "editTitle": "Editar página de chat",
+    "sections": {
+      "basic": "Básico",
+      "widget": "Widget",
+      "appearance": "Aparência"
+    },
+    "basic": {
+      "title": "Título público",
+      "titlePlaceholder": "ex.: Fale com a gente",
+      "description": "Descrição",
+      "published": "Publicada"
+    },
+    "widget": {
+      "label": "Web widget",
+      "placeholder": "Selecione um widget…",
+      "empty": "Nenhum web widget encontrado. Crie um inbox de web widget primeiro.",
+      "unknown": "Widget atual (não listado)"
+    },
+    "appearance": {
+      "primaryColor": "Cor primária",
+      "logoUrl": "URL do logo"
+    },
+    "errors": {
+      "widget": "Selecione o web widget a embutir."
+    },
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "saving": "Salvando…"
+  },
+  "public": {
+    "notFoundTitle": "Página de chat não encontrada",
+    "notFoundDescription": "O link pode estar incorreto ou indisponível."
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "header": {
+    "title": "Chat pages",
+    "subtitle": "{{count}} page · public chat link",
+    "subtitle_plural": "{{count}} pages · public chat links",
+    "searchPlaceholder": "Search by title or slug…",
+    "newPage": "New page"
+  },
+  "filter": {
+    "all": "All statuses",
+    "published": "Published",
+    "draft": "Drafts"
+  },
+  "table": {
+    "name": "Name",
+    "publicLink": "Public link",
+    "widget": "Widget",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "status": {
+    "published": "Published",
+    "draft": "Draft"
+  },
+  "empty": {
+    "title": "No chat pages yet",
+    "titleFiltered": "No chat pages found",
+    "description": "Create a public page that embeds a web widget at a friendly link.",
+    "descriptionFiltered": "Adjust the search or the status filter.",
+    "action": "New page"
+  },
+  "actions": {
+    "edit": "edit",
+    "delete": "delete",
+    "linkCopied": "Link copied."
+  },
+  "messages": {
+    "loadError": "Failed to load chat pages.",
+    "saved": "Chat page saved.",
+    "saveError": "Failed to save chat page.",
+    "deleted": "Chat page deleted.",
+    "deleteError": "Failed to delete."
+  },
+  "delete": {
+    "title": "Delete chat page",
+    "description": "Are you sure you want to delete “{{name}}”? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete"
+  },
+  "modal": {
+    "createTitle": "New chat page",
+    "editTitle": "Edit chat page",
+    "sections": {
+      "basic": "Basic",
+      "widget": "Widget",
+      "appearance": "Appearance"
+    },
+    "basic": {
+      "title": "Public title",
+      "titlePlaceholder": "e.g. Talk to us",
+      "description": "Description",
+      "published": "Published"
+    },
+    "widget": {
+      "label": "Web widget",
+      "placeholder": "Select a widget…",
+      "empty": "No web widget found. Create a web widget inbox first.",
+      "unknown": "Current widget (unlisted)"
+    },
+    "appearance": {
+      "primaryColor": "Primary color",
+      "logoUrl": "Logo URL"
+    },
+    "errors": {
+      "widget": "Select the web widget to embed."
+    },
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…"
+  },
+  "public": {
+    "notFoundTitle": "Chat page not found",
+    "notFoundDescription": "The link may be incorrect or unavailable."
+  }
+}

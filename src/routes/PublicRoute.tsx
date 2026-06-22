@@ -38,8 +38,14 @@ const PublicRoute = ({ children }: PublicRouteProps) => {
   // Redirecionar para página inicial se já estiver autenticado
   // EXCEPT when there are OAuth parameters, specific OAuth routes, widget route, or survey route
   if (isAuthenticated) {
-    // Widget and Survey should always be accessible regardless of auth status
-    if (location.pathname === '/widget' || location.pathname.startsWith('/survey/responses/')) {
+    // Widget, Survey and the anonymous public pages (lead-capture form /f/:slug
+    // and chat /chat/:slug) should always be accessible regardless of auth status
+    if (
+      location.pathname === '/widget' ||
+      location.pathname.startsWith('/survey/responses/') ||
+      location.pathname.startsWith('/f/') ||
+      location.pathname.startsWith('/chat/')
+    ) {
       return <>{children}</>;
     }
 

@@ -1,0 +1,138 @@
+{
+  "header": {
+    "title": "Moduli di acquisizione",
+    "subtitle": "{{count}} modulo · genera lead nella pipeline",
+    "subtitle_plural": "{{count}} moduli · generano lead nella pipeline",
+    "searchPlaceholder": "Cerca per nome, titolo o slug…",
+    "newForm": "Nuovo modulo"
+  },
+  "filter": {
+    "all": "Tutti gli stati",
+    "published": "Pubblicati",
+    "draft": "Bozze"
+  },
+  "table": {
+    "name": "Nome",
+    "publicLink": "Link pubblico",
+    "status": "Stato",
+    "leads": "Lead",
+    "actions": "Azioni"
+  },
+  "status": {
+    "published": "Pubblicato",
+    "draft": "Bozza"
+  },
+  "empty": {
+    "title": "Ancora nessun modulo",
+    "titleFiltered": "Nessun modulo trovato",
+    "description": "Crea moduli pubblici che generano lead nella pipeline.",
+    "descriptionFiltered": "Modifica la ricerca o il filtro di stato.",
+    "action": "Nuovo modulo"
+  },
+  "actions": {
+    "edit": "modifica",
+    "delete": "elimina",
+    "linkCopied": "Link copiato."
+  },
+  "messages": {
+    "loadError": "Errore nel caricamento dei moduli.",
+    "saved": "Modulo salvato.",
+    "saveError": "Errore nel salvataggio del modulo.",
+    "deleted": "Modulo eliminato.",
+    "deleteError": "Errore nell'eliminazione.",
+    "leadsError": "Errore nel caricamento dei lead."
+  },
+  "delete": {
+    "title": "Elimina modulo",
+    "description": "Sei sicuro di voler eliminare “{{name}}”? Questa azione non può essere annullata.",
+    "cancel": "Annulla",
+    "confirm": "Elimina"
+  },
+  "leads": {
+    "title": "Lead — {{name}}",
+    "empty": "Ancora nessun lead acquisito.",
+    "contact": "Contatto",
+    "destination": "Destinazione",
+    "date": "Data"
+  },
+  "modal": {
+    "createTitle": "Nuovo modulo",
+    "editTitle": "Modifica modulo",
+    "sections": {
+      "basic": "Generale",
+      "appearance": "Aspetto",
+      "fields": "Campi",
+      "defaultDestination": "Destinazione predefinita",
+      "routing": "Regole di instradamento"
+    },
+    "basic": {
+      "name": "Nome (interno)",
+      "namePlaceholder": "Es.: Contatto sito",
+      "title": "Titolo pubblico",
+      "titlePlaceholder": "Es.: Parla con noi",
+      "description": "Descrizione",
+      "published": "Pubblicato"
+    },
+    "appearance": {
+      "primaryColor": "Colore primario",
+      "logoUrl": "URL del logo",
+      "successMessage": "Messaggio di successo"
+    },
+    "fields": {
+      "add": "Campo",
+      "key": "key",
+      "label": "label",
+      "required": "obblig.",
+      "mapTo": "mappa su…",
+      "optionsPlaceholder": "Opzioni separate da virgola",
+      "remove": "rimuovi campo",
+      "type": "Tipo"
+    },
+    "targets": {
+      "none": "— nessuna mappatura —",
+      "groupContact": "Contatto",
+      "groupContactCustom": "Contatto — campi personalizzati",
+      "groupDeal": "Trattativa",
+      "groupDealCustom": "Trattativa — campi personalizzati",
+      "contactName": "Nome",
+      "contactEmail": "E-mail",
+      "contactPhone": "Telefono",
+      "contactCompany": "Azienda",
+      "dealValue": "Valore"
+    },
+    "destination": {
+      "pipeline": "Pipeline…",
+      "stage": "Fase…",
+      "stageNone": "— nessuna —"
+    },
+    "routing": {
+      "add": "Regola",
+      "field": "campo…",
+      "value": "valore",
+      "pipeline": "pipeline…",
+      "stage": "fase…",
+      "remove": "rimuovi regola"
+    },
+    "errors": {
+      "name": "Indica il nome del modulo.",
+      "pipeline": "Seleziona la pipeline predefinita.",
+      "email": "Includi un campo mappato sull'e-mail del contatto.",
+      "nameField": "Includi un campo mappato sul nome del contatto.",
+      "fieldKey": "Ogni campo necessita di una chiave (key)."
+    },
+    "cancel": "Annulla",
+    "save": "Salva",
+    "saving": "Salvataggio…"
+  },
+  "public": {
+    "loadError": "Impossibile caricare il modulo. Riprova.",
+    "notFoundTitle": "Modulo non trovato",
+    "notFoundDescription": "Il link potrebbe essere errato o non disponibile.",
+    "requiredField": "{{label}} è obbligatorio",
+    "submitError": "Impossibile inviare. Controlla i campi e riprova.",
+    "selectPlaceholder": "Seleziona...",
+    "successMessage": "Abbiamo ricevuto i tuoi dati. Grazie!",
+    "submit": "Invia",
+    "submitting": "Invio..."
+  }
+}

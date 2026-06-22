@@ -4,6 +4,7 @@ import { useAuthStore } from '@/store/authStore';
 import { usePermissionsConfig } from '@/hooks/usePermissionsConfig';
 import { permissionsService } from '@/services/permissions';
 import { PermissionsContext } from '@/contexts/PermissionsContext';
+import { ROLE_KEYS } from '@/constants/roles';
 
 /**
  * Hook para verificar permissões do usuário logado
@@ -15,6 +16,21 @@ import { PermissionsContext } from '@/contexts/PermissionsContext';
  */
 export const useUserPermissions = () => {
   const { user } = useAuth();
+  // Super admin (installation owner) bypasses granular permission checks — full
+  // access. This is an INTENTIONAL, app-wide policy decision (product owner): the
+  // installation owner always sees the full UI.
+  //
+  // It mirrors server truth rather than diverging from it: super_admin is granted
+  // every resource action server-side via the RBAC seed/backfill migrations, so
+  // the backend will not 403 the actions this bypass renders. (If a fresh
+  // permission set ships without its backfill, that gap is a deploy-ordering bug
+  // to fix at the source — see the auth `*_permissions_to_existing_roles`
+  // migrations — not something to paper over by tightening this client gate.)
+  //
+  // Two implications callers should know: (1) `can/canAny/canAll` short-circuit to
+  // true for super_admin; (2) `isReady` is true immediately for super_admin
+  // (below), so super_admin-gated UI does not wait on the permissions fetch.
+  const isSuperAdmin = user?.role?.key === ROLE_KEYS.SUPER_ADMIN;
   const {
     isValidPermission,
     createPermission,
@@ -129,6 +145,7 @@ export const useUserPermissions = () => {
    * @returns boolean
    */
   const can = (resource: string, action: string, type: 'account' | 'user' = 'account'): boolean => {
+    if (isSuperAdmin) return true;
     const permission = createPermission(resource, action);
     const permissionsArray =
       type === 'user' ? effectiveUserPermissions : effectiveAccountPermissions;
@@ -173,6 +190,7 @@ export const useUserPermissions = () => {
    * @returns boolean
    */
   const canAny = (permissions: string[], type: 'account' | 'user' = 'account'): boolean => {
+    if (isSuperAdmin) return true;
     const permissionsArray =
       type === 'user' ? effectiveUserPermissions : effectiveAccountPermissions;
 
@@ -199,6 +217,7 @@ export const useUserPermissions = () => {
    * @returns boolean
    */
   const canAll = (permissions: string[], type: 'account' | 'user' = 'account'): boolean => {
+    if (isSuperAdmin) return true;
     const permissionsArray =
       type === 'user' ? effectiveUserPermissions : effectiveAccountPermissions;
 
@@ -228,6 +247,7 @@ export const useUserPermissions = () => {
    * Isso garante que isValidPermission() funcione corretamente
    */
   const isReady =
+    isSuperAdmin ||
     (!configLoading &&
       !effectiveLoading &&
       effectiveAccountPermissions.length > 0);

@@ -1,0 +1,85 @@
+{
+  "header": {
+    "title": "Pages de chat",
+    "subtitle": "{{count}} page · lien de chat public",
+    "subtitle_plural": "{{count}} pages · liens de chat publics",
+    "searchPlaceholder": "Rechercher par titre ou slug…",
+    "newPage": "Nouvelle page"
+  },
+  "filter": {
+    "all": "Tous les statuts",
+    "published": "Publiées",
+    "draft": "Brouillons"
+  },
+  "table": {
+    "name": "Nom",
+    "publicLink": "Lien public",
+    "widget": "Widget",
+    "status": "Statut",
+    "actions": "Actions"
+  },
+  "status": {
+    "published": "Publiée",
+    "draft": "Brouillon"
+  },
+  "empty": {
+    "title": "Aucune page de chat pour l’instant",
+    "titleFiltered": "Aucune page de chat trouvée",
+    "description": "Créez une page publique qui intègre un web widget via un lien convivial.",
+    "descriptionFiltered": "Ajustez la recherche ou le filtre de statut.",
+    "action": "Nouvelle page"
+  },
+  "actions": {
+    "edit": "modifier",
+    "delete": "supprimer",
+    "linkCopied": "Lien copié."
+  },
+  "messages": {
+    "loadError": "Échec du chargement des pages de chat.",
+    "saved": "Page de chat enregistrée.",
+    "saveError": "Échec de l’enregistrement de la page de chat.",
+    "deleted": "Page de chat supprimée.",
+    "deleteError": "Échec de la suppression."
+  },
+  "delete": {
+    "title": "Supprimer la page de chat",
+    "description": "Voulez-vous vraiment supprimer « {{name}} » ? Cette action est irréversible.",
+    "cancel": "Annuler",
+    "confirm": "Supprimer"
+  },
+  "modal": {
+    "createTitle": "Nouvelle page de chat",
+    "editTitle": "Modifier la page de chat",
+    "sections": {
+      "basic": "Général",
+      "widget": "Widget",
+      "appearance": "Apparence"
+    },
+    "basic": {
+      "title": "Titre public",
+      "titlePlaceholder": "ex. : Parlez-nous",
+      "description": "Description",
+      "published": "Publiée"
+    },
+    "widget": {
+      "label": "Web widget",
+      "placeholder": "Sélectionnez un widget…",
+      "empty": "Aucun web widget trouvé. Créez d’abord une boîte de réception web widget.",
+      "unknown": "Widget actuel (non listé)"
+    },
+    "appearance": {
+      "primaryColor": "Couleur primaire",
+      "logoUrl": "URL du logo"
+    },
+    "errors": {
+      "widget": "Sélectionnez le web widget à intégrer."
+    },
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…"
+  },
+  "public": {
+    "notFoundTitle": "Page de chat introuvable",
+    "notFoundDescription": "Le lien est peut-être incorrect ou indisponible."
+  }
+}

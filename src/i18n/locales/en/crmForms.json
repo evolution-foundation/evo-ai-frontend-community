@@ -1,0 +1,138 @@
+{
+  "header": {
+    "title": "Lead capture forms",
+    "subtitle": "{{count}} form · generates leads in the pipeline",
+    "subtitle_plural": "{{count}} forms · generate leads in the pipeline",
+    "searchPlaceholder": "Search by name, title or slug…",
+    "newForm": "New form"
+  },
+  "filter": {
+    "all": "All statuses",
+    "published": "Published",
+    "draft": "Drafts"
+  },
+  "table": {
+    "name": "Name",
+    "publicLink": "Public link",
+    "status": "Status",
+    "leads": "Leads",
+    "actions": "Actions"
+  },
+  "status": {
+    "published": "Published",
+    "draft": "Draft"
+  },
+  "empty": {
+    "title": "No forms yet",
+    "titleFiltered": "No forms found",
+    "description": "Create public forms that generate leads in the pipeline.",
+    "descriptionFiltered": "Adjust the search or the status filter.",
+    "action": "New form"
+  },
+  "actions": {
+    "edit": "edit",
+    "delete": "delete",
+    "linkCopied": "Link copied."
+  },
+  "messages": {
+    "loadError": "Failed to load forms.",
+    "saved": "Form saved.",
+    "saveError": "Failed to save form.",
+    "deleted": "Form deleted.",
+    "deleteError": "Failed to delete.",
+    "leadsError": "Failed to load leads."
+  },
+  "delete": {
+    "title": "Delete form",
+    "description": "Are you sure you want to delete “{{name}}”? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete"
+  },
+  "leads": {
+    "title": "Leads — {{name}}",
+    "empty": "No leads captured yet.",
+    "contact": "Contact",
+    "destination": "Destination",
+    "date": "Date"
+  },
+  "modal": {
+    "createTitle": "New form",
+    "editTitle": "Edit form",
+    "sections": {
+      "basic": "Basic",
+      "appearance": "Appearance",
+      "fields": "Fields",
+      "defaultDestination": "Default destination",
+      "routing": "Routing rules"
+    },
+    "basic": {
+      "name": "Name (internal)",
+      "namePlaceholder": "e.g. Website contact",
+      "title": "Public title",
+      "titlePlaceholder": "e.g. Talk to us",
+      "description": "Description",
+      "published": "Published"
+    },
+    "appearance": {
+      "primaryColor": "Primary color",
+      "logoUrl": "Logo URL",
+      "successMessage": "Success message"
+    },
+    "fields": {
+      "add": "Field",
+      "key": "key",
+      "label": "label",
+      "required": "req.",
+      "mapTo": "map to…",
+      "optionsPlaceholder": "Comma-separated options",
+      "remove": "remove field",
+      "type": "Type"
+    },
+    "targets": {
+      "none": "— no mapping —",
+      "groupContact": "Contact",
+      "groupContactCustom": "Contact — custom fields",
+      "groupDeal": "Deal",
+      "groupDealCustom": "Deal — custom fields",
+      "contactName": "Name",
+      "contactEmail": "E-mail",
+      "contactPhone": "Phone",
+      "contactCompany": "Company",
+      "dealValue": "Value"
+    },
+    "destination": {
+      "pipeline": "Pipeline…",
+      "stage": "Stage…",
+      "stageNone": "— none —"
+    },
+    "routing": {
+      "add": "Rule",
+      "field": "field…",
+      "value": "value",
+      "pipeline": "pipeline…",
+      "stage": "stage…",
+      "remove": "remove rule"
+    },
+    "errors": {
+      "name": "Enter the form name.",
+      "pipeline": "Select the default pipeline.",
+      "email": "Include a field mapped to the contact e-mail.",
+      "nameField": "Include a field mapped to the contact name.",
+      "fieldKey": "Every field needs a key."
+    },
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…"
+  },
+  "public": {
+    "loadError": "Could not load the form. Please try again.",
+    "notFoundTitle": "Form not found",
+    "notFoundDescription": "The link may be incorrect or unavailable.",
+    "requiredField": "{{label}} is required",
+    "submitError": "Could not submit. Check the fields and try again.",
+    "selectPlaceholder": "Select...",
+    "successMessage": "We received your information. Thank you!",
+    "submit": "Submit",
+    "submitting": "Submitting..."
+  }
+}

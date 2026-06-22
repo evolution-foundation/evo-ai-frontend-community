@@ -27,6 +27,7 @@ import {
   Megaphone,
   Route,
   ShieldCheck,
+  FileText,
 } from 'lucide-react';
 
 export interface MenuItem {
@@ -239,6 +240,20 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         href: '/settings/macros',
         icon: Settings,
         resource: 'macros',
+        action: 'read',
+      },
+      {
+        name: t('menu.settings.crmForms'),
+        href: '/settings/crm-forms',
+        icon: FileText,
+        resource: 'crm_forms',
+        action: 'read',
+      },
+      {
+        name: t('menu.settings.chatPages'),
+        href: '/settings/chat-pages',
+        icon: MessageSquare,
+        resource: 'chat_pages',
         action: 'read',
       },
       {

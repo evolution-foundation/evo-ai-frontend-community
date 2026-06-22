@@ -1,0 +1,138 @@
+{
+  "header": {
+    "title": "Formulaires de capture",
+    "subtitle": "{{count}} formulaire · génère des leads dans le pipeline",
+    "subtitle_plural": "{{count}} formulaires · génèrent des leads dans le pipeline",
+    "searchPlaceholder": "Rechercher par nom, titre ou slug…",
+    "newForm": "Nouveau formulaire"
+  },
+  "filter": {
+    "all": "Tous les statuts",
+    "published": "Publiés",
+    "draft": "Brouillons"
+  },
+  "table": {
+    "name": "Nom",
+    "publicLink": "Lien public",
+    "status": "Statut",
+    "leads": "Leads",
+    "actions": "Actions"
+  },
+  "status": {
+    "published": "Publié",
+    "draft": "Brouillon"
+  },
+  "empty": {
+    "title": "Aucun formulaire pour le moment",
+    "titleFiltered": "Aucun formulaire trouvé",
+    "description": "Créez des formulaires publics qui génèrent des leads dans le pipeline.",
+    "descriptionFiltered": "Ajustez la recherche ou le filtre de statut.",
+    "action": "Nouveau formulaire"
+  },
+  "actions": {
+    "edit": "modifier",
+    "delete": "supprimer",
+    "linkCopied": "Lien copié."
+  },
+  "messages": {
+    "loadError": "Échec du chargement des formulaires.",
+    "saved": "Formulaire enregistré.",
+    "saveError": "Échec de l'enregistrement du formulaire.",
+    "deleted": "Formulaire supprimé.",
+    "deleteError": "Échec de la suppression.",
+    "leadsError": "Échec du chargement des leads."
+  },
+  "delete": {
+    "title": "Supprimer le formulaire",
+    "description": "Voulez-vous vraiment supprimer « {{name}} » ? Cette action est irréversible.",
+    "cancel": "Annuler",
+    "confirm": "Supprimer"
+  },
+  "leads": {
+    "title": "Leads — {{name}}",
+    "empty": "Aucun lead capturé pour le moment.",
+    "contact": "Contact",
+    "destination": "Destination",
+    "date": "Date"
+  },
+  "modal": {
+    "createTitle": "Nouveau formulaire",
+    "editTitle": "Modifier le formulaire",
+    "sections": {
+      "basic": "Général",
+      "appearance": "Apparence",
+      "fields": "Champs",
+      "defaultDestination": "Destination par défaut",
+      "routing": "Règles de routage"
+    },
+    "basic": {
+      "name": "Nom (interne)",
+      "namePlaceholder": "Ex. : Contact site",
+      "title": "Titre public",
+      "titlePlaceholder": "Ex. : Contactez-nous",
+      "description": "Description",
+      "published": "Publié"
+    },
+    "appearance": {
+      "primaryColor": "Couleur principale",
+      "logoUrl": "URL du logo",
+      "successMessage": "Message de succès"
+    },
+    "fields": {
+      "add": "Champ",
+      "key": "key",
+      "label": "label",
+      "required": "oblig.",
+      "mapTo": "associer à…",
+      "optionsPlaceholder": "Options séparées par des virgules",
+      "remove": "supprimer le champ",
+      "type": "Type"
+    },
+    "targets": {
+      "none": "— aucune association —",
+      "groupContact": "Contact",
+      "groupContactCustom": "Contact — champs personnalisés",
+      "groupDeal": "Affaire",
+      "groupDealCustom": "Affaire — champs personnalisés",
+      "contactName": "Nom",
+      "contactEmail": "E-mail",
+      "contactPhone": "Téléphone",
+      "contactCompany": "Entreprise",
+      "dealValue": "Valeur"
+    },
+    "destination": {
+      "pipeline": "Pipeline…",
+      "stage": "Étape…",
+      "stageNone": "— aucune —"
+    },
+    "routing": {
+      "add": "Règle",
+      "field": "champ…",
+      "value": "valeur",
+      "pipeline": "pipeline…",
+      "stage": "étape…",
+      "remove": "supprimer la règle"
+    },
+    "errors": {
+      "name": "Indiquez le nom du formulaire.",
+      "pipeline": "Sélectionnez le pipeline par défaut.",
+      "email": "Incluez un champ associé à l'e-mail du contact.",
+      "nameField": "Incluez un champ associé au nom du contact.",
+      "fieldKey": "Chaque champ a besoin d'une clé (key)."
+    },
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…"
+  },
+  "public": {
+    "loadError": "Impossible de charger le formulaire. Veuillez réessayer.",
+    "notFoundTitle": "Formulaire introuvable",
+    "notFoundDescription": "Le lien est peut-être incorrect ou indisponible.",
+    "requiredField": "{{label}} est obligatoire",
+    "submitError": "Impossible d'envoyer. Vérifiez les champs et réessayez.",
+    "selectPlaceholder": "Sélectionner...",
+    "successMessage": "Nous avons reçu vos informations. Merci !",
+    "submit": "Envoyer",
+    "submitting": "Envoi..."
+  }
+}

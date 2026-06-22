@@ -117,7 +117,9 @@
       "accessTokens": "Access Tokens",
       "roles": "Roles & Permissions",
       "admin": "Admin Settings",
-      "segments": "Segments"
+      "segments": "Segments",
+      "crmForms": "Lead capture forms",
+      "chatPages": "Chat pages"
     }
   }
 }
