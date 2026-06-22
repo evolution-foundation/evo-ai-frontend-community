@@ -782,7 +782,7 @@ export default function Contacts() {
       </div>
 
       {/* View Mode Toggle */}
-      <div className="flex items-center justify-end mb-3" data-tour="contacts-view-toggle">
+      <div className="flex items-center justify-end mt-6 mb-3" data-tour="contacts-view-toggle">
         <div className="flex items-center border rounded-lg">
           <Button
             variant={viewMode === 'cards' ? 'default' : 'ghost'}
