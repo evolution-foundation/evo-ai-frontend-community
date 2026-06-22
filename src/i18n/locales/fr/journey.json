@@ -476,6 +476,7 @@
       "event": "Événement",
       "webhook": "Webhook",
       "journey": "Parcours",
+      "contactAttributes": "Attributs du Contact",
       "others": "Autres"
     },
     "form": {

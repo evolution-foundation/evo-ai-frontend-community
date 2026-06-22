@@ -1,4 +1,4 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import {
   Select,
   SelectContent,
@@ -18,6 +18,8 @@ import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useJourneyVariables } from '@/hooks/useJourneyVariables';
 import { useLanguage } from '@/hooks/useLanguage';
+import { customAttributesService } from '@/services/customAttributes/customAttributesService';
+import type { CustomAttributeDefinition } from '@/types/settings';
 import { getSystemVariables } from './EnvironmentManager';
 
 export interface VariableSelectProps {
@@ -28,6 +30,7 @@ export interface VariableSelectProps {
   className?: string;
   showCreateOption?: boolean;
   showSystemVariables?: boolean;
+  showContactAttributes?: boolean;
   disabled?: boolean;
   journeyId?: string; // Para buscar variáveis da jornada
 }
@@ -42,6 +45,7 @@ const VariableSelect = forwardRef<HTMLButtonElement, VariableSelectProps>(
       className,
       showCreateOption = true,
       showSystemVariables = false,
+      showContactAttributes = false,
       disabled = false,
       journeyId,
       ...props
@@ -50,6 +54,7 @@ const VariableSelect = forwardRef<HTMLButtonElement, VariableSelectProps>(
   ) => {
     const { t } = useLanguage('journey');
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [contactAttributes, setContactAttributes] = useState<CustomAttributeDefinition[]>([]);
     const [newVariableName, setNewVariableName] = useState('');
     const [newVariableType, setNewVariableType] = useState<'text' | 'number' | 'boolean' | 'date'>(
       'text',
@@ -59,6 +64,27 @@ const VariableSelect = forwardRef<HTMLButtonElement, VariableSelectProps>(
     const { variables, addVariable } = useJourneyVariables(journeyId);
 
     const SYSTEM_VARIABLES = getSystemVariables(t);
+
+    // Fetch contact custom attribute definitions so they can be branched on as
+    // condition fields. On error, leave the list empty — the section simply
+    // does not render and the rest of the picker keeps working.
+    useEffect(() => {
+      if (!showContactAttributes) return;
+
+      let active = true;
+      customAttributesService
+        .getCustomAttributes('contact_attribute')
+        .then(res => {
+          if (active) setContactAttributes(res.data);
+        })
+        .catch(error => {
+          console.error('Error fetching contact custom attributes:', error);
+        });
+
+      return () => {
+        active = false;
+      };
+    }, [showContactAttributes]);
 
     const handleValueChange = (selectedValue: string) => {
       if (selectedValue === '__new__') {
@@ -186,6 +212,34 @@ const VariableSelect = forwardRef<HTMLButtonElement, VariableSelectProps>(
                     </div>
                   );
                 })}
+
+                {variables.length > 0 && <Separator className="my-2" />}
+              </>
+            )}
+
+            {/* Atributos do Contato */}
+            {showContactAttributes && contactAttributes.length > 0 && (
+              <>
+                {/* Only add a leading separator when the system block above did
+                    not already render its trailing one (which it does iff there
+                    are custom journey variables) — avoids a double separator. */}
+                {showSystemVariables && variables.length === 0 && (
+                  <Separator className="my-2" />
+                )}
+                <div className="px-2 py-1 text-xs font-medium text-gray-500">
+                  {t('environmentManager.categories.contactAttributes')}
+                </div>
+                {contactAttributes.map(attribute => (
+                  <SelectItem
+                    key={attribute.id}
+                    value={`{{contact.customAttributes.${attribute.attribute_key}}}`}
+                    className="text-sidebar-foreground"
+                  >
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-medium">{attribute.attribute_display_name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
 
                 {variables.length > 0 && <Separator className="my-2" />}
               </>

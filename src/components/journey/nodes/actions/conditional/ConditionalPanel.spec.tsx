@@ -12,11 +12,28 @@ vi.mock('@/services/pipelines/pipelinesService', () => ({
   },
 }));
 
+vi.mock('@/services/customAttributes/customAttributesService', () => ({
+  customAttributesService: {
+    getCustomAttributes: vi.fn(),
+  },
+}));
+
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
+import { customAttributesService } from '@/services/customAttributes/customAttributesService';
 
 const mockGetPipelines = pipelinesService.getPipelines as unknown as ReturnType<typeof vi.fn>;
 const mockGetPipelineStages =
   pipelinesService.getPipelineStages as unknown as ReturnType<typeof vi.fn>;
+const mockGetCustomAttributes =
+  customAttributesService.getCustomAttributes as unknown as ReturnType<typeof vi.fn>;
+
+const PLAN_INTEREST_ATTR = {
+  id: 'attr-1',
+  attribute_key: 'plan_interest',
+  attribute_display_name: 'Plan Interest',
+  attribute_display_type: 'list',
+  attribute_model: 'contact_attribute',
+};
 
 const PIPELINE_STAGE_FIELD = '{{conversation.pipeline_stage_id}}';
 
@@ -48,7 +65,7 @@ function dataWithStageCondition(value = ''): ConditionalNodeData {
   } as ConditionalNodeData;
 }
 
-function dataWithContactCondition(): ConditionalNodeData {
+function dataWithContactCondition(field = '{{contact.email}}'): ConditionalNodeData {
   return {
     paths: [
       {
@@ -60,7 +77,7 @@ function dataWithContactCondition(): ConditionalNodeData {
           {
             id: 'cond-1',
             type: 'contact',
-            field: '{{contact.email}}',
+            field,
             operator: 'equals',
             value: '',
           },
@@ -68,6 +85,18 @@ function dataWithContactCondition(): ConditionalNodeData {
       },
     ],
   } as ConditionalNodeData;
+}
+
+// The field picker (VariableSelect) is the combobox showing the
+// "Select a variable..." placeholder while no field is selected.
+function getFieldTrigger(): HTMLElement {
+  // The field picker shows a "Select variable…" style placeholder while empty;
+  // match the `variable` stem across locales (variable/variável/variabile).
+  const trigger = screen
+    .getAllByRole('combobox')
+    .find(el => /variabl|variáv|variabil/i.test(el.textContent || ''));
+  if (!trigger) throw new Error('field picker trigger not found');
+  return trigger;
 }
 
 // The value picker is one of several comboboxes in the panel; identify it by
@@ -79,6 +108,12 @@ function getStageTrigger(): HTMLElement {
   if (!trigger) throw new Error('stage picker trigger not found');
   return trigger;
 }
+
+beforeEach(() => {
+  // Default: empty attribute list so the always-on fetch in the field picker
+  // resolves to a promise in every test (per-test cases override this).
+  mockGetCustomAttributes.mockResolvedValue({ data: [] });
+});
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -163,5 +198,69 @@ describe('ConditionalPanel — pipeline stage picker', () => {
     // Let any effects settle, then assert the lazy loader stayed gated.
     await waitFor(() => expect(screen.getAllByRole('combobox').length).toBeGreaterThan(0));
     expect(mockGetPipelines).not.toHaveBeenCalled();
+  });
+});
+
+describe('ConditionalPanel — contact custom attributes in the field picker', () => {
+  it('lists fetched contact custom attributes and emits {{contact.customAttributes.<key>}} on select', async () => {
+    mockGetCustomAttributes.mockResolvedValue({ data: [PLAN_INTEREST_ATTR] });
+    const onUpdate = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <ConditionalPanel
+        nodeId="n1"
+        data={dataWithContactCondition('')}
+        onUpdate={onUpdate}
+        onClose={vi.fn()}
+        journeyId="j1"
+      />,
+    );
+
+    await waitFor(() =>
+      expect(mockGetCustomAttributes).toHaveBeenCalledWith('contact_attribute'),
+    );
+
+    await user.click(getFieldTrigger());
+    const listbox = await screen.findByRole('listbox');
+    const option = within(listbox).getByText('Plan Interest');
+    await user.click(option);
+
+    const saveBtn = await screen.findByRole('button', {
+      name: /save|salvar|guardar|enregistrer|salva/i,
+    });
+    await waitFor(() => expect(saveBtn).not.toBeDisabled());
+    await user.click(saveBtn);
+
+    expect(onUpdate).toHaveBeenCalled();
+    const [, updatedData] = onUpdate.mock.calls[0];
+    expect(updatedData.paths[0].conditions[0].field).toBe(
+      '{{contact.customAttributes.plan_interest}}',
+    );
+  });
+
+  it('degrades gracefully when the custom-attributes fetch fails (no crash, picker still opens)', async () => {
+    mockGetCustomAttributes.mockRejectedValue(new Error('boom'));
+    const user = userEvent.setup();
+
+    render(
+      <ConditionalPanel
+        nodeId="n1"
+        data={dataWithContactCondition('')}
+        onUpdate={vi.fn()}
+        onClose={vi.fn()}
+        journeyId="j1"
+      />,
+    );
+
+    await waitFor(() => expect(mockGetCustomAttributes).toHaveBeenCalled());
+
+    // Picker still opens and remains usable (system + journey variables): the
+    // listbox renders options, and the failed-fetch Contact Attributes section
+    // is simply absent (no "Plan Interest", no crash).
+    await user.click(getFieldTrigger());
+    const listbox = await screen.findByRole('listbox');
+    expect(within(listbox).getAllByRole('option').length).toBeGreaterThan(0);
+    expect(within(listbox).queryByText('Plan Interest')).toBeNull();
   });
 });

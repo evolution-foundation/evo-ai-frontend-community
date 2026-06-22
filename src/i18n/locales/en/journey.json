@@ -493,6 +493,7 @@
       "webhook": "Webhook",
       "journey": "Journey",
       "conversation": "Conversation",
+      "contactAttributes": "Contact Attributes",
       "others": "Others"
     },
     "form": {
