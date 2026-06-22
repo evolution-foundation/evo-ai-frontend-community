@@ -36,6 +36,7 @@ import AudioRecorder from '../audio';
 
 import { AIAssistanceButton } from '../ai-assistance';
 import { CannedResponsesList } from '../canned-responses';
+import { buildCannedResponseMessage } from './buildCannedResponseMessage';
 import { RichTextEditor, RichTextEditorRef } from '../rich-text-editor';
 
 import { ReplyMode, Message } from '@/types/chat/api';
@@ -168,13 +169,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
   const handleSelectCannedResponse = useCallback(
     async (cannedResponse: CannedResponse) => {
-      const currentMessage = richEditorRef.current?.getContent() || '';
-
-      const slashIndex = currentMessage.lastIndexOf('/');
-      const newMessage =
-        slashIndex >= 0
-          ? currentMessage.substring(0, slashIndex) + cannedResponse.content
-          : cannedResponse.content;
+      const newMessage = buildCannedResponseMessage(
+        richEditorRef.current?.getContent() || '',
+        cannedResponse.content,
+      );
 
       richEditorRef.current?.setContent(newMessage);
       setCurrentEditorMessage(newMessage);
