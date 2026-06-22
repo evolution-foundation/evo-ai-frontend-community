@@ -32,12 +32,13 @@ class ChatPagesService {
 
   async create(payload: ChatPagePayload): Promise<ChatPage> {
     const response = await api.post(this.baseUrl, { chat_page: payload });
-    return extractData<{ data: ChatPage }>(response).data;
+    // extractData already unwraps { success, data } -> the serialized page.
+    return extractData<ChatPage>(response);
   }
 
   async update(id: string, payload: ChatPagePayload): Promise<ChatPage> {
     const response = await api.patch(`${this.baseUrl}/${id}`, { chat_page: payload });
-    return extractData<{ data: ChatPage }>(response).data;
+    return extractData<ChatPage>(response);
   }
 
   async remove(id: string): Promise<void> {

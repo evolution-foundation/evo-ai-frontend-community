@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useLanguage } from '@/hooks/useLanguage';
 import { chatPagesService, ChatPageConfig } from '@/services/public/chatPagesService';
 
 /**
@@ -9,6 +10,8 @@ import { chatPagesService, ChatPageConfig } from '@/services/public/chatPagesSer
  */
 const PublicChatPage = () => {
   const { slug } = useParams<{ slug: string }>();
+  // Public anonymous page — i18n follows the visitor's detected language.
+  const { t } = useLanguage('chatPages');
 
   const [config, setConfig] = useState<ChatPageConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,8 +47,8 @@ const PublicChatPage = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background p-4">
         <div className="w-full max-w-lg bg-card rounded-lg shadow-md border border-border p-8 text-center">
-          <p className="text-lg font-medium text-foreground">Página de chat não encontrada</p>
-          <p className="text-sm text-muted-foreground mt-2">O link pode estar incorreto ou indisponível.</p>
+          <p className="text-lg font-medium text-foreground">{t('public.notFoundTitle')}</p>
+          <p className="text-sm text-muted-foreground mt-2">{t('public.notFoundDescription')}</p>
         </div>
       </div>
     );

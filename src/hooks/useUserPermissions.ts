@@ -16,7 +16,20 @@ import { ROLE_KEYS } from '@/constants/roles';
  */
 export const useUserPermissions = () => {
   const { user } = useAuth();
-  // Super admin (installation owner) bypasses granular permission checks — full access.
+  // Super admin (installation owner) bypasses granular permission checks — full
+  // access. This is an INTENTIONAL, app-wide policy decision (product owner): the
+  // installation owner always sees the full UI.
+  //
+  // It mirrors server truth rather than diverging from it: super_admin is granted
+  // every resource action server-side via the RBAC seed/backfill migrations, so
+  // the backend will not 403 the actions this bypass renders. (If a fresh
+  // permission set ships without its backfill, that gap is a deploy-ordering bug
+  // to fix at the source — see the auth `*_permissions_to_existing_roles`
+  // migrations — not something to paper over by tightening this client gate.)
+  //
+  // Two implications callers should know: (1) `can/canAny/canAll` short-circuit to
+  // true for super_admin; (2) `isReady` is true immediately for super_admin
+  // (below), so super_admin-gated UI does not wait on the permissions fetch.
   const isSuperAdmin = user?.role?.key === ROLE_KEYS.SUPER_ADMIN;
   const {
     isValidPermission,

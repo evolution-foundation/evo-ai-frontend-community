@@ -123,5 +123,16 @@
     "cancel": "Cancelar",
     "save": "Salvar",
     "saving": "Salvando…"
+  },
+  "public": {
+    "loadError": "Não foi possível carregar o formulário. Tente novamente.",
+    "notFoundTitle": "Formulário não encontrado",
+    "notFoundDescription": "O link pode estar incorreto ou indisponível.",
+    "requiredField": "{{label}} é obrigatório",
+    "submitError": "Não foi possível enviar. Verifique os campos e tente novamente.",
+    "selectPlaceholder": "Selecione...",
+    "successMessage": "Recebemos seus dados. Obrigado!",
+    "submit": "Enviar",
+    "submitting": "Enviando..."
   }
 }

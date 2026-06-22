@@ -123,5 +123,16 @@
     "cancel": "Annulla",
     "save": "Salva",
     "saving": "Salvataggio…"
+  },
+  "public": {
+    "loadError": "Impossibile caricare il modulo. Riprova.",
+    "notFoundTitle": "Modulo non trovato",
+    "notFoundDescription": "Il link potrebbe essere errato o non disponibile.",
+    "requiredField": "{{label}} è obbligatorio",
+    "submitError": "Impossibile inviare. Controlla i campi e riprova.",
+    "selectPlaceholder": "Seleziona...",
+    "successMessage": "Abbiamo ricevuto i tuoi dati. Grazie!",
+    "submit": "Invia",
+    "submitting": "Invio..."
   }
 }

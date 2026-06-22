@@ -77,5 +77,9 @@
     "cancel": "Annuler",
     "save": "Enregistrer",
     "saving": "Enregistrement…"
+  },
+  "public": {
+    "notFoundTitle": "Page de chat introuvable",
+    "notFoundDescription": "Le lien est peut-être incorrect ou indisponible."
   }
 }

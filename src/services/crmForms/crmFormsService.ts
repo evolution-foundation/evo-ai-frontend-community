@@ -22,12 +22,13 @@ class CrmFormsService {
 
   async create(payload: CrmFormPayload): Promise<CrmForm> {
     const response = await api.post(this.baseUrl, { crm_form: payload });
-    return extractData<{ data: CrmForm }>(response).data;
+    // extractData already unwraps { success, data } -> the serialized form.
+    return extractData<CrmForm>(response);
   }
 
   async update(id: string, payload: CrmFormPayload): Promise<CrmForm> {
     const response = await api.patch(`${this.baseUrl}/${id}`, { crm_form: payload });
-    return extractData<{ data: CrmForm }>(response).data;
+    return extractData<CrmForm>(response);
   }
 
   async remove(id: string): Promise<void> {

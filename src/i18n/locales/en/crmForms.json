@@ -123,5 +123,16 @@
     "cancel": "Cancel",
     "save": "Save",
     "saving": "Saving…"
+  },
+  "public": {
+    "loadError": "Could not load the form. Please try again.",
+    "notFoundTitle": "Form not found",
+    "notFoundDescription": "The link may be incorrect or unavailable.",
+    "requiredField": "{{label}} is required",
+    "submitError": "Could not submit. Check the fields and try again.",
+    "selectPlaceholder": "Select...",
+    "successMessage": "We received your information. Thank you!",
+    "submit": "Submit",
+    "submitting": "Submitting..."
   }
 }

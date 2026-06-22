@@ -77,5 +77,9 @@
     "cancel": "Cancel",
     "save": "Save",
     "saving": "Saving…"
+  },
+  "public": {
+    "notFoundTitle": "Chat page not found",
+    "notFoundDescription": "The link may be incorrect or unavailable."
   }
 }

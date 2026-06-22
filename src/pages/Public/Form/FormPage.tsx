@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@evoapi/design-system';
+import { useLanguage } from '@/hooks/useLanguage';
 import {
   formsService,
   PublicFormConfig,
@@ -15,6 +16,8 @@ const inputClass =
 
 const FormPage = () => {
   const { slug } = useParams<{ slug: string }>();
+  // Public anonymous page — i18n follows the visitor's detected language.
+  const { t } = useLanguage('crmForms');
 
   const [config, setConfig] = useState<PublicFormConfig | null>(null);
   const [values, setValues] = useState<Record<string, unknown>>({ [HONEYPOT_FIELD]: '' });
@@ -38,14 +41,14 @@ const FormPage = () => {
         if (status === 404) {
           setNotFound(true);
         } else {
-          setServerError('Não foi possível carregar o formulário. Tente novamente.');
+          setServerError(t('public.loadError'));
         }
       } finally {
         setIsLoading(false);
       }
     };
     fetchConfig();
-  }, [slug]);
+  }, [slug, t]);
 
   const setValue = (key: string, value: unknown) => {
     setValues(prev => ({ ...prev, [key]: value }));
@@ -64,7 +67,7 @@ const FormPage = () => {
       if (field.required) {
         const value = values[field.key];
         const empty = value === undefined || value === null || String(value).trim() === '' || value === false;
-        if (empty) errors[field.key] = `${field.label || field.key} é obrigatório`;
+        if (empty) errors[field.key] = t('public.requiredField', { label: field.label || field.key });
       }
     });
     setFieldErrors(errors);
@@ -84,7 +87,7 @@ const FormPage = () => {
     } catch (error: unknown) {
       const message =
         (error as { response?: { data?: { error?: string } } })?.response?.data?.error ||
-        'Não foi possível enviar. Verifique os campos e tente novamente.';
+        t('public.submitError');
       setServerError(message);
     } finally {
       setIsSubmitting(false);
@@ -118,7 +121,7 @@ const FormPage = () => {
             onChange={e => setValue(field.key, e.target.value)}
             className={inputClass}
           >
-            <option value="">{field.placeholder || 'Selecione...'}</option>
+            <option value="">{field.placeholder || t('public.selectPlaceholder')}</option>
             {(field.options || []).map(opt => (
               <option key={opt} value={opt}>
                 {opt}
@@ -166,8 +169,8 @@ const FormPage = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background p-4">
         <div className="w-full max-w-lg bg-card rounded-lg shadow-md border border-border p-8 text-center">
-          <p className="text-lg font-medium text-foreground">Formulário não encontrado</p>
-          <p className="text-sm text-muted-foreground mt-2">O link pode estar incorreto ou indisponível.</p>
+          <p className="text-lg font-medium text-foreground">{t('public.notFoundTitle')}</p>
+          <p className="text-sm text-muted-foreground mt-2">{t('public.notFoundDescription')}</p>
         </div>
       </div>
     );
@@ -200,7 +203,7 @@ const FormPage = () => {
           {submitted ? (
             <div className="p-4 rounded-lg bg-green-500/10 text-green-700 dark:text-green-400">
               <p className="text-sm font-medium">
-                {config?.appearance?.success_message || 'Recebemos seus dados. Obrigado!'}
+                {config?.appearance?.success_message || t('public.successMessage')}
               </p>
             </div>
           ) : (
@@ -244,7 +247,7 @@ const FormPage = () => {
                 className="w-full"
                 style={accent ? { backgroundColor: accent, borderColor: accent } : undefined}
               >
-                {isSubmitting ? 'Enviando...' : 'Enviar'}
+                {isSubmitting ? t('public.submitting') : t('public.submit')}
               </Button>
             </form>
           )}
