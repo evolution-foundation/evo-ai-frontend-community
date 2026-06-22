@@ -21,6 +21,7 @@ const emptyFormData: AutomationFormData = {
   messageTypes: [],
   cannedResponses: [],
   messageTemplates: [],
+  customAttributes: [],
 };
 
 function Wrapper({

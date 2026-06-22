@@ -591,6 +591,7 @@ function CustomAttributeParam({
 
         const pickAttribute = (value: string) => {
           const sep = value.indexOf('::');
+          if (sep === -1) return;
           const model = value.slice(0, sep);
           const key = value.slice(sep + 2);
           field.onChange([{ custom_attribute_key: key, custom_attribute_model: model, custom_attribute_value: '' }]);
