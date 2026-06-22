@@ -265,10 +265,19 @@ export default function AccountSettings() {
 
   const handleAudioTranscriptionToggle = async (enabled: boolean) => {
     try {
-      await accountService.updateAccount({
-        audio_transcriptions: enabled,
+      const updated = await accountService.updateAccount({
+        settings: {
+          ...(account?.settings ?? {}),
+          audio_transcriptions: enabled,
+        },
       });
+      setAccount(updated);
       setFormData(prev => ({ ...prev, audioTranscriptions: enabled }));
+      try {
+        await useAppDataStore.getState().fetchAccount(true);
+      } catch (cacheError) {
+        console.warn('Failed to refresh appDataStore.account cache:', cacheError);
+      }
       toast.success(
         enabled
           ? t('messages.success.audioTranscriptionEnabled')
