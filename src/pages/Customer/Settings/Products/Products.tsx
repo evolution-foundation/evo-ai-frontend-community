@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { productsService } from '@/services/products/productsService';
+import { extractError } from '@/utils/apiHelpers';
 import type {
   Product,
   ProductFormData,
@@ -25,6 +26,26 @@ import {
 
 const DEFAULT_PAGE_SIZE = 25;
 
+// Maps a 422 validation error into a { field: message } map so the modal can
+// show server errors (e.g. SKU uniqueness) inline. Returns {} for non-field errors.
+function toFieldErrors(error: unknown): Record<string, string> {
+  const { details } = extractError(error);
+  const out: Record<string, string> = {};
+  if (Array.isArray(details)) {
+    details.forEach((d) => {
+      if (d && typeof d === 'object' && 'field' in d) {
+        const detail = d as { field: string; message?: string };
+        out[detail.field] = detail.message ?? '';
+      }
+    });
+  } else if (details && typeof details === 'object') {
+    Object.entries(details as Record<string, unknown>).forEach(([field, msgs]) => {
+      out[field] = Array.isArray(msgs) ? String(msgs[0]) : String(msgs);
+    });
+  }
+  return out;
+}
+
 export default function Products() {
   const { t } = useLanguage('products');
   const { can } = useUserPermissions();
@@ -44,6 +65,7 @@ export default function Products() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const [confirmDelete, setConfirmDelete] = useState<Product | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -78,16 +100,19 @@ export default function Products() {
 
   const openCreate = () => {
     setEditing(null);
+    setFormErrors({});
     setModalOpen(true);
   };
 
   const openEdit = (product: Product) => {
     setEditing(product);
+    setFormErrors({});
     setModalOpen(true);
   };
 
   const handleSubmit = async (payload: ProductFormData, files?: File[]) => {
     setSaving(true);
+    setFormErrors({});
     try {
       if (editing?.id) {
         await productsService.updateProduct(editing.id, payload, files);
@@ -101,7 +126,12 @@ export default function Products() {
       fetchProducts();
     } catch (error) {
       console.error(error);
-      toast.error(editing ? t('messages.updateError') : t('messages.createError'));
+      const fieldErrors = toFieldErrors(error);
+      if (Object.keys(fieldErrors).length > 0) {
+        setFormErrors(fieldErrors);
+      } else {
+        toast.error(editing ? t('messages.updateError') : t('messages.createError'));
+      }
     } finally {
       setSaving(false);
     }
@@ -173,6 +203,7 @@ export default function Products() {
         open={modalOpen}
         product={editing}
         loading={saving}
+        errors={formErrors}
         onOpenChange={(open) => {
           setModalOpen(open);
           if (!open) setEditing(null);

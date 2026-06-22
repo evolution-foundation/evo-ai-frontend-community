@@ -59,7 +59,10 @@
     "descriptionPlaceholder": "Breve descrizione del prodotto (anche visibile all'agente IA)",
     "labels": "Categorie / etichette",
     "labelsPlaceholder": "Separate da virgola, es.: abbigliamento, collezione-estate",
-    "labelsHint": "Le categorie aiutano a filtrare i prodotti e possono essere usate da regole di automazione."
+    "labelsHint": "Le categorie aiutano a filtrare i prodotti e possono essere usate da regole di automazione.",
+    "skuPlaceholder": "SKU-001",
+    "purchaseUrlPlaceholder": "https://...",
+    "digitalNoStockHint": "I prodotti digitali non hanno scorte."
   },
   "media": {
     "uploadHint": "Trascina le immagini qui o usa il pulsante in basso.",
@@ -74,7 +77,8 @@
     "sku": "SKU",
     "priceOverride": "Prezzo (sovrascrive il predefinito)",
     "stock": "Stock",
-    "digitalHint": "Le varianti non sono solitamente utilizzate per prodotti digitali."
+    "digitalHint": "Le varianti non sono solitamente utilizzate per prodotti digitali.",
+    "namePlaceholder": "es.: S / M / L"
   },
   "actions": {
     "cancel": "Annulla",
@@ -215,5 +219,19 @@
     "noVariant": "Senza variante",
     "quantity": "Quantità",
     "notes": "Note (facoltativo)"
+  },
+  "currency": {
+    "BRL": "Real (BRL)",
+    "USD": "Dollaro (USD)",
+    "EUR": "Euro (EUR)"
+  },
+  "validation": {
+    "nameRequired": "Il nome è obbligatorio",
+    "priceRequired": "Il prezzo è obbligatorio",
+    "priceMin": "Il prezzo deve essere 0 o maggiore",
+    "urlInvalid": "Inserisci un URL valido (http/https)",
+    "requiredLegend": "I campi contrassegnati con * sono obbligatori",
+    "skuTaken": "Questo SKU è già in uso",
+    "variantPriceCurrency": "in {{currency}}"
   }
 }

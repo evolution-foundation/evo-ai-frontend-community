@@ -59,7 +59,10 @@
     "descriptionPlaceholder": "Short product description (shown to the AI agent)",
     "labels": "Categories / tags",
     "labelsPlaceholder": "Comma separated, e.g. apparel, summer-collection",
-    "labelsHint": "Categories help filter products and may also be used by automation rules."
+    "labelsHint": "Categories help filter products and may also be used by automation rules.",
+    "skuPlaceholder": "SKU-001",
+    "purchaseUrlPlaceholder": "https://...",
+    "digitalNoStockHint": "Digital products have no stock."
   },
   "media": {
     "uploadHint": "Drag images here or use the button below.",
@@ -74,7 +77,8 @@
     "sku": "SKU",
     "priceOverride": "Price override",
     "stock": "Stock",
-    "digitalHint": "Variants are usually not used for digital products."
+    "digitalHint": "Variants are usually not used for digital products.",
+    "namePlaceholder": "e.g. S / M / L"
   },
   "actions": {
     "cancel": "Cancel",
@@ -215,5 +219,19 @@
     "noVariant": "No variant",
     "quantity": "Quantity",
     "notes": "Notes (optional)"
+  },
+  "currency": {
+    "BRL": "Brazilian Real (BRL)",
+    "USD": "US Dollar (USD)",
+    "EUR": "Euro (EUR)"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "priceRequired": "Price is required",
+    "priceMin": "Price must be 0 or greater",
+    "urlInvalid": "Enter a valid URL (http/https)",
+    "requiredLegend": "Fields marked with * are required",
+    "skuTaken": "This SKU is already in use",
+    "variantPriceCurrency": "in {{currency}}"
   }
 }
