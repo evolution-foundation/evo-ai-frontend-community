@@ -217,7 +217,7 @@ export default function BaseTable<T extends Record<string, any>>({
 
   return (
     <div
-      className={`rounded-lg border border-sidebar-border bg-sidebar overflow-hidden ${className}`}
+      className={`rounded-lg border border-sidebar-border bg-sidebar overflow-x-auto ${className}`}
     >
       <Table>
         <TableHeader>
