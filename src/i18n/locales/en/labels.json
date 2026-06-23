@@ -108,7 +108,8 @@
       "description": "Are you sure you want to delete {{count}} selected label(s)? This action cannot be undone.",
       "cancel": "Cancel",
       "confirm": "Delete All",
-      "deleting": "Deleting..."
+      "deleting": "Deleting...",
+      "usageWarning": "{{labels}} of the selected labels are in use by {{records}} record(s) and will be removed from them."
     }
   }
 }

@@ -306,6 +306,14 @@ export default function Labels() {
     currentPage * pageSize,
   );
 
+  const selectedInUse = state.labels.filter(
+    label => state.selectedLabelIds.includes(label.id) && (label.usage_count ?? 0) > 0,
+  );
+  const selectedInUseRecords = selectedInUse.reduce(
+    (sum, label) => sum + (label.usage_count ?? 0),
+    0,
+  );
+
   return (
     <div className="h-full flex flex-col p-4" data-tour="settings-labels-page">
       <SettingsLabelsTour />
@@ -441,6 +449,14 @@ export default function Labels() {
               {t('dialog.bulkDelete.description', { count: state.selectedLabelIds.length })}
             </DialogDescription>
           </DialogHeader>
+          {selectedInUse.length > 0 && (
+            <p className="text-sm text-amber-600 dark:text-amber-500">
+              {t('dialog.bulkDelete.usageWarning', {
+                labels: selectedInUse.length,
+                records: selectedInUseRecords,
+              })}
+            </p>
+          )}
           <DialogFooter>
             <Button
               variant="outline"

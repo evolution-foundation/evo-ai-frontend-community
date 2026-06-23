@@ -108,7 +108,8 @@
       "description": "¿Está seguro de que desea eliminar {{count}} etiqueta(s) seleccionada(s)? Esta acción no se puede deshacer.",
       "cancel": "Cancelar",
       "confirm": "Eliminar Todas",
-      "deleting": "Eliminando..."
+      "deleting": "Eliminando...",
+      "usageWarning": "{{labels}} de las etiquetas seleccionadas están en uso por {{records}} registro(s) y se quitarán de ellos."
     }
   }
 }

@@ -108,7 +108,8 @@
       "description": "Sei sicuro di voler eliminare {{count}} etichetta/e selezionata/e? Questa azione non può essere annullata.",
       "cancel": "Annulla",
       "confirm": "Elimina Tutte",
-      "deleting": "Eliminazione..."
+      "deleting": "Eliminazione...",
+      "usageWarning": "{{labels}} delle etichette selezionate sono in uso da {{records}} record e verranno rimosse da essi."
     }
   }
 }
