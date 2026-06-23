@@ -136,13 +136,21 @@ export default function CannedResponseModal({
     }
   };
 
-  // 🎯 FILE UPLOAD: Gerenciar arquivos
+  // 🎯 FILE UPLOAD: 1 anexo por resposta rápida (canais enviam só 1 mídia hoje)
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    e.target.value = '';
 
     if (files.length === 0) return;
 
-    // Validar tamanho e tipo
+    const currentCount =
+      existingAttachments.filter(a => !removedAttachmentIds.includes(a.id)).length +
+      (formData.attachments?.length ?? 0);
+    if (currentCount >= 1) {
+      toast.error('Apenas 1 anexo por resposta rápida');
+      return;
+    }
+
     const maxSize = 10 * 1024 * 1024; // 10MB
     const allowedTypes = [
       'image/jpeg', 'image/png', 'image/gif', 'image/webp',
@@ -152,31 +160,17 @@ export default function CannedResponseModal({
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ];
 
-    const validFiles: File[] = [];
-
-    files.forEach(file => {
-      if (file.size > maxSize) {
-        toast.error(`Arquivo ${file.name} é muito grande (máximo 10MB)`);
-        return;
-      }
-
-      if (!allowedTypes.includes(file.type)) {
-        toast.error(`Tipo de arquivo ${file.name} não permitido`);
-        return;
-      }
-
-      validFiles.push(file);
-    });
-
-    if (validFiles.length > 0) {
-      setFormData(prev => ({
-        ...prev,
-        attachments: [...(prev.attachments || []), ...validFiles]
-      }));
+    const file = files[0];
+    if (file.size > maxSize) {
+      toast.error(`Arquivo ${file.name} é muito grande (máximo 10MB)`);
+      return;
+    }
+    if (!allowedTypes.includes(file.type)) {
+      toast.error(`Tipo de arquivo ${file.name} não permitido`);
+      return;
     }
 
-    // Limpar input
-    e.target.value = '';
+    setFormData(prev => ({ ...prev, attachments: [file] }));
   };
 
   const handleRemoveFile = (index: number) => {
@@ -232,6 +226,11 @@ export default function CannedResponseModal({
       textarea.setSelectionRange(newCursorPosition, newCursorPosition);
     });
   };
+
+  const attachmentCount =
+    existingAttachments.filter(a => !removedAttachmentIds.includes(a.id)).length +
+    (formData.attachments?.length ?? 0);
+  const attachmentLimitReached = attachmentCount >= 1;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -304,17 +303,16 @@ export default function CannedResponseModal({
                 type="file"
                 id="file-upload"
                 className="hidden"
-                multiple
                 accept="image/*,audio/*,video/*,.pdf,.doc,.docx"
                 onChange={handleFileSelect}
-                disabled={loading}
+                disabled={loading || attachmentLimitReached}
               />
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => document.getElementById('file-upload')?.click()}
-                disabled={loading}
+                disabled={loading || attachmentLimitReached}
               >
                 <Paperclip className="h-4 w-4 mr-2" />
                 {t('modal.fields.attachments.addButton')}

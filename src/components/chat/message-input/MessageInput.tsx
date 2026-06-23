@@ -177,6 +177,17 @@ const MessageInput: React.FC<MessageInputProps> = ({
       richEditorRef.current?.setContent(newMessage);
       setCurrentEditorMessage(newMessage);
 
+      // A canned response with media owns the attachment slot (channels send a single
+      // attachment); drop any manually-added files so both are never sent together.
+      if ((cannedResponse.attachments?.length ?? 0) > 0) {
+        setSelectedFiles(prev => {
+          if (prev.length > 0) {
+            toast.info('Os anexos manuais foram removidos: a resposta rápida já inclui mídia.');
+          }
+          return [];
+        });
+      }
+
       setSelectedCannedResponse(cannedResponse);
       setSelectedCannedResponseId(cannedResponse.id);
 
