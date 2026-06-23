@@ -380,7 +380,7 @@
       "last_activity_at": "Última Actividad",
       "type": "Tipo de Contacto",
       "labels": "Etiquetas",
-      "country_code": "País",
+      "country_code": "País (código ISO)",
       "city": "Ciudad",
       "company": "Empresa",
       "blocked": "Bloqueado"

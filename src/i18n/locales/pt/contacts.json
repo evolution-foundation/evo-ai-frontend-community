@@ -388,7 +388,7 @@
       "last_activity_at": "Última Atividade",
       "type": "Tipo de Contato",
       "labels": "Etiquetas",
-      "country_code": "País",
+      "country_code": "País (código ISO)",
       "city": "Cidade",
       "company": "Empresa",
       "blocked": "Bloqueado"
