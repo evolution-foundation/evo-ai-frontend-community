@@ -13,6 +13,8 @@ import {
 } from '@evoapi/design-system';
 import { journeyService } from '@/services';
 import { Journey, TriggerType } from '@/types/automation';
+import type { Node, Edge } from '@xyflow/react';
+import { validateJourney } from '@/utils/journeyFlowValidation';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 
@@ -64,6 +66,26 @@ export default function JourneyModal({ open, onClose, journey, onSave }: Journey
       };
 
       if (journey?.id) {
+        // EVO-1744: block turning a journey ON from the modal when its persisted
+        // flow is invalid. flowData lives on the `journey` prop (the modal's own
+        // state is metadata-only). Only gate the off→on transition.
+        if (formData.isActive && !journey.isActive) {
+          const result = validateJourney(
+            (journey.flowData?.nodes ?? []) as unknown as Node[],
+            (journey.flowData?.edges ?? []) as unknown as Edge[],
+          );
+          if (!result.isActivatable) {
+            toast.error(
+              t('messages.activationBlocked', {
+                issues: result.errors
+                  .map((i) => t(i.messageKey, i.params))
+                  .join(' · '),
+              }),
+            );
+            setLoading(false);
+            return;
+          }
+        }
         // Metadata-only edit: never resend flowData/flowTriggers — the backend
         // replaces the stored flow wholesale, so a trigger-only payload would
         // wipe the flow built in the editor (EVO-1745).

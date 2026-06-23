@@ -44,7 +44,9 @@
     "deleteSuccess": "Percorso eliminato con successo",
     "deleteError": "Impossibile eliminare il percorso",
     "duplicateSuccess": "Percorso duplicato con successo",
-    "duplicateError": "Impossibile duplicare il percorso"
+    "duplicateError": "Impossibile duplicare il percorso",
+    "activationBlocked": "Impossibile attivare — correggi prima: {{issues}}",
+    "activationWarnings": "Attivata con avvisi: {{issues}}"
   },
   "dialog": {
     "delete": {
@@ -86,7 +88,15 @@
     "saveError": "Impossibile salvare il percorso",
     "validation": {
       "danglingExitWarning": "Percorso salvato, ma questi nodi non raggiungono un nodo di Uscita dal percorso, quindi non verrà completato: {{nodes}}",
-      "danglingExitBanner": "Questo percorso non verrà completato: questi nodi non hanno un percorso verso un nodo di Uscita dal percorso: {{nodes}}"
+      "danglingExitBanner": "Questo percorso non verrà completato: questi nodi non hanno un percorso verso un nodo di Uscita dal percorso: {{nodes}}",
+      "requiredConfig": "{{node}}: configurazione obbligatoria mancante ({{fields}})",
+      "triggerActionContext": "{{node}}: richiede una conversazione, ma il trigger non ne fornisce una",
+      "danglingExit": "{{node}}: questo percorso non termina con un nodo di uscita o trasferimento",
+      "summaryErrors": "Correggi prima di attivare:",
+      "summaryWarnings": "Avvisi:",
+      "saveIssues": "Salvato con problemi in sospeso: {{issues}}",
+      "nodeHasErrors": "Il nodo presenta errori",
+      "nodeHasWarnings": "Il nodo presenta avvisi"
     },
     "loadError": "Impossibile caricare il percorso",
     "status": {

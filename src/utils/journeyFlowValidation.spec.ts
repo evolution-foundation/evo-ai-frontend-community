@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import type { Node, Edge } from '@xyflow/react';
-import { validateJourneyTerminalPaths } from './journeyFlowValidation';
+import {
+  validateJourneyTerminalPaths,
+  validateJourney,
+} from './journeyFlowValidation';
 
 const node = (
   id: string,
@@ -86,5 +89,80 @@ describe('validateJourneyTerminalPaths', () => {
     ];
     const result = validateJourneyTerminalPaths(nodes, [edge('t', 'e')]);
     expect(result.isValid).toBe(true);
+  });
+});
+
+describe('validateJourney (EVO-1744)', () => {
+  const sendMsg = (id: string, extra: Record<string, unknown> = {}) =>
+    node(id, 'send-message-node', { label: 'Send', inboxId: 'i1', message: 'hi', ...extra });
+
+  it('AC7: a fully-configured, coherent, terminating journey is activatable', () => {
+    const nodes = [
+      node('t', 'journey-trigger-node', {
+        triggerType: 'event',
+        eventName: 'conversation.created',
+      }),
+      sendMsg('a'),
+      node('e', 'exit-journey-node'),
+    ];
+    const r = validateJourney(nodes, [edge('t', 'a'), edge('a', 'e')]);
+    expect(r.errors).toEqual([]);
+    expect(r.warnings).toEqual([]);
+    expect(r.isActivatable).toBe(true);
+  });
+
+  it('AC1/AC5: a node missing required config is an error that blocks activation', () => {
+    const nodes = [
+      node('t', 'journey-trigger-node', {
+        triggerType: 'event',
+        eventName: 'conversation.created',
+      }),
+      node('a', 'send-message-node', { label: 'Send' }), // no inboxId/message
+      node('e', 'exit-journey-node'),
+    ];
+    const r = validateJourney(nodes, [edge('t', 'a'), edge('a', 'e')]);
+    expect(r.isActivatable).toBe(false);
+    expect(r.errors).toHaveLength(1);
+    expect(r.errors[0].rule).toBe('requiredConfig');
+    expect(r.errors[0].nodeId).toBe('a');
+    expect(r.byNodeId['a']).toBeTruthy();
+  });
+
+  it('AC2: a contact-only trigger feeding a conversation action warns (not blocks)', () => {
+    const nodes = [
+      node('t', 'journey-trigger-node', { triggerType: 'customAttribute' }),
+      sendMsg('a'),
+      node('e', 'exit-journey-node'),
+    ];
+    const r = validateJourney(nodes, [edge('t', 'a'), edge('a', 'e')]);
+    expect(r.errors).toEqual([]); // warning, not error
+    expect(r.isActivatable).toBe(true);
+    expect(r.warnings.some((w) => w.rule === 'triggerActionContext' && w.nodeId === 'a')).toBe(true);
+  });
+
+  it('AC2: an event trigger on a conversation-category event does NOT warn', () => {
+    const nodes = [
+      node('t', 'journey-trigger-node', {
+        triggerType: 'event',
+        eventName: 'conversation.created',
+      }),
+      sendMsg('a'),
+      node('e', 'exit-journey-node'),
+    ];
+    const r = validateJourney(nodes, [edge('t', 'a'), edge('a', 'e')]);
+    expect(r.warnings.some((w) => w.rule === 'triggerActionContext')).toBe(false);
+  });
+
+  it('AC4: a dangling path surfaces as a terminalPath warning from the engine', () => {
+    const nodes = [
+      node('t', 'journey-trigger-node', {
+        triggerType: 'event',
+        eventName: 'conversation.created',
+      }),
+      sendMsg('a'), // no exit downstream
+    ];
+    const r = validateJourney(nodes, [edge('t', 'a')]);
+    expect(r.warnings.some((w) => w.rule === 'terminalPath' && w.nodeId === 'a')).toBe(true);
+    expect(r.isActivatable).toBe(true); // warning, not error
   });
 });

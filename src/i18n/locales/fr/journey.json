@@ -44,7 +44,9 @@
     "deleteSuccess": "Parcours supprimé avec succès",
     "deleteError": "Impossible de supprimer le parcours",
     "duplicateSuccess": "Parcours dupliqué avec succès",
-    "duplicateError": "Impossible de dupliquer le parcours"
+    "duplicateError": "Impossible de dupliquer le parcours",
+    "activationBlocked": "Activation impossible — corrigez d'abord : {{issues}}",
+    "activationWarnings": "Activée avec des avertissements : {{issues}}"
   },
   "dialog": {
     "delete": {
@@ -86,7 +88,15 @@
     "saveError": "Impossible d'enregistrer le parcours",
     "validation": {
       "danglingExitWarning": "Parcours enregistré, mais ces nœuds n'atteignent pas un nœud de Sortie du parcours, il ne se terminera donc pas : {{nodes}}",
-      "danglingExitBanner": "Ce parcours ne se terminera pas : ces nœuds n'ont pas de chemin vers un nœud de Sortie du parcours : {{nodes}}"
+      "danglingExitBanner": "Ce parcours ne se terminera pas : ces nœuds n'ont pas de chemin vers un nœud de Sortie du parcours : {{nodes}}",
+      "requiredConfig": "{{node}} : configuration requise manquante ({{fields}})",
+      "triggerActionContext": "{{node}} : nécessite une conversation, mais le déclencheur n'en fournit pas",
+      "danglingExit": "{{node}} : ce chemin ne se termine pas par un nœud de sortie ou de transfert",
+      "summaryErrors": "Corrigez ceci avant d'activer :",
+      "summaryWarnings": "Avertissements :",
+      "saveIssues": "Enregistré avec des problèmes en attente : {{issues}}",
+      "nodeHasErrors": "Le nœud comporte des erreurs",
+      "nodeHasWarnings": "Le nœud comporte des avertissements"
     },
     "loadError": "Impossible de charger le parcours",
     "status": {

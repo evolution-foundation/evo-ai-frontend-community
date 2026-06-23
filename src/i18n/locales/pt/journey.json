@@ -44,7 +44,9 @@
     "deleteSuccess": "Jornada excluída com sucesso",
     "deleteError": "Não foi possível excluir a jornada",
     "duplicateSuccess": "Jornada duplicada com sucesso",
-    "duplicateError": "Não foi possível duplicar a jornada"
+    "duplicateError": "Não foi possível duplicar a jornada",
+    "activationBlocked": "Não foi possível ativar — corrija primeiro: {{issues}}",
+    "activationWarnings": "Ativada com avisos: {{issues}}"
   },
   "dialog": {
     "delete": {
@@ -86,7 +88,15 @@
     "saveError": "Não foi possível salvar a jornada",
     "validation": {
       "danglingExitWarning": "Jornada salva, mas estes nós não chegam a um nó de Sair da Jornada, então ela não vai concluir: {{nodes}}",
-      "danglingExitBanner": "Esta jornada não vai concluir: estes nós não têm caminho até um nó de Sair da Jornada: {{nodes}}"
+      "danglingExitBanner": "Esta jornada não vai concluir: estes nós não têm caminho até um nó de Sair da Jornada: {{nodes}}",
+      "requiredConfig": "{{node}}: configuração obrigatória ausente ({{fields}})",
+      "triggerActionContext": "{{node}}: precisa de uma conversa, mas o gatilho não fornece uma",
+      "danglingExit": "{{node}}: este caminho não termina em um nó de saída ou transferência",
+      "summaryErrors": "Corrija antes de ativar:",
+      "summaryWarnings": "Avisos:",
+      "saveIssues": "Salvo com pendências: {{issues}}",
+      "nodeHasErrors": "Nó com erros",
+      "nodeHasWarnings": "Nó com avisos"
     },
     "loadError": "Não foi possível carregar a jornada",
     "status": {

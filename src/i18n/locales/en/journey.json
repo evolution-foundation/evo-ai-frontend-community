@@ -44,7 +44,9 @@
     "deleteSuccess": "Journey deleted successfully",
     "deleteError": "Unable to delete journey",
     "duplicateSuccess": "Journey duplicated successfully",
-    "duplicateError": "Unable to duplicate journey"
+    "duplicateError": "Unable to duplicate journey",
+    "activationBlocked": "Can't activate — fix these first: {{issues}}",
+    "activationWarnings": "Activated with warnings: {{issues}}"
   },
   "dialog": {
     "delete": {
@@ -86,7 +88,15 @@
     "saveError": "Unable to save journey",
     "validation": {
       "danglingExitWarning": "Journey saved, but these nodes don't reach an Exit Journey node, so it won't complete: {{nodes}}",
-      "danglingExitBanner": "This journey won't complete: these nodes have no path to an Exit Journey node: {{nodes}}"
+      "danglingExitBanner": "This journey won't complete: these nodes have no path to an Exit Journey node: {{nodes}}",
+      "requiredConfig": "{{node}}: missing required configuration ({{fields}})",
+      "triggerActionContext": "{{node}}: needs a conversation, but the trigger doesn't provide one",
+      "danglingExit": "{{node}}: this path doesn't end in an exit or transfer node",
+      "summaryErrors": "Fix these before activating:",
+      "summaryWarnings": "Warnings:",
+      "saveIssues": "Saved with pending issues: {{issues}}",
+      "nodeHasErrors": "Node has errors",
+      "nodeHasWarnings": "Node has warnings"
     },
     "loadError": "Unable to load journey",
     "status": {

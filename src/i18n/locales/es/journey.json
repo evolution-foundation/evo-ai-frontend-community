@@ -44,7 +44,9 @@
     "deleteSuccess": "Jornada eliminada con éxito",
     "deleteError": "No fue posible eliminar la jornada",
     "duplicateSuccess": "Jornada duplicada con éxito",
-    "duplicateError": "No fue posible duplicar la jornada"
+    "duplicateError": "No fue posible duplicar la jornada",
+    "activationBlocked": "No se puede activar: corrige primero: {{issues}}",
+    "activationWarnings": "Activada con avisos: {{issues}}"
   },
   "dialog": {
     "delete": {
@@ -86,7 +88,15 @@
     "saveError": "No fue posible guardar la jornada",
     "validation": {
       "danglingExitWarning": "Jornada guardada, pero estos nodos no llegan a un nodo de Salir de la Jornada, así que no se completará: {{nodes}}",
-      "danglingExitBanner": "Esta jornada no se completará: estos nodos no tienen un camino hasta un nodo de Salir de la Jornada: {{nodes}}"
+      "danglingExitBanner": "Esta jornada no se completará: estos nodos no tienen un camino hasta un nodo de Salir de la Jornada: {{nodes}}",
+      "requiredConfig": "{{node}}: falta configuración obligatoria ({{fields}})",
+      "triggerActionContext": "{{node}}: necesita una conversación, pero el disparador no la proporciona",
+      "danglingExit": "{{node}}: esta ruta no termina en un nodo de salida o transferencia",
+      "summaryErrors": "Corrige esto antes de activar:",
+      "summaryWarnings": "Avisos:",
+      "saveIssues": "Guardado con pendientes: {{issues}}",
+      "nodeHasErrors": "El nodo tiene errores",
+      "nodeHasWarnings": "El nodo tiene avisos"
     },
     "loadError": "No fue posible cargar la jornada",
     "status": {

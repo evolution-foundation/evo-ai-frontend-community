@@ -1,0 +1,48 @@
+import { describe, it, expect } from 'vitest';
+import { validateNodeConfig } from './nodeValidators';
+
+describe('validateNodeConfig (EVO-1744)', () => {
+  it('errors when send-message has no inbox', () => {
+    const issues = validateNodeConfig('send-message-node', { message: 'hi' });
+    expect(issues).toHaveLength(1);
+    expect(issues[0].severity).toBe('error');
+    expect(issues[0].params?.fields).toContain('inboxId');
+  });
+
+  it('passes a configured send-message (free text)', () => {
+    expect(
+      validateNodeConfig('send-message-node', { inboxId: 'i', message: 'hi' }),
+    ).toEqual([]);
+  });
+
+  it('requires templateName in template mode', () => {
+    const issues = validateNodeConfig('send-message-node', {
+      inboxId: 'i',
+      messageMode: 'template',
+    });
+    expect(issues[0].params?.fields).toContain('templateName');
+  });
+
+  it('errors when a conditional node has no paths (its only gate)', () => {
+    expect(validateNodeConfig('conditional-node', {})).toHaveLength(1);
+    expect(validateNodeConfig('conditional-node', { paths: [{}] })).toEqual([]);
+  });
+
+  it('treats blank strings as missing', () => {
+    expect(validateNodeConfig('add-label-node', { labelId: '   ' })).toHaveLength(1);
+    expect(validateNodeConfig('add-label-node', { labelId: 'l1' })).toEqual([]);
+  });
+
+  it('returns no issues for an unregistered / config-free node type', () => {
+    expect(validateNodeConfig('mute-conversation-node', {})).toEqual([]);
+    expect(validateNodeConfig('exit-journey-node', {})).toEqual([]);
+    expect(validateNodeConfig(undefined, undefined)).toEqual([]);
+  });
+
+  it('requires both ids for move-to-pipeline-stage', () => {
+    const issues = validateNodeConfig('move-to-pipeline-stage-node', {
+      pipeline_id: 'p1',
+    });
+    expect(issues[0].params?.fields).toBe('stage_id');
+  });
+});

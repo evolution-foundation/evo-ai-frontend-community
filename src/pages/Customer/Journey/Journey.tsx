@@ -17,6 +17,8 @@ import {
 } from '@evoapi/design-system';
 import { journeyService } from '../../../services';
 import type { Journey } from '@/types/automation';
+import type { Node, Edge } from '@xyflow/react';
+import { validateJourney } from '@/utils/journeyFlowValidation';
 import JourneyModal from '@/components/journey/JourneyModal';
 import { toast } from 'sonner';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
@@ -64,6 +66,37 @@ export default function JourneyPage() {
 
   const handleToggleJourney = async (journey: Journey) => {
     if (!journey.id) return;
+
+    // EVO-1744: `toggleJourney` is a bodyless server-flip, so classify the
+    // direction by the CURRENT `isActive` before calling. Only activation runs
+    // validation; deactivation is always allowed. Errors block (hybrid D1);
+    // warnings are surfaced but don't block.
+    const isActivating = !journey.isActive;
+    if (isActivating) {
+      const result = validateJourney(
+        (journey.flowData?.nodes ?? []) as unknown as Node[],
+        (journey.flowData?.edges ?? []) as unknown as Edge[],
+      );
+      if (!result.isActivatable) {
+        toast.error(
+          t('messages.activationBlocked', {
+            issues: result.errors
+              .map((i) => t(i.messageKey, i.params))
+              .join(' · '),
+          }),
+        );
+        return;
+      }
+      if (result.warnings.length > 0) {
+        toast.warning(
+          t('messages.activationWarnings', {
+            issues: result.warnings
+              .map((i) => t(i.messageKey, i.params))
+              .join(' · '),
+          }),
+        );
+      }
+    }
 
     try {
       await journeyService.toggleJourney(journey.id);

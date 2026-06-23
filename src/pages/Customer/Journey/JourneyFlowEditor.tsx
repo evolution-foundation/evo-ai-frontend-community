@@ -15,7 +15,8 @@ import { toast } from 'sonner';
 import { journeyService } from '@/services';
 import type { Journey } from '@/types/automation';
 import { useLanguage } from '@/hooks/useLanguage';
-import { validateJourneyTerminalPaths } from '@/utils/journeyFlowValidation';
+import { validateJourney } from '@/utils/journeyFlowValidation';
+import { JourneyValidationProvider } from '@/contexts/JourneyValidationContext';
 import { buildFlowTriggers } from './journeyFlowTriggers';
 import { BaseFlowEditor, type NodeType, type NodeCategory } from '@/components/base';
 import { EnvironmentManager } from '@/components/journey/environment-manager';
@@ -158,14 +159,13 @@ function JourneyFlowEditor() {
   const recoveryCandidate = useFlowEditorStore((s) => s.recoveryCandidate);
   const recoveryEpoch = useFlowEditorStore((s) => s.recoveryEpoch);
   const currentSnapshot = useFlowEditorStore((s) => s.currentSnapshot);
-  const danglingNodes = useMemo(
+  // EVO-1744: the full pre-activation validation (required config + trigger↔action
+  // coherence + terminal-path, folded in). Memoized on the snapshot like before.
+  const journeyValidation = useMemo(
     () =>
       currentSnapshot
-        ? validateJourneyTerminalPaths(
-            currentSnapshot.nodes,
-            currentSnapshot.edges,
-          ).danglingNodes
-        : [],
+        ? validateJourney(currentSnapshot.nodes, currentSnapshot.edges)
+        : null,
     [currentSnapshot],
   );
 
@@ -710,14 +710,18 @@ function JourneyFlowEditor() {
       // requirement of EVO-1258).
       useFlowEditorStore.getState().commitSave(new Date(), snapshot);
       if (!opts?.silent) {
-        const { danglingNodes } = validateJourneyTerminalPaths(
+        // Save is a draft action — it never blocks. Surface any validation
+        // issues (errors + warnings) so the user knows before they try to
+        // activate from the list, where errors DO block (EVO-1744).
+        const { errors, warnings } = validateJourney(
           snapshot.nodes,
           snapshot.edges,
         );
-        if (danglingNodes.length > 0) {
+        const issues = [...errors, ...warnings];
+        if (issues.length > 0) {
           toast.warning(
-            t('flowEditor.validation.danglingExitWarning', {
-              nodes: danglingNodes.map((node) => node.label).join(', '),
+            t('flowEditor.validation.saveIssues', {
+              issues: issues.map((i) => t(i.messageKey, i.params)).join(' · '),
             }),
           );
         } else {
@@ -883,13 +887,31 @@ function JourneyFlowEditor() {
         </FlowFeedbackBanner>
       ) : null}
 
-      {danglingNodes.length > 0 ? (
-        <FlowFeedbackBanner variant="warn" className="mx-4 mt-2">
-          <p>
-            {t('flowEditor.validation.danglingExitBanner', {
-              nodes: danglingNodes.map((node) => node.label).join(', '),
-            })}
+      {/* EVO-1744: pre-activation summary — errors block activation (from the
+          list), warnings don't. Each rule's message is listed per node. */}
+      {journeyValidation && journeyValidation.errors.length > 0 ? (
+        <FlowFeedbackBanner variant="error" className="mx-4 mt-2">
+          <p className="font-medium">
+            {t('flowEditor.validation.summaryErrors')}
           </p>
+          <ul className="mt-1 list-disc pl-5 text-sm">
+            {journeyValidation.errors.map((issue, idx) => (
+              <li key={idx}>{t(issue.messageKey, issue.params)}</li>
+            ))}
+          </ul>
+        </FlowFeedbackBanner>
+      ) : null}
+
+      {journeyValidation && journeyValidation.warnings.length > 0 ? (
+        <FlowFeedbackBanner variant="warn" className="mx-4 mt-2">
+          <p className="font-medium">
+            {t('flowEditor.validation.summaryWarnings')}
+          </p>
+          <ul className="mt-1 list-disc pl-5 text-sm">
+            {journeyValidation.warnings.map((issue, idx) => (
+              <li key={idx}>{t(issue.messageKey, issue.params)}</li>
+            ))}
+          </ul>
         </FlowFeedbackBanner>
       ) : null}
 
@@ -951,6 +973,9 @@ function JourneyFlowEditor() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <JourneyValidationProvider
+        value={{ byNodeId: journeyValidation?.byNodeId ?? {} }}
+      >
       <BaseFlowEditor
         key={`flow-canvas-${recoveryEpoch}`}
         flowData={flowData}
@@ -977,6 +1002,7 @@ function JourneyFlowEditor() {
         className="h-full bg-sidebar"
         canvasWrapperClassName="flex-1"
       />
+      </JourneyValidationProvider>
 
       {/* Footer com informações */}
       <div className="border-t border-sidebar-border bg-sidebar p-3 flex-shrink-0">

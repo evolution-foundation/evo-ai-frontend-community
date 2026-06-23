@@ -1,4 +1,10 @@
 import type { Node, Edge } from '@xyflow/react';
+import type {
+  JourneyValidationResult,
+  ValidationIssue,
+} from './journeyValidators/types';
+import { validateNodeConfig } from './journeyValidators/nodeValidators';
+import { validateTriggerActionContext } from './journeyValidators/triggerActionContext';
 
 const TRIGGER_NODE_TYPE = 'journey-trigger-node';
 const EXIT_NODE_TYPE = 'exit-journey-node';
@@ -70,4 +76,66 @@ export function validateJourneyTerminalPaths(
   }
 
   return { isValid: danglingNodes.length === 0, danglingNodes };
+}
+
+/**
+ * Terminal-path rule as `ValidationIssue[]` (EVO-1744, AC4: the EVO-1692 check
+ * folded into the engine, not duplicated). Each dangling node → one warning.
+ * NOTE: cyclic paths with no exit are still not detected (see EVO-1857).
+ */
+function terminalPathIssues(nodes: Node[], edges: Edge[]): ValidationIssue[] {
+  return validateJourneyTerminalPaths(nodes, edges).danglingNodes.map(
+    (dangling) => ({
+      nodeId: dangling.id,
+      rule: 'terminalPath',
+      severity: 'warning',
+      messageKey: 'flowEditor.validation.danglingExit',
+      params: { node: dangling.label },
+    }),
+  );
+}
+
+/**
+ * The pre-activation validation engine (EVO-1744). Pure: nodes/edges in → result
+ * out, so it runs both inside the editor (live React Flow state) and from the
+ * journey list/modal (persisted `flowData`). Runs every rule and aggregates.
+ *
+ * Hybrid enforcement (D1): required-config issues are `error` (block activation);
+ * trigger↔action coherence and terminal-path are `warning` (allow, but surfaced).
+ */
+export function validateJourney(
+  nodes: Node[],
+  edges: Edge[],
+): JourneyValidationResult {
+  const issues: ValidationIssue[] = [];
+
+  // (a) per-node required config — errors
+  for (const node of nodes) {
+    for (const issue of validateNodeConfig(
+      node.type,
+      node.data as Record<string, unknown> | undefined,
+    )) {
+      issues.push({
+        ...issue,
+        nodeId: issue.nodeId ?? node.id,
+        params: { node: labelFor(node), ...issue.params },
+      });
+    }
+  }
+
+  // (b) trigger↔action conversation coherence — warnings
+  issues.push(...validateTriggerActionContext(nodes, edges));
+
+  // (c) terminal-path (EVO-1692, folded in) — warnings
+  issues.push(...terminalPathIssues(nodes, edges));
+
+  const errors = issues.filter((i) => i.severity === 'error');
+  const warnings = issues.filter((i) => i.severity === 'warning');
+  const byNodeId: Record<string, ValidationIssue[]> = {};
+  for (const issue of issues) {
+    if (!issue.nodeId) continue;
+    (byNodeId[issue.nodeId] ??= []).push(issue);
+  }
+
+  return { errors, warnings, byNodeId, isActivatable: errors.length === 0 };
 }

@@ -1,9 +1,10 @@
-import { Handle, Position, useEdges } from "@xyflow/react";
+import { Handle, Position, useEdges, useNodeId } from "@xyflow/react";
 import React from "react";
 import { useLanguage } from '@/hooks/useLanguage';
 import { cn } from "@/lib/utils";
 import { useDnD } from "@/contexts/DnDContext";
 import { ArrowRight } from "lucide-react";
+import { NodeValidationBadge } from '@/components/journey/_ui/NodeValidationBadge';
 
 // Tipos para configuração do node - COMPATÍVEL COM BaseNode ATUAL
 export interface BaseFlowNodeProps {
@@ -178,6 +179,10 @@ export function BaseFlowNode({
   const { t } = useLanguage('common');
   const { pointerEvents } = useDnD();
   const edges = useEdges();
+  // EVO-1744: resolve the node id (explicit prop or the React Flow context) so
+  // the validation badge can look up its issues without each node forwarding it.
+  const hookNodeId = useNodeId();
+  const resolvedNodeId = nodeId ?? hookNodeId;
 
   // Verificar se o source handle está conectado - compatível com BaseNode atual
   const isHandleConnected = (handleId: string) => {
@@ -216,6 +221,9 @@ export function BaseFlowNode({
       }}
       data-is-executing={isExecuting ? "true" : "false"}
     >
+      {/* EVO-1744: pre-activation validation marker (error/warning) */}
+      <NodeValidationBadge nodeId={resolvedNodeId} />
+
       {/* Target Handle - mantém comportamento exato do BaseNode atual */}
       {hasTarget && (
         <Handle
