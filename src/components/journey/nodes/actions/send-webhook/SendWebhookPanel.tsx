@@ -7,6 +7,11 @@ import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { VariableSelect } from '@/components/journey/environment-manager';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
+  getEffectiveBodyMode,
+  isValidJsonBody,
+  validateFields,
+} from './components/webhookBody';
+import {
   WebhookBasicConfig,
   WebhookHeadersConfig,
   WebhookBodyConfig,
@@ -275,6 +280,20 @@ export function SendWebhookPanel({
       (!formData.authApiKey || !formData.authApiKeyHeader)
     ) {
       issues.push(t('panels.sendWebhook.requiredApiKey'));
+    }
+
+    // Body validation — caught in the editor, not at runtime (EVO-1742).
+    const bodyApplies = ['POST', 'PUT', 'PATCH'].includes(formData.method || 'POST');
+    if (bodyApplies) {
+      const bodyMode = getEffectiveBodyMode(formData);
+      if (bodyMode === 'structured') {
+        const result = validateFields(formData.bodyStructured || []);
+        if (!result.ok) {
+          issues.push(t(`panels.sendWebhook.body.validation.${result.error}`));
+        }
+      } else if (formData.bodyType === 'json' && !isValidJsonBody(formData.body || '')) {
+        issues.push(t('panels.sendWebhook.invalidJson'));
+      }
     }
 
     return issues;

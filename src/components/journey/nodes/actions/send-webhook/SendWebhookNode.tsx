@@ -14,6 +14,15 @@ export interface WebhookResponseMapping {
   description?: string;
 }
 
+export type WebhookBodyValueType = 'string' | 'number' | 'boolean';
+
+export interface WebhookBodyField {
+  id: string;
+  key: string;
+  value: string; // raw text; preserves {{variables}} verbatim
+  type: WebhookBodyValueType;
+}
+
 export interface SendWebhookNodeData {
   label: string;
   description?: string;
@@ -22,6 +31,8 @@ export interface SendWebhookNodeData {
   headers?: WebhookHeader[];
   body?: string;
   bodyType?: 'json' | 'form' | 'text' | 'xml';
+  bodyStructured?: WebhookBodyField[];
+  bodyMode?: 'structured' | 'raw';
   timeout?: number;
   retryAttempts?: number;
   authenticationType?: 'none' | 'bearer' | 'basic' | 'api_key';

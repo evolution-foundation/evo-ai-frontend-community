@@ -881,7 +881,29 @@
         "availableVariables": "Available Variables:",
         "contact": "Contact:",
         "system": "System:",
-        "bodyPreview": "Preview of Body:"
+        "bodyPreview": "Preview of Body:",
+        "modeStructured": "Estruturado",
+        "modeRaw": "Bruto",
+        "nestedRawOnlyHint": "Este corpo tem estruturas aninhadas — edite no modo bruto.",
+        "builder": {
+          "addField": "Adicionar campo",
+          "keyLabel": "Chave",
+          "valueLabel": "Valor",
+          "keyPlaceholder": "chave",
+          "valuePlaceholder": "valor",
+          "typeLabel": "Tipo",
+          "noFields": "Ainda não há campos. Adicione um para montar o corpo.",
+          "removeField": "Remover campo",
+          "types": {
+            "string": "Texto",
+            "number": "Número",
+            "boolean": "Booleano"
+          }
+        },
+        "validation": {
+          "blankKey": "O corpo tem um campo com chave vazia",
+          "duplicateKey": "O corpo tem chaves duplicadas"
+        }
       },
       "headers": {
         "httpHeaders": "Headers HTTP",
