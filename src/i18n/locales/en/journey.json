@@ -898,7 +898,29 @@
         "availableVariables": "Available Variables:",
         "contact": "Contact:",
         "system": "System:",
-        "bodyPreview": "Preview of Body:"
+        "bodyPreview": "Preview of Body:",
+        "modeStructured": "Structured",
+        "modeRaw": "Raw",
+        "nestedRawOnlyHint": "This body has nested structures — edit it in raw mode.",
+        "builder": {
+          "addField": "Add field",
+          "keyLabel": "Key",
+          "valueLabel": "Value",
+          "keyPlaceholder": "key",
+          "valuePlaceholder": "value",
+          "typeLabel": "Type",
+          "noFields": "No fields yet. Add one to build the body.",
+          "removeField": "Remove field",
+          "types": {
+            "string": "Text",
+            "number": "Number",
+            "boolean": "Boolean"
+          }
+        },
+        "validation": {
+          "blankKey": "The body has a field with an empty key",
+          "duplicateKey": "The body has duplicate keys"
+        }
       },
       "headers": {
         "httpHeaders": "Headers HTTP",

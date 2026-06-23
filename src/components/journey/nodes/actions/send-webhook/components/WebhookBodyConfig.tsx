@@ -8,10 +8,18 @@ import {
   SelectValue,
   Button,
 } from '@evoapi/design-system';
-import { Code, Copy, Check } from 'lucide-react';
+import { Code, Copy, Check, Table, FileText } from 'lucide-react';
 import { SendWebhookNodeData } from '../SendWebhookNode';
 import { VariableTextarea } from '@/components/journey/environment-manager';
 import { useLanguage } from '@/hooks/useLanguage';
+import { WebhookBodyBuilder } from './WebhookBodyBuilder';
+import {
+  getEffectiveBodyMode,
+  isStructuredBodyType,
+  serializeBody,
+  tryParseToFields,
+  StructuredBodyType,
+} from './webhookBody';
 
 interface WebhookBodyConfigProps {
   data: SendWebhookNodeData;
@@ -60,6 +68,7 @@ const JSON_TEMPLATES = {
 export function WebhookBodyConfig({ data, onChange, journeyId }: WebhookBodyConfigProps) {
   const { t } = useLanguage('journey');
   const [copiedTemplate, setCopiedTemplate] = useState<string | null>(null);
+  const [showNestedHint, setShowNestedHint] = useState(false);
 
   const BODY_TYPES = [
     { value: 'json', label: t('panels.sendWebhook.body.types.json.label'), description: t('panels.sendWebhook.body.types.json.description') },
@@ -72,8 +81,20 @@ export function WebhookBodyConfig({ data, onChange, journeyId }: WebhookBodyConf
     { value: 'xml', label: t('panels.sendWebhook.body.types.xml.label'), description: t('panels.sendWebhook.body.types.xml.description') },
   ];
 
+  const bodyType = data.bodyType || 'json';
+  const structuredCapable = isStructuredBodyType(bodyType);
+  const mode = getEffectiveBodyMode(data);
+
   const handleBodyTypeChange = (value: 'json' | 'form' | 'text' | 'xml') => {
-    onChange({ bodyType: value });
+    setShowNestedHint(false);
+
+    // When staying in structured mode across json⇄form, re-serialize the existing
+    // rows into the new wire format so `body` keeps matching the builder.
+    if (mode === 'structured' && isStructuredBodyType(value)) {
+      onChange({ bodyType: value, body: serializeBody(data.bodyStructured || [], value) });
+    } else {
+      onChange({ bodyType: value });
+    }
 
     // Auto-definir Content-Type header se não existir
     const currentHeaders = data.headers || [];
@@ -101,6 +122,32 @@ export function WebhookBodyConfig({ data, onChange, journeyId }: WebhookBodyConf
 
   const handleBodyChange = (value: string) => {
     onChange({ body: value });
+  };
+
+  const handleStructuredChange = (fields: SendWebhookNodeData['bodyStructured']) => {
+    const next = fields || [];
+    onChange({ bodyStructured: next, body: serializeBody(next, bodyType as StructuredBodyType) });
+  };
+
+  const switchToStructured = () => {
+    const parsed = tryParseToFields(data.body || '', bodyType as StructuredBodyType);
+    if (parsed === null) {
+      // Nested/invalid body cannot be flattened — keep raw, surface the hint.
+      setShowNestedHint(true);
+      return;
+    }
+    setShowNestedHint(false);
+    onChange({
+      bodyMode: 'structured',
+      bodyStructured: parsed,
+      body: serializeBody(parsed, bodyType as StructuredBodyType),
+    });
+  };
+
+  const switchToRaw = () => {
+    setShowNestedHint(false);
+    // `body` already holds the serialized structured output — pass it through untouched.
+    onChange({ bodyMode: 'raw' });
   };
 
   const copyTemplate = async (template: string, templateName: string) => {
@@ -147,60 +194,106 @@ export function WebhookBodyConfig({ data, onChange, journeyId }: WebhookBodyConf
         </Select>
       </div>
 
-      {/* Templates para JSON */}
-      {data.bodyType === 'json' && (
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('panels.sendWebhook.body.jsonTemplates')}</Label>
-          <div className="flex gap-2 flex-wrap">
-            {Object.entries(JSON_TEMPLATES).map(([name, template]) => (
-              <Button
-                key={name}
-                variant="outline"
-                size="sm"
-                onClick={() => copyTemplate(template, name)}
-                className="text-xs"
-              >
-                {copiedTemplate === name ? (
-                  <Check className="w-3 h-3 mr-1" />
-                ) : (
-                  <Copy className="w-3 h-3 mr-1" />
-                )}
-                {name === 'contact'
-                  ? t('panels.sendWebhook.body.templateContact')
-                  : name === 'event'
-                  ? t('panels.sendWebhook.body.templateEvent')
-                  : t('panels.sendWebhook.body.templateCustom')}
-              </Button>
-            ))}
-          </div>
+      {/* Toggle Estruturado / Bruto (apenas json/form) */}
+      {structuredCapable && (
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant={mode === 'structured' ? 'default' : 'outline'}
+            size="sm"
+            onClick={switchToStructured}
+            className="flex items-center gap-1"
+          >
+            <Table className="w-3.5 h-3.5" />
+            {t('panels.sendWebhook.body.modeStructured')}
+          </Button>
+          <Button
+            type="button"
+            variant={mode === 'raw' ? 'default' : 'outline'}
+            size="sm"
+            onClick={switchToRaw}
+            className="flex items-center gap-1"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            {t('panels.sendWebhook.body.modeRaw')}
+          </Button>
         </div>
       )}
 
-      {/* Editor do Body */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">{t('panels.sendWebhook.body.bodyContent')}</Label>
-        <div className="relative">
-          <VariableTextarea
-            value={data.body || ''}
-            onChange={e => handleBodyChange(e.target.value)}
-            placeholder={
-              data.bodyType === 'json'
-                ? t('panels.sendWebhook.body.jsonPlaceholder')
-                : data.bodyType === 'form'
-                ? t('panels.sendWebhook.body.formPlaceholder')
-                : data.bodyType === 'xml'
-                ? t('panels.sendWebhook.body.xmlPlaceholder')
-                : t('panels.sendWebhook.body.textPlaceholder')
-            }
-            className="w-full h-32 p-3 text-sm bg-sidebar border-sidebar-border text-sidebar-foreground rounded-md font-mono resize-y"
-            style={{ minHeight: '120px' }}
-            journeyId={journeyId}
-          />
+      {showNestedHint && (
+        <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800/30">
+          <p className="text-xs text-yellow-700 dark:text-yellow-300">
+            ⚠️ {t('panels.sendWebhook.body.nestedRawOnlyHint')}
+          </p>
         </div>
-        <div className="text-xs text-gray-500 dark:text-gray-400">
-          {t('panels.sendWebhook.body.useVariables')}
-        </div>
-      </div>
+      )}
+
+      {/* Modo Estruturado */}
+      {structuredCapable && mode === 'structured' ? (
+        <WebhookBodyBuilder
+          fields={data.bodyStructured || []}
+          bodyType={bodyType as StructuredBodyType}
+          onChange={handleStructuredChange}
+          journeyId={journeyId}
+        />
+      ) : (
+        <>
+          {/* Templates para JSON (apenas modo bruto) */}
+          {bodyType === 'json' && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">{t('panels.sendWebhook.body.jsonTemplates')}</Label>
+              <div className="flex gap-2 flex-wrap">
+                {Object.entries(JSON_TEMPLATES).map(([name, template]) => (
+                  <Button
+                    key={name}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => copyTemplate(template, name)}
+                    className="text-xs"
+                  >
+                    {copiedTemplate === name ? (
+                      <Check className="w-3 h-3 mr-1" />
+                    ) : (
+                      <Copy className="w-3 h-3 mr-1" />
+                    )}
+                    {name === 'contact'
+                      ? t('panels.sendWebhook.body.templateContact')
+                      : name === 'event'
+                      ? t('panels.sendWebhook.body.templateEvent')
+                      : t('panels.sendWebhook.body.templateCustom')}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Editor do Body (bruto) */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">{t('panels.sendWebhook.body.bodyContent')}</Label>
+            <div className="relative">
+              <VariableTextarea
+                value={data.body || ''}
+                onChange={e => handleBodyChange(e.target.value)}
+                placeholder={
+                  bodyType === 'json'
+                    ? t('panels.sendWebhook.body.jsonPlaceholder')
+                    : bodyType === 'form'
+                    ? t('panels.sendWebhook.body.formPlaceholder')
+                    : bodyType === 'xml'
+                    ? t('panels.sendWebhook.body.xmlPlaceholder')
+                    : t('panels.sendWebhook.body.textPlaceholder')
+                }
+                className="w-full h-32 p-3 text-sm bg-sidebar border-sidebar-border text-sidebar-foreground rounded-md font-mono resize-y"
+                style={{ minHeight: '120px' }}
+                journeyId={journeyId}
+              />
+            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              {t('panels.sendWebhook.body.useVariables')}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Variáveis disponíveis */}
       <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/30">

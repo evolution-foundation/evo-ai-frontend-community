@@ -94,6 +94,44 @@ describe('journey i18n parity (EVO-1260)', () => {
     expect(offenders).toEqual([]);
   });
 
+  // EVO-1742: the structured webhook-body builder keys were added to ALL
+  // six locales. The strict en↔pt-BR mirror covers those two; assert
+  // presence + non-empty across every shipped locale so pt/es/fr/it can't
+  // silently drift (same pattern as EVO-1260 / EVO-1275 above).
+  const evo1742Keys = [
+    'panels.sendWebhook.body.modeStructured',
+    'panels.sendWebhook.body.modeRaw',
+    'panels.sendWebhook.body.nestedRawOnlyHint',
+    'panels.sendWebhook.body.builder.addField',
+    'panels.sendWebhook.body.builder.keyLabel',
+    'panels.sendWebhook.body.builder.valueLabel',
+    'panels.sendWebhook.body.builder.keyPlaceholder',
+    'panels.sendWebhook.body.builder.valuePlaceholder',
+    'panels.sendWebhook.body.builder.typeLabel',
+    'panels.sendWebhook.body.builder.noFields',
+    'panels.sendWebhook.body.builder.removeField',
+    'panels.sendWebhook.body.builder.types.string',
+    'panels.sendWebhook.body.builder.types.number',
+    'panels.sendWebhook.body.builder.types.boolean',
+    'panels.sendWebhook.body.validation.blankKey',
+    'panels.sendWebhook.body.validation.duplicateKey',
+  ];
+
+  it.each([
+    ['en', en],
+    ['pt-BR', ptBR],
+    ['pt', pt],
+    ['es', es],
+    ['fr', fr],
+    ['it', itLocale],
+  ])('%s contains every EVO-1742 webhook-body key, non-empty', (_name, locale) => {
+    const offenders = evo1742Keys.filter((k) => {
+      const v = getAtPath(locale, k);
+      return typeof v !== 'string' || v.trim() === '';
+    });
+    expect(offenders).toEqual([]);
+  });
+
   // Anti-leakage: catches the EVO-1260 review finding class — pt-BR
   // values byte-identical to EN that are NOT legitimate tech terms,
   // sample literals, or pure-interpolation strings. Uses the shared
