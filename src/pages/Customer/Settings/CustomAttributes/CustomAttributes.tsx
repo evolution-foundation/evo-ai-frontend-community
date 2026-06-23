@@ -15,7 +15,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@evoapi/design-system';
-import { Settings } from 'lucide-react';
+import { Search, Settings } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 
 import { useUserPermissions } from '@/hooks/useUserPermissions';
@@ -136,11 +136,27 @@ export default function CustomAttributes() {
       : true,
   );
 
+  const pageSize = state.meta.pagination.page_size;
+  const sortedAttributes = [...searchFilteredAttributes].sort((a, b) => {
+    const direction = state.sortOrder === 'asc' ? 1 : -1;
+    if (state.sortBy === 'created_at') {
+      return (new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) * direction;
+    }
+    return a.attribute_display_name.localeCompare(b.attribute_display_name) * direction;
+  });
+  const totalPages = Math.max(1, Math.ceil(sortedAttributes.length / pageSize));
+  const currentPage = Math.min(state.meta.pagination.page, totalPages);
+  const paginatedAttributes = sortedAttributes.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   // Handlers
   const handleSearchChange = (query: string) => {
     setState(prev => ({
       ...prev,
       searchQuery: query,
+      selectedAttributeIds: [],
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
     }));
   };
@@ -152,12 +168,14 @@ export default function CustomAttributes() {
       activeTab: newTab,
       selectedAttributeIds: [],
       searchQuery: '',
+      meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
     }));
   };
 
   const handlePageChange = (page: number) => {
     setState(prev => ({
       ...prev,
+      selectedAttributeIds: [],
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page } },
     }));
   };
@@ -165,6 +183,7 @@ export default function CustomAttributes() {
   const handlePerPageChange = (perPage: number) => {
     setState(prev => ({
       ...prev,
+      selectedAttributeIds: [],
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page_size: perPage, page: 1 } },
     }));
   };
@@ -304,7 +323,7 @@ export default function CustomAttributes() {
       <SettingsCustomAttributesTour />
       <div data-tour="settings-custom-attributes-header">
         <CustomAttributesHeader
-          totalCount={searchFilteredAttributes.length}
+          totalCount={sortedAttributes.length}
           selectedCount={state.selectedAttributeIds.length}
           searchValue={state.searchQuery}
           onSearchChange={handleSearchChange}
@@ -335,28 +354,42 @@ export default function CustomAttributes() {
                 <div className="flex items-center justify-center py-16">
                   <div className="text-muted-foreground">{t('loading')}</div>
                 </div>
-              ) : searchFilteredAttributes.length === 0 ? (
-                <EmptyState
-                  icon={Settings}
-                  title={t('empty.title')}
-                  description={
-                    tab.key === 'conversation_attribute'
-                      ? t('empty.descriptionConversation')
-                      : tab.key === 'contact_attribute'
-                      ? t('empty.descriptionContact')
-                      : t('empty.descriptionPipeline')
-                  }
-                  action={{
-                    label: t('empty.action'),
-                    onClick: handleCreateAttribute,
-                  }}
-                  className="h-full"
-                />
+              ) : sortedAttributes.length === 0 ? (
+                state.searchQuery.trim() ? (
+                  <EmptyState
+                    icon={Search}
+                    title={t('common:base.noResults.title')}
+                    description={t('common:base.noResults.description')}
+                    action={{
+                      label: t('common:base.noResults.clearSearch'),
+                      onClick: () => handleSearchChange(''),
+                      variant: 'outline',
+                    }}
+                    className="h-full"
+                  />
+                ) : (
+                  <EmptyState
+                    icon={Settings}
+                    title={t('empty.title')}
+                    description={
+                      tab.key === 'conversation_attribute'
+                        ? t('empty.descriptionConversation')
+                        : tab.key === 'contact_attribute'
+                        ? t('empty.descriptionContact')
+                        : t('empty.descriptionPipeline')
+                    }
+                    action={{
+                      label: t('empty.action'),
+                      onClick: handleCreateAttribute,
+                    }}
+                    className="h-full"
+                  />
+                )
               ) : (
                 <CustomAttributesTable
                   activeTab={state.activeTab}
-                  attributes={searchFilteredAttributes}
-                  selectedAttributes={searchFilteredAttributes.filter(attr =>
+                  attributes={paginatedAttributes}
+                  selectedAttributes={paginatedAttributes.filter(attr =>
                     state.selectedAttributeIds.includes(attr.id),
                   )}
                   loading={state.loading.list}
@@ -378,6 +411,8 @@ export default function CustomAttributes() {
                       ...prev,
                       sortBy: column as 'attribute_display_name' | 'created_at',
                       sortOrder: newOrder,
+                      selectedAttributeIds: [],
+                      meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
                     }));
                   }}
                 />
@@ -389,15 +424,13 @@ export default function CustomAttributes() {
       </div>
 
       {/* Pagination fixa em baixo */}
-      {searchFilteredAttributes.length > 0 && (
+      {sortedAttributes.length > 0 && (
         <div className="mt-auto pt-4 border-t">
           <CustomAttributesPagination
-            currentPage={state.meta.pagination.page}
-            totalPages={Math.ceil(
-              searchFilteredAttributes.length / state.meta.pagination.page_size,
-            )}
-            totalCount={searchFilteredAttributes.length}
-            perPage={state.meta.pagination.page_size}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCount={sortedAttributes.length}
+            perPage={pageSize}
             onPageChange={handlePageChange}
             onPerPageChange={handlePerPageChange}
             loading={state.loading.list}

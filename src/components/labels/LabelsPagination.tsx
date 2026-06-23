@@ -7,14 +7,17 @@ interface LabelsPaginationProps {
   perPage: number;
   onPageChange: (page: number) => void;
   onPerPageChange: (perPage: number) => void;
+  loading?: boolean;
 }
 
 export default function LabelsPagination({
   currentPage,
   totalPages,
   onPageChange,
+  onPerPageChange,
   totalCount,
   perPage,
+  loading,
 }: LabelsPaginationProps) {
   return (
     <BasePagination
@@ -23,6 +26,8 @@ export default function LabelsPagination({
       totalItems={totalCount}
       itemsPerPage={perPage}
       onPageChange={onPageChange}
+      onItemsPerPageChange={onPerPageChange}
+      disabled={loading}
     />
   );
 }

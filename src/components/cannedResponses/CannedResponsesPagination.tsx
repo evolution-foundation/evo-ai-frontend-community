@@ -16,6 +16,8 @@ export default function CannedResponsesPagination({
   totalCount,
   perPage,
   onPageChange,
+  onPerPageChange,
+  loading,
 }: CannedResponsesPaginationProps) {
   return (
     <BasePagination
@@ -24,6 +26,8 @@ export default function CannedResponsesPagination({
       totalItems={totalCount}
       itemsPerPage={perPage}
       onPageChange={onPageChange}
+      onItemsPerPageChange={onPerPageChange}
+      disabled={loading}
     />
   );
 }

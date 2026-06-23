@@ -1,5 +1,10 @@
 {
   "base": {
+    "noResults": {
+      "title": "Nessun risultato",
+      "description": "Nessun elemento corrisponde alla tua ricerca.",
+      "clearSearch": "Cancella ricerca"
+    },
     "pagination": {
       "itemsPerPage": "Elementi per pagina:",
       "showing": "Mostrando {{start}} a {{end}} di {{total}} elementi",

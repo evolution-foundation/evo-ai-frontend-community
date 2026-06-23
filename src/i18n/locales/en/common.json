@@ -16,6 +16,11 @@
   },
   "noResultsFound": "No results found",
   "base": {
+    "noResults": {
+      "title": "No results found",
+      "description": "No items match your search.",
+      "clearSearch": "Clear search"
+    },
     "pagination": {
       "itemsPerPage": "Items per page:",
       "showing": "Showing {{start}} to {{end}} of {{total}} items",

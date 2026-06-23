@@ -16,6 +16,11 @@
   },
   "noResultsFound": "Nenhum resultado encontrado",
   "base": {
+    "noResults": {
+      "title": "Nenhum resultado encontrado",
+      "description": "Nenhum item corresponde à sua busca.",
+      "clearSearch": "Limpar busca"
+    },
     "pagination": {
       "itemsPerPage": "Itens por página:",
       "showing": "Mostrando {{start}} a {{end}} de {{total}} itens",
