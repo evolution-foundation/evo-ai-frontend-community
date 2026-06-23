@@ -57,7 +57,8 @@
       "description": "Descrição",
       "color": "Cor",
       "sidebar": "Barra Lateral",
-      "createdAt": "Criado em"
+      "createdAt": "Criado em",
+      "usage": "Em uso"
     },
     "noDescription": "-",
     "sidebar": {
@@ -99,7 +100,8 @@
       "description": "Tem certeza de que deseja deletar a etiqueta \"{{title}}\"? Esta ação não pode ser desfeita.",
       "cancel": "Cancelar",
       "confirm": "Deletar",
-      "deleting": "Deletando..."
+      "deleting": "Deletando...",
+      "usageWarning": "Esta etiqueta é usada por {{count}} registro(s). Ao excluí-la, ela será removida deles."
     },
     "bulkDelete": {
       "title": "Deletar Etiquetas",

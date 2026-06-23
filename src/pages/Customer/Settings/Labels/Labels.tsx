@@ -408,6 +408,11 @@ export default function Labels() {
               {t('dialog.delete.description', { title: labelToDelete?.title })}
             </DialogDescription>
           </DialogHeader>
+          {!!labelToDelete?.usage_count && labelToDelete.usage_count > 0 && (
+            <p className="text-sm text-amber-600 dark:text-amber-500">
+              {t('dialog.delete.usageWarning', { count: labelToDelete.usage_count })}
+            </p>
+          )}
           <DialogFooter>
             <Button
               variant="outline"

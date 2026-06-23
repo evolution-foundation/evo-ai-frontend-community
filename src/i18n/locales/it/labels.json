@@ -57,7 +57,8 @@
       "description": "Descrizione",
       "color": "Colore",
       "sidebar": "Barra Laterale",
-      "createdAt": "Creato il"
+      "createdAt": "Creato il",
+      "usage": "In uso"
     },
     "noDescription": "-",
     "sidebar": {
@@ -99,7 +100,8 @@
       "description": "Sei sicuro di voler eliminare l'etichetta \"{{title}}\"? Questa azione non può essere annullata.",
       "cancel": "Annulla",
       "confirm": "Elimina",
-      "deleting": "Eliminazione..."
+      "deleting": "Eliminazione...",
+      "usageWarning": "Questa etichetta è usata da {{count}} record. Eliminandola, verrà rimossa da essi."
     },
     "bulkDelete": {
       "title": "Elimina Etichette",

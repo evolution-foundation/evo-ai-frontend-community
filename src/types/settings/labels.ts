@@ -6,6 +6,7 @@ export interface Label {
   description?: string;
   color: string;
   show_on_sidebar: boolean;
+  usage_count?: number;
   created_at: string;
   updated_at: string;
 }

@@ -78,6 +78,13 @@ export default function LabelsTable({
       ),
     },
     {
+      key: 'usage_count',
+      label: t('table.columns.usage'),
+      render: (label: Label) => (
+        <span className="text-sm text-muted-foreground">{label.usage_count ?? 0}</span>
+      ),
+    },
+    {
       key: 'created_at',
       label: t('table.columns.createdAt'),
       sortable: true,

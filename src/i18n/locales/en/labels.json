@@ -57,7 +57,8 @@
       "description": "Description",
       "color": "Color",
       "sidebar": "Sidebar",
-      "createdAt": "Created at"
+      "createdAt": "Created at",
+      "usage": "In use"
     },
     "noDescription": "-",
     "sidebar": {
@@ -99,7 +100,8 @@
       "description": "Are you sure you want to delete the label \"{{title}}\"? This action cannot be undone.",
       "cancel": "Cancel",
       "confirm": "Delete",
-      "deleting": "Deleting..."
+      "deleting": "Deleting...",
+      "usageWarning": "This label is used by {{count}} record(s). Deleting it will remove the label from them."
     },
     "bulkDelete": {
       "title": "Delete Labels",
