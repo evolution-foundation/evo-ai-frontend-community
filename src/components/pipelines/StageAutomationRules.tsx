@@ -87,6 +87,12 @@ function asInactivityValue(value: StageAutomationRule['trigger_value']): Inactiv
   return { minutes: INACTIVITY_MINUTES[1], base: 'no_customer_reply' };
 }
 
+// Narrow the union to the string form for the non-inactivity triggers (label /
+// status / generic input), where trigger_value is always a string at runtime.
+function asStringValue(value: StageAutomationRule['trigger_value']): string {
+  return typeof value === 'string' ? value : '';
+}
+
 function generateKey() {
   return `rule-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
@@ -181,7 +187,7 @@ export default function StageAutomationRules({
     if (rule.trigger === 'label_added') {
       return (
         <Select
-          value={rule.trigger_value || ANY_VALUE_SENTINEL}
+          value={asStringValue(rule.trigger_value) || ANY_VALUE_SENTINEL}
           onValueChange={v =>
             updateRule(index, { trigger_value: v === ANY_VALUE_SENTINEL ? '' : v })
           }
@@ -217,7 +223,7 @@ export default function StageAutomationRules({
     if (rule.trigger === 'conversation_status_changed') {
       return (
         <Select
-          value={rule.trigger_value || ANY_VALUE_SENTINEL}
+          value={asStringValue(rule.trigger_value) || ANY_VALUE_SENTINEL}
           onValueChange={v =>
             updateRule(index, { trigger_value: v === ANY_VALUE_SENTINEL ? '' : v })
           }
@@ -242,7 +248,7 @@ export default function StageAutomationRules({
       <Input
         className="flex-1"
         placeholder={t('stageAutomation.labelNamePlaceholder')}
-        value={rule.trigger_value}
+        value={asStringValue(rule.trigger_value)}
         onChange={e => updateRule(index, { trigger_value: e.target.value })}
         disabled={disabled}
       />
