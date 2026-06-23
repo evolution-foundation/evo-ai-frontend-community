@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { productsService } from '@/services/products/productsService';
-import { extractError } from '@/utils/apiHelpers';
+import { toFieldErrors } from './productErrors';
 import type {
   Product,
   ProductFormData,
@@ -25,26 +25,6 @@ import {
 } from '@evoapi/design-system';
 
 const DEFAULT_PAGE_SIZE = 25;
-
-// Maps a 422 validation error into a { field: message } map so the modal can
-// show server errors (e.g. SKU uniqueness) inline. Returns {} for non-field errors.
-function toFieldErrors(error: unknown): Record<string, string> {
-  const { details } = extractError(error);
-  const out: Record<string, string> = {};
-  if (Array.isArray(details)) {
-    details.forEach((d) => {
-      if (d && typeof d === 'object' && 'field' in d) {
-        const detail = d as { field: string; message?: string };
-        out[detail.field] = detail.message ?? '';
-      }
-    });
-  } else if (details && typeof details === 'object') {
-    Object.entries(details as Record<string, unknown>).forEach(([field, msgs]) => {
-      out[field] = Array.isArray(msgs) ? String(msgs[0]) : String(msgs);
-    });
-  }
-  return out;
-}
 
 export default function Products() {
   const { t } = useLanguage('products');
