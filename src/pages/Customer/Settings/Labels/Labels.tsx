@@ -11,7 +11,7 @@ import {
   DialogTitle,
   Button,
 } from '@evoapi/design-system';
-import { Tags } from 'lucide-react';
+import { Search, Tags } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 
 import { labelsService } from '@/services/contacts/labelsService';
@@ -22,7 +22,7 @@ import LabelsHeader from '@/components/labels/LabelsHeader';
 import LabelsTable from '@/components/labels/LabelsTable';
 import LabelsPagination from '@/components/labels/LabelsPagination';
 import LabelModal from '@/components/labels/LabelModal';
-import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
+import { DEFAULT_PAGE_SIZE, SETTINGS_LIST_FETCH_SIZE } from '@/constants/pagination';
 
 const INITIAL_STATE: LabelsState = {
   labels: [],
@@ -68,22 +68,15 @@ export default function Labels() {
     setState(prev => ({ ...prev, loading: { ...prev.loading, list: true } }));
 
     try {
-      const response = await labelsService.getLabels();
-      const total = response.meta.pagination.total;
-      const pageSize = response.meta.pagination.page_size;
+      const response = await labelsService.getLabels({ per_page: SETTINGS_LIST_FETCH_SIZE });
 
       setState(prev => ({
         ...prev,
         labels: response.data,
+        selectedLabelIds: [],
         meta: {
-          pagination: {
-            page: response.meta.pagination.page,
-            page_size: pageSize,
-            total: total,
-            total_pages: response.meta.pagination.total_pages,
-            has_next_page: response.meta.pagination.has_next_page,
-            has_previous_page: response.meta.pagination.has_previous_page,
-          }
+          ...prev.meta,
+          pagination: { ...prev.meta.pagination, page: 1 },
         },
         loading: { ...prev.loading, list: false },
       }));
@@ -112,39 +105,24 @@ export default function Labels() {
     setState(prev => ({
       ...prev,
       searchQuery: query,
-      meta: { pagination: { ...prev.meta.pagination, page: 1 } },
+      selectedLabelIds: [],
+      meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
     }));
-
-    // For now, just filter client-side. In production, this should be server-side
-    if (query.trim()) {
-      const filteredLabels = state.labels.filter(
-        label =>
-          label.title.toLowerCase().includes(query.toLowerCase()) ||
-          label.description?.toLowerCase().includes(query.toLowerCase()),
-      );
-      setState(prev => ({
-        ...prev,
-        labels: filteredLabels,
-      }));
-    } else {
-      loadLabels();
-    }
   };
 
   const handlePageChange = (page: number) => {
     setState(prev => ({
       ...prev,
-      meta: { pagination: { ...prev.meta.pagination, page } },
+      selectedLabelIds: [],
+      meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page } },
     }));
-
-    // For client-side pagination, this is just for UI state
-    // In production, this would trigger a new API call
   };
 
   const handlePerPageChange = (perPage: number) => {
     setState(prev => ({
       ...prev,
-      meta: { pagination: { ...prev.meta.pagination, page_size: perPage, page: 1 } },
+      selectedLabelIds: [],
+      meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page_size: perPage, page: 1 } },
     }));
   };
 
@@ -304,12 +282,36 @@ export default function Labels() {
     }
   };
 
+  const pageSize = state.meta.pagination.page_size;
+  const filteredLabels = state.searchQuery.trim()
+    ? state.labels.filter(label => {
+        const query = state.searchQuery.toLowerCase();
+        return (
+          label.title.toLowerCase().includes(query) ||
+          label.description?.toLowerCase().includes(query)
+        );
+      })
+    : state.labels;
+  const sortedLabels = [...filteredLabels].sort((a, b) => {
+    const direction = state.sortOrder === 'asc' ? 1 : -1;
+    if (state.sortBy === 'created_at') {
+      return (new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) * direction;
+    }
+    return a.title.localeCompare(b.title) * direction;
+  });
+  const totalPages = Math.max(1, Math.ceil(sortedLabels.length / pageSize));
+  const currentPage = Math.min(state.meta.pagination.page, totalPages);
+  const paginatedLabels = sortedLabels.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   return (
     <div className="h-full flex flex-col p-4" data-tour="settings-labels-page">
       <SettingsLabelsTour />
       <div data-tour="settings-labels-header">
         <LabelsHeader
-          totalCount={state.meta.pagination.total}
+          totalCount={sortedLabels.length}
           selectedCount={state.selectedLabelIds.length}
           searchValue={state.searchQuery}
           onSearchChange={handleSearchChange}
@@ -326,21 +328,35 @@ export default function Labels() {
           <div className="flex items-center justify-center py-16">
             <div className="text-muted-foreground">{t('loading')}</div>
           </div>
-        ) : state.labels.length === 0 ? (
-          <EmptyState
-            icon={Tags}
-            title={t('empty.title')}
-            description={t('empty.description')}
-            action={can('labels', 'create') ? {
-              label: t('empty.action'),
-              onClick: handleCreateLabel,
-            } : undefined}
-            className="h-full"
-          />
+        ) : sortedLabels.length === 0 ? (
+          state.searchQuery.trim() ? (
+            <EmptyState
+              icon={Search}
+              title={t('common:base.noResults.title')}
+              description={t('common:base.noResults.description')}
+              action={{
+                label: t('common:base.noResults.clearSearch'),
+                onClick: () => handleSearchChange(''),
+                variant: 'outline',
+              }}
+              className="h-full"
+            />
+          ) : (
+            <EmptyState
+              icon={Tags}
+              title={t('empty.title')}
+              description={t('empty.description')}
+              action={can('labels', 'create') ? {
+                label: t('empty.action'),
+                onClick: handleCreateLabel,
+              } : undefined}
+              className="h-full"
+            />
+          )
         ) : (
           <LabelsTable
-            labels={state.labels}
-            selectedLabels={state.labels.filter(label => state.selectedLabelIds.includes(label.id))}
+            labels={paginatedLabels}
+            selectedLabels={paginatedLabels.filter(label => state.selectedLabelIds.includes(label.id))}
             loading={state.loading.list}
             onSelectionChange={labels =>
               setState(prev => ({
@@ -359,24 +375,28 @@ export default function Labels() {
               setState(prev => ({
                 ...prev,
                 sortBy: column as 'title' | 'created_at',
-                sortOrder: newOrder
+                sortOrder: newOrder,
+                selectedLabelIds: [],
+                meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
               }));
-              // In production, this would trigger a new API call with sort parameters
             }}
           />
         )}
       </div>
 
       {/* Pagination */}
-      {state.meta.pagination.total > 0 && (
-        <LabelsPagination
-          currentPage={state.meta.pagination.page}
-          totalPages={state.meta.pagination.total_pages}
-          totalCount={state.meta.pagination.total}
-          perPage={state.meta.pagination.page_size}
-          onPageChange={handlePageChange}
-          onPerPageChange={handlePerPageChange}
-        />
+      {sortedLabels.length > 0 && (
+        <div className="mt-auto pt-4 border-t">
+          <LabelsPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCount={sortedLabels.length}
+            perPage={pageSize}
+            onPageChange={handlePageChange}
+            onPerPageChange={handlePerPageChange}
+            loading={state.loading.list}
+          />
+        </div>
       )}
 
       {/* Delete Label Dialog */}

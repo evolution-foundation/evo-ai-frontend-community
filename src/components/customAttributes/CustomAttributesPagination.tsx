@@ -14,8 +14,10 @@ export default function CustomAttributesPagination({
   currentPage,
   totalPages,
   onPageChange,
+  onPerPageChange,
   totalCount,
   perPage,
+  loading,
 }: CustomAttributesPaginationProps) {
   return (
     <BasePagination
@@ -24,6 +26,8 @@ export default function CustomAttributesPagination({
       totalItems={totalCount}
       itemsPerPage={perPage}
       onPageChange={onPageChange}
+      onItemsPerPageChange={onPerPageChange}
+      disabled={loading}
     />
   );
 }

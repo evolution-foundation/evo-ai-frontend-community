@@ -11,7 +11,7 @@ import {
   DialogTitle,
   Button,
 } from '@evoapi/design-system';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Search } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 
 import { useUserPermissions } from '@/hooks/useUserPermissions';
@@ -26,7 +26,7 @@ import CannedResponsesHeader from '@/components/cannedResponses/CannedResponsesH
 import CannedResponsesTable from '@/components/cannedResponses/CannedResponsesTable';
 import CannedResponsesPagination from '@/components/cannedResponses/CannedResponsesPagination';
 import CannedResponseModal from '@/components/cannedResponses/CannedResponseModal';
-import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
+import { DEFAULT_PAGE_SIZE, SETTINGS_LIST_FETCH_SIZE } from '@/constants/pagination';
 
 const INITIAL_STATE: CannedResponsesState = {
   cannedResponses: [],
@@ -71,22 +71,18 @@ export default function CannedResponses() {
     setState(prev => ({ ...prev, loading: { ...prev.loading, list: true } }));
 
     try {
-      const response = await cannedResponsesService.getCannedResponses();
-      const total = response.meta?.pagination?.total || 0;
-      const pageSize = response.meta?.pagination?.page_size || DEFAULT_PAGE_SIZE;
+      const response = await cannedResponsesService.getCannedResponses(
+        undefined,
+        SETTINGS_LIST_FETCH_SIZE,
+      );
 
       setState(prev => ({
         ...prev,
         cannedResponses: response.data,
+        selectedCannedResponseIds: [],
         meta: {
-          pagination: {
-            page: response.meta?.pagination?.page || 1,
-            page_size: pageSize,
-            total: total,
-            total_pages: response.meta?.pagination?.total_pages || Math.ceil(total / pageSize),
-            has_next_page: response.meta?.pagination?.has_next_page,
-            has_previous_page: response.meta?.pagination?.has_previous_page,
-          },
+          ...prev.meta,
+          pagination: { ...prev.meta.pagination, page: 1 },
         },
         loading: { ...prev.loading, list: false },
       }));
@@ -121,11 +117,20 @@ export default function CannedResponses() {
     state.searchQuery,
   );
 
+  const pageSize = state.meta.pagination.page_size ?? DEFAULT_PAGE_SIZE;
+  const totalPages = Math.max(1, Math.ceil(searchFilteredCannedResponses.length / pageSize));
+  const currentPage = Math.min(state.meta.pagination.page, totalPages);
+  const paginatedCannedResponses = searchFilteredCannedResponses.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   // Handlers
   const handleSearchChange = (query: string) => {
     setState(prev => ({
       ...prev,
       searchQuery: query,
+      selectedCannedResponseIds: [],
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
     }));
   };
@@ -133,6 +138,7 @@ export default function CannedResponses() {
   const handlePageChange = (page: number) => {
     setState(prev => ({
       ...prev,
+      selectedCannedResponseIds: [],
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page } },
     }));
   };
@@ -140,6 +146,7 @@ export default function CannedResponses() {
   const handlePerPageChange = (perPage: number) => {
     setState(prev => ({
       ...prev,
+      selectedCannedResponseIds: [],
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page_size: perPage, page: 1 } },
     }));
   };
@@ -299,20 +306,34 @@ export default function CannedResponses() {
             <div className="text-muted-foreground">{t('loading')}</div>
           </div>
         ) : searchFilteredCannedResponses.length === 0 ? (
-          <EmptyState
-            icon={MessageSquare}
-            title={t('empty.title')}
-            description={t('empty.description')}
-            action={{
-              label: t('empty.action'),
-              onClick: handleCreateCannedResponse,
-            }}
-            className="h-full"
-          />
+          state.searchQuery.trim() ? (
+            <EmptyState
+              icon={Search}
+              title={t('common:base.noResults.title')}
+              description={t('common:base.noResults.description')}
+              action={{
+                label: t('common:base.noResults.clearSearch'),
+                onClick: () => handleSearchChange(''),
+                variant: 'outline',
+              }}
+              className="h-full"
+            />
+          ) : (
+            <EmptyState
+              icon={MessageSquare}
+              title={t('empty.title')}
+              description={t('empty.description')}
+              action={{
+                label: t('empty.action'),
+                onClick: handleCreateCannedResponse,
+              }}
+              className="h-full"
+            />
+          )
         ) : (
           <CannedResponsesTable
-            cannedResponses={searchFilteredCannedResponses}
-            selectedCannedResponses={searchFilteredCannedResponses.filter(cr =>
+            cannedResponses={paginatedCannedResponses}
+            selectedCannedResponses={paginatedCannedResponses.filter(cr =>
               state.selectedCannedResponseIds.includes(cr.id),
             )}
             loading={state.loading.list}
@@ -330,7 +351,13 @@ export default function CannedResponses() {
             onSort={column => {
               const newOrder =
                 state.sortBy === column && state.sortOrder === 'asc' ? 'desc' : 'asc';
-              setState(prev => ({ ...prev, sortBy: column, sortOrder: newOrder }));
+              setState(prev => ({
+                ...prev,
+                sortBy: column,
+                sortOrder: newOrder,
+                selectedCannedResponseIds: [],
+                meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
+              }));
             }}
           />
         )}
@@ -340,12 +367,10 @@ export default function CannedResponses() {
       {searchFilteredCannedResponses.length > 0 && (
         <div className="mt-auto pt-4 border-t">
           <CannedResponsesPagination
-            currentPage={state.meta.pagination.page}
-            totalPages={Math.ceil(
-              searchFilteredCannedResponses.length / (state.meta.pagination.page_size ?? DEFAULT_PAGE_SIZE),
-            )}
+            currentPage={currentPage}
+            totalPages={totalPages}
             totalCount={searchFilteredCannedResponses.length}
-            perPage={state.meta.pagination.page_size ?? DEFAULT_PAGE_SIZE}
+            perPage={pageSize}
             onPageChange={handlePageChange}
             onPerPageChange={handlePerPageChange}
             loading={state.loading.list}

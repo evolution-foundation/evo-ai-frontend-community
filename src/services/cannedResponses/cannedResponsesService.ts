@@ -13,9 +13,12 @@ class CannedResponsesService {
     return '/canned_responses';
   }
 
-  async getCannedResponses(searchKey?: string): Promise<CannedResponsesResponse> {
+  async getCannedResponses(searchKey?: string, perPage?: number): Promise<CannedResponsesResponse> {
     try {
-      const params = searchKey ? { search: searchKey } : {};
+      const params = {
+        ...(searchKey ? { search: searchKey } : {}),
+        ...(perPage ? { per_page: perPage } : {}),
+      };
       const response = await api.get(this.baseUrl, { params });
       return extractResponse<CannedResponse>(response) as CannedResponsesResponse;
     } catch (error) {
