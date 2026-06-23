@@ -702,62 +702,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
             </div>
           </div>
 
-          {/* Segunda linha: Botões de formatação + Input + Botões de envio */}
-          <div className="flex items-end gap-2 w-full overflow-visible">
-            {/* Botões de formatação à esquerda */}
-            <div className="flex-shrink-0 flex items-center gap-1.5 pb-1">
-              {/* File Upload Button */}
-              <FileUpload
-                onFilesSelected={handleFilesSelected}
-                maxFileSize={100}
-                multiple={true}
-                disabled={isDisabled || isSending || isPendingConversation || hasCannedMedia}
-              />
-
-              {/* Emoji Button */}
-              <div className="relative">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={isDisabled || isSending || isPendingConversation}
-                  className="h-9 w-9 flex-shrink-0 hover:bg-accent disabled:opacity-50"
-                  onClick={handleEmojiClick}
-                >
-                  <Smile className="h-4 w-4" />
-                </Button>
-                <EmojiPicker
-                  isOpen={showEmojiPicker}
-                  onEmojiSelect={handleEmojiSelect}
-                  onClose={() => setShowEmojiPicker(false)}
-                />
-              </div>
-              {/* Canned Responses Button */}
-              <Button
-                variant={showCannedResponses ? 'default' : 'ghost'}
-                size="icon"
-                disabled={isDisabled || isSending || isPendingConversation}
-                className="h-9 w-9 flex-shrink-0 hover:bg-accent disabled:opacity-50"
-                onClick={handleCannedResponsesClick}
-                title={t('messageInput.cannedResponses.tooltip')}
-              >
-                <MessageSquareText className="h-4 w-4" />
-              </Button>
-
-              {/* Template Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                disabled={isSending || isPendingConversation}
-                className="h-9 w-9 flex-shrink-0 hover:bg-accent disabled:opacity-50"
-                onClick={handleTemplateClick}
-                title={t('messageTemplates.button.title')}
-              >
-                <FileText className="h-4 w-4" />
-              </Button>
-            </div>
-
+          {/* Input full-width, action buttons in a row below */}
+          <div className="w-full overflow-visible">
             {/* Text Input Container */}
-            <div className="flex-1 min-w-0 overflow-hidden">
+            <div className="w-full min-w-0 overflow-hidden">
               <RichTextEditor
                 ref={richEditorRef}
                 placeholder={
@@ -818,45 +766,99 @@ const MessageInput: React.FC<MessageInputProps> = ({
               />
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex-shrink-0 flex items-center gap-1.5 pb-1">
-              {replyMode === ReplyMode.REPLY && !isPendingConversation && (
-                <Button
-                  variant={isRecordingAudio ? 'default' : 'ghost'}
-                  size="icon"
-                  disabled={isDisabled || isSending}
-                  className={
-                    isRecordingAudio
-                      ? 'bg-primary hover:bg-primary/85 text-primary-foreground h-9 w-9 flex-shrink-0 shadow-md transition-all duration-200'
-                      : 'h-9 w-9 flex-shrink-0 hover:bg-accent transition-all duration-200'
-                  }
-                  onClick={startAudioRecording}
-                >
-                  <Mic className="h-4 w-4" />
-                </Button>
-              )}
+            {/* Action row: file / emoji / canned / template (left) + mic / send (right) */}
+            <div className="flex items-center justify-between gap-2 mt-2">
+              <div className="flex items-center gap-1.5">
+                {/* File Upload Button */}
+                <FileUpload
+                  onFilesSelected={handleFilesSelected}
+                  maxFileSize={100}
+                  multiple={true}
+                  disabled={isDisabled || isSending || isPendingConversation || hasCannedMedia}
+                />
 
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      onClick={handleSend}
-                      disabled={!canSend}
-                      className="bg-primary hover:bg-primary/85 text-primary-foreground h-9 w-9 flex-shrink-0 disabled:bg-muted disabled:text-muted-foreground disabled:opacity-50"
-                    >
-                      {isSending ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Send className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{sendButtonTooltip}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                {/* Emoji Button */}
+                <div className="relative">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={isDisabled || isSending || isPendingConversation}
+                    className="h-9 w-9 flex-shrink-0 hover:bg-accent disabled:opacity-50"
+                    onClick={handleEmojiClick}
+                  >
+                    <Smile className="h-4 w-4" />
+                  </Button>
+                  <EmojiPicker
+                    isOpen={showEmojiPicker}
+                    onEmojiSelect={handleEmojiSelect}
+                    onClose={() => setShowEmojiPicker(false)}
+                  />
+                </div>
+
+                {/* Canned Responses Button */}
+                <Button
+                  variant={showCannedResponses ? 'default' : 'ghost'}
+                  size="icon"
+                  disabled={isDisabled || isSending || isPendingConversation}
+                  className="h-9 w-9 flex-shrink-0 hover:bg-accent disabled:opacity-50"
+                  onClick={handleCannedResponsesClick}
+                  title={t('messageInput.cannedResponses.tooltip')}
+                >
+                  <MessageSquareText className="h-4 w-4" />
+                </Button>
+
+                {/* Template Button */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={isSending || isPendingConversation}
+                  className="h-9 w-9 flex-shrink-0 hover:bg-accent disabled:opacity-50"
+                  onClick={handleTemplateClick}
+                  title={t('messageTemplates.button.title')}
+                >
+                  <FileText className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                {replyMode === ReplyMode.REPLY && !isPendingConversation && (
+                  <Button
+                    variant={isRecordingAudio ? 'default' : 'ghost'}
+                    size="icon"
+                    disabled={isDisabled || isSending}
+                    className={
+                      isRecordingAudio
+                        ? 'bg-primary hover:bg-primary/85 text-primary-foreground h-9 w-9 flex-shrink-0 shadow-md transition-all duration-200'
+                        : 'h-9 w-9 flex-shrink-0 hover:bg-accent transition-all duration-200'
+                    }
+                    onClick={startAudioRecording}
+                  >
+                    <Mic className="h-4 w-4" />
+                  </Button>
+                )}
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="icon"
+                        onClick={handleSend}
+                        disabled={!canSend}
+                        className="bg-primary hover:bg-primary/85 text-primary-foreground h-9 w-9 flex-shrink-0 disabled:bg-muted disabled:text-muted-foreground disabled:opacity-50"
+                      >
+                        {isSending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Send className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{sendButtonTooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
           </div>
         </CardContent>
