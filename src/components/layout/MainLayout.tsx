@@ -107,7 +107,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background transition-colors duration-150 ease-in-out">
+    <div className="flex flex-col h-dvh bg-background transition-colors duration-150 ease-in-out">
 
       {/* Header */}
       <Header
