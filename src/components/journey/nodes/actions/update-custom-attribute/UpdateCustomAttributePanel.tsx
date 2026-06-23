@@ -89,7 +89,12 @@ export function UpdateCustomAttributePanel({
     setFormData(prev => ({
       ...prev,
       attributeId,
-      attributeName: selectedAttribute?.attribute_display_name || '',
+      // attributeName MUST be the attribute_key (slug) — it is what the
+      // evo-flow Update node persists as the CRM custom_attributes key, and
+      // what a downstream Conditional reads via
+      // {{contact.customAttributes.<attribute_key>}} (EVO-1850 / EVO-1837).
+      attributeName: selectedAttribute?.attribute_key || '',
+      attributeDisplayName: selectedAttribute?.attribute_display_name || '',
       attributeDisplayType: selectedAttribute?.attribute_display_type || '',
       newValue: '',
     }));
@@ -332,7 +337,10 @@ export function UpdateCustomAttributePanel({
               <span className="text-sm">
                 {ATTRIBUTE_TYPE_ICONS[selectedAttribute?.attribute_display_type || ''] || '⚙️'}
               </span>
-              <span className="font-medium">{formData.attributeName}</span>
+              <span className="font-medium">
+                {formData.attributeDisplayName ||
+                  selectedAttribute?.attribute_display_name}
+              </span>
               <span>→</span>
               <span className="font-medium">
                 {selectedAttribute?.attribute_display_type === 'checkbox'

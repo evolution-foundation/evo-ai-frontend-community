@@ -6,7 +6,10 @@ export interface UpdateCustomAttributeNodeData {
   label: string;
   description?: string;
   attributeId?: string;
+  // attributeName carries the attribute_key (slug) used as the CRM api key.
   attributeName?: string;
+  // attributeDisplayName is the human-readable label, for UI only (EVO-1850).
+  attributeDisplayName?: string;
   attributeDisplayType?: string;
   newValue?: string;
 }
@@ -44,7 +47,7 @@ export function UpdateCustomAttributeNode({ selected, data, id }: UpdateCustomAt
     }
 
     return t('panels.updateCustomAttribute.updates', {
-      attribute: data.attributeName,
+      attribute: data.attributeDisplayName || data.attributeName,
       value: data.newValue,
     });
   };
@@ -91,7 +94,7 @@ export function UpdateCustomAttributeNode({ selected, data, id }: UpdateCustomAt
             <div className="flex items-center gap-2 mt-1">
               <span className="text-xs">{getTypeIcon()}</span>
               <span className="text-xs text-pink-700 dark:text-pink-300 font-medium">
-                {data.attributeName}
+                {data.attributeDisplayName || data.attributeName}
               </span>
               <span className="text-xs text-pink-600 dark:text-pink-400">→ {data.newValue}</span>
             </div>
