@@ -129,14 +129,6 @@ export const CONTACT_FILTER_TYPES: FilterType[] = [
     attribute_type: 'standard',
   },
   {
-    attributeKey: 'company',
-    attributeI18nKey: 'filter.attributes.company',
-    inputType: 'plain_text',
-    dataType: 'text',
-    filterOperators: OPERATOR_TYPES_3,
-    attribute_type: 'standard',
-  },
-  {
     attributeKey: 'blocked',
     attributeI18nKey: 'filter.attributes.blocked',
     inputType: 'search_select',
