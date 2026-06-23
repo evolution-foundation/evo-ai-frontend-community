@@ -49,6 +49,14 @@ const STATUSES: ProductStatus[] = ['active', 'inactive', 'draft'];
 const CURRENCIES: ProductCurrency[] = ['BRL', 'USD', 'EUR'];
 const URL_REGEX = /^https?:\/\/.+/i;
 
+// Empty input → null; non-numeric input (e.g. a pasted string) → null instead of NaN,
+// which would otherwise leak into the payload and bypass form validation.
+function toNumberOrNull(value: string): number | null {
+  if (value.trim() === '') return null;
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
 function emptyForm(): ProductFormState {
   return {
     name: '',
@@ -278,7 +286,7 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
                     value={form.default_price ?? ''}
                     placeholder="0,00"
                     onChange={(e) =>
-                      setForm({ ...form, default_price: e.target.value === '' ? null : Number(e.target.value) })
+                      setForm({ ...form, default_price: toNumberOrNull(e.target.value) })
                     }
                     onBlur={() => markTouched('default_price')}
                   />
@@ -325,7 +333,7 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
                     min={0}
                     value={form.stock_quantity ?? ''}
                     onChange={(e) =>
-                      setForm({ ...form, stock_quantity: e.target.value === '' ? null : Number(e.target.value) })
+                      setForm({ ...form, stock_quantity: toNumberOrNull(e.target.value) })
                     }
                   />
                 </div>
@@ -403,7 +411,7 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
                         value={variant.price_override ?? ''}
                         onChange={(e) =>
                           handleVariantChange(idx, {
-                            price_override: e.target.value === '' ? null : Number(e.target.value),
+                            price_override: toNumberOrNull(e.target.value),
                           })
                         }
                       />
@@ -418,7 +426,7 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
                           value={variant.stock_quantity ?? ''}
                           onChange={(e) =>
                             handleVariantChange(idx, {
-                              stock_quantity: e.target.value === '' ? null : Number(e.target.value),
+                              stock_quantity: toNumberOrNull(e.target.value),
                             })
                           }
                         />
