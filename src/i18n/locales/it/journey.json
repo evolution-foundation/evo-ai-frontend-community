@@ -451,6 +451,7 @@
   },
   "environmentManager": {
     "title": "Variabili d'Ambiente",
+    "invalidExpression": "L'espressione personalizzata ha parentesi graffe o tonde non bilanciate",
     "description": "Configura variabili da usare in tutto il percorso con la sintassi {variabile}",
     "searchPlaceholder": "Cerca variabili...",
     "loading": "Caricamento variabili...",
@@ -555,6 +556,7 @@
       },
       "actions": {
         "new": "Nuova Variabile",
+        "insertVariable": "Inserisci variabile",
         "copy": "Copia",
         "edit": "Modifica variabile",
         "delete": "Rimuovi variabile",

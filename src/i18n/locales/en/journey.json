@@ -451,6 +451,7 @@
   },
   "environmentManager": {
     "title": "Environment Variables",
+    "invalidExpression": "Custom expression has unbalanced braces or parentheses",
     "description": "Configure variables to use throughout the journey with {variable} syntax",
     "searchPlaceholder": "Search variables...",
     "loading": "Loading variables...",
@@ -560,6 +561,7 @@
       },
       "actions": {
         "new": "New Variable",
+        "insertVariable": "Insert variable",
         "copy": "Copy",
         "edit": "Edit variable",
         "delete": "Remove variable",

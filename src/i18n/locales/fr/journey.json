@@ -439,6 +439,7 @@
   },
   "environmentManager": {
     "title": "Variables d'environnement",
+    "invalidExpression": "L'expression personnalisée comporte des accolades ou des parenthèses non équilibrées",
     "description": "Configurez des variables à utiliser dans tout le parcours avec la syntaxe {variable}",
     "searchPlaceholder": "Rechercher des variables...",
     "loading": "Chargement des variables...",
@@ -543,6 +544,7 @@
       },
       "actions": {
         "new": "Nouvelle variable",
+        "insertVariable": "Insérer une variable",
         "copy": "Copier",
         "edit": "Modifier la variable",
         "delete": "Supprimer la variable",

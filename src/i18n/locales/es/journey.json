@@ -439,6 +439,7 @@
   },
   "environmentManager": {
     "title": "Variables de Entorno",
+    "invalidExpression": "La expresión personalizada tiene llaves o paréntesis desbalanceados",
     "description": "Configure variables para usar en toda la jornada con la sintaxis {variavel}",
     "searchPlaceholder": "Buscar variables...",
     "loading": "Cargando variables...",
@@ -543,6 +544,7 @@
       },
       "actions": {
         "new": "Nueva Variable",
+        "insertVariable": "Insertar variable",
         "copy": "Copiar",
         "edit": "Editar variable",
         "delete": "Remover variable",

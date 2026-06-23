@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ConditionalPanel } from './ConditionalPanel';
@@ -257,5 +257,80 @@ describe('ConditionalPanel — contact custom attributes in the field picker', (
     const listbox = await screen.findByRole('listbox');
     expect(within(listbox).getAllByRole('option').length).toBeGreaterThan(0);
     expect(within(listbox).queryByText('Plan Interest')).toBeNull();
+  });
+});
+
+// EVO-1855: the value picker accepts free-text expressions; unbalanced
+// {{ }}/parentheses must be surfaced and block Save (reusing the shared
+// isBalancedExpression from @/utils/templateVariables).
+const SAVE_NAME = /save|salvar|guardar|enregistrer|salva/i;
+const INSERT_VARIABLE_NAME =
+  /insert variable|inserir variável|insertar variable|insérer une variable|inserisci variabile/i;
+
+describe('ConditionalPanel — expression validation', () => {
+  it('flags an unbalanced condition value: aria-invalid, inline error, Save blocked (AC1)', async () => {
+    render(
+      <ConditionalPanel
+        nodeId="n1"
+        data={dataWithContactCondition('{{contact.email}}')}
+        onUpdate={vi.fn()}
+        onClose={vi.fn()}
+        journeyId="j1"
+      />,
+    );
+
+    const valueInput = await screen.findByPlaceholderText(/^value$/i);
+    fireEvent.change(valueInput, { target: { value: '{{contact.name' } });
+
+    expect(valueInput).toHaveAttribute('aria-invalid', 'true');
+    const describedBy = valueInput.getAttribute('aria-describedby');
+    expect(describedBy).toBeTruthy();
+    expect(document.getElementById(describedBy as string)).toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: SAVE_NAME })).toBeDisabled();
+  });
+
+  it('enables Save and persists when the condition value is balanced (AC2)', async () => {
+    const onUpdate = vi.fn();
+    const onClose = vi.fn();
+    render(
+      <ConditionalPanel
+        nodeId="n1"
+        data={dataWithContactCondition('{{contact.email}}')}
+        onUpdate={onUpdate}
+        onClose={onClose}
+        journeyId="j1"
+      />,
+    );
+
+    const valueInput = await screen.findByPlaceholderText(/^value$/i);
+    fireEvent.change(valueInput, { target: { value: '{{contact.name}}' } });
+
+    expect(valueInput).toHaveAttribute('aria-invalid', 'false');
+
+    const saveBtn = screen.getByRole('button', { name: SAVE_NAME });
+    expect(saveBtn).not.toBeDisabled();
+
+    fireEvent.click(saveBtn);
+    expect(onUpdate).toHaveBeenCalledTimes(1);
+    const [, updated] = onUpdate.mock.calls[0];
+    expect(updated.paths[0].conditions[0].value).toBe('{{contact.name}}');
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('exposes an accessible label on the value picker button (AC4)', async () => {
+    render(
+      <ConditionalPanel
+        nodeId="n1"
+        data={dataWithContactCondition('{{contact.email}}')}
+        onUpdate={vi.fn()}
+        onClose={vi.fn()}
+        journeyId="j1"
+      />,
+    );
+
+    expect(
+      await screen.findByRole('button', { name: INSERT_VARIABLE_NAME }),
+    ).toBeInTheDocument();
   });
 });

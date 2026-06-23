@@ -27,6 +27,7 @@ import { VariableInput, VariableSelect } from '@/components/journey/environment-
 import { v4 as uuidv4 } from 'uuid';
 import { useLanguage } from '@/hooks/useLanguage';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
+import { isBalancedExpression } from '@/utils/templateVariables';
 
 const PIPELINE_STAGE_OPERATORS = ['equals', 'not_equals'];
 
@@ -132,6 +133,8 @@ export function ConditionalPanel({
   }, [hasPipelineStageCondition, stageOptions.length]);
 
   const handleSave = () => {
+    // Save is gated by saveDisabled below; this guard is defense-in-depth.
+    if (hasInvalidExpression) return;
     onUpdate(nodeId, formData);
     onClose();
   };
@@ -237,6 +240,25 @@ export function ConditionalPanel({
     return !['is_empty', 'is_not_empty'].includes(operator);
   };
 
+  // A condition's value is only validated when it actually drives a free-text
+  // expression: skip pipeline-stage (id-only) and operators that take no value.
+  // Non-string / blank values are treated as balanced so a numeric value never
+  // throws at render (the shared util expects a string).
+  const isConditionValueBalanced = (condition: Condition) => {
+    if (condition.field === PIPELINE_STAGE_FIELD) return true;
+    if (!needsValue(condition.operator)) return true;
+    const value = condition.value;
+    if (typeof value !== 'string' || value.trim() === '') return true;
+    return isBalancedExpression(value);
+  };
+
+  // Cheap derived traversal (a handful of conditions) — recompute on each
+  // render rather than memoizing, which would force isConditionValueBalanced
+  // into the dep array and re-run every render anyway.
+  const hasInvalidExpression = formData.paths.some(path =>
+    path.conditions.some(condition => !isConditionValueBalanced(condition)),
+  );
+
   const dirty = useMemo(
     () => JSON.stringify(formData) !== JSON.stringify(originalData),
     [formData, originalData],
@@ -268,6 +290,9 @@ export function ConditionalPanel({
     const operatorOptions = isPipelineStageField
       ? OPERATORS.filter(option => PIPELINE_STAGE_OPERATORS.includes(option.value))
       : OPERATORS;
+
+    const valueBalanced = isConditionValueBalanced(condition);
+    const exprErrorId = `conditional-expr-error-${condition.id}`;
 
     return (
       <div
@@ -352,21 +377,27 @@ export function ConditionalPanel({
                 </SelectContent>
               </Select>
             ) : needsValue(condition.operator) ? (
-              <VariableInput
-                value={condition.value || ''}
-                onChange={e =>
-                  updateCondition(pathId, condition.id, {
-                    value: e.target.value,
-                    valueLabel: undefined,
-                  })
-                }
-                placeholder={t('panels.conditional.value')}
-                className="bg-sidebar border-sidebar-border text-sidebar-foreground"
-                journeyId={journeyId}
-                onVariableInsert={variable => {
-                  console.log('Variable inserted in condition:', variable);
-                }}
-              />
+              <>
+                <VariableInput
+                  value={condition.value || ''}
+                  onChange={e =>
+                    updateCondition(pathId, condition.id, {
+                      value: e.target.value,
+                      valueLabel: undefined,
+                    })
+                  }
+                  placeholder={t('panels.conditional.value')}
+                  className="bg-sidebar border-sidebar-border text-sidebar-foreground"
+                  journeyId={journeyId}
+                  aria-invalid={!valueBalanced}
+                  aria-describedby={valueBalanced ? undefined : exprErrorId}
+                />
+                {!valueBalanced && (
+                  <p id={exprErrorId} className="mt-1 text-xs text-flow-feedback-error-fg">
+                    {t('environmentManager.invalidExpression')}
+                  </p>
+                )}
+              </>
             ) : (
               <div className="h-10 flex items-center text-xs text-muted-foreground italic px-3">
                 {t('panels.conditional.notNecessary')}
@@ -518,6 +549,7 @@ export function ConditionalPanel({
       onCancel={onClose}
       onSave={handleSave}
       dirty={dirty}
+      saveDisabled={hasInvalidExpression}
       saveLabel={t('actions.save')}
       cancelLabel={t('actions.cancel')}
       contentClassName="max-w-4xl"

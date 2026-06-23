@@ -136,8 +136,13 @@ const VariableTextarea = forwardRef<HTMLTextAreaElement, VariableTextareaProps>(
                   variant="ghost"
                   size="sm"
                   className="h-7 w-7 p-0 hover:bg-muted"
+                  aria-label={
+                    variableButtonTooltip ||
+                    t('environmentManager.customVariables.actions.insertVariable')
+                  }
                   title={
-                    variableButtonTooltip || t('environmentManager.customVariables.actions.copy')
+                    variableButtonTooltip ||
+                    t('environmentManager.customVariables.actions.insertVariable')
                   }
                 >
                   <Variable className="h-3 w-3" />
