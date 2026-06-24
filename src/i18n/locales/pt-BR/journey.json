@@ -92,6 +92,7 @@
       "requiredConfig": "{{node}}: configuração obrigatória ausente ({{fields}})",
       "triggerActionContext": "{{node}}: precisa de uma conversa, mas o gatilho não fornece uma",
       "danglingExit": "{{node}}: este caminho não termina em um nó de saída ou transferência",
+      "unreachableExit": "{{node}}: este nó está preso em um ciclo que nunca alcança um nó de saída ou transferência",
       "summaryErrors": "Corrija antes de ativar:",
       "summaryWarnings": "Avisos:",
       "saveIssues": "Salvo com pendências: {{issues}}",

@@ -36,7 +36,9 @@ function labelFor(node: Node): string {
  * or `transfer-journey-node`). Such nodes leave the journey "running" for up to
  * 30 days instead of completing (EVO-1691), so the editor warns about them on
  * save (EVO-1692). A lone trigger (no downstream) counts as dangling too.
- * Cyclic paths with no exit are not detected.
+ * Cyclic paths with no exit are out of this check's reach (every cyclic node has
+ * an outgoing edge) — they are caught separately by `unreachableExitIssues`
+ * (EVO-1857).
  */
 export function validateJourneyTerminalPaths(
   nodes: Node[],
@@ -81,7 +83,7 @@ export function validateJourneyTerminalPaths(
 /**
  * Terminal-path rule as `ValidationIssue[]` (EVO-1744, AC4: the EVO-1692 check
  * folded into the engine, not duplicated). Each dangling node → one warning.
- * NOTE: cyclic paths with no exit are still not detected (see EVO-1857).
+ * Cyclic paths with no exit are handled by `unreachableExitIssues` (EVO-1857).
  */
 function terminalPathIssues(nodes: Node[], edges: Edge[]): ValidationIssue[] {
   return validateJourneyTerminalPaths(nodes, edges).danglingNodes.map(
@@ -93,6 +95,81 @@ function terminalPathIssues(nodes: Node[], edges: Edge[]): ValidationIssue[] {
       params: { node: dangling.label },
     }),
   );
+}
+
+/**
+ * Detects the blind spot `terminalPath` misses (EVO-1857, follow-up to EVO-1744
+ * F5): nodes reachable from a trigger that can **never** reach a terminating node
+ * (`exit-journey-node`/`transfer-journey-node`) — e.g. a closed loop with no exit
+ * (`trigger → A → B → A`). `terminalPath` only flags nodes with *no outgoing
+ * edge*, so a node inside a cycle (which always has one) escapes it, yet at
+ * runtime its session stays "running" for ~30 days (EVO-1691).
+ *
+ * Algorithm (as specced on the card): one reverse-reachability pass from the
+ * terminal nodes yields the set that *can* reach a terminal; any trigger-reachable
+ * node outside it is trapped. Linear, no memoization needed. Two exclusions keep
+ * it from doubling up with `terminalPath`: trigger nodes (the entry, not the
+ * offending step) and no-outgoing nodes (already its `danglingExit` domain).
+ */
+function unreachableExitIssues(nodes: Node[], edges: Edge[]): ValidationIssue[] {
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const outgoing = new Map<string, string[]>();
+  const incoming = new Map<string, string[]>();
+  for (const edge of edges) {
+    if (!edge.source || !edge.target) continue;
+    const outs = outgoing.get(edge.source) ?? [];
+    outs.push(edge.target);
+    outgoing.set(edge.source, outs);
+    const ins = incoming.get(edge.target) ?? [];
+    ins.push(edge.source);
+    incoming.set(edge.target, ins);
+  }
+
+  // Reverse-BFS from every terminal node → the set that can reach a terminal.
+  const canReachTerminal = new Set<string>();
+  const revQueue = nodes
+    .filter((node) => node.type && TERMINAL_NODE_TYPES.has(node.type))
+    .map((node) => node.id);
+  while (revQueue.length > 0) {
+    const id = revQueue.shift() as string;
+    if (canReachTerminal.has(id)) continue;
+    canReachTerminal.add(id);
+    for (const src of incoming.get(id) ?? []) {
+      if (!canReachTerminal.has(src)) revQueue.push(src);
+    }
+  }
+
+  // Forward-BFS from every trigger → nodes that actually execute. Insertion order
+  // is deterministic (BFS from triggers), so emitted warnings are stable.
+  const reachable = new Set<string>();
+  const fwdQueue = nodes
+    .filter((node) => node.type === TRIGGER_NODE_TYPE)
+    .map((node) => node.id);
+  while (fwdQueue.length > 0) {
+    const id = fwdQueue.shift() as string;
+    if (reachable.has(id)) continue;
+    reachable.add(id);
+    for (const tgt of outgoing.get(id) ?? []) {
+      if (!reachable.has(tgt)) fwdQueue.push(tgt);
+    }
+  }
+
+  const issues: ValidationIssue[] = [];
+  for (const id of reachable) {
+    if (canReachTerminal.has(id)) continue; // has a way out → fine
+    const node = nodeById.get(id);
+    if (!node) continue;
+    if (node.type === TRIGGER_NODE_TYPE) continue; // entry, not the offending step
+    if ((outgoing.get(id) ?? []).length === 0) continue; // danglingExit's domain
+    issues.push({
+      nodeId: id,
+      rule: 'unreachableExit',
+      severity: 'warning',
+      messageKey: 'flowEditor.validation.unreachableExit',
+      params: { node: labelFor(node) },
+    });
+  }
+  return issues;
 }
 
 /**
@@ -128,6 +205,9 @@ export function validateJourney(
 
   // (c) terminal-path (EVO-1692, folded in) — warnings
   issues.push(...terminalPathIssues(nodes, edges));
+
+  // (d) cycles with no reachable exit (EVO-1857, terminalPath's blind spot) — warnings
+  issues.push(...unreachableExitIssues(nodes, edges));
 
   const errors = issues.filter((i) => i.severity === 'error');
   const warnings = issues.filter((i) => i.severity === 'warning');

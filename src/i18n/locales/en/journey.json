@@ -92,6 +92,7 @@
       "requiredConfig": "{{node}}: missing required configuration ({{fields}})",
       "triggerActionContext": "{{node}}: needs a conversation, but the trigger doesn't provide one",
       "danglingExit": "{{node}}: this path doesn't end in an exit or transfer node",
+      "unreachableExit": "{{node}}: this node is stuck in a loop that can never reach an exit or transfer node",
       "summaryErrors": "Fix these before activating:",
       "summaryWarnings": "Warnings:",
       "saveIssues": "Saved with pending issues: {{issues}}",

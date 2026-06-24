@@ -165,4 +165,79 @@ describe('validateJourney (EVO-1744)', () => {
     expect(r.warnings.some((w) => w.rule === 'terminalPath' && w.nodeId === 'a')).toBe(true);
     expect(r.isActivatable).toBe(true); // warning, not error
   });
+
+  // EVO-1857: terminalPath's blind spot — a closed loop with no exit. Every
+  // cyclic node has an outgoing edge, so terminalPath never flags it.
+  it('EVO-1857 AC1: a cycle with no reachable exit warns (unreachableExit)', () => {
+    const nodes = [
+      node('t', 'journey-trigger-node', {
+        triggerType: 'event',
+        eventName: 'conversation.created',
+      }),
+      sendMsg('a'),
+      sendMsg('b'),
+    ];
+    // trigger → a → b → a (closed loop, no exit/transfer anywhere)
+    const r = validateJourney(nodes, [edge('t', 'a'), edge('a', 'b'), edge('b', 'a')]);
+    expect(r.errors).toEqual([]);
+    expect(r.isActivatable).toBe(true); // warning, not error
+    expect(r.warnings.some((w) => w.rule === 'unreachableExit' && w.nodeId === 'a')).toBe(true);
+    expect(r.warnings.some((w) => w.rule === 'unreachableExit' && w.nodeId === 'b')).toBe(true);
+    // The cyclic nodes have outgoing edges, so terminalPath must NOT also flag them.
+    expect(r.warnings.some((w) => w.rule === 'terminalPath')).toBe(false);
+  });
+
+  it('EVO-1857 AC1: a self-looping node with no exit warns', () => {
+    const nodes = [
+      node('t', 'journey-trigger-node', {
+        triggerType: 'event',
+        eventName: 'conversation.created',
+      }),
+      sendMsg('a'),
+    ];
+    const r = validateJourney(nodes, [edge('t', 'a'), edge('a', 'a')]);
+    expect(r.warnings.some((w) => w.rule === 'unreachableExit' && w.nodeId === 'a')).toBe(true);
+  });
+
+  it('EVO-1857 AC2: a cycle that CAN reach an exit is not a false positive', () => {
+    const nodes = [
+      node('t', 'journey-trigger-node', {
+        triggerType: 'event',
+        eventName: 'conversation.created',
+      }),
+      sendMsg('a'),
+      sendMsg('b'),
+      node('e', 'exit-journey-node'),
+    ];
+    // trigger → a → b → a (loop) but b → e gives every cyclic node a way out.
+    const r = validateJourney(nodes, [
+      edge('t', 'a'),
+      edge('a', 'b'),
+      edge('b', 'a'),
+      edge('b', 'e'),
+    ]);
+    expect(r.warnings.some((w) => w.rule === 'unreachableExit')).toBe(false);
+    expect(r.isActivatable).toBe(true);
+  });
+
+  it('EVO-1857: a no-exit cycle NOT reachable from any trigger is ignored', () => {
+    const nodes = [
+      node('t', 'journey-trigger-node', {
+        triggerType: 'event',
+        eventName: 'conversation.created',
+      }),
+      sendMsg('a'),
+      node('e', 'exit-journey-node'),
+      // Detached loop c → d → c, no trigger reaches it: never executes, no warning.
+      sendMsg('c'),
+      sendMsg('d'),
+    ];
+    const r = validateJourney(nodes, [
+      edge('t', 'a'),
+      edge('a', 'e'),
+      edge('c', 'd'),
+      edge('d', 'c'),
+    ]);
+    expect(r.warnings.some((w) => w.rule === 'unreachableExit')).toBe(false);
+  });
 });

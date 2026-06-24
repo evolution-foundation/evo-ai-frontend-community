@@ -92,6 +92,7 @@
       "requiredConfig": "{{node}} : configuration requise manquante ({{fields}})",
       "triggerActionContext": "{{node}} : nécessite une conversation, mais le déclencheur n'en fournit pas",
       "danglingExit": "{{node}} : ce chemin ne se termine pas par un nœud de sortie ou de transfert",
+      "unreachableExit": "{{node}} : ce nœud est bloqué dans une boucle qui ne peut jamais atteindre un nœud de sortie ou de transfert",
       "summaryErrors": "Corrigez ceci avant d'activer :",
       "summaryWarnings": "Avertissements :",
       "saveIssues": "Enregistré avec des problèmes en attente : {{issues}}",

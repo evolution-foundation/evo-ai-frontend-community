@@ -92,6 +92,7 @@
       "requiredConfig": "{{node}}: configurazione obbligatoria mancante ({{fields}})",
       "triggerActionContext": "{{node}}: richiede una conversazione, ma il trigger non ne fornisce una",
       "danglingExit": "{{node}}: questo percorso non termina con un nodo di uscita o trasferimento",
+      "unreachableExit": "{{node}}: questo nodo è bloccato in un ciclo che non può mai raggiungere un nodo di uscita o trasferimento",
       "summaryErrors": "Correggi prima di attivare:",
       "summaryWarnings": "Avvisi:",
       "saveIssues": "Salvato con problemi in sospeso: {{issues}}",

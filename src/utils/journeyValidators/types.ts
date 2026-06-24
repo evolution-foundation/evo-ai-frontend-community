@@ -8,7 +8,8 @@ export type ValidationSeverity = 'error' | 'warning';
 export type ValidationRule =
   | 'requiredConfig'
   | 'triggerActionContext'
-  | 'terminalPath';
+  | 'terminalPath'
+  | 'unreachableExit';
 
 export interface ValidationIssue {
   /** Node the issue belongs to; undefined = journey-level. */
