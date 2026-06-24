@@ -41,7 +41,9 @@
         "cancel": "Cancelar",
         "confirm": "Excluir mensagem"
       },
-      "deletedPlaceholder": "Esta mensagem foi excluída"
+      "deletedPlaceholder": "Esta mensagem foi excluída",
+      "revokedByContact": "Apagada pelo contato",
+      "revokeCrmOnly": "removida só no CRM"
     },
     "moderation": {
       "banner": {

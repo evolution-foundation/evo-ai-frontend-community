@@ -41,7 +41,9 @@
         "cancel": "Cancel",
         "confirm": "Delete message"
       },
-      "deletedPlaceholder": "This message was deleted"
+      "deletedPlaceholder": "This message was deleted",
+      "revokedByContact": "Deleted by the contact",
+      "revokeCrmOnly": "removed only in the CRM"
     },
     "moderation": {
       "banner": {
