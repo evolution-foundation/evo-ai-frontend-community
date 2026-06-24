@@ -147,7 +147,7 @@ export default function CannedResponseModal({
       existingAttachments.filter(a => !removedAttachmentIds.includes(a.id)).length +
       (formData.attachments?.length ?? 0);
     if (currentCount >= 1) {
-      toast.error('Apenas 1 anexo por resposta rápida');
+      toast.error(t('modal.fields.attachments.errors.limitReached'));
       return;
     }
 
@@ -162,11 +162,11 @@ export default function CannedResponseModal({
 
     const file = files[0];
     if (file.size > maxSize) {
-      toast.error(`Arquivo ${file.name} é muito grande (máximo 10MB)`);
+      toast.error(t('modal.fields.attachments.errors.tooLarge', { name: file.name }));
       return;
     }
     if (!allowedTypes.includes(file.type)) {
-      toast.error(`Tipo de arquivo ${file.name} não permitido`);
+      toast.error(t('modal.fields.attachments.errors.invalidType', { name: file.name }));
       return;
     }
 
@@ -361,13 +361,14 @@ export default function CannedResponseModal({
                         rel="noopener noreferrer"
                         className="text-xs underline text-primary"
                       >
-                        Abrir
+                        {t('modal.fields.attachments.openAction')}
                       </a>
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8"
+                        aria-label={t('modal.fields.attachments.removeAriaLabel')}
                         onClick={() => setRemovedAttachmentIds(prev => [...prev, attachment.id])}
                         disabled={loading}
                       >
@@ -405,6 +406,7 @@ export default function CannedResponseModal({
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 flex-shrink-0"
+                      aria-label={t('modal.fields.attachments.removeAriaLabel')}
                       onClick={() => handleRemoveFile(index)}
                       disabled={loading}
                     >

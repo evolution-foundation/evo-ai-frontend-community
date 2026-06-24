@@ -57,7 +57,14 @@
         "addButton": "Add File",
         "hint": "Maximum 10MB per file. Formats: images, audios, videos, PDF, DOC",
         "existing": "Existing attachments:",
-        "new": "New attachments:"
+        "new": "New attachments:",
+        "openAction": "Open",
+        "removeAriaLabel": "Remove attachment",
+        "errors": {
+          "limitReached": "Only 1 attachment per canned response",
+          "tooLarge": "File {{name}} is too large (max 10MB)",
+          "invalidType": "File type {{name}} not allowed"
+        }
       }
     },
     "variables": {

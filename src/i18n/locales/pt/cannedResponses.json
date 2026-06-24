@@ -42,6 +42,20 @@
       "description": "Edite as informações da resposta rápida."
     },
     "fields": {
+      "attachments": {
+        "label": "Anexos (Imagens, Áudios, Vídeos, Documentos)",
+        "addButton": "Adicionar ficheiro",
+        "hint": "Máximo 10MB por ficheiro. Formatos: imagens, áudios, vídeos, PDF, DOC",
+        "existing": "Anexos existentes:",
+        "new": "Novos anexos:",
+        "openAction": "Abrir",
+        "removeAriaLabel": "Remover anexo",
+        "errors": {
+          "limitReached": "Apenas 1 anexo por resposta rápida",
+          "tooLarge": "O ficheiro {{name}} é demasiado grande (máximo 10MB)",
+          "invalidType": "Tipo de ficheiro {{name}} não permitido"
+        }
+      },
       "shortCode": {
         "label": "Código",
         "placeholder": "Ex: saudacao, agradecimento, despedida",
