@@ -24,10 +24,16 @@ vi.mock('@/services/channels/messageTemplatesService', () => ({
   default: { getTemplates: vi.fn() },
 }));
 
+// Capture every VariableTextarea render so we can assert journeyId is wired
+// through (EVO-1855: the picker fetches journey custom variables via
+// useJourneyVariables(journeyId) — a dropped prop silently degrades it to
+// system-only variables).
+const variableTextareaProps: any[] = [];
 vi.mock('@/components/journey/environment-manager', () => ({
-  VariableTextarea: ({ value, onChange, placeholder }: any) => (
-    <textarea value={value} onChange={onChange} placeholder={placeholder} />
-  ),
+  VariableTextarea: ({ value, onChange, placeholder, ...rest }: any) => {
+    variableTextareaProps.push({ value, placeholder, ...rest });
+    return <textarea value={value} onChange={onChange} placeholder={placeholder} />;
+  },
 }));
 
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
@@ -52,12 +58,19 @@ const template = {
 
 const noop = () => {};
 
-const renderPanel = (data: Record<string, unknown>) =>
+const renderPanel = (data: Record<string, unknown>, journeyId?: string) =>
   render(
-    <SendMessagePanel nodeId="n1" data={data as any} onUpdate={noop} onClose={noop} />,
+    <SendMessagePanel
+      nodeId="n1"
+      data={data as any}
+      onUpdate={noop}
+      onClose={noop}
+      journeyId={journeyId}
+    />,
   );
 
 beforeEach(() => {
+  variableTextareaProps.length = 0;
   mockedFormData.mockReset().mockResolvedValue({ inboxes } as any);
   mockedGetTemplates.mockReset().mockResolvedValue({ success: true, data: [template] } as any);
 });
@@ -124,6 +137,35 @@ describe('SendMessagePanel template mode (EVO-1255)', () => {
     await waitFor(() => expect(mockedGetTemplates).toHaveBeenCalled());
     expect(screen.queryByText('panels.sendMessage.useEventChannel')).toBeNull();
     expect(screen.queryByText('panels.sendMessage.attachments')).toBeNull();
+  });
+});
+
+describe('SendMessagePanel journey variable wiring (EVO-1855)', () => {
+  it('passes journeyId to the free-text message picker so it can fetch journey variables', async () => {
+    renderPanel({ inboxId: 'i2', messageMode: 'text', message: 'hi' }, 'journey-99');
+
+    await waitFor(() => expect(mockedFormData).toHaveBeenCalled());
+    await waitFor(() => expect(variableTextareaProps.length).toBeGreaterThan(0));
+    expect(variableTextareaProps.every(p => p.journeyId === 'journey-99')).toBe(true);
+  });
+
+  it('passes journeyId to the expression picker in template mode', async () => {
+    renderPanel(
+      {
+        inboxId: 'i2',
+        messageMode: 'template',
+        templateId: 'tpl-1',
+        message: '',
+        templateVariables: [
+          { variable: 'first_name', source: 'expression', expression: '{{contact.name}}' },
+        ],
+      },
+      'journey-99',
+    );
+
+    await waitFor(() => expect(mockedGetTemplates).toHaveBeenCalled());
+    await waitFor(() => expect(variableTextareaProps.length).toBeGreaterThan(0));
+    expect(variableTextareaProps.every(p => p.journeyId === 'journey-99')).toBe(true);
   });
 });
 

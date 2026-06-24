@@ -150,7 +150,13 @@ const getChannelTypeName = (channelType: string) => {
   }
 };
 
-export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessagePanelProps) {
+export function SendMessagePanel({
+  nodeId,
+  data,
+  onUpdate,
+  onClose,
+  journeyId,
+}: SendMessagePanelProps) {
   const { t } = useLanguage('journey');
 
   const initialFormData: SendMessageNodeData = {
@@ -860,6 +866,7 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
                                 }
                                 placeholder={t('panels.sendMessage.expressionPlaceholder')}
                                 className="min-h-[40px] resize-none"
+                                journeyId={journeyId}
                               />
                               {expressionInvalid && (
                                 <p className="text-xs text-flow-feedback-error-fg">
@@ -900,9 +907,7 @@ export function SendMessagePanel({ nodeId, data, onUpdate, onClose }: SendMessag
               placeholder={t('panels.sendMessage.messagePlaceholder')}
               className="min-h-[120px] resize-none"
               disabled={loading}
-              onVariableInsert={variable => {
-                console.log('Variable inserted:', variable);
-              }}
+              journeyId={journeyId}
             />
 
             <div className="flex justify-between items-center text-xs">
