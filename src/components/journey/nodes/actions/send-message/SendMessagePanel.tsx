@@ -786,6 +786,7 @@ export function SendMessagePanel({
                       mapping.source === 'expression' &&
                       !!(mapping.expression ?? '').trim() &&
                       !isBalancedExpression(mapping.expression!);
+                    const exprErrorId = `send-message-expr-error-${variable.name}`;
 
                     return (
                       <div key={variable.name} className="space-y-1">
@@ -867,9 +868,14 @@ export function SendMessagePanel({
                                 placeholder={t('panels.sendMessage.expressionPlaceholder')}
                                 className="min-h-[40px] resize-none"
                                 journeyId={journeyId}
+                                aria-invalid={expressionInvalid}
+                                aria-describedby={expressionInvalid ? exprErrorId : undefined}
                               />
                               {expressionInvalid && (
-                                <p className="text-xs text-flow-feedback-error-fg">
+                                <p
+                                  id={exprErrorId}
+                                  className="text-xs text-flow-feedback-error-fg"
+                                >
                                   {t('panels.sendMessage.invalidExpression')}
                                 </p>
                               )}
