@@ -70,6 +70,7 @@ const PublicRoute = ({ children }: PublicRouteProps) => {
     const isCanvaCallback = location.pathname === '/canva/callback';
     const isSupabaseCallback = location.pathname === '/supabase/callback';
     const isMicrosoftCallback = location.pathname === '/microsoft/callback';
+    const isKeycloakCallback = location.pathname === '/keycloak/callback';
 
     // Allow access if there are OAuth params or specific OAuth routes
     const shouldAllowAccess =
@@ -91,7 +92,8 @@ const PublicRoute = ({ children }: PublicRouteProps) => {
       isPayPalCallback ||
       isCanvaCallback ||
       isSupabaseCallback ||
-      isMicrosoftCallback;
+      isMicrosoftCallback ||
+      isKeycloakCallback;
 
     if (!shouldAllowAccess) {
       return <Navigate to="/" replace />;

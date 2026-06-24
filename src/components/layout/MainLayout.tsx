@@ -88,10 +88,12 @@ export default function MainLayout({ children }: MainLayoutProps) {
     await new Promise(resolve => setTimeout(resolve, 800));
 
     try {
-      await logout(); // Now await the async logout function
-      toast.success(t('logout.success'), { id: 'logout' });
-      await new Promise(resolve => setTimeout(resolve, 500));
-      navigate('/login');
+      const externalRedirect = await logout();
+      if (!externalRedirect) {
+        toast.success(t('logout.success'), { id: 'logout' });
+        await new Promise(resolve => setTimeout(resolve, 500));
+        navigate('/login');
+      }
     } catch {
       toast.error(t('logout.error'), { id: 'logout' });
     }

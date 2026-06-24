@@ -62,6 +62,22 @@ export default defineConfig({
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
     },
+    proxy: {
+      // Proxy API requests through Vite so cookies work on same origin (localhost:5173)
+      // This avoids cross-port cookie issues between frontend (:5173) and backends (:3001, :3030)
+      '/api': {
+        target: process.env.VITE_API_URL || 'http://localhost:3030',
+        changeOrigin: true,
+        secure: false,
+        cookieDomainRewrite: 'localhost',
+      },
+      '/setup': {
+        target: process.env.VITE_API_URL || 'http://localhost:3030',
+        changeOrigin: true,
+        secure: false,
+        cookieDomainRewrite: 'localhost',
+      },
+    },
     hmr: {
       // Reduce HMR overhead via ngrok
       overlay: false, // Disable error overlay

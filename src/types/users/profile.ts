@@ -1,5 +1,5 @@
 // Re-export from auth.ts to avoid circular dependency
-import type { ProfileUpdateData, PasswordChangeData } from '@/types/auth';
+import type { ProfileUpdateData, PasswordChangeData, Role } from '@/types/auth';
 
 export type { ProfileUpdateData, PasswordChangeData };
 
@@ -25,6 +25,7 @@ export interface UserProfile {
   unconfirmed_email?: string | null;
   created_at?: string;
   updated_at?: string;
+  roles?: Role[];
 }
 
 export interface AvailabilityUpdateData {

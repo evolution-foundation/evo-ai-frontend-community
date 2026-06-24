@@ -113,6 +113,7 @@ export interface UserResponse {
   provider?: string;
   pubsub_token?: string | null;
   role?: Role; // Updated to use Role interface
+  roles?: Role[];
   ui_settings?: UISettings;
   type?: string | null;
   inviter_id?: string | null;
