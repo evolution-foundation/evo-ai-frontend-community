@@ -79,38 +79,76 @@
       },
       "headers": {
         "label": "Headers HTTP (JSON)",
+        "labelKv": "HTTP Headers",
         "placeholder": "{\"Authorization\": \"Bearer token\", \"Content-Type\": \"application/json\"}",
-        "hint": "Configure the HTTP headers required for authentication and communication"
+        "keyPlaceholder": "Header name (e.g. Authorization)",
+        "valuePlaceholder": "Value (e.g. Bearer token)",
+        "hint": "HTTP headers sent with every request (auth, content-type, etc.)"
       },
       "bodyParams": {
         "label": "Body Parameters (JSON)",
+        "labelKv": "Body Parameters",
         "placeholder": "{\"key\": \"value\", \"nested\": {\"field\": \"data\"}}",
-        "hint": "Configure the request body parameters sent with POST/PUT/PATCH requests"
+        "keyPlaceholder": "Field name",
+        "valuePlaceholder": "Value",
+        "hint": "Body fields sent with POST/PUT/PATCH requests"
       },
       "queryParams": {
         "label": "Query Parameters (JSON)",
+        "labelKv": "Query Parameters",
         "placeholder": "{\"param1\": \"value1\", \"param2\": \"value2\"}",
-        "hint": "Configure URL query string parameters appended to the endpoint"
+        "keyPlaceholder": "Param name",
+        "valuePlaceholder": "Value",
+        "hint": "Query string params appended to the URL (e.g. ?param=value)"
       },
       "pathParams": {
         "label": "Path Parameters (JSON)",
+        "labelKv": "Path Parameters",
         "placeholder": "{\"user_id\": \"{user_id}\", \"resource_id\": \"{resource_id}\"}",
-        "hint": "Configure path parameters that will be substituted in the endpoint URL (e.g., /users/{user_id})"
+        "keyPlaceholder": "Param name (e.g. user_id)",
+        "valuePlaceholder": "Value or placeholder",
+        "hint": "Path placeholders to substitute in the URL (e.g. /users/{user_id})"
       },
       "values": {
         "label": "Default Values (JSON)",
+        "labelKv": "Default Values",
         "placeholder": "{\"default_key\": \"default_value\"}",
-        "hint": "Configure default values used as fallback when parameters are not provided at runtime"
+        "keyPlaceholder": "Key (e.g. default_user)",
+        "valuePlaceholder": "Default value",
+        "hint": "Defaults used as fallback when parameters are missing at runtime"
       },
       "errorHandling": {
         "label": "Error Handling (JSON)",
+        "labelVisual": "Error Handling",
         "placeholder": "{\"timeout\": 30, \"retry_count\": 3, \"fallback_response\": \"{}\"}",
-        "hint": "Configure error handling settings: timeout (seconds), retry_count, and fallback_response"
+        "timeoutLabel": "Timeout (seconds)",
+        "retryLabel": "Retry count",
+        "fallbackLabel": "Fallback response",
+        "fallbackPlaceholder": "JSON to return when all retries fail",
+        "hint": "Configure timeout, retries, and a fallback response for errors"
+      },
+      "inputModes": {
+        "label": "Input Modes (JSON array)",
+        "labelVisual": "Input Modes",
+        "placeholder": "[\"text\", \"image\"]",
+        "placeholderVisual": "Type and press Enter…",
+        "hint": "Supported input MIME types or modes",
+        "hintVisual": "Type and press Enter to add, or pick a suggestion"
+      },
+      "outputModes": {
+        "label": "Output Modes (JSON array)",
+        "labelVisual": "Output Modes",
+        "placeholder": "[\"text\", \"json\"]",
+        "placeholderVisual": "Type and press Enter…",
+        "hint": "Supported output MIME types or modes",
+        "hintVisual": "Type and press Enter to add, or pick a suggestion"
       },
       "tags": {
         "label": "Tags",
         "placeholder": "api, http, webhook",
-        "hint": "Separate the tags with commas to organize and categorize the tool"
+        "placeholderTagInput": "Type and press Enter to add a tag…",
+        "hint": "Separate the tags with commas to organize and categorize the tool",
+        "hintTagInput": "Press Enter or comma to add a tag. Backspace removes the last one."
       },
       "examples": {
         "label": "Examples",
@@ -127,13 +165,122 @@
       "queryParamsInvalid": "Invalid JSON for query parameters",
       "pathParamsInvalid": "Invalid JSON for path parameters",
       "valuesInvalid": "Invalid JSON for default values",
-      "errorHandlingInvalid": "Invalid JSON for error handling"
+      "errorHandlingInvalid": "Invalid JSON for error handling",
+      "inputModesInvalid": "Input modes must be a JSON array of strings",
+      "outputModesInvalid": "Output modes must be a JSON array of strings"
     },
     "actions": {
       "cancel": "Cancel",
       "save": "Save Changes",
       "create": "Create Tool",
       "saving": "Saving..."
+    }
+  },
+  "keyValueEditor": {
+    "keyPlaceholder": "Key",
+    "valuePlaceholder": "Value",
+    "addRow": "Add row",
+    "removeRow": "Remove row",
+    "complexValueBadge": "complex value — edit in advanced mode",
+    "errors": {
+      "emptyKey": "Key cannot be empty",
+      "duplicateKey": "Duplicate key",
+      "emptyValue": "Value is required when key is set"
+    }
+  },
+  "advancedConfig": {
+    "title": "Advanced configuration"
+  },
+  "tagInput": {
+    "placeholder": "Type and press Enter…",
+    "removeTag": "Remove {{tag}}",
+    "suggestions": "Suggestions"
+  },
+  "testResult": {
+    "titleSuccess": "Test successful",
+    "titleError": "Test failed",
+    "statusCode": "Status code",
+    "responseTime": "Response time",
+    "errorLabel": "Error",
+    "responseHeaders": "Response headers",
+    "responseBody": "Response body",
+    "noData": "The request didn't complete and returned no detail.",
+    "close": "Close"
+  },
+  "testRequest": {
+    "button": "Test request",
+    "testing": "Testing...",
+    "success": "Request successful",
+    "error": "Failed to test request",
+    "statusCode": "Status",
+    "responseTime": "Response time",
+    "responseHeaders": "Response headers",
+    "responseBody": "Response body",
+    "disabledTooltipCreateMode": "Save the tool first to be able to test it"
+  },
+  "wizard": {
+    "progress": {
+      "identity": "Identity",
+      "endpoint": "Endpoint",
+      "parameters": "Parameters",
+      "advanced": "Advanced",
+      "modes": "Modes",
+      "finish": "Finish"
+    },
+    "step1": {
+      "title": "Let's identify your tool",
+      "subtitle": "Give it a name, description, and tags so your team can find it later."
+    },
+    "step2": {
+      "title": "What endpoint does it call?",
+      "subtitle": "Pick the HTTP method, the URL, and the headers sent on every request."
+    },
+    "step3": {
+      "title": "Configure the parameters",
+      "subtitle": "Query, path, and body parameters. Body shows only when the method supports it."
+    },
+    "step4": {
+      "title": "Advanced configuration",
+      "subtitle": "Optional. Defaults and error handling.",
+      "helperText": "These fields are optional — skip if you don't need them."
+    },
+    "step5": {
+      "title": "Input and output modes",
+      "subtitle": "Optional. Declare what kind of content this tool accepts and returns.",
+      "selectPlaceholder": "Select a type",
+      "modeOptions": {
+        "text": "Text",
+        "image": "Image",
+        "audio": "Audio",
+        "video": "Video",
+        "json": "JSON",
+        "file": "File"
+      },
+      "input": {
+        "typeLabel": "What it receives",
+        "descriptionLabel": "What should the AI send?",
+        "badge": "instruction for the AI",
+        "descriptionPlaceholder": "Ex: The image of a document or receipt the customer sent that needs to be read."
+      },
+      "output": {
+        "typeLabel": "What it returns",
+        "descriptionLabel": "Describe the return",
+        "badge": "helps the agent interpret",
+        "descriptionPlaceholder": "Ex: The text extracted from the document, in plain prose, ready to be used in the reply."
+      }
+    },
+    "step6": {
+      "title": "Final touches",
+      "subtitle": "Add usage examples that help agents understand when to call this tool.",
+      "helperText": "Examples are short text descriptions of how to use the tool.",
+      "testHint": "After creating, you'll be able to test the tool against the real endpoint."
+    },
+    "actions": {
+      "continue": "Continue",
+      "back": "Back",
+      "skip": "Skip",
+      "create": "Create tool",
+      "save": "Save changes"
     }
   },
   "modal": {

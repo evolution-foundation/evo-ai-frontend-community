@@ -8,7 +8,7 @@
   },
   "card": {
     "noDescription": "Nessuna descrizione",
-    "examples": "{{count}} esempio/i",
+    "examples": "{{count}} esempio(i)",
     "createdAt": "Creato il",
     "actions": {
       "test": "Testa",
@@ -17,13 +17,13 @@
     }
   },
   "details": {
-    "title": "Dettagli Strumento",
+    "title": "Dettagli dello Strumento",
     "sections": {
       "basicInfo": "Informazioni di Base",
       "tags": "Tag",
       "examples": "Esempi",
-      "headers": "Header HTTP",
-      "inputOutput": "Modalità Input e Output"
+      "headers": "Headers HTTP",
+      "inputOutput": "Modalità di Input e Output"
     },
     "fields": {
       "name": "Nome",
@@ -31,8 +31,8 @@
       "method": "Metodo HTTP",
       "createdAt": "Creato il",
       "endpoint": "Endpoint",
-      "inputModes": "Modalità Input",
-      "outputModes": "Modalità Output",
+      "inputModes": "Modalità di Input",
+      "outputModes": "Modalità di Output",
       "notSpecified": "Non specificato"
     },
     "empty": {
@@ -78,39 +78,77 @@
         "required": true
       },
       "headers": {
-        "label": "Header HTTP (JSON)",
+        "label": "Headers HTTP (JSON)",
+        "labelKv": "Headers HTTP",
         "placeholder": "{\"Authorization\": \"Bearer token\", \"Content-Type\": \"application/json\"}",
-        "hint": "Configura gli header HTTP necessari per autenticazione e comunicazione"
+        "keyPlaceholder": "Nome header (es. Authorization)",
+        "valuePlaceholder": "Valore (es. Bearer token)",
+        "hint": "Headers HTTP inviati con ogni richiesta (auth, content-type, ecc.)"
       },
       "bodyParams": {
         "label": "Parametri del Body (JSON)",
+        "labelKv": "Parametri del Body",
         "placeholder": "{\"key\": \"value\", \"nested\": {\"field\": \"data\"}}",
-        "hint": "Configura i parametri del corpo della richiesta inviati con richieste POST/PUT/PATCH"
+        "keyPlaceholder": "Nome campo",
+        "valuePlaceholder": "Valore",
+        "hint": "Campi del corpo inviati con richieste POST/PUT/PATCH"
       },
       "queryParams": {
         "label": "Parametri di Query (JSON)",
+        "labelKv": "Parametri di Query",
         "placeholder": "{\"param1\": \"value1\", \"param2\": \"value2\"}",
-        "hint": "Configura i parametri della query string dell'URL allegati all'endpoint"
+        "keyPlaceholder": "Nome parametro",
+        "valuePlaceholder": "Valore",
+        "hint": "Parametri di query string aggiunti all'URL (es. ?param=valore)"
       },
       "pathParams": {
         "label": "Parametri di Path (JSON)",
+        "labelKv": "Parametri di Path",
         "placeholder": "{\"user_id\": \"{user_id}\", \"resource_id\": \"{resource_id}\"}",
-        "hint": "Configura i parametri di path che saranno sostituiti nell'URL dell'endpoint (es: /users/{user_id})"
+        "keyPlaceholder": "Nome parametro (es. user_id)",
+        "valuePlaceholder": "Valore o placeholder",
+        "hint": "Placeholder di path sostituiti nell'URL (es. /users/{user_id})"
       },
       "values": {
         "label": "Valori Predefiniti (JSON)",
+        "labelKv": "Valori Predefiniti",
         "placeholder": "{\"default_key\": \"default_value\"}",
-        "hint": "Configura valori predefiniti usati come fallback quando i parametri non sono forniti a runtime"
+        "keyPlaceholder": "Chiave (es. default_user)",
+        "valuePlaceholder": "Valore predefinito",
+        "hint": "Valori predefiniti usati come fallback quando i parametri non sono forniti a runtime"
       },
       "errorHandling": {
-        "label": "Gestione Errori (JSON)",
+        "label": "Gestione degli Errori (JSON)",
+        "labelVisual": "Gestione degli Errori",
         "placeholder": "{\"timeout\": 30, \"retry_count\": 3, \"fallback_response\": \"{}\"}",
-        "hint": "Configura le impostazioni di gestione errori: timeout (secondi), retry_count e fallback_response"
+        "timeoutLabel": "Timeout (secondi)",
+        "retryLabel": "Numero di retry",
+        "fallbackLabel": "Risposta di fallback",
+        "fallbackPlaceholder": "JSON restituito quando tutti i retry falliscono",
+        "hint": "Configura timeout, retry e una risposta di fallback per gli errori"
+      },
+      "inputModes": {
+        "label": "Modalità di Input (array JSON)",
+        "labelVisual": "Modalità di Input",
+        "placeholder": "[\"text\", \"image\"]",
+        "placeholderVisual": "Digita e premi Invio…",
+        "hint": "Tipi MIME o modalità di input supportati",
+        "hintVisual": "Digita e premi Invio per aggiungere, o clicca un suggerimento"
+      },
+      "outputModes": {
+        "label": "Modalità di Output (array JSON)",
+        "labelVisual": "Modalità di Output",
+        "placeholder": "[\"text\", \"json\"]",
+        "placeholderVisual": "Digita e premi Invio…",
+        "hint": "Tipi MIME o modalità di output supportati",
+        "hintVisual": "Digita e premi Invio per aggiungere, o clicca un suggerimento"
       },
       "tags": {
         "label": "Tag",
         "placeholder": "api, http, webhook",
-        "hint": "Separa i tag con virgole per organizzare e categorizzare lo strumento"
+        "placeholderTagInput": "Digita e premi Invio per aggiungere un tag…",
+        "hint": "Separa i tag con virgole per organizzare e categorizzare lo strumento",
+        "hintTagInput": "Premi Invio o virgola per aggiungere un tag. Backspace rimuove l'ultimo."
       },
       "examples": {
         "label": "Esempi",
@@ -122,18 +160,127 @@
       "endpointRequired": "L'endpoint è obbligatorio",
       "endpointInvalid": "L'endpoint deve essere un URL valido",
       "methodRequired": "Il metodo HTTP è obbligatorio",
-      "headersInvalid": "JSON degli header non valido",
+      "headersInvalid": "JSON di headers non valido",
       "bodyParamsInvalid": "JSON non valido per i parametri del body",
       "queryParamsInvalid": "JSON non valido per i parametri di query",
       "pathParamsInvalid": "JSON non valido per i parametri di path",
       "valuesInvalid": "JSON non valido per i valori predefiniti",
-      "errorHandlingInvalid": "JSON non valido per la gestione errori"
+      "errorHandlingInvalid": "JSON non valido per la gestione degli errori",
+      "inputModesInvalid": "Le modalità di input devono essere un array JSON di stringhe",
+      "outputModesInvalid": "Le modalità di output devono essere un array JSON di stringhe"
     },
     "actions": {
       "cancel": "Annulla",
       "save": "Salva Modifiche",
       "create": "Crea Strumento",
       "saving": "Salvataggio..."
+    }
+  },
+  "keyValueEditor": {
+    "keyPlaceholder": "Chiave",
+    "valuePlaceholder": "Valore",
+    "addRow": "Aggiungi riga",
+    "removeRow": "Rimuovi riga",
+    "complexValueBadge": "valore complesso — modifica in modalità avanzata",
+    "errors": {
+      "emptyKey": "La chiave non può essere vuota",
+      "duplicateKey": "Chiave duplicata",
+      "emptyValue": "Il valore è obbligatorio quando la chiave è impostata"
+    }
+  },
+  "advancedConfig": {
+    "title": "Configurazione avanzata"
+  },
+  "tagInput": {
+    "placeholder": "Digita e premi Invio…",
+    "removeTag": "Rimuovi {{tag}}",
+    "suggestions": "Suggerimenti"
+  },
+  "testResult": {
+    "titleSuccess": "Test riuscito",
+    "titleError": "Test fallito",
+    "statusCode": "Status code",
+    "responseTime": "Tempo di risposta",
+    "errorLabel": "Errore",
+    "responseHeaders": "Headers della risposta",
+    "responseBody": "Corpo della risposta",
+    "noData": "La richiesta non è stata completata e non ha restituito dettagli.",
+    "close": "Chiudi"
+  },
+  "testRequest": {
+    "button": "Testa richiesta",
+    "testing": "Test in corso...",
+    "success": "Richiesta eseguita con successo",
+    "error": "Errore nel test della richiesta",
+    "statusCode": "Status",
+    "responseTime": "Tempo di risposta",
+    "responseHeaders": "Headers di risposta",
+    "responseBody": "Corpo della risposta",
+    "disabledTooltipCreateMode": "Salva lo strumento prima per poterlo testare"
+  },
+  "wizard": {
+    "progress": {
+      "identity": "Identità",
+      "endpoint": "Endpoint",
+      "parameters": "Parametri",
+      "advanced": "Avanzato",
+      "modes": "Modalità",
+      "finish": "Finalizza"
+    },
+    "step1": {
+      "title": "Identifichiamo il tuo strumento",
+      "subtitle": "Dagli un nome, una descrizione e tag in modo che il tuo team lo trovi in seguito."
+    },
+    "step2": {
+      "title": "Quale endpoint chiama?",
+      "subtitle": "Scegli il metodo HTTP, l'URL e gli headers inviati a ogni richiesta."
+    },
+    "step3": {
+      "title": "Configura i parametri",
+      "subtitle": "Parametri di query, path e body. Body appare solo se il metodo lo permette."
+    },
+    "step4": {
+      "title": "Configurazione avanzata",
+      "subtitle": "Opzionale. Valori predefiniti e gestione degli errori.",
+      "helperText": "Questi campi sono opzionali — salta se non ne hai bisogno."
+    },
+    "step5": {
+      "title": "Modalità di input e output",
+      "subtitle": "Opzionale. Dichiara che tipo di contenuto questo strumento accetta e restituisce.",
+      "selectPlaceholder": "Seleziona un tipo",
+      "modeOptions": {
+        "text": "Testo",
+        "image": "Immagine",
+        "audio": "Audio",
+        "video": "Video",
+        "json": "JSON",
+        "file": "File"
+      },
+      "input": {
+        "typeLabel": "Cosa riceve",
+        "descriptionLabel": "Cosa deve inviare l'IA?",
+        "badge": "istruzione per l'IA",
+        "descriptionPlaceholder": "Es: L'immagine di un documento o ricevuta che il cliente ha inviato e deve essere letta."
+      },
+      "output": {
+        "typeLabel": "Cosa restituisce",
+        "descriptionLabel": "Descrivi il ritorno",
+        "badge": "aiuta l'agente a interpretare",
+        "descriptionPlaceholder": "Es: Il testo estratto dal documento, in prosa continua, pronto per essere usato nella risposta."
+      }
+    },
+    "step6": {
+      "title": "Tocchi finali",
+      "subtitle": "Aggiungi esempi d'uso che aiutino gli agenti a sapere quando chiamare questo strumento.",
+      "helperText": "Gli esempi sono brevi descrizioni di come usare lo strumento.",
+      "testHint": "Dopo la creazione, potrai testare lo strumento contro l'endpoint reale."
+    },
+    "actions": {
+      "continue": "Continua",
+      "back": "Indietro",
+      "skip": "Salta",
+      "create": "Crea strumento",
+      "save": "Salva modifiche"
     }
   },
   "modal": {
@@ -161,8 +308,8 @@
       "createdAt": "Creato il",
       "test": "Test"
     },
-    "noName": "Nessun nome",
-    "noDescription": "Nessuna descrizione",
+    "noName": "Senza nome",
+    "noDescription": "Senza descrizione",
     "noTags": "-",
     "actions": {
       "test": "Testa",
@@ -181,17 +328,17 @@
     "creating": "Creazione...",
     "updating": "Aggiornamento...",
     "deleting": "Eliminazione...",
-    "testing": "Test..."
+    "testing": "Test in corso..."
   },
   "messages": {
-    "loadError": "Errore durante il caricamento degli strumenti personalizzati",
+    "loadError": "Errore nel caricamento degli strumenti personalizzati",
     "createSuccess": "Strumento personalizzato creato con successo",
-    "createError": "Errore durante la creazione dello strumento personalizzato",
+    "createError": "Errore nella creazione dello strumento personalizzato",
     "updateSuccess": "Strumento personalizzato aggiornato con successo",
-    "updateError": "Errore durante l'aggiornamento dello strumento personalizzato",
+    "updateError": "Errore nell'aggiornamento dello strumento personalizzato",
     "deleteSuccess": "Strumento personalizzato eliminato con successo",
-    "deleteError": "Errore durante l'eliminazione dello strumento personalizzato",
+    "deleteError": "Errore nell'eliminazione dello strumento personalizzato",
     "testSuccess": "Test eseguito con successo",
-    "testError": "Errore durante il test dello strumento personalizzato"
+    "testError": "Errore nel test dello strumento personalizzato"
   }
 }

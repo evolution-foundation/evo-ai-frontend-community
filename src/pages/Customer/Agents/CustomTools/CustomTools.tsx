@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -6,7 +7,7 @@ import { AgentsCustomToolsTour } from '@/tours';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button } from '@evoapi/design-system';
 import { Grid3X3, List, Wand } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
-import { CustomTool, CustomToolsState, CustomToolFormData, CustomToolsListParams } from '@/types/ai';
+import { CustomTool, CustomToolsState, CustomToolFormData, CustomToolsListParams, CustomToolTestResponse } from '@/types/ai';
 import { BaseFilter, AppliedFilter, CUSTOM_TOOL_FILTER_TYPES } from '@/types/core';
 import { buildAppliedFilterChips } from '@/utils/appliedFilterChips';
 import {
@@ -15,11 +16,14 @@ import {
   CustomToolsTable,
   CustomToolsPagination,
   CustomToolModal,
+  CustomToolWizardModal,
+  CustomToolTestResultDialog,
   CustomToolDetails,
   CustomToolsFilter,
 } from '@/components/customTools';
 import {
   listCustomTools,
+  getCustomTool,
   createCustomTool,
   updateCustomTool,
   deleteCustomTool,
@@ -34,6 +38,12 @@ const INITIAL_STATE: CustomToolsState = initialCustomToolsState;
 export default function CustomTools() {
   const { can, isReady: permissionsReady } = useUserPermissions();
   const { t } = useLanguage('customTools');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { id: editToolId } = useParams<{ id: string }>();
+  const isWizardCreate = location.pathname === '/agents/custom-tools/new';
+  const isWizardEdit = !!editToolId && location.pathname.endsWith('/edit');
+  const isWizardOpen = isWizardCreate || isWizardEdit;
   const [state, setState] = useState<CustomToolsState>(INITIAL_STATE);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -47,6 +57,10 @@ export default function CustomTools() {
   const [activeFilters, setActiveFilters] = useState<BaseFilter[]>([]);
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilter[]>([]);
   const [testingTool, setTestingTool] = useState<string | null>(null);
+  const [testResultOpen, setTestResultOpen] = useState(false);
+  const [testResultTool, setTestResultTool] = useState<CustomTool | null>(null);
+  const [testResultData, setTestResultData] =
+    useState<CustomToolTestResponse['test_result'] | null>(null);
   const hasLoaded = useRef(false);
 
   // Load tools
@@ -186,7 +200,7 @@ export default function CustomTools() {
       return;
     }
     setEditingTool(null);
-    setToolModalOpen(true);
+    navigate('/agents/custom-tools/new');
   };
 
   const handleEditTool = (tool: CustomTool) => {
@@ -195,8 +209,31 @@ export default function CustomTools() {
       return;
     }
     setEditingTool(tool);
-    setToolModalOpen(true);
+    navigate(`/agents/custom-tools/${tool.id}/edit`);
   };
+
+  useEffect(() => {
+    if (!isWizardEdit || !editToolId) return;
+    if (editingTool?.id === editToolId) return;
+    const cached = state.tools.find(tool => tool.id === editToolId);
+    if (cached) {
+      setEditingTool(cached);
+      return;
+    }
+    let cancelled = false;
+    getCustomTool(editToolId)
+      .then(fetched => {
+        if (!cancelled && fetched) setEditingTool(fetched);
+      })
+      .catch(err => {
+        console.error('Failed to load tool for edit:', err);
+        toast.error(t('errors.loadError'));
+        navigate('/agents/custom-tools');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isWizardEdit, editToolId, state.tools, editingTool?.id, navigate, t]);
 
   const handleDeleteTool = (tool: CustomTool) => {
     if (!can('ai_custom_tools', 'delete')) {
@@ -213,17 +250,9 @@ export default function CustomTools() {
 
     try {
       const result = await testCustomTool(tool.id);
-
-      if (result.test_result.success) {
-        toast.success(
-          t('success.testSuccess', {
-            statusCode: result.test_result.status_code,
-            responseTime: result.test_result.response_time
-          })
-        );
-      } else {
-        toast.error(t('test.failed', { error: result.test_result.error || t('test.unknownError') }));
-      }
+      setTestResultTool(tool);
+      setTestResultData(result.test_result);
+      setTestResultOpen(true);
     } catch (error) {
       console.error('Error testing custom tool:', error);
       toast.error(getErrorMessage(error as Error, t('errors.testError')));
@@ -291,9 +320,12 @@ export default function CustomTools() {
         loadTools();
       }
 
-      // Close modal and clear editing state
+      // Close modal/wizard and clear editing state
       setToolModalOpen(false);
       setEditingTool(null);
+      if (isWizardCreate || isWizardEdit) {
+        navigate('/agents/custom-tools');
+      }
     } catch (error) {
       console.error('Error saving custom tool:', error);
       toast.error(editingTool ? t('errors.updateError') : t('errors.createError'));
@@ -319,6 +351,25 @@ export default function CustomTools() {
       setDetailsTool(null);
     }
   };
+
+  if (isWizardOpen) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex-1 min-h-0 animate-slideInFromRight">
+          <CustomToolWizardModal
+            embedded
+            open={isWizardOpen}
+            loading={state.loading.create || state.loading.update}
+            tool={isWizardEdit ? editingTool || undefined : undefined}
+            onOpenChange={(open) => {
+              if (!open) navigate('/agents/custom-tools');
+            }}
+            onSubmit={handleToolFormSubmit}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col p-4" data-tour="agents-custom-tools-page">
@@ -455,13 +506,13 @@ export default function CustomTools() {
         </DialogContent>
       </Dialog>
 
-      {/* Tool Modal */}
+      {/* Tool Modal — edit only; create is handled by the wizard page */}
       <CustomToolModal
         open={toolModalOpen}
         onOpenChange={handleToolModalClose}
         tool={editingTool || undefined}
-        mode={!editingTool ? 'create' : 'edit'}
-        loading={state.loading.create || state.loading.update}
+        mode="edit"
+        loading={state.loading.update}
         onSubmit={handleToolFormSubmit}
       />
 
@@ -487,6 +538,20 @@ export default function CustomTools() {
         onFiltersChange={setActiveFilters}
         onApplyFilters={handleApplyFilters}
         onClearFilters={handleClearFilters}
+      />
+
+      {/* Test Result Dialog */}
+      <CustomToolTestResultDialog
+        open={testResultOpen}
+        onOpenChange={open => {
+          setTestResultOpen(open);
+          if (!open) {
+            setTestResultTool(null);
+            setTestResultData(null);
+          }
+        }}
+        tool={testResultTool}
+        result={testResultData}
       />
     </div>
   );

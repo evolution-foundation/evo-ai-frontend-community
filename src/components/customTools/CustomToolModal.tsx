@@ -13,7 +13,11 @@ interface CustomToolModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   tool?: CustomTool;
-  mode?: 'create' | 'edit' | 'view';
+  /**
+   * Edit or view existing tools. Create flow is handled by the standalone
+   * wizard page at `/agents/custom-tools/new` (see CustomToolWizardModal embedded mode).
+   */
+  mode?: 'edit' | 'view';
   loading?: boolean;
   onSubmit: (data: CustomToolFormData) => void;
 }
@@ -22,7 +26,7 @@ export default function CustomToolModal({
   open,
   onOpenChange,
   tool,
-  mode = 'create',
+  mode = 'edit',
   loading = false,
   onSubmit,
 }: CustomToolModalProps) {
@@ -32,20 +36,14 @@ export default function CustomToolModal({
     onOpenChange(false);
   };
 
-  const handleSubmit = (data: CustomToolFormData) => {
-    onSubmit(data);
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+      <DialogContent className="max-w-2xl max-h-[90vh] p-0">
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle className="text-xl">
-            {mode === 'create'
-              ? t('modal.title.create')
-              : mode === 'view'
-                ? (tool?.name ? t('modal.title.view', { name: tool.name }) : t('modal.title.viewFallback'))
-                : (tool?.name ? t('modal.title.edit', { name: tool.name }) : t('modal.title.editFallback'))}
+            {mode === 'view'
+              ? (tool?.name ? t('modal.title.view', { name: tool.name }) : t('modal.title.viewFallback'))
+              : (tool?.name ? t('modal.title.edit', { name: tool.name }) : t('modal.title.editFallback'))}
           </DialogTitle>
         </DialogHeader>
 
@@ -54,7 +52,7 @@ export default function CustomToolModal({
             tool={tool}
             mode={mode}
             loading={loading}
-            onSubmit={handleSubmit}
+            onSubmit={onSubmit}
             onCancel={handleCancel}
           />
         </ScrollArea>

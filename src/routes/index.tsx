@@ -1373,6 +1373,36 @@ const AppRouter = () => {
           />
 
           <Route
+            path="/agents/custom-tools/new"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="ai_custom_tools" action="create">
+                      <CustomTools />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/agents/custom-tools/:id/edit"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="ai_custom_tools" action="update">
+                      <CustomTools />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
             path="/dashboard"
             element={
               <PrivateRoute>

@@ -22,7 +22,7 @@
       "basicInfo": "Informations de Base",
       "tags": "Tags",
       "examples": "Exemples",
-      "headers": "En-têtes HTTP",
+      "headers": "Headers HTTP",
       "inputOutput": "Modes d'Entrée et de Sortie"
     },
     "fields": {
@@ -38,7 +38,7 @@
     "empty": {
       "tags": "Aucun tag configuré",
       "examples": "Aucun exemple disponible",
-      "headers": "Aucun en-tête HTTP configuré"
+      "headers": "Aucun header HTTP configuré"
     },
     "actions": {
       "test": "Tester",
@@ -74,43 +74,81 @@
       },
       "endpoint": {
         "label": "Endpoint",
-        "placeholder": "https://api.exemple.com/endpoint",
+        "placeholder": "https://api.example.com/endpoint",
         "required": true
       },
       "headers": {
-        "label": "En-têtes HTTP (JSON)",
+        "label": "Headers HTTP (JSON)",
+        "labelKv": "Headers HTTP",
         "placeholder": "{\"Authorization\": \"Bearer token\", \"Content-Type\": \"application/json\"}",
-        "hint": "Configurez les en-têtes HTTP nécessaires pour l'authentification et la communication"
+        "keyPlaceholder": "Nom du header (ex : Authorization)",
+        "valuePlaceholder": "Valeur (ex : Bearer token)",
+        "hint": "Headers HTTP envoyés à chaque requête (auth, content-type, etc.)"
       },
       "bodyParams": {
         "label": "Paramètres du Body (JSON)",
+        "labelKv": "Paramètres du Body",
         "placeholder": "{\"key\": \"value\", \"nested\": {\"field\": \"data\"}}",
-        "hint": "Configurez les paramètres du corps de la requête envoyés avec les requêtes POST/PUT/PATCH"
+        "keyPlaceholder": "Nom du champ",
+        "valuePlaceholder": "Valeur",
+        "hint": "Champs du corps envoyés avec les requêtes POST/PUT/PATCH"
       },
       "queryParams": {
         "label": "Paramètres de Query (JSON)",
+        "labelKv": "Paramètres de Query",
         "placeholder": "{\"param1\": \"value1\", \"param2\": \"value2\"}",
-        "hint": "Configurez les paramètres de la chaîne de requête de l'URL ajoutés à l'endpoint"
+        "keyPlaceholder": "Nom du paramètre",
+        "valuePlaceholder": "Valeur",
+        "hint": "Paramètres de query string ajoutés à l'URL (ex : ?param=valeur)"
       },
       "pathParams": {
         "label": "Paramètres de Path (JSON)",
+        "labelKv": "Paramètres de Path",
         "placeholder": "{\"user_id\": \"{user_id}\", \"resource_id\": \"{resource_id}\"}",
-        "hint": "Configurez les paramètres de path qui seront remplacés dans l'URL de l'endpoint (ex: /users/{user_id})"
+        "keyPlaceholder": "Nom du paramètre (ex : user_id)",
+        "valuePlaceholder": "Valeur ou placeholder",
+        "hint": "Placeholders de path substitués dans l'URL (ex : /users/{user_id})"
       },
       "values": {
         "label": "Valeurs par Défaut (JSON)",
+        "labelKv": "Valeurs par Défaut",
         "placeholder": "{\"default_key\": \"default_value\"}",
-        "hint": "Configurez les valeurs par défaut utilisées comme repli lorsque les paramètres ne sont pas fournis à l'exécution"
+        "keyPlaceholder": "Clé (ex : default_user)",
+        "valuePlaceholder": "Valeur par défaut",
+        "hint": "Valeurs par défaut utilisées en repli quand les paramètres ne sont pas fournis à l'exécution"
       },
       "errorHandling": {
         "label": "Gestion des Erreurs (JSON)",
+        "labelVisual": "Gestion des Erreurs",
         "placeholder": "{\"timeout\": 30, \"retry_count\": 3, \"fallback_response\": \"{}\"}",
-        "hint": "Configurez les paramètres de gestion des erreurs: timeout (secondes), retry_count et fallback_response"
+        "timeoutLabel": "Timeout (secondes)",
+        "retryLabel": "Nombre de retries",
+        "fallbackLabel": "Réponse de fallback",
+        "fallbackPlaceholder": "JSON retourné quand tous les retries échouent",
+        "hint": "Configurez timeout, retries et une réponse de fallback pour les erreurs"
+      },
+      "inputModes": {
+        "label": "Modes d'Entrée (tableau JSON)",
+        "labelVisual": "Modes d'Entrée",
+        "placeholder": "[\"text\", \"image\"]",
+        "placeholderVisual": "Tapez et appuyez sur Entrée…",
+        "hint": "Types MIME ou modes d'entrée pris en charge",
+        "hintVisual": "Tapez et appuyez sur Entrée pour ajouter, ou cliquez sur une suggestion"
+      },
+      "outputModes": {
+        "label": "Modes de Sortie (tableau JSON)",
+        "labelVisual": "Modes de Sortie",
+        "placeholder": "[\"text\", \"json\"]",
+        "placeholderVisual": "Tapez et appuyez sur Entrée…",
+        "hint": "Types MIME ou modes de sortie pris en charge",
+        "hintVisual": "Tapez et appuyez sur Entrée pour ajouter, ou cliquez sur une suggestion"
       },
       "tags": {
         "label": "Tags",
         "placeholder": "api, http, webhook",
-        "hint": "Séparez les tags par des virgules pour organiser et catégoriser l'outil"
+        "placeholderTagInput": "Tapez et appuyez sur Entrée pour ajouter un tag…",
+        "hint": "Séparez les tags par des virgules pour organiser et catégoriser l'outil",
+        "hintTagInput": "Appuyez sur Entrée ou virgule pour ajouter un tag. Backspace supprime le dernier."
       },
       "examples": {
         "label": "Exemples",
@@ -122,18 +160,127 @@
       "endpointRequired": "L'endpoint est obligatoire",
       "endpointInvalid": "L'endpoint doit être une URL valide",
       "methodRequired": "La méthode HTTP est obligatoire",
-      "headersInvalid": "JSON des en-têtes invalide",
+      "headersInvalid": "JSON de headers invalide",
       "bodyParamsInvalid": "JSON invalide pour les paramètres du body",
       "queryParamsInvalid": "JSON invalide pour les paramètres de query",
       "pathParamsInvalid": "JSON invalide pour les paramètres de path",
       "valuesInvalid": "JSON invalide pour les valeurs par défaut",
-      "errorHandlingInvalid": "JSON invalide pour la gestion des erreurs"
+      "errorHandlingInvalid": "JSON invalide pour la gestion des erreurs",
+      "inputModesInvalid": "Les modes d'entrée doivent être un tableau JSON de chaînes",
+      "outputModesInvalid": "Les modes de sortie doivent être un tableau JSON de chaînes"
     },
     "actions": {
       "cancel": "Annuler",
       "save": "Enregistrer les Modifications",
       "create": "Créer l'Outil",
       "saving": "Enregistrement..."
+    }
+  },
+  "keyValueEditor": {
+    "keyPlaceholder": "Clé",
+    "valuePlaceholder": "Valeur",
+    "addRow": "Ajouter une ligne",
+    "removeRow": "Supprimer la ligne",
+    "complexValueBadge": "valeur complexe — éditer en mode avancé",
+    "errors": {
+      "emptyKey": "La clé ne peut pas être vide",
+      "duplicateKey": "Clé en double",
+      "emptyValue": "La valeur est obligatoire quand la clé est renseignée"
+    }
+  },
+  "advancedConfig": {
+    "title": "Configuration avancée"
+  },
+  "tagInput": {
+    "placeholder": "Tapez et appuyez sur Entrée…",
+    "removeTag": "Supprimer {{tag}}",
+    "suggestions": "Suggestions"
+  },
+  "testResult": {
+    "titleSuccess": "Test réussi",
+    "titleError": "Test échoué",
+    "statusCode": "Status code",
+    "responseTime": "Temps de réponse",
+    "errorLabel": "Erreur",
+    "responseHeaders": "Headers de réponse",
+    "responseBody": "Corps de réponse",
+    "noData": "La requête n'a pas abouti et n'a renvoyé aucun détail.",
+    "close": "Fermer"
+  },
+  "testRequest": {
+    "button": "Tester la requête",
+    "testing": "Test en cours...",
+    "success": "Requête exécutée avec succès",
+    "error": "Échec du test de la requête",
+    "statusCode": "Status",
+    "responseTime": "Temps de réponse",
+    "responseHeaders": "Headers de réponse",
+    "responseBody": "Corps de réponse",
+    "disabledTooltipCreateMode": "Enregistrez l'outil d'abord pour pouvoir le tester"
+  },
+  "wizard": {
+    "progress": {
+      "identity": "Identité",
+      "endpoint": "Endpoint",
+      "parameters": "Paramètres",
+      "advanced": "Avancé",
+      "modes": "Modes",
+      "finish": "Finaliser"
+    },
+    "step1": {
+      "title": "Identifions votre outil",
+      "subtitle": "Donnez-lui un nom, une description et des tags pour que votre équipe le retrouve plus tard."
+    },
+    "step2": {
+      "title": "Quel endpoint appelle-t-il ?",
+      "subtitle": "Choisissez la méthode HTTP, l'URL et les headers envoyés à chaque requête."
+    },
+    "step3": {
+      "title": "Configurez les paramètres",
+      "subtitle": "Paramètres de query, path et body. Body n'apparaît que si la méthode le permet."
+    },
+    "step4": {
+      "title": "Configuration avancée",
+      "subtitle": "Optionnel. Valeurs par défaut et gestion des erreurs.",
+      "helperText": "Ces champs sont optionnels — passez si vous n'en avez pas besoin."
+    },
+    "step5": {
+      "title": "Modes d'entrée et de sortie",
+      "subtitle": "Optionnel. Déclarez quel type de contenu cet outil accepte et retourne.",
+      "selectPlaceholder": "Sélectionnez un type",
+      "modeOptions": {
+        "text": "Texte",
+        "image": "Image",
+        "audio": "Audio",
+        "video": "Vidéo",
+        "json": "JSON",
+        "file": "Fichier"
+      },
+      "input": {
+        "typeLabel": "Ce qu'il reçoit",
+        "descriptionLabel": "Que doit envoyer l'IA ?",
+        "badge": "instruction pour l'IA",
+        "descriptionPlaceholder": "Ex : L'image d'un document ou justificatif que le client a envoyé et qui doit être lu."
+      },
+      "output": {
+        "typeLabel": "Ce qu'il retourne",
+        "descriptionLabel": "Décrivez le retour",
+        "badge": "aide l'agent à interpréter",
+        "descriptionPlaceholder": "Ex : Le texte extrait du document, en prose continue, prêt à être utilisé dans la réponse."
+      }
+    },
+    "step6": {
+      "title": "Touches finales",
+      "subtitle": "Ajoutez des exemples d'usage pour aider les agents à savoir quand appeler cet outil.",
+      "helperText": "Les exemples sont de courtes descriptions d'utilisation de l'outil.",
+      "testHint": "Après création, vous pourrez tester l'outil contre l'endpoint réel."
+    },
+    "actions": {
+      "continue": "Continuer",
+      "back": "Retour",
+      "skip": "Passer",
+      "create": "Créer l'outil",
+      "save": "Enregistrer les modifications"
     }
   },
   "modal": {
