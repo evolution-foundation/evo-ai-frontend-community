@@ -619,6 +619,12 @@
     }
   },
   "messageInput": {
+    "cannedResponse": {
+      "manualAttachmentsRemoved": "Gli allegati manuali sono stati rimossi: la risposta rapida include già un contenuto multimediale.",
+      "mediaBanner": "Questa risposta rapida include {{count}} file multimediali. Verranno inviati insieme al messaggio.",
+      "mediaBlocksManualUpload": "Questa risposta rapida include già un contenuto multimediale; rimuovilo per allegare un altro file.",
+      "removeMediaAriaLabel": "Rimuovi il contenuto multimediale della risposta rapida"
+    },
     "pendingPlaceholder": "Questa conversazione è in sospeso. È possibile inviare solo note private.",
     "restrictedPlaceholder": "Impossibile inviare messaggi a causa della finestra di messaggistica di 24 ore",
     "defaultPlaceholder": "Digita il tuo messaggio...",
