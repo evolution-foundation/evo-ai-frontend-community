@@ -23,6 +23,7 @@ export interface CannedResponseFormData {
   short_code: string;
   content: string;
   attachments?: File[];
+  removeAttachmentIds?: string[];
 }
 
 export type CannedResponseResponse = CannedResponse;

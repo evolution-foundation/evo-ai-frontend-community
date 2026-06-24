@@ -177,6 +177,15 @@ const MessageInput: React.FC<MessageInputProps> = ({
       richEditorRef.current?.setContent(newMessage);
       setCurrentEditorMessage(newMessage);
 
+      // A canned response with media owns the attachment slot (channels send a single
+      // attachment); drop any manually-added files so both are never sent together.
+      if ((cannedResponse.attachments?.length ?? 0) > 0) {
+        if (selectedFiles.length > 0) {
+          toast.info(t('messageInput.cannedResponse.manualAttachmentsRemoved'));
+          setSelectedFiles([]);
+        }
+      }
+
       setSelectedCannedResponse(cannedResponse);
       setSelectedCannedResponseId(cannedResponse.id);
 
@@ -188,7 +197,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         richEditorRef.current?.focus();
       }, 0);
     },
-    [],
+    [selectedFiles, t],
   );
 
   // 🎯 CANNED RESPONSES: Filtrar respostas com base na query
@@ -462,6 +471,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
   );
 
   const handleFilesSelected = useCallback((files: File[]) => {
+    if (hasCannedMedia) {
+      toast.info(t('messageInput.cannedResponse.mediaBlocksManualUpload'));
+      return;
+    }
     setSelectedFiles(prev => [...prev, ...files]);
     const count = files.length;
     toast.success(
@@ -472,7 +485,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         duration: 2000,
       },
     );
-  }, [t]);
+  }, [t, hasCannedMedia]);
 
   // Handle media paste from clipboard (Ctrl+V / Cmd+V)
   useEffect(() => {
@@ -613,8 +626,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
           <div className="border-b border-border bg-muted/20 px-4 py-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">
-                Esta resposta rápida inclui {selectedCannedResponse!.attachments!.length} arquivo(s)
-                de mídia. Eles serão enviados junto com a mensagem.
+                {t('messageInput.cannedResponse.mediaBanner', {
+                  count: selectedCannedResponse!.attachments!.length,
+                })}
               </span>
             </div>
             <Button
@@ -622,6 +636,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
               variant="ghost"
               size="icon"
               className="h-6 w-6 flex-shrink-0"
+              aria-label={t('messageInput.cannedResponse.removeMediaAriaLabel')}
               onClick={() => {
                 setSelectedCannedResponse(null);
                 setSelectedCannedResponseId(null);

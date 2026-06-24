@@ -619,6 +619,12 @@
     }
   },
   "messageInput": {
+    "cannedResponse": {
+      "manualAttachmentsRemoved": "Les pièces jointes manuelles ont été supprimées : la réponse rapide inclut déjà un média.",
+      "mediaBanner": "Cette réponse rapide inclut {{count}} fichier(s) multimédia. Ils seront envoyés avec le message.",
+      "mediaBlocksManualUpload": "Cette réponse rapide inclut déjà un média ; supprimez-le pour joindre un autre fichier.",
+      "removeMediaAriaLabel": "Supprimer le média de la réponse rapide"
+    },
     "pendingPlaceholder": "Cette conversation est en attente. Seules les notes privées peuvent être envoyées.",
     "restrictedPlaceholder": "Impossible d'envoyer des messages en raison de la fenêtre de messagerie de 24 heures",
     "defaultPlaceholder": "Tapez votre message...",

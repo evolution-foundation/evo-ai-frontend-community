@@ -63,15 +63,21 @@ class CannedResponsesService {
     cannedResponseId: string,
     data: Partial<CannedResponseFormData>,
   ): Promise<CannedResponseResponse> {
-    // Se tem attachments, enviar como FormData
-    if (data.attachments && data.attachments.length > 0) {
+    const hasNewFiles = !!(data.attachments && data.attachments.length > 0);
+    const hasRemovals = !!(data.removeAttachmentIds && data.removeAttachmentIds.length > 0);
+
+    // Adições ou remoções de anexo exigem multipart
+    if (hasNewFiles || hasRemovals) {
       const formData = new FormData();
       if (data.short_code) formData.append('canned_response[short_code]', data.short_code);
       if (data.content) formData.append('canned_response[content]', data.content);
 
-      // Adicionar cada arquivo
-      data.attachments.forEach(file => {
+      data.attachments?.forEach(file => {
         formData.append('attachments[]', file);
+      });
+
+      data.removeAttachmentIds?.forEach(id => {
+        formData.append('remove_attachment_ids[]', id);
       });
 
       const response = await api.patch(`${this.baseUrl}/${cannedResponseId}`, formData, {
@@ -82,7 +88,7 @@ class CannedResponsesService {
       return extractData<any>(response);
     }
 
-    // Sem attachments, enviar como JSON normal
+    // Sem alteração de anexos, enviar como JSON normal
     const response = await api.patch(`${this.baseUrl}/${cannedResponseId}`, {
       canned_response: data,
     });

@@ -651,6 +651,12 @@
     }
   },
   "messageInput": {
+    "cannedResponse": {
+      "manualAttachmentsRemoved": "Os anexos manuais foram removidos: a resposta rápida já inclui mídia.",
+      "mediaBanner": "Esta resposta rápida inclui {{count}} arquivo(s) de mídia. Eles serão enviados junto com a mensagem.",
+      "mediaBlocksManualUpload": "Esta resposta rápida já inclui mídia; remova-a para anexar outro arquivo.",
+      "removeMediaAriaLabel": "Remover mídia da resposta rápida"
+    },
     "pendingPlaceholder": "Esta conversa está pendente. Só é possível enviar notas privadas.",
     "restrictedPlaceholder": "Não é possível enviar mensagens devido à janela de mensagem de 24 horas",
     "defaultPlaceholder": "Digite sua mensagem...",

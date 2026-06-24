@@ -42,6 +42,20 @@
       "description": "Modifiez les informations de la réponse rapide."
     },
     "fields": {
+      "attachments": {
+        "label": "Pièces jointes (Images, Audios, Vidéos, Documents)",
+        "addButton": "Ajouter un fichier",
+        "hint": "Maximum 10 Mo par fichier. Formats : images, audios, vidéos, PDF, DOC",
+        "existing": "Pièces jointes existantes :",
+        "new": "Nouvelles pièces jointes :",
+        "openAction": "Ouvrir",
+        "removeAriaLabel": "Supprimer la pièce jointe",
+        "errors": {
+          "limitReached": "Une seule pièce jointe par réponse rapide",
+          "tooLarge": "Le fichier {{name}} est trop volumineux (max 10 Mo)",
+          "invalidType": "Type de fichier {{name}} non autorisé"
+        }
+      },
       "shortCode": {
         "label": "Code",
         "placeholder": "Ex : salutation, remerciement, au_revoir",

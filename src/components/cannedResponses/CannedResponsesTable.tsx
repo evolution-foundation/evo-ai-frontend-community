@@ -1,5 +1,5 @@
 import { useLanguage } from '@/hooks/useLanguage';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Paperclip, Trash2 } from 'lucide-react';
 import BaseTable from '@/components/base/BaseTable';
 import { CannedResponse } from '@/types/knowledge';
 
@@ -34,8 +34,16 @@ export default function CannedResponsesTable({
       label: t('table.columns.shortCode'),
       sortable: true,
       render: (cannedResponse: CannedResponse) => (
-        <div className="font-mono font-medium text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded border inline-block">
-          {cannedResponse.short_code}
+        <div className="flex items-center gap-2">
+          <span className="font-mono font-medium text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded border inline-block">
+            {cannedResponse.short_code}
+          </span>
+          {!!cannedResponse.attachments?.length && (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Paperclip className="h-3 w-3" />
+              {cannedResponse.attachments.length}
+            </span>
+          )}
         </div>
       ),
     },

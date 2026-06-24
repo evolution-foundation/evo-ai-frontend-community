@@ -59,6 +59,7 @@ export default function CannedResponseModal({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [existingAttachments, setExistingAttachments] = useState<CannedResponseAttachment[]>([]);
+  const [removedAttachmentIds, setRemovedAttachmentIds] = useState<string[]>([]);
   const contentRef = useRef<HTMLTextAreaElement | null>(null);
   const contentSelectionRef = useRef({ start: 0, end: 0 });
 
@@ -80,6 +81,7 @@ export default function CannedResponseModal({
         setExistingAttachments([]);
       }
       setErrors({});
+      setRemovedAttachmentIds([]);
     }
   }, [open, cannedResponse, isNew]);
 
@@ -111,7 +113,7 @@ export default function CannedResponseModal({
       return;
     }
 
-    onSubmit(formData);
+    onSubmit({ ...formData, removeAttachmentIds: removedAttachmentIds });
   };
 
   const handleInputChange = (field: keyof CannedResponseFormData, value: string) => {
@@ -134,13 +136,21 @@ export default function CannedResponseModal({
     }
   };
 
-  // 🎯 FILE UPLOAD: Gerenciar arquivos
+  // 🎯 FILE UPLOAD: 1 anexo por resposta rápida (canais enviam só 1 mídia hoje)
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    e.target.value = '';
 
     if (files.length === 0) return;
 
-    // Validar tamanho e tipo
+    const currentCount =
+      existingAttachments.filter(a => !removedAttachmentIds.includes(a.id)).length +
+      (formData.attachments?.length ?? 0);
+    if (currentCount >= 1) {
+      toast.error(t('modal.fields.attachments.errors.limitReached'));
+      return;
+    }
+
     const maxSize = 10 * 1024 * 1024; // 10MB
     const allowedTypes = [
       'image/jpeg', 'image/png', 'image/gif', 'image/webp',
@@ -150,31 +160,17 @@ export default function CannedResponseModal({
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ];
 
-    const validFiles: File[] = [];
-
-    files.forEach(file => {
-      if (file.size > maxSize) {
-        toast.error(`Arquivo ${file.name} é muito grande (máximo 10MB)`);
-        return;
-      }
-
-      if (!allowedTypes.includes(file.type)) {
-        toast.error(`Tipo de arquivo ${file.name} não permitido`);
-        return;
-      }
-
-      validFiles.push(file);
-    });
-
-    if (validFiles.length > 0) {
-      setFormData(prev => ({
-        ...prev,
-        attachments: [...(prev.attachments || []), ...validFiles]
-      }));
+    const file = files[0];
+    if (file.size > maxSize) {
+      toast.error(t('modal.fields.attachments.errors.tooLarge', { name: file.name }));
+      return;
+    }
+    if (!allowedTypes.includes(file.type)) {
+      toast.error(t('modal.fields.attachments.errors.invalidType', { name: file.name }));
+      return;
     }
 
-    // Limpar input
-    e.target.value = '';
+    setFormData(prev => ({ ...prev, attachments: [file] }));
   };
 
   const handleRemoveFile = (index: number) => {
@@ -230,6 +226,11 @@ export default function CannedResponseModal({
       textarea.setSelectionRange(newCursorPosition, newCursorPosition);
     });
   };
+
+  const attachmentCount =
+    existingAttachments.filter(a => !removedAttachmentIds.includes(a.id)).length +
+    (formData.attachments?.length ?? 0);
+  const attachmentLimitReached = attachmentCount >= 1;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -302,17 +303,16 @@ export default function CannedResponseModal({
                 type="file"
                 id="file-upload"
                 className="hidden"
-                multiple
                 accept="image/*,audio/*,video/*,.pdf,.doc,.docx"
                 onChange={handleFileSelect}
-                disabled={loading}
+                disabled={loading || attachmentLimitReached}
               />
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => document.getElementById('file-upload')?.click()}
-                disabled={loading}
+                disabled={loading || attachmentLimitReached}
               >
                 <Paperclip className="h-4 w-4 mr-2" />
                 {t('modal.fields.attachments.addButton')}
@@ -323,12 +323,14 @@ export default function CannedResponseModal({
             </div>
 
             {/* Preview de anexos existentes (ao editar) */}
-            {existingAttachments.length > 0 && (
+            {existingAttachments.some(a => !removedAttachmentIds.includes(a.id)) && (
               <div className="space-y-2">
                 <p className="text-xs font-medium text-muted-foreground">
                   {t('modal.fields.attachments.existing')}
                 </p>
-                {existingAttachments.map((attachment) => (
+                {existingAttachments
+                  .filter(a => !removedAttachmentIds.includes(a.id))
+                  .map((attachment) => (
                   <div
                     key={attachment.id}
                     className="flex items-center justify-between p-2 bg-muted/30 rounded-md"
@@ -352,17 +354,29 @@ export default function CannedResponseModal({
                       </div>
                     </div>
 
-                    {/* opcional: botão pra abrir o arquivo */}
-                    <a
-                      href={attachment.data_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs underline text-primary"
-                    >
-                      Abrir
-                    </a>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <a
+                        href={attachment.data_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs underline text-primary"
+                      >
+                        {t('modal.fields.attachments.openAction')}
+                      </a>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        aria-label={t('modal.fields.attachments.removeAriaLabel')}
+                        onClick={() => setRemovedAttachmentIds(prev => [...prev, attachment.id])}
+                        disabled={loading}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                ))}
+                  ))}
               </div>
             )}
 
@@ -392,6 +406,7 @@ export default function CannedResponseModal({
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 flex-shrink-0"
+                      aria-label={t('modal.fields.attachments.removeAriaLabel')}
                       onClick={() => handleRemoveFile(index)}
                       disabled={loading}
                     >

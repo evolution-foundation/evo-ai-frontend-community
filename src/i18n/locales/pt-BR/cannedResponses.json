@@ -57,7 +57,14 @@
         "addButton": "Adicionar Arquivo",
         "hint": "Máximo 10MB por arquivo. Formatos: imagens, áudios, vídeos, PDF, DOC",
         "existing": "Anexos existentes:",
-        "new": "Novos anexos:"
+        "new": "Novos anexos:",
+        "openAction": "Abrir",
+        "removeAriaLabel": "Remover anexo",
+        "errors": {
+          "limitReached": "Apenas 1 anexo por resposta rápida",
+          "tooLarge": "Arquivo {{name}} é muito grande (máximo 10MB)",
+          "invalidType": "Tipo de arquivo {{name}} não permitido"
+        }
       }
     },
     "variables": {

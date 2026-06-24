@@ -651,6 +651,12 @@
     }
   },
   "messageInput": {
+    "cannedResponse": {
+      "manualAttachmentsRemoved": "Manual attachments removed: the canned response already includes media.",
+      "mediaBanner": "This canned response includes {{count}} media file(s). They will be sent with the message.",
+      "mediaBlocksManualUpload": "This canned response already includes media; remove it to attach another file.",
+      "removeMediaAriaLabel": "Remove canned response media"
+    },
     "pendingPlaceholder": "This conversation is pending. Only private notes can be sent.",
     "restrictedPlaceholder": "Cannot send messages due to 24-hour messaging window",
     "defaultPlaceholder": "Type your message...",
