@@ -905,7 +905,7 @@ export default function Contacts() {
 
       {/* Pagination */}
       {state.meta.pagination.total > 0 && (
-        <div data-tour="contacts-pagination">
+        <div data-tour="contacts-pagination" className="mt-4 border-t border-border pt-4">
           <ContactsPagination
             currentPage={state.meta.pagination.page}
             totalPages={state.meta.pagination.total_pages}
