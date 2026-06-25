@@ -45,4 +45,24 @@ describe('validateNodeConfig (EVO-1744)', () => {
     });
     expect(issues[0].params?.fields).toBe('stage_id');
   });
+
+  // EVO-1905: validate attributeName (the attribute_key the executor reads),
+  // not the UI-only attributeId.
+  it('requires attributeName, not attributeId, for update-custom-attribute', () => {
+    // attributeId present but attributeName missing must still fail.
+    const onlyId = validateNodeConfig('update-custom-attribute-node', {
+      attributeId: 'a1',
+      newValue: 'x',
+    });
+    expect(onlyId).toHaveLength(1);
+    expect(onlyId[0].params?.fields).toBe('attributeName');
+
+    // attributeName + newValue is enough; attributeId is irrelevant.
+    expect(
+      validateNodeConfig('update-custom-attribute-node', {
+        attributeName: 'plan',
+        newValue: 'pro',
+      }),
+    ).toEqual([]);
+  });
 });
