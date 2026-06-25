@@ -277,6 +277,11 @@ export default function Contacts() {
   };
 
   const resolveFilterValueLabel = (filter: BaseFilter): string => {
+    // Presence operators carry no value — show the operator name so the chip
+    // reads "Company: Present" instead of a dangling "Company:".
+    if (filter.filterOperator === 'is_present' || filter.filterOperator === 'is_not_present') {
+      return t(`filter.operators.${filter.filterOperator}`);
+    }
     const raw = Array.isArray(filter.values) ? filter.values.join(',') : String(filter.values ?? '');
     // The company filter submits a company id (UUID); show its name in the chip.
     if (filter.attributeKey === 'company') {
