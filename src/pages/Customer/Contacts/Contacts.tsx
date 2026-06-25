@@ -484,17 +484,9 @@ export default function Contacts() {
     setContactModalOpen(true);
   };
 
-  const handleEditContact = async (contact: Contact) => {
+  const handleEditContact = (contact: Contact) => {
     setEditingContact(contact);
     setContactModalOpen(true);
-    // The list payload omits linked companies (serialized without include_companies),
-    // so re-fetch the full contact to populate the "Linked Companies" picker on edit.
-    try {
-      const fullContact = await contactsService.getContact(contact.id);
-      setEditingContact(fullContact);
-    } catch (error) {
-      console.error('Error loading contact for edit:', error);
-    }
   };
 
   const handleStartConversation = (contact: Contact) => {
@@ -905,7 +897,7 @@ export default function Contacts() {
 
       {/* Pagination */}
       {state.meta.pagination.total > 0 && (
-        <div data-tour="contacts-pagination" className="mt-4 border-t border-border pt-4">
+        <div data-tour="contacts-pagination">
           <ContactsPagination
             currentPage={state.meta.pagination.page}
             totalPages={state.meta.pagination.total_pages}
