@@ -18,6 +18,7 @@ import { adminConfigService } from '@/services/admin/adminConfigService';
 import { extractError } from '@/utils/apiHelpers';
 import type { AdminConfigData } from '@/types/admin/adminConfig';
 import { INTEGRATIONS, type IntegrationDef } from './integrationsCatalog';
+import FrontendServicesSection from './FrontendServicesSection';
 
 // --- Schema ---
 
@@ -276,6 +277,10 @@ export default function IntegrationsConfig() {
           />
         );
       })}
+
+      {/* Non-OAuth front-end service keys (reCAPTCHA, Clarity) — own section, not
+          part of the OAuth catalog above. Self-loads its own config. */}
+      <FrontendServicesSection />
     </div>
   );
 }

@@ -33,6 +33,13 @@ vi.mock('@/utils/apiHelpers', () => ({
   extractError: () => ({ message: 'Test error' }),
 }));
 
+// The non-OAuth front-end services section self-loads its own config; stub it out
+// so these tests cover only the OAuth catalog (its own behavior is covered in
+// FrontendServicesSection.spec.tsx).
+vi.mock('./FrontendServicesSection', () => ({
+  default: () => null,
+}));
+
 // Build fixtures from the catalog so the suite scales with INTEGRATIONS instead
 // of hard-coding the original 4. Keyed by configType (what getConfig receives).
 const EMPTY_DATA: Record<string, Record<string, unknown>> = Object.fromEntries(

@@ -90,7 +90,6 @@ const OpenAIConfig = React.lazy(() => import('@/pages/Admin/Settings/OpenAIConfi
 const IntegrationsConfig = React.lazy(() => import('@/pages/Admin/Settings/IntegrationsConfig'));
 const EvolutionHubConfig = React.lazy(() => import('@/pages/Admin/Settings/EvolutionHubConfig'));
 const InboundEmailConfig = React.lazy(() => import('@/pages/Admin/Settings/InboundEmailConfig'));
-const FrontendRuntimeConfig = React.lazy(() => import('@/pages/Admin/Settings/FrontendRuntimeConfig'));
 
 // Página de tutoriais
 import Tutorials from '@/pages/Customer/Tutorials';
@@ -1436,14 +1435,6 @@ const AppRouter = () => {
               element={
                 <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}>
                   <InboundEmailConfig />
-                </Suspense>
-              }
-            />
-            <Route
-              path="frontend-runtime"
-              element={
-                <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}>
-                  <FrontendRuntimeConfig />
                 </Suspense>
               }
             />

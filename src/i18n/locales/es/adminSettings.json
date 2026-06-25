@@ -8,8 +8,7 @@
     "openai": "OpenAI",
     "integrations": "Integraciones",
     "evolutionHub": "Evo Hub",
-    "inboundEmail": "Correo Entrante",
-    "frontendRuntime": "Frontend Runtime"
+    "inboundEmail": "Correo Entrante"
   },
   "email": {
     "title": "Configuracion de Correo Electronico",
@@ -557,10 +556,10 @@
     "saving": "Guardando..."
   },
   "frontendRuntime": {
-    "title": "Configuración Frontend Runtime",
-    "description": "Configure las claves de reCAPTCHA y Clarity que el frontend carga en tiempo de ejecución.",
+    "title": "Analytics y Seguridad",
+    "description": "Claves de servicios front-end de terceros: Google reCAPTCHA (protección anti-bots) y Microsoft Clarity (analítica).",
     "fields": {
-      "cardTitle": "Claves Runtime",
+      "cardTitle": "reCAPTCHA y Clarity",
       "recaptchaSiteKey": "Clave del Sitio reCAPTCHA",
       "clarityProjectId": "ID del Proyecto Clarity"
     },

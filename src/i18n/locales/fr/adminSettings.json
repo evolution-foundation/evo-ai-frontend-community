@@ -7,8 +7,7 @@
     "channels": "Canaux",
     "openai": "OpenAI",
     "integrations": "Integrations",
-    "inboundEmail": "E-mail Entrant",
-    "frontendRuntime": "Frontend Runtime"
+    "inboundEmail": "E-mail Entrant"
   },
   "email": {
     "title": "Configuration E-mail",
@@ -556,10 +555,10 @@
     "saving": "Enregistrement..."
   },
   "frontendRuntime": {
-    "title": "Configuration Frontend Runtime",
-    "description": "Configurez les clés reCAPTCHA et Clarity chargées par le frontend au démarrage.",
+    "title": "Analytics et Sécurité",
+    "description": "Clés de services front-end tiers : Google reCAPTCHA (protection anti-bot) et Microsoft Clarity (analytique).",
     "fields": {
-      "cardTitle": "Clés Runtime",
+      "cardTitle": "reCAPTCHA et Clarity",
       "recaptchaSiteKey": "Clé du Site reCAPTCHA",
       "clarityProjectId": "ID du Projet Clarity"
     },

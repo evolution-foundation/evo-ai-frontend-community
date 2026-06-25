@@ -8,8 +8,7 @@
     "openai": "OpenAI",
     "integrations": "Integrations",
     "evolutionHub": "Evo Hub",
-    "inboundEmail": "Inbound Email",
-    "frontendRuntime": "Frontend Runtime"
+    "inboundEmail": "Inbound Email"
   },
   "email": {
     "title": "Email Configuration",
@@ -557,10 +556,10 @@
     "saving": "Saving..."
   },
   "frontendRuntime": {
-    "title": "Frontend Runtime Configuration",
-    "description": "Configure reCAPTCHA and Clarity settings that are loaded by the frontend at runtime.",
+    "title": "Analytics & Security",
+    "description": "Third-party front-end service keys: Google reCAPTCHA (bot protection) and Microsoft Clarity (analytics).",
     "fields": {
-      "cardTitle": "Runtime Keys",
+      "cardTitle": "reCAPTCHA & Clarity",
       "recaptchaSiteKey": "reCAPTCHA Site Key",
       "clarityProjectId": "Clarity Project ID"
     },
