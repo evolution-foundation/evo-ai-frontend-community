@@ -80,7 +80,11 @@ export default function Contacts() {
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<BaseFilter[]>([]);
   const hasCompanyFilter = activeFilters.some(f => f.attributeKey === 'company');
-  const { companies: companyFilterOptions } = useContactFilterOptions({ enabled: hasCompanyFilter });
+  // Preload company options while the filter modal is open so the applied chip
+  // resolves the company name immediately on Apply (no id-then-name flicker).
+  const { companies: companyFilterOptions } = useContactFilterOptions({
+    enabled: filterModalOpen || hasCompanyFilter,
+  });
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [mergeModalOpen, setMergeModalOpen] = useState(false);
