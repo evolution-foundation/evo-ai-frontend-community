@@ -155,7 +155,12 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
   };
 
   const renderPath = (path: ConditionalPath, index: number) => {
-    const handleId = `path-${path.id}`;
+    // The backend matches `edge.sourceHandle === path.id` exactly, without
+    // stripping any prefix (conditional.node.ts / journey-execution.workflow.ts).
+    // So the source Handle id — which React Flow copies into the new edge's
+    // sourceHandle — must be the raw `path.id`, with no `path-` prefix.
+    // (EVO-1902 / e2e D13. The Split node uses a prefix on both sides, so it's fine.)
+    const handleId = path.id;
     const isConnected = isHandleConnected(handleId);
     const colors = getPathColor(path.color);
 
