@@ -129,6 +129,15 @@ export const CONTACT_FILTER_TYPES: FilterType[] = [
     attribute_type: 'standard',
   },
   {
+    attributeKey: 'company',
+    attributeI18nKey: 'filter.attributes.company',
+    inputType: 'search_select',
+    dataType: 'text',
+    filterOperators: OPERATOR_TYPES_1,
+    attribute_type: 'standard',
+    options: [], // populated dynamically (companies) in ContactsFilter
+  },
+  {
     attributeKey: 'blocked',
     attributeI18nKey: 'filter.attributes.blocked',
     inputType: 'search_select',

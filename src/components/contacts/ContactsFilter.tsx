@@ -26,14 +26,16 @@ export default function ContactsFilter({
   onClearFilters,
 }: ContactsFilterProps) {
   const { t } = useLanguage('contacts');
-  const { labels } = useContactFilterOptions({ enabled: open });
+  const { labels, companies } = useContactFilterOptions({ enabled: open });
 
   const enrichedFilterTypes = useMemo(
     () =>
-      CONTACT_FILTER_TYPES.map(filterType =>
-        filterType.attributeKey === 'labels' ? { ...filterType, options: labels } : filterType,
-      ),
-    [labels],
+      CONTACT_FILTER_TYPES.map(filterType => {
+        if (filterType.attributeKey === 'labels') return { ...filterType, options: labels };
+        if (filterType.attributeKey === 'company') return { ...filterType, options: companies };
+        return filterType;
+      }),
+    [labels, companies],
   );
 
   return (
