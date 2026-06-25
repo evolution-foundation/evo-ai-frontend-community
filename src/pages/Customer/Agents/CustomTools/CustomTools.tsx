@@ -7,7 +7,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Grid3X3, List, Wand } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 import { CustomTool, CustomToolsState, CustomToolFormData, CustomToolsListParams } from '@/types/ai';
-import { BaseFilter, AppliedFilter } from '@/types/core';
+import { BaseFilter, AppliedFilter, CUSTOM_TOOL_FILTER_TYPES } from '@/types/core';
+import { buildAppliedFilterChips } from '@/utils/appliedFilterChips';
 import {
   CustomToolCard,
   CustomToolsHeader,
@@ -114,16 +115,8 @@ export default function CustomTools() {
     loadTools({ skip: 0, search: query });
   };
 
-  const convertFiltersToApplied = (filters: BaseFilter[]): AppliedFilter[] => {
-    return filters.map((filter, index) => ({
-      id: `filter-${index}`,
-      label: `${filter.attributeKey}: ${Array.isArray(filter.values) ? filter.values.join(',') : filter.values}`,
-      value: Array.isArray(filter.values)
-        ? String(filter.values.join(','))
-        : (filter.values as string | number),
-      onRemove: () => handleRemoveFilter(index),
-    }));
-  };
+  const convertFiltersToApplied = (filters: BaseFilter[]): AppliedFilter[] =>
+    buildAppliedFilterChips(filters, CUSTOM_TOOL_FILTER_TYPES, t, handleRemoveFilter);
 
   const handleOpenFilter = () => {
     setFilterModalOpen(true);
@@ -341,7 +334,7 @@ export default function CustomTools() {
 
           onClearSelection={() => setState(prev => ({ ...prev, selectedToolIds: [] }))}
           activeFilters={appliedFilters}
-          showFilters={true}
+          showFilters={false}
         />
       </div>
 

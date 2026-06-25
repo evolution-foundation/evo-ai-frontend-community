@@ -5,6 +5,11 @@ import { useLanguage } from '@/hooks/useLanguage';
 export interface ExitJourneyNodeData {
   label: string;
   description?: string;
+  /** Reason recorded when the contact leaves the journey. Read by the
+   * exit-journey executor (defaults to 'completed' on the backend). */
+  exitReason?: string;
+  /** Optional human-readable message stored alongside the exit reason. */
+  exitMessage?: string;
 }
 
 export interface ExitJourneyNodeType {

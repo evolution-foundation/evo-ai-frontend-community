@@ -30,12 +30,15 @@ describe('triggerProvidesConversation (EVO-1744)', () => {
     ).toBe(false);
   });
   it('contact-level trigger types do NOT provide conversation', () => {
-    for (const tt of ['manual', 'segment', 'contactCreated', 'label', 'customAttribute', 'pipelineStageChanged']) {
+    for (const tt of ['segment', 'contactCreated', 'label', 'customAttribute', 'pipelineStageChanged']) {
       expect(triggerProvidesConversation({ triggerType: tt })).toBe(false);
     }
   });
-  it('webhook is treated as provides=true (indeterminate, no-warn)', () => {
+  it('indeterminate triggers (webhook, manual) are provides=true (no-warn)', () => {
+    // Both can carry conversation_id in their payload; the runtime contextSkip
+    // is the real guard, so warning on every manual flow would be noise.
     expect(triggerProvidesConversation({ triggerType: 'webhook' })).toBe(true);
+    expect(triggerProvidesConversation({ triggerType: 'manual' })).toBe(true);
   });
 });
 

@@ -29,6 +29,12 @@ interface CreatePipelineTaskPanelProps {
 
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
 
+// Mirrors the PipelineTask `task_type` enum in the CRM
+// (call/email/meeting/follow_up/note/other). The executor forwards this value
+// verbatim and the CRM defaults to `call` when blank, so we default the same.
+const TASK_TYPES = ['call', 'email', 'meeting', 'follow_up', 'note', 'other'];
+const DEFAULT_TASK_TYPE = 'call';
+
 const DUE_PRESETS: { key: string; due: CreatePipelineTaskDueDate | null }[] = [
   { key: 'none', due: null },
   { key: 'in1h', due: { value: 1, unit: 'hours' } },
@@ -50,6 +56,7 @@ export function CreatePipelineTaskPanel({
   const { t } = useLanguage('journey');
   const [title, setTitle] = useState<string>(data.title || '');
   const [description, setDescription] = useState<string>(data.description || '');
+  const [taskType, setTaskType] = useState<string>(data.task_type || DEFAULT_TASK_TYPE);
   const [assignedToId, setAssignedToId] = useState<string>(data.assigned_to_id?.toString() || '');
   const [priority, setPriority] = useState<string>(data.priority || 'medium');
   const [duePreset, setDuePreset] = useState<string>(dueKey(data.due_date));
@@ -85,6 +92,7 @@ export function CreatePipelineTaskPanel({
       ...data,
       title: title.trim(),
       description: description.trim() || undefined,
+      task_type: taskType,
       priority,
       assigned_to_id: assignedToId || undefined,
       assigned_to_name: selectedAgent?.name || undefined,
@@ -101,10 +109,11 @@ export function CreatePipelineTaskPanel({
     () =>
       title.trim() !== (data.title || '') ||
       description.trim() !== (data.description || '') ||
+      taskType !== (data.task_type || DEFAULT_TASK_TYPE) ||
       assignedToId !== (data.assigned_to_id?.toString() || '') ||
       priority !== (data.priority || 'medium') ||
       duePreset !== dueKey(data.due_date),
-    [title, description, assignedToId, priority, duePreset, data],
+    [title, description, taskType, assignedToId, priority, duePreset, data],
   );
 
   return (
@@ -156,6 +165,27 @@ export function CreatePipelineTaskPanel({
             placeholder={t('panels.createPipelineTask.descriptionPlaceholder')}
             className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sidebar-foreground font-medium">
+            {t('panels.createPipelineTask.taskType')}
+          </Label>
+          <Select value={taskType} onValueChange={setTaskType}>
+            <SelectTrigger
+              className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+              aria-label={t('panels.createPipelineTask.taskType')}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-sidebar border-sidebar-border">
+              {TASK_TYPES.map(type => (
+                <SelectItem key={type} value={type} className="text-sidebar-foreground">
+                  {t(`panels.createPipelineTask.taskTypes.${type}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">

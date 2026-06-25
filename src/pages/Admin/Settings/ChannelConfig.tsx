@@ -22,6 +22,8 @@ import { extractError } from '@/utils/apiHelpers';
 import { refreshGlobalConfig } from '@/contexts/GlobalConfigContext';
 import { ClearConfigButton } from '@/components/admin/ClearConfigButton';
 import type { AdminConfigData } from '@/types/admin/adminConfig';
+import SocialLoginConfig from './SocialLoginConfig';
+import InboundEmailConfig from './InboundEmailConfig';
 
 // Sentinel used when the backend reports a secret as "configured" (masked).
 // The form stores this placeholder so zod's .min(1) required validation passes
@@ -717,6 +719,7 @@ export default function ChannelConfig() {
           <TabsTrigger value="instagram">{t('channels.instagram.tabTitle')}</TabsTrigger>
           <TabsTrigger value="evolution">{t('channels.evolution.tabTitle')}</TabsTrigger>
           <TabsTrigger value="evolution_go">{t('channels.evolutionGo.tabTitle')}</TabsTrigger>
+          <TabsTrigger value="email">{t('channels.email.tabTitle')}</TabsTrigger>
           {/* Twitter tab intentionally hidden — channel deprecated in customer-facing flow.
               Form, schema and submit handler are kept below so any installation that already
               has Twitter credentials configured can still load the page without runtime errors. */}
@@ -1021,6 +1024,16 @@ export default function ChannelConfig() {
               required
             />
           </ChannelFormCard>
+        </TabsContent>
+
+        {/* Email Tab — provider OAuth credentials (B1: Google/Microsoft) + inbound
+            email receiving (B4). Both relocated here from standalone Admin Settings
+            menus; each section self-loads its own config_type. */}
+        <TabsContent value="email" className="mt-4">
+          <div className="space-y-10">
+            <SocialLoginConfig />
+            <InboundEmailConfig />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
