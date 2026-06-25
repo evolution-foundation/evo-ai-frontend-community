@@ -280,7 +280,7 @@ const Agentes = () => {
               onBulkDelete={handleBulkDelete}
               onClearSelection={() => setState(prev => ({ ...prev, selectedAgents: [] }))}
               activeFilters={[]}
-              showFilters={true}
+              showFilters={false}
             />
             </div>
 

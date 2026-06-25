@@ -334,7 +334,7 @@ export default function CustomTools() {
 
           onClearSelection={() => setState(prev => ({ ...prev, selectedToolIds: [] }))}
           activeFilters={appliedFilters}
-          showFilters={true}
+          showFilters={false}
         />
       </div>
 

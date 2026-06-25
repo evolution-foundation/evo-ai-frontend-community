@@ -395,7 +395,7 @@ export default function Users() {
           onBulkDelete={handleBulkDelete}
           onClearSelection={() => setState(prev => ({ ...prev, selectedUserIds: [] }))}
           activeFilters={appliedFilters}
-          showFilters={true}
+          showFilters={false}
         />
       </div>
 

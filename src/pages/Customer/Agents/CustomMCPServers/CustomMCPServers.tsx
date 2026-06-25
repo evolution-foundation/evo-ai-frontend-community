@@ -358,7 +358,7 @@ export default function CustomMCPServers() {
           onFilter={handleOpenFilter}
           onClearSelection={() => setState(prev => ({ ...prev, selectedServerIds: [] }))}
           activeFilters={appliedFilters}
-          showFilters={true}
+          showFilters={false}
         />
       </div>
 

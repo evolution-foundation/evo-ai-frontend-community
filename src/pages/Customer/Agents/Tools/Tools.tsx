@@ -219,7 +219,7 @@ export default function Tools() {
         onFilter={handleOpenFilter}
         onClearSelection={() => setState(prev => ({ ...prev, selectedToolIds: [] }))}
         activeFilters={appliedFilters}
-        showFilters={true}
+        showFilters={false}
       />
 
       {/* View Mode Toggle */}
