@@ -132,6 +132,43 @@ describe('journey i18n parity (EVO-1260)', () => {
     expect(offenders).toEqual([]);
   });
 
+  // EVO-1904: the exit-journey config-panel keys (exitReason / exitMessage)
+  // were added to ALL six locales. The strict en↔pt-BR mirror covers those
+  // two; assert presence + non-empty across every shipped locale so
+  // pt/es/fr/it can't silently drift (same pattern as EVO-1260 above).
+  const evo1904Keys = [
+    'panels.exitJourney.intro',
+    'panels.exitJourney.reasonLabel',
+    'panels.exitJourney.reasonPlaceholder',
+    'panels.exitJourney.reasonHint',
+    'panels.exitJourney.reasonRequired',
+    'panels.exitJourney.customReasonLabel',
+    'panels.exitJourney.customReasonPlaceholder',
+    'panels.exitJourney.messageLabel',
+    'panels.exitJourney.messagePlaceholder',
+    'panels.exitJourney.messageHint',
+    'panels.exitJourney.reasons.completed',
+    'panels.exitJourney.reasons.abandoned',
+    'panels.exitJourney.reasons.transferred',
+    'panels.exitJourney.reasons.error',
+    'panels.exitJourney.reasons.custom',
+  ];
+
+  it.each([
+    ['en', en],
+    ['pt-BR', ptBR],
+    ['pt', pt],
+    ['es', es],
+    ['fr', fr],
+    ['it', itLocale],
+  ])('%s contains every EVO-1904 exit-journey key, non-empty', (_name, locale) => {
+    const offenders = evo1904Keys.filter((k) => {
+      const v = getAtPath(locale, k);
+      return typeof v !== 'string' || v.trim() === '';
+    });
+    expect(offenders).toEqual([]);
+  });
+
   // Anti-leakage: catches the EVO-1260 review finding class — pt-BR
   // values byte-identical to EN that are NOT legitimate tech terms,
   // sample literals, or pure-interpolation strings. Uses the shared

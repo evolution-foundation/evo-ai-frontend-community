@@ -1246,7 +1246,24 @@
     "exitJourney": {
       "title": "Exit Journey",
       "description": "Remove the contact from the journey",
-      "finalStepMessage": "This is a final step - there are no more steps"
+      "finalStepMessage": "This is a final step - there are no more steps",
+      "intro": "Choose the reason recorded when the contact leaves the journey. It is saved to the session variables and logs.",
+      "reasonLabel": "Exit reason",
+      "reasonPlaceholder": "Select a reason",
+      "reasonHint": "Used in analytics and session reports.",
+      "reasonRequired": "An exit reason is required.",
+      "customReasonLabel": "Custom reason",
+      "customReasonPlaceholder": "e.g. opted_out",
+      "messageLabel": "Exit message (optional)",
+      "messagePlaceholder": "e.g. Journey completed successfully",
+      "messageHint": "A human-readable note stored alongside the reason.",
+      "reasons": {
+        "completed": "Completed",
+        "abandoned": "Abandoned",
+        "transferred": "Transferred",
+        "error": "Error",
+        "custom": "Custom…"
+      }
     },
     "resolveConversation": {
       "title": "Configure Conversation Resolution",
