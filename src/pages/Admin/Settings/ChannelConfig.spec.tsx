@@ -187,7 +187,7 @@ describe('ChannelConfig', () => {
     expect(screen.getByText('channels.description')).toBeInTheDocument();
   });
 
-  it('renders all 6 tab triggers', async () => {
+  it('renders the visible tab triggers (twitter hidden)', async () => {
     await renderAndWait();
 
     expect(screen.getByText('channels.facebook.tabTitle')).toBeInTheDocument();
@@ -195,7 +195,9 @@ describe('ChannelConfig', () => {
     expect(screen.getByText('channels.instagram.tabTitle')).toBeInTheDocument();
     expect(screen.getByText('channels.evolution.tabTitle')).toBeInTheDocument();
     expect(screen.getByText('channels.evolutionGo.tabTitle')).toBeInTheDocument();
-    expect(screen.getByText('channels.twitter.tabTitle')).toBeInTheDocument();
+    expect(screen.getByText('channels.email.tabTitle')).toBeInTheDocument();
+    // Twitter tab intentionally hidden (deprecated) — no trigger rendered.
+    expect(screen.queryByText('channels.twitter.tabTitle')).not.toBeInTheDocument();
   });
 
   it('renders Facebook tab fields by default', async () => {
@@ -491,41 +493,20 @@ describe('ChannelConfig', () => {
     });
   });
 
-  // --- Twitter Tab Tests ---
+  // --- Email Tab Tests (B1 provider OAuth + B4 inbound) ---
 
-  it('renders Twitter tab fields when tab is clicked', async () => {
+  it('renders the Email tab with provider OAuth and inbound sections', async () => {
     await renderAndWait();
     const user = userEvent.setup();
 
-    await user.click(screen.getByText('channels.twitter.tabTitle'));
+    await user.click(screen.getByText('channels.email.tabTitle'));
 
     await waitFor(() => {
-      expect(screen.getByLabelText('channels.twitter.fields.appId')).toBeInTheDocument();
+      // B1: Google/Microsoft provider OAuth credentials section
+      expect(screen.getByText('socialLogin.title')).toBeInTheDocument();
     });
-    expect(screen.getByLabelText('channels.twitter.fields.consumerKey')).toBeInTheDocument();
-    expect(screen.getByLabelText('channels.twitter.fields.consumerSecret')).toBeInTheDocument();
-    expect(screen.getByLabelText('channels.twitter.fields.environment')).toBeInTheDocument();
-  });
-
-  it('saves Twitter tab independently via twitter config type', async () => {
-    await renderAndWait({ fbData: CONFIGURED_FACEBOOK, wpData: CONFIGURED_WHATSAPP, igData: CONFIGURED_INSTAGRAM, evoData: CONFIGURED_EVOLUTION, evoGoData: CONFIGURED_EVOLUTION_GO, twData: CONFIGURED_TWITTER });
-    mockSaveConfig.mockResolvedValue(CONFIGURED_TWITTER);
-    const user = userEvent.setup();
-
-    await user.click(screen.getByText('channels.twitter.tabTitle'));
-
-    await waitFor(() => {
-      expect(screen.getByLabelText('channels.twitter.fields.appId')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByText('channels.save'));
-
-    await waitFor(() => {
-      expect(mockSaveConfig).toHaveBeenCalledWith('twitter', expect.objectContaining({
-        TWITTER_APP_ID: 'test-twitter-app-id',
-        TWITTER_CONSUMER_KEY: 'test-consumer-key',
-      }));
-    });
+    // B4: inbound email receiving section
+    expect(screen.getByText('inboundEmail.title')).toBeInTheDocument();
   });
 
   it('sends null for unmodified secrets on Evolution Go save', async () => {
@@ -584,23 +565,6 @@ describe('ChannelConfig', () => {
     });
   });
 
-  it('shows error toast when Twitter save fails', async () => {
-    await renderAndWait({ twData: CONFIGURED_TWITTER });
-    mockSaveConfig.mockRejectedValue(new Error('Network error'));
-    const user = userEvent.setup();
-
-    await user.click(screen.getByText('channels.twitter.tabTitle'));
-    await waitFor(() => {
-      expect(screen.getByLabelText('channels.twitter.fields.appId')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByText('channels.save'));
-
-    await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent('Test error');
-    });
-  });
-
   // --- Clear secret tests for new tabs ---
 
   it('clear secret on Evolution tab marks secret as modified', async () => {
@@ -633,38 +597,18 @@ describe('ChannelConfig', () => {
       expect(screen.getByLabelText('channels.evolutionGo.fields.adminSecret')).toBeInTheDocument();
     });
 
-    // Evolution Go has 2 configured secrets
+    // Evolution Go has 1 configured secret (EVOLUTION_GO_ADMIN_SECRET)
     const configuredBefore = screen.getAllByText('channels.secretConfigured');
-    expect(configuredBefore.length).toBe(2);
+    expect(configuredBefore.length).toBe(1);
 
     const clearButtons = screen.getAllByTitle('channels.clearSecret');
     await act(async () => {
       fireEvent.click(clearButtons[0]);
     });
 
-    // One fewer configured indicator
-    const configuredAfter = screen.getAllByText('channels.secretConfigured');
-    expect(configuredAfter.length).toBe(1);
-  });
-
-  it('clear secret on Twitter tab marks secret as modified', async () => {
-    await renderAndWait({ twData: CONFIGURED_TWITTER });
-    const user = userEvent.setup();
-
-    await user.click(screen.getByText('channels.twitter.tabTitle'));
-    await waitFor(() => {
-      expect(screen.getByLabelText('channels.twitter.fields.consumerSecret')).toBeInTheDocument();
-    });
-
-    const clearButtons = screen.getAllByTitle('channels.clearSecret');
-    expect(clearButtons.length).toBeGreaterThanOrEqual(1);
-
-    await act(async () => {
-      fireEvent.click(clearButtons[0]);
-    });
-
-    const remaining = screen.queryAllByText('channels.secretConfigured');
-    expect(remaining.length).toBe(0);
+    // Cleared → no configured indicator remains
+    const configuredAfter = screen.queryAllByText('channels.secretConfigured');
+    expect(configuredAfter.length).toBe(0);
   });
 
   describe('required enforcement', () => {

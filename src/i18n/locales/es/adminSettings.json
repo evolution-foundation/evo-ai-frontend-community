@@ -3,13 +3,10 @@
   "navigation": {
     "email": "Correo electronico",
     "storage": "Almacenamiento",
-    "socialLogin": "Proveedores de Autenticación",
     "channels": "Canales",
     "openai": "OpenAI",
     "integrations": "Integraciones",
-    "evolutionHub": "Evo Hub",
-    "inboundEmail": "Correo Entrante",
-    "frontendRuntime": "Frontend Runtime"
+    "evolutionHub": "Evo Hub"
   },
   "email": {
     "title": "Configuracion de Correo Electronico",
@@ -117,8 +114,8 @@
     }
   },
   "socialLogin": {
-    "title": "Proveedores de Autenticación",
-    "description": "Configure las credenciales OAuth de los proveedores de autenticación SSO para que los usuarios puedan iniciar sesion con Google o Microsoft.",
+    "title": "Credenciales de proveedor de correo (OAuth)",
+    "description": "Credenciales de app OAuth (Google / Microsoft) usadas para conectar canales de correo Gmail y Outlook.",
     "google": {
       "cardTitle": "Google OAuth",
       "fields": {
@@ -165,6 +162,9 @@
     "saving": "Guardando..."
   },
   "channels": {
+    "email": {
+      "tabTitle": "Correo"
+    },
     "title": "Integraciones de Canales",
     "description": "Configure las credenciales para los canales de mensajeria e integraciones.",
     "secretConfigured": "Configurado",
@@ -341,7 +341,7 @@
   },
   "integrations": {
     "title": "Configuracion de Integraciones",
-    "description": "Configure credenciales OAuth para integraciones de terceros como Linear, HubSpot, Shopify y Slack.",
+    "description": "Configure credenciales OAuth para integraciones de terceros como Linear, GitHub, Notion y otras.",
     "secretConfigured": "Configurado",
     "secretNotConfigured": "No configurado",
     "clearSecret": "Borrar valor guardado",
@@ -399,13 +399,130 @@
       "saveSuccess": "Configuracion de Slack guardada exitosamente",
       "saveError": "Error al guardar la configuracion de Slack"
     },
+    "github": {
+      "cardTitle": "GitHub",
+      "fields": {
+        "clientId": "ID de Cliente",
+        "clientSecret": "Secreto de Cliente"
+      },
+      "placeholders": {
+        "clientId": "Su GitHub Client ID",
+        "clientSecret": "Ingrese el nuevo secreto de cliente"
+      },
+      "saveSuccess": "Configuracion de GitHub guardada exitosamente",
+      "saveError": "Error al guardar la configuracion de GitHub"
+    },
+    "notion": {
+      "cardTitle": "Notion",
+      "fields": {
+        "clientId": "ID de Cliente",
+        "clientSecret": "Secreto de Cliente"
+      },
+      "placeholders": {
+        "clientId": "Su Notion Client ID",
+        "clientSecret": "Ingrese el nuevo secreto de cliente"
+      },
+      "saveSuccess": "Configuracion de Notion guardada exitosamente",
+      "saveError": "Error al guardar la configuracion de Notion"
+    },
+    "asana": {
+      "cardTitle": "Asana",
+      "fields": {
+        "clientId": "ID de Cliente",
+        "clientSecret": "Secreto de Cliente"
+      },
+      "placeholders": {
+        "clientId": "Su Asana Client ID",
+        "clientSecret": "Ingrese el nuevo secreto de cliente"
+      },
+      "saveSuccess": "Configuracion de Asana guardada exitosamente",
+      "saveError": "Error al guardar la configuracion de Asana"
+    },
+    "canva": {
+      "cardTitle": "Canva",
+      "fields": {
+        "clientId": "ID de Cliente",
+        "clientSecret": "Secreto de Cliente"
+      },
+      "placeholders": {
+        "clientId": "Su Canva Client ID",
+        "clientSecret": "Ingrese el nuevo secreto de cliente"
+      },
+      "saveSuccess": "Configuracion de Canva guardada exitosamente",
+      "saveError": "Error al guardar la configuracion de Canva"
+    },
+    "google_calendar": {
+      "cardTitle": "Google Calendar",
+      "fields": {
+        "clientId": "ID de Cliente",
+        "clientSecret": "Secreto de Cliente"
+      },
+      "placeholders": {
+        "clientId": "Su Google Calendar Client ID",
+        "clientSecret": "Ingrese el nuevo secreto de cliente"
+      },
+      "saveSuccess": "Configuracion de Google Calendar guardada exitosamente",
+      "saveError": "Error al guardar la configuracion de Google Calendar"
+    },
+    "google_sheets": {
+      "cardTitle": "Google Sheets",
+      "fields": {
+        "clientId": "ID de Cliente",
+        "clientSecret": "Secreto de Cliente"
+      },
+      "placeholders": {
+        "clientId": "Su Google Sheets Client ID",
+        "clientSecret": "Ingrese el nuevo secreto de cliente"
+      },
+      "saveSuccess": "Configuracion de Google Sheets guardada exitosamente",
+      "saveError": "Error al guardar la configuracion de Google Sheets"
+    },
+    "monday": {
+      "cardTitle": "Monday.com",
+      "fields": {
+        "clientId": "ID de Cliente",
+        "clientSecret": "Secreto de Cliente"
+      },
+      "placeholders": {
+        "clientId": "Su Monday.com Client ID",
+        "clientSecret": "Ingrese el nuevo secreto de cliente"
+      },
+      "saveSuccess": "Configuracion de Monday.com guardada exitosamente",
+      "saveError": "Error al guardar la configuracion de Monday.com"
+    },
+    "paypal": {
+      "cardTitle": "PayPal",
+      "fields": {
+        "clientId": "ID de Cliente",
+        "clientSecret": "Secreto de Cliente"
+      },
+      "placeholders": {
+        "clientId": "Su PayPal Client ID",
+        "clientSecret": "Ingrese el nuevo secreto de cliente"
+      },
+      "saveSuccess": "Configuracion de PayPal guardada exitosamente",
+      "saveError": "Error al guardar la configuracion de PayPal"
+    },
+    "atlassian": {
+      "cardTitle": "Atlassian",
+      "fields": {
+        "clientId": "ID de Cliente",
+        "clientSecret": "Secreto de Cliente"
+      },
+      "placeholders": {
+        "clientId": "Su Atlassian Client ID",
+        "clientSecret": "Ingrese el nuevo secreto de cliente"
+      },
+      "saveSuccess": "Configuracion de Atlassian guardada exitosamente",
+      "saveError": "Error al guardar la configuracion de Atlassian"
+    },
     "messages": {
       "loadError": "Error al cargar la configuracion de integraciones"
     }
   },
   "inboundEmail": {
-    "title": "Configuracion de Correo Entrante",
-    "description": "Configure el proveedor de correo entrante y las credenciales utilizadas para recibir y procesar correos electronicos entrantes.",
+    "title": "Correo entrante (recibir como conversaciones)",
+    "description": "Permite que el CRM reciba correos como conversaciones. Requiere un servicio externo de recepción (relay, Mailgun o Mandrill) configurado para tu dominio.",
     "provider": {
       "label": "Servicio de Correo Entrante",
       "relay": "Relay (Exim / Postfix / Qmail)",
@@ -440,10 +557,10 @@
     "saving": "Guardando..."
   },
   "frontendRuntime": {
-    "title": "Configuración Frontend Runtime",
-    "description": "Configure las claves de reCAPTCHA y Clarity que el frontend carga en tiempo de ejecución.",
+    "title": "Analytics y Seguridad",
+    "description": "Claves de servicios front-end de terceros: Google reCAPTCHA (protección anti-bots) y Microsoft Clarity (analítica).",
     "fields": {
-      "cardTitle": "Claves Runtime",
+      "cardTitle": "reCAPTCHA y Clarity",
       "recaptchaSiteKey": "Clave del Sitio reCAPTCHA",
       "clarityProjectId": "ID del Proyecto Clarity"
     },

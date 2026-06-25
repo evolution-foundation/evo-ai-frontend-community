@@ -209,7 +209,7 @@ export default function SocialLoginConfig() {
       googleForm.reset(buildGoogleFormValues(googleData));
       updateMicrosoftSecretStatus(microsoftData);
       microsoftForm.reset(buildMicrosoftFormValues(microsoftData));
-    } catch (error) {
+    } catch {
       toast.error(t('socialLogin.messages.loadError'));
     } finally {
       setLoading(false);
@@ -299,9 +299,9 @@ export default function SocialLoginConfig() {
   }
 
   return (
-    <div className="max-w-2xl">
+    <section>
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-sidebar-foreground">{t('socialLogin.title')}</h2>
+        <h3 className="text-lg font-semibold text-sidebar-foreground">{t('socialLogin.title')}</h3>
         <p className="text-sm text-sidebar-foreground/70 mt-1">{t('socialLogin.description')}</p>
       </div>
 
@@ -400,6 +400,6 @@ export default function SocialLoginConfig() {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </section>
   );
 }
