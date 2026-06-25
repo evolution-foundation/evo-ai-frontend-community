@@ -1015,6 +1015,15 @@
       "variablesHint": "Suporta variáveis como {contact.name}.",
       "description": "Descrição",
       "descriptionPlaceholder": "Detalhes opcionais",
+      "taskType": "Tipo da tarefa",
+      "taskTypes": {
+        "call": "Ligação",
+        "email": "E-mail",
+        "meeting": "Reunião",
+        "follow_up": "Follow-up",
+        "note": "Anotação",
+        "other": "Outro"
+      },
       "assignee": "Responsável",
       "noAssignee": "Sem responsável",
       "dueDate": "Vencimento",
