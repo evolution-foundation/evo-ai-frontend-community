@@ -44,6 +44,7 @@ import {
   ScheduledActionNode,
   SplitNode,
   ExitJourneyNode,
+  ExitJourneyPanel,
   SendWebhookNode,
   AddLabelNode,
   RemoveLabelNode,
@@ -583,6 +584,8 @@ function JourneyFlowEditor() {
           return <UpdateCustomAttributePanel {...commonProps} />;
         case 'transfer-journey-node':
           return <TransferJourneyPanel {...commonProps} />;
+        case 'exit-journey-node':
+          return <ExitJourneyPanel {...commonProps} />;
         case 'send-message-node':
           return <SendMessagePanel {...commonProps} />;
         case 'set-variable-node':
