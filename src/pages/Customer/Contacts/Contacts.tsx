@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -17,7 +17,8 @@ import EmptyState from '@/components/base/EmptyState';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { contactsService } from '@/services/contacts';
 import { Contact, ContactsState, ContactsListParams, ContactFormData } from '@/types/contacts';
-import { BaseFilter, AppliedFilter } from '@/types/core';
+import { BaseFilter, AppliedFilter, CONTACT_FILTER_TYPES } from '@/types/core';
+import { useContactFilterOptions } from '@/hooks/contacts/useContactFilterOptions';
 import { ContactCard } from '@/components/contacts';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 
@@ -78,7 +79,12 @@ export default function Contacts() {
   const [detailsContact, setDetailsContact] = useState<Contact | null>(null);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<BaseFilter[]>([]);
-  const [appliedFilters, setAppliedFilters] = useState<AppliedFilter[]>([]);
+  const hasCompanyFilter = activeFilters.some(f => f.attributeKey === 'company');
+  // Preload company options while the filter modal is open so the applied chip
+  // resolves the company name immediately on Apply (no id-then-name flicker).
+  const { companies: companyFilterOptions } = useContactFilterOptions({
+    enabled: filterModalOpen || hasCompanyFilter,
+  });
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [mergeModalOpen, setMergeModalOpen] = useState(false);
@@ -269,15 +275,32 @@ export default function Contacts() {
     });
   };
 
+  const resolveFilterAttributeLabel = (attributeKey: string): string => {
+    const filterType = CONTACT_FILTER_TYPES.find(f => f.attributeKey === attributeKey);
+    return filterType?.attributeI18nKey ? t(filterType.attributeI18nKey) : attributeKey;
+  };
+
+  const resolveFilterValueLabel = (filter: BaseFilter): string => {
+    // Presence operators carry no value — show the operator name so the chip
+    // reads "Company: Present" instead of a dangling "Company:".
+    if (filter.filterOperator === 'is_present' || filter.filterOperator === 'is_not_present') {
+      return t(`filter.operators.${filter.filterOperator}`);
+    }
+    const raw = Array.isArray(filter.values) ? filter.values.join(',') : String(filter.values ?? '');
+    // The company filter submits a company id (UUID); show its name in the chip.
+    if (filter.attributeKey === 'company') {
+      return companyFilterOptions.find(o => o.value === raw)?.label ?? raw;
+    }
+    return raw;
+  };
+
   const convertFiltersToApplied = (filters: BaseFilter[]): AppliedFilter[] => {
+    // BaseHeader renders each chip as `{label}: {value}`, so label is the attribute
+    // name and value is the human-readable value (company id resolved to its name).
     return filters.map((filter, index) => ({
       id: `filter-${index}`,
-      label: `${filter.attributeKey}: ${
-        Array.isArray(filter.values) ? filter.values.join(',') : filter.values
-      }`,
-      value: Array.isArray(filter.values)
-        ? String(filter.values.join(','))
-        : (filter.values as string | number),
+      label: resolveFilterAttributeLabel(filter.attributeKey),
+      value: resolveFilterValueLabel(filter),
       onRemove: () => handleRemoveFilter(index),
     }));
   };
@@ -288,7 +311,6 @@ export default function Contacts() {
 
   const handleApplyFilters = async (filters: BaseFilter[]) => {
     setActiveFilters(filters);
-    setAppliedFilters(convertFiltersToApplied(filters));
 
     setState(prev => ({
       ...prev,
@@ -389,7 +411,6 @@ export default function Contacts() {
 
   const handleClearFilters = () => {
     setActiveFilters([]);
-    setAppliedFilters([]);
     loadContacts({ page: 1 });
   };
 
@@ -401,6 +422,13 @@ export default function Contacts() {
       handleApplyFilters(newFilters);
     }
   };
+
+  // Derived so company chips re-resolve their name once the options load async.
+  const appliedFilters = useMemo(
+    () => convertFiltersToApplied(activeFilters),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeFilters, companyFilterOptions, t],
+  );
 
   const handlePageChange = (page: number) => {
     setState(prev => ({
