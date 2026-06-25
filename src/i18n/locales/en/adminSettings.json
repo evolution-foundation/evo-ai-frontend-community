@@ -3,12 +3,10 @@
   "navigation": {
     "email": "Email",
     "storage": "Storage",
-    "socialLogin": "Authentication Providers",
     "channels": "Channels",
     "openai": "OpenAI",
     "integrations": "Integrations",
-    "evolutionHub": "Evo Hub",
-    "inboundEmail": "Inbound Email"
+    "evolutionHub": "Evo Hub"
   },
   "email": {
     "title": "Email Configuration",
@@ -116,8 +114,8 @@
     }
   },
   "socialLogin": {
-    "title": "Authentication Providers",
-    "description": "Configure OAuth credentials for SSO authentication providers so users can sign in with Google or Microsoft.",
+    "title": "Email provider credentials (OAuth)",
+    "description": "OAuth app credentials (Google / Microsoft) used to connect Gmail and Outlook email channels.",
     "google": {
       "cardTitle": "Google OAuth",
       "fields": {
@@ -164,6 +162,9 @@
     "saving": "Saving..."
   },
   "channels": {
+    "email": {
+      "tabTitle": "Email"
+    },
     "title": "Channel Integrations",
     "description": "Configure credentials for messaging channels and integrations.",
     "secretConfigured": "Configured",
@@ -520,8 +521,8 @@
     }
   },
   "inboundEmail": {
-    "title": "Inbound Email Configuration",
-    "description": "Configure the inbound email provider and credentials used for receiving and processing incoming emails.",
+    "title": "Inbound email (receive as conversations)",
+    "description": "Lets the CRM receive emails as conversations. Requires an external receiving service (relay, Mailgun or Mandrill) configured for your domain.",
     "provider": {
       "label": "Inbound Email Service",
       "relay": "Relay (Exim / Postfix / Qmail)",

@@ -3,11 +3,9 @@
   "navigation": {
     "email": "E-mail",
     "storage": "Archiviazione",
-    "socialLogin": "Provider di autenticazione",
     "channels": "Canali",
     "openai": "OpenAI",
-    "integrations": "Integrazioni",
-    "inboundEmail": "E-mail in Entrata"
+    "integrations": "Integrazioni"
   },
   "email": {
     "title": "Configurazione E-mail",
@@ -115,8 +113,8 @@
     }
   },
   "socialLogin": {
-    "title": "Provider di autenticazione",
-    "description": "Configura le credenziali OAuth dei provider di autenticazione SSO per consentire agli utenti di accedere con Google o Microsoft.",
+    "title": "Credenziali del provider e-mail (OAuth)",
+    "description": "Credenziali dell'app OAuth (Google / Microsoft) usate per collegare i canali e-mail Gmail e Outlook.",
     "google": {
       "cardTitle": "Google OAuth",
       "fields": {
@@ -163,6 +161,9 @@
     "saving": "Salvataggio..."
   },
   "channels": {
+    "email": {
+      "tabTitle": "Email"
+    },
     "title": "Integrazioni Canali",
     "description": "Configura le credenziali per i canali di messaggistica e integrazioni.",
     "secretConfigured": "Configurato",
@@ -519,8 +520,8 @@
     }
   },
   "inboundEmail": {
-    "title": "Configurazione E-mail in Entrata",
-    "description": "Configura il provider di posta elettronica in entrata e le credenziali utilizzate per ricevere ed elaborare le e-mail in arrivo.",
+    "title": "E-mail in entrata (ricevi come conversazioni)",
+    "description": "Permette al CRM di ricevere e-mail come conversazioni. Richiede un servizio di ricezione esterno (relay, Mailgun o Mandrill) configurato per il tuo dominio.",
     "provider": {
       "label": "Servizio E-mail in Entrata",
       "relay": "Relay (Exim / Postfix / Qmail)",
