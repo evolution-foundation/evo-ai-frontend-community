@@ -3,11 +3,9 @@
   "navigation": {
     "email": "E-mail",
     "storage": "Stockage",
-    "socialLogin": "Fournisseurs d'authentification",
     "channels": "Canaux",
     "openai": "OpenAI",
     "integrations": "Integrations",
-    "inboundEmail": "E-mail Entrant",
     "frontendRuntime": "Frontend Runtime"
   },
   "email": {
@@ -116,8 +114,8 @@
     }
   },
   "socialLogin": {
-    "title": "Fournisseurs d'authentification",
-    "description": "Configurez les identifiants OAuth des fournisseurs d'authentification SSO pour que les utilisateurs puissent se connecter avec Google ou Microsoft.",
+    "title": "Identifiants du fournisseur d'e-mail (OAuth)",
+    "description": "Identifiants d'application OAuth (Google / Microsoft) utilisés pour connecter les canaux e-mail Gmail et Outlook.",
     "google": {
       "cardTitle": "Google OAuth",
       "fields": {
@@ -164,6 +162,9 @@
     "saving": "Enregistrement..."
   },
   "channels": {
+    "email": {
+      "tabTitle": "E-mail"
+    },
     "title": "Integrations de Canaux",
     "description": "Configurez les identifiants pour les canaux de messagerie et integrations.",
     "secretConfigured": "Configure",
@@ -403,8 +404,8 @@
     }
   },
   "inboundEmail": {
-    "title": "Configuration E-mail Entrant",
-    "description": "Configurez le fournisseur de messagerie entrante et les identifiants utilises pour recevoir et traiter les e-mails entrants.",
+    "title": "E-mail entrant (recevoir comme conversations)",
+    "description": "Permet au CRM de recevoir des e-mails sous forme de conversations. Nécessite un service de réception externe (relay, Mailgun ou Mandrill) configuré pour votre domaine.",
     "provider": {
       "label": "Service d'E-mail Entrant",
       "relay": "Relay (Exim / Postfix / Qmail)",

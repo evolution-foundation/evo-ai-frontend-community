@@ -1,16 +1,14 @@
 import { NavLink, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
-import { Mail, MailOpen, HardDrive, KeyRound, MessageSquare, Sparkles, Puzzle, Globe, Cable } from 'lucide-react';
+import { Mail, HardDrive, MessageSquare, Sparkles, Puzzle, Globe, Cable } from 'lucide-react';
 
 const navItems = [
   { key: 'email', path: '/settings/admin/email', icon: Mail },
   { key: 'storage', path: '/settings/admin/storage', icon: HardDrive },
-  { key: 'socialLogin', path: '/settings/admin/social-login', icon: KeyRound },
   { key: 'channels', path: '/settings/admin/channels', icon: MessageSquare },
   { key: 'openai', path: '/settings/admin/openai', icon: Sparkles },
   { key: 'integrations', path: '/settings/admin/integrations', icon: Puzzle },
   { key: 'evolutionHub', path: '/settings/admin/evolution-hub', icon: Cable },
-  { key: 'inboundEmail', path: '/settings/admin/inbound-email', icon: MailOpen },
   { key: 'frontendRuntime', path: '/settings/admin/frontend-runtime', icon: Globe },
 ] as const;
 
