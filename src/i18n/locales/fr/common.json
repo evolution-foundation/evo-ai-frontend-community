@@ -1,6 +1,10 @@
 {
   "filter": {
     "operators": {
+      "equal_to": "Égal à",
+      "not_equal_to": "Différent de",
+      "contains": "Contient",
+      "does_not_contain": "Ne contient pas",
       "is_present": "Présent",
       "is_not_present": "Non présent"
     }
