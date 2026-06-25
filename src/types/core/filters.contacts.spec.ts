@@ -35,4 +35,9 @@ describe('CONTACT_FILTER_TYPES (EVO-1835)', () => {
     expect(byKey('company')?.filterOperators.map(o => o.key)).not.toContain('contains');
     expect(byKey('country_code')?.filterOperators.map(o => o.key)).not.toContain('contains');
   });
+
+  it('company exposes presence operators to match the backend (has-any / has-no company)', () => {
+    const ops = byKey('company')?.filterOperators.map(o => o.key);
+    expect(ops).toEqual(['equal_to', 'not_equal_to', 'is_present', 'is_not_present']);
+  });
 });

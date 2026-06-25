@@ -133,7 +133,15 @@ export const CONTACT_FILTER_TYPES: FilterType[] = [
     attributeI18nKey: 'filter.attributes.company',
     inputType: 'search_select',
     dataType: 'text',
-    filterOperators: OPERATOR_TYPES_1,
+    // Mirrors the backend contacts.company operators (filter_keys.yml): is/is-not a
+    // company, plus has-any / has-no company. is_present/is_not_present render
+    // without a value input (BaseFilterRow.needsValueInput).
+    filterOperators: [
+      { key: 'equal_to', label: 'filter.operators.equal_to', value: 'equal_to' },
+      { key: 'not_equal_to', label: 'filter.operators.not_equal_to', value: 'not_equal_to' },
+      { key: 'is_present', label: 'filter.operators.is_present', value: 'is_present' },
+      { key: 'is_not_present', label: 'filter.operators.is_not_present', value: 'is_not_present' },
+    ],
     attribute_type: 'standard',
     options: [], // populated dynamically (companies) in ContactsFilter
   },
