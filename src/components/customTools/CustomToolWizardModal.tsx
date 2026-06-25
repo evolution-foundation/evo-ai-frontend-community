@@ -25,31 +25,88 @@ interface CustomToolWizardModalProps {
   tool?: CustomTool;
 }
 
-const MODES_META_KEY = '__modes_meta__';
+// Namespaced key for the wizard's mode-description side-channel inside
+// `values`. The legacy unnamespaced key __modes_meta__ is still READ for
+// back-compat (tools saved by older wizard builds) but never WRITTEN, and
+// if the user has a real entry under either key it is preserved in
+// `error_handling_extras`/`values_extras` and round-trips intact.
+const MODES_META_KEY = '__evo_modes_meta__';
+const LEGACY_MODES_META_KEY = '__modes_meta__';
+
+const looksLikeModesMeta = (v: unknown): v is { input?: unknown; output?: unknown } =>
+  typeof v === 'object' && v !== null && !Array.isArray(v);
 
 const extractModesMeta = (
   values: Record<string, unknown> | undefined,
-): { input: string; output: string; cleanValues: Record<string, unknown> } => {
+): {
+  input: string;
+  output: string;
+  cleanValues: Record<string, unknown>;
+} => {
   const safeValues = values || {};
-  const meta = safeValues[MODES_META_KEY];
-  const cleanValues = { ...safeValues };
-  delete cleanValues[MODES_META_KEY];
-  if (meta && typeof meta === 'object' && !Array.isArray(meta)) {
-    const m = meta as Record<string, unknown>;
+  const cleanValues: Record<string, unknown> = { ...safeValues };
+  // Prefer the namespaced key; fall back to legacy.
+  const candidate =
+    safeValues[MODES_META_KEY] !== undefined
+      ? safeValues[MODES_META_KEY]
+      : safeValues[LEGACY_MODES_META_KEY];
+
+  if (looksLikeModesMeta(candidate)) {
+    const m = candidate as Record<string, unknown>;
+    // Only strip the key we will rewrite on save (namespaced); the legacy
+    // key, if present, is migrated to the new one on next save — leave the
+    // cleanValues without either so the user's `values` editor in the UI
+    // does not show our internal plumbing.
+    delete cleanValues[MODES_META_KEY];
+    delete cleanValues[LEGACY_MODES_META_KEY];
     return {
-      input: typeof m.input === 'string' ? m.input : '',
-      output: typeof m.output === 'string' ? m.output : '',
+      input: typeof m.input === 'string' ? (m.input as string) : '',
+      output: typeof m.output === 'string' ? (m.output as string) : '',
       cleanValues,
     };
   }
+  // Neither key holds our shape — leave whatever the user wrote intact.
   return { input: '', output: '', cleanValues };
+};
+
+// Promoted error_handling keys edited by the Step4 form. Anything outside
+// this set lives in error_handling_extras and is merged back on submit so
+// edits never erase fields the user (or another integration) wrote.
+const PROMOTED_EH_KEYS = ['timeout', 'retry_count', 'fallback_response'] as const;
+
+const splitErrorHandling = (
+  eh: Record<string, unknown> | undefined,
+): { promoted: ErrorHandling; extras: Record<string, unknown> } => {
+  const safe = eh || {};
+  const extras: Record<string, unknown> = {};
+  for (const k of Object.keys(safe)) {
+    if (!(PROMOTED_EH_KEYS as readonly string[]).includes(k)) {
+      extras[k] = safe[k];
+    }
+  }
+  return {
+    promoted: {
+      timeout: typeof safe.timeout === 'number' ? (safe.timeout as number) : undefined,
+      retry_count:
+        typeof safe.retry_count === 'number' ? (safe.retry_count as number) : undefined,
+      fallback_response:
+        typeof safe.fallback_response === 'string'
+          ? (safe.fallback_response as string)
+          : undefined,
+    },
+    extras,
+  };
 };
 
 const toolToWizardData = (tool: CustomTool): WizardData => {
   const { input, output, cleanValues } = extractModesMeta(
     tool.values as Record<string, unknown>,
   );
-  const eh = (tool.error_handling as Record<string, unknown>) || {};
+  const { promoted, extras } = splitErrorHandling(
+    tool.error_handling as Record<string, unknown>,
+  );
+  const inputModesAll = tool.input_modes || [];
+  const outputModesAll = tool.output_modes || [];
   return {
     name: tool.name || '',
     description: tool.description || '',
@@ -61,15 +118,13 @@ const toolToWizardData = (tool: CustomTool): WizardData => {
     path_params: (tool.path_params as Record<string, unknown>) || {},
     body_params: (tool.body_params as Record<string, unknown>) || {},
     values: cleanValues,
-    error_handling: {
-      timeout: typeof eh.timeout === 'number' ? eh.timeout : undefined,
-      retry_count: typeof eh.retry_count === 'number' ? eh.retry_count : undefined,
-      fallback_response:
-        typeof eh.fallback_response === 'string' ? eh.fallback_response : undefined,
-    },
-    input_mode: tool.input_modes?.[0] || '',
+    error_handling: promoted,
+    error_handling_extras: extras,
+    input_mode: inputModesAll[0] || '',
+    input_modes_extra: inputModesAll.slice(1),
     input_description: input,
-    output_mode: tool.output_modes?.[0] || '',
+    output_mode: outputModesAll[0] || '',
+    output_modes_extra: outputModesAll.slice(1),
     output_description: output,
     examples: tool.examples || [],
   };
@@ -91,10 +146,16 @@ interface WizardData {
   // Step 4
   values: Record<string, unknown>;
   error_handling: ErrorHandling;
+  // Non-promoted error_handling keys preserved verbatim across edit cycles.
+  error_handling_extras: Record<string, unknown>;
   // Step 5
   input_mode: string;
+  // Trailing input_modes beyond [0]; the wizard's single-select UI only
+  // exposes the primary, but the array round-trips intact on save.
+  input_modes_extra: string[];
   input_description: string;
   output_mode: string;
+  output_modes_extra: string[];
   output_description: string;
   // Step 6
   examples: string[];
@@ -112,21 +173,38 @@ const initialWizardData: WizardData = {
   body_params: {},
   values: {},
   error_handling: {},
+  error_handling_extras: {},
   input_mode: '',
+  input_modes_extra: [],
   input_description: '',
   output_mode: '',
+  output_modes_extra: [],
   output_description: '',
   examples: [],
 };
 
 const TOTAL_STEPS = 6;
 
-const errorHandlingToObject = (eh: ErrorHandling): Record<string, unknown> => {
-  const out: Record<string, unknown> = {};
+const mergeErrorHandlingForSave = (
+  eh: ErrorHandling,
+  extras: Record<string, unknown>,
+): Record<string, unknown> => {
+  // Extras first, promoted overrides — user edits in the form always win
+  // but any field the user did not touch (custom_field, on_429, …) is
+  // preserved verbatim from the original tool.
+  const out: Record<string, unknown> = { ...extras };
   if (eh.timeout !== undefined) out.timeout = eh.timeout;
   if (eh.retry_count !== undefined) out.retry_count = eh.retry_count;
   if (eh.fallback_response !== undefined) out.fallback_response = eh.fallback_response;
   return out;
+};
+
+// Re-assemble the input/output mode arrays preserving extras the wizard
+// didn't expose. Empty primary + no extras = empty array (back-compat with
+// pre-wizard tools that had no modes set).
+const composeModes = (primary: string, extras: string[]): string[] => {
+  if (!primary) return extras.length > 0 ? [...extras] : [];
+  return [primary, ...extras];
 };
 
 export default function CustomToolWizardModal({
@@ -189,14 +267,17 @@ export default function CustomToolWizardModal({
   const handleBack = () => setCurrentStep(s => Math.max(s - 1, 1));
 
   const handleSubmit = () => {
-    // Mode descriptions don't map to a backend field; stash them inside `values`
-    // under a reserved key so they round-trip across reads.
+    // Mode descriptions live in `values` under our namespaced key. We
+    // never overwrite an unrelated user-owned `__evo_modes_meta__` key
+    // because cleanValues stripped it on read and the user can't recreate
+    // it (it would have been treated as our meta and migrated out). The
+    // legacy unnamespaced `__modes_meta__` is also never written.
     const modesMeta: Record<string, string> = {};
     if (data.input_description.trim()) modesMeta.input = data.input_description.trim();
     if (data.output_description.trim()) modesMeta.output = data.output_description.trim();
     const valuesWithMeta =
       Object.keys(modesMeta).length > 0
-        ? { ...data.values, __modes_meta__: modesMeta }
+        ? { ...data.values, [MODES_META_KEY]: modesMeta }
         : data.values;
 
     const payload: CustomToolFormData = {
@@ -209,9 +290,12 @@ export default function CustomToolWizardModal({
       path_params: data.path_params,
       body_params: data.body_params,
       values: valuesWithMeta,
-      error_handling: errorHandlingToObject(data.error_handling),
-      input_modes: data.input_mode ? [data.input_mode] : [],
-      output_modes: data.output_mode ? [data.output_mode] : [],
+      error_handling: mergeErrorHandlingForSave(
+        data.error_handling,
+        data.error_handling_extras,
+      ),
+      input_modes: composeModes(data.input_mode, data.input_modes_extra),
+      output_modes: composeModes(data.output_mode, data.output_modes_extra),
       tags: data.tags,
       examples: data.examples,
     };

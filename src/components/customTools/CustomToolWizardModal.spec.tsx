@@ -98,10 +98,14 @@ describe('CustomToolWizardModal', () => {
     // input_modes stays as ['image'] (single-element wrap), modes_meta round-trips through values
     expect(payload.input_modes).toEqual(['image']);
     expect(payload.output_modes).toEqual(['json']);
-    expect((payload.values as Record<string, unknown>).__modes_meta__).toEqual({
+    // Legacy unnamespaced __modes_meta__ is migrated to the namespaced key
+    // on save; the old key must not be re-emitted (or the user could end up
+    // with two divergent copies).
+    expect((payload.values as Record<string, unknown>).__evo_modes_meta__).toEqual({
       input: 'doc image',
       output: 'json data',
     });
+    expect((payload.values as Record<string, unknown>).__modes_meta__).toBeUndefined();
     // Other fields preserved
     expect(payload.name).toBe('My Existing Tool');
     expect(payload.headers).toEqual({ Authorization: 'Bearer abc' });
@@ -152,5 +156,146 @@ describe('CustomToolWizardModal', () => {
     expect(payload.method).toBe('GET');
     expect(payload.headers).toEqual({});
     expect(payload.examples).toEqual([]);
+  });
+
+  // ----- AC6 regression coverage: PUT must NOT erase fields outside what
+  // the wizard UI exposes. The wizard reads them into hidden state on edit
+  // and re-emits them on save.
+
+  const walkToFinishAndSave = () => {
+    fireEvent.click(screen.getByRole('button', { name: 'wizard.actions.continue' })); // 1 -> 2
+    fireEvent.click(screen.getByRole('button', { name: 'wizard.actions.continue' })); // 2 -> 3
+    fireEvent.click(screen.getByRole('button', { name: 'wizard.actions.continue' })); // 3 -> 4
+    fireEvent.click(screen.getByRole('button', { name: 'wizard.actions.continue' })); // 4 -> 5
+    fireEvent.click(screen.getByRole('button', { name: 'wizard.actions.continue' })); // 5 -> 6
+    fireEvent.click(screen.getByRole('button', { name: 'wizard.actions.save' }));
+  };
+
+  it('preserves error_handling extras across an unmodified edit cycle (AC6)', () => {
+    const editTool = {
+      id: 'tool-eh',
+      name: 'EH Tool',
+      description: '',
+      method: 'POST',
+      endpoint: 'https://api.example.com/y',
+      headers: {},
+      path_params: {},
+      query_params: {},
+      body_params: {},
+      // 3 promoted + 2 extras. Extras MUST survive the round trip.
+      error_handling: {
+        timeout: 30,
+        retry_count: 2,
+        fallback_response: 'static',
+        custom_field: 'kept',
+        on_429: { strategy: 'backoff', wait_seconds: 60 },
+      },
+      values: {},
+      tags: [],
+      examples: [],
+      input_modes: [],
+      output_modes: [],
+      created_at: '2026-06-24T00:00:00Z',
+      updated_at: '2026-06-24T00:00:00Z',
+    };
+    const onSubmit = vi.fn();
+    render(<CustomToolWizardModal {...makeProps({ tool: editTool, onSubmit })} />);
+    walkToFinishAndSave();
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    const eh = onSubmit.mock.calls[0][0].error_handling as Record<string, unknown>;
+    expect(eh.timeout).toBe(30);
+    expect(eh.retry_count).toBe(2);
+    expect(eh.fallback_response).toBe('static');
+    expect(eh.custom_field).toBe('kept');
+    expect(eh.on_429).toEqual({ strategy: 'backoff', wait_seconds: 60 });
+  });
+
+  it('preserves trailing input_modes/output_modes beyond the primary (AC6)', () => {
+    const editTool = {
+      id: 'tool-modes',
+      name: 'Modes Tool',
+      description: '',
+      method: 'GET',
+      endpoint: 'https://api.example.com/z',
+      headers: {},
+      path_params: {},
+      query_params: {},
+      body_params: {},
+      error_handling: {},
+      values: {},
+      tags: [],
+      examples: [],
+      input_modes: ['stream', 'batch', 'realtime'],
+      output_modes: ['json', 'csv'],
+      created_at: '2026-06-24T00:00:00Z',
+      updated_at: '2026-06-24T00:00:00Z',
+    };
+    const onSubmit = vi.fn();
+    render(<CustomToolWizardModal {...makeProps({ tool: editTool, onSubmit })} />);
+    walkToFinishAndSave();
+    const payload = onSubmit.mock.calls[0][0];
+    expect(payload.input_modes).toEqual(['stream', 'batch', 'realtime']);
+    expect(payload.output_modes).toEqual(['json', 'csv']);
+  });
+
+  it('reads tools written with the namespaced __evo_modes_meta__ key', () => {
+    const editTool = {
+      id: 'tool-ns',
+      name: 'NS Tool',
+      description: '',
+      method: 'GET',
+      endpoint: 'https://api.example.com/n',
+      headers: {},
+      path_params: {},
+      query_params: {},
+      body_params: {},
+      error_handling: {},
+      values: { __evo_modes_meta__: { input: 'foo', output: 'bar' }, real_key: 'kept' },
+      tags: [],
+      examples: [],
+      input_modes: [],
+      output_modes: [],
+      created_at: '2026-06-24T00:00:00Z',
+      updated_at: '2026-06-24T00:00:00Z',
+    };
+    const onSubmit = vi.fn();
+    render(<CustomToolWizardModal {...makeProps({ tool: editTool, onSubmit })} />);
+    walkToFinishAndSave();
+    const payload = onSubmit.mock.calls[0][0];
+    const values = payload.values as Record<string, unknown>;
+    expect(values.__evo_modes_meta__).toEqual({ input: 'foo', output: 'bar' });
+    expect(values.real_key).toBe('kept');
+    // Legacy key must NOT leak in.
+    expect(values.__modes_meta__).toBeUndefined();
+  });
+
+  it('keeps unrelated values entries intact when no mode descriptions are set', () => {
+    const editTool = {
+      id: 'tool-values',
+      name: 'Values Tool',
+      description: '',
+      method: 'GET',
+      endpoint: 'https://api.example.com/v',
+      headers: {},
+      path_params: {},
+      query_params: {},
+      body_params: {},
+      error_handling: {},
+      values: { alpha: 'a', beta: 'b' },
+      tags: [],
+      examples: [],
+      input_modes: [],
+      output_modes: [],
+      created_at: '2026-06-24T00:00:00Z',
+      updated_at: '2026-06-24T00:00:00Z',
+    };
+    const onSubmit = vi.fn();
+    render(<CustomToolWizardModal {...makeProps({ tool: editTool, onSubmit })} />);
+    walkToFinishAndSave();
+    const values = onSubmit.mock.calls[0][0].values as Record<string, unknown>;
+    expect(values.alpha).toBe('a');
+    expect(values.beta).toBe('b');
+    expect(values.__evo_modes_meta__).toBeUndefined();
+    expect(values.__modes_meta__).toBeUndefined();
   });
 });

@@ -523,8 +523,7 @@ export default function CustomTools() {
         tool={detailsTool}
         onEdit={(tool: CustomTool) => {
           setDetailsModalOpen(false);
-          setEditingTool(tool);
-          setToolModalOpen(true);
+          handleEditTool(tool);
         }}
         onTest={handleTestTool}
         isTestLoading={testingTool === detailsTool?.id}
