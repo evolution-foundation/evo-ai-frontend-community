@@ -155,6 +155,15 @@ export function ConditionalNode({ selected, data, id }: ConditionalNodeProps) {
   };
 
   const renderPath = (path: ConditionalPath, index: number) => {
+    // The source Handle id is `path-<id>`, the same value React Flow copies into
+    // a new edge's `sourceHandle`. This MUST stay consistent with the edges that
+    // legacy journeys already have saved (`sourceHandle = 'path-<id>'`) so the
+    // handle renders connected (isHandleConnected compares `sourceHandle === handleId`).
+    // Routing is handled at runtime by EVO-1922 (#99): the backend normalizes the
+    // `path-` prefix on BOTH sides of the match (normalizeConditionalPathHandle),
+    // so `path-<id>` here matches the node's raw `path.id` without a double-strip.
+    // Keeping the prefix mirrors the Split node, which also prefixes both sides.
+    // (EVO-1902.)
     const handleId = `path-${path.id}`;
     const isConnected = isHandleConnected(handleId);
     const colors = getPathColor(path.color);
