@@ -269,6 +269,39 @@ describe('CustomToolWizardModal', () => {
     expect(values.__modes_meta__).toBeUndefined();
   });
 
+  it('dedupes input_modes/output_modes on save (R2 self-review fix)', () => {
+    // Honest scenario: the tool already has a duplicate in input_modes
+    // (could come from a prior bad save, an admin SQL edit, or — the
+    // real motivating case — the user picking a primary mode that was
+    // already in extras). With dedup off, save would re-emit duplicates;
+    // with dedup on, the output collapses to unique entries.
+    const editTool = {
+      id: 'tool-dedup',
+      name: 'Dedup Tool',
+      description: '',
+      method: 'GET',
+      endpoint: 'https://api.example.com/d',
+      headers: {},
+      path_params: {},
+      query_params: {},
+      body_params: {},
+      error_handling: {},
+      values: {},
+      tags: [],
+      examples: [],
+      input_modes: ['text', 'text', 'image'],
+      output_modes: ['json', 'json'],
+      created_at: '2026-06-25T00:00:00Z',
+      updated_at: '2026-06-25T00:00:00Z',
+    };
+    const onSubmit = vi.fn();
+    render(<CustomToolWizardModal {...makeProps({ tool: editTool, onSubmit })} />);
+    walkToFinishAndSave();
+    const payload = onSubmit.mock.calls[0][0];
+    expect(payload.input_modes).toEqual(['text', 'image']);
+    expect(payload.output_modes).toEqual(['json']);
+  });
+
   it('keeps unrelated values entries intact when no mode descriptions are set', () => {
     const editTool = {
       id: 'tool-values',

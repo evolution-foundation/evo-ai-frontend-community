@@ -200,11 +200,13 @@ const mergeErrorHandlingForSave = (
 };
 
 // Re-assemble the input/output mode arrays preserving extras the wizard
-// didn't expose. Empty primary + no extras = empty array (back-compat with
-// pre-wizard tools that had no modes set).
+// didn't expose. Dedup because the Select in Step5 lets the user pick a
+// value that was already in extras (e.g. tool had ["text","image"] →
+// primary="text", extras=["image"]; user switches Select to "image" →
+// without dedup we'd emit ["image","image"]).
 const composeModes = (primary: string, extras: string[]): string[] => {
-  if (!primary) return extras.length > 0 ? [...extras] : [];
-  return [primary, ...extras];
+  if (!primary) return extras.length > 0 ? Array.from(new Set(extras)) : [];
+  return Array.from(new Set([primary, ...extras]));
 };
 
 export default function CustomToolWizardModal({

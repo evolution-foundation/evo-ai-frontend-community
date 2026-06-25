@@ -15,7 +15,6 @@ import {
   CustomToolsHeader,
   CustomToolsTable,
   CustomToolsPagination,
-  CustomToolModal,
   CustomToolWizardModal,
   CustomToolTestResultDialog,
   CustomToolDetails,
@@ -49,7 +48,6 @@ export default function CustomTools() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [toolToDelete, setToolToDelete] = useState<CustomTool | null>(null);
 
-  const [toolModalOpen, setToolModalOpen] = useState(false);
   const [editingTool, setEditingTool] = useState<CustomTool | null>(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsTool, setDetailsTool] = useState<CustomTool | null>(null);
@@ -320,8 +318,7 @@ export default function CustomTools() {
         loadTools();
       }
 
-      // Close modal/wizard and clear editing state
-      setToolModalOpen(false);
+      // Clear editing state; the wizard page navigates back below.
       setEditingTool(null);
       if (isWizardCreate || isWizardEdit) {
         navigate('/agents/custom-tools');
@@ -337,13 +334,6 @@ export default function CustomTools() {
     }
   };
 
-  // Handle modal close
-  const handleToolModalClose = (open: boolean) => {
-    if (!open) {
-      setToolModalOpen(false);
-      setEditingTool(null);
-    }
-  };
 
   const handleDetailsModalClose = (open: boolean) => {
     if (!open) {
@@ -505,16 +495,6 @@ export default function CustomTools() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Tool Modal — edit only; create is handled by the wizard page */}
-      <CustomToolModal
-        open={toolModalOpen}
-        onOpenChange={handleToolModalClose}
-        tool={editingTool || undefined}
-        mode="edit"
-        loading={state.loading.update}
-        onSubmit={handleToolFormSubmit}
-      />
 
       {/* Tool Details Modal */}
       <CustomToolDetails
