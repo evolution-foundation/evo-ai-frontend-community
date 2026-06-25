@@ -1176,7 +1176,24 @@
     "exitJourney": {
       "title": "Exit Journey",
       "description": "Remove the contact from the journey",
-      "finalStepMessage": "This is a final step - there are no more steps"
+      "finalStepMessage": "This is a final step - there are no more steps",
+      "intro": "Elige el motivo registrado cuando el contacto sale del recorrido. Se guarda en las variables y registros de la sesión.",
+      "reasonLabel": "Motivo de salida",
+      "reasonPlaceholder": "Selecciona un motivo",
+      "reasonHint": "Se usa en analítica e informes de sesión.",
+      "reasonRequired": "Es obligatorio indicar un motivo de salida.",
+      "customReasonLabel": "Motivo personalizado",
+      "customReasonPlaceholder": "p. ej. opted_out",
+      "messageLabel": "Mensaje de salida (opcional)",
+      "messagePlaceholder": "p. ej. Recorrido completado correctamente",
+      "messageHint": "Una nota legible almacenada junto al motivo.",
+      "reasons": {
+        "completed": "Completado",
+        "abandoned": "Abandonado",
+        "transferred": "Transferido",
+        "error": "Error",
+        "custom": "Personalizado…"
+      }
     },
     "resolveConversation": {
       "title": "Configure Conversation Resolution",
