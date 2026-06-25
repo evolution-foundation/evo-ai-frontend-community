@@ -152,6 +152,9 @@ describe('journey i18n parity (EVO-1260)', () => {
     // block (Template de mensagem, Escolha um template, …) — kept identical
     // to EN by design, so the labels match the surrounding copy.
     'Template', 'Template:',
+    // "Follow-up" is the established pt-BR loanword for the pipeline task type
+    // (kept identical to EN by design).
+    'Follow-up',
     // strings whose only "language" content is the variable placeholder
     'Webhook {{method}}', 'Basic auth: {{username}}', 'Timeout: {{timeout}}s',
     // sample literals used as placeholders in form fields

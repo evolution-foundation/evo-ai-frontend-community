@@ -1015,6 +1015,15 @@
       "variablesHint": "Supports variables like {contact.name}.",
       "description": "Description",
       "descriptionPlaceholder": "Optional details",
+      "taskType": "Task type",
+      "taskTypes": {
+        "call": "Call",
+        "email": "Email",
+        "meeting": "Meeting",
+        "follow_up": "Follow-up",
+        "note": "Note",
+        "other": "Other"
+      },
       "assignee": "Assignee",
       "noAssignee": "No assignee",
       "dueDate": "Due date",

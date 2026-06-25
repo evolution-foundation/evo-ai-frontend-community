@@ -17,6 +17,7 @@ export interface CreatePipelineTaskNodeData {
   label?: string;
   title?: string;
   description?: string;
+  task_type?: string;
   priority?: string;
   assigned_to_id?: string;
   assigned_to_name?: string;
