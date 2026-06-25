@@ -460,9 +460,19 @@ export default function Contacts() {
     setContactModalOpen(true);
   };
 
-  const handleEditContact = (contact: Contact) => {
+  const handleEditContact = async (contact: Contact) => {
     setEditingContact(contact);
     setContactModalOpen(true);
+    // The list payload omits linked companies (serialized without include_companies),
+    // so re-fetch the full contact to populate the "Linked Companies" picker on edit
+    // and avoid wiping associations on save.
+    try {
+      const fullContact = await contactsService.getContact(contact.id);
+      // Guard against a newer edit opening before this fetch resolves.
+      setEditingContact(prev => (prev?.id === fullContact.id ? fullContact : prev));
+    } catch (error) {
+      console.error('Error loading contact for edit:', error);
+    }
   };
 
   const handleStartConversation = (contact: Contact) => {
