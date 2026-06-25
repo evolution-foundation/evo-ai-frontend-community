@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent, act, within } from '@testing-library/react';
 import { toast } from 'sonner';
 import IntegrationsConfig from './IntegrationsConfig';
+import { INTEGRATIONS } from './integrationsCatalog';
 
 const stableT = (key: string) => key;
 
@@ -32,19 +33,24 @@ vi.mock('@/utils/apiHelpers', () => ({
   extractError: () => ({ message: 'Test error' }),
 }));
 
-const EMPTY_DATA: Record<string, Record<string, unknown>> = {
-  linear: { LINEAR_CLIENT_ID: '', LINEAR_CLIENT_SECRET: null },
-  hubspot: { HUBSPOT_CLIENT_ID: '', HUBSPOT_CLIENT_SECRET: null },
-  shopify: { SHOPIFY_CLIENT_ID: '', SHOPIFY_CLIENT_SECRET: null },
-  slack: { SLACK_CLIENT_ID: '', SLACK_CLIENT_SECRET: null },
-};
+// Build fixtures from the catalog so the suite scales with INTEGRATIONS instead
+// of hard-coding the original 4. Keyed by configType (what getConfig receives).
+const EMPTY_DATA: Record<string, Record<string, unknown>> = Object.fromEntries(
+  INTEGRATIONS.map((def) => [
+    def.configType,
+    { [def.clientIdKey]: '', [def.clientSecretKey]: null },
+  ]),
+);
 
-const CONFIGURED_DATA: Record<string, Record<string, unknown>> = {
-  linear: { LINEAR_CLIENT_ID: 'linear-id', LINEAR_CLIENT_SECRET: '••••masked' },
-  hubspot: { HUBSPOT_CLIENT_ID: 'hubspot-id', HUBSPOT_CLIENT_SECRET: '••••masked' },
-  shopify: { SHOPIFY_CLIENT_ID: 'shopify-id', SHOPIFY_CLIENT_SECRET: '••••masked' },
-  slack: { SLACK_CLIENT_ID: 'slack-id', SLACK_CLIENT_SECRET: '••••masked' },
-};
+const CONFIGURED_DATA: Record<string, Record<string, unknown>> = Object.fromEntries(
+  INTEGRATIONS.map((def) => [
+    def.configType,
+    { [def.clientIdKey]: `${def.key}-id`, [def.clientSecretKey]: '••••masked' },
+  ]),
+);
+
+const TOTAL = INTEGRATIONS.length;
+const hubspotDef = INTEGRATIONS.find((d) => d.key === 'hubspot')!;
 
 async function renderAndWait(data: Record<string, Record<string, unknown>> = EMPTY_DATA) {
   mockGetConfig.mockImplementation((type: string) => {
@@ -66,13 +72,13 @@ describe('IntegrationsConfig', () => {
     expect(container.querySelector('.animate-spin')).toBeInTheDocument();
   });
 
-  it('loads config from all 4 integration endpoints', async () => {
+  it('loads config from every catalog integration endpoint', async () => {
     await renderAndWait();
 
-    expect(mockGetConfig).toHaveBeenCalledWith('linear');
-    expect(mockGetConfig).toHaveBeenCalledWith('hubspot');
-    expect(mockGetConfig).toHaveBeenCalledWith('shopify');
-    expect(mockGetConfig).toHaveBeenCalledWith('slack');
+    INTEGRATIONS.forEach((def) => {
+      expect(mockGetConfig).toHaveBeenCalledWith(def.configType);
+    });
+    expect(mockGetConfig).toHaveBeenCalledTimes(TOTAL);
   });
 
   it('renders title and description', async () => {
@@ -108,21 +114,21 @@ describe('IntegrationsConfig', () => {
     await renderAndWait(CONFIGURED_DATA);
 
     const configured = screen.getAllByText('integrations.secretConfigured');
-    expect(configured).toHaveLength(4);
+    expect(configured).toHaveLength(TOTAL);
   });
 
   it('shows secret not configured when secrets are empty', async () => {
     await renderAndWait(EMPTY_DATA);
 
     const notConfigured = screen.getAllByText('integrations.secretNotConfigured');
-    expect(notConfigured).toHaveLength(4);
+    expect(notConfigured).toHaveLength(TOTAL);
   });
 
-  it('renders 4 independent save buttons', async () => {
+  it('renders one independent save button per integration', async () => {
     await renderAndWait();
 
     const saveButtons = screen.getAllByText('integrations.save');
-    expect(saveButtons).toHaveLength(4);
+    expect(saveButtons).toHaveLength(TOTAL);
   });
 
   it('saves Linear section independently', async () => {
@@ -156,7 +162,7 @@ describe('IntegrationsConfig', () => {
 
     await waitFor(() => {
       expect(mockSaveConfig).toHaveBeenCalledWith('hubspot', expect.objectContaining({
-        HUBSPOT_CLIENT_ID: 'hubspot-id',
+        [hubspotDef.clientIdKey]: 'hubspot-id',
       }));
     });
   });
@@ -273,13 +279,13 @@ describe('IntegrationsConfig', () => {
     await renderAndWait(CONFIGURED_DATA);
 
     const clearButtons = screen.getAllByTitle('integrations.clearSecret');
-    expect(clearButtons).toHaveLength(4);
+    expect(clearButtons).toHaveLength(TOTAL);
 
     await act(async () => {
       fireEvent.click(clearButtons[0]);
     });
 
     const configured = screen.getAllByText('integrations.secretConfigured');
-    expect(configured).toHaveLength(3);
+    expect(configured).toHaveLength(TOTAL - 1);
   });
 });

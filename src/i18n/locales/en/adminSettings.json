@@ -341,7 +341,7 @@
   },
   "integrations": {
     "title": "Integrations Configuration",
-    "description": "Configure OAuth credentials for third-party integrations such as Linear, HubSpot, Shopify, and Slack.",
+    "description": "Configure OAuth credentials for third-party integrations such as Linear, GitHub, Notion, and others.",
     "secretConfigured": "Configured",
     "secretNotConfigured": "Not configured",
     "clearSecret": "Clear saved value",
@@ -398,6 +398,123 @@
       },
       "saveSuccess": "Slack configuration saved successfully",
       "saveError": "Failed to save Slack configuration"
+    },
+    "github": {
+      "cardTitle": "GitHub",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your GitHub Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "GitHub configuration saved successfully",
+      "saveError": "Failed to save GitHub configuration"
+    },
+    "notion": {
+      "cardTitle": "Notion",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your Notion Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "Notion configuration saved successfully",
+      "saveError": "Failed to save Notion configuration"
+    },
+    "asana": {
+      "cardTitle": "Asana",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your Asana Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "Asana configuration saved successfully",
+      "saveError": "Failed to save Asana configuration"
+    },
+    "canva": {
+      "cardTitle": "Canva",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your Canva Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "Canva configuration saved successfully",
+      "saveError": "Failed to save Canva configuration"
+    },
+    "google_calendar": {
+      "cardTitle": "Google Calendar",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your Google Calendar Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "Google Calendar configuration saved successfully",
+      "saveError": "Failed to save Google Calendar configuration"
+    },
+    "google_sheets": {
+      "cardTitle": "Google Sheets",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your Google Sheets Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "Google Sheets configuration saved successfully",
+      "saveError": "Failed to save Google Sheets configuration"
+    },
+    "monday": {
+      "cardTitle": "Monday.com",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your Monday.com Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "Monday.com configuration saved successfully",
+      "saveError": "Failed to save Monday.com configuration"
+    },
+    "paypal": {
+      "cardTitle": "PayPal",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your PayPal Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "PayPal configuration saved successfully",
+      "saveError": "Failed to save PayPal configuration"
+    },
+    "atlassian": {
+      "cardTitle": "Atlassian",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your Atlassian Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "Atlassian configuration saved successfully",
+      "saveError": "Failed to save Atlassian configuration"
     },
     "messages": {
       "loadError": "Failed to load integrations configuration"

@@ -17,6 +17,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { adminConfigService } from '@/services/admin/adminConfigService';
 import { extractError } from '@/utils/apiHelpers';
 import type { AdminConfigData } from '@/types/admin/adminConfig';
+import { INTEGRATIONS, type IntegrationDef } from './integrationsCatalog';
 
 // --- Schema ---
 
@@ -34,6 +35,14 @@ const DEFAULTS: IntegrationFormData = {
 
 function isSecretMasked(value: unknown): boolean {
   return typeof value === 'string' && value.includes('••••');
+}
+
+function buildFormValues(data: Record<string, unknown>, def: IntegrationDef): IntegrationFormData {
+  const secretValue = data[def.clientSecretKey];
+  return {
+    clientId: (data[def.clientIdKey] as string) ?? '',
+    clientSecret: isSecretMasked(secretValue) ? '' : ((secretValue as string) ?? ''),
+  };
 }
 
 // --- SecretField subcomponent ---
@@ -108,60 +117,94 @@ function SecretField({
   );
 }
 
-// --- Integration Section ---
+// --- Integration Section (self-contained: owns its own form + state) ---
+//
+// One `useForm` lives here, per rendered section. This is what lets the page
+// scale to any number of INTEGRATIONS without N hand-written useForm calls in
+// the parent (which would violate the Rules of Hooks if generated dynamically).
 
 interface IntegrationSectionProps {
-  title: string;
-  sectionKey: string;
-  form: ReturnType<typeof useForm<IntegrationFormData>>;
-  saving: boolean;
-  onSave: (data: IntegrationFormData) => void;
-  secretModified: boolean;
-  onSecretModifiedChange: (modified: boolean) => void;
-  secretConfigured: boolean;
+  def: IntegrationDef;
+  initialData: AdminConfigData;
   t: (key: string) => string;
 }
 
-function IntegrationSection({
-  title,
-  sectionKey,
-  form,
-  saving,
-  onSave,
-  secretModified,
-  onSecretModifiedChange,
-  secretConfigured,
-  t,
-}: IntegrationSectionProps) {
+function IntegrationSection({ def, initialData, t }: IntegrationSectionProps) {
+  const form = useForm<IntegrationFormData>({
+    resolver: zodResolver(integrationSchema),
+    defaultValues: DEFAULTS,
+  });
+  const [saving, setSaving] = useState(false);
+  const [secretModified, setSecretModified] = useState(false);
+  const [secretConfigured, setSecretConfigured] = useState(false);
+
+  // Re-seed the form whenever the parent (re)loads config from the backend.
+  useEffect(() => {
+    const secretValue = initialData[def.clientSecretKey];
+    setSecretConfigured(isSecretMasked(secretValue));
+    setSecretModified(false);
+    form.reset(buildFormValues(initialData, def));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- form is a stable useForm instance
+  }, [initialData, def]);
+
+  const onSave = async (formData: IntegrationFormData) => {
+    setSaving(true);
+    try {
+      const payload: Record<string, unknown> = {
+        [def.clientIdKey]: formData.clientId,
+      };
+
+      if (!secretModified || formData.clientSecret === '') {
+        payload[def.clientSecretKey] = null;
+      } else {
+        payload[def.clientSecretKey] = formData.clientSecret;
+      }
+
+      const data = await adminConfigService.saveConfig(def.configType, payload as AdminConfigData);
+      const secretValue = data[def.clientSecretKey];
+      setSecretConfigured(isSecretMasked(secretValue));
+      setSecretModified(false);
+      form.reset(buildFormValues(data, def));
+      toast.success(t(`integrations.${def.key}.saveSuccess`));
+    } catch (error) {
+      const errorInfo = extractError(error);
+      toast.error(t(`integrations.${def.key}.saveError`), {
+        description: errorInfo.message,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
+        <CardTitle className="text-base">{t(`integrations.${def.key}.cardTitle`)}</CardTitle>
       </CardHeader>
       <CardContent>
-        <form data-testid={`${sectionKey}-form`} onSubmit={form.handleSubmit(onSave)} className="space-y-5">
+        <form data-testid={`${def.key}-form`} onSubmit={form.handleSubmit(onSave)} className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor={`${sectionKey}-clientId`}>{t(`integrations.${sectionKey}.fields.clientId`)}</Label>
+            <Label htmlFor={`${def.key}-clientId`}>{t(`integrations.${def.key}.fields.clientId`)}</Label>
             <Input
-              id={`${sectionKey}-clientId`}
-              placeholder={t(`integrations.${sectionKey}.placeholders.clientId`)}
+              id={`${def.key}-clientId`}
+              placeholder={t(`integrations.${def.key}.placeholders.clientId`)}
               {...form.register('clientId')}
             />
           </div>
 
           <SecretField
             fieldName="clientSecret"
-            label={t(`integrations.${sectionKey}.fields.clientSecret`)}
-            placeholder={t(`integrations.${sectionKey}.placeholders.clientSecret`)}
+            label={t(`integrations.${def.key}.fields.clientSecret`)}
+            placeholder={t(`integrations.${def.key}.placeholders.clientSecret`)}
             register={form.register}
             secretModified={secretModified}
-            onSecretModifiedChange={onSecretModifiedChange}
+            onSecretModifiedChange={setSecretModified}
             secretConfigured={secretConfigured}
             onClear={() => {
               form.setValue('clientSecret', '');
-              onSecretModifiedChange(true);
+              setSecretModified(true);
             }}
-            sectionKey={sectionKey}
+            sectionKey={def.key}
             t={t}
           />
 
@@ -177,68 +220,24 @@ function IntegrationSection({
   );
 }
 
-// --- Integration config definition ---
-
-interface IntegrationDef {
-  key: string;
-  configType: string;
-  clientIdKey: string;
-  clientSecretKey: string;
-}
-
-const INTEGRATIONS: IntegrationDef[] = [
-  { key: 'linear', configType: 'linear', clientIdKey: 'LINEAR_CLIENT_ID', clientSecretKey: 'LINEAR_CLIENT_SECRET' },
-  { key: 'hubspot', configType: 'hubspot', clientIdKey: 'HUBSPOT_CLIENT_ID', clientSecretKey: 'HUBSPOT_CLIENT_SECRET' },
-  { key: 'shopify', configType: 'shopify', clientIdKey: 'SHOPIFY_CLIENT_ID', clientSecretKey: 'SHOPIFY_CLIENT_SECRET' },
-  { key: 'slack', configType: 'slack', clientIdKey: 'SLACK_CLIENT_ID', clientSecretKey: 'SLACK_CLIENT_SECRET' },
-];
-
 // --- Main component ---
 
 export default function IntegrationsConfig() {
   const { t } = useLanguage('adminSettings');
   const [loading, setLoading] = useState(true);
-  const [savingStates, setSavingStates] = useState<Record<string, boolean>>({});
-  const [secretModifiedStates, setSecretModifiedStates] = useState<Record<string, boolean>>({});
-  const [secretConfiguredStates, setSecretConfiguredStates] = useState<Record<string, boolean>>({});
+  const [configs, setConfigs] = useState<Record<string, AdminConfigData>>({});
 
-  const linearForm = useForm<IntegrationFormData>({ resolver: zodResolver(integrationSchema), defaultValues: DEFAULTS });
-  const hubspotForm = useForm<IntegrationFormData>({ resolver: zodResolver(integrationSchema), defaultValues: DEFAULTS });
-  const shopifyForm = useForm<IntegrationFormData>({ resolver: zodResolver(integrationSchema), defaultValues: DEFAULTS });
-  const slackForm = useForm<IntegrationFormData>({ resolver: zodResolver(integrationSchema), defaultValues: DEFAULTS });
-
-  const forms: Record<string, ReturnType<typeof useForm<IntegrationFormData>>> = {
-    linear: linearForm,
-    hubspot: hubspotForm,
-    shopify: shopifyForm,
-    slack: slackForm,
-  };
-
-  const buildFormValues = (data: Record<string, unknown>, def: IntegrationDef): IntegrationFormData => {
-    const secretValue = data[def.clientSecretKey];
-    return {
-      clientId: (data[def.clientIdKey] as string) ?? '',
-      clientSecret: isSecretMasked(secretValue) ? '' : ((secretValue as string) ?? ''),
-    };
-  };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- forms are stable useForm instances
   const loadConfig = useCallback(async () => {
     setLoading(true);
     try {
       const results = await Promise.all(
         INTEGRATIONS.map((def) => adminConfigService.getConfig(def.configType)),
       );
+      const next: Record<string, AdminConfigData> = {};
       INTEGRATIONS.forEach((def, i) => {
-        const data = results[i];
-        const secretValue = data[def.clientSecretKey];
-        setSecretConfiguredStates((prev) => ({
-          ...prev,
-          [def.key]: isSecretMasked(secretValue),
-        }));
-        setSecretModifiedStates((prev) => ({ ...prev, [def.key]: false }));
-        forms[def.key].reset(buildFormValues(data, def));
+        next[def.key] = results[i];
       });
+      setConfigs(next);
     } catch {
       toast.error(t('integrations.messages.loadError'));
     } finally {
@@ -249,38 +248,6 @@ export default function IntegrationsConfig() {
   useEffect(() => {
     loadConfig();
   }, [loadConfig]);
-
-  const createSaveHandler = (def: IntegrationDef) => async (formData: IntegrationFormData) => {
-    setSavingStates((prev) => ({ ...prev, [def.key]: true }));
-    try {
-      const payload: Record<string, unknown> = {
-        [def.clientIdKey]: formData.clientId,
-      };
-
-      if (!secretModifiedStates[def.key] || formData.clientSecret === '') {
-        payload[def.clientSecretKey] = null;
-      } else {
-        payload[def.clientSecretKey] = formData.clientSecret;
-      }
-
-      const data = await adminConfigService.saveConfig(def.configType, payload as AdminConfigData);
-      const secretValue = data[def.clientSecretKey];
-      setSecretConfiguredStates((prev) => ({
-        ...prev,
-        [def.key]: isSecretMasked(secretValue),
-      }));
-      setSecretModifiedStates((prev) => ({ ...prev, [def.key]: false }));
-      forms[def.key].reset(buildFormValues(data, def));
-      toast.success(t(`integrations.${def.key}.saveSuccess`));
-    } catch (error) {
-      const errorInfo = extractError(error);
-      toast.error(t(`integrations.${def.key}.saveError`), {
-        description: errorInfo.message,
-      });
-    } finally {
-      setSavingStates((prev) => ({ ...prev, [def.key]: false }));
-    }
-  };
 
   if (loading) {
     return (
@@ -297,22 +264,18 @@ export default function IntegrationsConfig() {
         <p className="text-sm text-sidebar-foreground/70 mt-1">{t('integrations.description')}</p>
       </div>
 
-      {INTEGRATIONS.map((def) => (
-        <IntegrationSection
-          key={def.key}
-          title={t(`integrations.${def.key}.cardTitle`)}
-          sectionKey={def.key}
-          form={forms[def.key]}
-          saving={savingStates[def.key] ?? false}
-          onSave={createSaveHandler(def)}
-          secretModified={secretModifiedStates[def.key] ?? false}
-          onSecretModifiedChange={(modified) =>
-            setSecretModifiedStates((prev) => ({ ...prev, [def.key]: modified }))
-          }
-          secretConfigured={secretConfiguredStates[def.key] ?? false}
-          t={t}
-        />
-      ))}
+      {INTEGRATIONS.map((def) => {
+        const initialData = configs[def.key];
+        if (!initialData) return null;
+        return (
+          <IntegrationSection
+            key={def.key}
+            def={def}
+            initialData={initialData}
+            t={t}
+          />
+        );
+      })}
     </div>
   );
 }

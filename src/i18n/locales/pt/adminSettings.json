@@ -340,7 +340,7 @@
   },
   "integrations": {
     "title": "Configuracao de Integracoes",
-    "description": "Configure credenciais OAuth para integracoes de terceiros como Linear, HubSpot, Shopify e Slack.",
+    "description": "Configure credenciais OAuth para integracoes de terceiros como Linear, GitHub, Notion e outras.",
     "secretConfigured": "Configurado",
     "secretNotConfigured": "Nao configurado",
     "clearSecret": "Limpar valor guardado",
@@ -397,6 +397,123 @@
       },
       "saveSuccess": "Configuracao do Slack guardada com sucesso",
       "saveError": "Falha ao guardar configuracao do Slack"
+    },
+    "github": {
+      "cardTitle": "GitHub",
+      "fields": {
+        "clientId": "ID do Cliente",
+        "clientSecret": "Segredo do Cliente"
+      },
+      "placeholders": {
+        "clientId": "Seu GitHub Client ID",
+        "clientSecret": "Introduza o novo segredo do cliente"
+      },
+      "saveSuccess": "Configuracao do GitHub guardada com sucesso",
+      "saveError": "Falha ao guardar configuracao do GitHub"
+    },
+    "notion": {
+      "cardTitle": "Notion",
+      "fields": {
+        "clientId": "ID do Cliente",
+        "clientSecret": "Segredo do Cliente"
+      },
+      "placeholders": {
+        "clientId": "Seu Notion Client ID",
+        "clientSecret": "Introduza o novo segredo do cliente"
+      },
+      "saveSuccess": "Configuracao do Notion guardada com sucesso",
+      "saveError": "Falha ao guardar configuracao do Notion"
+    },
+    "asana": {
+      "cardTitle": "Asana",
+      "fields": {
+        "clientId": "ID do Cliente",
+        "clientSecret": "Segredo do Cliente"
+      },
+      "placeholders": {
+        "clientId": "Seu Asana Client ID",
+        "clientSecret": "Introduza o novo segredo do cliente"
+      },
+      "saveSuccess": "Configuracao do Asana guardada com sucesso",
+      "saveError": "Falha ao guardar configuracao do Asana"
+    },
+    "canva": {
+      "cardTitle": "Canva",
+      "fields": {
+        "clientId": "ID do Cliente",
+        "clientSecret": "Segredo do Cliente"
+      },
+      "placeholders": {
+        "clientId": "Seu Canva Client ID",
+        "clientSecret": "Introduza o novo segredo do cliente"
+      },
+      "saveSuccess": "Configuracao do Canva guardada com sucesso",
+      "saveError": "Falha ao guardar configuracao do Canva"
+    },
+    "google_calendar": {
+      "cardTitle": "Google Calendar",
+      "fields": {
+        "clientId": "ID do Cliente",
+        "clientSecret": "Segredo do Cliente"
+      },
+      "placeholders": {
+        "clientId": "Seu Google Calendar Client ID",
+        "clientSecret": "Introduza o novo segredo do cliente"
+      },
+      "saveSuccess": "Configuracao do Google Calendar guardada com sucesso",
+      "saveError": "Falha ao guardar configuracao do Google Calendar"
+    },
+    "google_sheets": {
+      "cardTitle": "Google Sheets",
+      "fields": {
+        "clientId": "ID do Cliente",
+        "clientSecret": "Segredo do Cliente"
+      },
+      "placeholders": {
+        "clientId": "Seu Google Sheets Client ID",
+        "clientSecret": "Introduza o novo segredo do cliente"
+      },
+      "saveSuccess": "Configuracao do Google Sheets guardada com sucesso",
+      "saveError": "Falha ao guardar configuracao do Google Sheets"
+    },
+    "monday": {
+      "cardTitle": "Monday.com",
+      "fields": {
+        "clientId": "ID do Cliente",
+        "clientSecret": "Segredo do Cliente"
+      },
+      "placeholders": {
+        "clientId": "Seu Monday.com Client ID",
+        "clientSecret": "Introduza o novo segredo do cliente"
+      },
+      "saveSuccess": "Configuracao do Monday.com guardada com sucesso",
+      "saveError": "Falha ao guardar configuracao do Monday.com"
+    },
+    "paypal": {
+      "cardTitle": "PayPal",
+      "fields": {
+        "clientId": "ID do Cliente",
+        "clientSecret": "Segredo do Cliente"
+      },
+      "placeholders": {
+        "clientId": "Seu PayPal Client ID",
+        "clientSecret": "Introduza o novo segredo do cliente"
+      },
+      "saveSuccess": "Configuracao do PayPal guardada com sucesso",
+      "saveError": "Falha ao guardar configuracao do PayPal"
+    },
+    "atlassian": {
+      "cardTitle": "Atlassian",
+      "fields": {
+        "clientId": "ID do Cliente",
+        "clientSecret": "Segredo do Cliente"
+      },
+      "placeholders": {
+        "clientId": "Seu Atlassian Client ID",
+        "clientSecret": "Introduza o novo segredo do cliente"
+      },
+      "saveSuccess": "Configuracao do Atlassian guardada com sucesso",
+      "saveError": "Falha ao guardar configuracao do Atlassian"
     },
     "messages": {
       "loadError": "Falha ao carregar configuracao das integracoes"
