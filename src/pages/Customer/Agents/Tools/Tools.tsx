@@ -8,7 +8,8 @@ import EmptyState from '@/components/base/EmptyState';
 
 import { listTools } from '@/services/agents/toolsService';
 import type { Tool, ToolsResponse, ToolsState, ToolsListParams } from '@/types/ai';
-import { BaseFilter, AppliedFilter } from '@/types/core';
+import { BaseFilter, AppliedFilter, TOOL_FILTER_TYPES } from '@/types/core';
+import { buildAppliedFilterChips } from '@/utils/appliedFilterChips';
 import { ToolCard } from '@/components/tools';
 
 import ToolsHeader from '@/components/tools/ToolsHeader';
@@ -126,18 +127,8 @@ export default function Tools() {
     loadTools({ skip: 0, search: query });
   };
 
-  const convertFiltersToApplied = (filters: BaseFilter[]): AppliedFilter[] => {
-    return filters.map((filter, index) => ({
-      id: `filter-${index}`,
-      label: `${filter.attributeKey}: ${
-        Array.isArray(filter.values) ? filter.values.join(',') : filter.values
-      }`,
-      value: Array.isArray(filter.values)
-        ? String(filter.values.join(','))
-        : (filter.values as string | number),
-      onRemove: () => handleRemoveFilter(index),
-    }));
-  };
+  const convertFiltersToApplied = (filters: BaseFilter[]): AppliedFilter[] =>
+    buildAppliedFilterChips(filters, TOOL_FILTER_TYPES, t, handleRemoveFilter);
 
   const handleOpenFilter = () => {
     setFilterModalOpen(true);

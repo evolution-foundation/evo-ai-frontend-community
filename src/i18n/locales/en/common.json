@@ -1,4 +1,10 @@
 {
+  "filter": {
+    "operators": {
+      "is_present": "Present",
+      "is_not_present": "Not present"
+    }
+  },
   "loading": "Loading...",
   "error": "Error",
   "success": "Success",

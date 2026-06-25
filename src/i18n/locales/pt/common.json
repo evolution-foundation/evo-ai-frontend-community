@@ -1,4 +1,10 @@
 {
+  "filter": {
+    "operators": {
+      "is_present": "Presente",
+      "is_not_present": "Não presente"
+    }
+  },
   "base": {
     "noResults": {
       "title": "Nenhum resultado encontrado",

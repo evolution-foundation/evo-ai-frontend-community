@@ -20,7 +20,8 @@ import {
   ListCustomMcpServersParams,
   CustomMcpServerFormData,
 } from '@/types/ai';
-import { BaseFilter, AppliedFilter } from '@/types/core';
+import { BaseFilter, AppliedFilter, CUSTOM_MCP_SERVER_FILTER_TYPES } from '@/types/core';
+import { buildAppliedFilterChips } from '@/utils/appliedFilterChips';
 import { CustomMCPServerCard } from '@/components/customMcpServers';
 
 import CustomMCPServersHeader from '@/components/customMcpServers/CustomMCPServersHeader';
@@ -142,18 +143,8 @@ export default function CustomMCPServers() {
     loadServers({ skip: 0, search: query });
   };
 
-  const convertFiltersToApplied = (filters: BaseFilter[]): AppliedFilter[] => {
-    return filters.map((filter, index) => ({
-      id: `filter-${index}`,
-      label: `${filter.attributeKey}: ${
-        Array.isArray(filter.values) ? filter.values.join(',') : filter.values
-      }`,
-      value: Array.isArray(filter.values)
-        ? String(filter.values.join(','))
-        : (filter.values as string | number),
-      onRemove: () => handleRemoveFilter(index),
-    }));
-  };
+  const convertFiltersToApplied = (filters: BaseFilter[]): AppliedFilter[] =>
+    buildAppliedFilterChips(filters, CUSTOM_MCP_SERVER_FILTER_TYPES, t, handleRemoveFilter);
 
   const handleOpenFilter = () => {
     setFilterModalOpen(true);
