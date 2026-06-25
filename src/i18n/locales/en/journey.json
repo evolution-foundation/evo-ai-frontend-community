@@ -1019,6 +1019,7 @@
       "noAssignee": "No assignee",
       "dueDate": "Due date",
       "priority": "Priority",
+      "taskType": "Task type",
       "due": {
         "none": "No due date",
         "in1h": "In 1 hour",
@@ -1032,6 +1033,14 @@
         "medium": "Medium",
         "high": "High",
         "urgent": "Urgent"
+      },
+      "taskTypes": {
+        "call": "Call",
+        "email": "Email",
+        "meeting": "Meeting",
+        "follow_up": "Follow-up",
+        "note": "Note",
+        "other": "Other"
       }
     },
     "sendCannedResponse": {

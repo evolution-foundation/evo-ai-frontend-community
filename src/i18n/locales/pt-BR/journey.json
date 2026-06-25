@@ -1019,6 +1019,7 @@
       "noAssignee": "Sem responsável",
       "dueDate": "Vencimento",
       "priority": "Prioridade",
+      "taskType": "Tipo de tarefa",
       "due": {
         "none": "Sem vencimento",
         "in1h": "Em 1 hora",
@@ -1032,6 +1033,14 @@
         "medium": "Média",
         "high": "Alta",
         "urgent": "Urgente"
+      },
+      "taskTypes": {
+        "call": "Ligação",
+        "email": "E-mail",
+        "meeting": "Reunião",
+        "follow_up": "Follow-up",
+        "note": "Nota",
+        "other": "Outro"
       }
     },
     "sendCannedResponse": {

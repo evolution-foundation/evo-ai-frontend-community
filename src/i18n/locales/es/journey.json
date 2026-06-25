@@ -975,6 +975,43 @@
       "replacesAnyPrevious": "esto reemplaza cualquier asignación previa de pipeline",
       "loadErrorBanner": "No se pudieron cargar los pipelines. Verifica tu conexión y reabre este node."
     },
+    "createPipelineTask": {
+      "title": "Configurar Crear Tarea de Pipeline",
+      "loadDataError": "Error al cargar los agentes:",
+      "loadErrorBanner": "No se pudieron cargar los agentes. Verifica tu conexión y reabre este node.",
+      "taskTitle": "Título",
+      "taskTitlePlaceholder": "p. ej.: Hacer seguimiento con {contact.name}",
+      "variablesHint": "Admite variables como {contact.name}.",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Detalles opcionales",
+      "assignee": "Responsable",
+      "noAssignee": "Sin responsable",
+      "dueDate": "Vencimiento",
+      "priority": "Prioridad",
+      "taskType": "Tipo de tarea",
+      "due": {
+        "none": "Sin vencimiento",
+        "in1h": "En 1 hora",
+        "in4h": "En 4 horas",
+        "in1d": "En 1 día",
+        "in3d": "En 3 días",
+        "in1w": "En 1 semana"
+      },
+      "priorities": {
+        "low": "Baja",
+        "medium": "Media",
+        "high": "Alta",
+        "urgent": "Urgente"
+      },
+      "taskTypes": {
+        "call": "Llamada",
+        "email": "Correo electrónico",
+        "meeting": "Reunión",
+        "follow_up": "Seguimiento",
+        "note": "Nota",
+        "other": "Otro"
+      }
+    },
     "sendCannedResponse": {
       "title": "Configurar Enviar Respuesta Predefinida",
       "loadDataError": "Error al cargar las respuestas predefinidas:",
