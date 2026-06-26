@@ -191,9 +191,12 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         href: '/settings/users',
         icon: Users2,
         resource: 'users',
-        // read, not manage: there is no `users.manage` permission (users has only
-        // granular actions); the manage gate hid the menu for everyone. Like Teams.
-        action: 'read',
+        // EVO-1938: gate the Users (Atendentes) screen on the administrative
+        // users.manage. The earlier revert to users.read predated users.manage
+        // being registered in the auth ResourceActionsConfig; it now is, so the
+        // manage gate resolves for admins (who hold it) and hides the screen from
+        // the default agent (who holds only the operational users.read).
+        action: 'manage',
       },
       {
         name: t('menu.settings.teams'),
