@@ -67,6 +67,10 @@ export interface ConversationsContextValue {
     status: 'open' | 'resolved' | 'pending' | 'snoozed',
     onFilterReload?: () => Promise<void>,
   ) => Promise<Conversation>;
+  returnConversationToBot: (
+    conversationId: string,
+    onFilterReload?: () => Promise<void>,
+  ) => Promise<Conversation>;
   updateConversationPriority: (
     conversationId: string,
     priority: 'low' | 'medium' | 'high' | 'urgent' | null,

@@ -550,6 +550,7 @@
         "loadConversation": "Erro ao carregar conversa",
         "conversationNotFound": "Conversa não encontrada",
         "updateStatus": "Erro ao atualizar status da conversa",
+        "returnToBot": "Erro ao devolver conversa ao bot",
         "updatePriority": "Erro ao atualizar prioridade da conversa",
         "deleteConversation": "Erro ao deletar conversa",
         "markAsRead": "Erro ao marcar como lida",
@@ -562,6 +563,7 @@
       },
       "success": {
         "statusChanged": "Status alterado para: {{status}}",
+        "returnedToBot": "Conversa devolvida ao bot",
         "priorityChanged": "Prioridade alterada para: {{priority}}",
         "deleted": "Conversa deletada com sucesso",
         "markedAsRead": "Conversa marcada como lida",
@@ -796,6 +798,7 @@
     "markAsOpen": "Marcar como aberta",
     "markAsResolved": "Marcar como resolvida",
     "markAsPending": "Marcar como pendente",
+    "returnToBot": "Devolver ao bot",
     "pauseConversation": "Pausar conversa",
     "priority": "Prioridade",
     "priorityLabels": {
