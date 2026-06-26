@@ -191,7 +191,9 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         href: '/settings/users',
         icon: Users2,
         resource: 'users',
-        action: 'manage',
+        // read, not manage: there is no `users.manage` permission (users has only
+        // granular actions); the manage gate hid the menu for everyone. Like Teams.
+        action: 'read',
       },
       {
         name: t('menu.settings.teams'),
