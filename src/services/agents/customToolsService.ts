@@ -11,8 +11,11 @@ import {
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 
 // Lista ferramentas personalizadas
-export const listCustomTools = async (params?: CustomToolsListParams): Promise<CustomTool[]> => {
-  const queryParams: { skip: number; limit: number; page?: number; pageSize?: number; search?: string; tags?: string } = {
+export const listCustomTools = async (
+  params?: CustomToolsListParams,
+  filterParams?: Record<string, string>,
+): Promise<CustomTool[]> => {
+  const queryParams: Record<string, unknown> = {
     skip: params?.skip || 0,
     limit: params?.limit || 100
   };
@@ -28,6 +31,10 @@ export const listCustomTools = async (params?: CustomToolsListParams): Promise<C
   }
   if (params?.tags) {
     queryParams.tags = params.tags;
+  }
+
+  if (filterParams) {
+    Object.assign(queryParams, filterParams);
   }
 
   const response = await evoaiApi.get('/custom-tools', {
