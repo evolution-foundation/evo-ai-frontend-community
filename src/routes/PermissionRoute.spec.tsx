@@ -26,12 +26,7 @@ function permissions(granted: string[]) {
   };
 }
 
-// `/settings/users` is gated on `users.read`. There is NO `users.manage`
-// permission in the RBAC catalogue (the `users` resource exposes only granular
-// read/create/update/delete/... actions), so the previous `manage` gate denied
-// EVERY role — including super_admin, who holds every real permission — and
-// bounced them to /unauthorized. Write actions inside the screen stay gated by
-// their own granular keys; the route only needs read to reveal the panel.
+// /settings/users gates on users.read (no users.manage permission exists).
 describe('PermissionRoute — /settings/users gated on users.read', () => {
   beforeEach(() => {
     vi.clearAllMocks();

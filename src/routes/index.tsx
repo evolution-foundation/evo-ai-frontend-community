@@ -677,13 +677,7 @@ const AppRouter = () => {
               <PrivateRoute>
                 <CustomerRoute>
                   <MainLayout>
-                    {/* Gate on users.read like every other route here: there is
-                        NO `users.manage` permission in the RBAC catalogue (the
-                        `users` resource only has granular read/create/update/
-                        delete/... actions), so a `manage` gate denied EVERYONE —
-                        even super_admin, who holds every real permission — and
-                        bounced them to /unauthorized. Write actions inside the
-                        screen stay gated by their granular keys. */}
+                    {/* read, not the non-existent `users.manage` (see menuItems.ts) */}
                     <PermissionRoute resource="users" action="read">
                       <Users />
                     </PermissionRoute>
