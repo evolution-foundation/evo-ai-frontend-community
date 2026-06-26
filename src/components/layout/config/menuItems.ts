@@ -191,7 +191,14 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         href: '/settings/users',
         icon: Users2,
         resource: 'users',
-        action: 'manage',
+        // Gate on `users.read` (the menu just reveals the screen). There is NO
+        // `users.manage` permission in the RBAC catalogue — the `users` resource
+        // only has granular actions (read/create/update/delete/...) — so the old
+        // `manage` gate could never be satisfied and the menu was hidden for
+        // EVERY role, including super_admin (who holds every real permission but
+        // not the non-existent `users.manage`). Write actions inside the screen
+        // stay gated by their own granular keys. Mirrors the Teams item (teams.read).
+        action: 'read',
       },
       {
         name: t('menu.settings.teams'),

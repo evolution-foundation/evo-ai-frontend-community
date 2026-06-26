@@ -26,16 +26,22 @@ function permissions(granted: string[]) {
   };
 }
 
-describe('PermissionRoute — /settings/users gated on users.manage (AC5)', () => {
+// `/settings/users` is gated on `users.read`. There is NO `users.manage`
+// permission in the RBAC catalogue (the `users` resource exposes only granular
+// read/create/update/delete/... actions), so the previous `manage` gate denied
+// EVERY role — including super_admin, who holds every real permission — and
+// bounced them to /unauthorized. Write actions inside the screen stay gated by
+// their own granular keys; the route only needs read to reveal the panel.
+describe('PermissionRoute — /settings/users gated on users.read', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('redirects a Conversas-only profile (users.read, no users.manage) away from /settings/users', async () => {
-    mockUsePermissions.mockReturnValue(permissions(['users.read', 'conversations.read']));
+  it('redirects a profile without users.read (e.g. Conversas-only) away from /settings/users', async () => {
+    mockUsePermissions.mockReturnValue(permissions(['conversations.read']));
 
     render(
-      <PermissionRoute resource="users" action="manage">
+      <PermissionRoute resource="users" action="read">
         <div data-testid="users-panel">Users Panel</div>
       </PermissionRoute>,
     );
@@ -46,11 +52,11 @@ describe('PermissionRoute — /settings/users gated on users.manage (AC5)', () =
     expect(screen.queryByTestId('users-panel')).toBeNull();
   });
 
-  it('renders the panel for a profile that has users.manage', () => {
-    mockUsePermissions.mockReturnValue(permissions(['users.read', 'users.manage']));
+  it('renders the panel for a profile that has users.read (admin roles)', () => {
+    mockUsePermissions.mockReturnValue(permissions(['users.read']));
 
     render(
-      <PermissionRoute resource="users" action="manage">
+      <PermissionRoute resource="users" action="read">
         <div data-testid="users-panel">Users Panel</div>
       </PermissionRoute>,
     );
