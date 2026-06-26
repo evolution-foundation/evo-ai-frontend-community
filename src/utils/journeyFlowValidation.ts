@@ -98,18 +98,42 @@ function terminalPathIssues(nodes: Node[], edges: Edge[]): ValidationIssue[] {
 }
 
 /**
+ * True when `start` lies on a cycle — i.e. it is reachable from itself by
+ * following outgoing edges. Used to scope `unreachableExit` to genuine loops.
+ */
+function isOnCycle(start: string, outgoing: Map<string, string[]>): boolean {
+  const stack = [...(outgoing.get(start) ?? [])];
+  const seen = new Set<string>();
+  while (stack.length > 0) {
+    const id = stack.pop() as string;
+    if (id === start) return true; // walked back to the origin → cycle
+    if (seen.has(id)) continue;
+    seen.add(id);
+    for (const next of outgoing.get(id) ?? []) stack.push(next);
+  }
+  return false;
+}
+
+/**
  * Detects the blind spot `terminalPath` misses (EVO-1857, follow-up to EVO-1744
- * F5): nodes reachable from a trigger that can **never** reach a terminating node
- * (`exit-journey-node`/`transfer-journey-node`) — e.g. a closed loop with no exit
- * (`trigger → A → B → A`). `terminalPath` only flags nodes with *no outgoing
- * edge*, so a node inside a cycle (which always has one) escapes it, yet at
- * runtime its session stays "running" for ~30 days (EVO-1691).
+ * F5): nodes inside a **closed loop with no exit** (`trigger → A → B → A`).
+ * `terminalPath` only flags nodes with *no outgoing edge*, so a node inside a
+ * cycle (which always has one) escapes it, yet at runtime its session stays
+ * "running" for ~30 days (EVO-1691).
  *
- * Algorithm (as specced on the card): one reverse-reachability pass from the
- * terminal nodes yields the set that *can* reach a terminal; any trigger-reachable
- * node outside it is trapped. Linear, no memoization needed. Two exclusions keep
- * it from doubling up with `terminalPath`: trigger nodes (the entry, not the
- * offending step) and no-outgoing nodes (already its `danglingExit` domain).
+ * Algorithm: a reverse-reachability pass from the terminal nodes yields the set
+ * that *can* reach a terminal; a forward pass from the triggers yields the set
+ * that actually executes. A node warns only when it (1) executes, (2) cannot
+ * reach a terminal, and (3) is genuinely on a cycle (`isOnCycle`).
+ *
+ * The cycle guard (EVO-1889) is what makes the "stuck in a loop" copy accurate:
+ * a LINEAR dangling chain (`trigger → a → b`, `b` no exit) has its single root
+ * cause — the dangling leaf `b` — already reported by `terminalPath`/`danglingExit`.
+ * The intermediate `a` cannot reach a terminal either, but it is NOT in a loop,
+ * so flagging it with the loop message mislabels the problem; the cycle guard
+ * suppresses it. Two further exclusions avoid doubling up with `terminalPath`:
+ * trigger nodes (the entry, not the offending step) and no-outgoing nodes
+ * (already its `danglingExit` domain).
  */
 function unreachableExitIssues(nodes: Node[], edges: Edge[]): ValidationIssue[] {
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
@@ -161,6 +185,7 @@ function unreachableExitIssues(nodes: Node[], edges: Edge[]): ValidationIssue[] 
     if (!node) continue;
     if (node.type === TRIGGER_NODE_TYPE) continue; // entry, not the offending step
     if ((outgoing.get(id) ?? []).length === 0) continue; // danglingExit's domain
+    if (!isOnCycle(id, outgoing)) continue; // linear dead-end → danglingExit covers it (EVO-1889)
     issues.push({
       nodeId: id,
       rule: 'unreachableExit',
