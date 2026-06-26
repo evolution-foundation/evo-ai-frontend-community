@@ -40,7 +40,9 @@
         "cancel": "Annulla",
         "confirm": "Elimina messaggio"
       },
-      "deletedPlaceholder": "Questo messaggio è stato eliminato"
+      "deletedPlaceholder": "Questo messaggio è stato eliminato",
+      "revokedByContact": "Eliminato dal contatto",
+      "revokeCrmOnly": "rimossa solo nel CRM"
     },
     "moderation": {
       "banner": {
