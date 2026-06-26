@@ -517,7 +517,15 @@
     },
     "messages": {
       "loadError": "Echec du chargement de la configuration des integrations"
-    }
+    },
+    "statusConfigured": "Configuré",
+    "statusNotConfigured": "Non configuré",
+    "dialogSubtitle": "Saisissez les identifiants OAuth de cette intégration.",
+    "remove": "Supprimer",
+    "removing": "Suppression...",
+    "removeSuccess": "Configuration supprimée",
+    "removeError": "Échec de la suppression de la configuration",
+    "cancel": "Annuler"
   },
   "inboundEmail": {
     "title": "E-mail entrant (recevoir comme conversations)",

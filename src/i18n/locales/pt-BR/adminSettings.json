@@ -518,7 +518,15 @@
     },
     "messages": {
       "loadError": "Falha ao carregar configuracao das integracoes"
-    }
+    },
+    "statusConfigured": "Configurado",
+    "statusNotConfigured": "Não configurado",
+    "dialogSubtitle": "Informe as credenciais OAuth desta integração.",
+    "remove": "Remover",
+    "removing": "Removendo...",
+    "removeSuccess": "Configuração removida",
+    "removeError": "Falha ao remover a configuração",
+    "cancel": "Cancelar"
   },
   "inboundEmail": {
     "title": "E-mail de entrada (receber como conversas)",
