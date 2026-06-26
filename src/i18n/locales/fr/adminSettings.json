@@ -71,13 +71,16 @@
       "label": "Fournisseur de Stockage",
       "local": "Stockage Local",
       "amazon": "Amazon S3",
-      "s3Compatible": "Compatible S3"
+      "amazonHelp": "AWS S3 — utilise la Région et vos identifiants AWS. Aucun endpoint personnalisé requis.",
+      "s3CompatibleHelp": "Tout fournisseur compatible S3 qui n'est pas AWS (MinIO, Cloudflare R2, DigitalOcean Spaces…). Nécessite un Endpoint personnalisé.",
+      "s3Compatible": "Compatible S3 (MinIO, Cloudflare R2, DigitalOcean Spaces…)"
     },
     "fields": {
       "bucketName": "Nom du Bucket",
       "accessKeyId": "ID de Cle d'Acces",
       "accessSecret": "Cle d'Acces Secrete",
       "region": "Region",
+      "endpointHelp": "URL de l'endpoint de votre fournisseur compatible S3. Uniquement pour Compatible S3 — laissez vide pour AWS.",
       "endpoint": "Endpoint"
     },
     "placeholders": {
