@@ -554,6 +554,18 @@ const ChatSidebar = ({
   const totalPages = pagination?.total_pages || 1;
   const hasNextPage = pagination?.has_next_page ?? currentPage < totalPages;
 
+  // EVO-1939: o filtro padrão (status=open) representa a visão default e não
+  // deve contar como filtro aplicado no badge — assim o badge some ao limpar.
+  const appliedFilterCount = filters.state.activeFilters.filter(
+    f =>
+      !(
+        f.attribute_key === 'status' &&
+        f.filter_operator === 'equal_to' &&
+        f.values?.length === 1 &&
+        f.values[0] === 'open'
+      ),
+  ).length;
+
   const handleSidebarScroll = useCallback(async () => {
     const now = Date.now();
     if (now - lastScrollTimeRef.current < 150) return;
@@ -992,11 +1004,11 @@ const ChatSidebar = ({
               : t('chatSidebar.conversations')}
           </span>
           <div className="flex items-center gap-2">
-            {/* Indicador de filtros ativos */}
-            {filters.state.activeFilters.length > 0 && (
+            {/* Indicador de filtros ativos (ignora o filtro padrão status=open) */}
+            {appliedFilterCount > 0 && (
               <Badge variant="secondary" className="text-xs">
-                {filters.state.activeFilters.length}{' '}
-                {filters.state.activeFilters.length === 1
+                {appliedFilterCount}{' '}
+                {appliedFilterCount === 1
                   ? t('chatSidebar.filter')
                   : t('chatSidebar.filters')}
               </Badge>
