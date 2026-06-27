@@ -3,3 +3,4 @@
 
 // Agent types
 export * from './agent';
+export * from './agents-filters';

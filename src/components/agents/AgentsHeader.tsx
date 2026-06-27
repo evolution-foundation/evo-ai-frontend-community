@@ -18,6 +18,7 @@ interface AgentsHeaderProps {
   onManageApiKeys: () => void;
   onBulkDelete: () => void;
   onClearSelection: () => void;
+  onFilter?: () => void;
   activeFilters?: HeaderFilter[];
   showFilters?: boolean;
 }
@@ -32,6 +33,7 @@ export default function AgentsHeader({
   onManageApiKeys,
   onBulkDelete,
   onClearSelection,
+  onFilter,
   activeFilters = [],
   showFilters = true,
 }: AgentsHeaderProps) {
@@ -83,7 +85,7 @@ export default function AgentsHeader({
       secondaryActions={secondaryActions}
       bulkActions={bulkActions}
       filters={activeFilters}
-      onFilterClick={() => {}} // TODO: Implement filter functionality
+      onFilterClick={onFilter ?? (() => {})}
       showFilters={showFilters}
       onClearSelection={onClearSelection}
     />
