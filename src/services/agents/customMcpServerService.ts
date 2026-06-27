@@ -11,15 +11,9 @@ import {
 // List custom MCP servers
 export const listCustomMcpServers = async (
   params?: ListCustomMcpServersParams,
+  filterParams?: Record<string, string>,
 ): Promise<CustomMcpServer[]> => {
-  const queryParams: {
-    skip: number;
-    limit: number;
-    page?: number;
-    pageSize?: number;
-    search?: string;
-    tags?: string;
-  } = {
+  const queryParams: Record<string, unknown> = {
     skip: params?.skip || 0,
     limit: params?.limit || 100,
   };
@@ -35,6 +29,10 @@ export const listCustomMcpServers = async (
   }
   if (params?.tags) {
     queryParams.tags = params.tags;
+  }
+
+  if (filterParams) {
+    Object.assign(queryParams, filterParams);
   }
 
   const response = await evoaiApi.get('/custom-mcp-servers', {

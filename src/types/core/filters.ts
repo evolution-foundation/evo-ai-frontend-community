@@ -280,7 +280,9 @@ export const CUSTOM_MCP_SERVER_FILTER_TYPES: FilterType[] = [
     attributeI18nKey: 'Data de Criação',
     inputType: 'date',
     dataType: 'date',
-    filterOperators: OPERATOR_TYPES_5,
+    // Date column: only equality operators (the Go backend matches by DATE();
+    // substring operators are invalid on a timestamp and would 500).
+    filterOperators: OPERATOR_TYPES_1,
     attribute_type: 'standard',
   },
 ];
@@ -379,7 +381,9 @@ export const CUSTOM_TOOL_FILTER_TYPES: FilterType[] = [
     attributeI18nKey: 'Data de Criação',
     inputType: 'date',
     dataType: 'date',
-    filterOperators: OPERATOR_TYPES_5,
+    // Date column: only equality operators (the Go backend matches by DATE();
+    // substring operators are invalid on a timestamp and would 500).
+    filterOperators: OPERATOR_TYPES_1,
     attribute_type: 'standard',
   },
 ];
