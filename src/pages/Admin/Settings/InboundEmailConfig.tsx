@@ -154,7 +154,7 @@ export default function InboundEmailConfig() {
       const svc = (data.RAILS_INBOUND_EMAIL_SERVICE as InboundService) || 'relay';
       updateSecretStatus(data);
       reset(buildFormValues(data, svc));
-    } catch (error) {
+    } catch {
       toast.error(t('inboundEmail.messages.loadError'));
     } finally {
       setLoading(false);
@@ -259,9 +259,9 @@ export default function InboundEmailConfig() {
   }
 
   return (
-    <div className="max-w-2xl">
+    <section>
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-sidebar-foreground">{t('inboundEmail.title')}</h2>
+        <h3 className="text-lg font-semibold text-sidebar-foreground">{t('inboundEmail.title')}</h3>
         <p className="text-sm text-sidebar-foreground/70 mt-1">{t('inboundEmail.description')}</p>
       </div>
 
@@ -339,6 +339,6 @@ export default function InboundEmailConfig() {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </section>
   );
 }

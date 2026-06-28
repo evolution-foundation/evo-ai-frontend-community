@@ -79,38 +79,76 @@
       },
       "headers": {
         "label": "Headers HTTP (JSON)",
+        "labelKv": "Headers HTTP",
         "placeholder": "{\"Authorization\": \"Bearer token\", \"Content-Type\": \"application/json\"}",
-        "hint": "Configure los headers HTTP necesarios para autenticación y comunicación"
+        "keyPlaceholder": "Nombre del header (ej: Authorization)",
+        "valuePlaceholder": "Valor (ej: Bearer token)",
+        "hint": "Headers HTTP enviados con cada solicitud (auth, content-type, etc.)"
       },
       "bodyParams": {
         "label": "Parámetros del Body (JSON)",
+        "labelKv": "Parámetros del Body",
         "placeholder": "{\"key\": \"value\", \"nested\": {\"field\": \"data\"}}",
-        "hint": "Configure los parámetros del cuerpo de la solicitud enviados con solicitudes POST/PUT/PATCH"
+        "keyPlaceholder": "Nombre del campo",
+        "valuePlaceholder": "Valor",
+        "hint": "Campos del cuerpo enviados en solicitudes POST/PUT/PATCH"
       },
       "queryParams": {
         "label": "Parámetros de Query (JSON)",
+        "labelKv": "Parámetros de Query",
         "placeholder": "{\"param1\": \"value1\", \"param2\": \"value2\"}",
-        "hint": "Configure los parámetros de la cadena de consulta de la URL anexados al endpoint"
+        "keyPlaceholder": "Nombre del parámetro",
+        "valuePlaceholder": "Valor",
+        "hint": "Parámetros de query string anexados a la URL (ej: ?param=valor)"
       },
       "pathParams": {
         "label": "Parámetros de Path (JSON)",
+        "labelKv": "Parámetros de Path",
         "placeholder": "{\"user_id\": \"{user_id}\", \"resource_id\": \"{resource_id}\"}",
-        "hint": "Configure los parámetros de path que serán sustituidos en la URL del endpoint (ej: /users/{user_id})"
+        "keyPlaceholder": "Nombre del parámetro (ej: user_id)",
+        "valuePlaceholder": "Valor o placeholder",
+        "hint": "Placeholders de path sustituidos en la URL (ej: /users/{user_id})"
       },
       "values": {
         "label": "Valores por Defecto (JSON)",
+        "labelKv": "Valores por Defecto",
         "placeholder": "{\"default_key\": \"default_value\"}",
-        "hint": "Configure valores por defecto usados como respaldo cuando los parámetros no se proporcionan en tiempo de ejecución"
+        "keyPlaceholder": "Clave (ej: default_user)",
+        "valuePlaceholder": "Valor por defecto",
+        "hint": "Valores por defecto usados como respaldo cuando los parámetros no se proporcionan en runtime"
       },
       "errorHandling": {
         "label": "Manejo de Errores (JSON)",
+        "labelVisual": "Manejo de Errores",
         "placeholder": "{\"timeout\": 30, \"retry_count\": 3, \"fallback_response\": \"{}\"}",
-        "hint": "Configure las configuraciones de manejo de errores: timeout (segundos), retry_count y fallback_response"
+        "timeoutLabel": "Timeout (segundos)",
+        "retryLabel": "Número de reintentos",
+        "fallbackLabel": "Respuesta de fallback",
+        "fallbackPlaceholder": "JSON devuelto cuando todos los reintentos fallan",
+        "hint": "Configura timeout, reintentos y una respuesta de fallback para errores"
+      },
+      "inputModes": {
+        "label": "Modos de Entrada (array JSON)",
+        "labelVisual": "Modos de Entrada",
+        "placeholder": "[\"text\", \"image\"]",
+        "placeholderVisual": "Escribe y presiona Enter…",
+        "hint": "Tipos MIME o modos de entrada soportados",
+        "hintVisual": "Escribe y presiona Enter para añadir, o haz clic en una sugerencia"
+      },
+      "outputModes": {
+        "label": "Modos de Salida (array JSON)",
+        "labelVisual": "Modos de Salida",
+        "placeholder": "[\"text\", \"json\"]",
+        "placeholderVisual": "Escribe y presiona Enter…",
+        "hint": "Tipos MIME o modos de salida soportados",
+        "hintVisual": "Escribe y presiona Enter para añadir, o haz clic en una sugerencia"
       },
       "tags": {
         "label": "Etiquetas",
         "placeholder": "api, http, webhook",
-        "hint": "Separe las etiquetas con comas para organizar y categorizar la herramienta"
+        "placeholderTagInput": "Escribe y presiona Enter para añadir una etiqueta…",
+        "hint": "Separe las etiquetas con comas para organizar y categorizar la herramienta",
+        "hintTagInput": "Presiona Enter o coma para añadir una etiqueta. Backspace elimina la última."
       },
       "examples": {
         "label": "Ejemplos",
@@ -127,13 +165,122 @@
       "queryParamsInvalid": "JSON inválido para parámetros de query",
       "pathParamsInvalid": "JSON inválido para parámetros de path",
       "valuesInvalid": "JSON inválido para valores por defecto",
-      "errorHandlingInvalid": "JSON inválido para manejo de errores"
+      "errorHandlingInvalid": "JSON inválido para manejo de errores",
+      "inputModesInvalid": "Modos de entrada deben ser un array JSON de strings",
+      "outputModesInvalid": "Modos de salida deben ser un array JSON de strings"
     },
     "actions": {
       "cancel": "Cancelar",
       "save": "Guardar Cambios",
       "create": "Crear Herramienta",
       "saving": "Guardando..."
+    }
+  },
+  "keyValueEditor": {
+    "keyPlaceholder": "Clave",
+    "valuePlaceholder": "Valor",
+    "addRow": "Agregar fila",
+    "removeRow": "Eliminar fila",
+    "complexValueBadge": "valor complejo — edite en modo avanzado",
+    "errors": {
+      "emptyKey": "La clave no puede estar vacía",
+      "duplicateKey": "Clave duplicada",
+      "emptyValue": "El valor es obligatorio cuando la clave está completada"
+    }
+  },
+  "advancedConfig": {
+    "title": "Configuración avanzada"
+  },
+  "tagInput": {
+    "placeholder": "Escribe y presiona Enter…",
+    "removeTag": "Eliminar {{tag}}",
+    "suggestions": "Sugerencias"
+  },
+  "testResult": {
+    "titleSuccess": "Prueba exitosa",
+    "titleError": "Prueba fallida",
+    "statusCode": "Status code",
+    "responseTime": "Tiempo de respuesta",
+    "errorLabel": "Error",
+    "responseHeaders": "Headers de respuesta",
+    "responseBody": "Cuerpo de respuesta",
+    "noData": "La solicitud no se completó y no devolvió detalles.",
+    "close": "Cerrar"
+  },
+  "testRequest": {
+    "button": "Probar solicitud",
+    "testing": "Probando...",
+    "success": "Solicitud ejecutada con éxito",
+    "error": "Error al probar la solicitud",
+    "statusCode": "Status",
+    "responseTime": "Tiempo de respuesta",
+    "responseHeaders": "Headers de respuesta",
+    "responseBody": "Cuerpo de respuesta",
+    "disabledTooltipCreateMode": "Guarde la herramienta primero para poder probarla"
+  },
+  "wizard": {
+    "progress": {
+      "identity": "Identidad",
+      "endpoint": "Endpoint",
+      "parameters": "Parámetros",
+      "advanced": "Avanzado",
+      "modes": "Modos",
+      "finish": "Finalizar"
+    },
+    "step1": {
+      "title": "Identifiquemos tu herramienta",
+      "subtitle": "Dale un nombre, descripción y etiquetas para que tu equipo la encuentre después."
+    },
+    "step2": {
+      "title": "¿Qué endpoint llama?",
+      "subtitle": "Elige el método HTTP, la URL y los headers enviados en cada solicitud."
+    },
+    "step3": {
+      "title": "Configura los parámetros",
+      "subtitle": "Query, path y body params. Body solo aparece si el método lo permite."
+    },
+    "step4": {
+      "title": "Configuración avanzada",
+      "subtitle": "Opcional. Valores por defecto y manejo de errores.",
+      "helperText": "Estos campos son opcionales — sáltalos si no los necesitas."
+    },
+    "step5": {
+      "title": "Modos de entrada y salida",
+      "subtitle": "Opcional. Declara qué tipo de contenido acepta y devuelve esta herramienta.",
+      "selectPlaceholder": "Selecciona un tipo",
+      "modeOptions": {
+        "text": "Texto",
+        "image": "Imagen",
+        "audio": "Audio",
+        "video": "Vídeo",
+        "json": "JSON",
+        "file": "Archivo"
+      },
+      "input": {
+        "typeLabel": "Lo que recibe",
+        "descriptionLabel": "¿Qué debe enviar la IA?",
+        "badge": "instrucción para la IA",
+        "descriptionPlaceholder": "Ej: La imagen de un documento o comprobante que el cliente envió y necesita ser leído."
+      },
+      "output": {
+        "typeLabel": "Lo que devuelve",
+        "descriptionLabel": "Describe el retorno",
+        "badge": "ayuda al agente a interpretar",
+        "descriptionPlaceholder": "Ej: El texto extraído del documento, en formato corrido, listo para ser usado en la respuesta."
+      }
+    },
+    "step6": {
+      "title": "Toques finales",
+      "subtitle": "Agrega ejemplos de uso que ayuden a los agentes a saber cuándo llamar esta herramienta.",
+      "helperText": "Los ejemplos son descripciones cortas de cómo usar la herramienta.",
+      "testHint": "Después de crear, podrás probar la herramienta contra el endpoint real."
+    },
+    "actions": {
+      "continue": "Continuar",
+      "back": "Volver",
+      "skip": "Saltar",
+      "create": "Crear herramienta",
+      "save": "Guardar cambios"
     }
   },
   "modal": {

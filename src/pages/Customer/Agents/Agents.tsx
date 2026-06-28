@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@evoapi/design-system';
-import { AgentsTable, AgentsHeader, AgentsPagination, AgentCard as AgentCardItem, AgentWizardModal } from '@/components/agents';
+import { AgentsTable, AgentsHeader, AgentsPagination, AgentCard as AgentCardItem, AgentWizardModal, AgentsFilter } from '@/components/agents';
 import { EmptyState } from '@/components/base';
 import { Bot, Search, Grid3X3, List } from 'lucide-react';
 import { toast } from 'sonner';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { getAccessibleAgents, deleteAgent } from '@/services/agents';
-import { Agent } from '@/types/agents';
+import { Agent, AGENT_FILTER_TYPES } from '@/types/agents';
+import { buildAppliedFilterChips } from '@/utils/appliedFilterChips';
+import type { BaseFilter, AppliedFilter } from '@/types/core';
 import { useLanguage } from '@/hooks/useLanguage';
 import { ApiKeysModal } from '@/components/ApiKeysModal';
 import { AgentsTour } from '@/tours';
@@ -52,6 +54,13 @@ const Agentes = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<string>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<BaseFilter[]>([]);
+  const [appliedFilters, setAppliedFilters] = useState<AppliedFilter[]>([]);
+  // EVO-1952: ref synced to activeFilters so the applied-chip "x" removes against
+  // the current list, not the stale snapshot captured when the chips were built.
+  const activeFiltersRef = useRef<BaseFilter[]>([]);
+  activeFiltersRef.current = activeFilters;
 
   const loadingRef = useRef(false);
   const loadAgentsRef = useRef<((params?: { page?: number; per_page?: number }) => Promise<void>) | null>(null);
@@ -62,7 +71,7 @@ const Agentes = () => {
   const isWizardOpen = location.pathname === '/agents/new';
 
   const loadAgents = useCallback(
-    async (params?: { page?: number; per_page?: number }) => {
+    async (params?: { page?: number; per_page?: number }, filtersOverride?: BaseFilter[]) => {
       if (loadingRef.current || permissionsLoading || !permissionsReady) {
         return;
       }
@@ -78,7 +87,22 @@ const Agentes = () => {
       try {
         const currentPage = params?.page ?? 1;
         const currentPageSize = params?.per_page ?? 24;
-        const response = await getAccessibleAgents(currentPage, currentPageSize);
+
+        const effectiveFilters = filtersOverride ?? activeFilters;
+        const filterParams = effectiveFilters.reduce((acc, filter, index) => {
+          const prefix = `filters[${index}]`;
+          acc[`${prefix}[attribute_key]`] = filter.attributeKey;
+          acc[`${prefix}[filter_operator]`] = filter.filterOperator;
+          acc[`${prefix}[values]`] = Array.isArray(filter.values)
+            ? filter.values.join(',')
+            : String(filter.values);
+          if (index > 0) {
+            acc[`${prefix}[query_operator]`] = filter.queryOperator;
+          }
+          return acc;
+        }, {} as Record<string, string>);
+
+        const response = await getAccessibleAgents(currentPage, currentPageSize, { filterParams });
 
         const total = response.meta?.pagination?.total || 0;
         const pageSize = response.meta?.pagination?.page_size || DEFAULT_PAGE_SIZE;
@@ -112,7 +136,7 @@ const Agentes = () => {
         loadingRef.current = false;
       }
     },
-    [permissionsReady, permissionsLoading, can, t],
+    [permissionsReady, permissionsLoading, can, t, activeFilters],
   );
 
   useEffect(() => {
@@ -241,6 +265,32 @@ const Agentes = () => {
     toast.info(t('bulkDelete'));
   };
 
+  const convertFiltersToApplied = (filters: BaseFilter[]): AppliedFilter[] =>
+    buildAppliedFilterChips(filters, AGENT_FILTER_TYPES, t, handleRemoveFilter);
+
+  const handleOpenFilter = () => setFilterModalOpen(true);
+
+  const handleApplyFilters = (filters: BaseFilter[]) => {
+    setActiveFilters(filters);
+    setAppliedFilters(convertFiltersToApplied(filters));
+    loadAgents({ page: 1 }, filters);
+  };
+
+  const handleClearFilters = () => {
+    setActiveFilters([]);
+    setAppliedFilters([]);
+    loadAgents({ page: 1 }, []);
+  };
+
+  const handleRemoveFilter = (index: number) => {
+    const newFilters = activeFiltersRef.current.filter((_, i) => i !== index);
+    if (newFilters.length === 0) {
+      handleClearFilters();
+    } else {
+      handleApplyFilters(newFilters);
+    }
+  };
+
   const filteredAgents = state.agents.filter(
     agent =>
       agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -279,10 +329,20 @@ const Agentes = () => {
               onManageApiKeys={() => setIsApiKeysModalOpen(true)}
               onBulkDelete={handleBulkDelete}
               onClearSelection={() => setState(prev => ({ ...prev, selectedAgents: [] }))}
-              activeFilters={[]}
+              onFilter={handleOpenFilter}
+              activeFilters={appliedFilters}
               showFilters={true}
             />
             </div>
+
+            <AgentsFilter
+              open={filterModalOpen}
+              onOpenChange={setFilterModalOpen}
+              filters={activeFilters}
+              onFiltersChange={setActiveFilters}
+              onApplyFilters={handleApplyFilters}
+              onClearFilters={handleClearFilters}
+            />
 
             <div className="flex items-center justify-end" data-tour="agents-view-toggle">
               <div className="flex items-center border rounded-lg">

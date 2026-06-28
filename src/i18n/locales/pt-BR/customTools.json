@@ -79,38 +79,76 @@
       },
       "headers": {
         "label": "Headers HTTP (JSON)",
+        "labelKv": "Headers HTTP",
         "placeholder": "{\"Authorization\": \"Bearer token\", \"Content-Type\": \"application/json\"}",
-        "hint": "Configure os headers HTTP necessários para autenticação e comunicação"
+        "keyPlaceholder": "Nome do header (ex: Authorization)",
+        "valuePlaceholder": "Valor (ex: Bearer token)",
+        "hint": "Headers HTTP enviados em toda requisição (auth, content-type, etc.)"
       },
       "bodyParams": {
         "label": "Parâmetros do Body (JSON)",
+        "labelKv": "Parâmetros do Body",
         "placeholder": "{\"key\": \"value\", \"nested\": {\"field\": \"data\"}}",
-        "hint": "Configure os parâmetros do corpo da requisição enviados com requisições POST/PUT/PATCH"
+        "keyPlaceholder": "Nome do campo",
+        "valuePlaceholder": "Valor",
+        "hint": "Campos do corpo enviados em requisições POST/PUT/PATCH"
       },
       "queryParams": {
         "label": "Parâmetros de Query (JSON)",
+        "labelKv": "Parâmetros de Query",
         "placeholder": "{\"param1\": \"value1\", \"param2\": \"value2\"}",
-        "hint": "Configure os parâmetros da query string da URL anexados ao endpoint"
+        "keyPlaceholder": "Nome do parâmetro",
+        "valuePlaceholder": "Valor",
+        "hint": "Parâmetros da query string anexados à URL (ex: ?param=valor)"
       },
       "pathParams": {
         "label": "Parâmetros de Path (JSON)",
+        "labelKv": "Parâmetros de Path",
         "placeholder": "{\"user_id\": \"{user_id}\", \"resource_id\": \"{resource_id}\"}",
-        "hint": "Configure os parâmetros de path que serão substituídos na URL do endpoint (ex: /users/{user_id})"
+        "keyPlaceholder": "Nome do parâmetro (ex: user_id)",
+        "valuePlaceholder": "Valor ou placeholder",
+        "hint": "Placeholders de path substituídos na URL (ex: /users/{user_id})"
       },
       "values": {
         "label": "Valores Padrão (JSON)",
+        "labelKv": "Valores Padrão",
         "placeholder": "{\"default_key\": \"default_value\"}",
-        "hint": "Configure valores padrão usados como fallback quando parâmetros não são fornecidos em tempo de execução"
+        "keyPlaceholder": "Chave (ex: default_user)",
+        "valuePlaceholder": "Valor padrão",
+        "hint": "Valores padrão usados como fallback quando parâmetros não são fornecidos em runtime"
       },
       "errorHandling": {
         "label": "Tratamento de Erros (JSON)",
+        "labelVisual": "Tratamento de Erros",
         "placeholder": "{\"timeout\": 30, \"retry_count\": 3, \"fallback_response\": \"{}\"}",
-        "hint": "Configure as configurações de tratamento de erros: timeout (segundos), retry_count e fallback_response"
+        "timeoutLabel": "Timeout (segundos)",
+        "retryLabel": "Número de retries",
+        "fallbackLabel": "Resposta de fallback",
+        "fallbackPlaceholder": "JSON retornado quando todos os retries falham",
+        "hint": "Configure timeout, retries e uma resposta de fallback pra erros"
+      },
+      "inputModes": {
+        "label": "Modos de Entrada (array JSON)",
+        "labelVisual": "Modos de Entrada",
+        "placeholder": "[\"text\", \"image\"]",
+        "placeholderVisual": "Digite e pressione Enter…",
+        "hint": "Tipos MIME ou modos de entrada suportados",
+        "hintVisual": "Digite e pressione Enter pra adicionar, ou clique numa sugestão"
+      },
+      "outputModes": {
+        "label": "Modos de Saída (array JSON)",
+        "labelVisual": "Modos de Saída",
+        "placeholder": "[\"text\", \"json\"]",
+        "placeholderVisual": "Digite e pressione Enter…",
+        "hint": "Tipos MIME ou modos de saída suportados",
+        "hintVisual": "Digite e pressione Enter pra adicionar, ou clique numa sugestão"
       },
       "tags": {
         "label": "Tags",
         "placeholder": "api, http, webhook",
-        "hint": "Separe as tags com vírgulas para organizar e categorizar a ferramenta"
+        "placeholderTagInput": "Digite e pressione Enter pra adicionar uma tag…",
+        "hint": "Separe as tags com vírgulas para organizar e categorizar a ferramenta",
+        "hintTagInput": "Pressione Enter ou vírgula pra adicionar uma tag. Backspace remove a última."
       },
       "examples": {
         "label": "Exemplos",
@@ -127,13 +165,122 @@
       "queryParamsInvalid": "JSON inválido para parâmetros de query",
       "pathParamsInvalid": "JSON inválido para parâmetros de path",
       "valuesInvalid": "JSON inválido para valores padrão",
-      "errorHandlingInvalid": "JSON inválido para tratamento de erros"
+      "errorHandlingInvalid": "JSON inválido para tratamento de erros",
+      "inputModesInvalid": "Modos de entrada devem ser um array JSON de strings",
+      "outputModesInvalid": "Modos de saída devem ser um array JSON de strings"
     },
     "actions": {
       "cancel": "Cancelar",
       "save": "Salvar Alterações",
       "create": "Criar Ferramenta",
       "saving": "Salvando..."
+    }
+  },
+  "keyValueEditor": {
+    "keyPlaceholder": "Chave",
+    "valuePlaceholder": "Valor",
+    "addRow": "Adicionar linha",
+    "removeRow": "Remover linha",
+    "complexValueBadge": "valor complexo — edite no modo avançado",
+    "errors": {
+      "emptyKey": "A chave não pode ser vazia",
+      "duplicateKey": "Chave duplicada",
+      "emptyValue": "Valor é obrigatório quando a chave está preenchida"
+    }
+  },
+  "advancedConfig": {
+    "title": "Configuração avançada"
+  },
+  "tagInput": {
+    "placeholder": "Digite e pressione Enter…",
+    "removeTag": "Remover {{tag}}",
+    "suggestions": "Sugestões"
+  },
+  "testResult": {
+    "titleSuccess": "Teste bem-sucedido",
+    "titleError": "Teste falhou",
+    "statusCode": "Status code",
+    "responseTime": "Tempo de resposta",
+    "errorLabel": "Erro",
+    "responseHeaders": "Headers da resposta",
+    "responseBody": "Corpo da resposta",
+    "noData": "A requisição não completou e não retornou detalhes.",
+    "close": "Fechar"
+  },
+  "testRequest": {
+    "button": "Testar requisição",
+    "testing": "Testando...",
+    "success": "Requisição executada com sucesso",
+    "error": "Falha ao testar a requisição",
+    "statusCode": "Status",
+    "responseTime": "Tempo de resposta",
+    "responseHeaders": "Headers da resposta",
+    "responseBody": "Corpo da resposta",
+    "disabledTooltipCreateMode": "Salve a tool primeiro pra poder testar"
+  },
+  "wizard": {
+    "progress": {
+      "identity": "Identidade",
+      "endpoint": "Endpoint",
+      "parameters": "Parâmetros",
+      "advanced": "Avançado",
+      "modes": "Modos",
+      "finish": "Finalizar"
+    },
+    "step1": {
+      "title": "Vamos identificar sua tool",
+      "subtitle": "Dê um nome, descrição e tags pra sua equipe encontrar depois."
+    },
+    "step2": {
+      "title": "Qual endpoint ela chama?",
+      "subtitle": "Escolha o método HTTP, a URL e os headers enviados em toda requisição."
+    },
+    "step3": {
+      "title": "Configure os parâmetros",
+      "subtitle": "Query, path e body params. Body só aparece se o método permitir."
+    },
+    "step4": {
+      "title": "Configuração avançada",
+      "subtitle": "Opcional. Valores padrão e tratamento de erros.",
+      "helperText": "Esses campos são opcionais — pule se não precisar."
+    },
+    "step5": {
+      "title": "Modos de entrada e saída",
+      "subtitle": "Opcional. Declare que tipo de conteúdo essa tool aceita e devolve.",
+      "selectPlaceholder": "Selecione um tipo",
+      "modeOptions": {
+        "text": "Texto",
+        "image": "Imagem",
+        "audio": "Áudio",
+        "video": "Vídeo",
+        "json": "JSON",
+        "file": "Arquivo"
+      },
+      "input": {
+        "typeLabel": "O que ela recebe",
+        "descriptionLabel": "O que a IA deve enviar?",
+        "badge": "instrução pra IA",
+        "descriptionPlaceholder": "Ex: A imagem de um documento ou comprovante que o cliente enviou e precisa ser lido."
+      },
+      "output": {
+        "typeLabel": "O que ela devolve",
+        "descriptionLabel": "Descreva o retorno",
+        "badge": "ajuda o agente a interpretar",
+        "descriptionPlaceholder": "Ex: O texto extraído do documento, em formato corrido, pronto pra ser usado na resposta."
+      }
+    },
+    "step6": {
+      "title": "Toques finais",
+      "subtitle": "Adicione exemplos de uso que ajudam os agentes a saber quando chamar essa tool.",
+      "helperText": "Exemplos são descrições curtas de como usar a tool.",
+      "testHint": "Após criar, você poderá testar a tool contra o endpoint real."
+    },
+    "actions": {
+      "continue": "Continuar",
+      "back": "Voltar",
+      "skip": "Pular",
+      "create": "Criar tool",
+      "save": "Salvar alterações"
     }
   },
   "modal": {

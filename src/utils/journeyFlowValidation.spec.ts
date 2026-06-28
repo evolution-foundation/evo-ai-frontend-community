@@ -240,4 +240,26 @@ describe('validateJourney (EVO-1744)', () => {
     ]);
     expect(r.warnings.some((w) => w.rule === 'unreachableExit')).toBe(false);
   });
+
+  // EVO-1889 (follow-up to EVO-1857): a LINEAR dangling chain is not a loop. The
+  // single root cause is the dangling leaf `b` (danglingExit); the intermediate
+  // `a` must NOT be mislabeled with the "stuck in a loop" copy.
+  it('EVO-1889: a linear dangling chain does NOT flag the intermediate node as a loop', () => {
+    const nodes = [
+      node('t', 'journey-trigger-node', {
+        triggerType: 'event',
+        eventName: 'conversation.created',
+      }),
+      sendMsg('a'),
+      sendMsg('b'),
+    ];
+    // trigger → a → b, and b has no outgoing edge (dangling leaf).
+    const r = validateJourney(nodes, [edge('t', 'a'), edge('a', 'b')]);
+    // The intermediate `a` is a linear dead-end, not a cycle: no loop warning.
+    expect(r.warnings.some((w) => w.rule === 'unreachableExit')).toBe(false);
+    // The actual root cause — the dangling leaf `b` — is still surfaced.
+    expect(
+      r.warnings.some((w) => w.rule === 'terminalPath' && w.nodeId === 'b'),
+    ).toBe(true);
+  });
 });

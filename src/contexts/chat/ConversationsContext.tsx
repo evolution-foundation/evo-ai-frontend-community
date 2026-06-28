@@ -348,6 +348,43 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
     [t],
   );
 
+  // EVO-1680 — mirror of updateConversationStatus but targets the dedicated
+  // return_to_bot endpoint which clears the assignee and persists a
+  // human_to_bot activity in addition to the pending transition.
+  const returnConversationToBot = useCallback(
+    async (conversationId: string, onFilterReload?: () => Promise<void>) => {
+      try {
+        const response = await chatService.returnConversationToBot(conversationId);
+
+        if (response && response.data && response.data.id) {
+          dispatch({ type: 'UPDATE_CONVERSATION', payload: response.data });
+        } else {
+          console.warn('returnConversationToBot: Invalid response', response);
+        }
+
+        useUnreadConversationsStore.getState().fetch();
+
+        toast.success(t('contexts.conversations.success.returnedToBot'));
+
+        if (onFilterReload) {
+          await onFilterReload();
+        }
+
+        return response as unknown as Conversation;
+      } catch (error) {
+        console.error('Error returning conversation to bot:', error);
+        toast.error(t('contexts.conversations.errors.returnToBot'), {
+          description:
+            error instanceof Error
+              ? error.message
+              : t('contexts.conversations.tryAgainDescription'),
+        });
+        throw error;
+      }
+    },
+    [t],
+  );
+
   const updateConversationPriority = useCallback(
     async (
       conversationId: string,
@@ -907,6 +944,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
     loadSpecificConversation,
     selectConversation,
     updateConversationStatus,
+    returnConversationToBot,
     updateConversationPriority,
     pinConversation,
     unpinConversation,

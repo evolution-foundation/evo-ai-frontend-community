@@ -184,6 +184,43 @@ describe('journey i18n parity (EVO-1260)', () => {
     expect(offenders).toEqual([]);
   });
 
+  // EVO-1904: the exit-journey config-panel keys (exitReason / exitMessage)
+  // were added to ALL six locales. The strict en↔pt-BR mirror covers those
+  // two; assert presence + non-empty across every shipped locale so
+  // pt/es/fr/it can't silently drift (same pattern as EVO-1260 above).
+  const evo1904Keys = [
+    'panels.exitJourney.intro',
+    'panels.exitJourney.reasonLabel',
+    'panels.exitJourney.reasonPlaceholder',
+    'panels.exitJourney.reasonHint',
+    'panels.exitJourney.reasonRequired',
+    'panels.exitJourney.customReasonLabel',
+    'panels.exitJourney.customReasonPlaceholder',
+    'panels.exitJourney.messageLabel',
+    'panels.exitJourney.messagePlaceholder',
+    'panels.exitJourney.messageHint',
+    'panels.exitJourney.reasons.completed',
+    'panels.exitJourney.reasons.abandoned',
+    'panels.exitJourney.reasons.transferred',
+    'panels.exitJourney.reasons.error',
+    'panels.exitJourney.reasons.custom',
+  ];
+
+  it.each([
+    ['en', en],
+    ['pt-BR', ptBR],
+    ['pt', pt],
+    ['es', es],
+    ['fr', fr],
+    ['it', itLocale],
+  ])('%s contains every EVO-1904 exit-journey key, non-empty', (_name, locale) => {
+    const offenders = evo1904Keys.filter((k) => {
+      const v = getAtPath(locale, k);
+      return typeof v !== 'string' || v.trim() === '';
+    });
+    expect(offenders).toEqual([]);
+  });
+
   // Anti-leakage: catches the EVO-1260 review finding class — pt-BR
   // values byte-identical to EN that are NOT legitimate tech terms,
   // sample literals, or pure-interpolation strings. Uses the shared
@@ -204,6 +241,9 @@ describe('journey i18n parity (EVO-1260)', () => {
     // block (Template de mensagem, Escolha um template, …) — kept identical
     // to EN by design, so the labels match the surrounding copy.
     'Template', 'Template:',
+    // "Follow-up" is the established pt-BR loanword for the pipeline task type
+    // (kept identical to EN by design).
+    'Follow-up',
     // strings whose only "language" content is the variable placeholder
     'Webhook {{method}}', 'Basic auth: {{username}}', 'Timeout: {{timeout}}s',
     // sample literals used as placeholders in form fields
@@ -211,9 +251,6 @@ describe('journey i18n parity (EVO-1260)', () => {
     // EN file already contains the Portuguese word "Valor" at this key
     // (apparently authored in pt-first); pt-BR matches by coincidence.
     'Valor',
-    // EVO-1926: "Follow-up" is the established loanword for the
-    // create-pipeline-task task type in pt-BR (kept identical to EN).
-    'Follow-up',
   ]);
 
   it('pt-BR has no English leakage (pt-BR !== EN except for whitelisted tech terms)', () => {

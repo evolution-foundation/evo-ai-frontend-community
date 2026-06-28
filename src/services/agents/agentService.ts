@@ -24,10 +24,21 @@ class AgentsService {
     return extractData<Agent>(response);
   }
 
-  async listAgents(page = 1, pageSize = 100, folderId?: string): Promise<AgentListResponse> {
+  async listAgents(
+    page = 1,
+    pageSize = 100,
+    folderId?: string,
+    options?: { search?: string; filterParams?: Record<string, string> },
+  ): Promise<AgentListResponse> {
     const params: any = buildPaginationParams(page, pageSize);
     if (folderId) {
       params.folder_id = folderId;
+    }
+    if (options?.search) {
+      params.search = options.search;
+    }
+    if (options?.filterParams) {
+      Object.assign(params, options.filterParams);
     }
 
     const response = await evoaiApi.get('/agents', {
@@ -146,9 +157,13 @@ class AgentsService {
     }));
   }
 
-  async getAccessibleAgents(page = 1, pageSize = 100) {
+  async getAccessibleAgents(
+    page = 1,
+    pageSize = 100,
+    options?: { search?: string; filterParams?: Record<string, string> },
+  ) {
     try {
-      return await this.listAgents(page, pageSize);
+      return await this.listAgents(page, pageSize, undefined, options);
     } catch (error) {
       console.error('Error getting accessible agents:', error);
       throw error;
@@ -178,6 +193,10 @@ export const deleteApiKey = (keyId: string) => agentsService.deleteApiKey(keyId)
 
 export const assignAgentToFolder = (agentId: string, folderId: string | null) => agentsService.assignFolder(agentId, folderId);
 export const getAccessibleFolders = (page?: number, pageSize?: number) => agentsService.getAccessibleFolders(page, pageSize);
-export const getAccessibleAgents = (page?: number, pageSize?: number) => agentsService.getAccessibleAgents(page, pageSize);
+export const getAccessibleAgents = (
+  page?: number,
+  pageSize?: number,
+  options?: { search?: string; filterParams?: Record<string, string> },
+) => agentsService.getAccessibleAgents(page, pageSize, options);
 export const shareAgent = (agentId: string) => agentsService.shareAgent(agentId);
 export const getAgentIntegrations = (agentId: string) => agentsService.getAgentIntegrations(agentId);

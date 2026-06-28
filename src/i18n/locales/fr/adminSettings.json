@@ -3,12 +3,9 @@
   "navigation": {
     "email": "E-mail",
     "storage": "Stockage",
-    "socialLogin": "Fournisseurs d'authentification",
     "channels": "Canaux",
     "openai": "OpenAI",
-    "integrations": "Integrations",
-    "inboundEmail": "E-mail Entrant",
-    "frontendRuntime": "Frontend Runtime"
+    "integrations": "Integrations"
   },
   "email": {
     "title": "Configuration E-mail",
@@ -74,13 +71,16 @@
       "label": "Fournisseur de Stockage",
       "local": "Stockage Local",
       "amazon": "Amazon S3",
-      "s3Compatible": "Compatible S3"
+      "amazonHelp": "AWS S3 — utilise la Région et vos identifiants AWS. Aucun endpoint personnalisé requis.",
+      "s3CompatibleHelp": "Tout fournisseur compatible S3 qui n'est pas AWS (MinIO, Cloudflare R2, DigitalOcean Spaces…). Nécessite un Endpoint personnalisé.",
+      "s3Compatible": "Compatible S3 (MinIO, Cloudflare R2, DigitalOcean Spaces…)"
     },
     "fields": {
       "bucketName": "Nom du Bucket",
       "accessKeyId": "ID de Cle d'Acces",
       "accessSecret": "Cle d'Acces Secrete",
       "region": "Region",
+      "endpointHelp": "URL de l'endpoint de votre fournisseur compatible S3. Uniquement pour Compatible S3 — laissez vide pour AWS.",
       "endpoint": "Endpoint"
     },
     "placeholders": {
@@ -116,8 +116,8 @@
     }
   },
   "socialLogin": {
-    "title": "Fournisseurs d'authentification",
-    "description": "Configurez les identifiants OAuth des fournisseurs d'authentification SSO pour que les utilisateurs puissent se connecter avec Google ou Microsoft.",
+    "title": "Identifiants du fournisseur d'e-mail (OAuth)",
+    "description": "Identifiants d'application OAuth (Google / Microsoft) utilisés pour connecter les canaux e-mail Gmail et Outlook.",
     "google": {
       "cardTitle": "Google OAuth",
       "fields": {
@@ -164,6 +164,9 @@
     "saving": "Enregistrement..."
   },
   "channels": {
+    "email": {
+      "tabTitle": "E-mail"
+    },
     "title": "Integrations de Canaux",
     "description": "Configurez les identifiants pour les canaux de messagerie et integrations.",
     "secretConfigured": "Configure",
@@ -340,7 +343,7 @@
   },
   "integrations": {
     "title": "Configuration des Integrations",
-    "description": "Configurez les identifiants OAuth pour les integrations tierces telles que Linear, HubSpot, Shopify et Slack.",
+    "description": "Configurez les identifiants OAuth pour les integrations tierces telles que Linear, GitHub, Notion et autres.",
     "secretConfigured": "Configure",
     "secretNotConfigured": "Non configure",
     "clearSecret": "Effacer la valeur enregistree",
@@ -398,13 +401,130 @@
       "saveSuccess": "Configuration Slack enregistree avec succes",
       "saveError": "Echec de l'enregistrement de la configuration Slack"
     },
+    "github": {
+      "cardTitle": "GitHub",
+      "fields": {
+        "clientId": "ID Client",
+        "clientSecret": "Secret Client"
+      },
+      "placeholders": {
+        "clientId": "Votre GitHub Client ID",
+        "clientSecret": "Entrez le nouveau secret client"
+      },
+      "saveSuccess": "Configuration GitHub enregistree avec succes",
+      "saveError": "Echec de l'enregistrement de la configuration GitHub"
+    },
+    "notion": {
+      "cardTitle": "Notion",
+      "fields": {
+        "clientId": "ID Client",
+        "clientSecret": "Secret Client"
+      },
+      "placeholders": {
+        "clientId": "Votre Notion Client ID",
+        "clientSecret": "Entrez le nouveau secret client"
+      },
+      "saveSuccess": "Configuration Notion enregistree avec succes",
+      "saveError": "Echec de l'enregistrement de la configuration Notion"
+    },
+    "asana": {
+      "cardTitle": "Asana",
+      "fields": {
+        "clientId": "ID Client",
+        "clientSecret": "Secret Client"
+      },
+      "placeholders": {
+        "clientId": "Votre Asana Client ID",
+        "clientSecret": "Entrez le nouveau secret client"
+      },
+      "saveSuccess": "Configuration Asana enregistree avec succes",
+      "saveError": "Echec de l'enregistrement de la configuration Asana"
+    },
+    "canva": {
+      "cardTitle": "Canva",
+      "fields": {
+        "clientId": "ID Client",
+        "clientSecret": "Secret Client"
+      },
+      "placeholders": {
+        "clientId": "Votre Canva Client ID",
+        "clientSecret": "Entrez le nouveau secret client"
+      },
+      "saveSuccess": "Configuration Canva enregistree avec succes",
+      "saveError": "Echec de l'enregistrement de la configuration Canva"
+    },
+    "google_calendar": {
+      "cardTitle": "Google Calendar",
+      "fields": {
+        "clientId": "ID Client",
+        "clientSecret": "Secret Client"
+      },
+      "placeholders": {
+        "clientId": "Votre Google Calendar Client ID",
+        "clientSecret": "Entrez le nouveau secret client"
+      },
+      "saveSuccess": "Configuration Google Calendar enregistree avec succes",
+      "saveError": "Echec de l'enregistrement de la configuration Google Calendar"
+    },
+    "google_sheets": {
+      "cardTitle": "Google Sheets",
+      "fields": {
+        "clientId": "ID Client",
+        "clientSecret": "Secret Client"
+      },
+      "placeholders": {
+        "clientId": "Votre Google Sheets Client ID",
+        "clientSecret": "Entrez le nouveau secret client"
+      },
+      "saveSuccess": "Configuration Google Sheets enregistree avec succes",
+      "saveError": "Echec de l'enregistrement de la configuration Google Sheets"
+    },
+    "monday": {
+      "cardTitle": "Monday.com",
+      "fields": {
+        "clientId": "ID Client",
+        "clientSecret": "Secret Client"
+      },
+      "placeholders": {
+        "clientId": "Votre Monday.com Client ID",
+        "clientSecret": "Entrez le nouveau secret client"
+      },
+      "saveSuccess": "Configuration Monday.com enregistree avec succes",
+      "saveError": "Echec de l'enregistrement de la configuration Monday.com"
+    },
+    "paypal": {
+      "cardTitle": "PayPal",
+      "fields": {
+        "clientId": "ID Client",
+        "clientSecret": "Secret Client"
+      },
+      "placeholders": {
+        "clientId": "Votre PayPal Client ID",
+        "clientSecret": "Entrez le nouveau secret client"
+      },
+      "saveSuccess": "Configuration PayPal enregistree avec succes",
+      "saveError": "Echec de l'enregistrement de la configuration PayPal"
+    },
+    "atlassian": {
+      "cardTitle": "Atlassian",
+      "fields": {
+        "clientId": "ID Client",
+        "clientSecret": "Secret Client"
+      },
+      "placeholders": {
+        "clientId": "Votre Atlassian Client ID",
+        "clientSecret": "Entrez le nouveau secret client"
+      },
+      "saveSuccess": "Configuration Atlassian enregistree avec succes",
+      "saveError": "Echec de l'enregistrement de la configuration Atlassian"
+    },
     "messages": {
       "loadError": "Echec du chargement de la configuration des integrations"
     }
   },
   "inboundEmail": {
-    "title": "Configuration E-mail Entrant",
-    "description": "Configurez le fournisseur de messagerie entrante et les identifiants utilises pour recevoir et traiter les e-mails entrants.",
+    "title": "E-mail entrant (recevoir comme conversations)",
+    "description": "Permet au CRM de recevoir des e-mails sous forme de conversations. Nécessite un service de réception externe (relay, Mailgun ou Mandrill) configuré pour votre domaine.",
     "provider": {
       "label": "Service d'E-mail Entrant",
       "relay": "Relay (Exim / Postfix / Qmail)",
@@ -439,10 +559,10 @@
     "saving": "Enregistrement..."
   },
   "frontendRuntime": {
-    "title": "Configuration Frontend Runtime",
-    "description": "Configurez les clés reCAPTCHA et Clarity chargées par le frontend au démarrage.",
+    "title": "Analytics et Sécurité",
+    "description": "Clés de services front-end tiers : Google reCAPTCHA (protection anti-bot) et Microsoft Clarity (analytique).",
     "fields": {
-      "cardTitle": "Clés Runtime",
+      "cardTitle": "reCAPTCHA et Clarity",
       "recaptchaSiteKey": "Clé du Site reCAPTCHA",
       "clarityProjectId": "ID du Projet Clarity"
     },

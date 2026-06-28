@@ -1,4 +1,14 @@
 {
+  "filter": {
+    "operators": {
+      "equal_to": "Equal to",
+      "not_equal_to": "Not equal to",
+      "contains": "Contains",
+      "does_not_contain": "Does not contain",
+      "is_present": "Present",
+      "is_not_present": "Not present"
+    }
+  },
   "loading": "Loading...",
   "error": "Error",
   "success": "Success",

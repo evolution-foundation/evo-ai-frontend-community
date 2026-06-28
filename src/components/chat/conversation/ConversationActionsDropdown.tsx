@@ -32,6 +32,7 @@ import {
   GitBranch,
   Check,
   X,
+  Bot,
 } from 'lucide-react';
 import { Conversation } from '@/types/chat/api';
 import type { Pipeline, PipelineStage } from '@/types/analytics';
@@ -101,6 +102,21 @@ const ConversationActionsDropdown: React.FC<ConversationActionsDropdownProps> = 
     }
   };
 
+  // EVO-1680 — reverse human→bot handoff. Hits a dedicated endpoint that, on
+  // top of the pending transition, clears assignee_id and persists a timeline
+  // activity so the BotProcessorService picks it up on the next incoming msg.
+  const handleReturnToBot = async () => {
+    setIsUpdatingStatus(true);
+    try {
+      await conversations.returnConversationToBot(conversation.id, onFilterReload);
+      setOpen(false);
+    } catch (error) {
+      console.error('❌ Error returning conversation to bot:', error);
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
   const handlePriorityChange = async (newPriority: 'low' | 'medium' | 'high' | 'urgent' | null) => {
     setIsUpdatingPriority(true);
     try {
@@ -151,6 +167,12 @@ const ConversationActionsDropdown: React.FC<ConversationActionsDropdownProps> = 
   const currentStatus = conversation.status;
   const currentPriority = conversation.priority;
   const hasUnreadMessages = (conversation.unread_count ?? 0) > 0;
+  // EVO-1680 — gate for the "Devolver ao bot" item. The backend serializer
+  // exposes inbox.agent_bot_active reflecting Inbox#active_bot?. When true and
+  // the conversation is open, we replace the legacy "Mark as Pending" with the
+  // dedicated reverse handoff action; otherwise the legacy item is preserved.
+  const agentBotActive = Boolean(conversation.inbox?.agent_bot_active);
+  const canReturnToBot = currentStatus === 'open' && agentBotActive;
 
   const getPriorityColor = (priority: string) => {
     const colors = {
@@ -241,7 +263,7 @@ const ConversationActionsDropdown: React.FC<ConversationActionsDropdownProps> = 
           </DropdownMenuItem>
         )}
 
-        {currentStatus !== 'pending' && (
+        {currentStatus !== 'pending' && !canReturnToBot && (
           <DropdownMenuItem
             onClick={() => handleStatusChange('pending')}
             disabled={isUpdatingStatus}
@@ -249,6 +271,17 @@ const ConversationActionsDropdown: React.FC<ConversationActionsDropdownProps> = 
           >
             <Clock className="h-4 w-4" />
             {t('conversationActionsDropdown.markAsPending')}
+          </DropdownMenuItem>
+        )}
+
+        {canReturnToBot && (
+          <DropdownMenuItem
+            onClick={handleReturnToBot}
+            disabled={isUpdatingStatus}
+            className="flex items-center gap-2"
+          >
+            <Bot className="h-4 w-4" />
+            {t('conversationActionsDropdown.returnToBot')}
           </DropdownMenuItem>
         )}
 

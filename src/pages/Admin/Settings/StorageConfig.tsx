@@ -164,7 +164,7 @@ export default function StorageConfig() {
       const type = (data.ACTIVE_STORAGE_SERVICE as StorageServiceType) || 'local';
       updateSecretStatus(data);
       reset(buildFormValues(data, type));
-    } catch (error) {
+    } catch {
       toast.error(t('storage.messages.loadError'));
     } finally {
       setLoading(false);
@@ -329,6 +329,13 @@ export default function StorageConfig() {
                   </Select>
                 )}
               />
+              {storageService !== 'local' && (
+                <p className="text-xs text-sidebar-foreground/60">
+                  {storageService === 'amazon'
+                    ? t('storage.provider.amazonHelp')
+                    : t('storage.provider.s3CompatibleHelp')}
+                </p>
+              )}
             </div>
 
             {/* Cloud storage fields */}
@@ -385,6 +392,7 @@ export default function StorageConfig() {
                       placeholder={t('storage.placeholders.endpoint')}
                       {...register('STORAGE_ENDPOINT' as StorageFieldKey)}
                     />
+                    <p className="text-xs text-sidebar-foreground/60">{t('storage.fields.endpointHelp')}</p>
                     {storageService === 's3_compatible' && (errors as Record<string, { message?: string }>).STORAGE_ENDPOINT && (
                       <p className="text-xs text-destructive">{(errors as Record<string, { message?: string }>).STORAGE_ENDPOINT?.message}</p>
                     )}

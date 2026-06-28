@@ -1,6 +1,20 @@
 import { cn } from '@/utils/cn';
 import { useLanguage } from '@/hooks/useLanguage';
 import { getBrandIcon, getBrandColor } from '@/components/BrandIcon';
+// Ícones de canal como imports estáticos. Imports (mesmo via alias @/) são
+// resolvidos pelo Vite como URLs de asset corretas; `new URL('@/...', import.meta.url)`
+// NÃO é (o alias quebra a transformação) — gerava ícones quebrados quando embutido.
+import iconWhatsappCloud from '@/assets/channels/whatsapp-cloud.svg';
+import iconEvolutionApi from '@/assets/channels/evolution-api.png';
+import iconEvolutionGo from '@/assets/channels/evolution-go.png';
+import iconNotificame from '@/assets/channels/notificame.png';
+import iconZapi from '@/assets/channels/zapi.png';
+import iconTwilio from '@/assets/channels/twilio.png';
+import iconSms from '@/assets/channels/sms.png';
+import iconMicrosoft from '@/assets/channels/microsoft.png';
+import iconEmail from '@/assets/channels/email.png';
+import iconWebsite from '@/assets/channels/website.png';
+import iconApi from '@/assets/channels/api.png';
 
 interface ChannelIconProps {
   channelType?: string;
@@ -68,22 +82,22 @@ function getChannelIconSrc(channelType?: string, provider?: string): string | un
     // WhatsApp by provider (fallback for non-brand icons)
     if (key.includes('whatsapp')) {
       if (prov === 'whatsapp_cloud') {
-        return new URL('@/assets/channels/whatsapp-cloud.svg', import.meta.url).toString();
+        return iconWhatsappCloud;
       }
       if (prov === 'evolution') {
-        return new URL('@/assets/channels/evolution-api.png', import.meta.url).toString();
+        return iconEvolutionApi;
       }
       if (prov === 'evolution_go') {
-        return new URL('@/assets/channels/evolution-go.png', import.meta.url).toString();
+        return iconEvolutionGo;
       }
       if (prov === 'notificame') {
-        return new URL('@/assets/channels/notificame.png', import.meta.url).toString();
+        return iconNotificame;
       }
       if (prov === 'zapi') {
-        return new URL('@/assets/channels/zapi.png', import.meta.url).toString();
+        return iconZapi;
       }
       if (prov === 'default' || prov === 'twilio') {
-        return new URL('@/assets/channels/twilio.png', import.meta.url).toString();
+        return iconTwilio;
       }
       // whatsapp brand icon is handled by getChannelBrandId
       return undefined;
@@ -91,14 +105,14 @@ function getChannelIconSrc(channelType?: string, provider?: string): string | un
 
     // SMS by provider and type
     if (key.includes('twiliosms')) {
-      return new URL('@/assets/channels/twilio.png', import.meta.url).toString();
+      return iconTwilio;
     }
     if (key === 'sms' || key.includes('sms')) {
       if (prov === 'twilio') {
-        return new URL('@/assets/channels/twilio.png', import.meta.url).toString();
+        return iconTwilio;
       }
       // Bandwidth or others fallback to generic SMS
-      return new URL('@/assets/channels/sms.png', import.meta.url).toString();
+      return iconSms;
     }
 
     // Email by provider
@@ -108,19 +122,19 @@ function getChannelIconSrc(channelType?: string, provider?: string): string | un
         return undefined;
       }
       if (prov === 'microsoft') {
-        return new URL('@/assets/channels/microsoft.png', import.meta.url).toString();
+        return iconMicrosoft;
       }
-      return new URL('@/assets/channels/email.png', import.meta.url).toString();
+      return iconEmail;
     }
 
     // Web Widget
     if (key.includes('webwidget') || key.includes('website') || key === 'web_widget') {
-      return new URL('@/assets/channels/website.png', import.meta.url).toString();
+      return iconWebsite;
     }
 
     // API
     if (key === 'api' || key.includes('api')) {
-      return new URL('@/assets/channels/api.png', import.meta.url).toString();
+      return iconApi;
     }
 
     // Facebook / Messenger

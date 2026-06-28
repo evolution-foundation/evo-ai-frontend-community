@@ -20,7 +20,8 @@ import {
   ListCustomMcpServersParams,
   CustomMcpServerFormData,
 } from '@/types/ai';
-import { BaseFilter, AppliedFilter } from '@/types/core';
+import { BaseFilter, AppliedFilter, CUSTOM_MCP_SERVER_FILTER_TYPES } from '@/types/core';
+import { buildAppliedFilterChips } from '@/utils/appliedFilterChips';
 import { CustomMCPServerCard } from '@/components/customMcpServers';
 
 import CustomMCPServersHeader from '@/components/customMcpServers/CustomMCPServersHeader';
@@ -74,13 +75,28 @@ export default function CustomMCPServers() {
   const [detailsServer, setDetailsServer] = useState<CustomMcpServer | null>(null);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<BaseFilter[]>([]);
+  // EVO-1953: ref synced to activeFilters so the applied-chip "x" removes against
+  // the current list, not the stale snapshot captured when the chips were built.
+  const activeFiltersRef = useRef<BaseFilter[]>([]);
+  activeFiltersRef.current = activeFilters;
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilter[]>([]);
   const [testingServer, setTestingServer] = useState<string | null>(null);
   const hasLoaded = useRef(false);
+  // EVO-1953: debounce the server-side search so typing fires one request after
+  // it settles, not one per keystroke.
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
+    },
+    [],
+  );
 
   // Load servers
   const loadServers = useCallback(
-    async (params?: Partial<ListCustomMcpServersParams>) => {
+    async (params?: Partial<ListCustomMcpServersParams>, filtersOverride?: BaseFilter[]) => {
       if (!can('ai_custom_mcp_servers', 'read')) {
         toast.error(t('permissions.viewDenied'));
         return;
@@ -94,7 +110,21 @@ export default function CustomMCPServers() {
           ...params,
         };
 
-        const response = await listCustomMcpServers(requestParams);
+        const effectiveFilters = filtersOverride ?? activeFilters;
+        const filterParams = effectiveFilters.reduce((acc, filter, index) => {
+          const prefix = `filters[${index}]`;
+          acc[`${prefix}[attribute_key]`] = filter.attributeKey;
+          acc[`${prefix}[filter_operator]`] = filter.filterOperator;
+          acc[`${prefix}[values]`] = Array.isArray(filter.values)
+            ? filter.values.join(',')
+            : String(filter.values);
+          if (index > 0) {
+            acc[`${prefix}[query_operator]`] = filter.queryOperator;
+          }
+          return acc;
+        }, {} as Record<string, string>);
+
+        const response = await listCustomMcpServers(requestParams, filterParams);
 
         setState(prev => ({
           ...prev,
@@ -115,7 +145,7 @@ export default function CustomMCPServers() {
         setState(prev => ({ ...prev, loading: { ...prev.loading, list: false } }));
       }
     },
-    [can, t],
+    [can, t, activeFilters],
   );
 
   // Initial load
@@ -138,22 +168,16 @@ export default function CustomMCPServers() {
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
     }));
 
-    // TODO: Implement search functionality
-    loadServers({ skip: 0, search: query });
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+    }
+    searchDebounceRef.current = setTimeout(() => {
+      loadServers({ skip: 0, search: query });
+    }, 500);
   };
 
-  const convertFiltersToApplied = (filters: BaseFilter[]): AppliedFilter[] => {
-    return filters.map((filter, index) => ({
-      id: `filter-${index}`,
-      label: `${filter.attributeKey}: ${
-        Array.isArray(filter.values) ? filter.values.join(',') : filter.values
-      }`,
-      value: Array.isArray(filter.values)
-        ? String(filter.values.join(','))
-        : (filter.values as string | number),
-      onRemove: () => handleRemoveFilter(index),
-    }));
-  };
+  const convertFiltersToApplied = (filters: BaseFilter[]): AppliedFilter[] =>
+    buildAppliedFilterChips(filters, CUSTOM_MCP_SERVER_FILTER_TYPES, t, handleRemoveFilter);
 
   const handleOpenFilter = () => {
     setFilterModalOpen(true);
@@ -170,7 +194,7 @@ export default function CustomMCPServers() {
     }));
 
     try {
-      await loadServers({ skip: 0 });
+      await loadServers({ skip: 0, search: state.searchQuery }, filters);
     } catch (error) {
       console.error('Error applying filters:', error);
       toast.error(t('errors.applyFiltersError'));
@@ -180,11 +204,11 @@ export default function CustomMCPServers() {
   const handleClearFilters = () => {
     setActiveFilters([]);
     setAppliedFilters([]);
-    loadServers({ skip: 0 });
+    loadServers({ skip: 0, search: state.searchQuery }, []);
   };
 
   const handleRemoveFilter = (index: number) => {
-    const newFilters = activeFilters.filter((_, i) => i !== index);
+    const newFilters = activeFiltersRef.current.filter((_, i) => i !== index);
     if (newFilters.length === 0) {
       handleClearFilters();
     } else {

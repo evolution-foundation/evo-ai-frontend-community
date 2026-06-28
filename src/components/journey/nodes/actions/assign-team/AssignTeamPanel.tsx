@@ -64,16 +64,6 @@ export function AssignTeamPanel({ nodeId, data, onUpdate, onClose }: AssignTeamP
     onClose();
   };
 
-  useEffect(() => {
-    if (formDataOptions.teams.length > 0) {
-      const updatedData: AssignTeamNodeData = {
-        ...data,
-        formDataOptions,
-      };
-      onUpdate(nodeId, updatedData);
-    }
-  }, [formDataOptions, data, nodeId, onUpdate]);
-
   const dirty = useMemo(() => teamId !== originalTeamId, [teamId, originalTeamId]);
   const isValid = Boolean(teamId);
 

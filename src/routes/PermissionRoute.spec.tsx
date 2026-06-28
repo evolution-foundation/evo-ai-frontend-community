@@ -26,12 +26,14 @@ function permissions(granted: string[]) {
   };
 }
 
-describe('PermissionRoute — /settings/users gated on users.manage (AC5)', () => {
+// EVO-1938: /settings/users gates on the administrative users.manage (not the
+// operational users.read the default agent holds for the Conversations screen).
+describe('PermissionRoute — /settings/users gated on users.manage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('redirects a Conversas-only profile (users.read, no users.manage) away from /settings/users', async () => {
+  it('redirects the default agent (holds users.read but not users.manage) away from /settings/users', async () => {
     mockUsePermissions.mockReturnValue(permissions(['users.read', 'conversations.read']));
 
     render(
@@ -46,7 +48,7 @@ describe('PermissionRoute — /settings/users gated on users.manage (AC5)', () =
     expect(screen.queryByTestId('users-panel')).toBeNull();
   });
 
-  it('renders the panel for a profile that has users.manage', () => {
+  it('renders the panel for an administrator that holds users.manage', () => {
     mockUsePermissions.mockReturnValue(permissions(['users.read', 'users.manage']));
 
     render(

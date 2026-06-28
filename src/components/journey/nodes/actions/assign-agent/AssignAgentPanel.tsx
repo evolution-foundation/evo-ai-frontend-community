@@ -64,16 +64,6 @@ export function AssignAgentPanel({ nodeId, data, onUpdate, onClose }: AssignAgen
     onClose();
   };
 
-  useEffect(() => {
-    if (formDataOptions.agents.length > 0) {
-      const updatedData: AssignAgentNodeData = {
-        ...data,
-        formDataOptions,
-      };
-      onUpdate(nodeId, updatedData);
-    }
-  }, [formDataOptions, data, nodeId, onUpdate]);
-
   const dirty = useMemo(() => agentId !== originalAgentId, [agentId, originalAgentId]);
   const isValid = Boolean(agentId);
 

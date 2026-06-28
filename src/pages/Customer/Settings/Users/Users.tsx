@@ -17,7 +17,8 @@ import EmptyState from '@/components/base/EmptyState';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { useAuthStore } from '@/store/authStore';
 import { usersService } from '@/services/users';
-import { User, UsersListParams, UsersState } from '@/types/users';
+import { User, UsersListParams, UsersState, USER_FILTER_TYPES } from '@/types/users';
+import { buildAppliedFilterChips } from '@/utils/appliedFilterChips';
 import { BaseFilter } from '@/types/core';
 import { AppliedFilter } from '@/types/core';
 
@@ -164,18 +165,8 @@ export default function Users() {
   };
 
   // Funções para o sistema de filtros
-  const convertFiltersToApplied = (filters: BaseFilter[]): AppliedFilter[] => {
-    return filters.map((filter, index) => ({
-      id: `filter-${index}`,
-      label: `${filter.attributeKey}: ${
-        Array.isArray(filter.values) ? filter.values.join(',') : filter.values
-      }`,
-      value: Array.isArray(filter.values)
-        ? String(filter.values.join(','))
-        : (filter.values as string | number),
-      onRemove: () => handleRemoveFilter(index),
-    }));
-  };
+  const convertFiltersToApplied = (filters: BaseFilter[]): AppliedFilter[] =>
+    buildAppliedFilterChips(filters, USER_FILTER_TYPES, t, handleRemoveFilter);
 
   const handleOpenFilter = () => {
     setFilterModalOpen(true);
@@ -404,7 +395,7 @@ export default function Users() {
           onBulkDelete={handleBulkDelete}
           onClearSelection={() => setState(prev => ({ ...prev, selectedUserIds: [] }))}
           activeFilters={appliedFilters}
-          showFilters={true}
+          showFilters={false}
         />
       </div>
 

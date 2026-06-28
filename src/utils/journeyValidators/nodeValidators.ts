@@ -80,8 +80,11 @@ export const nodeValidators: Record<string, Validator> = {
   'update-contact-node': (d) =>
     requiredConfig(absent(d, ['fieldToUpdate', 'newValue'])),
 
+  // attributeName carries the attribute_key (slug) the executor actually reads
+  // (evo-flow update-custom-attribute.node.ts) — validate it, not the UI-only
+  // attributeId (EVO-1905).
   'update-custom-attribute-node': (d) =>
-    requiredConfig(absent(d, ['attributeId', 'newValue'])),
+    requiredConfig(absent(d, ['attributeName', 'newValue'])),
 
   'set-variable-node': (d) =>
     requiredConfig(absent(d, ['variableName', 'operation'])),

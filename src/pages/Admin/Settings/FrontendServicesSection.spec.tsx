@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
-import FrontendRuntimeConfig from './FrontendRuntimeConfig';
+import FrontendServicesSection from './FrontendServicesSection';
 
 const stableT = (key: string) => key;
 
@@ -37,33 +37,34 @@ async function renderAndWait(mockData: Record<string, unknown> = {
 }) {
   mockGetConfig.mockImplementation(() => Promise.resolve(mockData));
   await act(async () => {
-    render(<FrontendRuntimeConfig />);
+    render(<FrontendServicesSection />);
   });
 }
 
-describe('FrontendRuntimeConfig', () => {
+describe('FrontendServicesSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('renders loading spinner before data loads', () => {
     mockGetConfig.mockReturnValue(new Promise(() => {}));
-    const { container } = render(<FrontendRuntimeConfig />);
+    const { container } = render(<FrontendServicesSection />);
     expect(container.querySelector('.animate-spin')).toBeInTheDocument();
   });
 
-  it('loads config from frontend_runtime endpoint', async () => {
+  it('loads config from the frontend_runtime endpoint', async () => {
     await renderAndWait();
 
     expect(mockGetConfig).toHaveBeenCalledWith('frontend_runtime');
+    expect(mockGetConfig).toHaveBeenCalledTimes(1);
   });
 
-  it('renders title and description', async () => {
+  it('renders section title, description and card title', async () => {
     await renderAndWait();
 
     expect(screen.getByText('frontendRuntime.title')).toBeInTheDocument();
-    expect(screen.getByText('frontendRuntime.fields.cardTitle')).toBeInTheDocument();
     expect(screen.getByText('frontendRuntime.description')).toBeInTheDocument();
+    expect(screen.getByText('frontendRuntime.fields.cardTitle')).toBeInTheDocument();
   });
 
   it('renders both form fields', async () => {
@@ -102,6 +103,22 @@ describe('FrontendRuntimeConfig', () => {
         RECAPTCHA_SITE_KEY: '6Lc_test_key',
         CLARITY_PROJECT_ID: 'clarity_test_id',
       }));
+    });
+  });
+
+  it('shows error toast when save fails', async () => {
+    const { toast } = await import('sonner');
+    await renderAndWait();
+    mockSaveConfig.mockRejectedValue(new Error('Network error'));
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('frontendRuntime.save'));
+    });
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('frontendRuntime.messages.saveError', {
+        description: 'Test error',
+      });
     });
   });
 });

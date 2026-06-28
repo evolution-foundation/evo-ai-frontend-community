@@ -41,7 +41,9 @@
         "cancel": "Cancel",
         "confirm": "Delete message"
       },
-      "deletedPlaceholder": "This message was deleted"
+      "deletedPlaceholder": "This message was deleted",
+      "revokedByContact": "Deleted by the contact",
+      "revokeCrmOnly": "removed only in the CRM"
     },
     "moderation": {
       "banner": {
@@ -570,6 +572,7 @@
         "loadConversation": "Error loading conversation",
         "conversationNotFound": "Conversation not found",
         "updateStatus": "Error updating conversation status",
+        "returnToBot": "Error returning conversation to bot",
         "updatePriority": "Error updating conversation priority",
         "deleteConversation": "Error deleting conversation",
         "markAsRead": "Error marking as read",
@@ -588,6 +591,7 @@
       },
       "success": {
         "statusChanged": "Status changed to: {{status}}",
+        "returnedToBot": "Conversation returned to bot",
         "priorityChanged": "Priority changed to: {{priority}}",
         "deleted": "Conversation deleted successfully",
         "markedAsRead": "Conversation marked as read",
@@ -830,6 +834,7 @@
     "markAsOpen": "Mark as open",
     "markAsResolved": "Mark as resolved",
     "markAsPending": "Mark as pending",
+    "returnToBot": "Return to bot",
     "pauseConversation": "Pause conversation",
     "priority": "Priority",
     "priorityLabels": {

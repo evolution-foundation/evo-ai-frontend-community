@@ -84,13 +84,13 @@ export default function BaseHeader({
   const visibleMoreActions = moreActions.filter(action => action.show !== false);
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+    <div className={`space-y-4 sm:space-y-6 ${className}`}>
+      <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-start md:justify-between">
         {/* Title Section */}
         <div className="flex-1">
-          <h1 className="text-2xl font-bold tracking-tight leading-8 text-sidebar-foreground mb-2">{title}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight leading-7 sm:leading-8 text-sidebar-foreground mb-1 sm:mb-2">{title}</h1>
           {subtitle && (
-            <p className="text-sm leading-5 text-sidebar-foreground/70">{subtitle}</p>
+            <p className="hidden sm:block text-sm leading-5 text-sidebar-foreground/70">{subtitle}</p>
           )}
         </div>
 

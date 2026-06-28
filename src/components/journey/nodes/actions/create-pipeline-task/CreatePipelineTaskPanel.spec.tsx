@@ -75,9 +75,33 @@ describe('CreatePipelineTaskPanel', () => {
       expect.objectContaining({
         title: 'Call the lead',
         priority: 'medium',
+        task_type: 'call',
         due_date: null,
       }),
     );
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('persists the configured task_type so the backend receives a valid type', async () => {
+    mockGetFormData.mockResolvedValueOnce({ agents: AGENTS });
+    const onUpdate = vi.fn();
+    const user = userEvent.setup();
+    renderPanel({
+      onUpdate,
+      data: makeData({ title: 'Send recap', task_type: 'email' }),
+    });
+
+    await waitFor(() => expect(mockGetFormData).toHaveBeenCalled());
+
+    // Dirty the form so Save enables, then persist.
+    await user.type(screen.getByRole('textbox', { name: TITLE_RE }), '!');
+    const saveBtn = screen.getByRole('button', { name: SAVE_RE });
+    await waitFor(() => expect(saveBtn).not.toBeDisabled());
+    await user.click(saveBtn);
+
+    expect(onUpdate).toHaveBeenCalledWith(
+      'n1',
+      expect.objectContaining({ task_type: 'email' }),
+    );
   });
 });

@@ -277,11 +277,27 @@ function useInbox(inbox: Inbox | null): InboxHook {
   }, [inbox]);
 }
 
-export default function ChannelSettings() {
+interface ChannelSettingsProps {
+  /**
+   * id do inbox a configurar. Quando fornecido, tem precedência sobre o param
+   * de rota (useParams). Necessário ao montar fora de uma <Route> que capture
+   * `:id` (ex.: embutido via CrmScreen, onde não há rota e useParams é vazio).
+   */
+  inboxId?: string;
+  /**
+   * Callback opcional invocado ao "voltar para a lista de canais". Quando
+   * fornecido (ex.: montado dentro de um modal no shell), é chamado em vez de
+   * navegar para /channels. Sem ele, mantém a navegação original.
+   */
+  onExit?: () => void;
+}
+
+export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: ChannelSettingsProps = {}) {
   const navigate = useNavigate();
   const { id } = useParams();
   const { t } = useLanguage('channels');
-  const inboxId = id || '';
+  const inboxId = inboxIdProp || id || '';
+  const exitToChannels = () => (onExit ? onExit() : navigate('/channels'));
 
   const [inbox, setInbox] = useState<Inbox | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -540,7 +556,7 @@ export default function ChannelSettings() {
         {/* Breadcrumb */}
         <div className="flex items-center gap-2">
           <button
-            onClick={() => navigate('/channels')}
+            onClick={exitToChannels}
             className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />

@@ -1,4 +1,14 @@
 {
+  "filter": {
+    "operators": {
+      "equal_to": "Igual a",
+      "not_equal_to": "Diferente de",
+      "contains": "Contiene",
+      "does_not_contain": "No contiene",
+      "is_present": "Presente",
+      "is_not_present": "No presente"
+    }
+  },
   "base": {
     "noResults": {
       "title": "Sin resultados",

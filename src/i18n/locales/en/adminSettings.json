@@ -3,13 +3,10 @@
   "navigation": {
     "email": "Email",
     "storage": "Storage",
-    "socialLogin": "Authentication Providers",
     "channels": "Channels",
     "openai": "OpenAI",
     "integrations": "Integrations",
-    "evolutionHub": "Evo Hub",
-    "inboundEmail": "Inbound Email",
-    "frontendRuntime": "Frontend Runtime"
+    "evolutionHub": "Evo Hub"
   },
   "email": {
     "title": "Email Configuration",
@@ -75,13 +72,16 @@
       "label": "Storage Provider",
       "local": "Local Storage",
       "amazon": "Amazon S3",
-      "s3Compatible": "S3-Compatible"
+      "amazonHelp": "AWS S3 — uses Region and your AWS credentials. No custom endpoint needed.",
+      "s3CompatibleHelp": "Any S3-compatible provider that isn't AWS (MinIO, Cloudflare R2, DigitalOcean Spaces…). Requires a custom Endpoint.",
+      "s3Compatible": "S3-Compatible (MinIO, Cloudflare R2, DigitalOcean Spaces…)"
     },
     "fields": {
       "bucketName": "Bucket Name",
       "accessKeyId": "Access Key ID",
       "accessSecret": "Secret Access Key",
       "region": "Region",
+      "endpointHelp": "URL of your S3-compatible provider's endpoint. Only for S3-Compatible — leave blank for AWS.",
       "endpoint": "Endpoint"
     },
     "placeholders": {
@@ -117,8 +117,8 @@
     }
   },
   "socialLogin": {
-    "title": "Authentication Providers",
-    "description": "Configure OAuth credentials for SSO authentication providers so users can sign in with Google or Microsoft.",
+    "title": "Email provider credentials (OAuth)",
+    "description": "OAuth app credentials (Google / Microsoft) used to connect Gmail and Outlook email channels.",
     "google": {
       "cardTitle": "Google OAuth",
       "fields": {
@@ -165,6 +165,9 @@
     "saving": "Saving..."
   },
   "channels": {
+    "email": {
+      "tabTitle": "Email"
+    },
     "title": "Channel Integrations",
     "description": "Configure credentials for messaging channels and integrations.",
     "secretConfigured": "Configured",
@@ -341,7 +344,7 @@
   },
   "integrations": {
     "title": "Integrations Configuration",
-    "description": "Configure OAuth credentials for third-party integrations such as Linear, HubSpot, Shopify, and Slack.",
+    "description": "Configure OAuth credentials for third-party integrations such as Linear, GitHub, Notion, and others.",
     "secretConfigured": "Configured",
     "secretNotConfigured": "Not configured",
     "clearSecret": "Clear saved value",
@@ -399,13 +402,130 @@
       "saveSuccess": "Slack configuration saved successfully",
       "saveError": "Failed to save Slack configuration"
     },
+    "github": {
+      "cardTitle": "GitHub",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your GitHub Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "GitHub configuration saved successfully",
+      "saveError": "Failed to save GitHub configuration"
+    },
+    "notion": {
+      "cardTitle": "Notion",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your Notion Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "Notion configuration saved successfully",
+      "saveError": "Failed to save Notion configuration"
+    },
+    "asana": {
+      "cardTitle": "Asana",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your Asana Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "Asana configuration saved successfully",
+      "saveError": "Failed to save Asana configuration"
+    },
+    "canva": {
+      "cardTitle": "Canva",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your Canva Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "Canva configuration saved successfully",
+      "saveError": "Failed to save Canva configuration"
+    },
+    "google_calendar": {
+      "cardTitle": "Google Calendar",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your Google Calendar Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "Google Calendar configuration saved successfully",
+      "saveError": "Failed to save Google Calendar configuration"
+    },
+    "google_sheets": {
+      "cardTitle": "Google Sheets",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your Google Sheets Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "Google Sheets configuration saved successfully",
+      "saveError": "Failed to save Google Sheets configuration"
+    },
+    "monday": {
+      "cardTitle": "Monday.com",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your Monday.com Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "Monday.com configuration saved successfully",
+      "saveError": "Failed to save Monday.com configuration"
+    },
+    "paypal": {
+      "cardTitle": "PayPal",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your PayPal Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "PayPal configuration saved successfully",
+      "saveError": "Failed to save PayPal configuration"
+    },
+    "atlassian": {
+      "cardTitle": "Atlassian",
+      "fields": {
+        "clientId": "Client ID",
+        "clientSecret": "Client Secret"
+      },
+      "placeholders": {
+        "clientId": "Your Atlassian Client ID",
+        "clientSecret": "Enter new client secret"
+      },
+      "saveSuccess": "Atlassian configuration saved successfully",
+      "saveError": "Failed to save Atlassian configuration"
+    },
     "messages": {
       "loadError": "Failed to load integrations configuration"
     }
   },
   "inboundEmail": {
-    "title": "Inbound Email Configuration",
-    "description": "Configure the inbound email provider and credentials used for receiving and processing incoming emails.",
+    "title": "Inbound email (receive as conversations)",
+    "description": "Lets the CRM receive emails as conversations. Requires an external receiving service (relay, Mailgun or Mandrill) configured for your domain.",
     "provider": {
       "label": "Inbound Email Service",
       "relay": "Relay (Exim / Postfix / Qmail)",
@@ -440,10 +560,10 @@
     "saving": "Saving..."
   },
   "frontendRuntime": {
-    "title": "Frontend Runtime Configuration",
-    "description": "Configure reCAPTCHA and Clarity settings that are loaded by the frontend at runtime.",
+    "title": "Analytics & Security",
+    "description": "Third-party front-end service keys: Google reCAPTCHA (bot protection) and Microsoft Clarity (analytics).",
     "fields": {
-      "cardTitle": "Runtime Keys",
+      "cardTitle": "reCAPTCHA & Clarity",
       "recaptchaSiteKey": "reCAPTCHA Site Key",
       "clarityProjectId": "Clarity Project ID"
     },

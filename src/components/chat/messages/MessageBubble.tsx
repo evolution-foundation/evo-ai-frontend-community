@@ -77,6 +77,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   const isActivity = message.message_type === MESSAGE_TYPE.ACTIVITY;
   const isPrivate = message.private;
   const isDeleted = message.content_attributes?.deleted === true;
+  const isRevokedByContact = message.content_attributes?.revoked_by_contact === true;
+  const isRevokeCrmOnly = message.content_attributes?.revoke_propagated === false;
 
   // Moderation indicators
   const hasPendingModeration = moderation?.status === 'pending';
@@ -344,13 +346,19 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 <ReplyPreview message={replyToMessage} isOwn={false} />
               )}
 
-              {isDeleted ? (
-                <div className="italic text-muted-foreground text-sm opacity-70">
-                  {t('messages.messageBubble.deletedPlaceholder', 'This message was deleted')}
-                </div>
-              ) : (
-                <div>{renderMessageContent()}</div>
-              )}
+              <div>
+                {renderMessageContent()}
+                {(isDeleted || isRevokedByContact) && (
+                  <div className="mt-1 text-xs italic text-muted-foreground opacity-80">
+                    {isRevokedByContact
+                      ? t('messages.messageBubble.revokedByContact', 'Deleted by the contact')
+                      : t('messages.messageBubble.deletedPlaceholder', 'This message was deleted')}
+                    {isDeleted && isRevokeCrmOnly && (
+                      <span className="ml-1">· {t('messages.messageBubble.revokeCrmOnly', 'removed only in the CRM')}</span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>,
           )}
 
@@ -511,13 +519,19 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               <ReplyPreview message={replyToMessage} isOwn={isOwn} />
             )}
 
-            {isDeleted ? (
-                <div className="italic text-muted-foreground text-sm opacity-70">
-                  {t('messages.messageBubble.deletedPlaceholder', 'This message was deleted')}
+            <div>
+              {renderMessageContent()}
+              {(isDeleted || isRevokedByContact) && (
+                <div className="mt-1 text-xs italic text-muted-foreground opacity-80">
+                  {isRevokedByContact
+                    ? t('messages.messageBubble.revokedByContact', 'Deleted by the contact')
+                    : t('messages.messageBubble.deletedPlaceholder', 'This message was deleted')}
+                  {isDeleted && isRevokeCrmOnly && (
+                    <span className="ml-1">· {t('messages.messageBubble.revokeCrmOnly', 'removed only in the CRM')}</span>
+                  )}
                 </div>
-              ) : (
-                <div>{renderMessageContent()}</div>
               )}
+            </div>
           </div>,
         )}
 

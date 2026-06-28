@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useChatContext } from '@/contexts/chat/ChatContext';
+import { DEFAULT_FILTER } from '@/contexts/chat/FiltersContext';
 import { BaseFilter } from '@/types/core';
 import { convertBaseFiltersToConversationFilters } from '@/utils/chat/filterAdapters';
 import { saveConversationFilters, clearConversationFilters } from '@/utils/storage/filtersStorage';
@@ -39,12 +40,17 @@ export const useFilterHandlers = () => {
       // 🗑️ LIMPAR: Remover filtros salvos do localStorage
       clearConversationFilters();
 
+      // EVO-1939: resetar o estado GLOBAL para o filtro padrão (status=open).
+      // Sem isso o badge e o matcher de conversas em tempo real (ChatContext)
+      // continuam usando os filtros antigos — o usuário "limpa" mas a UI não some.
+      filters.setFilters([DEFAULT_FILTER]);
+
       // 🎯 FILTRO PADRÃO: Carregar apenas conversas abertas ao limpar filtros
       await conversations.loadConversations({ status: 'open' });
     } catch (error) {
       console.error('❌ Erro inesperado ao limpar filtros:', error);
     }
-  }, [conversations]);
+  }, [conversations, filters]);
 
   // 🔄 FUNÇÃO PARA RECARREGAR FILTROS: Reaplicar filtros atuais após mudanças
   const reloadCurrentFilters = useCallback(async () => {

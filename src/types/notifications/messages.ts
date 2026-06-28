@@ -21,6 +21,8 @@ export interface BaseMessage {
   content_attributes?: {
     in_reply_to?: string | number | null;
     deleted?: boolean;
+    revoked_by_contact?: boolean;
+    revoke_propagated?: boolean;
     submitted_values?: any[];
     submitted_email?: string;
   };

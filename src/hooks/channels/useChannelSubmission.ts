@@ -249,6 +249,10 @@ export const useChannelSubmission = (form?: FormData) => {
     selectedProvider: ProviderType | null,
     form: FormData,
     config: any,
+    // Quando fornecido, é chamado após criar com sucesso, no lugar da navegação
+    // interna para /channels/:id/settings (que não resolve quando o NewChannel
+    // é montado embutido, sem <Routes> capturando a rota).
+    onCreated?: (createdId?: string) => void,
   ) => {
     if (!selectedChannel) return;
 
@@ -700,7 +704,11 @@ export const useChannelSubmission = (form?: FormData) => {
       }
 
       toast.success('Canal criado com sucesso');
-      navigate(`/channels/${createdId}/settings`);
+      if (onCreated) {
+        onCreated(createdId);
+      } else {
+        navigate(`/channels/${createdId}/settings`);
+      }
     } catch (e: unknown) {
       const err = e as Error;
       toast.error(err?.message || 'Falha ao criar canal');

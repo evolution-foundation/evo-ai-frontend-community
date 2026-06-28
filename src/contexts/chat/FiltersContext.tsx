@@ -28,7 +28,7 @@ type FiltersAction =
   | { type: 'SET_APPLYING_FILTERS'; payload: boolean };
 
 // 🎯 FILTRO PADRÃO: Inicializar com filtro "open" desde o início
-const DEFAULT_FILTER: ConversationFilter = {
+export const DEFAULT_FILTER: ConversationFilter = {
   attribute_key: 'status',
   filter_operator: 'equal_to',
   values: ['open'], // Array para API, mas será convertido para string no modal

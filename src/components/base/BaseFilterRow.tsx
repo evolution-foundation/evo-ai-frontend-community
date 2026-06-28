@@ -45,6 +45,15 @@ export default function BaseFilterRow<T extends BaseFilter>({
   const [calendarOpen, setCalendarOpen] = useState(false);
   const currentFilterType = filterTypes.find(ft => ft.attributeKey === filter.attributeKey);
 
+  // Operator labels live either in the screen namespace (Contacts/Conversations)
+  // or in the shared `common` namespace (other list screens). Resolve
+  // namespace-first, then fall back to common so every screen shows a
+  // translated operator instead of the raw key.
+  const translateOperatorLabel = (label: string): string => {
+    const fromNamespace = t(label);
+    return fromNamespace === label ? tCommon(label) : fromNamespace;
+  };
+
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
       onUpdate(index, 'values' as keyof T, format(date, 'yyyy-MM-dd'));
@@ -204,7 +213,7 @@ export default function BaseFilterRow<T extends BaseFilter>({
                 value={operator.key}
                 className="text-sidebar-foreground focus:bg-sidebar-accent"
               >
-                {t(operator.label)}
+                {translateOperatorLabel(operator.label)}
               </SelectItem>
             ))}
           </SelectContent>

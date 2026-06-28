@@ -62,3 +62,48 @@ describe('menuItems — Settings > Atendentes gating (AC4)', () => {
     expect(visible).toBe(true);
   });
 });
+
+// EVO-1938: the default agent no longer holds the administrative Settings reads
+// (dropped from the auth seed), so the existing `.read` gate hides those items —
+// no menu change needed. These lock in that behavior.
+describe('menuItems — EVO-1938 admin Settings gating for the default agent', () => {
+  // Representative post-fix agent set: operational reads (incl. teams.read for the
+  // in-chat assign-team picker), none of the admin Settings resources.
+  const agentGranted = [
+    'conversations.read',
+    'contacts.read',
+    'pipelines.read',
+    'inboxes.read',
+    'users.read',
+    'labels.read',
+    'canned_responses.read',
+    'macros.read',
+    'message_templates.read',
+    'teams.read',
+  ];
+
+  const isVisible = (item: SubMenuItem, granted: string[]) =>
+    shouldShowMenuItem(item, canFrom(granted), canAnyFrom(granted), canAllFrom(granted));
+
+  it.each(['/settings/integrations', '/settings/segments'])(
+    'hides the admin Settings item %s from the default agent',
+    href => {
+      expect(isVisible(findSubItem(href), agentGranted)).toBe(false);
+    },
+  );
+
+  // teams stays visible (teams.read kept for the chat picker); the Teams Settings
+  // use-vs-manage split is deferred to EVO-1955, like labels/canned/macros.
+  it.each(['/settings/labels', '/settings/canned-responses', '/settings/teams'])(
+    'keeps the operational Settings item %s visible to the agent',
+    href => {
+      expect(isVisible(findSubItem(href), agentGranted)).toBe(true);
+    },
+  );
+
+  it('shows the admin Settings items to an administrator that holds the reads', () => {
+    const adminGranted = [...agentGranted, 'integrations.read', 'segments.read'];
+    expect(isVisible(findSubItem('/settings/integrations'), adminGranted)).toBe(true);
+    expect(isVisible(findSubItem('/settings/segments'), adminGranted)).toBe(true);
+  });
+});

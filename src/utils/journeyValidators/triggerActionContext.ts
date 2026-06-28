@@ -56,11 +56,14 @@ export function triggerProvidesConversation(
       return category === 'conversation' || category === 'message';
     }
     case 'webhook':
-      // Indeterminate: payload may carry conversation_id and the runtime
-      // contextSkip is the real guard. Treat as provides=true to keep warnings
-      // high-signal (documented design choice).
+    case 'manual':
+      // Indeterminate: a webhook payload OR a manual POST /journeys/trigger/:id
+      // call may carry conversation_id, and the runtime contextSkip is the real
+      // guard. Treat as provides=true to keep warnings high-signal — a manual
+      // trigger legitimately drives conversation-scoped nodes when it passes a
+      // conversation (documented design choice, mirrors webhook).
       return true;
-    // manual, segment, contactCreated, contactUpdated, label, customAttribute,
+    // segment, contactCreated, contactUpdated, label, customAttribute,
     // pipelineStageChanged → contact/pipeline-level, no conversation.
     default:
       return false;
