@@ -4,6 +4,7 @@ import ConversationActionsDropdown from './ConversationActionsDropdown';
 
 const mockConversations = vi.hoisted(() => ({
   updateConversationStatus: vi.fn(),
+  returnConversationToBot: vi.fn().mockResolvedValue({}),
   updateConversationPriority: vi.fn(),
   pinConversation: vi.fn().mockResolvedValue({}),
   unpinConversation: vi.fn().mockResolvedValue({}),
@@ -90,6 +91,65 @@ describe('ConversationActionsDropdown', () => {
     fireEvent.click(screen.getByText('conversationActionsDropdown.markAsUnread'));
 
     expect(onMarkAsUnread).toHaveBeenCalledWith(expect.objectContaining({ id: 'conversation-1' }));
+  });
+
+  // EVO-1680 — reverse human→bot handoff item replaces "Mark as Pending" when
+  // the inbox has an active AgentBot and the conversation is open.
+  describe('Devolver ao bot (EVO-1680)', () => {
+    const openWithBot = {
+      ...baseConversation,
+      status: 'open',
+      inbox: { agent_bot_active: true },
+    } as any;
+    const openWithoutBot = {
+      ...baseConversation,
+      status: 'open',
+      inbox: { agent_bot_active: false },
+    } as any;
+    const resolvedWithBot = {
+      ...baseConversation,
+      status: 'resolved',
+      inbox: { agent_bot_active: true },
+    } as any;
+
+    it('renders "Return to bot" when status=open and inbox has active agent bot', () => {
+      render(<ConversationActionsDropdown conversation={openWithBot} />);
+      expect(screen.getByText('conversationActionsDropdown.returnToBot')).toBeTruthy();
+    });
+
+    it('hides "Return to bot" when status is not open', () => {
+      render(<ConversationActionsDropdown conversation={resolvedWithBot} />);
+      expect(screen.queryByText('conversationActionsDropdown.returnToBot')).toBeNull();
+    });
+
+    it('hides "Return to bot" when inbox has no active agent bot', () => {
+      render(<ConversationActionsDropdown conversation={openWithoutBot} />);
+      expect(screen.queryByText('conversationActionsDropdown.returnToBot')).toBeNull();
+    });
+
+    it('hides legacy "Mark as Pending" when bot is active and status=open (collision fix)', () => {
+      render(<ConversationActionsDropdown conversation={openWithBot} />);
+      expect(screen.queryByText('conversationActionsDropdown.markAsPending')).toBeNull();
+    });
+
+    it('preserves legacy "Mark as Pending" when bot is NOT active and status=open', () => {
+      render(<ConversationActionsDropdown conversation={openWithoutBot} />);
+      expect(screen.getByText('conversationActionsDropdown.markAsPending')).toBeTruthy();
+    });
+
+    it('invokes returnConversationToBot exactly once when clicked', async () => {
+      render(<ConversationActionsDropdown conversation={openWithBot} />);
+
+      fireEvent.click(screen.getByText('conversationActionsDropdown.returnToBot'));
+
+      await waitFor(() => {
+        expect(mockConversations.returnConversationToBot).toHaveBeenCalledTimes(1);
+        expect(mockConversations.returnConversationToBot).toHaveBeenCalledWith(
+          'conversation-1',
+          undefined,
+        );
+      });
+    });
   });
 
   it('pins conversation when not pinned', async () => {

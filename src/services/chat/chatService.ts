@@ -114,6 +114,15 @@ class ChatService {
     return response.data;
   }
 
+  // EVO-1680 — reverse human→bot handoff. Backend moves the conversation to
+  // pending, clears the assignee, persists a timeline activity, and dispatches
+  // CONVERSATION_HUMAN_HANDOFF so the BotProcessorService picks it up on the
+  // next incoming message.
+  async returnConversationToBot(conversationId: string): Promise<ConversationResponse> {
+    const response = await api.post(`/conversations/${conversationId}/return_to_bot`);
+    return response.data;
+  }
+
   async updateConversationPriority(
     conversationId: string,
     priority: 'low' | 'medium' | 'high' | 'urgent' | null,
