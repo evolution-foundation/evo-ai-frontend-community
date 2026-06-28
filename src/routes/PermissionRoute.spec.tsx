@@ -26,17 +26,18 @@ function permissions(granted: string[]) {
   };
 }
 
-// /settings/users gates on users.read (no users.manage permission exists).
-describe('PermissionRoute — /settings/users gated on users.read', () => {
+// EVO-1938: /settings/users gates on the administrative users.manage (not the
+// operational users.read the default agent holds for the Conversations screen).
+describe('PermissionRoute — /settings/users gated on users.manage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('redirects a profile without users.read (e.g. Conversas-only) away from /settings/users', async () => {
-    mockUsePermissions.mockReturnValue(permissions(['conversations.read']));
+  it('redirects the default agent (holds users.read but not users.manage) away from /settings/users', async () => {
+    mockUsePermissions.mockReturnValue(permissions(['users.read', 'conversations.read']));
 
     render(
-      <PermissionRoute resource="users" action="read">
+      <PermissionRoute resource="users" action="manage">
         <div data-testid="users-panel">Users Panel</div>
       </PermissionRoute>,
     );
@@ -47,11 +48,11 @@ describe('PermissionRoute — /settings/users gated on users.read', () => {
     expect(screen.queryByTestId('users-panel')).toBeNull();
   });
 
-  it('renders the panel for a profile that has users.read (admin roles)', () => {
-    mockUsePermissions.mockReturnValue(permissions(['users.read']));
+  it('renders the panel for an administrator that holds users.manage', () => {
+    mockUsePermissions.mockReturnValue(permissions(['users.read', 'users.manage']));
 
     render(
-      <PermissionRoute resource="users" action="read">
+      <PermissionRoute resource="users" action="manage">
         <div data-testid="users-panel">Users Panel</div>
       </PermissionRoute>,
     );

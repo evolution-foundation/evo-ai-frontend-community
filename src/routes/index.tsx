@@ -677,8 +677,8 @@ const AppRouter = () => {
               <PrivateRoute>
                 <CustomerRoute>
                   <MainLayout>
-                    {/* read, not the non-existent `users.manage` (see menuItems.ts) */}
-                    <PermissionRoute resource="users" action="read">
+                    {/* EVO-1938: users.manage (admin) — agents hold users.read but not manage */}
+                    <PermissionRoute resource="users" action="manage">
                       <Users />
                     </PermissionRoute>
                   </MainLayout>
