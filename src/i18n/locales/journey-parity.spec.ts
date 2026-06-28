@@ -132,6 +132,58 @@ describe('journey i18n parity (EVO-1260)', () => {
     expect(offenders).toEqual([]);
   });
 
+  // EVO-1926: the create-pipeline-task panel block (incl. taskType +
+  // taskTypes.*) existed only in en/pt-BR; es/fr/it/pt carried a
+  // pre-existing drift and were missing the block entirely. Port the
+  // full block to every locale and lock it in across all six (same
+  // presence + non-empty pattern as EVO-1260 / EVO-1275 / EVO-1742).
+  const evo1926Keys = [
+    'panels.createPipelineTask.title',
+    'panels.createPipelineTask.loadDataError',
+    'panels.createPipelineTask.loadErrorBanner',
+    'panels.createPipelineTask.taskTitle',
+    'panels.createPipelineTask.taskTitlePlaceholder',
+    'panels.createPipelineTask.variablesHint',
+    'panels.createPipelineTask.description',
+    'panels.createPipelineTask.descriptionPlaceholder',
+    'panels.createPipelineTask.assignee',
+    'panels.createPipelineTask.noAssignee',
+    'panels.createPipelineTask.dueDate',
+    'panels.createPipelineTask.priority',
+    'panels.createPipelineTask.taskType',
+    'panels.createPipelineTask.due.none',
+    'panels.createPipelineTask.due.in1h',
+    'panels.createPipelineTask.due.in4h',
+    'panels.createPipelineTask.due.in1d',
+    'panels.createPipelineTask.due.in3d',
+    'panels.createPipelineTask.due.in1w',
+    'panels.createPipelineTask.priorities.low',
+    'panels.createPipelineTask.priorities.medium',
+    'panels.createPipelineTask.priorities.high',
+    'panels.createPipelineTask.priorities.urgent',
+    'panels.createPipelineTask.taskTypes.call',
+    'panels.createPipelineTask.taskTypes.email',
+    'panels.createPipelineTask.taskTypes.meeting',
+    'panels.createPipelineTask.taskTypes.follow_up',
+    'panels.createPipelineTask.taskTypes.note',
+    'panels.createPipelineTask.taskTypes.other',
+  ];
+
+  it.each([
+    ['en', en],
+    ['pt-BR', ptBR],
+    ['pt', pt],
+    ['es', es],
+    ['fr', fr],
+    ['it', itLocale],
+  ])('%s contains every EVO-1926 create-pipeline-task key, non-empty', (_name, locale) => {
+    const offenders = evo1926Keys.filter((k) => {
+      const v = getAtPath(locale, k);
+      return typeof v !== 'string' || v.trim() === '';
+    });
+    expect(offenders).toEqual([]);
+  });
+
   // EVO-1904: the exit-journey config-panel keys (exitReason / exitMessage)
   // were added to ALL six locales. The strict en↔pt-BR mirror covers those
   // two; assert presence + non-empty across every shipped locale so
