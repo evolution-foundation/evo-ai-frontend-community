@@ -74,6 +74,11 @@ export default function Users() {
   const [bulkInviteModalOpen, setBulkInviteModalOpen] = useState(false);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<BaseFilter[]>([]);
+  // EVO-1947: the applied-filter chips are built at apply time and capture a
+  // snapshot of handleRemoveFilter. This ref keeps the current filters reachable
+  // so the chip "x" removes against the latest list, not a stale closure value.
+  const activeFiltersRef = useRef<BaseFilter[]>([]);
+  activeFiltersRef.current = activeFilters;
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilter[]>([]);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsUser, setDetailsUser] = useState<User | null>(null);
@@ -82,7 +87,7 @@ export default function Users() {
 
   // Load users
   const loadUsers = useCallback(
-    async (params?: Partial<UsersListParams>) => {
+    async (params?: Partial<UsersListParams>, filtersOverride?: BaseFilter[]) => {
       if (!can('users', 'read')) {
         toast.error(t('messages.permissionDenied.read'));
         return;
@@ -99,9 +104,11 @@ export default function Users() {
           ...params,
         };
 
-        // Adicionar filtros aos parâmetros se existirem
-        if (activeFilters.length > 0) {
-          const filterParams = activeFilters.reduce((acc, filter, index) => {
+        // EVO-1947: usar os filtros passados explicitamente quando houver, para não
+        // cair no closure defasado de activeFilters logo após setActiveFilters.
+        const effectiveFilters = filtersOverride ?? activeFilters;
+        if (effectiveFilters.length > 0) {
+          const filterParams = effectiveFilters.reduce((acc, filter, index) => {
             const prefix = `filters[${index}]`;
             acc[`${prefix}[attribute_key]`] = filter.attributeKey;
             acc[`${prefix}[filter_operator]`] = filter.filterOperator;
@@ -186,7 +193,7 @@ export default function Users() {
     }));
 
     try {
-      await loadUsers({ page: 1 });
+      await loadUsers({ page: 1 }, filters);
     } catch (error) {
       console.error('Error applying filters:', error);
       toast.error(t('messages.filterError'));
@@ -196,11 +203,11 @@ export default function Users() {
   const handleClearFilters = () => {
     setActiveFilters([]);
     setAppliedFilters([]);
-    loadUsers({ page: 1 });
+    loadUsers({ page: 1 }, []);
   };
 
   const handleRemoveFilter = (index: number) => {
-    const newFilters = activeFilters.filter((_, i) => i !== index);
+    const newFilters = activeFiltersRef.current.filter((_, i) => i !== index);
     if (newFilters.length === 0) {
       handleClearFilters();
     } else {
@@ -395,7 +402,7 @@ export default function Users() {
           onBulkDelete={handleBulkDelete}
           onClearSelection={() => setState(prev => ({ ...prev, selectedUserIds: [] }))}
           activeFilters={appliedFilters}
-          showFilters={false}
+          showFilters={true}
         />
       </div>
 
