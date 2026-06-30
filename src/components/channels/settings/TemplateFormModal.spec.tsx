@@ -159,6 +159,43 @@ describe('TemplateFormModal', () => {
     expect(screen.queryByDisplayValue('ab')).not.toBeInTheDocument();
   });
 
+  it('keeps label/example in the saved payload and no longer renders a source field', () => {
+    const onSave = vi.fn();
+    render(
+      <TemplateFormModal
+        isOpen
+        mode="create"
+        channelType="Channel::Whatsapp"
+        onClose={vi.fn()}
+        onSave={onSave}
+      />,
+    );
+    fireEvent.change(
+      screen.getByPlaceholderText('settings.messageTemplates.form.namePlaceholder'),
+      { target: { value: 'promo' } },
+    );
+    fireEvent.change(
+      screen.getByPlaceholderText('settings.messageTemplates.form.bodyTextPlaceholder'),
+      { target: { value: 'Oi {{nome}}' } },
+    );
+    // The detected variable exposes label + example — but NOT source anymore.
+    fireEvent.change(
+      screen.getByPlaceholderText('settings.messageTemplates.form.variableExample'),
+      { target: { value: 'João' } },
+    );
+    expect(
+      screen.queryByPlaceholderText('settings.messageTemplates.form.variableSource'),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText('settings.messageTemplates.form.create'));
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: expect.arrayContaining([
+          expect.objectContaining({ name: 'nome', example: 'João' }),
+        ]),
+      }),
+    );
+  });
+
   it('renders the simple content editor for a non-structured channel', () => {
     render(
       <TemplateFormModal

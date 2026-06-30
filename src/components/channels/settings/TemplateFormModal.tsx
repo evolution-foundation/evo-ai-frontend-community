@@ -689,8 +689,11 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
                 <label className="block text-sm font-medium">
                   {t('settings.messageTemplates.form.variables')}
                 </label>
+                {/* name (read-only) + label and example, which round-trip through
+                    save/read and feed the send-time variable form. `source` was
+                    dropped — nothing consumed it (EVO-1907). */}
                 {formData.variables?.map(variable => (
-                  <div key={variable.name} className="grid grid-cols-4 gap-2">
+                  <div key={variable.name} className="grid grid-cols-3 gap-2">
                     <Input value={variable.name} disabled />
                     <Input
                       value={variable.label ?? ''}
@@ -701,11 +704,6 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
                       value={variable.example ?? ''}
                       onChange={e => updateVariable(variable.name, { example: e.target.value })}
                       placeholder={t('settings.messageTemplates.form.variableExample')}
-                    />
-                    <Input
-                      value={variable.source ?? ''}
-                      onChange={e => updateVariable(variable.name, { source: e.target.value })}
-                      placeholder={t('settings.messageTemplates.form.variableSource')}
                     />
                   </div>
                 ))}
