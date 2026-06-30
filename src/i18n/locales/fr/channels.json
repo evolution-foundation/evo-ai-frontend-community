@@ -625,6 +625,8 @@
         "templateType": "Type de Modèle",
         "templateTypes": {
           "text": "Texte",
+          "interactive": "Interactif",
+          "media": "Média",
           "image": "Image",
           "video": "Vidéo",
           "document": "Document",
@@ -652,6 +654,10 @@
         "footerText": "Texte du Pied de Page",
         "footerTextPlaceholder": "Entrez le texte du pied de page (facultatif)",
         "variablesHelp": "Utilisez la syntaxe {{variable}} pour les valeurs dynamiques",
+        "variables": "Variables",
+        "variableLabel": "Libellé",
+        "variableExample": "Exemple",
+        "variableSource": "Source, p. ex. contact.name",
         "buttons": "Boutons",
         "addButton": "Ajouter un Bouton",
         "buttonTypes": {

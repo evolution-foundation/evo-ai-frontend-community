@@ -114,6 +114,7 @@ const MessageTextarea: React.FC<{
             isOpen={emojiOpen}
             onClose={() => setEmojiOpen(false)}
             onEmojiSelect={emoji => insertAtCursor(emoji)}
+            placement="bottom"
           />
         </div>
         <Popover>
@@ -328,6 +329,24 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
       ...prev,
       buttons:
         prev.buttons?.map((btn, i) => (i === index ? { ...btn, [field]: value } : btn)) || [],
+    }));
+  };
+
+  // Edit the metadata of a detected variable (the name itself is derived from the
+  // {{token}} in the text and stays read-only). These fields are persisted by the
+  // backend and drive the consumption surfaces (EVO-1971): `example` prefills the
+  // composer / Start-Conversation value, `source` auto-maps automation
+  // `send_template` to `{{contact.x}}`, `label` is the human-readable caption.
+  const updateVariable = (
+    name: string,
+    field: 'label' | 'example' | 'source',
+    value: string,
+  ) => {
+    setFormData(prev => ({
+      ...prev,
+      variables: prev.variables?.map(variable =>
+        variable.name === name ? { ...variable, [field]: value } : variable,
+      ),
     }));
   };
 
@@ -680,13 +699,33 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
                 <label className="block text-sm font-medium">
                   {t('settings.messageTemplates.form.variables')}
                 </label>
-                {/* Read-only list of the variables detected in the text. We dropped the
-                    label/example/source inputs: the backend re-derives variables from
-                    the content on save (only the name persists), so editing metadata
-                    here had no effect (EVO-1907). */}
-                <div className="flex flex-wrap gap-2">
+                {/* Each variable is detected from a {{token}} in the text (name is
+                    read-only) and carries optional metadata that the backend
+                    PRESERVES on save and feeds back on edit (EVO-1971): `label`
+                    (caption), `example` (composer / Start-Conversation prefill) and
+                    `source` (auto-maps automation send_template to {{contact.x}}). */}
+                <div className="space-y-3">
                   {formData.variables?.map(variable => (
-                    <Badge key={variable.name} variant="secondary">{`{{${variable.name}}}`}</Badge>
+                    <Card key={variable.name} className="p-3 space-y-2">
+                      <Badge variant="secondary">{`{{${variable.name}}}`}</Badge>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <Input
+                          value={variable.label ?? ''}
+                          onChange={e => updateVariable(variable.name, 'label', e.target.value)}
+                          placeholder={t('settings.messageTemplates.form.variableLabel')}
+                        />
+                        <Input
+                          value={variable.example ?? ''}
+                          onChange={e => updateVariable(variable.name, 'example', e.target.value)}
+                          placeholder={t('settings.messageTemplates.form.variableExample')}
+                        />
+                        <Input
+                          value={variable.source ?? ''}
+                          onChange={e => updateVariable(variable.name, 'source', e.target.value)}
+                          placeholder={t('settings.messageTemplates.form.variableSource')}
+                        />
+                      </div>
+                    </Card>
                   ))}
                 </div>
               </div>

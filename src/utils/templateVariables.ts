@@ -105,10 +105,11 @@ export const extractTemplateFormVariables = (formData: TemplateFormData): Messag
   extractTemplateVariables({ ...formTemplateShape(formData), variables: formData.variables });
 
 /**
- * Variables to DISPLAY/SYNC while editing: driven ONLY by what is currently in the
+ * Variables to DISPLAY while editing: driven ONLY by what is currently in the
  * text. The declared list is intentionally omitted so that renaming a `{{token}}`
- * character-by-character does not accumulate stale rows (the form layer re-attaches
- * any label/example the user already typed, by name).
+ * character-by-character does not accumulate stale rows. The form layer reconciles
+ * this with the declared list by name, re-attaching any label/example/source the
+ * user has already typed for a still-present token (EVO-1971).
  */
 export const detectTemplateFormVariables = (formData: TemplateFormData): MessageTemplateVariable[] =>
   extractTemplateVariables(formTemplateShape(formData));

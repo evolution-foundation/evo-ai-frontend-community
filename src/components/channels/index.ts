@@ -31,3 +31,4 @@ export { default as AgentBotConfigurationForm } from './settings/AgentBotConfigu
 export { default as ModerationDashboard } from './settings/ModerationDashboard';
 export { default as ConfigurationForm } from './settings/ConfigurationForm';
 export { default as TemplateFormModal } from './settings/TemplateFormModal';
+export { TemplatePreview } from './settings/TemplatePreview';

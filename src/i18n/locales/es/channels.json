@@ -625,6 +625,8 @@
         "templateType": "Tipo de Plantilla",
         "templateTypes": {
           "text": "Texto",
+          "interactive": "Interactivo",
+          "media": "Multimedia",
           "image": "Imagen",
           "video": "Video",
           "document": "Documento",
@@ -652,6 +654,10 @@
         "footerText": "Texto del Pie de Página",
         "footerTextPlaceholder": "Ingrese el texto del pie de página (opcional)",
         "variablesHelp": "Use la sintaxis {{variable}} para valores dinámicos",
+        "variables": "Variables",
+        "variableLabel": "Etiqueta",
+        "variableExample": "Ejemplo",
+        "variableSource": "Origen, p. ej. contact.name",
         "buttons": "Botones",
         "addButton": "Agregar Botón",
         "buttonTypes": {

@@ -159,7 +159,7 @@ describe('TemplateFormModal', () => {
     expect(screen.queryByText('{{ab}}')).not.toBeInTheDocument();
   });
 
-  it('lists detected variables read-only (no label/example/source inputs) and keeps the name in the payload', () => {
+  it('shows editable label/example/source inputs per detected variable and persists them (EVO-1971)', () => {
     const onSave = vi.fn();
     render(
       <TemplateFormModal
@@ -178,21 +178,24 @@ describe('TemplateFormModal', () => {
       screen.getByPlaceholderText('settings.messageTemplates.form.bodyTextPlaceholder'),
       { target: { value: 'Oi {{nome}}' } },
     );
-    // The detected variable is shown read-only as a token, with no metadata inputs.
+    // The detected variable is shown as a read-only name token + editable metadata
+    // inputs. The backend preserves these on save (EVO-1971), so they must flow
+    // into the payload.
     expect(screen.getByText('{{nome}}')).toBeInTheDocument();
-    expect(
-      screen.queryByPlaceholderText('settings.messageTemplates.form.variableLabel'),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByPlaceholderText('settings.messageTemplates.form.variableExample'),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByPlaceholderText('settings.messageTemplates.form.variableSource'),
-    ).not.toBeInTheDocument();
+    fireEvent.change(
+      screen.getByPlaceholderText('settings.messageTemplates.form.variableExample'),
+      { target: { value: 'Maria' } },
+    );
+    fireEvent.change(
+      screen.getByPlaceholderText('settings.messageTemplates.form.variableSource'),
+      { target: { value: 'contact.name' } },
+    );
     fireEvent.click(screen.getByText('settings.messageTemplates.form.create'));
     expect(onSave).toHaveBeenCalledWith(
       expect.objectContaining({
-        variables: expect.arrayContaining([expect.objectContaining({ name: 'nome' })]),
+        variables: expect.arrayContaining([
+          expect.objectContaining({ name: 'nome', example: 'Maria', source: 'contact.name' }),
+        ]),
       }),
     );
   });

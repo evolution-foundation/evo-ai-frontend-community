@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@evoapi/design-system';
-import { Edit, LayoutTemplate, Plus, RefreshCw, Search, Trash2 } from 'lucide-react';
+import { Edit, Eye, LayoutTemplate, Plus, RefreshCw, Search, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { useAppDataStore } from '@/store/appDataStore';
@@ -24,7 +24,7 @@ import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 import { extractError } from '@/utils/apiHelpers';
 import BaseTable, { type TableAction, type TableColumn } from '@/components/base/BaseTable';
 import BasePagination from '@/components/base/BasePagination';
-import { TemplateFormModal } from '@/components/channels';
+import { TemplateFormModal, TemplatePreview } from '@/components/channels';
 import MessageTemplateService, {
   supportsTemplateSync,
 } from '@/services/channels/messageTemplatesService';
@@ -60,6 +60,9 @@ const STATUS_STYLE: Record<string, string> = {
 
 export default function MessageTemplates() {
   const { t } = useLanguage('messageTemplates');
+  // The shared <TemplatePreview> renders `settings.messageTemplates.*` keys, which
+  // live in the `channels` namespace (same as the form modal).
+  const { t: tChannels } = useLanguage('channels');
   const navigate = useNavigate();
   const { can, isReady: permissionsReady } = useUserPermissions();
 
@@ -86,6 +89,20 @@ export default function MessageTemplates() {
 
   const [deleteTarget, setDeleteTarget] = useState<MessageTemplate | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Read-only inspection (restores the per-channel tab's eye action, EVO-1971).
+  const [previewTarget, setPreviewTarget] = useState<MessageTemplate | null>(null);
+
+  // Channel type a row should be previewed/edited as: the inbox's own channel in
+  // inbox scope, or the synthetic channel for the template's inferred provider in
+  // Global scope.
+  const channelTypeFor = useCallback(
+    (template: MessageTemplate) =>
+      scope.kind === 'inbox'
+        ? scope.inbox.channel_type
+        : providerToChannelType(inferTemplateProvider(template)),
+    [scope],
+  );
 
   useEffect(() => {
     fetchInboxes();
@@ -315,9 +332,20 @@ export default function MessageTemplates() {
       label: t('table.language'),
       render: template => template.language || '-',
     },
+    {
+      key: 'created_at',
+      label: t('table.createdAt'),
+      render: template =>
+        template.created_at ? new Date(template.created_at).toLocaleDateString() : '-',
+    },
   ];
 
   const actions: TableAction<MessageTemplate>[] = [
+    {
+      label: t('table.preview'),
+      icon: <Eye className="h-4 w-4" />,
+      onClick: setPreviewTarget,
+    },
     ...(can('message_templates', 'update')
       ? [
           {
@@ -448,6 +476,26 @@ export default function MessageTemplates() {
         }}
         onSave={handleSave}
       />
+
+      <Dialog open={!!previewTarget} onOpenChange={open => !open && setPreviewTarget(null)}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{previewTarget?.name}</DialogTitle>
+          </DialogHeader>
+          {previewTarget && (
+            <div className="py-2">
+              <TemplatePreview
+                template={MessageTemplateService.transformToFrontendFormat(
+                  previewTarget,
+                  channelTypeFor(previewTarget),
+                )}
+                channelType={channelTypeFor(previewTarget)}
+                t={tChannels}
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!deleteTarget} onOpenChange={open => !open && setDeleteTarget(null)}>
         <DialogContent>

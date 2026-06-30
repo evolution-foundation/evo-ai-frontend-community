@@ -12,7 +12,9 @@
     "language": "Language",
     "actions": "Actions",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "createdAt": "Created",
+    "preview": "Preview"
   },
   "status": {
     "approved": "Approved",
@@ -61,39 +63,10 @@
     "syncError": "Failed to sync templates."
   },
   "form": {
-    "createTitle": "New Template",
-    "editTitle": "Edit Template",
     "provider": "Provider",
     "providers": {
       "generic": "Generic",
       "email": "Email"
-    },
-    "name": "Name",
-    "namePlaceholder": "e.g. welcome_message",
-    "category": "Category",
-    "categories": {
-      "marketing": "Marketing",
-      "utility": "Utility",
-      "authentication": "Authentication",
-      "transactional": "Transactional"
-    },
-    "language": "Language",
-    "subject": "Subject",
-    "subjectPlaceholder": "Email subject",
-    "content": "Content",
-    "contentPlaceholder": "Type the message content.",
-    "variablesHelp": "Use {{variable}} syntax for dynamic values",
-    "variables": "Variables",
-    "variableLabel": "Label",
-    "variableExample": "Example",
-    "variableSource": "Source",
-    "active": "Active",
-    "activeHelp": "Inactive templates are hidden from selection.",
-    "cancel": "Cancel",
-    "create": "Create",
-    "save": "Save",
-    "errors": {
-      "requiredFields": "Name and content are required."
     },
     "categoryReset": "Category reset to a value supported by the selected provider.",
     "headerNone": "None",
