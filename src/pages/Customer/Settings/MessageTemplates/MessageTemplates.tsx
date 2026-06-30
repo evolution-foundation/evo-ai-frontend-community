@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
   Badge,
@@ -9,27 +10,67 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@evoapi/design-system';
-import { Edit, LayoutTemplate, Plus, Search, Trash2 } from 'lucide-react';
+import { Edit, LayoutTemplate, Plus, RefreshCw, Search, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
+import { useAppDataStore } from '@/store/appDataStore';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 import { extractError } from '@/utils/apiHelpers';
 import BaseTable, { type TableAction, type TableColumn } from '@/components/base/BaseTable';
 import BasePagination from '@/components/base/BasePagination';
+import { TemplateFormModal } from '@/components/channels';
+import MessageTemplateService, {
+  supportsTemplateSync,
+} from '@/services/channels/messageTemplatesService';
 import GlobalMessageTemplateService, {
   inferTemplateProvider,
+  providerToChannelType,
   type GlobalTemplateProvider,
 } from '@/services/messageTemplates/globalMessageTemplatesService';
-import GlobalTemplateFormModal from './components/GlobalTemplateFormModal';
+import { getStatusBadgeKey } from '@/components/chat/message-template/templateStatus';
 import type { MessageTemplate, TemplateFormData } from '@/types';
+import type { Inbox } from '@/types/channels/inbox';
+
+/**
+ * Unified message-templates screen (EVO-1907). A single screen manages templates
+ * for every channel via a top scope selector:
+ *  - "Global (no channel)" → channel-less templates via GlobalMessageTemplateService.
+ *  - one entry per inbox → that channel's templates via the per-inbox
+ *    MessageTemplateService (structured WhatsApp components + Meta sync as before).
+ * Both reuse the shared <TemplateFormModal> (the former channel form). Email inboxes
+ * route to the dedicated EmailTemplateEditor, exactly as the old per-channel tab did.
+ */
+
+type Scope = { kind: 'global' } | { kind: 'inbox'; inbox: Inbox };
+
+const STATUS_STYLE: Record<string, string> = {
+  approved: 'bg-green-600 dark:bg-green-500 text-white',
+  pending: 'bg-yellow-600 dark:bg-yellow-500 text-white',
+  rejected: 'bg-red-600 dark:bg-red-500 text-white',
+  paused: 'bg-gray-600 dark:bg-gray-500 text-white',
+  inactive: 'bg-gray-600 dark:bg-gray-500 text-white',
+  unknown: 'bg-gray-400 dark:bg-gray-600 text-white',
+};
 
 export default function MessageTemplates() {
   const { t } = useLanguage('messageTemplates');
+  const navigate = useNavigate();
   const { can, isReady: permissionsReady } = useUserPermissions();
+
+  const inboxes = useAppDataStore(state => state.inboxes);
+  const fetchInboxes = useAppDataStore(state => state.fetchInboxes);
+
+  const [scope, setScope] = useState<Scope>({ kind: 'global' });
 
   const [templates, setTemplates] = useState<MessageTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -39,11 +80,18 @@ export default function MessageTemplates() {
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<MessageTemplate | null>(null);
+  // Controlled channelType for the shared modal: the inbox's channel_type, or the
+  // synthetic channel for the chosen provider in Global scope.
+  const [formChannelType, setFormChannelType] = useState<string>('Channel::Api');
 
   const [deleteTarget, setDeleteTarget] = useState<MessageTemplate | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Debounce search: server-side filtering is authoritative (no client re-filter).
+  useEffect(() => {
+    fetchInboxes();
+  }, [fetchInboxes]);
+
+  // Debounce search; server-side filtering is authoritative (no client re-filter).
   useEffect(() => {
     const id = setTimeout(() => {
       setDebouncedSearch(searchQuery);
@@ -60,12 +108,19 @@ export default function MessageTemplates() {
     }
     setIsLoading(true);
     try {
-      const response = await GlobalMessageTemplateService.getTemplates({
-        page,
-        per_page: DEFAULT_PAGE_SIZE,
-        search: debouncedSearch || undefined,
-        sort_by: 'name',
-      });
+      const response =
+        scope.kind === 'global'
+          ? await GlobalMessageTemplateService.getTemplates({
+              page,
+              per_page: DEFAULT_PAGE_SIZE,
+              search: debouncedSearch || undefined,
+              sort_by: 'name',
+            })
+          : await MessageTemplateService.getTemplates(scope.inbox.id, {
+              page,
+              per_page: DEFAULT_PAGE_SIZE,
+              search: debouncedSearch || undefined,
+            });
       const pagination = response.meta?.pagination;
       setTemplates(response.data);
       setTotalPages(Math.max(1, Number(pagination?.total_pages) || 1));
@@ -76,52 +131,102 @@ export default function MessageTemplates() {
     } finally {
       setIsLoading(false);
     }
-  }, [can, t, debouncedSearch, page]);
+  }, [can, t, debouncedSearch, page, scope]);
 
-  // Re-fetch only when permissions are ready or the page/search actually change.
-  // Depending on `loadTemplates` would re-run this on every render: `can` from
-  // useUserPermissions is a fresh closure each render, so `loadTemplates` (which
-  // lists it as a dependency) is never referentially stable — that is what made
-  // the screen fetch in an infinite loop. Gating on `permissionsReady` also
-  // avoids a spurious "permission denied" toast before the permission cache loads.
+  // Re-fetch only when permissions are ready or page/search/scope actually change.
+  // Depending on `loadTemplates` would re-run on every render: `can` from
+  // useUserPermissions is a fresh closure each render, so `loadTemplates` is never
+  // referentially stable — that is what made the screen fetch in an infinite loop.
   useEffect(() => {
     if (!permissionsReady) return;
     loadTemplates();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permissionsReady, page, debouncedSearch]);
+  }, [permissionsReady, page, debouncedSearch, scope]);
+
+  const handleScopeChange = (value: string) => {
+    if (value === 'global') {
+      setScope({ kind: 'global' });
+    } else {
+      const inbox = inboxes.find(i => String(i.id) === value);
+      if (inbox) setScope({ kind: 'inbox', inbox });
+    }
+    setPage(1);
+  };
+
+  const goToEmailEditor = (inbox: Inbox, templateId?: string) => {
+    const base = `/settings/email-template-editor?inboxId=${inbox.id}&channelType=${encodeURIComponent(
+      'Channel::Email',
+    )}`;
+    navigate(templateId ? `${base}&templateId=${templateId}` : base);
+  };
 
   const openCreate = () => {
+    if (scope.kind === 'inbox' && scope.inbox.channel_type === 'Channel::Email') {
+      goToEmailEditor(scope.inbox);
+      return;
+    }
     if (!can('message_templates', 'create')) {
       toast.error(t('messages.permissionDenied.create'));
       return;
     }
     setEditing(null);
+    setFormChannelType(
+      scope.kind === 'inbox' ? scope.inbox.channel_type : providerToChannelType('generic'),
+    );
     setFormOpen(true);
   };
 
   const openEdit = (template: MessageTemplate) => {
+    if (scope.kind === 'inbox' && scope.inbox.channel_type === 'Channel::Email') {
+      goToEmailEditor(scope.inbox, template.id);
+      return;
+    }
     if (!can('message_templates', 'update')) {
       toast.error(t('messages.permissionDenied.update'));
       return;
     }
     setEditing(template);
+    setFormChannelType(
+      scope.kind === 'inbox'
+        ? scope.inbox.channel_type
+        : providerToChannelType(inferTemplateProvider(template)),
+    );
     setFormOpen(true);
   };
 
-  const handleSave = async (formData: TemplateFormData, provider: GlobalTemplateProvider) => {
+  const handleSave = async (formData: TemplateFormData) => {
     try {
-      if (editing?.id) {
-        await GlobalMessageTemplateService.updateTemplate(editing.id, formData, provider);
-        toast.success(t('messages.updateSuccess'));
+      if (scope.kind === 'global') {
+        const provider: GlobalTemplateProvider =
+          formChannelType === 'Channel::Email' ? 'email' : 'generic';
+        if (editing?.id) {
+          await GlobalMessageTemplateService.updateTemplate(editing.id, formData, provider);
+          toast.success(t('messages.updateSuccess'));
+        } else {
+          await GlobalMessageTemplateService.createTemplate(formData, provider);
+          toast.success(t('messages.createSuccess'));
+        }
       } else {
-        await GlobalMessageTemplateService.createTemplate(formData, provider);
-        toast.success(t('messages.createSuccess'));
+        const { inbox } = scope;
+        if (editing?.id) {
+          await MessageTemplateService.updateTemplate(
+            inbox.id,
+            editing.id,
+            formData,
+            inbox.channel_type,
+          );
+          toast.success(t('messages.updateSuccess'));
+        } else {
+          await MessageTemplateService.createTemplate(inbox.id, formData, inbox.channel_type);
+          toast.success(t('messages.createSuccess'));
+        }
       }
       setEditing(null);
       await loadTemplates();
     } catch (e) {
-      // Surface backend validation detail (e.g. duplicate name -> 422).
-      toast.error(extractError(e).message || t(editing ? 'messages.updateError' : 'messages.createError'));
+      toast.error(
+        extractError(e).message || t(editing ? 'messages.updateError' : 'messages.createError'),
+      );
     }
   };
 
@@ -137,7 +242,11 @@ export default function MessageTemplates() {
     if (!deleteTarget?.id) return;
     setIsDeleting(true);
     try {
-      await GlobalMessageTemplateService.deleteTemplate(deleteTarget.id);
+      if (scope.kind === 'global') {
+        await GlobalMessageTemplateService.deleteTemplate(deleteTarget.id);
+      } else {
+        await MessageTemplateService.deleteTemplate(scope.inbox.id, deleteTarget.id);
+      }
       toast.success(t('messages.deleteSuccess'));
       setDeleteTarget(null);
       await loadTemplates();
@@ -148,9 +257,30 @@ export default function MessageTemplates() {
     }
   };
 
-  // Global (channel-less) templates have no Meta approval flow, so the Meta
-  // `status` is always null — show the local Active/Inactive state instead.
-  const activeBadge = (template: MessageTemplate) => {
+  const canSync = scope.kind === 'inbox' && supportsTemplateSync(scope.inbox.channel_type);
+
+  const handleSync = async () => {
+    if (scope.kind !== 'inbox') return;
+    setIsSyncing(true);
+    try {
+      await MessageTemplateService.syncTemplates(scope.inbox.id);
+      toast.success(t('messages.syncSuccess'));
+      await loadTemplates();
+    } catch (e) {
+      toast.error(extractError(e).message || t('messages.syncError'));
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Inbox scope → Meta approval status badge; Global scope → local active/inactive.
+  const statusBadge = (template: MessageTemplate) => {
+    if (scope.kind === 'inbox') {
+      const key = getStatusBadgeKey(template);
+      return (
+        <Badge className={STATUS_STYLE[key] ?? STATUS_STYLE.unknown}>{t(`status.${key}`)}</Badge>
+      );
+    }
     const isActive = template.active !== false;
     return (
       <Badge className={isActive ? 'bg-green-600 text-white' : 'bg-gray-500 text-white'}>
@@ -178,7 +308,7 @@ export default function MessageTemplates() {
     {
       key: 'status',
       label: t('table.status'),
-      render: template => activeBadge(template),
+      render: template => statusBadge(template),
     },
     {
       key: 'language',
@@ -209,6 +339,14 @@ export default function MessageTemplates() {
       : []),
   ];
 
+  const globalChannelOptions = useMemo(
+    () => [
+      { value: providerToChannelType('generic'), label: t('form.providers.generic') },
+      { value: providerToChannelType('email'), label: t('form.providers.email') },
+    ],
+    [t],
+  );
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -216,20 +354,50 @@ export default function MessageTemplates() {
           <h2 className="text-xl font-semibold text-foreground">{t('page.title')}</h2>
           <p className="text-sm text-muted-foreground">{t('page.description')}</p>
         </div>
-        <Button onClick={openCreate}>
-          <Plus className="w-4 h-4 mr-2" />
-          {t('newTemplate')}
-        </Button>
+        <div className="flex gap-2">
+          {canSync && (
+            <Button variant="outline" onClick={handleSync} loading={isSyncing}>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              {t('actions.sync')}
+            </Button>
+          )}
+          <Button onClick={openCreate}>
+            <Plus className="w-4 h-4 mr-2" />
+            {t('newTemplate')}
+          </Button>
+        </div>
       </div>
 
-      <div className="relative max-w-md">
-        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          placeholder={t('searchPlaceholder')}
-          className="pl-10"
-        />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+        <div className="w-full sm:w-64">
+          <label className="block text-sm font-medium mb-2">{t('scope.label')}</label>
+          <Select
+            value={scope.kind === 'global' ? 'global' : String(scope.inbox.id)}
+            onValueChange={handleScopeChange}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t('inboxSelector.placeholder')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="global">{t('scope.global')}</SelectItem>
+              {inboxes.map(inbox => (
+                <SelectItem key={inbox.id} value={String(inbox.id)}>
+                  {inbox.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="relative w-full sm:max-w-md">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder={t('searchPlaceholder')}
+            className="pl-10"
+          />
+        </div>
       </div>
 
       <BaseTable
@@ -258,11 +426,22 @@ export default function MessageTemplates() {
         />
       )}
 
-      <GlobalTemplateFormModal
+      <TemplateFormModal
         isOpen={formOpen}
         mode={editing ? 'edit' : 'create'}
         template={editing || undefined}
-        initialProvider={editing ? inferTemplateProvider(editing) : 'generic'}
+        channelType={formChannelType}
+        defaultLanguage={scope.kind === 'global' ? 'pt_BR' : 'en_US'}
+        channelOptions={scope.kind === 'global' ? globalChannelOptions : undefined}
+        channelSelectLabel={t('form.provider')}
+        categoryResetMessage={t('form.categoryReset')}
+        headerNoneLabel={t('form.headerNone')}
+        categoryHelp={t('form.categoryHelp')}
+        insertEmojiLabel={t('form.insertEmoji')}
+        insertVariableLabel={t('form.insertVariable')}
+        variableHelpText={t('form.variableHelp')}
+        variableSampleName={t('form.variableSample')}
+        onChannelTypeChange={setFormChannelType}
         onClose={() => {
           setFormOpen(false);
           setEditing(null);

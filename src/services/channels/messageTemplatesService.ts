@@ -127,6 +127,9 @@ const MessageTemplateService = {
     params?: {
       page?: number;
       per_page?: number;
+      // NOTE: the backend `index` reads `params[:search]` (search_by_name); the
+      // legacy `query` field below is never honored — always pass `search`.
+      search?: string;
       query?: string;
       category?: string;
       active?: boolean;
@@ -249,8 +252,12 @@ const MessageTemplateService = {
     // For structured channels (WhatsApp, Facebook, Instagram)
     if (isStructured && config.supportsStructured) {
       const components: MessageTemplateComponent[] = [];
-      // Add header component
-      if (templateData.headerText && templateData.headerFormat) {
+      // Add header component (skip when there is no header / format is NONE)
+      if (
+        templateData.headerText &&
+        templateData.headerFormat &&
+        templateData.headerFormat !== 'NONE'
+      ) {
         components.push({
           type: 'HEADER',
           format: templateData.headerFormat,
@@ -357,7 +364,7 @@ const MessageTemplateService = {
 
     // Parse structured components if available
     if (isStructured && template.components) {
-      result.headerFormat = 'TEXT';
+      result.headerFormat = 'NONE';
       result.headerText = '';
       result.bodyText = '';
       result.footerText = '';

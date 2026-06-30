@@ -56,7 +56,9 @@
       "create": "Non hai il permesso di creare modelli.",
       "update": "Non hai il permesso di modificare i modelli.",
       "delete": "Non hai il permesso di eliminare i modelli."
-    }
+    },
+    "syncSuccess": "Modelli sincronizzati con successo.",
+    "syncError": "Sincronizzazione dei modelli non riuscita."
   },
   "form": {
     "createTitle": "Nuovo Modello",
@@ -93,11 +95,27 @@
     "errors": {
       "requiredFields": "Nome e contenuto sono obbligatori."
     },
-    "categoryReset": "Categoria reimpostata su un valore supportato dal provider selezionato."
+    "categoryReset": "Categoria reimpostata su un valore supportato dal provider selezionato.",
+    "headerNone": "Nessuno",
+    "categoryHelp": "Marketing per promozioni e novità; Utilità per conferme, aggiornamenti e avvisi transazionali.",
+    "insertEmoji": "Inserisci emoji",
+    "insertVariable": "Inserisci variabile",
+    "variableHelp": "Le variabili sono facoltative: usale per inserire valori dinamici. Ogni variabile aggiunta appare sotto per impostare etichetta ed esempio.",
+    "variableSample": "variabile"
   },
   "pagination": {
     "previous": "Precedente",
     "next": "Successivo",
     "pageOf": "Pagina {{page}} di {{total}}"
+  },
+  "scope": {
+    "label": "Canale",
+    "global": "Globale (nessun canale)"
+  },
+  "inboxSelector": {
+    "placeholder": "Seleziona un canale"
+  },
+  "actions": {
+    "sync": "Sincronizza con Meta"
   }
 }

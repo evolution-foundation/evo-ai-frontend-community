@@ -756,7 +756,7 @@ export interface TemplateFormData {
   language: string;
   category?: 'MARKETING' | 'UTILITY' | 'AUTHENTICATION' | 'TRANSACTIONAL';
   template_type?: 'text' | 'interactive' | 'media' | 'location';
-  headerFormat?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
+  headerFormat?: 'NONE' | 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
   headerText?: string;
   bodyText?: string;
   footerText?: string;

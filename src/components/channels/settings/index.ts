@@ -10,5 +10,5 @@ export { default as CSATForm } from './CSATForm';
 export { default as PreChatForm } from './PreChatForm';
 export { default as WidgetBuilderForm } from './WidgetBuilderForm';
 export { default as AgentBotConfigurationForm } from './AgentBotConfigurationForm';
-export { default as MessageTemplateForm } from './MessageTemplateForm';
+export { default as TemplateFormModal } from './TemplateFormModal';
 export { default as ConfigurationForm } from './ConfigurationForm';

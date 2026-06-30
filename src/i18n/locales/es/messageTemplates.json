@@ -56,7 +56,9 @@
       "create": "No tienes permiso para crear plantillas.",
       "update": "No tienes permiso para editar plantillas.",
       "delete": "No tienes permiso para eliminar plantillas."
-    }
+    },
+    "syncSuccess": "Plantillas sincronizadas correctamente.",
+    "syncError": "Error al sincronizar las plantillas."
   },
   "form": {
     "createTitle": "Nueva Plantilla",
@@ -93,11 +95,27 @@
     "errors": {
       "requiredFields": "El nombre y el contenido son obligatorios."
     },
-    "categoryReset": "Categoría restablecida a un valor compatible con el proveedor seleccionado."
+    "categoryReset": "Categoría restablecida a un valor compatible con el proveedor seleccionado.",
+    "headerNone": "Ninguno",
+    "categoryHelp": "Marketing para promociones y novedades; Utilidad para confirmaciones, actualizaciones y alertas transaccionales.",
+    "insertEmoji": "Insertar emoji",
+    "insertVariable": "Insertar variable",
+    "variableHelp": "Las variables son opcionales: úsalas para insertar valores dinámicos. Cada variable que agregues aparece debajo para definir etiqueta y ejemplo.",
+    "variableSample": "variable"
   },
   "pagination": {
     "previous": "Anterior",
     "next": "Siguiente",
     "pageOf": "Página {{page}} de {{total}}"
+  },
+  "scope": {
+    "label": "Canal",
+    "global": "Global (sin canal)"
+  },
+  "inboxSelector": {
+    "placeholder": "Seleccione un canal"
+  },
+  "actions": {
+    "sync": "Sincronizar con Meta"
   }
 }
