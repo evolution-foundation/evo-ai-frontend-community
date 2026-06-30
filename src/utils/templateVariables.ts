@@ -85,21 +85,33 @@ export const extractTemplateVariables = (
   return Array.from(byName.values()).sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
 };
 
+const formTemplateShape = (
+  formData: TemplateFormData,
+): Pick<MessageTemplate, 'content' | 'components'> => ({
+  content: [formData.headerText, formData.bodyText, formData.footerText, formData.content]
+    .filter(Boolean)
+    .join('\n\n'),
+  components: [
+    ...(formData.headerText ? [{ type: 'HEADER' as const, text: formData.headerText }] : []),
+    ...(formData.bodyText ? [{ type: 'BODY' as const, text: formData.bodyText }] : []),
+  ],
+});
+
+/**
+ * Variables to PERSIST when saving: text-detected names enriched with the user's
+ * declared metadata (label/example/source). Used by the backend-payload builder.
+ */
 export const extractTemplateFormVariables = (formData: TemplateFormData): MessageTemplateVariable[] =>
-  extractTemplateVariables({
-    content: [formData.headerText, formData.bodyText, formData.footerText, formData.content]
-      .filter(Boolean)
-      .join('\n\n'),
-    components: [
-      ...(formData.headerText
-        ? [{ type: 'HEADER' as const, text: formData.headerText }]
-        : []),
-      ...(formData.bodyText
-        ? [{ type: 'BODY' as const, text: formData.bodyText }]
-        : []),
-    ],
-    variables: formData.variables,
-  });
+  extractTemplateVariables({ ...formTemplateShape(formData), variables: formData.variables });
+
+/**
+ * Variables to DISPLAY/SYNC while editing: driven ONLY by what is currently in the
+ * text. The declared list is intentionally omitted so that renaming a `{{token}}`
+ * character-by-character does not accumulate stale rows (the form layer re-attaches
+ * any label/example the user already typed, by name).
+ */
+export const detectTemplateFormVariables = (formData: TemplateFormData): MessageTemplateVariable[] =>
+  extractTemplateVariables(formTemplateShape(formData));
 
 export const buildInitialVariableParams = (
   variables: MessageTemplateVariable[],

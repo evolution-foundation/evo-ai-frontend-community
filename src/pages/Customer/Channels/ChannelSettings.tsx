@@ -43,7 +43,6 @@ import {
   WidgetBuilderForm,
   AgentBotConfigurationForm,
   ConfigurationForm,
-  MessageTemplateForm,
   ModerationDashboard,
 } from '@/components/channels';
 
@@ -338,7 +337,6 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
       { key: 'collaborators', name: t('settings.tabs.collaborators'), icon: Users },
       { key: 'businesshours', name: t('settings.tabs.businesshours'), icon: Clock },
       { key: 'csat', name: t('settings.tabs.csat'), icon: Star },
-      { key: 'messageTemplates', name: t('settings.tabs.messageTemplates'), icon: MessageSquare },
     ];
 
     // Web Widget specific tabs
@@ -910,17 +908,8 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
               />}
             </TabsContent>
 
-            {/* Message Templates Tab */}
-            <TabsContent value="messageTemplates">
-              {activeTab === 'messageTemplates' && <MessageTemplateForm
-                inboxId={inboxId}
-                channelType={inbox?.channel_type || ''}
-                onUpdate={async () => {
-                  // Refresh inbox data after template changes
-                  await loadChannelData();
-                }}
-              />}
-            </TabsContent>
+            {/* Message Templates are now managed on the single global screen
+                (Settings → Message Templates, EVO-1907); the per-channel tab was removed. */}
 
             {/* Moderation Tab */}
             <TabsContent value="moderation">
