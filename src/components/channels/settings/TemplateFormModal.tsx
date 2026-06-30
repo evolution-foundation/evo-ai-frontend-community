@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import {
+  Badge,
   Button,
   Input,
   Select,
@@ -30,7 +31,6 @@ import EmojiPicker from '@/components/chat/message-input/EmojiPicker';
 import { TemplatePreview } from './TemplatePreview';
 import { MessageTemplate, TemplateFormData } from '@/types';
 import { detectTemplateFormVariables } from '@/utils/templateVariables';
-import type { MessageTemplateVariable } from '@/types/channels/inbox';
 
 /**
  * Message textarea with an emoji picker and a `{{ }}` variable inserter,
@@ -328,15 +328,6 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
       ...prev,
       buttons:
         prev.buttons?.map((btn, i) => (i === index ? { ...btn, [field]: value } : btn)) || [],
-    }));
-  };
-
-  const updateVariable = (name: string, patch: Partial<MessageTemplateVariable>) => {
-    setFormData(prev => ({
-      ...prev,
-      variables: (prev.variables ?? []).map(variable =>
-        variable.name === name ? { ...variable, ...patch } : variable,
-      ),
     }));
   };
 
@@ -685,28 +676,19 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
             )}
 
             {(formData.variables?.length ?? 0) > 0 && (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <label className="block text-sm font-medium">
                   {t('settings.messageTemplates.form.variables')}
                 </label>
-                {/* name (read-only) + label and example, which round-trip through
-                    save/read and feed the send-time variable form. `source` was
-                    dropped — nothing consumed it (EVO-1907). */}
-                {formData.variables?.map(variable => (
-                  <div key={variable.name} className="grid grid-cols-3 gap-2">
-                    <Input value={variable.name} disabled />
-                    <Input
-                      value={variable.label ?? ''}
-                      onChange={e => updateVariable(variable.name, { label: e.target.value })}
-                      placeholder={t('settings.messageTemplates.form.variableLabel')}
-                    />
-                    <Input
-                      value={variable.example ?? ''}
-                      onChange={e => updateVariable(variable.name, { example: e.target.value })}
-                      placeholder={t('settings.messageTemplates.form.variableExample')}
-                    />
-                  </div>
-                ))}
+                {/* Read-only list of the variables detected in the text. We dropped the
+                    label/example/source inputs: the backend re-derives variables from
+                    the content on save (only the name persists), so editing metadata
+                    here had no effect (EVO-1907). */}
+                <div className="flex flex-wrap gap-2">
+                  {formData.variables?.map(variable => (
+                    <Badge key={variable.name} variant="secondary">{`{{${variable.name}}}`}</Badge>
+                  ))}
+                </div>
               </div>
             )}
 

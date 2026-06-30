@@ -154,12 +154,12 @@ describe('TemplateFormModal', () => {
     fireEvent.change(body, { target: { value: 'Hi {{ab}}' } });
     fireEvent.change(body, { target: { value: 'Hi {{abc}}' } });
     // Only the current token remains; the intermediate names must be gone.
-    expect(screen.getAllByDisplayValue('abc').length).toBeGreaterThan(0);
-    expect(screen.queryByDisplayValue('a')).not.toBeInTheDocument();
-    expect(screen.queryByDisplayValue('ab')).not.toBeInTheDocument();
+    expect(screen.getByText('{{abc}}')).toBeInTheDocument();
+    expect(screen.queryByText('{{a}}')).not.toBeInTheDocument();
+    expect(screen.queryByText('{{ab}}')).not.toBeInTheDocument();
   });
 
-  it('keeps label/example in the saved payload and no longer renders a source field', () => {
+  it('lists detected variables read-only (no label/example/source inputs) and keeps the name in the payload', () => {
     const onSave = vi.fn();
     render(
       <TemplateFormModal
@@ -178,20 +178,21 @@ describe('TemplateFormModal', () => {
       screen.getByPlaceholderText('settings.messageTemplates.form.bodyTextPlaceholder'),
       { target: { value: 'Oi {{nome}}' } },
     );
-    // The detected variable exposes label + example — but NOT source anymore.
-    fireEvent.change(
-      screen.getByPlaceholderText('settings.messageTemplates.form.variableExample'),
-      { target: { value: 'João' } },
-    );
+    // The detected variable is shown read-only as a token, with no metadata inputs.
+    expect(screen.getByText('{{nome}}')).toBeInTheDocument();
+    expect(
+      screen.queryByPlaceholderText('settings.messageTemplates.form.variableLabel'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByPlaceholderText('settings.messageTemplates.form.variableExample'),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByPlaceholderText('settings.messageTemplates.form.variableSource'),
     ).not.toBeInTheDocument();
     fireEvent.click(screen.getByText('settings.messageTemplates.form.create'));
     expect(onSave).toHaveBeenCalledWith(
       expect.objectContaining({
-        variables: expect.arrayContaining([
-          expect.objectContaining({ name: 'nome', example: 'João' }),
-        ]),
+        variables: expect.arrayContaining([expect.objectContaining({ name: 'nome' })]),
       }),
     );
   });
