@@ -93,7 +93,7 @@ export default function Campaigns() {
 
         setState(prev => ({
           ...prev,
-          campaigns: response.data,
+          campaigns: response.data ?? [],
           meta: {
             pagination: {
               page: response.meta?.pagination?.page || 1,
