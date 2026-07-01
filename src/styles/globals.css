@@ -240,8 +240,10 @@
     border-radius: 4px;
   }
 
+  /* Tema claro (default): thumb escuro p/ ficar visível sobre fundo claro.
+     Tema escuro sobrescreve com thumb claro abaixo (.dark). */
   *::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(0, 0, 0, 0.22);
     border-radius: 4px;
     border: 2px solid transparent;
     background-clip: content-box;
@@ -249,16 +251,33 @@
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(0, 0, 0, 0.32);
   }
 
   *::-webkit-scrollbar-thumb:active {
+    background-color: rgba(0, 0, 0, 0.42);
+  }
+
+  /* Tema escuro: thumb claro sobre fundo escuro */
+  .dark *::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .dark *::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+  }
+
+  .dark *::-webkit-scrollbar-thumb:active {
     background-color: rgba(255, 255, 255, 0.35);
   }
 
-  /* Firefox - otimizado para tema escuro */
+  /* Firefox */
   * {
     scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.22) transparent;
+  }
+
+  .dark * {
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
   }
 
