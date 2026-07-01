@@ -1002,14 +1002,14 @@ function JourneyFlowEditor() {
         miniMapNodeColors={miniMapNodeColors}
         customHelperLines={true}
         configPanelSystem={true}
-        className="h-full bg-sidebar"
+        className="h-full bg-flow-canvas-bg"
         canvasWrapperClassName="flex-1"
       />
       </JourneyValidationProvider>
 
       {/* Footer com informações */}
-      <div className="border-t border-sidebar-border bg-sidebar p-3 flex-shrink-0">
-        <div className="flex items-center justify-between text-xs text-sidebar-foreground/60">
+      <div className="border-t border-flow-panel-divider bg-flow-canvas-bg p-3 flex-shrink-0">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-4">
             <span>
               Status:{' '}

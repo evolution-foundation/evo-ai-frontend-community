@@ -42,9 +42,15 @@ type Validator = (data: NodeData) => ValidationIssue[];
  */
 export const nodeValidators: Record<string, Validator> = {
   'send-message-node': (d) => {
-    // Either a template or a free-text/expression message, always tied to an inbox.
-    const fields = absent(d, ['inboxId']);
+    // Either a template or a free-text/expression message. inboxId is required
+    // UNLESS this is a conversation-scoped text send (useEventChannel:true),
+    // where the inbox is inherited from the triggering conversation — mirroring
+    // the panel's own gate (SendMessagePanel: text valid when
+    // `useEventChannel || inboxId`). Template mode always needs an explicit
+    // inbox (resolveTemplate reads it), so useEventChannel does not waive it.
     const isTemplate = d.messageMode === 'template';
+    const conversationScoped = !isTemplate && !!d.useEventChannel;
+    const fields = conversationScoped ? [] : absent(d, ['inboxId']);
     if (isTemplate ? missing(d.templateName) : missing(d.message)) {
       fields.push(isTemplate ? 'templateName' : 'message');
     }

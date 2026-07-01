@@ -659,7 +659,7 @@ export function BaseFlowCanvas({
             gap={24}
             size={1.5}
             color={flowTokens.canvas.grid}
-            className="bg-sidebar"
+            className="bg-flow-canvas-bg"
           />
         )}
 
