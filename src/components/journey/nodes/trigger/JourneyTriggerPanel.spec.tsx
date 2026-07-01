@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { JourneyTriggerPanel } from './JourneyTriggerPanel';
@@ -253,5 +253,30 @@ describe('JourneyTriggerPanel — label/segment action round-trip (EVO-1754)', (
 
     const saved = onUpdate.mock.calls[0][1] as JourneyTriggerNodeData;
     expect(saved.segmentAction).toBe('entered');
+  });
+});
+
+describe('JourneyTriggerPanel — expression validation (EVO-1872)', () => {
+  it('blocks Save on an unbalanced {{ }} contact-field value and re-enables it once balanced', () => {
+    // Contact trigger renders the simple modal whose Save is now gated on the
+    // shared expression guard; seed a value-taking condition so the picker shows.
+    renderPanel({
+      triggerType: 'contactUpdated',
+      contactFields: [{ field: 'name', operator: 'equals', value: '' }],
+    });
+
+    // fireEvent.change (not user.type) so the literal braces bypass userEvent's
+    // `{` keyboard escaping.
+    const valueInput = screen.getByPlaceholderText(
+      /enter the value|digite o valor|introduce el valor|inserisci il valore|entrez la valeur/i,
+    );
+    fireEvent.change(valueInput, { target: { value: '{{contact.name' } });
+
+    expect(valueInput).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+
+    fireEvent.change(valueInput, { target: { value: '{{contact.name}}' } });
+    expect(valueInput).toHaveAttribute('aria-invalid', 'false');
+    expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
   });
 });

@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef } from 'react';
+import React, { useState, useRef, useId, forwardRef } from 'react';
 import {
   Input,
   Button,
@@ -13,6 +13,7 @@ import { getSystemVariables, VariableOption } from './EnvironmentManager';
 import { useJourneyVariables } from '@/hooks/useJourneyVariables';
 import { useLanguage } from '@/hooks/useLanguage';
 import { PhoneInput } from '@/components/shared/PhoneInput';
+import { isExpressionFieldValid } from '@/utils/templateVariables';
 
 export interface VariableInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   // Optional: contexts without a journey (campaigns, automations) omit it, so the
@@ -21,6 +22,12 @@ export interface VariableInputProps extends React.InputHTMLAttributes<HTMLInputE
   onVariableInsert?: (variable: string) => void;
   showVariableButton?: boolean;
   variableButtonTooltip?: string;
+  // EVO-1872: opt-in guard for free-text expression fields. When on, an unbalanced
+  // {{ }} value renders an inline error and wires aria-invalid/aria-describedby to
+  // the field (also on the PhoneInput branch). Off by default so literal fields
+  // (URLs, headers) never false-positive. Panels aggregate validity for Save via
+  // isExpressionFieldValid over their own data.
+  validateExpression?: boolean;
 }
 
 const VariableInput = forwardRef<HTMLInputElement, VariableInputProps>(
@@ -31,6 +38,7 @@ const VariableInput = forwardRef<HTMLInputElement, VariableInputProps>(
       onVariableInsert,
       showVariableButton = true,
       variableButtonTooltip,
+      validateExpression = false,
       ...props
     },
     ref,
@@ -38,6 +46,7 @@ const VariableInput = forwardRef<HTMLInputElement, VariableInputProps>(
     const { t } = useLanguage('journey');
     const [open, setOpen] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+    const generatedId = useId();
     const { variables } = useJourneyVariables(journeyId);
 
     // Usar a ref passada ou a ref interna
@@ -163,11 +172,23 @@ const VariableInput = forwardRef<HTMLInputElement, VariableInputProps>(
     // Usar PhoneInput apenas se for tipo tel E não tiver variáveis
     const shouldUsePhoneInput = isPhoneType && !hasVariables;
 
+    // EVO-1872: derive the inline expression error and merge aria wiring. When
+    // validateExpression is off we defer to whatever aria the caller passed.
+    const isExpressionInvalid = validateExpression && !isExpressionFieldValid(currentValue);
+    const errorId = `${generatedId}-expr-error`;
+    const ariaInvalid = validateExpression ? isExpressionInvalid : props['aria-invalid'];
+    const ariaDescribedBy =
+      [props['aria-describedby'], isExpressionInvalid ? errorId : null]
+        .filter(Boolean)
+        .join(' ') || undefined;
+
     return (
       <div className="relative">
         {shouldUsePhoneInput ? (
           <PhoneInput
             value={currentValue}
+            aria-invalid={ariaInvalid}
+            aria-describedby={ariaDescribedBy}
             onChange={value => {
               // Converter string do PhoneInput para formato de evento para manter compatibilidade
               if (props.onChange) {
@@ -194,11 +215,13 @@ const VariableInput = forwardRef<HTMLInputElement, VariableInputProps>(
             className={cn(className)}
           />
         ) : (
-          <Input 
-            ref={finalRef} 
-            className={cn('pr-10', className)} 
+          <Input
+            ref={finalRef}
+            className={cn('pr-10', className)}
             type={isPhoneType ? 'tel' : props.type}
-            {...props} 
+            {...props}
+            aria-invalid={ariaInvalid}
+            aria-describedby={ariaDescribedBy}
           />
         )}
 
@@ -290,6 +313,12 @@ const VariableInput = forwardRef<HTMLInputElement, VariableInputProps>(
               </PopoverContent>
             </Popover>
           </div>
+        )}
+
+        {isExpressionInvalid && (
+          <p id={errorId} className="mt-1 text-xs text-flow-feedback-error-fg">
+            {t('environmentManager.invalidExpression')}
+          </p>
         )}
       </div>
     );

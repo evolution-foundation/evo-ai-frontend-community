@@ -5,6 +5,7 @@ import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
 import { JourneyVariable } from '@/components/journey/environment-manager';
 import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { useLanguage } from '@/hooks/useLanguage';
+import { isExpressionFieldValid } from '@/utils/templateVariables';
 import {
   TriggerTypeSelector,
   TriggerDescription,
@@ -208,6 +209,14 @@ export function JourneyTriggerPanel({
     m => m.sourcePath && m.variableName,
   ).length;
 
+  // EVO-1872: the contact / custom-attribute comparison values accept inserted
+  // {{ }} expressions; an unbalanced one must block Save. Only the currently
+  // shown config contributes (event/webhook/etc. carry no free-text expression).
+  const hasInvalidTriggerExpression =
+    (showCustomAttributeConfig && !isExpressionFieldValid(formData.customAttributeValue)) ||
+    (showContactConfig &&
+      contactFields.some(field => !isExpressionFieldValid(field.value)));
+
   // Shared chrome props for both the tabs (event) and simple (other types) modals.
   const commonModalProps = {
     open: true as const,
@@ -216,6 +225,7 @@ export function JourneyTriggerPanel({
     onCancel: onClose,
     onSave: handleSave,
     dirty,
+    saveDisabled: hasInvalidTriggerExpression,
     saveLabel: t('panels.actions.save'),
     cancelLabel: t('panels.actions.cancel'),
     savingAriaLabel: t('modal.actions.saving'),

@@ -120,9 +120,6 @@ export function WaitHybridConfig({ data, onChange, journeyId }: WaitHybridConfig
               placeholder={t('panels.waitComponents.hybrid.timePlaceholder')}
               className="bg-sidebar border-sidebar-border text-sidebar-foreground"
               journeyId={journeyId}
-              onVariableInsert={variable => {
-                console.log('Variable inserted in hybrid max wait time:', variable);
-              }}
             />
           </div>
           <div className="space-y-2">

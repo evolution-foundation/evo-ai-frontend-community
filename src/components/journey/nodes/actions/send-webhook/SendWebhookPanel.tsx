@@ -6,6 +6,7 @@ import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
 import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { VariableSelect } from '@/components/journey/environment-manager';
 import { useLanguage } from '@/hooks/useLanguage';
+import { isExpressionFieldValid } from '@/utils/templateVariables';
 import {
   getEffectiveBodyMode,
   isValidJsonBody,
@@ -291,8 +292,18 @@ export function SendWebhookPanel({
         if (!result.ok) {
           issues.push(t(`panels.sendWebhook.body.validation.${result.error}`));
         }
-      } else if (formData.bodyType === 'json' && !isValidJsonBody(formData.body || '')) {
-        issues.push(t('panels.sendWebhook.invalidJson'));
+        // EVO-1872: an unbalanced {{ }} expression in any structured value blocks Save.
+        if ((formData.bodyStructured || []).some(field => !isExpressionFieldValid(field.value))) {
+          issues.push(t('environmentManager.invalidExpression'));
+        }
+      } else {
+        if (formData.bodyType === 'json' && !isValidJsonBody(formData.body || '')) {
+          issues.push(t('panels.sendWebhook.invalidJson'));
+        }
+        // EVO-1872: an unbalanced {{ }} expression in the raw body blocks Save.
+        if (!isExpressionFieldValid(formData.body || '')) {
+          issues.push(t('environmentManager.invalidExpression'));
+        }
       }
     }
 

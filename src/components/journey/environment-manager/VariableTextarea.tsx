@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef } from 'react';
+import React, { useState, useRef, useId, forwardRef } from 'react';
 import {
   Textarea,
   Button,
@@ -12,12 +12,15 @@ import { cn } from '@/lib/utils';
 import { getSystemVariables, VariableOption } from './EnvironmentManager';
 import { useJourneyVariables } from '@/hooks/useJourneyVariables';
 import { useLanguage } from '@/hooks/useLanguage';
+import { isExpressionFieldValid } from '@/utils/templateVariables';
 
 export interface VariableTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   journeyId?: string;
   onVariableInsert?: (variable: string) => void;
   showVariableButton?: boolean;
   variableButtonTooltip?: string;
+  // EVO-1872: opt-in guard for free-text expression fields — see VariableInput.
+  validateExpression?: boolean;
 }
 
 const VariableTextarea = forwardRef<HTMLTextAreaElement, VariableTextareaProps>(
@@ -28,6 +31,7 @@ const VariableTextarea = forwardRef<HTMLTextAreaElement, VariableTextareaProps>(
       onVariableInsert,
       showVariableButton = true,
       variableButtonTooltip,
+      validateExpression = false,
       ...props
     },
     ref,
@@ -35,6 +39,7 @@ const VariableTextarea = forwardRef<HTMLTextAreaElement, VariableTextareaProps>(
     const { t } = useLanguage('journey');
     const [open, setOpen] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const generatedId = useId();
     const { variables } = useJourneyVariables(journeyId);
 
     // Usar a ref passada ou a ref interna
@@ -123,9 +128,25 @@ const VariableTextarea = forwardRef<HTMLTextAreaElement, VariableTextareaProps>(
       return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
     });
 
+    // EVO-1872: derive the inline expression error and merge aria wiring.
+    const currentValue = typeof props.value === 'string' ? props.value : '';
+    const isExpressionInvalid = validateExpression && !isExpressionFieldValid(currentValue);
+    const errorId = `${generatedId}-expr-error`;
+    const ariaInvalid = validateExpression ? isExpressionInvalid : props['aria-invalid'];
+    const ariaDescribedBy =
+      [props['aria-describedby'], isExpressionInvalid ? errorId : null]
+        .filter(Boolean)
+        .join(' ') || undefined;
+
     return (
       <div className="relative">
-        <Textarea ref={finalRef} className={cn('pr-10', className)} {...props} />
+        <Textarea
+          ref={finalRef}
+          className={cn('pr-10', className)}
+          {...props}
+          aria-invalid={ariaInvalid}
+          aria-describedby={ariaDescribedBy}
+        />
 
         {showVariableButton && (
           <div className="absolute right-2 top-2">
@@ -211,6 +232,12 @@ const VariableTextarea = forwardRef<HTMLTextAreaElement, VariableTextareaProps>(
               </PopoverContent>
             </Popover>
           </div>
+        )}
+
+        {isExpressionInvalid && (
+          <p id={errorId} className="mt-1 text-xs text-flow-feedback-error-fg">
+            {t('environmentManager.invalidExpression')}
+          </p>
         )}
       </div>
     );
