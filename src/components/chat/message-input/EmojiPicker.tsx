@@ -7,21 +7,9 @@ interface EmojiPickerProps {
   onEmojiSelect: (emoji: string) => void;
   onClose: () => void;
   isOpen: boolean;
-  /**
-   * Where the panel opens relative to its trigger. Defaults to `top` (the chat
-   * composer, which sits at the bottom of the screen). Use `bottom` when the
-   * trigger is near the top of a scroll container (e.g. the template form modal)
-   * so the 400px panel does not get clipped above (EVO-1971).
-   */
-  placement?: 'top' | 'bottom';
 }
 
-const EmojiPicker: React.FC<EmojiPickerProps> = ({
-  onEmojiSelect,
-  onClose,
-  isOpen,
-  placement = 'top',
-}) => {
+const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiSelect, onClose, isOpen }) => {
   const { t } = useLanguage('chat');
   const pickerRef = useRef<HTMLDivElement>(null);
 
@@ -84,9 +72,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({
   return (
     <div
       ref={pickerRef}
-      className={`absolute left-0 z-[9999] ${
-        placement === 'bottom' ? 'top-full mt-2' : 'bottom-full mb-2'
-      }`}
+      className="absolute bottom-full left-0 mb-2 z-[9999]"
       style={{
         minWidth: '350px',
         maxWidth: '350px',
