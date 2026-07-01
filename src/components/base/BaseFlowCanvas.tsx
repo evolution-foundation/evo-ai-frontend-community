@@ -29,7 +29,6 @@ import { BaseFlowContextMenu } from './BaseFlowContextMenu';
 import { BaseFlowHelperLines } from './BaseFlowHelperLines';
 import BaseDefaultEdge from './BaseDefaultEdge';
 import { cn, getHelperLines, createMiniMapNodeColors } from '@/lib/utils';
-import { useDarkMode } from '@/hooks/useDarkMode';
 import { flowTokens } from '@/components/journey/_ui/tokens';
 
 // Edge types padrão
@@ -173,7 +172,6 @@ export function BaseFlowCanvas({
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
   const { type, setPointerEvents, setType } = useDnD();
-  const { theme } = useDarkMode();
 
   // Estados do canvas
   const [nodes, setNodes, onNodesChangeInternal] = useNodesState(initialNodes);
@@ -599,6 +597,9 @@ export function BaseFlowCanvas({
       ref={reactFlowWrapper}
       style={style}
     >
+      {/* colorMode="light": editor de Jornada é SEMPRE light. Isso pinta a chrome do React
+          Flow (Controls/zoom + MiniMap) clara e evita que o RF injete .dark no .react-flow
+          (o que re-escurecia os cards dentro do wrapper .light do shell). */}
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -619,7 +620,7 @@ export function BaseFlowCanvas({
         snapToGrid={snapToGrid}
         snapGrid={snapGrid}
         proOptions={proOptions}
-        colorMode={theme === 'dark' ? 'dark' : 'light'}
+        colorMode="light"
         deleteKeyCode={['Backspace', 'Delete']}
         multiSelectionKeyCode={['Meta', 'Ctrl']}
         panOnDrag={true}
