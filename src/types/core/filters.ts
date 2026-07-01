@@ -582,9 +582,25 @@ export const CONVERSATION_FILTER_TYPES: FilterType[] = [
   // },
 ];
 
+// Linha-semente do modal avançado (BaseFilter usa quando não há filtros). NÃO
+// pode ser `status` (status é navegação por chip, excluída do modal): senão, na
+// visão padrão (status=all) o modal semeava uma linha-fantasma "Status = Aberta"
+// e só clicar Aplicar jogava a lista pra status=open silenciosamente. Usa um
+// atributo avançado NÃO-chip-nav com valor VAZIO → a linha aparece pronta pra
+// preencher e, se aplicada sem tocar, é descartada (BaseFilter dropa valor vazio).
 export const DEFAULT_CONVERSATION_FILTER: BaseFilter = {
+  ...DEFAULT_BASE_FILTER,
+  attributeKey: 'assignee_type',
+  filterOperator: 'equal_to',
+  values: '',
+};
+
+// "All" = visão padrão da lista (status=all = todos os status). Filtro EXPLÍCITO
+// (nunca []) p/ o matcher de realtime fazer match-all sem vazar e o backend não
+// cair no default implícito status=open. Nenhum chip fica marcado (default).
+export const ALL_CONVERSATION_FILTER: BaseFilter = {
   ...DEFAULT_BASE_FILTER,
   attributeKey: 'status',
   filterOperator: 'equal_to',
-  values: 'open',
+  values: 'all',
 };

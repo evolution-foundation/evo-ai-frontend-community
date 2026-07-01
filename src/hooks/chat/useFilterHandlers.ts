@@ -40,13 +40,22 @@ export const useFilterHandlers = () => {
       // 🗑️ LIMPAR: Remover filtros salvos do localStorage
       clearConversationFilters();
 
-      // EVO-1939: resetar o estado GLOBAL para o filtro padrão (status=open).
-      // Sem isso o badge e o matcher de conversas em tempo real (ChatContext)
-      // continuam usando os filtros antigos — o usuário "limpa" mas a UI não some.
+      // EVO-1939: resetar o estado GLOBAL para o filtro padrão "Todas" (status=all).
+      // Sem isso o badge e o matcher de realtime continuam com os filtros antigos —
+      // o usuário "limpa" mas a UI não some.
       filters.setFilters([DEFAULT_FILTER]);
 
-      // 🎯 FILTRO PADRÃO: Carregar apenas conversas abertas ao limpar filtros
-      await conversations.loadConversations({ status: 'open' });
+      // 🎯 FILTRO PADRÃO: recarregar a visão "Todas" pela MESMA via do pipeline
+      // (applyFilters), mantendo activeFilters e a query em sincronia.
+      await filters.applyFilters(
+        [DEFAULT_FILTER],
+        (conversationsResult, pagination, query) => {
+          conversations.setConversations(conversationsResult, pagination, query);
+        },
+        error => {
+          console.error('❌ Erro ao limpar filtros:', error);
+        },
+      );
     } catch (error) {
       console.error('❌ Erro inesperado ao limpar filtros:', error);
     }
@@ -79,9 +88,17 @@ export const useFilterHandlers = () => {
           },
         );
       }
-      // 🎯 FILTRO PADRÃO: Se não há filtros nem busca, carregar apenas conversas abertas
+      // 🎯 FILTRO PADRÃO: Se não há filtros nem busca, recarregar a visão "Todas".
       else {
-        await conversations.loadConversations({ status: 'open' });
+        await filters.applyFilters(
+          [DEFAULT_FILTER],
+          (conversationsResult, pagination, query) => {
+            conversations.setConversations(conversationsResult, pagination, query);
+          },
+          error => {
+            console.error('❌ Erro ao recarregar filtros:', error);
+          },
+        );
       }
     } catch (error) {
       console.error('❌ Erro inesperado ao recarregar filtros:', error);

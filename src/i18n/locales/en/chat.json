@@ -294,10 +294,10 @@
       "assignTeam": "Assign Team",
       "assignTag": "Assign Label",
       "deleteConversation": "Delete conversation",
-      "bulkResolveSuccess": "{{count}} conversation(s) resolved",
-      "bulkResolvePartialSuccess": "{{success}} resolved, {{failed}} failed",
-      "bulkResolveError": "Error resolving conversations",
-      "bulkResolveNoPermission": "You do not have permission to resolve conversations"
+      "bulkStatusSuccess": "{{count}} conversation(s) updated",
+      "bulkStatusPartialSuccess": "{{success}} updated, {{failed}} failed",
+      "bulkStatusError": "Error updating conversations",
+      "bulkStatusNoPermission": "You do not have permission to update conversations"
     },
     "contactNoName": "Contact without name",
     "status": "Status:",
@@ -308,6 +308,14 @@
     "closeContactPanel": "Close contact details"
   },
   "chatSidebar": {
+    "segments": {
+      "ariaLabel": "Conversation views",
+      "open": "Open",
+      "pending": "Pending",
+      "resolved": "Resolved",
+      "unread": "Unread",
+      "groups": "Groups"
+    },
     "searchPlaceholder": "Search conversations...",
     "conversation": "conversation",
     "conversations": "conversations",
@@ -317,6 +325,12 @@
     "filter": "filter",
     "filters": "filters",
     "filtersButton": "Filters",
+    "select": "Select",
+    "doneSelection": "Done",
+    "bulkActions": "Bulk actions",
+    "bulkDeleteDescription": "Are you sure you want to delete {{count}} conversation(s)? This action cannot be undone.",
+    "undo": "Undo",
+    "bulkApplied": "Applied to {{count}} conversation(s)",
     "view": {
       "active": "Active",
       "archived": "Archived"

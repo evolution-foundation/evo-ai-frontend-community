@@ -17,6 +17,12 @@ vi.mock('./MacrosList', () => ({ default: () => null }));
 vi.mock('./EditableContactCustomAttributes', () => ({ default: () => null }));
 vi.mock('./EditableConversationCustomAttributes', () => ({ default: () => null }));
 vi.mock('@/components/pipelines/ConversationPipelineItem', () => ({ default: () => null }));
+vi.mock('@/contexts/chat/ChatContext', () => ({
+  useChatContext: () => ({ conversations: { updateConversation: vi.fn() } }),
+}));
+vi.mock('@/services/chat/chatService', () => ({
+  default: { getConversation: vi.fn().mockResolvedValue({ data: {} }) },
+}));
 type WithChildren = { children?: React.ReactNode; onClick?: () => void };
 vi.mock('@evoapi/design-system/button', () => ({ Button: ({ children, onClick }: WithChildren) => <button onClick={onClick}>{children}</button> }));
 vi.mock('@evoapi/design-system/card', () => ({

@@ -289,10 +289,10 @@
       "assignTeam": "Assigner une Équipe",
       "assignTag": "Assigner une Étiquette",
       "deleteConversation": "Supprimer la conversation",
-      "bulkResolveSuccess": "{{count}} conversation(s) résolue(s)",
-      "bulkResolvePartialSuccess": "{{success}} résolue(s), {{failed}} échouée(s)",
-      "bulkResolveError": "Erreur lors de la résolution des conversations",
-      "bulkResolveNoPermission": "Vous n'avez pas la permission de résoudre des conversations"
+      "bulkStatusSuccess": "{{count}} conversation(s) mise(s) à jour",
+      "bulkStatusPartialSuccess": "{{success}} mise(s) à jour, {{failed}} échouée(s)",
+      "bulkStatusError": "Erreur lors de la mise à jour des conversations",
+      "bulkStatusNoPermission": "Vous n'avez pas la permission de mettre à jour des conversations"
     },
     "contactNoName": "Contact sans nom",
     "status": "Statut :",
@@ -303,6 +303,14 @@
     "closeContactPanel": "Fermer les détails du contact"
   },
   "chatSidebar": {
+    "segments": {
+      "ariaLabel": "Vues des conversations",
+      "open": "Ouvertes",
+      "pending": "En attente",
+      "resolved": "Résolues",
+      "unread": "Non lues",
+      "groups": "Groupes"
+    },
     "searchPlaceholder": "Rechercher des conversations...",
     "conversation": "conversation",
     "conversations": "conversations",
@@ -312,6 +320,12 @@
     "filter": "filtre",
     "filters": "filtres",
     "filtersButton": "Filtres",
+    "select": "Sélectionner",
+    "doneSelection": "Terminé",
+    "bulkActions": "Actions groupées",
+    "bulkDeleteDescription": "Voulez-vous vraiment supprimer {{count}} conversation(s) ? Cette action est irréversible.",
+    "undo": "Annuler",
+    "bulkApplied": "Appliqué à {{count}} conversation(s)",
     "view": {
       "active": "Actives",
       "archived": "Archivees"

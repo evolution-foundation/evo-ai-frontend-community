@@ -111,7 +111,7 @@ const Chat = () => {
 
   // Bulk selection state
   const [selectedConversationIds, setSelectedConversationIds] = useState<Set<string>>(new Set());
-  const [isBulkResolving, setIsBulkResolving] = useState(false);
+  const [isBulkUpdatingStatus, setIsBulkUpdatingStatus] = useState(false);
 
   // Dashboard Apps state (lazy loaded, not auto-fetched)
   const [dashboardApps] = useState<DashboardApp[]>([]);
@@ -223,35 +223,38 @@ const Chat = () => {
     setSelectedConversationIds(new Set());
   }, []);
 
-  const handleBulkResolve = useCallback(async () => {
-    if (selectedConversationIds.size === 0) return;
-    if (!can('conversations', 'update')) {
-      toast.error(t('chatHeader.actions.bulkResolveNoPermission'));
-      return;
-    }
-    const displayIds = Array.from(selectedConversationIds);
-    setIsBulkResolving(true);
-    try {
-      const result = await chatService.bulkResolve(displayIds);
-      setSelectedConversationIds(new Set());
-      if (result.failed_ids.length === 0) {
-        toast.success(t('chatHeader.actions.bulkResolveSuccess', { count: result.success_ids.length }));
-      } else if (result.success_ids.length > 0) {
-        toast.warning(t('chatHeader.actions.bulkResolvePartialSuccess', {
-          success: result.success_ids.length,
-          failed: result.failed_ids.length,
-        }));
-      } else {
-        toast.error(t('chatHeader.actions.bulkResolveError'));
+  const handleBulkSetStatus = useCallback(
+    async (status: 'open' | 'pending' | 'resolved') => {
+      if (selectedConversationIds.size === 0) return;
+      if (!can('conversations', 'update')) {
+        toast.error(t('chatHeader.actions.bulkStatusNoPermission'));
+        return;
       }
-      await reloadCurrentFilters();
-    } catch (error) {
-      console.error('Bulk resolve error:', error);
-      toast.error(t('chatHeader.actions.bulkResolveError'));
-    } finally {
-      setIsBulkResolving(false);
-    }
-  }, [selectedConversationIds, can, reloadCurrentFilters, t]);
+      const displayIds = Array.from(selectedConversationIds);
+      setIsBulkUpdatingStatus(true);
+      try {
+        const result = await chatService.bulkUpdateStatus(displayIds, status);
+        setSelectedConversationIds(new Set());
+        if (result.failed_ids.length === 0) {
+          toast.success(t('chatHeader.actions.bulkStatusSuccess', { count: result.success_ids.length }));
+        } else if (result.success_ids.length > 0) {
+          toast.warning(t('chatHeader.actions.bulkStatusPartialSuccess', {
+            success: result.success_ids.length,
+            failed: result.failed_ids.length,
+          }));
+        } else {
+          toast.error(t('chatHeader.actions.bulkStatusError'));
+        }
+        await reloadCurrentFilters();
+      } catch (error) {
+        console.error('Bulk status update error:', error);
+        toast.error(t('chatHeader.actions.bulkStatusError'));
+      } finally {
+        setIsBulkUpdatingStatus(false);
+      }
+    },
+    [selectedConversationIds, can, reloadCurrentFilters, t],
+  );
 
   // 🔄 CARREGAMENTO SIMPLES: Apenas carregar mensagens quando conversa muda
   useEffect(() => {
@@ -464,7 +467,7 @@ const Chat = () => {
     async (conversation: Conversation) => {
       const resolvedId = String(conversation.uuid || conversation.id);
       try {
-        await conversationHandlers.handleMarkAsResolved(conversation, reloadCurrentFilters);
+        await conversationHandlers.handleMarkAsResolved(conversation);
         const liveSelected = selectedConvIdRef.current;
         if (liveSelected != null && String(liveSelected) === resolvedId) {
           await clearSelectionAndGoToList();
@@ -473,63 +476,63 @@ const Chat = () => {
         console.error('[handleMarkAsResolved] failed:', err);
       }
     },
-    [conversationHandlers, reloadCurrentFilters, clearSelectionAndGoToList],
+    [conversationHandlers, clearSelectionAndGoToList],
   );
 
   const handlePostpone = useCallback(
     async (conversation: Conversation) => {
-      await conversationHandlers.handlePostpone(conversation, reloadCurrentFilters);
+      await conversationHandlers.handlePostpone(conversation);
     },
-    [conversationHandlers, reloadCurrentFilters],
+    [conversationHandlers],
   );
 
   const handleMarkAsOpen = useCallback(
     async (conversation: Conversation) => {
-      await conversationHandlers.handleMarkAsOpen(conversation, reloadCurrentFilters);
+      await conversationHandlers.handleMarkAsOpen(conversation);
     },
-    [conversationHandlers, reloadCurrentFilters],
+    [conversationHandlers],
   );
 
   const handleMarkAsSnoozed = useCallback(
     async (conversation: Conversation) => {
-      await conversationHandlers.handleMarkAsSnoozed(conversation, reloadCurrentFilters);
+      await conversationHandlers.handleMarkAsSnoozed(conversation);
     },
-    [conversationHandlers, reloadCurrentFilters],
+    [conversationHandlers],
   );
 
   const handleSetPriority = useCallback(
     async (conversation: Conversation, priority: 'low' | 'medium' | 'high' | 'urgent' | null) => {
-      await conversationHandlers.handleSetPriority(conversation, priority, reloadCurrentFilters);
+      await conversationHandlers.handleSetPriority(conversation, priority);
     },
-    [conversationHandlers, reloadCurrentFilters],
+    [conversationHandlers],
   );
 
   const handlePinConversation = useCallback(
     async (conversation: Conversation) => {
-      await conversationHandlers.handlePinConversation(conversation, reloadCurrentFilters);
+      await conversationHandlers.handlePinConversation(conversation);
     },
-    [conversationHandlers, reloadCurrentFilters],
+    [conversationHandlers],
   );
 
   const handleUnpinConversation = useCallback(
     async (conversation: Conversation) => {
-      await conversationHandlers.handleUnpinConversation(conversation, reloadCurrentFilters);
+      await conversationHandlers.handleUnpinConversation(conversation);
     },
-    [conversationHandlers, reloadCurrentFilters],
+    [conversationHandlers],
   );
 
   const handleArchiveConversation = useCallback(
     async (conversation: Conversation) => {
-      await conversationHandlers.handleArchiveConversation(conversation, reloadCurrentFilters);
+      await conversationHandlers.handleArchiveConversation(conversation);
     },
-    [conversationHandlers, reloadCurrentFilters],
+    [conversationHandlers],
   );
 
   const handleUnarchiveConversation = useCallback(
     async (conversation: Conversation) => {
-      await conversationHandlers.handleUnarchiveConversation(conversation, reloadCurrentFilters);
+      await conversationHandlers.handleUnarchiveConversation(conversation);
     },
-    [conversationHandlers, reloadCurrentFilters],
+    [conversationHandlers],
   );
 
   // 🎯 ASSIGNMENT HANDLERS: Usar handlers dos hooks customizados
@@ -789,9 +792,9 @@ const Chat = () => {
           selectedConversationIds={selectedConversationIds}
           onToggleSelect={handleToggleConversationSelection}
           onClearSelection={handleClearSelection}
-          onBulkResolve={handleBulkResolve}
-          isBulkResolving={isBulkResolving}
-          canBulkResolve={can('conversations', 'update')}
+          onBulkSetStatus={handleBulkSetStatus}
+          isBulkUpdatingStatus={isBulkUpdatingStatus}
+          canBulkUpdateStatus={can('conversations', 'update')}
         />
 
         {/* Chat Area */}

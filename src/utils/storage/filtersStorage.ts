@@ -1,6 +1,9 @@
-import { BaseFilter, DEFAULT_CONVERSATION_FILTER } from '@/types/core';
+import { BaseFilter, ALL_CONVERSATION_FILTER } from '@/types/core';
 
-const STORAGE_KEY = 'evoai:conversation:filters';
+// v2: o default mudou de status=open para status=all ("Todas"). Bumpar a chave
+// força um reset único p/ usuários que tinham o default antigo persistido — senão
+// o filtro salvo os prende no status=open e o novo default nunca se aplica.
+const STORAGE_KEY = 'evoai:conversation:filters:v2';
 
 export const saveConversationFilters = (filters: BaseFilter[]): void => {
   try {
@@ -32,5 +35,6 @@ export const clearConversationFilters = (): void => {
 };
 
 export const getDefaultFilter = (): BaseFilter[] => {
-  return [DEFAULT_CONVERSATION_FILTER];
+  // Visão padrão ao abrir = todos os status (status=all; nenhum chip marcado).
+  return [ALL_CONVERSATION_FILTER];
 };

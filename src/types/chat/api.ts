@@ -51,6 +51,9 @@ export interface Conversation {
   snoozed_until: string | null;
   timestamp: number;
   unread_count: number;
+  /** True quando o contato é um grupo (contact.type === 'group'). Usado pelo
+   *  matcher de realtime da aba "Grupos". */
+  is_group?: boolean;
   waiting_since: number;
   meta: ConversationMeta;
   contact: Contact;
@@ -367,7 +370,7 @@ export interface ConversationListParams {
   page_size?: number;
   pageSize?: number;
   status?: 'open' | 'resolved' | 'pending' | 'snoozed' | 'all';
-  assignee_type?: 'me' | 'unassigned' | 'all';
+  assignee_type?: 'me' | 'unassigned' | 'assigned' | 'all';
   assignee_id?: string;
   inbox_id?: string;
   team_id?: string;
@@ -375,6 +378,9 @@ export interface ConversationListParams {
   q?: string;
   sort_by?: 'last_activity_at' | 'created_at' | 'priority';
   conversation_type?: 'mention' | 'unattended' | 'participating';
+  unread?: boolean;
+  is_group?: boolean;
+  archived?: boolean;
 }
 
 export interface MessageListParams {

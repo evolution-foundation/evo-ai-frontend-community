@@ -15,10 +15,27 @@ import {
   ContextMenuLabel,
 } from '@evoapi/design-system/context-menu';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@evoapi/design-system/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@evoapi/design-system/alert-dialog';
+import {
   Search,
   Filter,
   Mail,
   MailOpen,
+  MoreVertical,
   MessageCircle,
   CheckCircle,
   Clock,
@@ -35,11 +52,13 @@ import {
   FileText,
   Pin,
   Archive,
+  ArrowLeft,
   GitBranch,
   Check,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useChatContext } from '@/contexts/chat/ChatContext';
+import { usePermissions } from '@/contexts/PermissionsContext';
 import { Conversation, ConversationFilter } from '@/types/chat/api';
 import type { Pipeline, PipelineStage } from '@/types/analytics';
 import {
@@ -57,6 +76,7 @@ import { NoConversations } from '../empty-states';
 import ContactAvatar from '../contact/ContactAvatar';
 import ConversationBadges from '../conversation/ConversationBadges';
 import ConversationsFilter from '../conversation/ConversationsFilter';
+import ConversationSegments from './ConversationSegments';
 import GlobalSearchPanel from '../search/GlobalSearchPanel';
 import { BaseFilter } from '@/types/core';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -99,9 +119,13 @@ interface ChatSidebarProps {
   selectedConversationIds: Set<string>;
   onToggleSelect: (displayId: string) => void;
   onClearSelection: () => void;
-  onBulkResolve: () => Promise<void>;
-  isBulkResolving?: boolean;
-  canBulkResolve?: boolean;
+  // Status em lote (resolver/reabrir/pendente) usa o endpoint dedicado
+  // /bulk_actions (1 request, 1 toast, reconcilia via reloadCurrentFilters).
+  // NÃO tem undo: mudar status é deliberado e dispara automações/webhooks/
+  // atividade no backend.
+  onBulkSetStatus: (status: 'open' | 'pending' | 'resolved') => Promise<void>;
+  isBulkUpdatingStatus?: boolean;
+  canBulkUpdateStatus?: boolean;
 }
 
 // Prefetch the next page well before the user reaches the end so the loading
@@ -110,6 +134,35 @@ interface ChatSidebarProps {
 // floor for short viewports. loadMore stays sequential via loadingMoreRef.
 const PREFETCH_VIEWPORT_FACTOR = 2.5;
 const MIN_PREFETCH_DISTANCE_PX = 1000;
+
+// Atributos que são SÓ navegação por chip (Não lidas / Grupos) e NÃO existem no
+// catálogo do modal avançado (CONVERSATION_FILTER_TYPES). Precisam ser excluídos
+// do sync activeFilters -> modal, senão o modal renderiza uma linha quebrada
+// (dropdowns em branco) ao abrir com um desses ativos.
+const CHIP_ONLY_FILTER_KEYS = ['unread', 'is_group'];
+
+// Eixos que são navegação por chip (status + unread + is_group) — não contam
+// como "filtro avançado aplicado" no badge "N filtros".
+const CHIP_NAV_KEYS = ['status', ...CHIP_ONLY_FILTER_KEYS];
+
+// Snapshot mínimo p/ o undo das ações SEM efeito colateral no backend (ler/
+// não-ler). Capturado ANTES de aplicar — o store muta a conversa em seguida,
+// então guardamos só os primitivos (id + estado de leitura anterior).
+interface BulkSnapshot {
+  id: string;
+  wasUnread: boolean;
+}
+
+// Converte um ConversationFilter (estado global) para o BaseFilter do modal
+// avançado. Usado no sync activeFilters->modal e ao remesclar a navegação por
+// chip no apply do modal.
+const conversationFilterToBaseFilter = (f: ConversationFilter): BaseFilter => ({
+  attributeKey: f.attribute_key,
+  filterOperator: f.filter_operator,
+  values: Array.isArray(f.values) ? f.values.join(',') : String(f.values[0] || ''),
+  queryOperator: f.query_operator,
+  attributeModel: 'standard' as const,
+});
 
 const ChatSidebar = ({
   mobileView,
@@ -136,9 +189,9 @@ const ChatSidebar = ({
   selectedConversationIds,
   onToggleSelect,
   onClearSelection,
-  onBulkResolve,
-  isBulkResolving = false,
-  canBulkResolve = true,
+  onBulkSetStatus,
+  isBulkUpdatingStatus = false,
+  canBulkUpdateStatus = true,
 }: ChatSidebarProps) => {
   const { t } = useLanguage('chat');
   const chatContext = useChatContext();
@@ -161,16 +214,24 @@ const ChatSidebar = ({
     loadMoreConversations: () => Promise<void>;
   };
   const filters = chatContext.filters;
+  const { can } = usePermissions();
   const [conversationFilters, setConversationFilters] = useState<BaseFilter[]>([]);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [isLoadingMoreConversations, setIsLoadingMoreConversations] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
+  // Modo de seleção em lote: default OFF (lista limpa, sem checkbox). O botão
+  // "Selecionar" liga; "Concluir" desliga. Só nesse modo os checkboxes aparecem
+  // e o click na row alterna seleção (em vez de abrir a conversa).
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [bulkRunning, setBulkRunning] = useState(false);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const sidebarScrollRef = useRef<HTMLDivElement | null>(null);
   const loadingMoreRef = useRef(false);
   const lastScrollTimeRef = useRef<number>(0);
 
   useEffect(() => {
     onClearSelection();
+    setSelectionMode(false);
   }, [showArchived, onClearSelection]);
 
   // Pipeline state
@@ -247,21 +308,22 @@ const ChatSidebar = ({
     async (conversation: Conversation, pipeline: Pipeline, stage: PipelineStage) => {
       const convId = String(conversation.id);
       const currentPipelines = convPipelineStates.get(convId) ?? [];
-      const existingInSamePipeline = currentPipelines.find(p => p.id === pipeline.id);
+      const samePipeline = currentPipelines.find(p => p.id === pipeline.id);
       const existingInOtherPipelines = currentPipelines.filter(p => p.id !== pipeline.id);
+      // MOVER vs ADICIONAR é decidido por ITEM ATIVO encontrável, NÃO por presença
+      // do pipeline: um pipeline com jornada COMPLETED ainda volta em by_conversation
+      // (que não filtra completed_at) mas sem item ativo no serializer → o branch
+      // antigo (`if pipeline presente`) caía no MOVER e morria em moveError. A
+      // reentrada em pipeline com jornada concluída (o backend permite) tem que
+      // cair no ADICIONAR.
+      const existingItem = samePipeline ? findItemInPipeline(samePipeline, convId) : undefined;
 
-      if (existingInSamePipeline) {
-        const item = findItemInPipeline(existingInSamePipeline, convId);
-        const itemId = item?.id;
-        if (!itemId) {
-          toast.error(t('pipeline.moveError'));
-          return;
-        }
+      if (existingItem?.id) {
         try {
           await pipelinesService.moveItem({
             pipeline_id: pipeline.id,
-            item_id: itemId,
-            from_stage_id: item.stage_id,
+            item_id: existingItem.id,
+            from_stage_id: existingItem.stage_id,
             to_stage_id: stage.id,
           });
           toast.success(t('pipeline.moveSuccess'));
@@ -320,7 +382,13 @@ const ChatSidebar = ({
   const handleRemoveFromPipeline = useCallback(
     async (conversation: Conversation, pipeline: Pipeline) => {
       const convId = String(conversation.id);
-      const item = findItemInPipeline(pipeline, convId);
+      // O `pipeline` vem do allPipelines (estrutura global, SEM o item desta
+      // conversa). O item vive na state por-conversa (convPipelineStates, do
+      // by_conversation) — buscar lá, senão findItemInPipeline volta undefined e
+      // dá removeError mesmo com a conversa no pipeline. (Mesma fonte que o assign.)
+      const currentPipelines = convPipelineStates.get(convId) ?? [];
+      const statePipeline = currentPipelines.find(p => p.id === pipeline.id);
+      const item = statePipeline ? findItemInPipeline(statePipeline, convId) : undefined;
       const itemId = item?.id;
       if (!itemId) {
         toast.error(t('pipeline.removeError'));
@@ -329,20 +397,28 @@ const ChatSidebar = ({
       try {
         await pipelinesService.removeItemFromPipeline(pipeline.id, itemId);
         toast.success(t('pipeline.removeSuccess'));
+        // Update otimista LOCAL — remover é determinístico, então evitamos o
+        // refetch pesado do by_conversation (payload gigante: conversa+contato+
+        // mensagens+tasks por item) que deixava uma requisição em pending. Tira o
+        // pipeline da state por-conversa (checkmark do submenu) e do badge
+        // (conversation.pipelines). Reload real acontece ao reabrir o menu.
         setConvPipelineStates(prev => {
           const next = new Map(prev);
-          next.delete(convId);
+          next.set(convId, (next.get(convId) ?? []).filter(p => p.id !== pipeline.id));
           return next;
         });
-        await Promise.all([
-          loadConversationPipelineState(convId),
-          refreshConversationBadge(convId),
-        ]);
+        // Payload MÍNIMO: UPDATE_CONVERSATION faz merge sobre a state atual, então
+        // mandar só {id, pipelines} atualiza o badge sem sobrescrever campos que um
+        // eco de WS concorrente possa ter mudado (não espalhar o objeto do render).
+        chatContext.conversations.updateConversation({
+          id: conversation.id,
+          pipelines: (conversation.pipelines ?? []).filter(p => p.id !== pipeline.id),
+        } as Conversation);
       } catch {
         toast.error(t('pipeline.removeError'));
       }
     },
-    [t, loadConversationPipelineState, refreshConversationBadge],
+    [t, convPipelineStates, chatContext],
   );
 
   const renderPipelineSubContent = useCallback(
@@ -451,32 +527,18 @@ const ChatSidebar = ({
     ],
   );
 
-  // ðŸŽ¯ SYNC: Sincronizar local state com FiltersContext para compatibilidade com o modal
+  // 🎯 SYNC: activeFilters (global) -> estado local do modal avançado.
+  // Exclui TODA navegação por chip (status/unread/is_group): status é dirigido
+  // pelos chips, não pelo modal. Sem isso o default "Ativas" (status != resolved)
+  // abriria uma linha confusa no modal ("Status ... Resolved"). O apply do modal
+  // remescla a navegação (handleApplyAdvancedFilters), então nada se perde.
   useEffect(() => {
-    // Quando filters.state.activeFilters mudar (ex: por applyFilters chamado diretamente),
-    // atualizar o local state tambÃ©m para que o modal mostre os filtros corretos
-    // ConversationFilter (API format) -> BaseFilter (UI format)
-    const currentLocal = JSON.stringify(conversationFilters);
-    const currentContext = JSON.stringify(
-      filters.state.activeFilters.map((f: ConversationFilter) => ({
-        attributeKey: f.attribute_key,
-        filterOperator: f.filter_operator,
-        values: Array.isArray(f.values) ? f.values.join(',') : String(f.values[0] || ''),
-        queryOperator: f.query_operator,
-        attributeModel: 'standard' as const,
-      })),
-    );
+    const modalFilters = filters.state.activeFilters
+      .filter((f: ConversationFilter) => !CHIP_NAV_KEYS.includes(f.attribute_key))
+      .map(conversationFilterToBaseFilter);
 
-    if (currentLocal !== currentContext) {
-      setConversationFilters(
-        filters.state.activeFilters.map((f: ConversationFilter) => ({
-          attributeKey: f.attribute_key,
-          filterOperator: f.filter_operator,
-          values: Array.isArray(f.values) ? f.values.join(',') : String(f.values[0] || ''),
-          queryOperator: f.query_operator,
-          attributeModel: 'standard' as const,
-        })),
-      );
+    if (JSON.stringify(conversationFilters) !== JSON.stringify(modalFilters)) {
+      setConversationFilters(modalFilters);
     }
   }, [filters.state.activeFilters, conversationFilters]);
 
@@ -544,6 +606,26 @@ const ChatSidebar = ({
     onFilterApply(newFilters);
   };
 
+  // Apply do MODAL avançado: status/unread/is_group são navegação por chip e NÃO
+  // aparecem no modal. Preserva SÓ o `status` ao aplicar filtros avançados, pois é
+  // a única navegação por chip que TAMBÉM é atributo válido no POST /filter.
+  // unread/is_group são GET-only (CHIP_ONLY) — incluí-los no POST daria 400; são
+  // descartados ao aplicar um filtro avançado (comportamento original). Se o
+  // usuário adicionou o mesmo atributo no modal, o do modal vence.
+  const handleApplyAdvancedFilters = async (advancedFilters: BaseFilter[]) => {
+    setConversationFilters(advancedFilters);
+    const advancedKeys = new Set(advancedFilters.map(f => f.attributeKey));
+    const chipNav = filters.state.activeFilters
+      .filter(
+        (f: ConversationFilter) =>
+          CHIP_NAV_KEYS.includes(f.attribute_key) &&
+          !CHIP_ONLY_FILTER_KEYS.includes(f.attribute_key) &&
+          !advancedKeys.has(f.attribute_key),
+      )
+      .map(conversationFilterToBaseFilter);
+    onFilterApply([...chipNav, ...advancedFilters]);
+  };
+
   const handleClearFilters = async () => {
     setConversationFilters([]);
     onFilterClear();
@@ -554,16 +636,11 @@ const ChatSidebar = ({
   const totalPages = pagination?.total_pages || 1;
   const hasNextPage = pagination?.has_next_page ?? currentPage < totalPages;
 
-  // EVO-1939: o filtro padrão (status=open) representa a visão default e não
-  // deve contar como filtro aplicado no badge — assim o badge some ao limpar.
+  // Os eixos de chip (status / unread / is_group) são navegação, não filtro
+  // avançado — não contam no badge. Só filtros de verdade (prioridade, data,
+  // label, inbox, canal…) acendem. (Estende a exclusão do EVO-1939.)
   const appliedFilterCount = filters.state.activeFilters.filter(
-    f =>
-      !(
-        f.attribute_key === 'status' &&
-        f.filter_operator === 'equal_to' &&
-        f.values?.length === 1 &&
-        f.values[0] === 'open'
-      ),
+    f => !CHIP_NAV_KEYS.includes(f.attribute_key),
   ).length;
 
   const handleSidebarScroll = useCallback(async () => {
@@ -625,22 +702,19 @@ const ChatSidebar = ({
       return showArchived ? isArchived : !isArchived;
     });
 
-    const getSortTimestamp = (conversation: Conversation) => {
-      if (typeof conversation.timestamp === 'number') {
-        return conversation.timestamp;
-      }
-      const activityTime = Date.parse(conversation.last_activity_at || '');
-      if (!Number.isNaN(activityTime)) {
-        return activityTime;
-      }
-      const updatedTime = Date.parse(conversation.updated_at || '');
-      if (!Number.isNaN(updatedTime)) {
-        return updatedTime;
-      }
-      const createdTime = Date.parse(conversation.created_at || '');
-      if (!Number.isNaN(createdTime)) {
-        return createdTime;
-      }
+    // Ordena por last_activity_at (autoritativo: avança em status/atendente/label/
+    // mensagem e é mantido em sincronia pelo WS). NÃO usa conversation.timestamp
+    // como chave primária — o conversation.updated do WS o deixa defasado, e a
+    // conversa não subia ("bump que não reordena"). Tudo normalizado em ms para
+    // não misturar segundos (timestamp) com milissegundos (Date.parse).
+    const getSortTimestamp = (conversation: Conversation): number => {
+      const activityMs = Date.parse(conversation.last_activity_at || '');
+      if (!Number.isNaN(activityMs)) return activityMs;
+      const updatedMs = Date.parse(conversation.updated_at || '');
+      if (!Number.isNaN(updatedMs)) return updatedMs;
+      const createdMs = Date.parse(conversation.created_at || '');
+      if (!Number.isNaN(createdMs)) return createdMs;
+      if (typeof conversation.timestamp === 'number') return conversation.timestamp * 1000;
       return 0;
     };
 
@@ -650,9 +724,89 @@ const ChatSidebar = ({
       if (aPinned !== bPinned) {
         return aPinned ? -1 : 1;
       }
-      return getSortTimestamp(b) - getSortTimestamp(a);
+      const diff = getSortTimestamp(b) - getSortTimestamp(a);
+      if (diff !== 0) return diff;
+      // Tiebreaker determinístico: evita swaps/duplicatas na borda de página
+      // quando last_activity_at empata.
+      return String(b.id).localeCompare(String(a.id));
     });
   }, [conversations.state.conversations, showArchived]);
+
+  // Best-effort: contagem de arquivadas entre as conversas já carregadas.
+  const archivedCount = useMemo(
+    () =>
+      conversations.state.conversations.filter(c => Boolean(c.custom_attributes?.archived)).length,
+    [conversations.state.conversations],
+  );
+
+  // Conversas selecionadas (map display_id -> conversa) para as ações em lote.
+  const selectedConversations = useMemo(
+    () =>
+      conversations.state.conversations.filter(c =>
+        selectedConversationIds.has(String(c.display_id)),
+      ),
+    [conversations.state.conversations, selectedConversationIds],
+  );
+
+  const exitSelection = useCallback(() => {
+    onClearSelection();
+    setSelectionMode(false);
+  }, [onClearSelection]);
+
+  // Roda uma ação por-conversa em todas as selecionadas (loop no client — v1;
+  // o endpoint bulk dedicado fica como otimização futura). Quando `revert` é
+  // passado (só ler/não-ler, ações sem efeito colateral no backend), captura o
+  // estado de leitura ANTES de aplicar e, ao final, mostra um toast "Desfazer"
+  // (5s) que reaplica o inverso por conversa (cobre seleção mista). O toast e o
+  // undo cobrem APENAS as conversas que a ação aplicou com sucesso. Ações sem
+  // `revert` (arquivar/excluir) não mostram toast nem undo.
+  const runBulk = useCallback(
+    async (
+      action: (conv: Conversation) => Promise<unknown>,
+      revert?: (item: BulkSnapshot) => Promise<unknown>,
+    ) => {
+      if (selectedConversations.length === 0) return;
+      const convs = selectedConversations.slice();
+      // Snapshot dos primitivos que o undo precisa, antes do store mutar as rows.
+      const items: BulkSnapshot[] = convs.map(c => ({
+        id: c.id,
+        wasUnread: (conversations.getUnreadCount(c.id) ?? c.unread_count ?? 0) > 0,
+      }));
+      setBulkRunning(true);
+      let results: PromiseSettledResult<unknown>[] = [];
+      try {
+        results = await Promise.allSettled(convs.map(c => action(c)));
+      } finally {
+        setBulkRunning(false);
+        exitSelection();
+      }
+      if (revert) {
+        // Não oferecer undo (nem o toast de sucesso) para o que falhou.
+        const applied = items.filter((_, i) => results[i]?.status === 'fulfilled');
+        if (applied.length > 0) {
+          toast(t('chatSidebar.bulkApplied', { count: applied.length }), {
+            duration: 5000,
+            action: {
+              label: t('chatSidebar.undo'),
+              onClick: () => {
+                void Promise.allSettled(applied.map(it => revert(it)));
+              },
+            },
+          });
+        }
+      }
+    },
+    [selectedConversations, exitSelection, conversations, t],
+  );
+
+  // Undo só dos eixos SEM efeito colateral no backend: ler/não-ler usam
+  // update_column (sem automação/webhook/atividade). Restaura o estado de
+  // leitura anterior de cada conversa (cobre seleção mista). Status e
+  // arquivamento NÃO têm undo — re-disparariam eventos no backend.
+  const revertRead = (item: BulkSnapshot) =>
+    item.wasUnread
+      ? conversations.markAsUnread(item.id)
+      : conversations.markAsRead(item.id, { silent: true });
 
   const stripHtml = (html: string): string => {
     if (!html) return '';
@@ -945,7 +1099,7 @@ const ChatSidebar = ({
       data-tour="chat-sidebar"
       className={`
         ${mobileView === 'list' ? 'flex' : 'hidden'} md:flex
-        w-full ${selectedConversationIds.size > 0 ? 'md:w-96' : 'md:w-80'} border-r bg-card/50 flex-col h-full
+        w-full md:w-96 border-r bg-card/50 flex-col h-full
       `}
     >
       {/* Search and Filter Header */}
@@ -972,94 +1126,247 @@ const ChatSidebar = ({
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant={showArchived ? 'ghost' : 'secondary'}
-            size="sm"
-            className="h-8 cursor-pointer"
-            aria-pressed={!showArchived}
-            onClick={() => setShowArchived(false)}
-          >
-            {t('chatSidebar.view.active')}
-          </Button>
-          <Button
-            type="button"
-            variant={showArchived ? 'secondary' : 'ghost'}
-            size="sm"
-            className="h-8 cursor-pointer"
-            aria-pressed={showArchived}
-            onClick={() => setShowArchived(true)}
-          >
-            {t('chatSidebar.view.archived')}
-          </Button>
-        </div>
+        {/* Segments (lab Experimento #1): WhatsApp-style primary views.
+            Reversible — remove this block to restore the prior UX. */}
+        {!showArchived && !selectionMode && (
+          <ConversationSegments
+            activeFilters={filters.state.activeFilters}
+            onSelectSegment={handleApplyFilters}
+            disabled={filters.state.isApplyingFilters}
+          />
+        )}
 
-        {/* Filter Actions */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">
-            {(conversations.state.conversationsPagination?.total || visibleConversations.length)}{' '}
-            {(conversations.state.conversationsPagination?.total || visibleConversations.length) === 1
-              ? t('chatSidebar.conversation')
-              : t('chatSidebar.conversations')}
-          </span>
-          <div className="flex items-center gap-2">
-            {/* Indicador de filtros ativos (ignora o filtro padrão status=open) */}
-            {appliedFilterCount > 0 && (
-              <Badge variant="secondary" className="text-xs">
-                {appliedFilterCount}{' '}
-                {appliedFilterCount === 1
-                  ? t('chatSidebar.filter')
-                  : t('chatSidebar.filters')}
-              </Badge>
-            )}
+        {/* Ações e filtro (apenas na visão normal) */}
+        {!showArchived && !selectionMode && (
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">
+              {(conversations.state.conversationsPagination?.total || visibleConversations.length)}{' '}
+              {(conversations.state.conversationsPagination?.total || visibleConversations.length) === 1
+                ? t('chatSidebar.conversation')
+                : t('chatSidebar.conversations')}
+            </span>
+            <div className="flex items-center gap-2">
+              {/* Indicador de filtros ativos (status é navegação, não conta) */}
+              {appliedFilterCount > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {appliedFilterCount}{' '}
+                  {appliedFilterCount === 1
+                    ? t('chatSidebar.filter')
+                    : t('chatSidebar.filters')}
+                </Badge>
+              )}
 
-            {/* Botão de filtros */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setFilterModalOpen(true)}
-              disabled={filters.state.isApplyingFilters}
-              className="h-8 px-2 cursor-pointer"
-              data-tour="chat-filter-button"
-            >
-              <Filter className="h-4 w-4" />
-              {t('chatSidebar.filtersButton')}
-            </Button>
+              {/* Botão "Selecionar" — entra no modo de seleção em lote */}
+              {!selectionMode && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectionMode(true)}
+                  className="h-8 px-2 cursor-pointer"
+                >
+                  {t('chatSidebar.select')}
+                </Button>
+              )}
+
+              {/* Botão de filtros */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setFilterModalOpen(true)}
+                disabled={filters.state.isApplyingFilters}
+                className="h-8 px-2 cursor-pointer"
+                data-tour="chat-filter-button"
+              >
+                <Filter className="h-4 w-4" />
+                {t('chatSidebar.filtersButton')}
+              </Button>
+            </div>
           </div>
-        </div>
-        {showArchived && (
-          <p className="text-xs text-muted-foreground">{t('chatSidebar.archivedNotice')}</p>
+        )}
+
+        {/* Entrada única de Arquivados (visão normal) → abre a "aba" de arquivados */}
+        {!showArchived && !selectionMode && (
+          <button
+            type="button"
+            onClick={() => {
+              setShowArchived(true);
+              // Busca no backend só as arquivadas (archived=true, todos os status),
+              // per_page 100 (cap do backend) = carrega todas numa tacada, sem botão.
+              void conversations.loadConversations({ status: 'all', archived: true, per_page: 100 });
+            }}
+            className="flex w-full items-center justify-between rounded-md px-2 py-2 text-sm hover:bg-muted cursor-pointer"
+          >
+            <span className="flex items-center gap-2 text-muted-foreground">
+              <Archive className="h-4 w-4" />
+              {t('chatSidebar.view.archived')}
+            </span>
+            {archivedCount > 0 && (
+              <span className="text-xs text-muted-foreground">{archivedCount}</span>
+            )}
+          </button>
+        )}
+
+        {/* "Aba" de arquivados aberta → cabeçalho com voltar à visão normal */}
+        {showArchived && !selectionMode && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowArchived(false);
+                  // Volta pra visão normal reaplicando o filtro ativo (default/chip).
+                  void filters.applyFilters(
+                    filters.state.activeFilters,
+                    (c, p, q) => conversations.setConversations(c, p, q),
+                    () => {},
+                  );
+                }}
+                className="flex items-center gap-2 text-sm font-medium cursor-pointer hover:text-primary"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                {t('chatSidebar.view.archived')}
+              </button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectionMode(true)}
+                className="h-8 px-2 cursor-pointer"
+              >
+                {t('chatSidebar.select')}
+              </Button>
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Bulk Action Toolbar */}
-      {selectedConversationIds.size > 0 && (
-        <div className="px-3 py-2 border-b bg-primary/5 flex flex-col gap-1.5 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">
-              {t('chatSidebar.selectedCount', { count: selectedConversationIds.size })}
-            </span>
+      {/* Barra de ações em lote (estilo WhatsApp: ✕ N selecionadas + kebab ⋮) */}
+      {selectionMode && (
+        <div className="px-3 py-2 border-b bg-muted/40 flex items-center justify-between gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 w-7 p-0 cursor-pointer"
-              onClick={onClearSelection}
+              className="h-8 w-8 p-0 cursor-pointer"
+              onClick={exitSelection}
+              aria-label={t('chatSidebar.doneSelection')}
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="h-4 w-4" />
             </Button>
+            <span className="text-sm font-medium truncate">
+              {t('chatSidebar.selectedCount', { count: selectedConversationIds.size })}
+            </span>
           </div>
-          <Button
-            size="sm"
-            className="h-7 w-full cursor-pointer"
-            onClick={onBulkResolve}
-            disabled={isBulkResolving || !canBulkResolve}
-          >
-            <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
-            {t('chatHeader.actions.markAsResolved')}
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 cursor-pointer"
+                disabled={selectedConversationIds.size === 0 || bulkRunning}
+                aria-label={t('chatSidebar.bulkActions')}
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {canBulkUpdateStatus && (
+                <>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    disabled={isBulkUpdatingStatus}
+                    onClick={() => {
+                      void onBulkSetStatus('resolved').finally(() => setSelectionMode(false));
+                    }}
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    {t('chatHeader.actions.markAsResolved')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    disabled={isBulkUpdatingStatus}
+                    onClick={() => {
+                      void onBulkSetStatus('open').finally(() => setSelectionMode(false));
+                    }}
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    {t('chatHeader.actions.markAsOpen')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    disabled={isBulkUpdatingStatus}
+                    onClick={() => {
+                      void onBulkSetStatus('pending').finally(() => setSelectionMode(false));
+                    }}
+                  >
+                    <Clock className="h-4 w-4 mr-2" />
+                    {t('chatHeader.actions.markAsPending')}
+                  </DropdownMenuItem>
+                </>
+              )}
+              {showArchived ? (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => void runBulk(c => conversations.unarchiveConversation(c.id))}
+                >
+                  <Archive className="h-4 w-4 mr-2" />
+                  {t('chatHeader.actions.unarchiveConversation')}
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => void runBulk(c => conversations.archiveConversation(c.id))}
+                >
+                  <Archive className="h-4 w-4 mr-2" />
+                  {t('chatHeader.actions.archiveConversation')}
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() =>
+                  void runBulk(c => conversations.markAsRead(c.id, { silent: true }), revertRead)
+                }
+              >
+                <MailOpen className="h-4 w-4 mr-2" />
+                {t('chatHeader.actions.markAsRead')}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => void runBulk(c => conversations.markAsUnread(c.id), revertRead)}
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                {t('chatHeader.actions.markAsUnread')}
+              </DropdownMenuItem>
+              {can('conversations', 'delete') && (
+                <DropdownMenuItem
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                  onClick={() => setBulkDeleteOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  {t('chatHeader.actions.deleteConversation')}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       )}
+
+      {/* Confirmação de exclusão em lote */}
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('deleteDialog.title')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('chatSidebar.bulkDeleteDescription', { count: selectedConversationIds.size })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('deleteDialog.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => void runBulk(c => conversations.deleteConversation(c.id))}>
+              {t('deleteDialog.confirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Conversations List */}
       <div
@@ -1115,6 +1422,8 @@ const ChatSidebar = ({
             {visibleConversations.map((conversation: Conversation) => {
               const isSelected =
                 String(conversations.state.selectedConversationId) === String(conversation.id);
+              const isBulkSelected =
+                selectionMode && selectedConversationIds.has(String(conversation.display_id));
 
               // Usar channel da conversa diretamente, com fallback para inbox
               const channelType =
@@ -1129,30 +1438,38 @@ const ChatSidebar = ({
                 <div
                   key={conversation.id}
                   className={`p-4 hover:bg-accent cursor-pointer transition-colors ${
-                    isSelected
-                      ? 'bg-primary/10 border-l-2 border-l-primary'
-                      : 'border-b border-border/50'
+                    isBulkSelected
+                      ? 'bg-primary/5 border-l-2 border-l-primary'
+                      : isSelected
+                        ? 'bg-primary/10 border-l-2 border-l-primary'
+                        : 'border-b border-border/50'
                   }`}
-                  onClick={() => onConversationSelect(conversation)}
+                  onClick={() =>
+                    selectionMode
+                      ? onToggleSelect(String(conversation.display_id))
+                      : onConversationSelect(conversation)
+                  }
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3 min-w-0 flex-1">
-                      <div
-                        className="mt-1 flex-shrink-0"
-                        onClick={e => e.stopPropagation()}
-                      >
-                        <Checkbox
-                          checked={selectedConversationIds.has(String(conversation.display_id))}
-                          onCheckedChange={(checked: boolean | 'indeterminate') => {
-                            const isSelected = selectedConversationIds.has(String(conversation.display_id));
-                            if ((checked === true && !isSelected) || (checked === false && isSelected)) {
-                              onToggleSelect(String(conversation.display_id));
-                            }
-                          }}
-                          aria-label={t('chatSidebar.selectConversation')}
-                          className="bg-white dark:bg-zinc-700 border-2 border-zinc-400 dark:border-zinc-500 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                        />
-                      </div>
+                      {selectionMode && (
+                        <div
+                          className="mt-1 flex-shrink-0"
+                          onClick={e => e.stopPropagation()}
+                        >
+                          <Checkbox
+                            checked={selectedConversationIds.has(String(conversation.display_id))}
+                            onCheckedChange={(checked: boolean | 'indeterminate') => {
+                              const isSelected = selectedConversationIds.has(String(conversation.display_id));
+                              if ((checked === true && !isSelected) || (checked === false && isSelected)) {
+                                onToggleSelect(String(conversation.display_id));
+                              }
+                            }}
+                            aria-label={t('chatSidebar.selectConversation')}
+                            className="border-muted-foreground/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          />
+                        </div>
+                      )}
                       <ContactAvatar
                         contact={conversation.contact}
                         channelType={channelType}
@@ -1239,7 +1556,7 @@ const ChatSidebar = ({
               </div>
             )}
 
-            {!isLoadingMoreConversations && hasNextPage && (
+            {!isLoadingMoreConversations && hasNextPage && !showArchived && (
               <div className="p-3 border-t border-border/40">
                 <Button
                   variant="outline"
@@ -1261,7 +1578,7 @@ const ChatSidebar = ({
         onOpenChange={setFilterModalOpen}
         filters={conversationFilters}
         onFiltersChange={setConversationFilters}
-        onApplyFilters={handleApplyFilters}
+        onApplyFilters={handleApplyAdvancedFilters}
         onClearFilters={handleClearFilters}
       />
     </div>

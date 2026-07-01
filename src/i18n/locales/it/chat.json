@@ -289,10 +289,10 @@
       "assignTeam": "Assegna Team",
       "assignTag": "Assegna Etichetta",
       "deleteConversation": "Elimina conversazione",
-      "bulkResolveSuccess": "{{count}} conversazione/i risolta/e",
-      "bulkResolvePartialSuccess": "{{success}} risolta/e, {{failed}} fallita/e",
-      "bulkResolveError": "Errore nella risoluzione delle conversazioni",
-      "bulkResolveNoPermission": "Non hai il permesso di risolvere le conversazioni"
+      "bulkStatusSuccess": "{{count}} conversazione/i aggiornata/e",
+      "bulkStatusPartialSuccess": "{{success}} aggiornata/e, {{failed}} fallita/e",
+      "bulkStatusError": "Errore nell'aggiornamento delle conversazioni",
+      "bulkStatusNoPermission": "Non hai il permesso di aggiornare le conversazioni"
     },
     "contactNoName": "Contatto senza nome",
     "status": "Stato:",
@@ -303,6 +303,14 @@
     "closeContactPanel": "Chiudi dettagli contatto"
   },
   "chatSidebar": {
+    "segments": {
+      "ariaLabel": "Viste delle conversazioni",
+      "open": "Aperte",
+      "pending": "In sospeso",
+      "resolved": "Risolte",
+      "unread": "Non lette",
+      "groups": "Gruppi"
+    },
     "searchPlaceholder": "Cerca conversazioni...",
     "conversation": "conversazione",
     "conversations": "conversazioni",
@@ -312,6 +320,12 @@
     "filter": "filtro",
     "filters": "filtri",
     "filtersButton": "Filtri",
+    "select": "Seleziona",
+    "doneSelection": "Fine",
+    "bulkActions": "Azioni in blocco",
+    "bulkDeleteDescription": "Vuoi davvero eliminare {{count}} conversazione/i? L'azione non può essere annullata.",
+    "undo": "Annulla",
+    "bulkApplied": "Applicato a {{count}} conversazione/i",
     "view": {
       "active": "Attive",
       "archived": "Archiviate"

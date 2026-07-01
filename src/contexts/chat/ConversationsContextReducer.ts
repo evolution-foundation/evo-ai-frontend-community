@@ -412,6 +412,10 @@ export function conversationsReducer(
       const unreadKey = removed ? String(removed.id) : targetId;
       const { [unreadKey]: _removed, ...remainingUnreadCounts } = state.unreadCounts; // eslint-disable-line @typescript-eslint/no-unused-vars
 
+      // O total da paginação é DERIVADO do servidor — não mutamos no client em
+      // remoções (reconcile/realtime). Entre fetches o header pode ficar levemente
+      // alto (mostra 10 com 9 linhas), mas é estável e sem corrida de
+      // double-decrement; self-heals no próximo fetch.
       return {
         ...state,
         conversations: filteredConversations,

@@ -291,14 +291,24 @@ class ChatService {
     return extractData<Message>(response);
   }
 
-  async bulkResolve(displayIds: string[]): Promise<{ success_ids: number[]; failed_ids: number[] }> {
+  // Atualiza o status de N conversas via o endpoint dedicado /bulk_actions
+  // (1 request, reconcilia a view no chamador). Mudar status é uma ação
+  // deliberada — dispara automações/webhooks/atividade no backend (correto).
+  async bulkUpdateStatus(
+    displayIds: string[],
+    status: 'open' | 'pending' | 'resolved',
+  ): Promise<{ success_ids: number[]; failed_ids: number[] }> {
     const response = await api.post('/bulk_actions', {
       type: 'Conversation',
       ids: displayIds,
-      fields: { status: 'resolved' },
+      fields: { status },
     });
     const data = response.data?.data;
     return data ?? { success_ids: [], failed_ids: [] };
+  }
+
+  async bulkResolve(displayIds: string[]): Promise<{ success_ids: number[]; failed_ids: number[] }> {
+    return this.bulkUpdateStatus(displayIds, 'resolved');
   }
 }
 

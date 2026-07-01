@@ -22,6 +22,8 @@ import type { Pipeline } from '@/types/analytics';
 import { contactsService } from '@/services/contacts';
 import { Contact, Conversation } from '@/types/chat/api';
 import { mergeFullContact } from '@/utils/chat/contactTimestamp';
+import { useChatContext } from '@/contexts/chat/ChatContext';
+import chatService from '@/services/chat/chatService';
 
 interface ContactSidebarProps {
   isOpen: boolean;
@@ -80,6 +82,7 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
   onFilterReload,
 }) => {
   const { t } = useLanguage('chat');
+  const chatCtx = useChatContext();
 
   // Estados para controlar seções expandidas/colapsadas (padrão Agents.tsx)
   const [showContactDetails, setShowContactDetails] = useState(false);
@@ -167,15 +170,32 @@ const ContactSidebar: React.FC<ContactSidebarProps> = ({
     }
   }, [conversation?.id]);
 
+  // #1 harmonia mesma-aba: recarrega o rich state quando OUTRA superfície (menu de
+  // contexto / header) muta o pipeline. Toda mutação chama updateConversation, que
+  // troca a REFERÊNCIA de conversation.pipelines (badge) — logo, keyar o effect
+  // nela reflete a mudança aqui sem precisar de websocket. selectedConversation é
+  // derivado da state compartilhada, então o prop chega fresco. (Cross-aba/agente
+  // = websocket, camada separada.)
   useEffect(() => {
     loadConversationPipelines();
-  }, [loadConversationPipelines]);
+  }, [loadConversationPipelines, conversation?.pipelines]);
 
   // Handler para recarregar pipelines quando houver atualização
   const handlePipelineUpdated = useCallback(async () => {
     await loadConversationPipelines();
-    onFilterReload?.();
-  }, [loadConversationPipelines, onFilterReload]);
+    // #2: em vez de refetchar a lista INTEIRA (onFilterReload = reloadCurrentFilters),
+    // atualiza só o badge DESTA conversa via getConversation (rápido depois do fix do
+    // include_messages) -> updateConversation. Fallback pro reload amplo se falhar.
+    const id = conversation?.id;
+    if (!id) return;
+    try {
+      const raw = await chatService.getConversation(id);
+      const updated = (raw as { data?: Conversation })?.data ?? (raw as unknown as Conversation);
+      if (updated?.id) chatCtx.conversations.updateConversation(updated);
+    } catch {
+      await onFilterReload?.();
+    }
+  }, [loadConversationPipelines, conversation?.id, chatCtx, onFilterReload]);
 
   const handleContactAttributeUpdate = useCallback(async () => {
     const id = contactRef.current?.id;

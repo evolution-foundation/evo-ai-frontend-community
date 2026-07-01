@@ -27,11 +27,13 @@ type FiltersAction =
   | { type: 'SET_SEARCH_TERM'; payload: string }
   | { type: 'SET_APPLYING_FILTERS'; payload: boolean };
 
-// 🎯 FILTRO PADRÃO: Inicializar com filtro "open" desde o início
+// 🎯 FILTRO PADRÃO = "All": todos os status (status=all). EXPLÍCITO (nunca [])
+// para o matcher de realtime fazer match-all sem vazar; status é navegação
+// (chips), não filtro. Baseline do realtime + alvo do "Limpar filtros".
 export const DEFAULT_FILTER: ConversationFilter = {
   attribute_key: 'status',
   filter_operator: 'equal_to',
-  values: ['open'], // Array para API, mas será convertido para string no modal
+  values: ['all'],
   query_operator: 'and',
 };
 
