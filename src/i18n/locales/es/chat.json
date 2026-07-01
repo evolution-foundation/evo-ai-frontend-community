@@ -326,6 +326,9 @@
     "bulkDeleteDescription": "¿Seguro que deseas eliminar {{count}} conversación(es)? Esta acción no se puede deshacer.",
     "undo": "Deshacer",
     "bulkApplied": "Aplicado a {{count}} conversación(es)",
+    "bulkDeleted": "{{count}} conversación(es) eliminada(s)",
+    "bulkFailed": "{{count}} conversación(es) fallaron",
+    "advancedFiltersCleared": "Filtros avanzados eliminados — No leídas/Grupos no se combinan con ellos",
     "view": {
       "active": "Activas",
       "archived": "Archivadas"

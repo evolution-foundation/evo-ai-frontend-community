@@ -331,6 +331,9 @@
     "bulkDeleteDescription": "Are you sure you want to delete {{count}} conversation(s)? This action cannot be undone.",
     "undo": "Undo",
     "bulkApplied": "Applied to {{count}} conversation(s)",
+    "bulkDeleted": "{{count}} conversation(s) deleted",
+    "bulkFailed": "{{count}} conversation(s) failed",
+    "advancedFiltersCleared": "Advanced filters cleared — Unread/Groups can't be combined with them",
     "view": {
       "active": "Active",
       "archived": "Archived"

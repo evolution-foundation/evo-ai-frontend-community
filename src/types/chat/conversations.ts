@@ -87,10 +87,12 @@ export interface ConversationsContextValue {
   archiveConversation: (
     conversationId: string,
     onFilterReload?: () => Promise<void>,
+    options?: { silent?: boolean },
   ) => Promise<Conversation>;
   unarchiveConversation: (
     conversationId: string,
     onFilterReload?: () => Promise<void>,
+    options?: { silent?: boolean },
   ) => Promise<Conversation>;
 
   // Direct state manipulation (for WebSocket integration)
@@ -111,9 +113,9 @@ export interface ConversationsContextValue {
   getUnreadCount: (conversationId: string) => number;
 
   // Context menu actions
-  deleteConversation: (conversationId: string) => Promise<void>;
+  deleteConversation: (conversationId: string, options?: { silent?: boolean }) => Promise<void>;
   markAsRead: (conversationId: string, options?: { silent?: boolean }) => Promise<void>;
-  markAsUnread: (conversationId: string) => Promise<void>;
+  markAsUnread: (conversationId: string, options?: { silent?: boolean }) => Promise<void>;
   markAsResolved: (conversationId: string) => Promise<void>;
   markAsPending: (conversationId: string) => Promise<void>;
   assignAgent: (conversationId: string, assigneeId: string | null) => Promise<void>;

@@ -601,9 +601,33 @@ const ChatSidebar = ({
     [navigate, onSearchChange],
   );
 
-  const handleApplyFilters = async (newFilters: BaseFilter[]) => {
-    setConversationFilters(newFilters);
-    onFilterApply(newFilters);
+  // Navegação por chip. Simétrico ao handleApplyAdvancedFilters (que preserva o
+  // status ao aplicar avançado): um chip de STATUS preserva os filtros avançados
+  // ativos (troca só o status). Não-lidas/Grupos são CHIP_ONLY e NÃO combinam com
+  // avançado no backend (POST /filter = 400; é o EVO-1970), então limpam o
+  // avançado — mas avisando, em vez do sumiço silencioso de antes.
+  const handleApplyFilters = async (segmentPreset: BaseFilter[]) => {
+    const advanced = filters.state.activeFilters
+      .filter((f: ConversationFilter) => !CHIP_NAV_KEYS.includes(f.attribute_key))
+      .map(conversationFilterToBaseFilter);
+
+    if (advanced.length === 0) {
+      setConversationFilters([]);
+      onFilterApply(segmentPreset);
+      return;
+    }
+
+    const isChipOnly = segmentPreset.some(f => CHIP_ONLY_FILTER_KEYS.includes(f.attributeKey));
+    if (isChipOnly) {
+      toast.info(t('chatSidebar.advancedFiltersCleared'));
+      setConversationFilters([]);
+      onFilterApply(segmentPreset);
+      return;
+    }
+
+    // Chip de status: mantém o avançado, troca só a navegação de status.
+    setConversationFilters(advanced);
+    onFilterApply([...segmentPreset, ...advanced]);
   };
 
   // Apply do MODAL avançado: status/unread/is_group são navegação por chip e NÃO
@@ -758,12 +782,14 @@ const ChatSidebar = ({
   // passado (só ler/não-ler, ações sem efeito colateral no backend), captura o
   // estado de leitura ANTES de aplicar e, ao final, mostra um toast "Desfazer"
   // (5s) que reaplica o inverso por conversa (cobre seleção mista). O toast e o
-  // undo cobrem APENAS as conversas que a ação aplicou com sucesso. Ações sem
-  // `revert` (arquivar/excluir) não mostram toast nem undo.
+  // undo cobrem APENAS as conversas que a ação aplicou com sucesso. Todas as
+  // ações em massa silenciam o toast por-conversa ({ silent: true }) e mostram
+  // só o consolidado; as sem `revert` (arquivar/excluir) mostram-no sem undo.
   const runBulk = useCallback(
     async (
       action: (conv: Conversation) => Promise<unknown>,
       revert?: (item: BulkSnapshot) => Promise<unknown>,
+      successKey: string = 'chatSidebar.bulkApplied',
     ) => {
       if (selectedConversations.length === 0) return;
       const convs = selectedConversations.slice();
@@ -780,20 +806,31 @@ const ChatSidebar = ({
         setBulkRunning(false);
         exitSelection();
       }
-      if (revert) {
-        // Não oferecer undo (nem o toast de sucesso) para o que falhou.
-        const applied = items.filter((_, i) => results[i]?.status === 'fulfilled');
-        if (applied.length > 0) {
-          toast(t('chatSidebar.bulkApplied', { count: applied.length }), {
-            duration: 5000,
-            action: {
-              label: t('chatSidebar.undo'),
-              onClick: () => {
-                void Promise.allSettled(applied.map(it => revert(it)));
-              },
-            },
-          });
-        }
+      // Toast CONSOLIDADO (1 só): as ações em massa silenciam o toast por-conversa,
+      // então mostramos um único resumo. Conta só o que aplicou com sucesso; o undo
+      // (quando reversível — ler/não-ler) reaplica o inverso por conversa.
+      const applied = items.filter((_, i) => results[i]?.status === 'fulfilled');
+      const failedCount = results.length - applied.length;
+      if (applied.length > 0) {
+        toast(t(successKey, { count: applied.length }), {
+          duration: 5000,
+          ...(revert
+            ? {
+                action: {
+                  label: t('chatSidebar.undo'),
+                  onClick: () => {
+                    void Promise.allSettled(applied.map(it => revert(it)));
+                  },
+                },
+              }
+            : {}),
+        });
+      }
+      // Falhas TAMBÉM consolidadas num único toast (as ações silenciam o erro
+      // por-conversa via { silent: true }), pra não empilhar N erros nem afogar
+      // o toast de sucesso/undo.
+      if (failedCount > 0) {
+        toast.error(t('chatSidebar.bulkFailed', { count: failedCount }));
       }
     },
     [selectedConversations, exitSelection, conversations, t],
@@ -805,7 +842,7 @@ const ChatSidebar = ({
   // arquivamento NÃO têm undo — re-disparariam eventos no backend.
   const revertRead = (item: BulkSnapshot) =>
     item.wasUnread
-      ? conversations.markAsUnread(item.id)
+      ? conversations.markAsUnread(item.id, { silent: true })
       : conversations.markAsRead(item.id, { silent: true });
 
   const stripHtml = (html: string): string => {
@@ -1306,7 +1343,7 @@ const ChatSidebar = ({
               {showArchived ? (
                 <DropdownMenuItem
                   className="cursor-pointer"
-                  onClick={() => void runBulk(c => conversations.unarchiveConversation(c.id))}
+                  onClick={() => void runBulk(c => conversations.unarchiveConversation(c.id, undefined, { silent: true }))}
                 >
                   <Archive className="h-4 w-4 mr-2" />
                   {t('chatHeader.actions.unarchiveConversation')}
@@ -1314,7 +1351,7 @@ const ChatSidebar = ({
               ) : (
                 <DropdownMenuItem
                   className="cursor-pointer"
-                  onClick={() => void runBulk(c => conversations.archiveConversation(c.id))}
+                  onClick={() => void runBulk(c => conversations.archiveConversation(c.id, undefined, { silent: true }))}
                 >
                   <Archive className="h-4 w-4 mr-2" />
                   {t('chatHeader.actions.archiveConversation')}
@@ -1331,7 +1368,7 @@ const ChatSidebar = ({
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer"
-                onClick={() => void runBulk(c => conversations.markAsUnread(c.id), revertRead)}
+                onClick={() => void runBulk(c => conversations.markAsUnread(c.id, { silent: true }), revertRead)}
               >
                 <Mail className="h-4 w-4 mr-2" />
                 {t('chatHeader.actions.markAsUnread')}
@@ -1361,7 +1398,7 @@ const ChatSidebar = ({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('deleteDialog.cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={() => void runBulk(c => conversations.deleteConversation(c.id))}>
+            <AlertDialogAction onClick={() => void runBulk(c => conversations.deleteConversation(c.id, { silent: true }), undefined, 'chatSidebar.bulkDeleted')}>
               {t('deleteDialog.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>

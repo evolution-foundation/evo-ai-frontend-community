@@ -326,6 +326,9 @@
     "bulkDeleteDescription": "Vuoi davvero eliminare {{count}} conversazione/i? L'azione non può essere annullata.",
     "undo": "Annulla",
     "bulkApplied": "Applicato a {{count}} conversazione/i",
+    "bulkDeleted": "{{count}} conversazione/i eliminata/e",
+    "bulkFailed": "{{count}} conversazione/i non riuscite",
+    "advancedFiltersCleared": "Filtri avanzati rimossi — Non lette/Gruppi non si combinano con essi",
     "view": {
       "active": "Attive",
       "archived": "Archiviate"

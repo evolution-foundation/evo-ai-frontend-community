@@ -326,6 +326,9 @@
     "bulkDeleteDescription": "Voulez-vous vraiment supprimer {{count}} conversation(s) ? Cette action est irréversible.",
     "undo": "Annuler",
     "bulkApplied": "Appliqué à {{count}} conversation(s)",
+    "bulkDeleted": "{{count}} conversation(s) supprimée(s)",
+    "bulkFailed": "{{count}} conversation(s) en échec",
+    "advancedFiltersCleared": "Filtres avancés supprimés — Non lues/Groupes ne se combinent pas avec eux",
     "view": {
       "active": "Actives",
       "archived": "Archivees"

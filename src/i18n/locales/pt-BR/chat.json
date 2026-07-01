@@ -331,6 +331,9 @@
     "bulkDeleteDescription": "Tem certeza que deseja excluir {{count}} conversa(s)? Esta ação não pode ser desfeita.",
     "undo": "Desfazer",
     "bulkApplied": "Aplicado a {{count}} conversa(s)",
+    "bulkDeleted": "{{count}} conversa(s) excluída(s)",
+    "bulkFailed": "{{count}} conversa(s) falharam",
+    "advancedFiltersCleared": "Filtros avançados removidos — Não-lidas/Grupos não combinam com eles",
     "view": {
       "active": "Ativas",
       "archived": "Arquivadas"

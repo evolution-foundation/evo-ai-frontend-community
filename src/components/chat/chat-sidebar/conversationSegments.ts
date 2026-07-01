@@ -56,15 +56,19 @@ const hasFilter = (active: ConversationFilter[], key: string, value: string): bo
 
 /**
  * Derive which segment the current GLOBAL activeFilters represent so the matching
- * chip can be highlighted. Single-select / mutually exclusive: cada preset é um
- * único filtro. Returns null para All (status=all) ou filtro avançado/custom.
+ * chip can be highlighted. O eixo STATUS é refletido mesmo quando filtros avançados
+ * o acompanham (Opção 1: chip de status preserva o avançado). unread/groups são
+ * CHIP_ONLY e nunca coexistem com avançado, então exigem seleção única. Returns
+ * null para All (status=all) ou filtro avançado sem status reconhecível.
  */
 export const getActiveSegmentId = (active: ConversationFilter[]): ConversationSegmentId | null => {
   if (!active || active.length === 0) return null;
   if (active.length === 1 && hasFilter(active, 'unread', 'true')) return 'unread';
   if (active.length === 1 && hasFilter(active, 'is_group', 'true')) return 'groups';
-  if (active.length === 1 && hasFilter(active, 'status', 'pending')) return 'pending';
-  if (active.length === 1 && hasFilter(active, 'status', 'resolved')) return 'resolved';
-  if (active.length === 1 && hasFilter(active, 'status', 'open')) return 'open';
+  // status coexiste com avançado — não guardar por length, senão o chip clicado
+  // não acende (e não dá pra desligar) quando há um filtro avançado ativo.
+  if (hasFilter(active, 'status', 'pending')) return 'pending';
+  if (hasFilter(active, 'status', 'resolved')) return 'resolved';
+  if (hasFilter(active, 'status', 'open')) return 'open';
   return null;
 };
