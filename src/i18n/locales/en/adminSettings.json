@@ -521,7 +521,15 @@
     },
     "messages": {
       "loadError": "Failed to load integrations configuration"
-    }
+    },
+    "statusConfigured": "Configured",
+    "statusNotConfigured": "Not configured",
+    "dialogSubtitle": "Enter the OAuth credentials for this integration.",
+    "remove": "Remove",
+    "removing": "Removing...",
+    "removeSuccess": "Configuration removed",
+    "removeError": "Failed to remove configuration",
+    "cancel": "Cancel"
   },
   "inboundEmail": {
     "title": "Inbound email (receive as conversations)",

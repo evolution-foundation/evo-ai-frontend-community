@@ -521,7 +521,15 @@
     },
     "messages": {
       "loadError": "Error al cargar la configuracion de integraciones"
-    }
+    },
+    "statusConfigured": "Configurado",
+    "statusNotConfigured": "Sin configurar",
+    "dialogSubtitle": "Introduce las credenciales OAuth de esta integración.",
+    "remove": "Eliminar",
+    "removing": "Eliminando...",
+    "removeSuccess": "Configuración eliminada",
+    "removeError": "No se pudo eliminar la configuración",
+    "cancel": "Cancelar"
   },
   "inboundEmail": {
     "title": "Correo entrante (recibir como conversaciones)",
@@ -582,7 +590,9 @@
   "evolutionHub": {
     "title": "Evo Hub",
     "description": "Use Evo Hub como capa de proxy para canales Meta (WhatsApp Cloud, Messenger, Instagram). Cuando se activa, el CRM sustituye las llamadas directas a la Graph API por llamadas vía Hub.",
-    "sections": { "connection": "Conexión" },
+    "sections": {
+      "connection": "Conexión"
+    },
     "fields": {
       "enabled": "Usar Evo Hub",
       "enabledHelp": "Cuando está activado, todas las llamadas Meta pasan por el Hub configurado.",
@@ -593,7 +603,11 @@
       "webhookSecretHelp": "Use una cadena aleatoria fuerte.",
       "secretSet": "configurado"
     },
-    "actions": { "save": "Guardar", "test": "Probar conexión", "generateSecret": "Generar secreto aleatorio" },
+    "actions": {
+      "save": "Guardar",
+      "test": "Probar conexión",
+      "generateSecret": "Generar secreto aleatorio"
+    },
     "messages": {
       "saved": "Configuración guardada",
       "saveError": "Error al guardar",
