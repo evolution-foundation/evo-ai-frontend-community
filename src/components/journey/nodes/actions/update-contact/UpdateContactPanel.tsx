@@ -13,6 +13,7 @@ import { UpdateContactNodeData } from './UpdateContactNode';
 import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
 import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { useLanguage } from '@/hooks/useLanguage';
+import { isExpressionFieldValid } from '@/utils/templateVariables';
 
 interface UpdateContactPanelProps {
   nodeId: string;
@@ -85,9 +86,10 @@ export function UpdateContactPanel({
     }));
   };
 
-  const isValid = Boolean(
-    formData.fieldToUpdate && formData.newValue && formData.newValue.trim() !== '',
-  );
+  const isValid =
+    Boolean(formData.fieldToUpdate && formData.newValue && formData.newValue.trim() !== '') &&
+    // EVO-1872: block Save on an unbalanced {{ }} expression in the new value.
+    isExpressionFieldValid(formData.newValue);
   const dirty = useMemo(
     () => JSON.stringify(formData) !== JSON.stringify(originalData),
     [formData, originalData],
@@ -159,6 +161,7 @@ export function UpdateContactPanel({
               onChange={e => handleValueChange(e.target.value)}
               className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
               journeyId={journeyId}
+              validateExpression
             />
           </div>
         )}

@@ -286,6 +286,7 @@ export function WebhookBodyConfig({ data, onChange, journeyId }: WebhookBodyConf
                 className="w-full h-32 p-3 text-sm bg-sidebar border-sidebar-border text-sidebar-foreground rounded-md font-mono resize-y"
                 style={{ minHeight: '120px' }}
                 journeyId={journeyId}
+                validateExpression
               />
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">

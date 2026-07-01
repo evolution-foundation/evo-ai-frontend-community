@@ -139,3 +139,10 @@ export const isBalancedExpression = (expression: string): boolean => {
 
   return parens === 0 && braces === 0;
 };
+
+// EVO-1872: single predicate reused by the shared pickers (to render the inline
+// error) and by every panel's Save gate (to block Save). A non-string or blank
+// value counts as valid so numeric/empty fields never trip the guard; only a
+// non-empty string with unbalanced braces/parentheses is invalid.
+export const isExpressionFieldValid = (value: unknown): boolean =>
+  typeof value !== 'string' || value.trim() === '' || isBalancedExpression(value);

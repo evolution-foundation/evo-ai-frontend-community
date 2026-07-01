@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { UpdateCustomAttributePanel } from './UpdateCustomAttributePanel';
@@ -114,5 +114,45 @@ describe('UpdateCustomAttributePanel — persists attribute_key (EVO-1850)', () 
     // The display name is shown; the raw slug must never surface in the UI.
     await waitFor(() => expect(screen.getAllByText('Plan Interest').length).toBeGreaterThan(0));
     expect(screen.queryByText('plan_interest')).toBeNull();
+  });
+});
+
+describe('UpdateCustomAttributePanel — expression validation (EVO-1872)', () => {
+  const SAVE_NAME = /save|salvar|guardar|enregistrer|salva/i;
+
+  it('disables Save on an unbalanced {{ }} value and re-enables it once balanced', async () => {
+    mockGetCustomAttributes.mockResolvedValue({ data: [PLAN_INTEREST_ATTR] });
+    const user = userEvent.setup();
+
+    render(
+      <UpdateCustomAttributePanel
+        nodeId="n1"
+        data={emptyData()}
+        onUpdate={vi.fn()}
+        onClose={vi.fn()}
+        journeyId="j1"
+      />,
+    );
+
+    await waitFor(() => expect(mockGetCustomAttributes).toHaveBeenCalled());
+    await user.click(getAttributeTrigger());
+    const listbox = await screen.findByRole('listbox');
+    await user.click(within(listbox).getByText('Plan Interest'));
+
+    // fireEvent.change (not user.type) so the literal braces reach the field
+    // without userEvent's `{` keyboard escaping.
+    const valueInput = await screen.findByRole('textbox');
+    fireEvent.change(valueInput, { target: { value: '{{contact.name' } });
+
+    // The shared picker surfaces the error and blocks Save (dirty but invalid).
+    expect(valueInput).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('button', { name: SAVE_NAME })).toBeDisabled();
+
+    // Completing the expression clears the guard and re-enables Save.
+    fireEvent.change(valueInput, { target: { value: '{{contact.name}}' } });
+    expect(valueInput).toHaveAttribute('aria-invalid', 'false');
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: SAVE_NAME })).not.toBeDisabled(),
+    );
   });
 });

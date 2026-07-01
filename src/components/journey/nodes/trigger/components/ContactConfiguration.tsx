@@ -232,9 +232,7 @@ export function ContactConfiguration({
                         placeholder={t('triggerComponents.contact.enterValue')}
                         className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
                         journeyId={journeyId}
-                        onVariableInsert={variable => {
-                          console.log('Variable inserted in contact field value:', variable);
-                        }}
+                        validateExpression
                       />
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {t('triggerComponents.contact.useVariablesHint')}
