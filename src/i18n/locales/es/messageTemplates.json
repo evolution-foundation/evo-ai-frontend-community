@@ -12,7 +12,9 @@
     "language": "Idioma",
     "actions": "Acciones",
     "edit": "Editar",
-    "delete": "Eliminar"
+    "delete": "Eliminar",
+    "createdAt": "Creado",
+    "preview": "Vista previa"
   },
   "status": {
     "approved": "Aprobada",
@@ -61,39 +63,10 @@
     "syncError": "Error al sincronizar las plantillas."
   },
   "form": {
-    "createTitle": "Nueva Plantilla",
-    "editTitle": "Editar Plantilla",
     "provider": "Proveedor",
     "providers": {
       "generic": "Genérico",
       "email": "Correo electrónico"
-    },
-    "name": "Nombre",
-    "namePlaceholder": "ej.: mensaje_bienvenida",
-    "category": "Categoría",
-    "categories": {
-      "marketing": "Marketing",
-      "utility": "Utilidad",
-      "authentication": "Autenticación",
-      "transactional": "Transaccional"
-    },
-    "language": "Idioma",
-    "subject": "Asunto",
-    "subjectPlaceholder": "Asunto del correo",
-    "content": "Contenido",
-    "contentPlaceholder": "Escribe el contenido del mensaje.",
-    "variablesHelp": "Usa la sintaxis {{variable}} para valores dinámicos",
-    "variables": "Variables",
-    "variableLabel": "Etiqueta",
-    "variableExample": "Ejemplo",
-    "variableSource": "Origen",
-    "active": "Activa",
-    "activeHelp": "Las plantillas inactivas se ocultan en la selección.",
-    "cancel": "Cancelar",
-    "create": "Crear",
-    "save": "Guardar",
-    "errors": {
-      "requiredFields": "El nombre y el contenido son obligatorios."
     },
     "categoryReset": "Categoría restablecida a un valor compatible con el proveedor seleccionado.",
     "headerNone": "Ninguno",

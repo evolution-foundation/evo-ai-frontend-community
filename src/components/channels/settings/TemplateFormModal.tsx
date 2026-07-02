@@ -22,12 +22,13 @@ import {
   PopoverTrigger,
 } from '@evoapi/design-system';
 import { Plus, Trash2, Smile, Braces } from 'lucide-react';
+import EmojiPickerReact, { Theme } from 'emoji-picker-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsDarkClass } from '@/hooks/chat/useIsDarkClass';
 import MessageTemplateService, {
   usesStructuredComponents,
   getChannelTemplateConfig,
 } from '@/services/channels/messageTemplatesService';
-import EmojiPicker from '@/components/chat/message-input/EmojiPicker';
 import { TemplatePreview } from './TemplatePreview';
 import { MessageTemplate, TemplateFormData } from '@/types';
 import { detectTemplateFormVariables } from '@/utils/templateVariables';
@@ -57,7 +58,7 @@ const MessageTextarea: React.FC<{
   variableSampleName,
 }) => {
   const ref = useRef<HTMLTextAreaElement>(null);
-  const [emojiOpen, setEmojiOpen] = useState(false);
+  const isDark = useIsDarkClass();
 
   // Insert `snippet` at the caret. If `selFrom`/`selTo` are given, select that
   // sub-range of the inserted text (used to preselect a variable name so the user
@@ -98,24 +99,32 @@ const MessageTextarea: React.FC<{
         className="pr-20"
       />
       <div className="absolute top-2 right-2 flex items-center gap-1">
-        <div className="relative">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0"
-            aria-label={emojiLabel}
-            title={emojiLabel}
-            onClick={() => setEmojiOpen(open => !open)}
-          >
-            <Smile className="h-4 w-4" />
-          </Button>
-          <EmojiPicker
-            isOpen={emojiOpen}
-            onClose={() => setEmojiOpen(false)}
-            onEmojiSelect={emoji => insertAtCursor(emoji)}
-          />
-        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              aria-label={emojiLabel}
+              title={emojiLabel}
+            >
+              <Smile className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          {/* Radix Popover portals + auto-flips, so the panel stays anchored to the
+              button and inside the dialog instead of overflowing off-screen. */}
+          <PopoverContent align="end" className="w-auto p-0 border-none">
+            <EmojiPickerReact
+              onEmojiClick={emojiData => insertAtCursor(emojiData.emoji)}
+              theme={isDark ? Theme.DARK : Theme.LIGHT}
+              width={320}
+              height={380}
+              previewConfig={{ showPreview: false }}
+              lazyLoadEmojis
+            />
+          </PopoverContent>
+        </Popover>
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -328,6 +337,24 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
       ...prev,
       buttons:
         prev.buttons?.map((btn, i) => (i === index ? { ...btn, [field]: value } : btn)) || [],
+    }));
+  };
+
+  // Edit the metadata of a detected variable (the name itself is derived from the
+  // {{token}} in the text and stays read-only). These fields are persisted by the
+  // backend and drive the consumption surfaces (EVO-1971): `example` prefills the
+  // composer / Start-Conversation value, `source` auto-maps automation
+  // `send_template` to `{{contact.x}}`, `label` is the human-readable caption.
+  const updateVariable = (
+    name: string,
+    field: 'label' | 'example' | 'source',
+    value: string,
+  ) => {
+    setFormData(prev => ({
+      ...prev,
+      variables: prev.variables?.map(variable =>
+        variable.name === name ? { ...variable, [field]: value } : variable,
+      ),
     }));
   };
 
@@ -680,13 +707,33 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
                 <label className="block text-sm font-medium">
                   {t('settings.messageTemplates.form.variables')}
                 </label>
-                {/* Read-only list of the variables detected in the text. We dropped the
-                    label/example/source inputs: the backend re-derives variables from
-                    the content on save (only the name persists), so editing metadata
-                    here had no effect (EVO-1907). */}
-                <div className="flex flex-wrap gap-2">
+                {/* Each variable is detected from a {{token}} in the text (name is
+                    read-only) and carries optional metadata that the backend
+                    PRESERVES on save and feeds back on edit (EVO-1971): `label`
+                    (caption), `example` (composer / Start-Conversation prefill) and
+                    `source` (auto-maps automation send_template to {{contact.x}}). */}
+                <div className="space-y-3">
                   {formData.variables?.map(variable => (
-                    <Badge key={variable.name} variant="secondary">{`{{${variable.name}}}`}</Badge>
+                    <Card key={variable.name} className="p-3 space-y-2">
+                      <Badge variant="secondary">{`{{${variable.name}}}`}</Badge>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <Input
+                          value={variable.label ?? ''}
+                          onChange={e => updateVariable(variable.name, 'label', e.target.value)}
+                          placeholder={t('settings.messageTemplates.form.variableLabel')}
+                        />
+                        <Input
+                          value={variable.example ?? ''}
+                          onChange={e => updateVariable(variable.name, 'example', e.target.value)}
+                          placeholder={t('settings.messageTemplates.form.variableExample')}
+                        />
+                        <Input
+                          value={variable.source ?? ''}
+                          onChange={e => updateVariable(variable.name, 'source', e.target.value)}
+                          placeholder={t('settings.messageTemplates.form.variableSource')}
+                        />
+                      </div>
+                    </Card>
                   ))}
                 </div>
               </div>

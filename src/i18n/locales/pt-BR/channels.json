@@ -643,6 +643,8 @@
         "templateType": "Tipo de Template",
         "templateTypes": {
           "text": "Texto",
+          "interactive": "Interativo",
+          "media": "Mídia",
           "image": "Imagem",
           "video": "Vídeo",
           "document": "Documento",

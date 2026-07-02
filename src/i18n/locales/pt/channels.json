@@ -642,6 +642,8 @@
         "templateType": "Tipo de Template",
         "templateTypes": {
           "text": "Texto",
+          "interactive": "Interativo",
+          "media": "Mídia",
           "image": "Imagem",
           "video": "Vídeo",
           "document": "Documento",
@@ -669,6 +671,10 @@
         "footerText": "Texto do Rodapé",
         "footerTextPlaceholder": "Digite o texto do rodapé (opcional)",
         "variablesHelp": "Use a sintaxe {{variavel}} para valores dinâmicos",
+        "variables": "Variáveis",
+        "variableLabel": "Rótulo",
+        "variableExample": "Exemplo",
+        "variableSource": "Origem, ex.: contact.name",
         "buttons": "Botões",
         "addButton": "Adicionar Botão",
         "buttonTypes": {

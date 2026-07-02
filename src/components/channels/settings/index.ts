@@ -11,4 +11,5 @@ export { default as PreChatForm } from './PreChatForm';
 export { default as WidgetBuilderForm } from './WidgetBuilderForm';
 export { default as AgentBotConfigurationForm } from './AgentBotConfigurationForm';
 export { default as TemplateFormModal } from './TemplateFormModal';
+export { TemplatePreview } from './TemplatePreview';
 export { default as ConfigurationForm } from './ConfigurationForm';

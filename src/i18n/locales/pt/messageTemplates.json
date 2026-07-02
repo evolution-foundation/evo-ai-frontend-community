@@ -12,7 +12,9 @@
     "language": "Idioma",
     "actions": "Ações",
     "edit": "Editar",
-    "delete": "Excluir"
+    "delete": "Excluir",
+    "createdAt": "Criado em",
+    "preview": "Visualizar"
   },
   "status": {
     "approved": "Aprovado",
@@ -61,39 +63,10 @@
     "syncError": "Falha ao sincronizar os modelos."
   },
   "form": {
-    "createTitle": "Novo Modelo",
-    "editTitle": "Editar Modelo",
     "provider": "Provedor",
     "providers": {
       "generic": "Genérico",
       "email": "E-mail"
-    },
-    "name": "Nome",
-    "namePlaceholder": "ex.: mensagem_boas_vindas",
-    "category": "Categoria",
-    "categories": {
-      "marketing": "Marketing",
-      "utility": "Utilitário",
-      "authentication": "Autenticação",
-      "transactional": "Transacional"
-    },
-    "language": "Idioma",
-    "subject": "Assunto",
-    "subjectPlaceholder": "Assunto do e-mail",
-    "content": "Conteúdo",
-    "contentPlaceholder": "Digite o conteúdo da mensagem.",
-    "variablesHelp": "Use a sintaxe {{variable}} para valores dinâmicos",
-    "variables": "Variáveis",
-    "variableLabel": "Rótulo",
-    "variableExample": "Exemplo",
-    "variableSource": "Origem",
-    "active": "Ativo",
-    "activeHelp": "Modelos inativos ficam ocultos na seleção.",
-    "cancel": "Cancelar",
-    "create": "Criar",
-    "save": "Salvar",
-    "errors": {
-      "requiredFields": "Nome e conteúdo são obrigatórios."
     },
     "categoryReset": "Categoria redefinida para um valor suportado pelo provedor selecionado.",
     "headerNone": "Nenhum",

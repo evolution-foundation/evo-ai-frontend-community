@@ -625,6 +625,8 @@
         "templateType": "Tipo di Modello",
         "templateTypes": {
           "text": "Testo",
+          "interactive": "Interattivo",
+          "media": "Multimediale",
           "image": "Immagine",
           "video": "Video",
           "document": "Documento",
@@ -652,6 +654,10 @@
         "footerText": "Testo del Piè di Pagina",
         "footerTextPlaceholder": "Inserisci il testo del piè di pagina (facoltativo)",
         "variablesHelp": "Usa la sintassi {{variabile}} per valori dinamici",
+        "variables": "Variabili",
+        "variableLabel": "Etichetta",
+        "variableExample": "Esempio",
+        "variableSource": "Origine, es. contact.name",
         "buttons": "Pulsanti",
         "addButton": "Aggiungi Pulsante",
         "buttonTypes": {
