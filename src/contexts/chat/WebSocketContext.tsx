@@ -447,6 +447,10 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
               })),
               unread_count: data.unread_count,
               messages: [], // Será carregado quando selecionado
+              // Grupos: o serializer/preset do chip filtra por is_group; sem popular
+              // aqui, um grupo novo via realtime não casa o matcher e cai no buffer
+              // oculto até refetch. Vem do push_event_data (EventDataPresenter).
+              is_group: data.is_group ?? false,
               custom_attributes: data.custom_attributes || {},
               additional_attributes: data.additional_attributes || {},
               // Campos obrigatórios adicionais da interface Conversation
@@ -531,6 +535,10 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
             assignee_id: data.assignee_id,
             team_id: data.team_id,
             unread_count: data.unread_count,
+            // Grupos: mesmo gap do create — sem copiar is_group, um grupo ainda não
+            // carregado que atualiza via realtime não sobe pro chip Grupos. Spread
+            // condicional pra não sobrescrever um is_group=true já existente no merge.
+            ...(data.is_group !== undefined && { is_group: data.is_group }),
             timestamp: normalizeToUnixSeconds(data.last_activity_at),
             waiting_since: data.waiting_since ?? normalizeToUnixSeconds(data.last_activity_at),
             meta: {

@@ -61,6 +61,9 @@ vi.mock('@/contexts/chat/ChatContext', () => ({
       getConversation: vi.fn().mockReturnValue(null),
       getUnreadCount: vi.fn().mockReturnValue(0),
       loadConversations: vi.fn().mockResolvedValue(undefined),
+      // Chat.tsx:170 auto-marca a conversa selecionada como lida (silencioso) ao
+      // abri-la — o mock precisa expor markAsRead (retorna Promise p/ o .catch).
+      markAsRead: vi.fn().mockResolvedValue(undefined),
     },
     messages: {
       loadMessages: vi.fn(),

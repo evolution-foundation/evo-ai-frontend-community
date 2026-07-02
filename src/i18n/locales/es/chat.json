@@ -289,10 +289,10 @@
       "assignTeam": "Asignar Equipo",
       "assignTag": "Asignar Etiqueta",
       "deleteConversation": "Eliminar conversación",
-      "bulkResolveSuccess": "{{count}} conversación(es) resuelta(s)",
-      "bulkResolvePartialSuccess": "{{success}} resuelta(s), {{failed}} fallida(s)",
-      "bulkResolveError": "Error al resolver conversaciones",
-      "bulkResolveNoPermission": "No tienes permiso para resolver conversaciones"
+      "bulkStatusSuccess": "{{count}} conversación(es) actualizada(s)",
+      "bulkStatusPartialSuccess": "{{success}} actualizada(s), {{failed}} fallida(s)",
+      "bulkStatusError": "Error al actualizar conversaciones",
+      "bulkStatusNoPermission": "No tienes permiso para actualizar conversaciones"
     },
     "contactNoName": "Contacto sin nombre",
     "status": "Estado:",
@@ -303,6 +303,14 @@
     "closeContactPanel": "Cerrar detalles del contacto"
   },
   "chatSidebar": {
+    "segments": {
+      "ariaLabel": "Vistas de conversaciones",
+      "open": "Abiertas",
+      "pending": "Pendientes",
+      "resolved": "Resueltas",
+      "unread": "No leídas",
+      "groups": "Grupos"
+    },
     "searchPlaceholder": "Buscar conversaciones...",
     "conversation": "conversación",
     "conversations": "conversaciones",
@@ -312,6 +320,15 @@
     "filter": "filtro",
     "filters": "filtros",
     "filtersButton": "Filtros",
+    "select": "Seleccionar",
+    "doneSelection": "Listo",
+    "bulkActions": "Acciones en lote",
+    "bulkDeleteDescription": "¿Seguro que deseas eliminar {{count}} conversación(es)? Esta acción no se puede deshacer.",
+    "undo": "Deshacer",
+    "bulkApplied": "Aplicado a {{count}} conversación(es)",
+    "bulkDeleted": "{{count}} conversación(es) eliminada(s)",
+    "bulkFailed": "{{count}} conversación(es) fallaron",
+    "advancedFiltersCleared": "Filtros avanzados eliminados — No leídas/Grupos no se combinan con ellos",
     "view": {
       "active": "Activas",
       "archived": "Archivadas"

@@ -176,6 +176,7 @@ export interface ConversationCreatedEvent {
   };
   labels: string[]; // Evolution usa string[] para labels
   unread_count: number;
+  is_group?: boolean;
   additional_attributes?: Record<string, unknown>;
   custom_attributes?: Record<string, unknown>;
   priority?: string | null;
@@ -222,6 +223,7 @@ export interface ConversationUpdatedEvent {
   };
   labels: string[];
   unread_count: number;
+  is_group?: boolean;
   additional_attributes?: Record<string, unknown>;
   custom_attributes?: Record<string, unknown>;
   priority?: string | null;

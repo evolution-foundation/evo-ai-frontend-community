@@ -122,6 +122,15 @@ export const convertFiltersToUrlParams = (
         }
         break;
 
+      // O modal usa attribute_key 'assignee_type' (me/unassigned/assigned/all).
+      // Sem este case ele era DROPADO no GET → "Assigned" mostrava tudo. O finder
+      // (apply_assignee_type_filter) trata me/unassigned/assigned/all direto.
+      case 'assignee_type':
+        if (values.length === 1) {
+          params.assignee_type = values[0] as ConversationListParams['assignee_type'];
+        }
+        break;
+
       case 'inbox_id':
         if (values.length === 1) {
           params.inbox_id = values[0] as string;
@@ -140,6 +149,19 @@ export const convertFiltersToUrlParams = (
         }
         break;
 
+      // Chips "Não lidas" / "Grupos" (eixo de navegação, não status) → GET barato.
+      case 'unread':
+        if (values.length === 1) {
+          params.unread = String(values[0]) === 'true';
+        }
+        break;
+
+      case 'is_group':
+        if (values.length === 1) {
+          params.is_group = String(values[0]) === 'true';
+        }
+        break;
+
       // case 'priority': // Não suportado pela API GET
       //   if (values.length === 1) {
       //     params.priority = values[0] as string;
@@ -147,6 +169,13 @@ export const convertFiltersToUrlParams = (
       //   break;
     }
   });
+
+  // Sem linha de status nos filtros, NÃO deixar o backend cair no default
+  // implícito status=open (footgun: filtrar por inbox/atendente/label sem status
+  // trazia só abertas). status ausente = All, coerente com a visão padrão.
+  if (!params.status) {
+    params.status = 'all';
+  }
 
   return params;
 };

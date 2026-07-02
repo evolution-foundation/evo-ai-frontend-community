@@ -3,11 +3,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useFilterHandlers } from '../useFilterHandlers';
 
-// Shape mirrors DEFAULT_FILTER from FiltersContext (status = open).
+// Shape mirrors DEFAULT_FILTER from FiltersContext: "Todas" = status = all.
 const DEFAULT_FILTER = {
   attribute_key: 'status',
   filter_operator: 'equal_to',
-  values: ['open'],
+  values: ['all'],
   query_operator: 'and',
 };
 
@@ -18,7 +18,7 @@ const mockConversations = vi.hoisted(() => ({
 
 const mockFilters = vi.hoisted(() => ({
   setFilters: vi.fn(),
-  applyFilters: vi.fn(),
+  applyFilters: vi.fn().mockResolvedValue(undefined),
   applySearch: vi.fn(),
   state: { activeFilters: [] as any[], searchTerm: '' },
 }));
@@ -36,7 +36,7 @@ vi.mock('@/contexts/chat/FiltersContext', () => ({
   DEFAULT_FILTER: {
     attribute_key: 'status',
     filter_operator: 'equal_to',
-    values: ['open'],
+    values: ['all'],
     query_operator: 'and',
   },
 }));
@@ -52,7 +52,7 @@ describe('useFilterHandlers — handleClearFilters (EVO-1939)', () => {
     vi.clearAllMocks();
   });
 
-  it('resets the GLOBAL activeFilters to the default open filter (so badge + realtime matcher clear)', async () => {
+  it('resets the GLOBAL activeFilters to the default "Todas" filter so badge + realtime matcher clear', async () => {
     const { result } = renderHook(() => useFilterHandlers());
 
     await result.current.handleClearFilters();
@@ -61,12 +61,17 @@ describe('useFilterHandlers — handleClearFilters (EVO-1939)', () => {
     expect(mockFilters.setFilters).toHaveBeenCalledWith([DEFAULT_FILTER]);
   });
 
-  it('clears persisted filters and reloads only open conversations', async () => {
+  it('clears persisted filters and reloads the default view via applyFilters (single pipeline), not a direct loadConversations', async () => {
     const { result } = renderHook(() => useFilterHandlers());
 
     await result.current.handleClearFilters();
 
     expect(mockStorage.clearConversationFilters).toHaveBeenCalledTimes(1);
-    expect(mockConversations.loadConversations).toHaveBeenCalledWith({ status: 'open' });
+    expect(mockFilters.applyFilters).toHaveBeenCalledWith(
+      [DEFAULT_FILTER],
+      expect.any(Function),
+      expect.any(Function),
+    );
+    expect(mockConversations.loadConversations).not.toHaveBeenCalled();
   });
 });

@@ -136,6 +136,10 @@ const makeMockContext = () => ({
 
 let overrideContext: ReturnType<typeof makeMockContext> | null = null;
 
+vi.mock('@/contexts/PermissionsContext', () => ({
+  usePermissions: () => ({ can: () => true }),
+}));
+
 vi.mock('@/contexts/chat/ChatContext', () => ({
   useChatContext: () => overrideContext ?? makeMockContext(),
 }));
@@ -165,7 +169,7 @@ const defaultProps = {
   selectedConversationIds: new Set<string>(),
   onToggleSelect: vi.fn(),
   onClearSelection: vi.fn(),
-  onBulkResolve: vi.fn().mockResolvedValue(undefined),
+  onBulkSetStatus: vi.fn().mockResolvedValue(undefined),
 };
 
 beforeEach(() => {
@@ -198,6 +202,32 @@ const openContextMenuPipelineStage = async (
 
   await waitFor(() => screen.getByText(stageName), { timeout: 3000 });
   await user.click(screen.getByText(stageName));
+};
+
+const openContextMenuRemoveFromPipeline = async (
+  user: ReturnType<typeof userEvent.setup>,
+  pipelineName: string,
+) => {
+  const row = screen.getByText('Test Contact').closest('div[class*="p-4"]') as HTMLElement;
+  fireEvent.contextMenu(row);
+
+  const addToTrigger = await screen.findByText('pipeline.addTo', {}, { timeout: 2000 });
+  const addToSubTrigger = (
+    addToTrigger.closest('[data-slot="context-menu-sub-trigger"]') ?? addToTrigger
+  ) as HTMLElement;
+  addToSubTrigger.focus();
+  await user.keyboard('{ArrowRight}');
+
+  await waitFor(() => screen.getByText(pipelineName), { timeout: 2000 });
+  const pipelineEl = screen.getByText(pipelineName);
+  const pipelineSubTrigger = (
+    pipelineEl.closest('[data-slot="context-menu-sub-trigger"]') ?? pipelineEl
+  ) as HTMLElement;
+  pipelineSubTrigger.focus();
+  await user.keyboard('{ArrowRight}');
+
+  await waitFor(() => screen.getByText('pipeline.removeFrom'), { timeout: 3000 });
+  await user.click(screen.getByText('pipeline.removeFrom'));
 };
 
 describe('ChatSidebar pipeline', () => {
@@ -398,7 +428,11 @@ describe('ChatSidebar pipeline', () => {
     });
   });
 
-  it('shows moveError toast (no silent return) when the item cannot be resolved', async () => {
+  it('re-adds (ADD) when the pipeline is present but has no active item (completed journey), instead of dead-ending on moveError', async () => {
+    // by_conversation não filtra completed_at, então um pipeline cuja jornada foi
+    // concluída volta na lista MAS com stages sem itens ativos. O branch deve ser
+    // decidido por item ATIVO encontrável → cai no ADD (backend permite reentrada),
+    // não em moveError.
     const pipeline = {
       ...makeNestedPipeline(),
       stages: [
@@ -408,6 +442,8 @@ describe('ChatSidebar pipeline', () => {
     };
     vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [pipeline] } as never);
     vi.mocked(pipelinesService.getPipelinesByConversation).mockResolvedValue([pipeline] as never);
+    vi.mocked(pipelinesService.addItemToPipeline).mockResolvedValue({} as never);
+    vi.mocked(chatService.getConversation).mockResolvedValue({ data: makeConversation('42') } as never);
 
     render(<ChatSidebar {...defaultProps} />);
     await waitFor(() => expect(pipelinesService.getPipelines).toHaveBeenCalled());
@@ -416,9 +452,38 @@ describe('ChatSidebar pipeline', () => {
     await openContextMenuPipelineStage(user, 'Pipeline p1', 'Qualified');
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('pipeline.moveError');
-      expect(pipelinesService.moveItem).not.toHaveBeenCalled();
+      expect(pipelinesService.addItemToPipeline).toHaveBeenCalledWith('p1', {
+        item_id: '42',
+        type: 'conversation',
+        pipeline_stage_id: 'stage-2',
+      });
     });
+    expect(pipelinesService.moveItem).not.toHaveBeenCalled();
+    expect(toast.error).not.toHaveBeenCalledWith('pipeline.moveError');
+  });
+
+  it('removes via context menu using the per-conversation item id, even when allPipelines lacks the item', async () => {
+    // allPipelines (getPipelines) = estrutura global SEM o item da conversa; o
+    // item vive só na state por-conversa (getPipelinesByConversation). O handler
+    // de remover deve buscar o item na convPipelineStates, não no pipeline passado
+    // — senão findItemInPipeline volta undefined e dá removeError.
+    const globalPipeline = makePipeline('p1', [{ id: 'stage-1', name: 'Lead' }]);
+    const convPipeline = makePipeline('p1', [{ id: 'stage-1', name: 'Lead' }], [makeItem('item-77', 'p1')]);
+    vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [globalPipeline] } as never);
+    vi.mocked(pipelinesService.getPipelinesByConversation).mockResolvedValue([convPipeline] as never);
+    vi.mocked(pipelinesService.removeItemFromPipeline).mockResolvedValue({ success: true, message: '' });
+    vi.mocked(chatService.getConversation).mockResolvedValue({ data: makeConversation('42') } as never);
+
+    render(<ChatSidebar {...defaultProps} />);
+    await waitFor(() => expect(pipelinesService.getPipelines).toHaveBeenCalled());
+
+    const user = userEvent.setup();
+    await openContextMenuRemoveFromPipeline(user, 'Pipeline p1');
+
+    await waitFor(() => {
+      expect(pipelinesService.removeItemFromPipeline).toHaveBeenCalledWith('p1', 'item-77');
+    });
+    expect(toast.error).not.toHaveBeenCalledWith('pipeline.removeError');
   });
 });
 

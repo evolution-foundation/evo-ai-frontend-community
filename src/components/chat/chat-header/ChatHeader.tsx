@@ -204,18 +204,21 @@ const ChatHeader = ({
   const handlePipelineStageSelect = useCallback(
     async (pipeline: Pipeline, stage: PipelineStage) => {
       const currentPipelines = convPipelineData?.pipelines ?? [];
-      const existingInSamePipeline = currentPipelines.find(p => p.id === pipeline.id);
+      const samePipeline = currentPipelines.find(p => p.id === pipeline.id);
       const existingInOtherPipelines = currentPipelines.filter(p => p.id !== pipeline.id);
+      // MOVER vs ADICIONAR por item ATIVO encontrável, não por presença do pipeline
+      // (pipeline com jornada COMPLETED volta sem item ativo → precisa cair no ADD,
+      // senão morre em moveError). Mesmo fix do ChatSidebar.
+      const existingItem = samePipeline
+        ? findItemInPipeline(samePipeline, String(conversation.id))
+        : undefined;
 
-      if (existingInSamePipeline) {
-        const item = findItemInPipeline(existingInSamePipeline, String(conversation.id));
-        const itemId = item?.id;
-        if (!itemId) { toast.error(t('pipeline.moveError')); return; }
+      if (existingItem?.id) {
         try {
           await pipelinesService.moveItem({
             pipeline_id: pipeline.id,
-            item_id: itemId,
-            from_stage_id: item.stage_id,
+            item_id: existingItem.id,
+            from_stage_id: existingItem.stage_id,
             to_stage_id: stage.id,
           });
           toast.success(t('pipeline.moveSuccess'));
