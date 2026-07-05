@@ -426,7 +426,7 @@ export default function OnboardingPage() {
         >
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.75rem' }}>
-            <AppLogo alt="Evo CRM" style={{ height: '30px' }} forceTheme="dark" />
+            <AppLogo alt="EAP CRM" style={{ height: '30px' }} forceTheme="dark" />
           </div>
 
           {/* Title */}

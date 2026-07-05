@@ -17,7 +17,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({
-  title = 'EvoAI',
+  title = 'EAP CRM',
   subtitle = 'Como podemos ajudar?',
   color = '#1f93ff',
   online = false,

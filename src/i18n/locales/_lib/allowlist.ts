@@ -48,7 +48,7 @@ export const COMMON_ALLOWED = new Set<string>([
   'WhatsApp', 'WhatsApp Cloud', 'WhatsApp Business', 'Telegram', 'Telegram Bot',
   'Instagram', 'Facebook', 'Facebook Messenger', 'Messenger', 'Twilio',
   'Twilio SMS', 'Evolution', 'Evolution API', 'Evolution API V2', 'Evolution Go',
-  'Evolution Go API', 'Evo Hub', 'Evo CRM', 'EvoAI', 'Dialogflow', 'Dify',
+  'Evolution Go API', 'Evo Hub', 'EAP CRM', 'Dialogflow', 'Dify',
   'Flowise', 'Typebot', 'Rasa', 'N8N', 'CSML', 'OpenAI', 'Azure OpenAI',
   'Anthropic', 'Cohere', 'Groq', 'Mistral AI', 'Google', 'Google Translate',
   'Google Calendar', 'Google Sheets', 'Gmail', 'Slack', 'HubSpot', 'GitHub',
