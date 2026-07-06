@@ -1,8 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import Setup from './Setup';
 import { setupService } from '@/services/setup/setupService';
+import { registerPlugin, useSetupHost } from '@/plugin-host';
+import { __resetPluginHostForTests } from '@/plugin-host/test-utils';
 
 // t returns the key verbatim so tests can query by i18n key.
 vi.mock('@/hooks/useLanguage', () => ({
@@ -17,7 +19,6 @@ vi.mock('@/services/setup/setupService', () => ({
   setupService: {
     getStatus: vi.fn(),
     bootstrap: vi.fn(),
-    uploadBrandingLogos: vi.fn(),
   },
 }));
 
@@ -70,11 +71,19 @@ describe('Setup wizard', () => {
       message: 'ok',
       survey_token: null,
     });
-    vi.mocked(setupService.uploadBrandingLogos).mockResolvedValue(true);
   });
 
-  it('on a community box (whitelabel false) bootstraps directly without a branding step', async () => {
-    vi.mocked(setupService.getStatus).mockResolvedValue({ status: 'inactive', instance_id: null, whitelabel: false });
+  afterEach(() => {
+    // The registry is process-global; wipe it so contributed steps don't leak.
+    __resetPluginHostForTests();
+  });
+
+  it('on a community-pure box bootstraps directly with no extension_payload and no extra step', async () => {
+    vi.mocked(setupService.getStatus).mockResolvedValue({
+      status: 'inactive',
+      instance_id: null,
+      extra_setup_steps: false,
+    });
 
     renderSetup();
     await waitFor(() => expect(setupService.getStatus).toHaveBeenCalled());
@@ -83,12 +92,30 @@ describe('Setup wizard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'form.submit.idle' }));
 
     await waitFor(() => expect(setupService.bootstrap).toHaveBeenCalledWith(ACCOUNT));
-    expect(screen.queryByText('brand.title')).not.toBeInTheDocument();
-    expect(setupService.uploadBrandingLogos).not.toHaveBeenCalled();
+    // No extension_payload rode along on the community path.
+    expect(setupService.bootstrap).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(setupService.bootstrap).mock.calls[0][0]).not.toHaveProperty('extension_payload');
+    expect(mockNavigate).toHaveBeenCalledWith('/login', { replace: true });
   });
 
-  it('on a whitelabel box advances to the branding step instead of bootstrapping', async () => {
-    vi.mocked(setupService.getStatus).mockResolvedValue({ status: 'inactive', instance_id: null, whitelabel: true });
+  it('advances to the contributed setup.steps slot when extra_setup_steps is true', async () => {
+    vi.mocked(setupService.getStatus).mockResolvedValue({
+      status: 'inactive',
+      instance_id: null,
+      extra_setup_steps: true,
+    });
+
+    registerPlugin({
+      id: 'fake-setup-step',
+      slots: {
+        'setup.steps': [
+          {
+            id: 'fake-step',
+            component: () => <div data-testid="fake-setup-step">extra step</div>,
+          },
+        ],
+      },
+    });
 
     renderSetup();
     await waitFor(() => expect(setupService.getStatus).toHaveBeenCalled());
@@ -96,67 +123,106 @@ describe('Setup wizard', () => {
     fillAccount();
     fireEvent.click(screen.getByRole('button', { name: 'form.submit.continue' }));
 
-    await screen.findByLabelText('brand.appTitle.label');
+    await screen.findByTestId('fake-setup-step');
+    // Advancing does not bootstrap — the contributed step finishes the install.
     expect(setupService.bootstrap).not.toHaveBeenCalled();
   });
 
-  it('skipping the branding step bootstraps with no brand fields', async () => {
-    vi.mocked(setupService.getStatus).mockResolvedValue({ status: 'inactive', instance_id: null, whitelabel: true });
+  it('shows a recovery fallback with a back button when the flag is true but no plugin is registered', async () => {
+    vi.mocked(setupService.getStatus).mockResolvedValue({
+      status: 'inactive',
+      instance_id: null,
+      extra_setup_steps: true,
+    });
 
     renderSetup();
     await waitFor(() => expect(setupService.getStatus).toHaveBeenCalled());
 
     fillAccount();
     fireEvent.click(screen.getByRole('button', { name: 'form.submit.continue' }));
-    await screen.findByLabelText('brand.appTitle.label');
 
-    fireEvent.click(screen.getByRole('button', { name: 'brand.skip' }));
+    // No contribution → the host fallback keeps the operator unstranded.
+    await screen.findByText('extension.unavailable');
+    expect(setupService.bootstrap).not.toHaveBeenCalled();
 
-    await waitFor(() => expect(setupService.bootstrap).toHaveBeenCalledWith(ACCOUNT));
-    expect(setupService.uploadBrandingLogos).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'extension.back' }));
+    // Back returns to the account step.
+    expect(screen.getByLabelText('form.email.label')).toBeInTheDocument();
   });
 
-  it('finishing sends the captured title and colors and defaults the primary color', async () => {
-    vi.mocked(setupService.getStatus).mockResolvedValue({ status: 'inactive', instance_id: null, whitelabel: true });
+  it('forwards the opaque extension_payload and runs the post-bootstrap callback', async () => {
+    vi.mocked(setupService.getStatus).mockResolvedValue({
+      status: 'inactive',
+      instance_id: null,
+      extra_setup_steps: true,
+    });
+
+    const afterBootstrap = vi.fn().mockResolvedValue(undefined);
+
+    const FakeStep = () => {
+      const host = useSetupHost();
+      return (
+        <button type="button" onClick={() => host.submit({ probe: 1 }, afterBootstrap)}>
+          finish
+        </button>
+      );
+    };
+
+    registerPlugin({
+      id: 'fake-setup-step',
+      slots: {
+        'setup.steps': [{ id: 'fake-step', component: FakeStep }],
+      },
+    });
 
     renderSetup();
     await waitFor(() => expect(setupService.getStatus).toHaveBeenCalled());
 
     fillAccount();
     fireEvent.click(screen.getByRole('button', { name: 'form.submit.continue' }));
-    await screen.findByLabelText('brand.appTitle.label');
 
-    fireEvent.change(screen.getByLabelText('brand.appTitle.label'), { target: { value: 'Acme CRM' } });
-    fireEvent.click(screen.getByRole('button', { name: 'brand.finish' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'finish' }));
 
     await waitFor(() =>
       expect(setupService.bootstrap).toHaveBeenCalledWith({
         ...ACCOUNT,
-        app_title: 'Acme CRM',
-        primary_color: '#22C55E',
+        extension_payload: { probe: 1 },
       }),
     );
-    // No logos were selected → the best-effort upload is skipped.
-    expect(setupService.uploadBrandingLogos).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(afterBootstrap).toHaveBeenCalledWith({
+        email: ACCOUNT.email,
+        password: ACCOUNT.password,
+      }),
+    );
   });
 
-  it('blocks finishing when the primary color is not a valid hex', async () => {
-    vi.mocked(setupService.getStatus).mockResolvedValue({ status: 'inactive', instance_id: null, whitelabel: true });
+  it('bootstraps immediately and never renders the slot when extra_setup_steps is false', async () => {
+    vi.mocked(setupService.getStatus).mockResolvedValue({
+      status: 'inactive',
+      instance_id: null,
+      extra_setup_steps: false,
+    });
+
+    registerPlugin({
+      id: 'fake-setup-step',
+      slots: {
+        'setup.steps': [
+          {
+            id: 'fake-step',
+            component: () => <div data-testid="fake-setup-step">extra step</div>,
+          },
+        ],
+      },
+    });
 
     renderSetup();
     await waitFor(() => expect(setupService.getStatus).toHaveBeenCalled());
 
     fillAccount();
-    fireEvent.click(screen.getByRole('button', { name: 'form.submit.continue' }));
-    await screen.findByLabelText('brand.appTitle.label');
+    fireEvent.click(screen.getByRole('button', { name: 'form.submit.idle' }));
 
-    // The swatch and the hex field share the accessible name — target the text field.
-    fireEvent.change(
-      screen.getByLabelText('brand.primaryColor.label', { selector: 'input[type="text"]' }),
-      { target: { value: 'not-a-color' } },
-    );
-
-    expect(screen.getByRole('button', { name: 'brand.finish' })).toBeDisabled();
-    expect(screen.getByText('brand.color.invalid')).toBeInTheDocument();
+    await waitFor(() => expect(setupService.bootstrap).toHaveBeenCalledWith(ACCOUNT));
+    expect(screen.queryByTestId('fake-setup-step')).not.toBeInTheDocument();
   });
 });

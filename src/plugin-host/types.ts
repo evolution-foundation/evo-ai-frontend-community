@@ -9,7 +9,8 @@ export type SlotId =
   | 'admin.routes'
   | 'settings.sections'
   | 'dashboard.widgets'
-  | 'notifications.banner';
+  | 'notifications.banner'
+  | 'setup.steps';
 
 export type RouteNamespace = 'admin' | 'customer' | 'public';
 
