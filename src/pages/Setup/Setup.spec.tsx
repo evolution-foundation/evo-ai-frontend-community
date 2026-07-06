@@ -3,7 +3,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import Setup from './Setup';
 import { setupService } from '@/services/setup/setupService';
-import { registerPlugin, useSetupHost } from '@/plugin-host';
+import {
+  registerPlugin,
+  type PluginSlotComponentProps,
+  type SetupHostContextValue,
+} from '@/plugin-host';
 import { __resetPluginHostForTests } from '@/plugin-host/test-utils';
 
 // t returns the key verbatim so tests can query by i18n key.
@@ -158,11 +162,21 @@ describe('Setup wizard', () => {
     });
 
     const afterBootstrap = vi.fn().mockResolvedValue(undefined);
+    let receivedHost: SetupHostContextValue | undefined;
 
-    const FakeStep = () => {
-      const host = useSetupHost();
+    // The contributed step reads its host controls from the `setupHost` PROP,
+    // not from a React context — a separately-bundled plugin ships its own
+    // React instance, so a context read would land on a different provider.
+    // Typed as a real contribution is: the host props plus the `setupHost`
+    // the wizard spreads in via `componentProps`. This is assignable to the
+    // slot's `ComponentType<PluginSlotComponentProps>`, unlike a shape that
+    // makes `setupHost` a required prop.
+    const FakeStep = ({
+      setupHost,
+    }: PluginSlotComponentProps & { setupHost?: SetupHostContextValue }) => {
+      receivedHost = setupHost;
       return (
-        <button type="button" onClick={() => host.submit({ probe: 1 }, afterBootstrap)}>
+        <button type="button" onClick={() => setupHost!.submit({ probe: 1 }, afterBootstrap)}>
           finish
         </button>
       );
@@ -182,6 +196,10 @@ describe('Setup wizard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'form.submit.continue' }));
 
     fireEvent.click(await screen.findByRole('button', { name: 'finish' }));
+
+    // The host controls arrived as a prop.
+    expect(receivedHost).toBeDefined();
+    expect(typeof receivedHost?.submit).toBe('function');
 
     await waitFor(() =>
       expect(setupService.bootstrap).toHaveBeenCalledWith({

@@ -45,5 +45,4 @@ export {
 
 export { evaluateRouteAccess } from './guards';
 
-export { SetupHostProvider, useSetupHost } from './setupHost';
-export type { SetupHostContextValue, SetupCredentials } from './setupHost';
+export type { SetupHostContextValue, SetupCredentials } from './types';

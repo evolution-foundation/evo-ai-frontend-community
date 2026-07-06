@@ -7,9 +7,10 @@ import type { SlotId } from './types';
 interface PluginSlotProps {
   id: SlotId;
   fallback?: ReactNode;
+  componentProps?: Record<string, unknown>;
 }
 
-export function PluginSlot({ id, fallback = null }: PluginSlotProps) {
+export function PluginSlot({ id, fallback = null, componentProps }: PluginSlotProps) {
   const contributions = useSyncExternalStore(
     subscribe,
     () => getSlotContributions(id),
@@ -29,7 +30,7 @@ export function PluginSlot({ id, fallback = null }: PluginSlotProps) {
             pluginId={contribution.id}
             fallback={contribution.fallback}
           >
-            <Component runtimeContext={runtimeContext} />
+            <Component {...(componentProps ?? {})} runtimeContext={runtimeContext} />
           </PluginErrorBoundary>
         );
       })}

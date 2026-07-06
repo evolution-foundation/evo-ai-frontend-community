@@ -28,7 +28,6 @@ import {
 import { clearSetupCache } from '@/contexts/GlobalConfigContext';
 import {
   PluginSlot,
-  SetupHostProvider,
   type SetupHostContextValue,
   type SetupCredentials,
 } from '@/plugin-host';
@@ -332,31 +331,30 @@ const Setup: React.FC = () => {
               </Button>
             </form>
           ) : (
-            <SetupHostProvider value={hostValue}>
-              <PluginSlot
-                id="setup.steps"
-                // Recovery for the flag/plugin mismatch (server reports extra
-                // steps but no contribution is registered — e.g. version skew).
-                // Without this the operator lands on a blank card with no way
-                // back; the contributed step renders its own controls instead.
-                fallback={
-                  <div className="space-y-4">
-                    <Alert>
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>{t('extension.unavailable')}</AlertDescription>
-                    </Alert>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full"
-                      onClick={hostValue.goBack}
-                    >
-                      {t('extension.back')}
-                    </Button>
-                  </div>
-                }
-              />
-            </SetupHostProvider>
+            <PluginSlot
+              id="setup.steps"
+              componentProps={{ setupHost: hostValue }}
+              // Recovery for the flag/plugin mismatch (server reports extra
+              // steps but no contribution is registered — e.g. version skew).
+              // Without this the operator lands on a blank card with no way
+              // back; the contributed step renders its own controls instead.
+              fallback={
+                <div className="space-y-4">
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{t('extension.unavailable')}</AlertDescription>
+                  </Alert>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={hostValue.goBack}
+                  >
+                    {t('extension.back')}
+                  </Button>
+                </div>
+              }
+            />
           )}
         </div>
 
