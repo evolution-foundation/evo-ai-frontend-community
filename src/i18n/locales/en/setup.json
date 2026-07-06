@@ -49,35 +49,9 @@
       "continue": "Continue"
     }
   },
-  "brand": {
-    "title": "Your brand",
-    "subtitle": "Customize how this box looks — you can change it later",
-    "appTitle": {
-      "label": "App name",
-      "placeholder": "Evolution"
-    },
-    "primaryColor": {
-      "label": "Primary color"
-    },
-    "secondaryColor": {
-      "label": "Secondary color",
-      "placeholder": "Optional"
-    },
-    "color": {
-      "invalid": "Use a hex color like #22C55E"
-    },
-    "logo": {
-      "label": "Logo & favicon",
-      "hint": "PNG or WebP. You can add these later in settings.",
-      "light": "Light logo",
-      "dark": "Dark logo",
-      "favicon": "Favicon"
-    },
-    "skip": "Set up later",
-    "finish": "Finish",
-    "finishLoading": "Finishing...",
-    "back": "Back",
-    "logoUploadFailed": "Branding saved, but the logo upload didn't complete. You can upload it later in settings."
+  "extension": {
+    "unavailable": "This setup step isn't available. Go back to finish setup.",
+    "back": "Back"
   },
   "success": {
     "title": "Setup complete!",
