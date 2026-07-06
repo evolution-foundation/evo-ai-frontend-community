@@ -49,35 +49,9 @@
       "continue": "Continuar"
     }
   },
-  "brand": {
-    "title": "Tu marca",
-    "subtitle": "Personaliza la apariencia de este box — puedes cambiarlo después",
-    "appTitle": {
-      "label": "Nombre de la app",
-      "placeholder": "Evolution"
-    },
-    "primaryColor": {
-      "label": "Color primario"
-    },
-    "secondaryColor": {
-      "label": "Color secundario",
-      "placeholder": "Opcional"
-    },
-    "color": {
-      "invalid": "Usa un color hex como #22C55E"
-    },
-    "logo": {
-      "label": "Logo y favicon",
-      "hint": "PNG o WebP. Puedes añadirlos después en los ajustes.",
-      "light": "Logo claro",
-      "dark": "Logo oscuro",
-      "favicon": "Favicon"
-    },
-    "skip": "Configurar más tarde",
-    "finish": "Finalizar",
-    "finishLoading": "Finalizando...",
-    "back": "Atrás",
-    "logoUploadFailed": "Marca guardada, pero la subida del logo no se completó. Puedes subirlo más tarde en los ajustes."
+  "extension": {
+    "unavailable": "Este paso de configuración no está disponible. Vuelve para completar la configuración.",
+    "back": "Volver"
   },
   "success": {
     "title": "¡Configuración completa!",
