@@ -17,6 +17,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { adminConfigService } from '@/services/admin/adminConfigService';
 import { extractError } from '@/utils/apiHelpers';
 import type { AdminConfigData } from '@/types/admin/adminConfig';
+import CopyCallbackUrl from '@/components/common/CopyCallbackUrl';
 
 // --- Schema factories with i18n ---
 
@@ -24,7 +25,6 @@ function createGoogleOauthSchema(t: (key: string) => string) {
   return z.object({
     GOOGLE_OAUTH_CLIENT_ID: z.string().min(1, t('socialLogin.validation.clientIdRequired')),
     GOOGLE_OAUTH_CLIENT_SECRET: z.string().optional().nullable(),
-    GOOGLE_OAUTH_CALLBACK_URL: z.string().url(t('socialLogin.validation.callbackUrlInvalid')).or(z.literal('')),
   });
 }
 
@@ -44,7 +44,6 @@ type MicrosoftFieldKey = keyof MicrosoftFormData;
 const GOOGLE_DEFAULTS: GoogleOauthFormData = {
   GOOGLE_OAUTH_CLIENT_ID: '',
   GOOGLE_OAUTH_CLIENT_SECRET: null,
-  GOOGLE_OAUTH_CALLBACK_URL: '',
 };
 
 const MICROSOFT_DEFAULTS: MicrosoftFormData = {
@@ -337,17 +336,13 @@ export default function SocialLoginConfig() {
               t={t}
             />
 
-            <div className="space-y-2">
-              <Label htmlFor="GOOGLE_OAUTH_CALLBACK_URL">{t('socialLogin.google.fields.callbackUrl')}</Label>
-              <Input
-                id="GOOGLE_OAUTH_CALLBACK_URL"
-                placeholder={t('socialLogin.google.placeholders.callbackUrl')}
-                {...googleForm.register('GOOGLE_OAUTH_CALLBACK_URL')}
-              />
-              {googleForm.formState.errors.GOOGLE_OAUTH_CALLBACK_URL && (
-                <p className="text-xs text-destructive">{googleForm.formState.errors.GOOGLE_OAUTH_CALLBACK_URL.message}</p>
-              )}
-            </div>
+            <CopyCallbackUrl
+              url={`${window.location.origin}/google/callback`}
+              label={t('socialLogin.callbackUrl.label')}
+              hint={t('socialLogin.callbackUrl.hint')}
+              copyLabel={t('socialLogin.callbackUrl.copy')}
+              copiedMessage={t('socialLogin.callbackUrl.copied')}
+            />
 
             <div className="pt-2">
               <Button type="submit" disabled={savingGoogle}>
@@ -389,6 +384,14 @@ export default function SocialLoginConfig() {
               onClear={() => handleClearMicrosoftSecret('AZURE_APP_SECRET')}
               sectionKey="microsoft"
               t={t}
+            />
+
+            <CopyCallbackUrl
+              url={`${window.location.origin}/microsoft/callback`}
+              label={t('socialLogin.callbackUrl.label')}
+              hint={t('socialLogin.callbackUrl.hint')}
+              copyLabel={t('socialLogin.callbackUrl.copy')}
+              copiedMessage={t('socialLogin.callbackUrl.copied')}
             />
 
             <div className="pt-2">

@@ -5,7 +5,7 @@
     "storage": "Armazenamento",
     "channels": "Canais",
     "openai": "OpenAI",
-    "integrations": "Integracoes",
+    "integrations": "Integrações",
     "evolutionHub": "Evo Hub"
   },
   "email": {
@@ -117,6 +117,12 @@
     }
   },
   "socialLogin": {
+    "callbackUrl": {
+      "label": "URI de redirecionamento OAuth (cadastre no console do provedor)",
+      "hint": "Adicione esta URL exata nas URIs de redirecionamento autorizadas do seu app OAuth — precisa bater exatamente (https, sem barra no final).",
+      "copy": "Copiar URL de callback",
+      "copied": "URL de callback copiada"
+    },
     "title": "Credenciais de provedor de e-mail (OAuth)",
     "description": "Credenciais de app OAuth (Google / Microsoft) usadas para conectar canais de e-mail Gmail e Outlook.",
     "google": {
@@ -168,7 +174,7 @@
     "email": {
       "tabTitle": "E-mail"
     },
-    "title": "Integracoes de Canais",
+    "title": "Integrações de Canais",
     "description": "Configure as credenciais para os canais de mensagens e integracoes.",
     "secretConfigured": "Configurado",
     "secretNotConfigured": "Nao configurado",
@@ -343,7 +349,13 @@
     "saving": "Salvando..."
   },
   "integrations": {
-    "title": "Configuracao de Integracoes",
+    "callbackUrl": {
+      "label": "URI de redirecionamento OAuth (cadastre no console do provedor)",
+      "hint": "Adicione esta URL exata nas URIs de redirecionamento autorizadas do seu app OAuth — precisa bater exatamente (https, sem barra no final).",
+      "copy": "Copiar URL de callback",
+      "copied": "URL de callback copiada"
+    },
+    "title": "Configuração de Integrações",
     "description": "Configure credenciais OAuth para integracoes de terceiros como Linear, GitHub, Notion e outras.",
     "secretConfigured": "Configurado",
     "secretNotConfigured": "Nao configurado",

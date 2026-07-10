@@ -20,6 +20,7 @@ import { adminConfigService } from '@/services/admin/adminConfigService';
 import { extractError } from '@/utils/apiHelpers';
 import type { AdminConfigData } from '@/types/admin/adminConfig';
 import BrandIcon, { getBrandIcon } from '@/components/BrandIcon';
+import CopyCallbackUrl from '@/components/common/CopyCallbackUrl';
 import { INTEGRATIONS, type IntegrationDef } from './integrationsCatalog';
 import FrontendServicesSection from './FrontendServicesSection';
 
@@ -273,6 +274,16 @@ function IntegrationDialogContent({ def, initialData, onClose, onSaved, t }: Int
           sectionKey={def.key}
           t={t}
         />
+
+        {def.callbackPath && (
+          <CopyCallbackUrl
+            url={`${window.location.origin}${def.callbackPath}`}
+            label={t('integrations.callbackUrl.label')}
+            hint={t('integrations.callbackUrl.hint')}
+            copyLabel={t('integrations.callbackUrl.copy')}
+            copiedMessage={t('integrations.callbackUrl.copied')}
+          />
+        )}
 
         <DialogFooter className="gap-2 sm:justify-between">
           {configured ? (

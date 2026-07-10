@@ -13,6 +13,14 @@ export interface IntegrationDef {
   configType: string;
   clientIdKey: string;
   clientSecretKey: string;
+  /**
+   * Fixed OAuth redirect path (host-relative) the operator must register in the
+   * provider console. Built at render time as `${window.location.origin}${callbackPath}`
+   * so it tracks the deployment host. Only set for integrations that expose a
+   * fixed callback URL (mirrors the service `getOAuthCallbackUrl()`); omit for
+   * integrations whose redirect is dynamic/agent-scoped.
+   */
+  callbackPath?: string;
 }
 
 export const INTEGRATIONS: IntegrationDef[] = [
@@ -29,8 +37,8 @@ export const INTEGRATIONS: IntegrationDef[] = [
   { key: 'notion', configType: 'notion', clientIdKey: 'NOTION_OAUTH_CLIENT_ID', clientSecretKey: 'NOTION_OAUTH_CLIENT_SECRET' },
   { key: 'asana', configType: 'asana', clientIdKey: 'ASANA_OAUTH_CLIENT_ID', clientSecretKey: 'ASANA_OAUTH_CLIENT_SECRET' },
   { key: 'canva', configType: 'canva', clientIdKey: 'CANVA_OAUTH_CLIENT_ID', clientSecretKey: 'CANVA_OAUTH_CLIENT_SECRET' },
-  { key: 'google_calendar', configType: 'google_calendar', clientIdKey: 'GOOGLE_CALENDAR_CLIENT_ID', clientSecretKey: 'GOOGLE_CALENDAR_CLIENT_SECRET' },
-  { key: 'google_sheets', configType: 'google_sheets', clientIdKey: 'GOOGLE_SHEETS_CLIENT_ID', clientSecretKey: 'GOOGLE_SHEETS_CLIENT_SECRET' },
+  { key: 'google_calendar', configType: 'google_calendar', clientIdKey: 'GOOGLE_CALENDAR_CLIENT_ID', clientSecretKey: 'GOOGLE_CALENDAR_CLIENT_SECRET', callbackPath: '/oauth/google-calendar/callback' },
+  { key: 'google_sheets', configType: 'google_sheets', clientIdKey: 'GOOGLE_SHEETS_CLIENT_ID', clientSecretKey: 'GOOGLE_SHEETS_CLIENT_SECRET', callbackPath: '/oauth/google-sheets/callback' },
   { key: 'monday', configType: 'monday', clientIdKey: 'MONDAY_OAUTH_CLIENT_ID', clientSecretKey: 'MONDAY_OAUTH_CLIENT_SECRET' },
   { key: 'paypal', configType: 'paypal', clientIdKey: 'PAYPAL_OAUTH_CLIENT_ID', clientSecretKey: 'PAYPAL_OAUTH_CLIENT_SECRET' },
   { key: 'atlassian', configType: 'atlassian', clientIdKey: 'ATLASSIAN_OAUTH_CLIENT_ID', clientSecretKey: 'ATLASSIAN_OAUTH_CLIENT_SECRET' },

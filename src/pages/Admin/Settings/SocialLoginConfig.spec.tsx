@@ -101,14 +101,26 @@ describe('SocialLoginConfig', () => {
     expect(screen.getByText('socialLogin.microsoft.cardTitle')).toBeInTheDocument();
   });
 
-  it('renders all 5 form fields (3 Google + 2 Microsoft)', async () => {
+  it('renders all 4 form fields (2 Google + 2 Microsoft)', async () => {
     await renderAndWait();
 
     expect(screen.getByLabelText('socialLogin.google.fields.clientId')).toBeInTheDocument();
     expect(screen.getByLabelText('socialLogin.google.fields.clientSecret')).toBeInTheDocument();
-    expect(screen.getByLabelText('socialLogin.google.fields.callbackUrl')).toBeInTheDocument();
     expect(screen.getByLabelText('socialLogin.microsoft.fields.appId')).toBeInTheDocument();
     expect(screen.getByLabelText('socialLogin.microsoft.fields.appSecret')).toBeInTheDocument();
+  });
+
+  it('shows a read-only callback URL with copy button on each provider card', async () => {
+    await renderAndWait();
+
+    // One callback URL box per card (Gmail channel + Outlook channel).
+    expect(screen.getAllByText('socialLogin.callbackUrl.label')).toHaveLength(2);
+    expect(
+      screen.getByDisplayValue(`${window.location.origin}/google/callback`),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue(`${window.location.origin}/microsoft/callback`),
+    ).toBeInTheDocument();
   });
 
   it('shows secret configured status for masked secrets', async () => {
