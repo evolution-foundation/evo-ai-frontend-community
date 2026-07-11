@@ -34,8 +34,12 @@ export default function AgentsTable({
   const getAgentTypeInfo = (type: string) => {
     const types: Record<string, { label: string; color: string }> = {
       llm: {
-        label: 'Agente LLM',
+        label: 'Nativo',
         color: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-950 dark:text-green-500 dark:border-green-900',
+      },
+      external: {
+        label: 'Externo',
+        color: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700',
       },
       a2a: {
         label: 'A2A',
@@ -89,7 +93,10 @@ export default function AgentsTable({
       label: t('fields.name'),
       sortable: true,
       render: agent => (
-        <div className="flex items-center gap-3">
+        <div
+          className="flex items-center gap-3 cursor-pointer hover:opacity-80 py-2"
+          onClick={() => onEditAgent(agent)}
+        >
           <div className="flex-shrink-0">{getAgentTypeIcon(agent.type)}</div>
           <span className="font-medium">{agent.name}</span>
         </div>

@@ -23,7 +23,25 @@ agentProcessorApi.interceptors.request.use(config => {
 
 // Interceptador para tratar respostas e erros
 agentProcessorApi.interceptors.response.use(
-  response => response,
+  response => {
+    // O processor envelopa TODA resposta como { success, data, meta } (success_response).
+    // Os services consomem `response.data` esperando o payload direto (ex.: { url },
+    // { config }), então o envelope faz `response.data.url` virar undefined ("não
+    // acontece nada" ao conectar OAuth). Desembrulhamos aqui, no limite de transporte.
+    // Defensivo: só desembrulha quando o shape é claramente o envelope (tem `success`
+    // e `data`); respostas não-envelopadas (arrays, downloads) passam intactas.
+    const body = response.data;
+    if (
+      body &&
+      typeof body === 'object' &&
+      !Array.isArray(body) &&
+      'success' in body &&
+      'data' in body
+    ) {
+      response.data = body.data;
+    }
+    return response;
+  },
   error => {
     const detail =
       error?.response?.data?.error?.message ||
