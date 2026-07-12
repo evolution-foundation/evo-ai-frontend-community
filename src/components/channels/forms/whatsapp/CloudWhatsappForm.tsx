@@ -3,8 +3,10 @@ import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useGlobalConfig } from '@/contexts/GlobalConfigContext';
 import WhatsappService from '@/services/channels/whatsappService';
+import { Button } from '@evoapi/design-system';
 import { FormSection } from '../../shared/FormSection';
 import HubConnectButton from '@/components/inbox/HubConnectButton';
+import { FormActionBar } from '@/components/channels/shared/FormActionBar';
 import { PhoneInput } from '@/components/shared/PhoneInput';
 
 // FB in window
@@ -19,9 +21,10 @@ interface CloudWhatsappFormProps {
   form: Record<string, string | boolean>;
   onFormChange: (key: string, value: string | boolean) => void;
   canFB: boolean;
+  onCancel?: () => void;
 }
 
-export const CloudWhatsappForm = ({ form, onFormChange, canFB }: CloudWhatsappFormProps) => {
+export const CloudWhatsappForm = ({ form, onFormChange, canFB, onCancel }: CloudWhatsappFormProps) => {
   const { t } = useLanguage('whatsapp');
   const config = useGlobalConfig();
   const hubEnabled = config.evolutionHubEnabled === true;
@@ -255,14 +258,25 @@ export const CloudWhatsappForm = ({ form, onFormChange, canFB }: CloudWhatsappFo
           orchestrate Meta OAuth. The button here POSTs to /api/v1/inboxes with
           via_hub: true; the page footer is hidden by the parent in this mode. */}
       {hubEnabled && (
-        <FormSection title={t('cloudWhatsappForm.facebookIntegration.title')}>
-          <div className="space-y-4">
-            <HubConnectButton
-              channelType="whatsapp_cloud"
-              name={getStr('display_name') || getStr('name')}
-            />
-          </div>
-        </FormSection>
+        <>
+          <FormSection title={t('cloudWhatsappForm.facebookIntegration.title')}>
+            <div className="space-y-4">
+              <HubConnectButton
+                channelType="whatsapp_cloud"
+                name={getStr('display_name') || getStr('name')}
+              />
+            </div>
+          </FormSection>
+          {onCancel && (
+            <FormActionBar>
+              <div className="flex justify-end">
+                <Button variant="outline" onClick={onCancel} className="min-w-24">
+                  {t('channels:newChannel.buttons.cancel')}
+                </Button>
+              </div>
+            </FormActionBar>
+          )}
+        </>
       )}
 
       {/* Facebook Login Button */}

@@ -242,14 +242,14 @@
     },
     "fields": {
       "displayName": {
-        "label": "Display Name",
-        "placeholder": "e.g. Support Team",
-        "helpText": "Friendly name shown to your team."
+        "label": "Nombre para mostrar",
+        "placeholder": "p. ej. Equipo de Soporte",
+        "helpText": "Nombre descriptivo que verá tu equipo."
       },
       "channelName": {
-        "label": "Channel Name",
-        "placeholder": "auto-generated",
-        "helpText": "Auto-generated from the display name."
+        "label": "Nombre del canal",
+        "placeholder": "generado automáticamente",
+        "helpText": "Generado automáticamente a partir del nombre para mostrar."
       }
     }
   },
