@@ -55,10 +55,11 @@ describe('ChannelTypeHub', () => {
     render(
       <ChannelTypeHub inboxes={[]} isLoading={false} onAdd={noop} onOpenInbox={noop} onDelete={noop} />,
     );
-    // All 8 catalog types are unconfigured -> all expose the "Connect" action.
+    // The 8 backed catalog types are unconfigured -> all expose the "Connect"
+    // action; the 3 display-only types render the disabled "coming soon" state.
     expect(screen.getAllByText('overview.actions.connect')).toHaveLength(8);
+    expect(screen.getAllByText('overview.actions.comingSoon')).toHaveLength(3);
     expect(screen.queryByText('overview.actions.addConnection')).toBeNull();
-    expect(screen.queryByText('overview.actions.manage')).toBeNull();
   });
 
   it('switches a configured type to the add-connection action and shows the real state', () => {
@@ -78,10 +79,9 @@ describe('ChannelTypeHub', () => {
         onDelete={noop}
       />,
     );
-    // 7 empty types keep "Connect"; the configured one offers "Add connection".
+    // 7 empty backed types keep "Connect"; the configured one offers "Add connection".
     expect(screen.getAllByText('overview.actions.connect')).toHaveLength(7);
     expect(screen.getAllByText('overview.actions.addConnection')).toHaveLength(1);
-    expect(screen.getByText('overview.summary.active')).toBeInTheDocument();
     expect(screen.getByText('Main WA')).toBeInTheDocument();
     expect(screen.getByText(/overview\.inboxState\.connected/)).toBeInTheDocument();
   });
@@ -96,7 +96,8 @@ describe('ChannelTypeHub', () => {
         onDelete={noop}
       />,
     );
-    expect(screen.getByText('overview.summary.error')).toBeInTheDocument();
+    // A disconnected inbox surfaces its state (rendered red) on the connection row.
+    expect(screen.getByText(/overview\.inboxState\.disconnected/)).toBeInTheDocument();
   });
 
   it('shows the explicit unmonitored label for channels without health support', () => {

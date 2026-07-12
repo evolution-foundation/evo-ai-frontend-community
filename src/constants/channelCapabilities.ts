@@ -17,4 +17,8 @@ export const CHANNEL_CAPABILITIES: Record<ChannelTypeId, ChannelCapability[]> = 
   telegram: ['conversations'],
   web_widget: ['conversations'],
   api: ['conversations'],
+  // Display-only "coming soon" social channels — publishing surfaces only.
+  linkedin: ['publishing'],
+  tiktok: ['publishing'],
+  youtube: ['publishing'],
 };

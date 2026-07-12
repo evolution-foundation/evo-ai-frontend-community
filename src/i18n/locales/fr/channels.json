@@ -131,27 +131,39 @@
       },
       "whatsapp": {
         "name": "WhatsApp",
-        "description": "Canal WhatsApp pour le service client"
+        "description": "WhatsApp Business"
       },
       "telegram": {
         "name": "Telegram",
-        "description": "Bot Telegram pour le support automatisé"
+        "description": "Bot de support"
       },
       "instagram": {
         "name": "Instagram",
-        "description": "Messages directs Instagram"
+        "description": "Profil professionnel"
       },
       "facebook": {
-        "name": "Facebook Messenger",
-        "description": "Chat Facebook Messenger"
+        "name": "Facebook",
+        "description": "Page"
       },
       "sms": {
         "name": "SMS",
-        "description": "Messages texte SMS"
+        "description": "Messages texte"
       },
       "email": {
         "name": "Email",
-        "description": "Support par email"
+        "description": "Marketing et support"
+      },
+      "linkedin": {
+        "name": "LinkedIn",
+        "description": "Page entreprise"
+      },
+      "tiktok": {
+        "name": "TikTok",
+        "description": "Compte business"
+      },
+      "youtube": {
+        "name": "YouTube",
+        "description": "Chaîne"
       },
       "api": {
         "name": "API",
@@ -1693,13 +1705,16 @@
     },
     "liveCheckFailed": "La vérification en direct a échoué — affichage du dernier état connu",
     "moreInboxes": "+{{count}} autres boîtes de réception",
+    "providersCount": "{{count}} fournisseurs",
     "actions": {
       "add": "Ajouter",
       "manage": "Gérer",
       "howToConfigure": "Comment configurer",
       "connect": "Connecter",
       "addConnection": "Ajouter une connexion",
-      "deleteConnection": "Supprimer la connexion"
+      "deleteConnection": "Supprimer la connexion",
+      "comingSoon": "Bientôt disponible",
+      "viewAds": "Voir les annonces"
     },
     "capabilities": {
       "publishing": "Publication",

@@ -1,24 +1,19 @@
 import {
-  Badge,
   Button,
   Card,
   CardContent,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@evoapi/design-system';
-import { HelpCircle, Plus, Trash2 } from 'lucide-react';
+import { Layers, Link2, List, Plus, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { cn } from '@/utils/cn';
 import { ChannelTypeStatus, formatLastSync } from '@/utils/channelStatus';
-import { CHANNEL_CAPABILITIES } from '@/constants/channelCapabilities';
+import { CHANNEL_CAPABILITIES, ChannelCapability } from '@/constants/channelCapabilities';
 import { Inbox, InboxConnectionState } from '@/types/channels/inbox';
 import ChannelIcon from './ChannelIcon';
-import ChannelStatusBadge from './ChannelStatusBadge';
 
 const MAX_INBOX_ROWS = 3;
 
@@ -27,7 +22,15 @@ const stateDotClasses: Record<InboxConnectionState, string> = {
   pending: 'bg-amber-500',
   disconnected: 'bg-red-500',
   error: 'bg-red-500',
-  unknown: 'bg-sidebar-foreground/30',
+  unknown: 'bg-muted-foreground/40',
+};
+
+// Capability chips are color-coded by capability (reference design, EVO-2092):
+// publishing = green, conversations = blue, campaigns = purple.
+const capabilityChipClasses: Record<ChannelCapability, string> = {
+  publishing: 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-300',
+  conversations: 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300',
+  campaigns: 'bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300',
 };
 
 interface ChannelTypeCardProps {
@@ -55,68 +58,78 @@ export default function ChannelTypeCard({
   liveFailedIds,
 }: ChannelTypeCardProps) {
   const { t, currentLanguage } = useLanguage('channels');
-  const { type, total, activeCount, attentionCount, errorCount, status, inboxStates } = typeStatus;
+  const { type, total, inboxStates } = typeStatus;
   const isConfigured = total > 0;
+  const comingSoon = type.comingSoon === true;
   const capabilities = CHANNEL_CAPABILITIES[type.type] ?? [];
+  // Only WhatsApp surfaces a provider count pill, sourced from the catalog entry.
+  const providerCount = type.type === 'whatsapp' ? type.providers?.length ?? 0 : 0;
+  const isFacebook = type.type === 'facebook';
 
-  const summary = isConfigured
-    ? [
-        activeCount > 0 ? t('overview.summary.active', { count: activeCount }) : null,
-        attentionCount > 0 ? t('overview.summary.attention', { count: attentionCount }) : null,
-        errorCount > 0 ? t('overview.summary.error', { count: errorCount }) : null,
-      ]
-        .filter(Boolean)
-        .join(' · ')
-    : t('overview.summary.notConfigured');
-
-  // Inline contextual help text per channel type, falling back to the catalog
-  // description when no dedicated help copy exists for the type yet.
-  const helpText = t(`overview.help.${type.id}`, { defaultValue: type.description });
+  const primaryAction = comingSoon ? (
+    <Button variant="secondary" className="w-full" disabled>
+      {t('overview.actions.comingSoon')}
+    </Button>
+  ) : isConfigured ? (
+    <Button variant="outline" className="w-full" onClick={() => onAdd(typeStatus)}>
+      <Plus className="mr-2 h-4 w-4" />
+      {t('overview.actions.addConnection')}
+    </Button>
+  ) : (
+    <Button className="w-full" onClick={() => onAdd(typeStatus)}>
+      <Plus className="mr-2 h-4 w-4" />
+      {t('overview.actions.connect')}
+    </Button>
+  );
 
   return (
     <TooltipProvider delayDuration={200}>
-      <Card className="group relative flex flex-col bg-sidebar border-sidebar-border hover:bg-sidebar-accent/30 transition-all duration-300 hover:shadow-lg hover:shadow-black/10 overflow-hidden">
-        <CardContent className="flex flex-1 flex-col p-4 gap-3">
+      <Card className="group relative flex flex-col rounded-[14px] transition-shadow duration-200 hover:shadow-md">
+        <CardContent className="flex flex-1 flex-col gap-3 p-4">
+          {/* Header: brand tile + name + subtitle, with a connection count on the far right. */}
           <div className="flex items-start gap-3">
-            <ChannelIcon channelType={type.type} size="lg" />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5">
-                <h3 className="font-semibold text-base truncate text-sidebar-foreground">
-                  {type.name}
-                </h3>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      aria-label={t('overview.actions.howToConfigure')}
-                      className="text-sidebar-foreground/40 hover:text-sidebar-foreground transition-colors"
-                    >
-                      <HelpCircle className="h-4 w-4" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-72 text-sm">
-                    <p className="font-medium mb-1 text-sidebar-foreground">
-                      {t('overview.actions.howToConfigure')}
-                    </p>
-                    <p className="text-sidebar-foreground/70">{helpText}</p>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <p className="text-xs text-sidebar-foreground/60 line-clamp-2">{type.description}</p>
-              {capabilities.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {capabilities.map(capability => (
-                    <Badge key={capability} variant="secondary" className="font-normal">
-                      {t(`overview.capabilities.${capability}`)}
-                    </Badge>
-                  ))}
-                </div>
-              )}
+            <ChannelIcon channelType={type.type} size="md" brandTile />
+            <div className="min-w-0 flex-1">
+              <h3 className="truncate text-base font-semibold text-foreground">{type.name}</h3>
+              <p className="truncate text-xs text-muted-foreground">{type.description}</p>
             </div>
+            {isConfigured && (
+              <span
+                className="flex shrink-0 items-center gap-1 text-xs font-medium text-muted-foreground"
+                aria-label={t('overview.summary.active', { count: total })}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                {total}
+              </span>
+            )}
           </div>
 
+          {/* Capability chips (+ WhatsApp provider count). */}
+          {(capabilities.length > 0 || providerCount > 0) && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              {capabilities.map(capability => (
+                <span
+                  key={capability}
+                  className={cn(
+                    'rounded-full px-2 py-0.5 text-xs font-medium',
+                    capabilityChipClasses[capability],
+                  )}
+                >
+                  {t(`overview.capabilities.${capability}`)}
+                </span>
+              ))}
+              {providerCount > 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                  <Layers className="h-3 w-3" aria-hidden="true" />
+                  {t('overview.providersCount', { count: providerCount })}
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Configured connections. */}
           {isConfigured && (
-            <ul className="space-y-1">
+            <ul className="space-y-2">
               {inboxStates.slice(0, MAX_INBOX_ROWS).map(({ inbox, state, unmonitored }) => {
                 const id = String(inbox.id);
                 const isLiveLoading = liveLoadingIds?.has(id) ?? false;
@@ -126,6 +139,11 @@ export default function ChannelTypeCard({
                 const stateLabel = unmonitored
                   ? t('overview.inboxState.unmonitored')
                   : t(`overview.inboxState.${state}`);
+                const providerLabel = (
+                  inbox.provider ||
+                  inbox.channel_type?.replace('Channel::', '') ||
+                  ''
+                ).replace(/_/g, ' ');
 
                 return (
                   <li
@@ -139,45 +157,65 @@ export default function ChannelTypeCard({
                         onOpenInbox(inbox);
                       }
                     }}
-                    className="flex items-center gap-2 rounded px-1 py-0.5 -mx-1 text-xs text-sidebar-foreground/70 cursor-pointer hover:bg-sidebar-accent/40 focus:outline-none focus-visible:ring-1 focus-visible:ring-sidebar-ring"
+                    className="flex items-center gap-2.5 rounded-lg border border-border bg-background px-3 py-2 cursor-pointer transition-colors hover:bg-accent/50 focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     title={liveFailed ? t('overview.liveCheckFailed') : undefined}
                   >
                     <span
                       className={cn(
-                        'h-1.5 w-1.5 shrink-0 rounded-full',
+                        'h-2 w-2 shrink-0 rounded-full',
                         stateDotClasses[state],
                         isLiveLoading && 'animate-pulse',
                       )}
                       aria-hidden="true"
                     />
-                    <span className="truncate flex-1">{inbox.name}</span>
-                    <span className="shrink-0 text-sidebar-foreground/50">
-                      {isLiveLoading ? (
-                        t('overview.inboxState.checking')
-                      ) : isLiveVerified ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-500">
-                          <span className="h-1 w-1 rounded-full bg-emerald-500" aria-hidden="true" />
-                          {t('overview.statusMeta.live')}
-                        </span>
-                      ) : (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="inline-flex items-center gap-1 cursor-help">
-                              <span>{stateLabel}</span>
-                              <span className="text-sidebar-foreground/40">
-                                · {t('overview.statusMeta.stored')}
-                              </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-foreground">
+                        {inbox.name}
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                        {providerLabel && <span className="truncate">{providerLabel}</span>}
+                        {providerLabel && (
+                          <span className="shrink-0" aria-hidden="true">
+                            ·
+                          </span>
+                        )}
+                        <span className="shrink-0">
+                          {isLiveLoading ? (
+                            t('overview.inboxState.checking')
+                          ) : isLiveVerified ? (
+                            <span className="text-emerald-600 dark:text-emerald-400">
+                              {t('overview.statusMeta.live')}
                             </span>
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-xs text-xs">
-                            {t('overview.statusMeta.storedTooltip')}
-                            {lastSync
-                              ? ` · ${t('overview.statusMeta.lastSync', { time: lastSync })}`
-                              : ''}
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                    </span>
+                          ) : (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="cursor-help">
+                                  {stateLabel} · {t('overview.statusMeta.stored')}
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs text-xs">
+                                {t('overview.statusMeta.storedTooltip')}
+                                {lastSync
+                                  ? ` · ${t('overview.statusMeta.lastSync', { time: lastSync })}`
+                                  : ''}
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      aria-label={t('overview.actions.manage')}
+                      onClick={event => {
+                        event.stopPropagation();
+                        onOpenInbox(inbox);
+                      }}
+                      className="shrink-0 rounded p-1 text-muted-foreground/60 transition-colors hover:text-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    >
+                      <List className="h-4 w-4" />
+                    </button>
                     <button
                       type="button"
                       aria-label={t('overview.actions.deleteConnection')}
@@ -185,39 +223,34 @@ export default function ChannelTypeCard({
                         event.stopPropagation();
                         onDelete(inbox);
                       }}
-                      className="shrink-0 rounded p-0.5 text-sidebar-foreground/40 opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100 focus-visible:opacity-100 focus:outline-none"
+                      className="shrink-0 rounded p-1 text-muted-foreground/60 transition-colors hover:text-red-500 focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </li>
                 );
               })}
               {total > MAX_INBOX_ROWS && (
-                <li className="text-xs text-sidebar-foreground/50">
+                <li className="px-1 text-xs text-muted-foreground">
                   {t('overview.moreInboxes', { count: total - MAX_INBOX_ROWS })}
                 </li>
               )}
             </ul>
           )}
 
-          <div className="flex items-center justify-between mt-auto pt-1">
-            <ChannelStatusBadge status={status} />
-            {isConfigured && (
-              <span className="text-xs text-sidebar-foreground/60 truncate ml-2">{summary}</span>
+          {/* Primary action, pinned to the bottom so single-button cards align. */}
+          <div className="mt-auto flex flex-col gap-2 pt-1">
+            {primaryAction}
+            {isFacebook && !comingSoon && (
+              <button
+                type="button"
+                className="mx-auto text-xs text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {t('overview.actions.viewAds')}
+              </button>
             )}
           </div>
         </CardContent>
-
-        <div className="flex border-t border-sidebar-border">
-          <Button
-            variant="ghost"
-            className="flex-1 rounded-none h-11 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/40"
-            onClick={() => onAdd(typeStatus)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {total > 0 ? t('overview.actions.addConnection') : t('overview.actions.connect')}
-          </Button>
-        </div>
       </Card>
     </TooltipProvider>
   );

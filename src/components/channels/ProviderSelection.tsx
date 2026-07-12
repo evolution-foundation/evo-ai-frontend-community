@@ -2,10 +2,11 @@ import React from 'react';
 import ProviderGrid, { Provider } from './ProviderGrid';
 import ChannelBreadcrumb from './ChannelBreadcrumb';
 import { useLanguage } from '@/hooks/useLanguage';
+import { ChannelTypeId } from '@/types/channels/providers';
 
 interface ProviderSelectionProps {
   channelName: string;
-  channelType: 'web_widget' | 'whatsapp' | 'facebook' | 'instagram' | 'telegram' | 'sms' | 'email' | 'api';
+  channelType: ChannelTypeId;
   providers: Provider[];
   isDisabled?: (providerId: string) => boolean;
   disabledTooltip?: (providerId: string) => string | undefined;

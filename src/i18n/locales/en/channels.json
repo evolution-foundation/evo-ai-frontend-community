@@ -133,27 +133,39 @@
       },
       "whatsapp": {
         "name": "WhatsApp",
-        "description": "WhatsApp channel for customer service"
+        "description": "WhatsApp Business"
       },
       "telegram": {
         "name": "Telegram",
-        "description": "Telegram bot for automated support"
+        "description": "Support bot"
       },
       "instagram": {
         "name": "Instagram",
-        "description": "Instagram direct messages"
+        "description": "Professional profile"
       },
       "facebook": {
-        "name": "Facebook Messenger",
-        "description": "Facebook Messenger chat"
+        "name": "Facebook",
+        "description": "Page"
       },
       "sms": {
         "name": "SMS",
-        "description": "SMS text messages"
+        "description": "Text messages"
       },
       "email": {
         "name": "Email",
-        "description": "Email support"
+        "description": "Marketing and support"
+      },
+      "linkedin": {
+        "name": "LinkedIn",
+        "description": "Company page"
+      },
+      "tiktok": {
+        "name": "TikTok",
+        "description": "Business account"
+      },
+      "youtube": {
+        "name": "YouTube",
+        "description": "Channel"
       },
       "api": {
         "name": "API",
@@ -1753,13 +1765,16 @@
     },
     "liveCheckFailed": "Live check failed — showing the last known state",
     "moreInboxes": "+{{count}} more inboxes",
+    "providersCount": "{{count}} providers",
     "actions": {
       "add": "Add",
       "manage": "Manage",
       "howToConfigure": "How to set up",
       "connect": "Connect",
       "addConnection": "Add connection",
-      "deleteConnection": "Delete connection"
+      "deleteConnection": "Delete connection",
+      "comingSoon": "Coming soon",
+      "viewAds": "View ads"
     },
     "capabilities": {
       "publishing": "Publishing",

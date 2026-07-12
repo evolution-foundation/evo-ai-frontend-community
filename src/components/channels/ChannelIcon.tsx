@@ -1,3 +1,5 @@
+import { Linkedin, Youtube } from 'lucide-react';
+import { SiTiktok } from '@icons-pack/react-simple-icons';
 import { cn } from '@/utils/cn';
 import { useLanguage } from '@/hooks/useLanguage';
 import { getBrandIcon, getBrandColor } from '@/components/BrandIcon';
@@ -22,6 +24,36 @@ interface ChannelIconProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   fallbackIcon?: React.ReactNode;
+  /**
+   * Render the strongly-branded channels as a brand-colored tile with a white
+   * glyph (Channels overview reference, EVO-2092). Channels without a brand tile
+   * (email/sms/web/api) keep the neutral tile from the default renderer.
+   */
+  brandTile?: boolean;
+}
+
+type BrandGlyph = React.ComponentType<{ size?: number; color?: string; className?: string }>;
+
+// Brand-colored tile backgrounds for the overview cards. Only the brand hex
+// values are raw colors here (allowed for brand icons); the glyph is always
+// white. Instagram uses its signature gradient.
+const BRAND_TILE_BG: Record<string, string> = {
+  instagram: 'bg-[linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5)]',
+  facebook: 'bg-[#0866FF]',
+  whatsapp: 'bg-[#25D366]',
+  telegram: 'bg-[#26A5E4]',
+  linkedin: 'bg-[#0A66C2]',
+  youtube: 'bg-[#FF0000]',
+  tiktok: 'bg-black',
+};
+
+function getBrandTileGlyph(key: string): BrandGlyph | undefined {
+  // LinkedIn/YouTube come from lucide (simple-icons has no Linkedin export);
+  // TikTok from simple-icons; the rest reuse the shared brand glyph map.
+  if (key === 'linkedin') return Linkedin;
+  if (key === 'youtube') return Youtube;
+  if (key === 'tiktok') return SiTiktok as unknown as BrandGlyph;
+  return getBrandIcon(key) as unknown as BrandGlyph | undefined;
 }
 
 function getChannelBrandId(channelType?: string, provider?: string): string | undefined {
@@ -199,9 +231,35 @@ export default function ChannelIcon({
   provider,
   size = 'md',
   className,
-  fallbackIcon
+  fallbackIcon,
+  brandTile
 }: ChannelIconProps) {
   const { t } = useLanguage('channels');
+
+  // Overview cards: brand-colored tile with a white glyph for the strongly
+  // branded channels. Everything else falls through to the neutral tile below.
+  if (brandTile) {
+    const key = (channelType || '').replace('Channel::', '').toLowerCase().replace(/\s|_/g, '');
+    const tileBg = BRAND_TILE_BG[key];
+    if (tileBg) {
+      const Glyph = getBrandTileGlyph(key);
+      return (
+        <div
+          className={cn(
+            'rounded-lg flex items-center justify-center overflow-hidden',
+            containerSizeClasses[size],
+            tileBg,
+            className,
+          )}
+        >
+          {Glyph && (
+            <Glyph size={iconSizes[size]} color="#FFFFFF" className={sizeClasses[size]} />
+          )}
+        </div>
+      );
+    }
+  }
+
   const brandId = getChannelBrandId(channelType, provider);
   const BrandIconComponent = brandId ? getBrandIcon(brandId) : undefined;
   const brandColor = brandId ? getBrandColor(brandId) : undefined;
