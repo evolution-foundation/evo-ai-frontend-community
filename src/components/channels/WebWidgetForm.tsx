@@ -1,6 +1,5 @@
 import { Input } from '@evoapi/design-system';
 import { useLanguage } from '@/hooks/useLanguage';
-import  { sanitizeInboxName } from '@/utils/sanitizeName';
 
 interface WebWidgetFormProps {
   form: Record<string, string | boolean>;
@@ -16,12 +15,7 @@ export default function WebWidgetForm({
   getStr
 }: WebWidgetFormProps) {
   const { t } = useLanguage('webWidget');
-  
-  const handleDisplayNameChange = (value: string) => {
-    onFormChange('display_name', value);
-    onFormChange('name', sanitizeInboxName(value));
-  };
-  
+
   const renderLabeledInput = (
     label: string,
     valueKey: string,
@@ -76,36 +70,6 @@ export default function WebWidgetForm({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-sidebar-foreground/80">
-              {t('fields.displayName')}
-              <span className="text-red-500 ml-1">*</span>
-            </label>
-            <Input
-              placeholder={t('fields.displayNamePlaceholder')}
-              value={getStr('display_name')}
-              onChange={(e) => handleDisplayNameChange(e.target.value)}
-              type="text"
-              required
-              className="bg-sidebar border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/50"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-sidebar-foreground/80">
-              {t('fields.channelName')}
-              <span className="text-red-500 ml-1">*</span>
-            </label>
-            <Input
-              placeholder={t('fields.channelNamePlaceholder')}
-              value={getStr('name')}
-              onChange={(e) => onFormChange('name', e.target.value)}
-              type="text"
-              required
-              readOnly
-              disabled
-              className="bg-sidebar border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/50 cursor-not-allowed opacity-60 bg-sidebar-border/50"
-            />
-          </div>
           {renderLabeledInput(t('fields.websiteUrl'), 'website_url', t('fields.websiteUrlPlaceholder'), 'url', true)}
         </div>
       </div>

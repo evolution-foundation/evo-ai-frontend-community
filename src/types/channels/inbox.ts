@@ -195,6 +195,7 @@ export interface WhatsappCloudPayload {
     provider_config: {
       api_key: string;
       phone_number_id: string;
+      business_account_id: string;
       waba_id: string;
     };
   };

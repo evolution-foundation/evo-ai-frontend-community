@@ -3,7 +3,6 @@ import { FormField } from '../../shared/FormField';
 import { FormCheckbox } from '../../shared/FormCheckbox';
 import { FormSection } from '../../shared/FormSection';
 import { FormData } from '@/hooks/channels/useChannelForm';
-import { sanitizeInboxName } from '@/utils/sanitizeName';
 import { PhoneInput } from '@/components/shared/PhoneInput';
 
 interface TwilioWhatsappFormProps {
@@ -16,34 +15,8 @@ export const TwilioWhatsappForm = ({ form, onFormChange }: TwilioWhatsappFormPro
   const getStr = (key: string, fallback = ''): string =>
     typeof form[key] === 'string' ? (form[key] as string) : fallback;
 
-  const handleDisplayNameChange = (value: string) => {
-    onFormChange('display_name', value);
-    onFormChange('name', sanitizeInboxName(value));
-  };
-
   return (
-    <div className="space-y-6">
-      {/* Display Name and Channel Name */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tour="whatsapp-credentials">
-        <FormField
-          label={t('twilioForm.fields.displayName.label')}
-          value={getStr('display_name')}
-          onChange={handleDisplayNameChange}
-          placeholder={t('twilioForm.fields.displayName.placeholder')}
-          helpText={t('twilioForm.fields.displayName.helpText')}
-          required
-        />
-        <FormField
-          label={t('twilioForm.fields.channelName.label')}
-          value={getStr('name')}
-          onChange={value => onFormChange('name', value)}
-          placeholder={t('twilioForm.fields.channelName.placeholder')}
-          helpText={t('twilioForm.fields.channelName.helpText')}
-          required
-          readOnly
-        />
-      </div>
-
+    <div className="space-y-6" data-tour="whatsapp-credentials">
       {/* Account SID */}
       <FormField
         label={t('twilioForm.fields.accountSid.label')}

@@ -187,7 +187,8 @@
       },
       "twilio": {
         "name": "Twilio",
-        "description": "Twilio WhatsApp Business API"
+        "description": "Twilio WhatsApp Business API",
+        "comingSoon": "Em breve"
       },
       "twilioSms": {
         "name": "Twilio SMS",
@@ -240,6 +241,18 @@
       "connectDescription": "Conecte a oferecer suporte a seus clientes pelo {{channelName}}",
       "apiProvider": "Provedor de API",
       "facebookIntegrationDescription": "Conecte sua conta do Facebook para preencher automaticamente as informações do WhatsApp Business"
+    },
+    "fields": {
+      "displayName": {
+        "label": "Nome de Exibição",
+        "placeholder": "ex.: Equipe de Suporte",
+        "helpText": "Nome amigável exibido para sua equipe."
+      },
+      "channelName": {
+        "label": "Nome do Canal",
+        "placeholder": "gerado automaticamente",
+        "helpText": "Gerado automaticamente a partir do nome de exibição."
+      }
     }
   },
   "settings": {
@@ -1122,12 +1135,32 @@
       }
     },
     "preChatForm": {
-      "success": {
-        "updated": "Configurações do formulário pré-chat atualizadas com sucesso!"
+      "title": "Formulário Pré-Chat",
+      "description": "Colete informações dos visitantes antes de iniciar a conversa",
+      "totalFields": "Total de Campos",
+      "activeFields": "Campos Ativos",
+      "requiredFields": "Campos Obrigatórios",
+      "welcomeMessage": "Mensagem de Boas-vindas",
+      "welcomeMessagePlaceholder": "Olá! Para melhor atendê-lo, por favor preencha as informações abaixo:",
+      "welcomeMessageHelp": "Esta mensagem será exibida no topo do formulário pré-chat.",
+      "fieldConfiguration": "Configuração dos Campos",
+      "hidePreview": "Ocultar Preview",
+      "showPreview": "Ver Preview",
+      "formPreview": "Preview do Formulário",
+      "noActiveFields": "Nenhum campo ativo para exibir",
+      "howItWorksTitle": "Como funciona o formulário pré-chat",
+      "howItWorks": {
+        "point1": "O formulário é exibido antes do cliente iniciar a conversa",
+        "point2": "Informações coletadas são anexadas ao perfil do contato",
+        "point3": "Campos obrigatórios devem ser preenchidos para continuar",
+        "point4": "Use a função arrastar para reordenar os campos"
       },
-      "errors": {
-        "updateError": "Erro ao atualizar configurações do formulário pré-chat"
-      }
+      "disabledTitle": "Formulário pré-chat desabilitado",
+      "disabledDescription": "Ative para coletar informações dos visitantes antes de iniciar a conversa.",
+      "saving": "Salvando...",
+      "save": "Salvar Configurações",
+      "success": "Configurações do formulário pré-chat atualizadas com sucesso",
+      "error": "Erro ao atualizar configurações do formulário pré-chat"
     },
     "greeting": {
       "title": "Mensagem de Saudação",
@@ -1626,34 +1659,6 @@
       "success": {
         "channelCreated": "Canal criado com sucesso"
       }
-    },
-    "preChatForm": {
-      "title": "Formulário Pré-Chat",
-      "description": "Colete informações dos visitantes antes de iniciar a conversa",
-      "totalFields": "Total de Campos",
-      "activeFields": "Campos Ativos",
-      "requiredFields": "Campos Obrigatórios",
-      "welcomeMessage": "Mensagem de Boas-vindas",
-      "welcomeMessagePlaceholder": "Olá! Para melhor atendê-lo, por favor preencha as informações abaixo:",
-      "welcomeMessageHelp": "Esta mensagem será exibida no topo do formulário pré-chat.",
-      "fieldConfiguration": "Configuração dos Campos",
-      "hidePreview": "Ocultar Preview",
-      "showPreview": "Ver Preview",
-      "formPreview": "Preview do Formulário",
-      "noActiveFields": "Nenhum campo ativo para exibir",
-      "howItWorksTitle": "Como funciona o formulário pré-chat",
-      "howItWorks": {
-        "point1": "O formulário é exibido antes do cliente iniciar a conversa",
-        "point2": "Informações coletadas são anexadas ao perfil do contato",
-        "point3": "Campos obrigatórios devem ser preenchidos para continuar",
-        "point4": "Use a função arrastar para reordenar os campos"
-      },
-      "disabledTitle": "Formulário pré-chat desabilitado",
-      "disabledDescription": "Ative para coletar informações dos visitantes antes de iniciar a conversa.",
-      "saving": "Salvando...",
-      "save": "Salvar Configurações",
-      "success": "Configurações do formulário pré-chat atualizadas com sucesso",
-      "error": "Erro ao atualizar configurações do formulário pré-chat"
     },
     "moderation": {
       "title": "Moderação de Comentários",

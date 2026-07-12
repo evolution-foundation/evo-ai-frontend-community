@@ -5,6 +5,7 @@ import ChannelsService from '@/services/channels/channelsService';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import HubConnectButton from '@/components/inbox/HubConnectButton';
+import { FormActionBar } from '@/components/channels/shared/FormActionBar';
 
 // Facebook SDK types
 declare global {
@@ -295,11 +296,13 @@ export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookCha
           />
         </div>
         <HubConnectButton channelType="facebook_page" name={inboxName} />
-        <div className="text-center">
-          <Button variant="outline" onClick={onCancel}>
-            {t('cancel')}
-          </Button>
-        </div>
+        <FormActionBar>
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={onCancel} className="min-w-24">
+              {t('cancel')}
+            </Button>
+          </div>
+        </FormActionBar>
       </div>
     );
   }
@@ -370,6 +373,14 @@ export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookCha
           <p className="text-sm text-muted-foreground">{t('redirectToAuthorize')}</p>
           <p className="text-xs text-muted-foreground">{t('mustBePageAdmin')}</p>
         </div>
+
+        <FormActionBar>
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={onCancel} className="min-w-24">
+              {t('newChannel.buttons.cancel')}
+            </Button>
+          </div>
+        </FormActionBar>
       </div>
     );
   }
@@ -504,22 +515,24 @@ export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookCha
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-border">
-            <Button variant="outline" onClick={onCancel} disabled={isLoading} className="min-w-24">
-              {t('newChannel.buttons.cancel')}
-            </Button>
-            <Button onClick={handleCreate} disabled={!canProceed || isLoading} className="min-w-32">
-              {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  {t('creating')}
-                </div>
-              ) : (
-                t('createChannel')
-              )}
-            </Button>
-          </div>
+          {/* Action Buttons — standardized footer band */}
+          <FormActionBar>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={onCancel} disabled={isLoading} className="min-w-24">
+                {t('newChannel.buttons.cancel')}
+              </Button>
+              <Button onClick={handleCreate} disabled={!canProceed || isLoading} className="min-w-32">
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    {t('creating')}
+                  </div>
+                ) : (
+                  t('createChannel')
+                )}
+              </Button>
+            </div>
+          </FormActionBar>
         </div>
       )}
 

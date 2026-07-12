@@ -3,7 +3,6 @@ import { FormField } from '../../shared/FormField';
 import { FormCheckbox } from '../../shared/FormCheckbox';
 import { FormSection } from '../../shared/FormSection';
 import { FormData } from '@/hooks/channels/useChannelForm';
-import  { sanitizeInboxName } from '@/utils/sanitizeName';
 import { PhoneInput } from '@/components/shared/PhoneInput';
 
 interface EvolutionFormProps {
@@ -16,11 +15,6 @@ export const EvolutionForm = ({ form, onFormChange, hasEvolutionConfig }: Evolut
   const { t } = useLanguage('whatsapp');
   const getStr = (key: string, fallback = ''): string =>
     typeof form[key] === 'string' ? (form[key] as string) : fallback;
-
-  const handleDisplayNameChange = (value: string) => {
-    onFormChange('display_name', value);
-    onFormChange('name', sanitizeInboxName(value));
-  };
 
   return (
     <div className="space-y-6">
@@ -47,27 +41,7 @@ export const EvolutionForm = ({ form, onFormChange, hasEvolutionConfig }: Evolut
         </>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tour="whatsapp-credentials">
-        <FormField
-          label={t('evolutionForm.fields.displayName.label')}
-          value={getStr('display_name')}
-          onChange={handleDisplayNameChange}
-          placeholder={t('evolutionForm.fields.displayName.placeholder')}
-          helpText={t('evolutionForm.fields.displayName.helpText')}
-          required
-        />
-        <FormField
-          label={t('evolutionForm.fields.channelName.label')}
-          value={getStr('name')}
-          onChange={value => onFormChange('name', value)}
-          placeholder={t('evolutionForm.fields.channelName.placeholder')}
-          helpText={t('evolutionForm.fields.channelName.helpText')}
-          required
-          readOnly
-        />
-      </div>
-
-      <div>
+      <div data-tour="whatsapp-credentials">
         <label className="text-sm font-medium text-sidebar-foreground/80 block mb-1">
           {t('twilioForm.fields.phoneNumber.label')} <span className="text-destructive">*</span>
         </label>

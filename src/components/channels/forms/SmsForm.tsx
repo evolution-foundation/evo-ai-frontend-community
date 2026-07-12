@@ -4,7 +4,6 @@ import { FormCheckbox } from '../shared/FormCheckbox';
 import { FormSection } from '../shared/FormSection';
 import { FormData } from '@/hooks/channels/useChannelForm';
 import { Provider as ProviderType } from '@/components/channels/ProviderGrid';
-import { sanitizeInboxName } from '@/utils/sanitizeName';
 import { PhoneInput } from '@/components/shared/PhoneInput';
 
 interface SmsFormProps {
@@ -18,33 +17,11 @@ export const SmsForm = ({ selectedProvider, form, onFormChange }: SmsFormProps) 
   const getStr = (key: string, fallback = ''): string =>
     typeof form[key] === 'string' ? (form[key] as string) : fallback;
 
-  const handleDisplayNameChange = (value: string) => {
-    onFormChange('display_name', value);
-    onFormChange('name', sanitizeInboxName(value));
-  };
-
   if (selectedProvider.id === 'twilio') {
     return (
       <div className="space-y-6">
         {/* Basic Configuration */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tour="sms-credentials">
-          <FormField
-            label={t('fields.twilio.displayName.label')}
-            value={getStr('display_name')}
-            onChange={handleDisplayNameChange}
-            placeholder={t('fields.twilio.displayName.placeholder', { provider: 'Twilio' })}
-            helpText={t('fields.twilio.displayName.helpText')}
-            required
-          />
-          <FormField
-            label={t('fields.twilio.channelName.label')}
-            value={getStr('name')}
-            onChange={value => onFormChange('name', value)}
-            placeholder={t('fields.twilio.channelName.placeholder', { provider: 'twilio' })}
-            helpText={t('fields.twilio.channelName.helpText')}
-            required
-            readOnly
-          />
           <FormField
             label={t('fields.twilio.accountSid.label')}
             value={getStr('account_sid')}
@@ -141,23 +118,6 @@ export const SmsForm = ({ selectedProvider, form, onFormChange }: SmsFormProps) 
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tour="sms-credentials">
-          <FormField
-            label={t('fields.bandwidth.displayName.label')}
-            value={getStr('display_name')}
-            onChange={handleDisplayNameChange}
-            placeholder={t('fields.bandwidth.displayName.placeholder', { provider: 'Bandwidth' })}
-            helpText={t('fields.bandwidth.displayName.helpText')}
-            required
-          />
-          <FormField
-            label={t('fields.bandwidth.channelName.label')}
-            value={getStr('name')}
-            onChange={value => onFormChange('name', value)}
-            placeholder={t('fields.bandwidth.channelName.placeholder', { provider: 'bandwidth' })}
-            helpText={t('fields.bandwidth.channelName.helpText')}
-            required
-            readOnly
-          />
           <div>
             <label className="text-sm font-medium text-sidebar-foreground/80 block mb-1">
               {t('fields.bandwidth.phoneNumber.label')} <span className="text-destructive">*</span>

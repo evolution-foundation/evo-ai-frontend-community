@@ -5,6 +5,7 @@ import { Mail, AlertTriangle } from 'lucide-react';
 import EmailOauthService from '@/services/channels/emailOauthService';
 import { EmailChannelPayload } from '@/types/channels/inbox';
 import { useLanguage } from '@/hooks/useLanguage';
+import { FormActionBar } from '@/components/channels/shared/FormActionBar';
 
 interface EmailFormProps {
   provider: 'google' | 'microsoft' | 'other_provider';
@@ -41,8 +42,8 @@ const EmailForm: React.FC<EmailFormProps> = ({ provider, onSuccess, onBack }) =>
     smtp_authentication: 'login',
   });
 
-  // No Vue, o callback do OAuth é tratado automaticamente pelo backend
-  // Aqui só precisamos do fluxo de autorização inicial
+  // The OAuth callback is handled automatically by the backend; here we only
+  // need the initial authorization flow.
 
   const handleOAuthLogin = async () => {
     if (!email.trim()) {
@@ -62,7 +63,7 @@ const EmailForm: React.FC<EmailFormProps> = ({ provider, onSuccess, onBack }) =>
       }
 
       if (response?.url) {
-        // Redirect diretamente para OAuth (igual Vue)
+        // Redirect straight to the OAuth flow
         window.location.href = response.url;
       }
     } catch (error) {
@@ -132,25 +133,20 @@ const EmailForm: React.FC<EmailFormProps> = ({ provider, onSuccess, onBack }) =>
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6" data-tour="email-connect">
+    <div className="space-y-6" data-tour="email-connect">
       {/* Header */}
-      <div className="flex items-center space-x-4">
-        <Button variant="outline" size="sm" onClick={onBack}>
-          ← Voltar
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">
-            {t('connect')}{' '}
-            {provider === 'google' ? 'Gmail' : provider === 'microsoft' ? 'Outlook' : 'Email IMAP'}
-          </h1>
-          <p className="text-muted-foreground">
-            {provider === 'google'
-              ? t('connectGmail')
-              : provider === 'microsoft'
-              ? t('connectOutlook')
-              : t('configureImap')}
-          </p>
-        </div>
+      <div>
+        <h1 className="text-xl font-bold">
+          {t('connect')}{' '}
+          {provider === 'google' ? 'Gmail' : provider === 'microsoft' ? 'Outlook' : 'Email IMAP'}
+        </h1>
+        <p className="text-muted-foreground">
+          {provider === 'google'
+            ? t('connectGmail')
+            : provider === 'microsoft'
+            ? t('connectOutlook')
+            : t('configureImap')}
+        </p>
       </div>
 
       {authError && (
@@ -164,7 +160,7 @@ const EmailForm: React.FC<EmailFormProps> = ({ provider, onSuccess, onBack }) =>
         </Card>
       )}
 
-      {/* OAuth Providers - Igual ao Vue */}
+      {/* OAuth Providers */}
       {(provider === 'google' || provider === 'microsoft') && (
         <Card>
           <CardContent className="p-6">
@@ -196,29 +192,13 @@ const EmailForm: React.FC<EmailFormProps> = ({ provider, onSuccess, onBack }) =>
                     className="w-full"
                   />
                 </div>
-
-                <Button
-                  onClick={handleOAuthLogin}
-                  disabled={isRequestingAuthorization}
-                  size="lg"
-                  className="w-full min-h-[48px] bg-green-500 hover:bg-green-600 text-white"
-                >
-                  {isRequestingAuthorization ? (
-                    <>
-                      <Skeleton className="h-4 w-4 mr-2" />
-                      {t('connecting')}
-                    </>
-                  ) : (
-                    t('signInWith', { provider: provider === 'google' ? 'Google' : 'Microsoft' })
-                  )}
-                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Simple Email Channel (Forward-to) - igual Vue ForwardToOption */}
+      {/* Simple Email Channel (Forward-to) */}
       {provider === 'other_provider' && (
         <Card>
           <CardContent className="p-6">
@@ -254,23 +234,45 @@ const EmailForm: React.FC<EmailFormProps> = ({ provider, onSuccess, onBack }) =>
                 <p className="text-xs text-muted-foreground mt-1">{t('forwardDescription')}</p>
               </div>
             </div>
-
-            {/* Submit */}
-            <div className="flex justify-end">
-              <Button onClick={handleCreateChannel} disabled={isLoading} size="lg">
-                {isLoading ? (
-                  <>
-                    <Skeleton className="h-4 w-4 mr-2" />
-                    {t('creating')}
-                  </>
-                ) : (
-                  t('createEmailChannel')
-                )}
-              </Button>
-            </div>
           </CardContent>
         </Card>
       )}
+
+      {/* Standardized footer band — redirect / create actions live here. */}
+      <FormActionBar>
+        <div className="flex justify-end gap-3">
+          <Button variant="outline" onClick={onBack} className="min-w-24">
+            {t('channels:newChannel.buttons.cancel')}
+          </Button>
+          {provider === 'other_provider' ? (
+            <Button onClick={handleCreateChannel} disabled={isLoading} className="min-w-32">
+              {isLoading ? (
+                <>
+                  <Skeleton className="h-4 w-4 mr-2" />
+                  {t('creating')}
+                </>
+              ) : (
+                t('createEmailChannel')
+              )}
+            </Button>
+          ) : (
+            <Button
+              onClick={handleOAuthLogin}
+              disabled={isRequestingAuthorization}
+              className="min-w-[200px] bg-green-500 hover:bg-green-600 text-white"
+            >
+              {isRequestingAuthorization ? (
+                <>
+                  <Skeleton className="h-4 w-4 mr-2" />
+                  {t('connecting')}
+                </>
+              ) : (
+                t('signInWith', { provider: provider === 'google' ? 'Google' : 'Microsoft' })
+              )}
+            </Button>
+          )}
+        </div>
+      </FormActionBar>
     </div>
   );
 };

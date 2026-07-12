@@ -2,7 +2,6 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { FormField } from '../../shared/FormField';
 import { FormSection } from '../../shared/FormSection';
 import { FormData } from '@/hooks/channels/useChannelForm';
-import { sanitizeInboxName } from '@/utils/sanitizeName';
 import { PhoneInput } from '@/components/shared/PhoneInput';
 
 interface NotificameFormProps {
@@ -15,36 +14,10 @@ export const NotificameForm = ({ form, onFormChange }: NotificameFormProps) => {
   const getStr = (key: string, fallback = ''): string =>
     typeof form[key] === 'string' ? (form[key] as string) : fallback;
 
-  const handleDisplayNameChange = (value: string) => {
-    onFormChange('display_name', value);
-    onFormChange('name', sanitizeInboxName(value));
-  };
-
   return (
     <div className="space-y-6">
-      {/* Display Name and Channel Name */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tour="whatsapp-credentials">
-        <FormField
-          label={t('notificameForm.fields.displayName.label')}
-          value={getStr('display_name')}
-          onChange={handleDisplayNameChange}
-          placeholder={t('notificameForm.fields.displayName.placeholder')}
-          helpText={t('notificameForm.fields.displayName.helpText')}
-          required
-        />
-        <FormField
-          label={t('notificameForm.fields.channelName.label')}
-          value={getStr('name')}
-          onChange={value => onFormChange('name', value)}
-          placeholder={t('notificameForm.fields.channelName.placeholder')}
-          helpText={t('notificameForm.fields.channelName.helpText')}
-          required
-          readOnly
-        />
-      </div>
-
       {/* Phone Number */}
-      <div>
+      <div data-tour="whatsapp-credentials">
         <label className="text-sm font-medium text-sidebar-foreground/80 block mb-1">
           {t('notificameForm.fields.phoneNumber.label')} <span className="text-destructive">*</span>
         </label>

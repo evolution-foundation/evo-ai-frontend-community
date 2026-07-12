@@ -3,10 +3,8 @@ import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useGlobalConfig } from '@/contexts/GlobalConfigContext';
 import WhatsappService from '@/services/channels/whatsappService';
-import { FormField } from '../../shared/FormField';
 import { FormSection } from '../../shared/FormSection';
 import HubConnectButton from '@/components/inbox/HubConnectButton';
-import { sanitizeInboxName } from '@/utils/sanitizeName';
 import { PhoneInput } from '@/components/shared/PhoneInput';
 
 // FB in window
@@ -36,11 +34,6 @@ export const CloudWhatsappForm = ({ form, onFormChange, canFB }: CloudWhatsappFo
 
   const getStr = (key: string, fallback = ''): string =>
     typeof form[key] === 'string' ? (form[key] as string) : fallback;
-
-  const handleDisplayNameChange = (value: string) => {
-    onFormChange('display_name', value);
-    onFormChange('name', sanitizeInboxName(value));
-  };
 
   const handleClearFields = () => {
     onFormChange('name', '');
@@ -264,13 +257,6 @@ export const CloudWhatsappForm = ({ form, onFormChange, canFB }: CloudWhatsappFo
       {hubEnabled && (
         <FormSection title={t('cloudWhatsappForm.facebookIntegration.title')}>
           <div className="space-y-4">
-            <FormField
-              label={t('cloudWhatsappForm.fields.displayName.label')}
-              value={getStr('display_name')}
-              onChange={handleDisplayNameChange}
-              placeholder={t('cloudWhatsappForm.fields.displayName.placeholder')}
-              required
-            />
             <HubConnectButton
               channelType="whatsapp_cloud"
               name={getStr('display_name') || getStr('name')}
@@ -378,23 +364,6 @@ export const CloudWhatsappForm = ({ form, onFormChange, canFB }: CloudWhatsappFo
       {/* Basic Information (skipped in Hub mode — Hub returns these via webhook). */}
       {!hubEnabled && (
       <div data-tour="whatsapp-cloud-credentials">
-      <FormField
-        label={t('cloudWhatsappForm.fields.displayName.label')}
-        value={getStr('display_name')}
-        onChange={handleDisplayNameChange}
-        placeholder={t('cloudWhatsappForm.fields.displayName.placeholder')}
-        required
-      />
-
-      <FormField
-        label={t('cloudWhatsappForm.fields.channelName.label')}
-        value={getStr('name')}
-        onChange={value => onFormChange('name', value)}
-        placeholder={t('cloudWhatsappForm.fields.channelName.placeholder')}
-        required
-        readOnly
-      />
-
       <div>
         <label className="text-sm font-medium text-sidebar-foreground/80 block mb-1">
           {t('cloudWhatsappForm.fields.phoneNumber.label')} <span className="text-destructive">*</span>
@@ -408,8 +377,8 @@ export const CloudWhatsappForm = ({ form, onFormChange, canFB }: CloudWhatsappFo
         />
       </div>
 
-      {/* Campos sensíveis removidos da UI - são preenchidos automaticamente via Facebook OAuth */}
-      {/* api_key, phone_number_id, business_account_id, waba_id são mantidos no form state mas não exibidos */}
+      {/* Sensitive fields (api_key, phone_number_id, business_account_id, waba_id)
+          stay in form state but are hidden — auto-filled via Facebook OAuth. */}
       </div>
       )}
     </div>

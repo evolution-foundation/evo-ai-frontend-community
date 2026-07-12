@@ -58,7 +58,7 @@ export const useChannelSubmission = (form?: FormData) => {
     };
   }, [cleanupPendingInstance]);
 
-  // Reset health check quando a URL da API mudar
+  // Reset the health check whenever the API URL changes
   useEffect(() => {
     if (form && form.api_url) {
       setHealthCheckPassed(null);
@@ -249,9 +249,9 @@ export const useChannelSubmission = (form?: FormData) => {
     selectedProvider: ProviderType | null,
     form: FormData,
     config: any,
-    // Quando fornecido, é chamado após criar com sucesso, no lugar da navegação
-    // interna para /channels/:id/settings (que não resolve quando o NewChannel
-    // é montado embutido, sem <Routes> capturando a rota).
+    // When provided, called after a successful create instead of the internal
+    // navigation to /channels/:id/settings (which does not resolve when
+    // NewChannel is mounted embedded, without <Routes> capturing the route).
     onCreated?: (createdId?: string) => void,
   ) => {
     if (!selectedChannel) return;
@@ -423,6 +423,7 @@ export const useChannelSubmission = (form?: FormData) => {
                 provider_config: {
                   api_key: getStr(form, 'api_key'),
                   phone_number_id: getStr(form, 'phone_number_id'),
+                  business_account_id: getStr(form, 'business_account_id'),
                   waba_id: getStr(form, 'waba_id'),
                 },
               },
