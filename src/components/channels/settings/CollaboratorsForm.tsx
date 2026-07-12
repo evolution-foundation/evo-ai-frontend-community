@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, Switch } from '@evoapi/design-system';
 import { Check, Users, Settings, Info } from 'lucide-react';
 import { toast } from 'sonner';
@@ -133,7 +133,7 @@ export default function CollaboratorsForm({
   registerSaveRef.current = registerSave;
   const handleUpdateAgentsRef = useRef(handleUpdateAgents);
   handleUpdateAgentsRef.current = handleUpdateAgents;
-  useEffect(() => {
+  useLayoutEffect(() => {
     registerSaveRef.current?.({ save: () => handleUpdateAgentsRef.current(), canSave });
     return () => registerSaveRef.current?.(null);
   }, [canSave]);

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { useEffect, useLayoutEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { usePermissions } from '@/contexts/PermissionsContext';
 import {
@@ -535,7 +535,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
   // ref to the latest closure so the effect can stay mounted without re-running.
   const handleSaveRef = useRef(handleSave);
   handleSaveRef.current = handleSave;
-  useEffect(() => {
+  useLayoutEffect(() => {
     registerTabSave('inbox_settings', { save: () => handleSaveRef.current(), canSave: true });
     return () => registerTabSave('inbox_settings', null);
   }, [registerTabSave]);
@@ -645,7 +645,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="flex w-full justify-start gap-2 bg-transparent p-0 h-auto overflow-x-auto no-scrollbar">
+            <TabsList className="flex w-full justify-start gap-2 bg-transparent p-0 h-auto overflow-x-auto scrollbar-hidden">
               {tabs.map(tab => {
                 const Icon = tab.icon;
                 return (

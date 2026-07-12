@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import {
   Card,
   CardContent,
@@ -327,7 +327,7 @@ export default function CSATForm({
   registerSaveRef.current = registerSave;
   const handleSaveRef = useRef(handleSaveSettings);
   handleSaveRef.current = handleSaveSettings;
-  useEffect(() => {
+  useLayoutEffect(() => {
     registerSaveRef.current?.({ save: () => handleSaveRef.current(), canSave });
     return () => registerSaveRef.current?.(null);
   }, [canSave]);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import {
   Card,
   CardContent,
@@ -206,7 +206,7 @@ export default function WidgetBuilderForm({
   registerSaveRef.current = registerSave;
   const handleUpdateRef = useRef(handleUpdate);
   handleUpdateRef.current = handleUpdate;
-  useEffect(() => {
+  useLayoutEffect(() => {
     registerSaveRef.current?.({ save: () => handleUpdateRef.current(), canSave });
     return () => registerSaveRef.current?.(null);
   }, [canSave]);
