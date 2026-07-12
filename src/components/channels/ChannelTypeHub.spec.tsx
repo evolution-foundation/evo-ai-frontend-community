@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import ChannelTypeHub from './ChannelTypeHub';
+import ChannelTypeCard from './ChannelTypeCard';
+import { buildChannelTypeStatuses } from '@/utils/channelStatus';
+import { getChannelTypes } from '@/constants/channelTypes';
 import { Inbox } from '@/types/channels/inbox';
 
 beforeAll(() => {
@@ -33,22 +36,32 @@ const inbox = (overrides: Partial<Inbox>): Inbox =>
 
 const noop = () => {};
 
+// Pick a built type-status by its catalog type id (e.g. 'whatsapp').
+const statusFor = (type: string, inboxes: Inbox[]) => {
+  const found = buildChannelTypeStatuses(getChannelTypes(), inboxes).find(s => s.type.type === type);
+  if (!found) throw new Error(`no status for ${type}`);
+  return found;
+};
+
 describe('ChannelTypeHub', () => {
   it('renders skeletons while loading', () => {
     const { container } = render(
-      <ChannelTypeHub inboxes={[]} isLoading onAdd={noop} onManage={noop} />,
+      <ChannelTypeHub inboxes={[]} isLoading onAdd={noop} onOpenInbox={noop} onDelete={noop} />,
     );
     expect(container.querySelectorAll('[data-slot="skeleton"]').length).toBeGreaterThan(0);
   });
 
-  it('shows every catalog type as available when there are no inboxes', () => {
-    render(<ChannelTypeHub inboxes={[]} isLoading={false} onAdd={noop} onManage={noop} />);
-    // All 8 catalog types are unconfigured -> all expose the "Add" action.
-    expect(screen.getAllByText('overview.actions.add')).toHaveLength(8);
+  it('shows every catalog type as connectable when there are no inboxes', () => {
+    render(
+      <ChannelTypeHub inboxes={[]} isLoading={false} onAdd={noop} onOpenInbox={noop} onDelete={noop} />,
+    );
+    // All 8 catalog types are unconfigured -> all expose the "Connect" action.
+    expect(screen.getAllByText('overview.actions.connect')).toHaveLength(8);
+    expect(screen.queryByText('overview.actions.addConnection')).toBeNull();
     expect(screen.queryByText('overview.actions.manage')).toBeNull();
   });
 
-  it('switches a configured type to the manage action and shows the real state', () => {
+  it('switches a configured type to the add-connection action and shows the real state', () => {
     render(
       <ChannelTypeHub
         inboxes={[
@@ -61,11 +74,13 @@ describe('ChannelTypeHub', () => {
         ]}
         isLoading={false}
         onAdd={noop}
-        onManage={noop}
+        onOpenInbox={noop}
+        onDelete={noop}
       />,
     );
-    expect(screen.getAllByText('overview.actions.add')).toHaveLength(7);
-    expect(screen.getAllByText('overview.actions.manage')).toHaveLength(1);
+    // 7 empty types keep "Connect"; the configured one offers "Add connection".
+    expect(screen.getAllByText('overview.actions.connect')).toHaveLength(7);
+    expect(screen.getAllByText('overview.actions.addConnection')).toHaveLength(1);
     expect(screen.getByText('overview.summary.active')).toBeInTheDocument();
     expect(screen.getByText('Main WA')).toBeInTheDocument();
     expect(screen.getByText(/overview\.inboxState\.connected/)).toBeInTheDocument();
@@ -74,12 +89,11 @@ describe('ChannelTypeHub', () => {
   it('flags a disconnected inbox as error', () => {
     render(
       <ChannelTypeHub
-        inboxes={[
-          inbox({ channel_type: 'Channel::Whatsapp', connection_state: 'disconnected' }),
-        ]}
+        inboxes={[inbox({ channel_type: 'Channel::Whatsapp', connection_state: 'disconnected' })]}
         isLoading={false}
         onAdd={noop}
-        onManage={noop}
+        onOpenInbox={noop}
+        onDelete={noop}
       />,
     );
     expect(screen.getByText('overview.summary.error')).toBeInTheDocument();
@@ -89,17 +103,90 @@ describe('ChannelTypeHub', () => {
     render(
       <ChannelTypeHub
         inboxes={[
-          inbox({
-            channel_type: 'Channel::Api',
-            connection_state: 'unknown',
-            health_source: 'none',
-          }),
+          inbox({ channel_type: 'Channel::Api', connection_state: 'unknown', health_source: 'none' }),
         ]}
         isLoading={false}
         onAdd={noop}
-        onManage={noop}
+        onOpenInbox={noop}
+        onDelete={noop}
       />,
     );
     expect(screen.getByText(/overview\.inboxState\.unmonitored/)).toBeInTheDocument();
+  });
+});
+
+describe('ChannelTypeCard', () => {
+  it('renders capability chips for the type per the capability matrix', () => {
+    // WhatsApp = conversations + campaigns (never publishing).
+    render(
+      <ChannelTypeCard
+        typeStatus={statusFor('whatsapp', [])}
+        onAdd={noop}
+        onOpenInbox={noop}
+        onDelete={noop}
+      />,
+    );
+    expect(screen.getByText('overview.capabilities.conversations')).toBeInTheDocument();
+    expect(screen.getByText('overview.capabilities.campaigns')).toBeInTheDocument();
+    expect(screen.queryByText('overview.capabilities.publishing')).toBeNull();
+  });
+
+  it('labels an inbox as live only when the probe confirmed it, stored otherwise', () => {
+    const live = inbox({ id: 'w-live', name: 'Live WA', channel_type: 'whatsapp' });
+    const { rerender } = render(
+      <ChannelTypeCard
+        typeStatus={statusFor('whatsapp', [live])}
+        onAdd={noop}
+        onOpenInbox={noop}
+        onDelete={noop}
+        liveVerifiedIds={new Set(['w-live'])}
+      />,
+    );
+    expect(screen.getByText('overview.statusMeta.live')).toBeInTheDocument();
+    expect(screen.queryByText(/overview\.statusMeta\.stored/)).toBeNull();
+
+    // Same inbox, but not live-verified -> stored marker (with explanatory tooltip trigger).
+    rerender(
+      <ChannelTypeCard
+        typeStatus={statusFor('whatsapp', [live])}
+        onAdd={noop}
+        onOpenInbox={noop}
+        onDelete={noop}
+        liveVerifiedIds={new Set()}
+      />,
+    );
+    expect(screen.getByText(/overview\.statusMeta\.stored/)).toBeInTheDocument();
+    expect(screen.queryByText('overview.statusMeta.live')).toBeNull();
+  });
+
+  it('calls onDelete when the per-row trash is clicked', () => {
+    const target = inbox({ id: 'w-del', name: 'Del WA', channel_type: 'whatsapp' });
+    const onDelete = vi.fn();
+    render(
+      <ChannelTypeCard
+        typeStatus={statusFor('whatsapp', [target])}
+        onAdd={noop}
+        onOpenInbox={noop}
+        onDelete={onDelete}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'overview.actions.deleteConnection' }));
+    expect(onDelete).toHaveBeenCalledWith(target);
+  });
+
+  it('calls onOpenInbox when the connection row is clicked', () => {
+    const target = inbox({ id: 'w-open', name: 'Open WA', channel_type: 'whatsapp' });
+    const onOpenInbox = vi.fn();
+    render(
+      <ChannelTypeCard
+        typeStatus={statusFor('whatsapp', [target])}
+        onAdd={noop}
+        onOpenInbox={onOpenInbox}
+        onDelete={noop}
+      />,
+    );
+    const row = screen.getByText('Open WA').closest('li') as HTMLElement;
+    fireEvent.click(within(row).getByText('Open WA'));
+    expect(onOpenInbox).toHaveBeenCalledWith(target);
   });
 });

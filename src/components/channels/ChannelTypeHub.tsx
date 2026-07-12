@@ -11,10 +11,17 @@ interface ChannelTypeHubProps {
   inboxes: Inbox[];
   isLoading: boolean;
   onAdd: (typeStatus: ChannelTypeStatus) => void;
-  onManage: (typeStatus: ChannelTypeStatus) => void;
+  onOpenInbox: (inbox: Inbox) => void;
+  onDelete: (inbox: Inbox) => void;
 }
 
-export default function ChannelTypeHub({ inboxes, isLoading, onAdd, onManage }: ChannelTypeHubProps) {
+export default function ChannelTypeHub({
+  inboxes,
+  isLoading,
+  onAdd,
+  onOpenInbox,
+  onDelete,
+}: ChannelTypeHubProps) {
   const { t, currentLanguage } = useLanguage('channels');
   const { states: liveStates, loadingIds, failedIds } = useLiveChannelStatus(inboxes);
 
@@ -24,6 +31,10 @@ export default function ChannelTypeHub({ inboxes, isLoading, onAdd, onManage }: 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [inboxes, liveStates, currentLanguage],
   );
+
+  // Only ids present in the live overlay were confirmed live by the probe;
+  // everything else renders as stored state, never as real-time.
+  const liveVerifiedIds = useMemo(() => new Set(Object.keys(liveStates)), [liveStates]);
 
   if (isLoading) {
     return (
@@ -47,7 +58,9 @@ export default function ChannelTypeHub({ inboxes, isLoading, onAdd, onManage }: 
             key={typeStatus.type.id}
             typeStatus={typeStatus}
             onAdd={onAdd}
-            onManage={onManage}
+            onOpenInbox={onOpenInbox}
+            onDelete={onDelete}
+            liveVerifiedIds={liveVerifiedIds}
             liveLoadingIds={loadingIds}
             liveFailedIds={failedIds}
           />

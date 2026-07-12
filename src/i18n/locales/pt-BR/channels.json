@@ -1756,7 +1756,21 @@
     "actions": {
       "add": "Adicionar",
       "manage": "Gerenciar",
-      "howToConfigure": "Como configurar"
+      "howToConfigure": "Como configurar",
+      "connect": "Conectar",
+      "addConnection": "Adicionar conexão",
+      "deleteConnection": "Excluir conexão"
+    },
+    "capabilities": {
+      "publishing": "Publicação",
+      "conversations": "Conversas",
+      "campaigns": "Campanhas"
+    },
+    "statusMeta": {
+      "live": "Ao vivo",
+      "stored": "Informado",
+      "storedTooltip": "Estado informado pela configuração, não verificado ao vivo",
+      "lastSync": "Sincronizado {{time}}"
     },
     "help": {
       "website": "Incorpore um widget de chat ao vivo no seu site para conversar com visitantes em tempo real.",

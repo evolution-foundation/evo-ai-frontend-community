@@ -1,8 +1,5 @@
 export { default as ChannelsHeader } from './ChannelsHeader';
-export { default as ChannelsTable } from './ChannelsTable';
-export { default as ChannelsPagination } from './ChannelsPagination';
 export { default as ChannelIcon } from './ChannelIcon';
-export { default as ChannelCard } from './ChannelCard';
 export { default as ChannelTypeHub } from './ChannelTypeHub';
 export { default as ChannelTypeCard } from './ChannelTypeCard';
 export { default as ChannelStatusBadge } from './ChannelStatusBadge';

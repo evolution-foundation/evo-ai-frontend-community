@@ -1,9 +1,9 @@
 import { cn } from '@/utils/cn';
 import { useLanguage } from '@/hooks/useLanguage';
 import { getBrandIcon, getBrandColor } from '@/components/BrandIcon';
-// Ícones de canal como imports estáticos. Imports (mesmo via alias @/) são
-// resolvidos pelo Vite como URLs de asset corretas; `new URL('@/...', import.meta.url)`
-// NÃO é (o alias quebra a transformação) — gerava ícones quebrados quando embutido.
+// Channel icons as static imports. Imports (even via the @/ alias) are resolved
+// by Vite into correct asset URLs; `new URL('@/...', import.meta.url)` is NOT
+// (the alias breaks the transform) — it produced broken icons when inlined.
 import iconWhatsappCloud from '@/assets/channels/whatsapp-cloud.svg';
 import iconEvolutionApi from '@/assets/channels/evolution-api.png';
 import iconEvolutionGo from '@/assets/channels/evolution-go.png';

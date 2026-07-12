@@ -1756,7 +1756,21 @@
     "actions": {
       "add": "Add",
       "manage": "Manage",
-      "howToConfigure": "How to set up"
+      "howToConfigure": "How to set up",
+      "connect": "Connect",
+      "addConnection": "Add connection",
+      "deleteConnection": "Delete connection"
+    },
+    "capabilities": {
+      "publishing": "Publishing",
+      "conversations": "Conversations",
+      "campaigns": "Campaigns"
+    },
+    "statusMeta": {
+      "live": "Live",
+      "stored": "Reported",
+      "storedTooltip": "State reported by the configuration, not verified live",
+      "lastSync": "Synced {{time}}"
     },
     "help": {
       "website": "Embed a live-chat widget on your website so visitors can talk to your team in real time.",

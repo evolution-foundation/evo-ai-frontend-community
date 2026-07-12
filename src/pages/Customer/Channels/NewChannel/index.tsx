@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -42,23 +42,30 @@ import { EmailChannelTour } from '@/tours/EmailChannelTour';
 
 interface NewChannelProps {
   /**
-   * Quando fornecido, o canal correspondente (por `id` em getChannelTypes) é
-   * pré-selecionado no mount, pulando o grid de seleção de canal. Usado quando
-   * o NewChannel é montado a partir de uma tela que já escolheu o canal.
+   * When provided, the matching channel (by `id` in getChannelTypes) is
+   * preselected on mount, skipping the channel selection grid. Used when
+   * NewChannel is mounted from a screen that already picked the channel.
    */
   initialChannelId?: string;
   /**
-   * Callback opcional invocado quando o usuário sairia do fluxo (voltar/cancelar
-   * no topo, ou clique no breadcrumb "Canais"). Quando fornecido, é chamado em
-   * vez de navegar para /channels — permite que um host (ex.: modal) feche a si
-   * mesmo. Sem ele, o comportamento original de navegação é mantido.
+   * Optional callback invoked when the user would leave the flow (back/cancel
+   * at the top, or clicking the "Channels" breadcrumb). When provided, it is
+   * called instead of navigating to /channels — letting a host (e.g. a modal)
+   * close itself. Without it, the original navigation behavior is kept.
    */
   onExit?: () => void;
 }
 
 export default function NewChannel({ initialChannelId, onExit }: NewChannelProps = {}) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useLanguage('channels');
+
+  // The standalone route `/channels/new` renders <NewChannel /> without props,
+  // so an explicit `initialChannelId` prop takes priority, then the channel type
+  // passed through router state by the Channels overview "Connect" action.
+  const preselectedChannelId =
+    initialChannelId ?? (location.state as { channelId?: string } | null)?.channelId;
 
   // Use hooks
   const {
@@ -111,20 +118,20 @@ export default function NewChannel({ initialChannelId, onExit }: NewChannelProps
     [canEmailGoogle, canEmailMicrosoft, t],
   );
 
-  // Pré-seleciona o canal quando montado com initialChannelId (pula o grid).
-  // Só roda uma vez, e apenas se nenhum canal estiver selecionado ainda.
-  // Usa handleChannelSelect direto (não a versão com validação canFB/canIG): o
-  // canal já foi escolhido pela tela host, e o gating de config dos canais Meta
-  // é aplicado adiante (no provider/form), não aqui — senão um config ainda não
-  // carregado (async) faria cair no grid de seleção inteiro.
+  // Preselect the channel when a type was provided (skips the grid). Runs once,
+  // and only while no channel is selected yet. Uses handleChannelSelect directly
+  // (not the canFB/canIG-validated variant): the channel was already chosen by
+  // the host screen, and Meta channel config gating is applied later (at the
+  // provider/form step), not here — otherwise a config still loading (async)
+  // would drop back to the full selection grid.
   useEffect(() => {
-    if (!initialChannelId || selectedChannel) return;
-    const channel = channelTypes.find(c => c.id === initialChannelId);
+    if (!preselectedChannelId || selectedChannel) return;
+    const channel = channelTypes.find(c => c.id === preselectedChannelId);
     if (channel) {
       handleChannelSelect(channel);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialChannelId, channelTypes]);
+  }, [preselectedChannelId, channelTypes]);
 
   // Sai do fluxo voltando à lista de canais. Quando um host fornece onExit
   // (ex.: modal no shell), fecha-o; senão navega para /channels (CRM standalone).

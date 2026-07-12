@@ -1696,7 +1696,21 @@
     "actions": {
       "add": "Ajouter",
       "manage": "Gérer",
-      "howToConfigure": "Comment configurer"
+      "howToConfigure": "Comment configurer",
+      "connect": "Connecter",
+      "addConnection": "Ajouter une connexion",
+      "deleteConnection": "Supprimer la connexion"
+    },
+    "capabilities": {
+      "publishing": "Publication",
+      "conversations": "Conversations",
+      "campaigns": "Campagnes"
+    },
+    "statusMeta": {
+      "live": "En direct",
+      "stored": "Déclaré",
+      "storedTooltip": "État déclaré par la configuration, non vérifié en direct",
+      "lastSync": "Synchronisé {{time}}"
     },
     "help": {
       "website": "Intégrez un widget de chat en direct sur votre site pour échanger avec les visiteurs en temps réel.",

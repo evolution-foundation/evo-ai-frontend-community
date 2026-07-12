@@ -177,16 +177,8 @@
       "content": "Click here to connect a new channel. We support WhatsApp, email, Instagram, and other communication channels."
     },
     "step3": {
-      "title": "View Mode",
-      "content": "Switch between card (grid) and table view according to your preference."
-    },
-    "step4": {
       "title": "Channel List",
       "content": "See all connected channels here. Click settings to adjust each channel individually or delete channels that are no longer needed."
-    },
-    "step5": {
-      "title": "Page Navigation",
-      "content": "Navigate between pages of your channels and adjust how many records are displayed per page."
     }
   },
   "pipelines": {
