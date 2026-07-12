@@ -77,28 +77,42 @@ describe('BusinessHoursForm', () => {
     vi.clearAllMocks();
   });
 
-  describe('Button visibility', () => {
-    it('should show Update button when business hours toggle is enabled', () => {
+  // The internal footer button was removed; the save is now driven by the
+  // ChannelSettings sticky footer through the registerSave registry.
+  const lastHandle = (mock: ReturnType<typeof vi.fn>) => {
+    const handles = mock.mock.calls
+      .map(call => call[0])
+      .filter(arg => arg && typeof arg === 'object');
+    return handles[handles.length - 1];
+  };
+
+  describe('Save registry', () => {
+    it('does not render an internal update button', () => {
       render(<BusinessHoursForm {...defaultProps} workingHoursEnabled={true} />);
-      
-      const updateButton = screen.getByRole('button', { name: /settings\.businessHours\.buttons\.update/i });
-      expect(updateButton).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: /settings\.businessHours\.buttons\.update/i }),
+      ).not.toBeInTheDocument();
     });
 
-    it('should show Update button when business hours toggle is disabled', () => {
-      render(<BusinessHoursForm {...defaultProps} workingHoursEnabled={false} />);
-      
-      const updateButton = screen.getByRole('button', { name: /settings\.businessHours\.buttons\.update/i });
-      expect(updateButton).toBeInTheDocument();
+    it('registers a savable handle when business hours is enabled and valid', () => {
+      const registerSave = vi.fn();
+      render(
+        <BusinessHoursForm {...defaultProps} registerSave={registerSave} workingHoursEnabled={true} />,
+      );
+      const handle = lastHandle(registerSave);
+      expect(handle).toBeTruthy();
+      expect(handle.canSave).toBe(true);
+      expect(typeof handle.save).toBe('function');
     });
-  });
 
-  describe('Button disabled state', () => {
-    it('should not disable button when business hours is disabled even if there are validation errors', () => {
-      render(<BusinessHoursForm {...defaultProps} workingHoursEnabled={false} />);
-
-      const updateButton = screen.getByRole('button', { name: /settings\.businessHours\.buttons\.update/i });
-      expect(updateButton).not.toBeDisabled();
+    it('registers a savable handle when business hours is disabled', () => {
+      const registerSave = vi.fn();
+      render(
+        <BusinessHoursForm {...defaultProps} registerSave={registerSave} workingHoursEnabled={false} />,
+      );
+      const handle = lastHandle(registerSave);
+      expect(handle).toBeTruthy();
+      expect(handle.canSave).toBe(true);
     });
   });
 

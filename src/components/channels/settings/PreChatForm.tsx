@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Card,
   CardContent,
@@ -13,6 +13,7 @@ import { MessageSquare, Info, Settings, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 
+import type { TabSaveHandle } from './tabSave';
 import PreChatFields from './PreChatFields';
 import {
   PreChatField,
@@ -27,6 +28,7 @@ interface PreChatFormProps {
   inboxId: string;
   preChatFormEnabled?: boolean;
   preChatFormOptions?: PreChatFormOptions;
+  registerSave?: (handle: TabSaveHandle | null) => void;
   onUpdate?: (data: {
     pre_chat_form_enabled: boolean;
     pre_chat_form_options?: PreChatFormOptions;
@@ -55,6 +57,7 @@ const mockCustomAttributes: CustomAttribute[] = [
 export default function PreChatForm({
   preChatFormEnabled = false,
   preChatFormOptions,
+  registerSave,
   onUpdate,
 }: PreChatFormProps) {
   const { t, currentLanguage } = useLanguage('channels');
@@ -125,6 +128,17 @@ export default function PreChatForm({
     }
   };
 
+  // Expose the save to the settings sticky footer registry.
+  const canSave = !isUpdating;
+  const registerSaveRef = useRef(registerSave);
+  registerSaveRef.current = registerSave;
+  const handleUpdateRef = useRef(handleUpdate);
+  handleUpdateRef.current = handleUpdate;
+  useEffect(() => {
+    registerSaveRef.current?.({ save: () => handleUpdateRef.current(), canSave });
+    return () => registerSaveRef.current?.(null);
+  }, [canSave]);
+
   // Get enabled fields count
   const enabledFieldsCount = preChatFields.filter(field => field.enabled).length;
   const requiredFieldsCount = preChatFields.filter(field => field.enabled && field.required).length;
@@ -136,8 +150,8 @@ export default function PreChatForm({
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-border">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/20">
-                <MessageSquare className="w-5 h-5 text-purple-700 dark:text-purple-400" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <MessageSquare className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <h4 className="font-semibold text-foreground">{t('settings.preChatForm.title')}</h4>
@@ -287,12 +301,6 @@ export default function PreChatForm({
             </div>
           )}
 
-          {/* Save Button */}
-          <div className="flex justify-end pt-4 border-t border-border">
-            <Button onClick={handleUpdate} disabled={isUpdating} className="min-w-32">
-              {isUpdating ? t('settings.preChatForm.saving') : t('settings.preChatForm.save')}
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>

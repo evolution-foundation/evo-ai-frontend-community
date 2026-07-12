@@ -408,8 +408,8 @@ export default function AgentBotConfigurationForm({
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-border">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/20">
-                <Bot className="w-5 h-5 text-purple-700 dark:text-purple-400" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Bot className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <h4 className="font-semibold text-foreground">
@@ -466,7 +466,7 @@ export default function AgentBotConfigurationForm({
                         />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
-                          <Bot className="w-5 h-5 text-purple-600" />
+                          <Bot className="w-5 h-5 text-primary" />
                         </div>
                       )}
                       <div>

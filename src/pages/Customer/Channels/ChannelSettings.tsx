@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { usePermissions } from '@/contexts/PermissionsContext';
 import {
@@ -13,7 +13,7 @@ import {
 } from '@evoapi/design-system';
 import {
   ArrowLeft,
-  Save,
+  Check,
   Globe,
   Settings,
   Users,
@@ -29,6 +29,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 
 import InboxesService from '@/services/channels/inboxesService';
 import { Inbox } from '@/types/channels/inbox';
+import type { TabSaveHandle } from '@/components/channels/settings/tabSave';
 import {
   BasicSettingsForm,
   GreetingSettingsForm,
@@ -279,15 +280,16 @@ function useInbox(inbox: Inbox | null): InboxHook {
 
 interface ChannelSettingsProps {
   /**
-   * id do inbox a configurar. Quando fornecido, tem precedência sobre o param
-   * de rota (useParams). Necessário ao montar fora de uma <Route> que capture
-   * `:id` (ex.: embutido via CrmScreen, onde não há rota e useParams é vazio).
+   * Id of the inbox to configure. When provided, it takes precedence over the
+   * route param (useParams). Required when mounting outside a <Route> that
+   * captures `:id` (e.g. embedded via CrmScreen, where there is no route and
+   * useParams is empty).
    */
   inboxId?: string;
   /**
-   * Callback opcional invocado ao "voltar para a lista de canais". Quando
-   * fornecido (ex.: montado dentro de um modal no shell), é chamado em vez de
-   * navegar para /channels. Sem ele, mantém a navegação original.
+   * Optional callback invoked on "back to the channel list". When provided
+   * (e.g. mounted inside a modal in the shell), it is called instead of
+   * navigating to /channels. Without it, the original navigation is kept.
    */
   onExit?: () => void;
 }
@@ -318,6 +320,23 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
   const [isSavingSignature, setIsSavingSignature] = useState(false);
 
   const inboxHook = useInbox(inbox);
+
+  // Unified save model: snapshot tabs register their save handle here so the
+  // sticky footer can trigger the active tab's save. Imperative tabs never
+  // register, which keeps the footer disabled with a hint for them.
+  const tabSaversRef = useRef<Record<string, TabSaveHandle>>({});
+  const [, bumpSavers] = useState(0);
+  const [isFooterSaving, setIsFooterSaving] = useState(false);
+  const registerTabSave = useCallback((tabKey: string, handle: TabSaveHandle | null) => {
+    const prev = tabSaversRef.current[tabKey];
+    if (handle) {
+      tabSaversRef.current[tabKey] = handle;
+      if (!prev || prev.canSave !== handle.canSave) bumpSavers(n => n + 1);
+    } else if (prev) {
+      delete tabSaversRef.current[tabKey];
+      bumpSavers(n => n + 1);
+    }
+  }, []);
 
   const [formData, setFormData] = useState<ChannelSettingsData>({
     name: '',
@@ -466,10 +485,6 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
 
   const handleSave = async () => {
     if (!ensureCanUpdate()) return;
-    if (activeTab !== 'inbox_settings') {
-      toast.info(t('settings.errors.useTabUpdate'));
-      return;
-    }
 
     setIsSaving(true);
     try {
@@ -513,6 +528,30 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
       toast.error(t('settings.errors.saveError'));
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Register the inbox_settings snapshot save with the footer registry. Keep a
+  // ref to the latest closure so the effect can stay mounted without re-running.
+  const handleSaveRef = useRef(handleSave);
+  handleSaveRef.current = handleSave;
+  useEffect(() => {
+    registerTabSave('inbox_settings', { save: () => handleSaveRef.current(), canSave: true });
+    return () => registerTabSave('inbox_settings', null);
+  }, [registerTabSave]);
+
+  const activeSaver = tabSaversRef.current[activeTab];
+  const currentTabIsSavable = !!activeSaver;
+  const footerCanSave = currentTabIsSavable && (activeSaver?.canSave ?? true) && canUpdate;
+
+  const handleFooterSave = async () => {
+    const saver = tabSaversRef.current[activeTab];
+    if (!saver || !canUpdate) return;
+    setIsFooterSaving(true);
+    try {
+      await saver.save();
+    } finally {
+      setIsFooterSaving(false);
     }
   };
 
@@ -563,10 +602,10 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-card">
+      {/* Header: breadcrumb + compact channel identity */}
+      <div className="border-b border-border bg-card">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 px-6 pt-4">
           <button
             onClick={exitToChannels}
             className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
@@ -580,57 +619,40 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
           </span>
         </div>
 
-        {/* Save Button */}
-        {activeTab === 'inbox_settings' && canUpdate ? (
-          <Button onClick={handleSave} disabled={isSaving} className="min-w-40">
-            <Save className="h-4 w-4 mr-2" />
-            {isSaving ? t('settings.saving') : t('settings.save')}
-          </Button>
-        ) : (
-          <div className="text-xs text-muted-foreground">
-            {t('settings.info.tabSpecificSave')}
-          </div>
-        )}
+        {/* Channel identity */}
+        <div className="flex items-center gap-3 px-6 pb-4 pt-3">
+          {formData.avatar_url && (
+            <img
+              src={formData.avatar_url}
+              alt="Inbox avatar"
+              className="w-10 h-10 rounded-full object-cover border border-border"
+            />
+          )}
+          <h1 className="text-xl font-semibold text-foreground truncate">{inboxName}</h1>
+        </div>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-auto">
-        <div className="max-w-6xl mx-auto p-6">
-          {/* Inbox Header */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-6">
-              {formData.avatar_url && (
-                <img
-                  src={formData.avatar_url}
-                  alt="Inbox avatar"
-                  className="w-16 h-16 rounded-full object-cover border-2 border-border"
-                />
-              )}
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">{inboxName}</h1>
-                <p className="text-muted-foreground mt-1">{t('settings.description')}</p>
-              </div>
-            </div>
-
-            {/* Authorization banners */}
-            <AuthorizationBanners
-              inbox={inbox}
-              onReauthorize={provider => {
-                toast.info(t('settings.reauthorize.redirecting', { provider }));
-              }}
-            />
-          </div>
+        <div className="w-full px-6 py-6">
+          {/* Authorization banners */}
+          <AuthorizationBanners
+            inbox={inbox}
+            onReauthorize={provider => {
+              toast.info(t('settings.reauthorize.redirecting', { provider }));
+            }}
+          />
 
           {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="flex flex-wrap justify-start gap-1 bg-transparent p-0 h-auto">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="flex w-full justify-start gap-2 bg-transparent p-0 h-auto overflow-x-auto no-scrollbar">
               {tabs.map(tab => {
                 const Icon = tab.icon;
                 return (
                   <TabsTrigger
                     key={tab.key}
                     value={tab.key}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                    className="flex items-center gap-2 rounded-full px-4 py-1.5 whitespace-nowrap text-sm text-muted-foreground hover:bg-muted data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
                   >
                     <Icon className="h-4 w-4" />
                     <span className="text-sm">{tab.name}</span>
@@ -640,6 +662,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
             </TabsList>
 
             {/* Tab Contents */}
+            <div className="mt-4">
             <TabsContent value="inbox_settings">
               {activeTab === 'inbox_settings' && <div className="space-y-6">
                 {/* Basic Settings */}
@@ -712,7 +735,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
                             toast.success(t('settings.success.senderUpdateSuccess'));
                             await loadChannelData(); // Refresh data
                           } catch (error) {
-                            console.error('Erro ao atualizar configurações do remetente:', error);
+                            console.error('Error updating sender settings:', error);
                             toast.error(t('settings.errors.senderUpdateError'));
                           }
                         }}
@@ -726,7 +749,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
-                        <Mail className="w-5 h-5 text-purple-600 mt-1" />
+                        <Mail className="w-5 h-5 text-primary mt-1" />
                         <div className="flex-1">
                           <h3 className="text-lg font-semibold text-foreground">
                             {t('settings.configuration.email.signature.title')}
@@ -765,7 +788,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
                             loading={isSavingSignature}
                             className="mt-4"
                           >
-                            {t('settings.configuration.email.signature.save', { defaultValue: 'Salvar Assinatura' })}
+                            {t('settings.configuration.email.signature.save', { defaultValue: 'Save Signature' })}
                           </Button>
                         </div>
                       </div>
@@ -779,6 +802,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
             <TabsContent value="collaborators">
               {activeTab === 'collaborators' && <CollaboratorsForm
                 inboxId={inboxId}
+                registerSave={handle => registerTabSave('collaborators', handle)}
                 enableAutoAssignment={inbox?.enable_auto_assignment === true}
                 maxAssignmentLimit={
                   inbox?.auto_assignment_config?.max_assignment_limit !== undefined
@@ -804,6 +828,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
             <TabsContent value="businesshours">
               {activeTab === 'businesshours' && <BusinessHoursForm
                 inboxId={inboxId}
+                registerSave={handle => registerTabSave('businesshours', handle)}
                 workingHoursEnabled={inbox?.working_hours_enabled === true}
                 outOfOfficeMessage={inbox?.out_of_office_message || ''}
                 outOfOfficeMessageTemplateId={inbox?.out_of_office_message_template_id || null}
@@ -829,6 +854,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
             <TabsContent value="csat">
               {activeTab === 'csat' && <CSATForm
                 inboxId={inboxId}
+                registerSave={handle => registerTabSave('csat', handle)}
                 csatSurveyEnabled={inbox?.csat_survey_enabled === true}
                 csatConfig={
                   inbox?.csat_config && Object.keys(inbox.csat_config).length > 0
@@ -852,6 +878,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
             <TabsContent value="preChatForm">
               {activeTab === 'preChatForm' && <PreChatForm
                 inboxId={inboxId}
+                registerSave={handle => registerTabSave('preChatForm', handle)}
                 preChatFormEnabled={inbox?.pre_chat_form_enabled === true}
                 preChatFormOptions={inbox?.pre_chat_form_options || undefined}
                 onUpdate={async data => {
@@ -873,6 +900,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
             <TabsContent value="widgetBuilder">
               {activeTab === 'widgetBuilder' && <WidgetBuilderForm
                 inboxId={inboxId}
+                registerSave={handle => registerTabSave('widgetBuilder', handle)}
                 inbox={{
                   name: inbox?.name,
                   welcome_title: inbox?.welcome_title,
@@ -919,7 +947,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
                     toast.success(t('settings.success.configUpdateSuccess'));
                     await loadChannelData(); // Refresh data
                   } catch (error) {
-                    console.error('Erro ao atualizar configuração:', error);
+                    console.error('Error updating configuration:', error);
                     toast.error(t('settings.errors.configUpdateError'));
                   }
                 }}
@@ -933,8 +961,27 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
             <TabsContent value="moderation">
               {activeTab === 'moderation' && <ModerationDashboard />}
             </TabsContent>
+            </div>
           </Tabs>
         </div>
+      </div>
+
+      {/* Fixed footer: single unified save action, anchored to the content box */}
+      <div className="flex items-center justify-end gap-3 border-t border-border bg-card px-6 py-3">
+        {!currentTabIsSavable && (
+          <span className="text-xs text-muted-foreground">
+            {t('settings.info.tabSpecificSave')}
+          </span>
+        )}
+        <Button
+          onClick={handleFooterSave}
+          loading={isFooterSaving || isSaving || undefined}
+          disabled={!footerCanSave || isFooterSaving || isSaving}
+          className="min-w-48"
+        >
+          <Check className="h-4 w-4 mr-2" />
+          {t('settings.updateConfig')}
+        </Button>
       </div>
     </div>
   );

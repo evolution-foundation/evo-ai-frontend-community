@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Card,
   CardContent,
@@ -18,6 +18,7 @@ import { Code2, Upload, Trash2, Eye, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 
+import type { TabSaveHandle } from './tabSave';
 import WidgetPreview from './widget/WidgetPreview';
 import {
   WidgetConfig,
@@ -56,9 +57,15 @@ interface WidgetBuilderFormProps {
     };
     avatar?: File;
   }) => Promise<void>;
+  registerSave?: (handle: TabSaveHandle | null) => void;
 }
 
-export default function WidgetBuilderForm({ inboxId, inbox, onUpdate }: WidgetBuilderFormProps) {
+export default function WidgetBuilderForm({
+  inboxId,
+  inbox,
+  onUpdate,
+  registerSave,
+}: WidgetBuilderFormProps) {
   const { t } = useLanguage('channels');
   const [config, setConfig] = useState<WidgetConfig>(getDefaultWidgetConfig());
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -193,6 +200,17 @@ export default function WidgetBuilderForm({ inboxId, inbox, onUpdate }: WidgetBu
     }
   };
 
+  // Expose the save to the settings sticky footer registry.
+  const canSave = !isUpdating;
+  const registerSaveRef = useRef(registerSave);
+  registerSaveRef.current = registerSave;
+  const handleUpdateRef = useRef(handleUpdate);
+  handleUpdateRef.current = handleUpdate;
+  useEffect(() => {
+    registerSaveRef.current?.({ save: () => handleUpdateRef.current(), canSave });
+    return () => registerSaveRef.current?.(null);
+  }, [canSave]);
+
   // Widget view options
   const viewOptions = getWidgetViewOptions();
   const replyTimeOptions = getReplyTimeOptions();
@@ -206,8 +224,8 @@ export default function WidgetBuilderForm({ inboxId, inbox, onUpdate }: WidgetBu
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-border">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/20">
-                <Settings className="w-5 h-5 text-blue-700 dark:text-blue-400" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Settings className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <h4 className="font-semibold text-foreground">
@@ -415,12 +433,6 @@ export default function WidgetBuilderForm({ inboxId, inbox, onUpdate }: WidgetBu
                   />
                 </div>
 
-                {/* Save Button */}
-                <Button type="submit" disabled={isUpdating} className="w-full">
-                  {isUpdating
-                    ? t('settings.widgetBuilder.saving')
-                    : t('settings.widgetBuilder.saveSettings')}
-                </Button>
               </form>
             </div>
 

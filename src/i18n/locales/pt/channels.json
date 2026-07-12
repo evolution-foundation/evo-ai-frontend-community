@@ -243,6 +243,7 @@
     }
   },
   "settings": {
+    "updateConfig": "Atualizar Configurações",
     "loading": "Carregando configurações...",
     "saving": "Salvando...",
     "save": "Salvar",

@@ -241,6 +241,7 @@
     }
   },
   "settings": {
+    "updateConfig": "Mettre à jour les paramètres",
     "loading": "Chargement des paramètres...",
     "saving": "Enregistrement en cours...",
     "save": "Enregistrer",

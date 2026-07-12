@@ -241,6 +241,7 @@
     }
   },
   "settings": {
+    "updateConfig": "Aggiorna Impostazioni",
     "loading": "Caricamento impostazioni...",
     "saving": "Salvataggio...",
     "save": "Salva",

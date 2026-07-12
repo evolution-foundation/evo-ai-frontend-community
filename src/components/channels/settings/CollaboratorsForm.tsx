@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Card, CardContent, Button, Switch } from '@evoapi/design-system';
+import { Card, CardContent, Switch } from '@evoapi/design-system';
 import { Check, Users, Settings, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
+
+import type { TabSaveHandle } from './tabSave';
 
 // Services
 import AgentsService from '@/services/channels/agentsService';
@@ -13,6 +15,7 @@ interface CollaboratorsFormProps {
   inboxId: string;
   enableAutoAssignment?: boolean;
   maxAssignmentLimit?: number | null;
+  registerSave?: (handle: TabSaveHandle | null) => void;
   onAutoAssignmentChange?: (enabled: boolean, limit?: number | null) => void;
 }
 
@@ -20,6 +23,7 @@ export default function CollaboratorsForm({
   inboxId,
   enableAutoAssignment: initialAutoAssignment = false,
   maxAssignmentLimit: initialMaxLimit = null,
+  registerSave,
   onAutoAssignmentChange,
 }: CollaboratorsFormProps) {
   const { t } = useLanguage('channels');
@@ -123,6 +127,17 @@ export default function CollaboratorsForm({
     }
   };
 
+  // Expose the collaborators (agents) save to the settings sticky footer registry.
+  const canSave = !isUpdatingAgents;
+  const registerSaveRef = useRef(registerSave);
+  registerSaveRef.current = registerSave;
+  const handleUpdateAgentsRef = useRef(handleUpdateAgents);
+  handleUpdateAgentsRef.current = handleUpdateAgents;
+  useEffect(() => {
+    registerSaveRef.current?.({ save: () => handleUpdateAgentsRef.current(), canSave });
+    return () => registerSaveRef.current?.(null);
+  }, [canSave]);
+
   const handleAutoAssignmentToggle = async (checked: boolean) => {
     setEnableAutoAssignment(checked);
     setIsUpdatingAssignment(true);
@@ -192,8 +207,8 @@ export default function CollaboratorsForm({
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-3 pb-4 border-b border-border">
-            <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/20">
-              <Users className="w-5 h-5 text-blue-700 dark:text-blue-400" />
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Users className="w-5 h-5 text-primary" />
             </div>
             <div>
               <h4 className="font-semibold text-foreground">
@@ -215,16 +230,6 @@ export default function CollaboratorsForm({
                 ({Array.isArray(agents) ? agents.length : 0}{' '}
                 {t('settings.collaborators.agents.total')})
               </p>
-              <Button
-                onClick={handleUpdateAgents}
-                disabled={isUpdatingAgents}
-                size="sm"
-                variant="default"
-              >
-                {isUpdatingAgents
-                  ? t('settings.collaborators.agents.buttons.updating')
-                  : t('settings.collaborators.agents.buttons.update')}
-              </Button>
             </div>
 
             {/* Agents List */}
@@ -337,8 +342,8 @@ export default function CollaboratorsForm({
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-3 pb-4 border-b border-border">
-            <div className="p-2 rounded-lg bg-orange-50 dark:bg-orange-950/20">
-              <Settings className="w-5 h-5 text-orange-700 dark:text-orange-400" />
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Settings className="w-5 h-5 text-primary" />
             </div>
             <div>
               <h4 className="font-semibold text-foreground">

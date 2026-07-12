@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Card,
   CardContent,
-  Button,
   Switch,
   Select,
   SelectContent,
@@ -15,6 +14,7 @@ import { Clock, Info, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 
+import type { TabSaveHandle } from './tabSave';
 import BusinessDay from './BusinessDay';
 import GlobalTemplateSelect from './GlobalTemplateSelect';
 import {
@@ -36,6 +36,7 @@ interface BusinessHoursFormProps {
   outOfOfficeMessageTemplateId?: string | null;
   workingHours?: unknown[];
   timezone?: string;
+  registerSave?: (handle: TabSaveHandle | null) => void;
   onUpdate?: (data: {
     working_hours_enabled: boolean;
     out_of_office_message: string;
@@ -51,6 +52,7 @@ export default function BusinessHoursForm({
   outOfOfficeMessageTemplateId = null,
   workingHours = [],
   timezone,
+  registerSave,
   onUpdate,
 }: BusinessHoursFormProps) {
   const { t } = useLanguage('channels');
@@ -123,13 +125,24 @@ export default function BusinessHoursForm({
     }
   };
 
+  // Expose the save to the settings sticky footer registry.
+  const canSave = !isUpdating && !(isBusinessHoursEnabled && hasErrors);
+  const registerSaveRef = useRef(registerSave);
+  registerSaveRef.current = registerSave;
+  const handleUpdateRef = useRef(handleUpdate);
+  handleUpdateRef.current = handleUpdate;
+  useEffect(() => {
+    registerSaveRef.current?.({ save: () => handleUpdateRef.current(), canSave });
+    return () => registerSaveRef.current?.(null);
+  }, [canSave]);
+
   return (
     <div className="space-y-6">
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-3 pb-4 border-b border-border">
-            <div className="p-2 rounded-lg bg-orange-50 dark:bg-orange-950/20">
-              <Clock className="w-5 h-5 text-orange-700 dark:text-orange-400" />
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Clock className="w-5 h-5 text-primary" />
             </div>
             <div>
               <h4 className="font-semibold text-foreground">{t('settings.businessHours.title')}</h4>
@@ -295,19 +308,6 @@ export default function BusinessHoursForm({
                 </p>
               </div>
             )}
-          </div>
-
-          {/* Update Button */}
-          <div className="flex justify-end pt-4 mt-6 border-t border-border">
-            <Button
-              onClick={handleUpdate}
-              disabled={isUpdating || (isBusinessHoursEnabled && hasErrors)}
-              className="min-w-32"
-            >
-              {isUpdating
-                ? t('settings.businessHours.buttons.updating')
-                : t('settings.businessHours.buttons.update')}
-            </Button>
           </div>
         </CardContent>
       </Card>

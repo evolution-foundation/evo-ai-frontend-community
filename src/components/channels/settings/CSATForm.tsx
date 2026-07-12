@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Card,
   CardContent,
@@ -16,6 +16,7 @@ import { Star, Info, X, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 
+import type { TabSaveHandle } from './tabSave';
 import CSATDisplayTypeSelector from './CSATDisplayTypeSelector';
 import {
   CSATDisplayType,
@@ -99,12 +100,14 @@ interface CSATFormProps {
   inboxId: string;
   csatSurveyEnabled?: boolean;
   csatConfig?: APICSATConfig;
+  registerSave?: (handle: TabSaveHandle | null) => void;
   onUpdate?: (data: { csat_survey_enabled: boolean; csat_config: CSATConfig }) => Promise<void>;
 }
 
 export default function CSATForm({
   csatSurveyEnabled = false,
   csatConfig,
+  registerSave,
   onUpdate,
 }: CSATFormProps) {
   const { t } = useLanguage('channels');
@@ -318,6 +321,17 @@ export default function CSATForm({
     }
   };
 
+  // Expose the save to the settings sticky footer registry.
+  const canSave = !isUpdating;
+  const registerSaveRef = useRef(registerSave);
+  registerSaveRef.current = registerSave;
+  const handleSaveRef = useRef(handleSaveSettings);
+  handleSaveRef.current = handleSaveSettings;
+  useEffect(() => {
+    registerSaveRef.current?.({ save: () => handleSaveRef.current(), canSave });
+    return () => registerSaveRef.current?.(null);
+  }, [canSave]);
+
   // Render trigger form based on type
   const renderTriggerForm = (trigger: TriggerItem) => {
     switch (trigger.type) {
@@ -365,8 +379,8 @@ export default function CSATForm({
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-border">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-yellow-50 dark:bg-yellow-950/20">
-                <Star className="w-5 h-5 text-yellow-700 dark:text-yellow-400" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Star className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <h4 className="font-semibold text-foreground">{t('settings.csat.title')}</h4>
@@ -494,12 +508,6 @@ export default function CSATForm({
                 </div>
               </div>
 
-              {/* Save Button */}
-              <div className="flex justify-end pt-4 border-t border-border">
-                <Button onClick={handleSaveSettings} disabled={isUpdating} className="min-w-32">
-                  {isUpdating ? t('settings.csat.buttons.saving') : t('settings.csat.buttons.save')}
-                </Button>
-              </div>
             </div>
           )}
 
