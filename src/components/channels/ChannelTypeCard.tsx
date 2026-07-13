@@ -63,7 +63,6 @@ export default function ChannelTypeCard({
   const capabilities = CHANNEL_CAPABILITIES[type.type] ?? [];
   // Only WhatsApp surfaces a provider count pill, sourced from the catalog entry.
   const providerCount = type.type === 'whatsapp' ? type.providers?.length ?? 0 : 0;
-  const isFacebook = type.type === 'facebook';
 
   const primaryAction = isConfigured ? (
     <Button variant="outline" className="w-full" onClick={() => onAdd(typeStatus)}>
@@ -234,17 +233,7 @@ export default function ChannelTypeCard({
           )}
 
           {/* Primary action, pinned to the bottom so single-button cards align. */}
-          <div className="mt-auto flex flex-col gap-2 pt-1">
-            {primaryAction}
-            {isFacebook && (
-              <button
-                type="button"
-                className="mx-auto text-xs text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {t('overview.actions.viewAds')}
-              </button>
-            )}
-          </div>
+          <div className="mt-auto pt-1">{primaryAction}</div>
         </CardContent>
       </Card>
     </TooltipProvider>
