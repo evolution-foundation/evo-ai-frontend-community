@@ -177,16 +177,8 @@
       "content": "Clique aqui para conectar um novo canal. Suportamos WhatsApp, e-mail, Instagram e outros meios de comunicação."
     },
     "step3": {
-      "title": "Modo de Visualização",
-      "content": "Alterne entre visualização em cards (grade) ou tabela conforme sua preferência."
-    },
-    "step4": {
       "title": "Lista de Canais",
       "content": "Veja todos os canais conectados aqui. Clique em configurações para ajustar cada canal individualmente ou exclua canais que não são mais necessários."
-    },
-    "step5": {
-      "title": "Navegação entre Páginas",
-      "content": "Navegue entre as páginas dos seus canais e ajuste quantos registros são exibidos por página."
     }
   },
   "pipelines": {

@@ -1,166 +1,133 @@
-import {
-  Button,
-  Card,
-  CardContent,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@evoapi/design-system';
-import { HelpCircle, Plus, Settings } from 'lucide-react';
+import { Button, Card, CardContent } from '@evoapi/design-system';
+import { ChevronRight, Layers, Link2, Plus } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { cn } from '@/utils/cn';
-import { ChannelTypeStatus, formatLastSync } from '@/utils/channelStatus';
-import { InboxConnectionState } from '@/types/channels/inbox';
+import { ChannelHealthStatus, ChannelTypeStatus } from '@/utils/channelStatus';
+import { CHANNEL_CAPABILITIES, ChannelCapability } from '@/constants/channelCapabilities';
 import ChannelIcon from './ChannelIcon';
-import ChannelStatusBadge from './ChannelStatusBadge';
+import ChannelConnectionsPopover from './ChannelConnectionsPopover';
+import { Inbox } from '@/types/channels/inbox';
 
-const MAX_INBOX_ROWS = 3;
-
-const stateDotClasses: Record<InboxConnectionState, string> = {
-  connected: 'bg-emerald-500',
-  pending: 'bg-amber-500',
-  disconnected: 'bg-red-500',
+// Status dot color for the summary line, keyed by the type-level health status.
+const statusDotClasses: Record<ChannelHealthStatus, string> = {
+  active: 'bg-emerald-500',
+  attention: 'bg-amber-500',
   error: 'bg-red-500',
-  unknown: 'bg-sidebar-foreground/30',
+  available: 'bg-muted-foreground/40',
+};
+
+// Capability chips are color-coded by capability (reference design, EVO-2092):
+// publishing = green, conversations = blue, campaigns = purple.
+const capabilityChipClasses: Record<ChannelCapability, string> = {
+  publishing: 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-300',
+  conversations: 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300',
+  campaigns: 'bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300',
 };
 
 interface ChannelTypeCardProps {
   typeStatus: ChannelTypeStatus;
   onAdd: (typeStatus: ChannelTypeStatus) => void;
-  onManage: (typeStatus: ChannelTypeStatus) => void;
-  /** Inbox ids with a live connectivity probe in flight. */
+  /** Open a single connection's settings. */
+  onOpenInbox: (inbox: Inbox) => void;
+  /** Delete a single connection. Permission gating lives in the handler. */
+  onDelete: (inbox: Inbox) => void;
+  liveVerifiedIds?: Set<string>;
   liveLoadingIds?: Set<string>;
-  /** Inbox ids whose live probe failed (stored state shown instead). */
   liveFailedIds?: Set<string>;
 }
 
 export default function ChannelTypeCard({
   typeStatus,
   onAdd,
-  onManage,
+  onOpenInbox,
+  onDelete,
+  liveVerifiedIds,
   liveLoadingIds,
   liveFailedIds,
 }: ChannelTypeCardProps) {
-  const { t, currentLanguage } = useLanguage('channels');
-  const { type, total, activeCount, attentionCount, errorCount, status, inboxStates } = typeStatus;
+  const { t } = useLanguage('channels');
+  const { type, total, status } = typeStatus;
   const isConfigured = total > 0;
+  const capabilities = CHANNEL_CAPABILITIES[type.type] ?? [];
+  // Only WhatsApp surfaces a provider count pill, sourced from the catalog entry.
+  const providerCount = type.type === 'whatsapp' ? type.providers?.length ?? 0 : 0;
 
-  const summary = isConfigured
-    ? [
-        activeCount > 0 ? t('overview.summary.active', { count: activeCount }) : null,
-        attentionCount > 0 ? t('overview.summary.attention', { count: attentionCount }) : null,
-        errorCount > 0 ? t('overview.summary.error', { count: errorCount }) : null,
-      ]
-        .filter(Boolean)
-        .join(' · ')
-    : t('overview.summary.notConfigured');
-
-  // Inline contextual help text per channel type, falling back to the catalog
-  // description when no dedicated help copy exists for the type yet.
-  const helpText = t(`overview.help.${type.id}`, { defaultValue: type.description });
+  // Soft green-tint action: on-brand but calm, so the page's single solid-green
+  // CTA ("Novo Canal") stays the primary. Same treatment in both states.
+  const primaryAction = (
+    <Button
+      variant="ghost"
+      className="w-full bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary"
+      onClick={() => onAdd(typeStatus)}
+    >
+      <Plus className="mr-2 h-4 w-4" />
+      {isConfigured ? t('overview.actions.addConnection') : t('overview.actions.connect')}
+    </Button>
+  );
 
   return (
-    <Card className="group relative flex flex-col bg-sidebar border-sidebar-border hover:bg-sidebar-accent/30 transition-all duration-300 hover:shadow-lg hover:shadow-black/10 overflow-hidden">
-      <CardContent className="flex flex-1 flex-col p-4 gap-3">
+    <Card className="group relative flex flex-col rounded-[14px] p-0 transition-shadow duration-200 hover:shadow-md">
+      <CardContent className="flex flex-col gap-3 p-5">
+        {/* Header: brand tile + name + subtitle, with a connection count on the far right. */}
         <div className="flex items-start gap-3">
-          <ChannelIcon channelType={type.type} size="lg" />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
-              <h3 className="font-semibold text-base truncate text-sidebar-foreground">
-                {type.name}
-              </h3>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button
-                    type="button"
-                    aria-label={t('overview.actions.howToConfigure')}
-                    className="text-sidebar-foreground/40 hover:text-sidebar-foreground transition-colors"
-                  >
-                    <HelpCircle className="h-4 w-4" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-72 text-sm">
-                  <p className="font-medium mb-1 text-sidebar-foreground">
-                    {t('overview.actions.howToConfigure')}
-                  </p>
-                  <p className="text-sidebar-foreground/70">{helpText}</p>
-                </PopoverContent>
-              </Popover>
-            </div>
-            <p className="text-xs text-sidebar-foreground/60 line-clamp-2">{type.description}</p>
+          <ChannelIcon channelType={type.type} size="md" brandTile />
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate text-base font-semibold text-foreground">{type.name}</h3>
+            <p className="truncate text-xs text-muted-foreground">{type.description}</p>
           </div>
-        </div>
-
-        {isConfigured && (
-          <ul className="space-y-1">
-            {inboxStates.slice(0, MAX_INBOX_ROWS).map(({ inbox, state, unmonitored }) => {
-              const id = String(inbox.id);
-              const isLiveLoading = liveLoadingIds?.has(id) ?? false;
-              const liveFailed = liveFailedIds?.has(id) ?? false;
-              const lastSync = formatLastSync(inbox.last_sync, currentLanguage);
-              const stateLabel = unmonitored
-                ? t('overview.inboxState.unmonitored')
-                : t(`overview.inboxState.${state}`);
-
-              return (
-                <li
-                  key={id}
-                  className="flex items-center gap-2 text-xs text-sidebar-foreground/70"
-                  title={liveFailed ? t('overview.liveCheckFailed') : undefined}
-                >
-                  <span
-                    className={cn(
-                      'h-1.5 w-1.5 shrink-0 rounded-full',
-                      stateDotClasses[state],
-                      isLiveLoading && 'animate-pulse',
-                    )}
-                    aria-hidden="true"
-                  />
-                  <span className="truncate flex-1">{inbox.name}</span>
-                  <span className="shrink-0 text-sidebar-foreground/50">
-                    {isLiveLoading ? t('overview.inboxState.checking') : stateLabel}
-                    {lastSync && !isLiveLoading ? ` · ${lastSync}` : ''}
-                  </span>
-                </li>
-              );
-            })}
-            {total > MAX_INBOX_ROWS && (
-              <li className="text-xs text-sidebar-foreground/50">
-                {t('overview.moreInboxes', { count: total - MAX_INBOX_ROWS })}
-              </li>
-            )}
-          </ul>
-        )}
-
-        <div className="flex items-center justify-between mt-auto pt-1">
-          <ChannelStatusBadge status={status} />
           {isConfigured && (
-            <span className="text-xs text-sidebar-foreground/60 truncate ml-2">{summary}</span>
+            <ChannelConnectionsPopover
+              typeStatus={typeStatus}
+              onAdd={onAdd}
+              onOpenInbox={onOpenInbox}
+              onDelete={onDelete}
+              liveVerifiedIds={liveVerifiedIds}
+              liveLoadingIds={liveLoadingIds}
+              liveFailedIds={liveFailedIds}
+            >
+              <button
+                type="button"
+                aria-label={t('overview.actions.manage')}
+                className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <span
+                  className={cn('h-2 w-2 rounded-full', statusDotClasses[status])}
+                  aria-hidden="true"
+                />
+                <Link2 className="h-3.5 w-3.5" aria-hidden="true" />
+                <span className="tabular-nums">{total}</span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground/60" aria-hidden="true" />
+              </button>
+            </ChannelConnectionsPopover>
           )}
         </div>
-      </CardContent>
 
-      <div className="flex border-t border-sidebar-border">
-        {isConfigured ? (
-          <Button
-            variant="ghost"
-            className="flex-1 rounded-none h-11 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/40"
-            onClick={() => onManage(typeStatus)}
-          >
-            <Settings className="h-4 w-4 mr-2" />
-            {t('overview.actions.manage')}
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            className="flex-1 rounded-none h-11 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/40"
-            onClick={() => onAdd(typeStatus)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('overview.actions.add')}
-          </Button>
+        {/* Capability chips (+ WhatsApp provider count). */}
+        {(capabilities.length > 0 || providerCount > 0) && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {capabilities.map(capability => (
+              <span
+                key={capability}
+                className={cn(
+                  'rounded-full px-2 py-0.5 text-xs font-medium',
+                  capabilityChipClasses[capability],
+                )}
+              >
+                {t(`overview.capabilities.${capability}`)}
+              </span>
+            ))}
+            {providerCount > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                <Layers className="h-3 w-3" aria-hidden="true" />
+                {t('overview.providersCount', { count: providerCount })}
+              </span>
+            )}
+          </div>
         )}
-      </div>
+
+        {/* Primary action. */}
+        {primaryAction}
+      </CardContent>
     </Card>
   );
 }

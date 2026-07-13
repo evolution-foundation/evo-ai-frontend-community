@@ -133,27 +133,27 @@
       },
       "whatsapp": {
         "name": "WhatsApp",
-        "description": "WhatsApp channel for customer service"
+        "description": "WhatsApp Business"
       },
       "telegram": {
         "name": "Telegram",
-        "description": "Telegram bot for automated support"
+        "description": "Support bot"
       },
       "instagram": {
         "name": "Instagram",
-        "description": "Instagram direct messages"
+        "description": "Professional profile"
       },
       "facebook": {
-        "name": "Facebook Messenger",
-        "description": "Facebook Messenger chat"
+        "name": "Facebook",
+        "description": "Page"
       },
       "sms": {
         "name": "SMS",
-        "description": "SMS text messages"
+        "description": "Text messages"
       },
       "email": {
         "name": "Email",
-        "description": "Email support"
+        "description": "Marketing and support"
       },
       "api": {
         "name": "API",
@@ -1745,7 +1745,12 @@
       "active": "{{count}} active",
       "attention": "{{count}} need attention",
       "error": "{{count}} with errors",
-      "notConfigured": "Not configured"
+      "notConfigured": "Not configured",
+      "connected": "{{count}} connected",
+      "total": "{{count}} connections"
+    },
+    "drawer": {
+      "title": "Connections"
     },
     "inboxState": {
       "connected": "Connected",
@@ -1758,10 +1763,26 @@
     },
     "liveCheckFailed": "Live check failed — showing the last known state",
     "moreInboxes": "+{{count}} more inboxes",
+    "providersCount": "{{count}} providers",
     "actions": {
       "add": "Add",
       "manage": "Manage",
-      "howToConfigure": "How to set up"
+      "howToConfigure": "How to set up",
+      "connect": "Connect",
+      "addConnection": "Add connection",
+      "deleteConnection": "Delete connection",
+      "viewAds": "View ads"
+    },
+    "capabilities": {
+      "publishing": "Publishing",
+      "conversations": "Conversations",
+      "campaigns": "Campaigns"
+    },
+    "statusMeta": {
+      "live": "Live",
+      "stored": "Reported",
+      "storedTooltip": "State reported by the configuration, not verified live",
+      "lastSync": "Synced {{time}}"
     },
     "help": {
       "website": "Embed a live-chat widget on your website so visitors can talk to your team in real time.",

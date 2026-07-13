@@ -131,27 +131,27 @@
       },
       "whatsapp": {
         "name": "WhatsApp",
-        "description": "Canal WhatsApp pour le service client"
+        "description": "WhatsApp Business"
       },
       "telegram": {
         "name": "Telegram",
-        "description": "Bot Telegram pour le support automatisé"
+        "description": "Bot de support"
       },
       "instagram": {
         "name": "Instagram",
-        "description": "Messages directs Instagram"
+        "description": "Profil professionnel"
       },
       "facebook": {
-        "name": "Facebook Messenger",
-        "description": "Chat Facebook Messenger"
+        "name": "Facebook",
+        "description": "Page"
       },
       "sms": {
         "name": "SMS",
-        "description": "Messages texte SMS"
+        "description": "Messages texte"
       },
       "email": {
         "name": "Email",
-        "description": "Support par email"
+        "description": "Marketing et support"
       },
       "api": {
         "name": "API",
@@ -1685,7 +1685,12 @@
       "active": "{{count}} actif(s)",
       "attention": "{{count}} à vérifier",
       "error": "{{count}} en erreur",
-      "notConfigured": "Non configuré"
+      "notConfigured": "Non configuré",
+      "connected": "{{count}} connectée(s)",
+      "total": "{{count}} connexions"
+    },
+    "drawer": {
+      "title": "Connexions"
     },
     "inboxState": {
       "connected": "Connecté",
@@ -1698,10 +1703,26 @@
     },
     "liveCheckFailed": "La vérification en direct a échoué — affichage du dernier état connu",
     "moreInboxes": "+{{count}} autres boîtes de réception",
+    "providersCount": "{{count}} fournisseurs",
     "actions": {
       "add": "Ajouter",
       "manage": "Gérer",
-      "howToConfigure": "Comment configurer"
+      "howToConfigure": "Comment configurer",
+      "connect": "Connecter",
+      "addConnection": "Ajouter une connexion",
+      "deleteConnection": "Supprimer la connexion",
+      "viewAds": "Voir les annonces"
+    },
+    "capabilities": {
+      "publishing": "Publication",
+      "conversations": "Conversations",
+      "campaigns": "Campagnes"
+    },
+    "statusMeta": {
+      "live": "En direct",
+      "stored": "Déclaré",
+      "storedTooltip": "État déclaré par la configuration, non vérifié en direct",
+      "lastSync": "Synchronisé {{time}}"
     },
     "help": {
       "website": "Intégrez un widget de chat en direct sur votre site pour échanger avec les visiteurs en temps réel.",

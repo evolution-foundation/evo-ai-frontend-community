@@ -10,6 +10,7 @@ import {
 import { ArrowLeft } from 'lucide-react';
 import { ChannelIcon } from '@/components/channels';
 import { useLanguage } from '@/hooks/useLanguage';
+import { ChannelTypeId } from '@/types/channels/providers';
 
 export interface Provider {
   id: string;
@@ -20,15 +21,7 @@ export interface Provider {
 }
 
 interface ProviderGridProps {
-  channelType:
-    | 'web_widget'
-    | 'whatsapp'
-    | 'facebook'
-    | 'instagram'
-    | 'telegram'
-    | 'sms'
-    | 'email'
-    | 'api';
+  channelType: ChannelTypeId;
   providers: Provider[];
   isDisabled?: (providerId: string) => boolean;
   disabledTooltip?: (providerId: string) => string | undefined;

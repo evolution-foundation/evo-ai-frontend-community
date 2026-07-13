@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -58,11 +58,21 @@ interface NewChannelProps {
 
 export default function NewChannel({ initialChannelId, onExit }: NewChannelProps = {}) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useLanguage('channels');
 
   // Embedded mode: mounted inside a host (e.g. the modal). Drops the full-page
   // chrome (max-w-6xl container, page header) so the flow fits a compact modal.
   const embedded = !!onExit;
+
+  // Standalone `/channels/new` renders <NewChannel /> without props, so an explicit
+  // initialChannelId wins, then the channel type passed via router state by the
+  // Channels overview "Connect" action. Applied at most once (guarded ref) because
+  // channelTypes identity can change on async config/i18n load — without the guard the
+  // effect would force the preselected channel back on a user who navigated to the grid.
+  const preselectedChannelId =
+    initialChannelId ?? (location.state as { channelId?: string } | null)?.channelId;
+  const preselectAppliedRef = useRef(false);
 
   // Use hooks
   const {
@@ -122,13 +132,14 @@ export default function NewChannel({ initialChannelId, onExit }: NewChannelProps
   // provider/form), not here — otherwise a still-loading (async) config would
   // bounce the user back to the whole channel grid.
   useEffect(() => {
-    if (!initialChannelId || selectedChannel) return;
-    const channel = channelTypes.find(c => c.id === initialChannelId);
+    if (preselectAppliedRef.current || !preselectedChannelId || selectedChannel) return;
+    const channel = channelTypes.find(c => c.id === preselectedChannelId);
     if (channel) {
+      preselectAppliedRef.current = true;
       handleChannelSelect(channel);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialChannelId, channelTypes]);
+  }, [preselectedChannelId, channelTypes]);
 
   // Leaves the flow back to the channel list. When a host provides onExit
   // (e.g. the modal), close it; otherwise navigate to /channels (CRM standalone).

@@ -7,7 +7,15 @@ export interface ChannelType {
   name: string;
   description: string;
   icon?: string;
-  type: 'web_widget' | 'whatsapp' | 'facebook' | 'instagram' | 'telegram' | 'sms' | 'email' | 'api';
+  type:
+    | 'web_widget'
+    | 'whatsapp'
+    | 'facebook'
+    | 'instagram'
+    | 'telegram'
+    | 'sms'
+    | 'email'
+    | 'api';
   providers?: ProviderType[];
 }
 

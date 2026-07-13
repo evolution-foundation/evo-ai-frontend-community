@@ -133,27 +133,27 @@
       },
       "whatsapp": {
         "name": "WhatsApp",
-        "description": "Canal do WhatsApp para atendimento ao cliente"
+        "description": "WhatsApp Business"
       },
       "telegram": {
         "name": "Telegram",
-        "description": "Bot do Telegram para suporte automatizado"
+        "description": "Bot de atendimento"
       },
       "instagram": {
         "name": "Instagram",
-        "description": "Mensagens diretas do Instagram"
+        "description": "Perfil profissional"
       },
       "facebook": {
-        "name": "Facebook Messenger",
-        "description": "Chat do Facebook Messenger"
+        "name": "Facebook",
+        "description": "Página"
       },
       "sms": {
         "name": "SMS",
-        "description": "Mensagens de texto SMS"
+        "description": "Mensagens de texto"
       },
       "email": {
         "name": "Email",
-        "description": "Suporte por email"
+        "description": "Marketing e atendimento"
       },
       "api": {
         "name": "API",
@@ -1745,7 +1745,12 @@
       "active": "{{count}} ativo(s)",
       "attention": "{{count}} com atenção",
       "error": "{{count}} com erro",
-      "notConfigured": "Não configurado"
+      "notConfigured": "Não configurado",
+      "connected": "{{count}} conectada(s)",
+      "total": "{{count}} conexões"
+    },
+    "drawer": {
+      "title": "Conexões"
     },
     "inboxState": {
       "connected": "Conectado",
@@ -1758,10 +1763,26 @@
     },
     "liveCheckFailed": "A verificação ao vivo falhou — exibindo o último estado conhecido",
     "moreInboxes": "+{{count}} outras caixas de entrada",
+    "providersCount": "{{count}} providers",
     "actions": {
       "add": "Adicionar",
       "manage": "Gerenciar",
-      "howToConfigure": "Como configurar"
+      "howToConfigure": "Como configurar",
+      "connect": "Conectar",
+      "addConnection": "Adicionar conexão",
+      "deleteConnection": "Excluir conexão",
+      "viewAds": "Ver anúncios"
+    },
+    "capabilities": {
+      "publishing": "Publicação",
+      "conversations": "Conversas",
+      "campaigns": "Campanhas"
+    },
+    "statusMeta": {
+      "live": "Ao vivo",
+      "stored": "Informado",
+      "storedTooltip": "Estado informado pela configuração, não verificado ao vivo",
+      "lastSync": "Sincronizado {{time}}"
     },
     "help": {
       "website": "Incorpore um widget de chat ao vivo no seu site para conversar com visitantes em tempo real.",
