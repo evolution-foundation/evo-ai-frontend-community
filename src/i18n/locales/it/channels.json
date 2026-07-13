@@ -1619,7 +1619,12 @@
       "active": "{{count}} attivo/i",
       "attention": "{{count}} da verificare",
       "error": "{{count}} con errore",
-      "notConfigured": "Non configurato"
+      "notConfigured": "Non configurato",
+      "connected": "{{count}} connessa/e",
+      "total": "{{count}} connessioni"
+    },
+    "drawer": {
+      "title": "Connessioni"
     },
     "inboxState": {
       "connected": "Connesso",

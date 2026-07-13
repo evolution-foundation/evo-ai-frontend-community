@@ -1680,7 +1680,12 @@
       "active": "{{count}} actif(s)",
       "attention": "{{count}} à vérifier",
       "error": "{{count}} en erreur",
-      "notConfigured": "Non configuré"
+      "notConfigured": "Non configuré",
+      "connected": "{{count}} connectée(s)",
+      "total": "{{count}} connexions"
+    },
+    "drawer": {
+      "title": "Connexions"
     },
     "inboxState": {
       "connected": "Connecté",

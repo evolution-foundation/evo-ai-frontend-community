@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Skeleton } from '@evoapi/design-system';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Inbox } from '@/types/channels/inbox';
@@ -6,6 +6,7 @@ import { getChannelTypes } from '@/constants/channelTypes';
 import { buildChannelTypeStatuses, ChannelTypeStatus } from '@/utils/channelStatus';
 import useLiveChannelStatus from '@/hooks/channels/useLiveChannelStatus';
 import ChannelTypeCard from './ChannelTypeCard';
+import ChannelConnectionsDrawer from './ChannelConnectionsDrawer';
 
 interface ChannelTypeHubProps {
   inboxes: Inbox[];
@@ -24,6 +25,7 @@ export default function ChannelTypeHub({
 }: ChannelTypeHubProps) {
   const { t, currentLanguage } = useLanguage('channels');
   const { states: liveStates, loadingIds, failedIds } = useLiveChannelStatus(inboxes);
+  const [managedType, setManagedType] = useState<ChannelTypeStatus | null>(null);
 
   // getChannelTypes() reads translated labels, so recompute when language changes.
   const typeStatuses = useMemo(
@@ -52,20 +54,30 @@ export default function ChannelTypeHub({
         <h2 className="text-lg font-semibold text-sidebar-foreground">{t('overview.title')}</h2>
         <p className="text-sm text-sidebar-foreground/60">{t('overview.subtitle')}</p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-start gap-6">
         {typeStatuses.map(typeStatus => (
           <ChannelTypeCard
             key={typeStatus.type.id}
             typeStatus={typeStatus}
             onAdd={onAdd}
-            onOpenInbox={onOpenInbox}
-            onDelete={onDelete}
-            liveVerifiedIds={liveVerifiedIds}
-            liveLoadingIds={loadingIds}
-            liveFailedIds={failedIds}
+            onManage={setManagedType}
           />
         ))}
       </div>
+
+      <ChannelConnectionsDrawer
+        typeStatus={managedType}
+        open={!!managedType}
+        onOpenChange={o => {
+          if (!o) setManagedType(null);
+        }}
+        onAdd={onAdd}
+        onOpenInbox={onOpenInbox}
+        onDelete={onDelete}
+        liveVerifiedIds={liveVerifiedIds}
+        liveLoadingIds={loadingIds}
+        liveFailedIds={failedIds}
+      />
     </div>
   );
 }
