@@ -70,7 +70,7 @@ export default function ChannelTypeCard({
       {t('overview.actions.addConnection')}
     </Button>
   ) : (
-    <Button className="w-full" onClick={() => onAdd(typeStatus)}>
+    <Button variant="outline" className="w-full" onClick={() => onAdd(typeStatus)}>
       <Plus className="mr-2 h-4 w-4" />
       {t('overview.actions.connect')}
     </Button>
