@@ -1,10 +1,12 @@
 import { Button, Card, CardContent } from '@evoapi/design-system';
-import { ChevronRight, Layers, Plus } from 'lucide-react';
+import { ChevronRight, Layers, Link2, Plus } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { cn } from '@/utils/cn';
 import { ChannelHealthStatus, ChannelTypeStatus } from '@/utils/channelStatus';
 import { CHANNEL_CAPABILITIES, ChannelCapability } from '@/constants/channelCapabilities';
 import ChannelIcon from './ChannelIcon';
+import ChannelConnectionsPopover from './ChannelConnectionsPopover';
+import { Inbox } from '@/types/channels/inbox';
 
 // Status dot color for the summary line, keyed by the type-level health status.
 const statusDotClasses: Record<ChannelHealthStatus, string> = {
@@ -25,30 +27,30 @@ const capabilityChipClasses: Record<ChannelCapability, string> = {
 interface ChannelTypeCardProps {
   typeStatus: ChannelTypeStatus;
   onAdd: (typeStatus: ChannelTypeStatus) => void;
-  /** Open the connections drawer for this channel type (summary-line click). */
-  onManage: (typeStatus: ChannelTypeStatus) => void;
+  /** Open a single connection's settings. */
+  onOpenInbox: (inbox: Inbox) => void;
+  /** Delete a single connection. Permission gating lives in the handler. */
+  onDelete: (inbox: Inbox) => void;
+  liveVerifiedIds?: Set<string>;
+  liveLoadingIds?: Set<string>;
+  liveFailedIds?: Set<string>;
 }
 
-export default function ChannelTypeCard({ typeStatus, onAdd, onManage }: ChannelTypeCardProps) {
+export default function ChannelTypeCard({
+  typeStatus,
+  onAdd,
+  onOpenInbox,
+  onDelete,
+  liveVerifiedIds,
+  liveLoadingIds,
+  liveFailedIds,
+}: ChannelTypeCardProps) {
   const { t } = useLanguage('channels');
-  const { type, total, activeCount, attentionCount, errorCount, status } = typeStatus;
+  const { type, total, status } = typeStatus;
   const isConfigured = total > 0;
   const capabilities = CHANNEL_CAPABILITIES[type.type] ?? [];
   // Only WhatsApp surfaces a provider count pill, sourced from the catalog entry.
   const providerCount = type.type === 'whatsapp' ? type.providers?.length ?? 0 : 0;
-
-  // One-line summary of the connections: everything healthy reads as "N connected";
-  // otherwise lead with the total and surface the most severe problem count.
-  const summaryText =
-    status === 'active'
-      ? t('overview.summary.connected', { count: total })
-      : `${t('overview.summary.total', { count: total })} · ${
-          errorCount > 0
-            ? t('overview.summary.error', { count: errorCount })
-            : attentionCount > 0
-              ? t('overview.summary.attention', { count: attentionCount })
-              : t('overview.summary.active', { count: activeCount })
-        }`;
 
   // Soft green-tint action: on-brand but calm, so the page's single solid-green
   // CTA ("Novo Canal") stays the primary. Same treatment in both states.
@@ -64,8 +66,8 @@ export default function ChannelTypeCard({ typeStatus, onAdd, onManage }: Channel
   );
 
   return (
-    <Card className="group relative flex flex-col rounded-[14px] transition-shadow duration-200 hover:shadow-md">
-      <CardContent className="flex flex-1 flex-col gap-3 p-4">
+    <Card className="group relative flex flex-col rounded-[14px] p-0 transition-shadow duration-200 hover:shadow-md">
+      <CardContent className="flex flex-col gap-3 p-5">
         {/* Header: brand tile + name + subtitle, with a connection count on the far right. */}
         <div className="flex items-start gap-3">
           <ChannelIcon channelType={type.type} size="md" brandTile />
@@ -74,13 +76,29 @@ export default function ChannelTypeCard({ typeStatus, onAdd, onManage }: Channel
             <p className="truncate text-xs text-muted-foreground">{type.description}</p>
           </div>
           {isConfigured && (
-            <span
-              className="flex shrink-0 items-center gap-1 text-xs font-medium text-muted-foreground"
-              aria-label={t('overview.summary.active', { count: total })}
+            <ChannelConnectionsPopover
+              typeStatus={typeStatus}
+              onAdd={onAdd}
+              onOpenInbox={onOpenInbox}
+              onDelete={onDelete}
+              liveVerifiedIds={liveVerifiedIds}
+              liveLoadingIds={liveLoadingIds}
+              liveFailedIds={liveFailedIds}
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-              {total}
-            </span>
+              <button
+                type="button"
+                aria-label={t('overview.actions.manage')}
+                className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <span
+                  className={cn('h-2 w-2 rounded-full', statusDotClasses[status])}
+                  aria-hidden="true"
+                />
+                <Link2 className="h-3.5 w-3.5" aria-hidden="true" />
+                <span className="tabular-nums">{total}</span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground/60" aria-hidden="true" />
+              </button>
+            </ChannelConnectionsPopover>
           )}
         </div>
 
@@ -107,34 +125,8 @@ export default function ChannelTypeCard({ typeStatus, onAdd, onManage }: Channel
           </div>
         )}
 
-        {/* Connections summary — a single fixed-height line that opens the drawer. */}
-        {isConfigured && (
-          <div
-            role="button"
-            tabIndex={0}
-            aria-label={t('overview.actions.manage')}
-            onClick={() => onManage(typeStatus)}
-            onKeyDown={event => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                onManage(typeStatus);
-              }
-            }}
-            className="-mx-1 flex items-center gap-2 rounded-lg px-2 py-2 cursor-pointer transition-colors hover:bg-accent/50 focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <span
-              className={cn('h-2 w-2 shrink-0 rounded-full', statusDotClasses[status])}
-              aria-hidden="true"
-            />
-            <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
-              {summaryText}
-            </span>
-            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/60" aria-hidden="true" />
-          </div>
-        )}
-
-        {/* Primary action, pinned to the bottom so single-button cards align. */}
-        <div className="mt-auto pt-1">{primaryAction}</div>
+        {/* Primary action. */}
+        {primaryAction}
       </CardContent>
     </Card>
   );

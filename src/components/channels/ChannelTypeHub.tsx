@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Skeleton } from '@evoapi/design-system';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Inbox } from '@/types/channels/inbox';
@@ -6,7 +6,6 @@ import { getChannelTypes } from '@/constants/channelTypes';
 import { buildChannelTypeStatuses, ChannelTypeStatus } from '@/utils/channelStatus';
 import useLiveChannelStatus from '@/hooks/channels/useLiveChannelStatus';
 import ChannelTypeCard from './ChannelTypeCard';
-import ChannelConnectionsDrawer from './ChannelConnectionsDrawer';
 
 interface ChannelTypeHubProps {
   inboxes: Inbox[];
@@ -25,7 +24,6 @@ export default function ChannelTypeHub({
 }: ChannelTypeHubProps) {
   const { t, currentLanguage } = useLanguage('channels');
   const { states: liveStates, loadingIds, failedIds } = useLiveChannelStatus(inboxes);
-  const [managedType, setManagedType] = useState<ChannelTypeStatus | null>(null);
 
   // getChannelTypes() reads translated labels, so recompute when language changes.
   const typeStatuses = useMemo(
@@ -60,24 +58,14 @@ export default function ChannelTypeHub({
             key={typeStatus.type.id}
             typeStatus={typeStatus}
             onAdd={onAdd}
-            onManage={setManagedType}
+            onOpenInbox={onOpenInbox}
+            onDelete={onDelete}
+            liveVerifiedIds={liveVerifiedIds}
+            liveLoadingIds={loadingIds}
+            liveFailedIds={failedIds}
           />
         ))}
       </div>
-
-      <ChannelConnectionsDrawer
-        typeStatus={managedType}
-        open={!!managedType}
-        onOpenChange={o => {
-          if (!o) setManagedType(null);
-        }}
-        onAdd={onAdd}
-        onOpenInbox={onOpenInbox}
-        onDelete={onDelete}
-        liveVerifiedIds={liveVerifiedIds}
-        liveLoadingIds={loadingIds}
-        liveFailedIds={failedIds}
-      />
     </div>
   );
 }

@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ChannelTypeHub from './ChannelTypeHub';
 import ChannelTypeCard from './ChannelTypeCard';
-import ChannelConnectionsDrawer from './ChannelConnectionsDrawer';
+import ChannelConnectionsPopover from './ChannelConnectionsPopover';
 import { buildChannelTypeStatuses } from '@/utils/channelStatus';
 import { getChannelTypes } from '@/constants/channelTypes';
 import { Inbox } from '@/types/channels/inbox';
@@ -13,6 +14,12 @@ beforeAll(() => {
     unobserve() {}
     disconnect() {}
   } as unknown as typeof ResizeObserver;
+  // Radix Popover relies on pointer-capture / scrollIntoView APIs jsdom lacks;
+  // without these shims the trigger click never toggles the content open.
+  Element.prototype.hasPointerCapture = () => false;
+  Element.prototype.setPointerCapture = () => {};
+  Element.prototype.releasePointerCapture = () => {};
+  Element.prototype.scrollIntoView = () => {};
 });
 
 vi.mock('@/hooks/useLanguage', () => ({
@@ -61,7 +68,7 @@ describe('ChannelTypeHub', () => {
     expect(screen.queryByText('overview.actions.addConnection')).toBeNull();
   });
 
-  it('switches a configured type to the add-connection action and summarizes it', () => {
+  it('switches a configured type to the add-connection action and shows its connection count', () => {
     render(
       <ChannelTypeHub
         inboxes={[
@@ -81,11 +88,13 @@ describe('ChannelTypeHub', () => {
     // 7 empty backed types keep "Connect"; the configured one offers "Add connection".
     expect(screen.getAllByText('overview.actions.connect')).toHaveLength(7);
     expect(screen.getAllByText('overview.actions.addConnection')).toHaveLength(1);
-    // The card no longer lists connections inline — it shows a one-line summary instead.
-    expect(screen.getByText('overview.summary.connected')).toBeInTheDocument();
+    // The card no longer lists connections inline — it surfaces the count inside the
+    // manage button (the popover trigger) instead of a summary line.
+    const manageButton = screen.getByRole('button', { name: 'overview.actions.manage' });
+    expect(within(manageButton).getByText('1')).toBeInTheDocument();
   });
 
-  it('summarizes a disconnected inbox as an error state', () => {
+  it('marks a configured type with a disconnected inbox as an error state', () => {
     render(
       <ChannelTypeHub
         inboxes={[inbox({ channel_type: 'Channel::Whatsapp', connection_state: 'disconnected' })]}
@@ -95,11 +104,14 @@ describe('ChannelTypeHub', () => {
         onDelete={noop}
       />,
     );
-    // A disconnected inbox pushes the type-level summary into the error breakdown.
-    expect(screen.getByText(/overview\.summary\.error/)).toBeInTheDocument();
+    // A disconnected inbox pushes the type-level status to error, painting the
+    // manage button's status dot red.
+    const manageButton = screen.getByRole('button', { name: 'overview.actions.manage' });
+    expect(manageButton.querySelector('.bg-red-500')).toBeInTheDocument();
   });
 
-  it('opens the connections drawer with the row details when a card summary is clicked', () => {
+  it('opens the connections popover with the row details when the manage button is clicked', async () => {
+    const user = userEvent.setup();
     render(
       <ChannelTypeHub
         inboxes={[
@@ -116,11 +128,11 @@ describe('ChannelTypeHub', () => {
         onDelete={noop}
       />,
     );
-    // The configured api card exposes a single clickable manage summary; the drawer is closed.
+    // The popover is closed until the manage button (its trigger) is clicked.
     expect(screen.queryByText('My API')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'overview.actions.manage' }));
-    // Clicking it opens the drawer, which lists the connection and its unmonitored state.
-    expect(screen.getByText('My API')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'overview.actions.manage' }));
+    // Clicking it opens the popover, which lists the connection and its unmonitored state.
+    expect(await screen.findByText('My API')).toBeInTheDocument();
     expect(screen.getByText(/overview\.inboxState\.unmonitored/)).toBeInTheDocument();
   });
 });
@@ -128,113 +140,123 @@ describe('ChannelTypeHub', () => {
 describe('ChannelTypeCard', () => {
   it('renders capability chips for the type per the capability matrix', () => {
     // WhatsApp = conversations + campaigns (never publishing).
-    render(<ChannelTypeCard typeStatus={statusFor('whatsapp', [])} onAdd={noop} onManage={noop} />);
+    render(
+      <ChannelTypeCard typeStatus={statusFor('whatsapp', [])} onAdd={noop} onOpenInbox={noop} onDelete={noop} />,
+    );
     expect(screen.getByText('overview.capabilities.conversations')).toBeInTheDocument();
     expect(screen.getByText('overview.capabilities.campaigns')).toBeInTheDocument();
     expect(screen.queryByText('overview.capabilities.publishing')).toBeNull();
   });
 
-  it('calls onManage with the type when the summary line is clicked', () => {
+  it('shows the connection count inside the manage button for a configured type', () => {
     const status = statusFor('whatsapp', [
       inbox({ id: 'w1', name: 'WA', channel_type: 'whatsapp', connection_state: 'connected' }),
     ]);
-    const onManage = vi.fn();
-    render(<ChannelTypeCard typeStatus={status} onAdd={noop} onManage={onManage} />);
-    fireEvent.click(screen.getByRole('button', { name: 'overview.actions.manage' }));
-    expect(onManage).toHaveBeenCalledWith(status);
+    render(<ChannelTypeCard typeStatus={status} onAdd={noop} onOpenInbox={noop} onDelete={noop} />);
+    const manageButton = screen.getByRole('button', { name: 'overview.actions.manage' });
+    expect(within(manageButton).getByText('1')).toBeInTheDocument();
   });
 
   it('calls onAdd when the primary action is clicked', () => {
     const status = statusFor('whatsapp', []);
     const onAdd = vi.fn();
-    render(<ChannelTypeCard typeStatus={status} onAdd={onAdd} onManage={noop} />);
+    render(<ChannelTypeCard typeStatus={status} onAdd={onAdd} onOpenInbox={noop} onDelete={noop} />);
     fireEvent.click(screen.getByRole('button', { name: 'overview.actions.connect' }));
     expect(onAdd).toHaveBeenCalledWith(status);
   });
 });
 
-describe('ChannelConnectionsDrawer', () => {
-  it('labels an inbox as live only when the probe confirmed it, stored otherwise', () => {
+describe('ChannelConnectionsPopover', () => {
+  it('labels an inbox as live only when the probe confirmed it, stored otherwise', async () => {
+    const user = userEvent.setup();
     const live = inbox({ id: 'w-live', name: 'Live WA', channel_type: 'whatsapp' });
     const { rerender } = render(
-      <ChannelConnectionsDrawer
+      <ChannelConnectionsPopover
         typeStatus={statusFor('whatsapp', [live])}
-        open
-        onOpenChange={noop}
         onAdd={noop}
         onOpenInbox={noop}
         onDelete={noop}
         liveVerifiedIds={new Set(['w-live'])}
-      />,
+      >
+        <button>open</button>
+      </ChannelConnectionsPopover>,
     );
-    expect(screen.getByText('overview.statusMeta.live')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'open' }));
+    expect(await screen.findByText('overview.statusMeta.live')).toBeInTheDocument();
     expect(screen.queryByText(/overview\.statusMeta\.stored/)).toBeNull();
 
     // Same inbox, but not live-verified -> stored marker (with explanatory tooltip trigger).
+    // The popover is internally controlled, so it stays open across the rerender.
     rerender(
-      <ChannelConnectionsDrawer
+      <ChannelConnectionsPopover
         typeStatus={statusFor('whatsapp', [live])}
-        open
-        onOpenChange={noop}
         onAdd={noop}
         onOpenInbox={noop}
         onDelete={noop}
         liveVerifiedIds={new Set()}
-      />,
+      >
+        <button>open</button>
+      </ChannelConnectionsPopover>,
     );
-    expect(screen.getByText(/overview\.statusMeta\.stored/)).toBeInTheDocument();
+    expect(await screen.findByText(/overview\.statusMeta\.stored/)).toBeInTheDocument();
     expect(screen.queryByText('overview.statusMeta.live')).toBeNull();
   });
 
-  it('calls onDelete when the per-row trash is clicked', () => {
+  it('calls onDelete when the per-row trash is clicked', async () => {
+    const user = userEvent.setup();
     const target = inbox({ id: 'w-del', name: 'Del WA', channel_type: 'whatsapp' });
     const onDelete = vi.fn();
     render(
-      <ChannelConnectionsDrawer
+      <ChannelConnectionsPopover
         typeStatus={statusFor('whatsapp', [target])}
-        open
-        onOpenChange={noop}
         onAdd={noop}
         onOpenInbox={noop}
         onDelete={onDelete}
-      />,
+      >
+        <button>open</button>
+      </ChannelConnectionsPopover>,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'overview.actions.deleteConnection' }));
+    await user.click(screen.getByRole('button', { name: 'open' }));
+    await user.click(await screen.findByRole('button', { name: 'overview.actions.deleteConnection' }));
     expect(onDelete).toHaveBeenCalledWith(target);
   });
 
-  it('calls onOpenInbox when the connection row is clicked', () => {
+  it('calls onOpenInbox when the connection row is clicked', async () => {
+    const user = userEvent.setup();
     const target = inbox({ id: 'w-open', name: 'Open WA', channel_type: 'whatsapp' });
     const onOpenInbox = vi.fn();
     render(
-      <ChannelConnectionsDrawer
+      <ChannelConnectionsPopover
         typeStatus={statusFor('whatsapp', [target])}
-        open
-        onOpenChange={noop}
         onAdd={noop}
         onOpenInbox={onOpenInbox}
         onDelete={noop}
-      />,
+      >
+        <button>open</button>
+      </ChannelConnectionsPopover>,
     );
-    const row = screen.getByText('Open WA').closest('li') as HTMLElement;
-    fireEvent.click(within(row).getByText('Open WA'));
+    await user.click(screen.getByRole('button', { name: 'open' }));
+    await user.click(await screen.findByText('Open WA'));
     expect(onOpenInbox).toHaveBeenCalledWith(target);
   });
 
-  it('lists every connection without the in-card row cap', () => {
+  it('lists every connection without the in-card row cap', async () => {
+    const user = userEvent.setup();
     const many = Array.from({ length: 5 }, (_, i) =>
       inbox({ id: `w-${i}`, name: `WA ${i}`, channel_type: 'whatsapp' }),
     );
     render(
-      <ChannelConnectionsDrawer
+      <ChannelConnectionsPopover
         typeStatus={statusFor('whatsapp', many)}
-        open
-        onOpenChange={noop}
         onAdd={noop}
         onOpenInbox={noop}
         onDelete={noop}
-      />,
+      >
+        <button>open</button>
+      </ChannelConnectionsPopover>,
     );
+    await user.click(screen.getByRole('button', { name: 'open' }));
+    await screen.findByText('WA 0');
     many.forEach(m => expect(screen.getByText(m.name)).toBeInTheDocument());
   });
 });

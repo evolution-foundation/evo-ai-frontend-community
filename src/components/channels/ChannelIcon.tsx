@@ -47,6 +47,20 @@ function getBrandTileGlyph(key: string): BrandGlyph | undefined {
   return getBrandIcon(key) as unknown as BrandGlyph | undefined;
 }
 
+// Facebook "f" mark (plain wordmark, no surrounding box) for the brand tile.
+const FacebookF: BrandGlyph = ({ size = 24, color = '#FFFFFF', className }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 320 512"
+    fill={color}
+    className={className}
+    aria-hidden="true"
+  >
+    <path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z" />
+  </svg>
+);
+
 function getChannelBrandId(channelType?: string, provider?: string): string | undefined {
   if (!channelType) return undefined;
 
@@ -233,19 +247,18 @@ export default function ChannelIcon({
     const key = (channelType || '').replace('Channel::', '').toLowerCase().replace(/\s|_/g, '');
     const tileBg = BRAND_TILE_BG[key];
     if (tileBg) {
-      const Glyph = getBrandTileGlyph(key);
+      // Facebook uses the plain "f" mark (not the boxed logo) on its brand tile.
+      const Glyph = key === 'facebook' ? FacebookF : getBrandTileGlyph(key);
       return (
         <div
           className={cn(
             'rounded-lg flex items-center justify-center overflow-hidden',
-            containerSizeClasses[size],
+            'h-12 w-12',
             tileBg,
             className,
           )}
         >
-          {Glyph && (
-            <Glyph size={iconSizes[size]} color="#FFFFFF" className={sizeClasses[size]} />
-          )}
+          {Glyph && <Glyph size={24} color="#FFFFFF" className="h-6 w-6" />}
         </div>
       );
     }
@@ -266,14 +279,14 @@ export default function ChannelIcon({
       <div
         className={cn(
           'rounded-lg bg-slate-100 dark:bg-slate-900 flex items-center justify-center overflow-hidden',
-          containerSizeClasses[size],
+          brandTile ? 'h-12 w-12' : containerSizeClasses[size],
           className
         )}
       >
         <img
           src={iconSrc}
           alt={channelType || ''}
-          className={cn('object-contain', sizeClasses[size])}
+          className={cn('object-contain', brandTile ? 'h-6 w-6' : sizeClasses[size])}
         />
       </div>
     );
