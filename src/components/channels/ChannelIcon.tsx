@@ -1,5 +1,3 @@
-import { Linkedin, Youtube } from 'lucide-react';
-import { SiTiktok } from '@icons-pack/react-simple-icons';
 import { cn } from '@/utils/cn';
 import { useLanguage } from '@/hooks/useLanguage';
 import { getBrandIcon, getBrandColor } from '@/components/BrandIcon';
@@ -42,17 +40,10 @@ const BRAND_TILE_BG: Record<string, string> = {
   facebook: 'bg-[#0866FF]',
   whatsapp: 'bg-[#25D366]',
   telegram: 'bg-[#26A5E4]',
-  linkedin: 'bg-[#0A66C2]',
-  youtube: 'bg-[#FF0000]',
-  tiktok: 'bg-black',
 };
 
 function getBrandTileGlyph(key: string): BrandGlyph | undefined {
-  // LinkedIn/YouTube come from lucide (simple-icons has no Linkedin export);
-  // TikTok from simple-icons; the rest reuse the shared brand glyph map.
-  if (key === 'linkedin') return Linkedin;
-  if (key === 'youtube') return Youtube;
-  if (key === 'tiktok') return SiTiktok as unknown as BrandGlyph;
+  // Brand glyphs come from the shared brand icon map.
   return getBrandIcon(key) as unknown as BrandGlyph | undefined;
 }
 

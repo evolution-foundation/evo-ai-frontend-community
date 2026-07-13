@@ -23,12 +23,7 @@ export type ChannelTypeId =
   | 'telegram'
   | 'sms'
   | 'email'
-  | 'api'
-  // Display-only "coming soon" types (no backend). They surface on the Channels
-  // overview as disabled cards and are filtered out of the New Channel picker.
-  | 'linkedin'
-  | 'tiktok'
-  | 'youtube';
+  | 'api';
 
 /**
  * Channel type with its configuration and available providers
@@ -40,11 +35,6 @@ export interface ChannelType {
   icon?: string;
   type: ChannelTypeId;
   providers?: Provider[];
-  /**
-   * Display-only channel with no backend integration yet. Rendered as a disabled
-   * "coming soon" card on the overview and excluded from the New Channel picker.
-   */
-  comingSoon?: boolean;
 }
 
 /**

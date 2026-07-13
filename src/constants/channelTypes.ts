@@ -5,9 +5,7 @@ import i18n from '@/i18n/config';
 //
 // Order follows the Channels overview reference design (EVO-2092): the branded
 // social/marketing channels first, then the functional Web Widget and API cards
-// appended at the end. `linkedin`, `tiktok` and `youtube` are display-only
-// "coming soon" cards (no backend) — flagged with `comingSoon` so the overview
-// renders them disabled and the New Channel picker filters them out.
+// appended at the end.
 export const getChannelTypes = (): ChannelType[] => [
   {
     id: 'instagram',
@@ -63,13 +61,6 @@ export const getChannelTypes = (): ChannelType[] => [
     ],
   },
   {
-    id: 'linkedin',
-    name: i18n.t('channels:newChannel.channelTypes.linkedin.name'),
-    description: i18n.t('channels:newChannel.channelTypes.linkedin.description'),
-    type: 'linkedin',
-    comingSoon: true,
-  },
-  {
     id: 'email',
     name: i18n.t('channels:newChannel.channelTypes.email.name'),
     description: i18n.t('channels:newChannel.channelTypes.email.description'),
@@ -114,20 +105,6 @@ export const getChannelTypes = (): ChannelType[] => [
         popular: false,
       },
     ],
-  },
-  {
-    id: 'tiktok',
-    name: i18n.t('channels:newChannel.channelTypes.tiktok.name'),
-    description: i18n.t('channels:newChannel.channelTypes.tiktok.description'),
-    type: 'tiktok',
-    comingSoon: true,
-  },
-  {
-    id: 'youtube',
-    name: i18n.t('channels:newChannel.channelTypes.youtube.name'),
-    description: i18n.t('channels:newChannel.channelTypes.youtube.description'),
-    type: 'youtube',
-    comingSoon: true,
   },
   {
     id: 'telegram',

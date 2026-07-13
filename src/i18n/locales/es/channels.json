@@ -153,18 +153,6 @@
         "name": "Email",
         "description": "Marketing y atención"
       },
-      "linkedin": {
-        "name": "LinkedIn",
-        "description": "Página de empresa"
-      },
-      "tiktok": {
-        "name": "TikTok",
-        "description": "Cuenta business"
-      },
-      "youtube": {
-        "name": "YouTube",
-        "description": "Canal"
-      },
       "api": {
         "name": "API",
         "description": "Integración vía API personalizada"
@@ -1694,7 +1682,6 @@
       "connect": "Conectar",
       "addConnection": "Agregar conexión",
       "deleteConnection": "Eliminar conexión",
-      "comingSoon": "Próximamente",
       "viewAds": "Ver anuncios"
     },
     "capabilities": {

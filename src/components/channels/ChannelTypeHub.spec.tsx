@@ -55,10 +55,8 @@ describe('ChannelTypeHub', () => {
     render(
       <ChannelTypeHub inboxes={[]} isLoading={false} onAdd={noop} onOpenInbox={noop} onDelete={noop} />,
     );
-    // The 8 backed catalog types are unconfigured -> all expose the "Connect"
-    // action; the 3 display-only types render the disabled "coming soon" state.
+    // All 8 catalog types are unconfigured -> every card exposes the "Connect" action.
     expect(screen.getAllByText('overview.actions.connect')).toHaveLength(8);
-    expect(screen.getAllByText('overview.actions.comingSoon')).toHaveLength(3);
     expect(screen.queryByText('overview.actions.addConnection')).toBeNull();
   });
 

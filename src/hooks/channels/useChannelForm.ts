@@ -7,8 +7,6 @@ export interface ChannelType {
   name: string;
   description: string;
   icon?: string;
-  // Includes the display-only "coming soon" types (linkedin/tiktok/youtube) so the
-  // catalog assigns cleanly; the New Channel picker filters them out before render.
   type:
     | 'web_widget'
     | 'whatsapp'
@@ -17,12 +15,8 @@ export interface ChannelType {
     | 'telegram'
     | 'sms'
     | 'email'
-    | 'api'
-    | 'linkedin'
-    | 'tiktok'
-    | 'youtube';
+    | 'api';
   providers?: ProviderType[];
-  comingSoon?: boolean;
 }
 
 export interface FormData {

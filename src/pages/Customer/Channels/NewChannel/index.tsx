@@ -91,13 +91,10 @@ export default function NewChannel({ initialChannelId, onExit }: NewChannelProps
   const { isSubmitting, isTesting, testConnection, submitCreate, healthCheckPassed } =
     useChannelSubmission(form);
 
-  // Generate channel types with dynamic config. Display-only "coming soon" types
-  // (linkedin/tiktok/youtube) have no create flow, so they never enter the picker.
+  // Generate channel types with dynamic config.
   const channelTypes = useMemo(
     () =>
-      getChannelTypes()
-        .filter(channel => !channel.comingSoon)
-        .map(channel => {
+      getChannelTypes().map(channel => {
         if (channel.id === 'email') {
           return {
             ...channel,

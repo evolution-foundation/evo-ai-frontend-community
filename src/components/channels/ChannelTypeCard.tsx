@@ -60,17 +60,12 @@ export default function ChannelTypeCard({
   const { t, currentLanguage } = useLanguage('channels');
   const { type, total, inboxStates } = typeStatus;
   const isConfigured = total > 0;
-  const comingSoon = type.comingSoon === true;
   const capabilities = CHANNEL_CAPABILITIES[type.type] ?? [];
   // Only WhatsApp surfaces a provider count pill, sourced from the catalog entry.
   const providerCount = type.type === 'whatsapp' ? type.providers?.length ?? 0 : 0;
   const isFacebook = type.type === 'facebook';
 
-  const primaryAction = comingSoon ? (
-    <Button variant="secondary" className="w-full" disabled>
-      {t('overview.actions.comingSoon')}
-    </Button>
-  ) : isConfigured ? (
+  const primaryAction = isConfigured ? (
     <Button variant="outline" className="w-full" onClick={() => onAdd(typeStatus)}>
       <Plus className="mr-2 h-4 w-4" />
       {t('overview.actions.addConnection')}
@@ -241,7 +236,7 @@ export default function ChannelTypeCard({
           {/* Primary action, pinned to the bottom so single-button cards align. */}
           <div className="mt-auto flex flex-col gap-2 pt-1">
             {primaryAction}
-            {isFacebook && !comingSoon && (
+            {isFacebook && (
               <button
                 type="button"
                 className="mx-auto text-xs text-muted-foreground transition-colors hover:text-foreground"
