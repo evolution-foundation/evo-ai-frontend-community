@@ -191,6 +191,12 @@
       "title": "Configuración avanzada (JSON)",
       "subtitle": "Edita toda la configuración del servidor como JSON sin formato.",
       "hint": "Campos: name, description, url, headers, timeout, retry_count, tags."
+    },
+    "test": {
+      "button": "Probar conexión",
+      "testing": "Probando…",
+      "ok": "Conectado — {{count}} herramientas descubiertas",
+      "fail": "Error de conexión"
     }
   },
   "modal": {

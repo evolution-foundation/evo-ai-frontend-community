@@ -191,6 +191,12 @@
       "title": "Advanced config (JSON)",
       "subtitle": "Edit the whole server config as raw JSON.",
       "hint": "Fields: name, description, url, headers, timeout, retry_count, tags."
+    },
+    "test": {
+      "button": "Test connection",
+      "testing": "Testing…",
+      "ok": "Connected — {{count}} tools discovered",
+      "fail": "Connection failed"
     }
   },
   "modal": {

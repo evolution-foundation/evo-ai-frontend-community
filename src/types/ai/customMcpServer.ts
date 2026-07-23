@@ -62,6 +62,13 @@ export interface CustomMcpServerTestResponse {
   };
 }
 
+// EVO-1739: the stateless test-before-save result (no persisted server).
+export type McpTestResult = CustomMcpServerTestResponse['test_result'];
+
+export interface CustomMcpServerTestConnectionResponse {
+  test_result: McpTestResult;
+}
+
 export interface ListCustomMcpServersParams {
   page?: number;
   pageSize?: number;

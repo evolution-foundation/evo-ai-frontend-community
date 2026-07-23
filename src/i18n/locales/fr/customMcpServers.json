@@ -191,6 +191,12 @@
       "title": "Configuration avancée (JSON)",
       "subtitle": "Modifiez toute la configuration du serveur en JSON brut.",
       "hint": "Champs : name, description, url, headers, timeout, retry_count, tags."
+    },
+    "test": {
+      "button": "Tester la connexion",
+      "testing": "Test en cours…",
+      "ok": "Connecté — {{count}} outils découverts",
+      "fail": "Échec de la connexion"
     }
   },
   "modal": {

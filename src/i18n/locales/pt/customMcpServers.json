@@ -191,6 +191,12 @@
       "title": "Configuração avançada (JSON)",
       "subtitle": "Edite a configuração inteira do servidor como JSON cru.",
       "hint": "Campos: name, description, url, headers, timeout, retry_count, tags."
+    },
+    "test": {
+      "button": "Testar conexão",
+      "testing": "Testando…",
+      "ok": "Conectado — {{count}} ferramentas descobertas",
+      "fail": "Falha na conexão"
     }
   },
   "modal": {

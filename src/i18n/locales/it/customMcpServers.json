@@ -191,6 +191,12 @@
       "title": "Configurazione avanzata (JSON)",
       "subtitle": "Modifica l'intera configurazione del server come JSON grezzo.",
       "hint": "Campi: name, description, url, headers, timeout, retry_count, tags."
+    },
+    "test": {
+      "button": "Prova connessione",
+      "testing": "Prova in corso…",
+      "ok": "Connesso — {{count}} strumenti scoperti",
+      "fail": "Connessione fallita"
     }
   },
   "modal": {
