@@ -281,7 +281,18 @@
       "back": "Volver",
       "skip": "Saltar",
       "create": "Crear herramienta",
-      "save": "Guardar cambios"
+      "save": "Guardar cambios",
+      "cancel": "Cancelar"
+    },
+    "mode": {
+      "label": "Modo de edición",
+      "form": "Formulario",
+      "json": "JSON avanzado"
+    },
+    "advanced": {
+      "title": "Configuración avanzada (JSON)",
+      "subtitle": "Edita toda la configuración de la herramienta como JSON sin formato.",
+      "hint": "Campos: name, description, method, endpoint, headers, query_params, path_params, body_params, values, error_handling, input_modes, output_modes, tags, examples."
     }
   },
   "modal": {

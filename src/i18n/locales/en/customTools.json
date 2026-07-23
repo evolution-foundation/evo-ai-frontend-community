@@ -281,7 +281,18 @@
       "back": "Back",
       "skip": "Skip",
       "create": "Create tool",
-      "save": "Save changes"
+      "save": "Save changes",
+      "cancel": "Cancel"
+    },
+    "mode": {
+      "label": "Edit mode",
+      "form": "Form",
+      "json": "Advanced JSON"
+    },
+    "advanced": {
+      "title": "Advanced config (JSON)",
+      "subtitle": "Edit the whole tool config as raw JSON.",
+      "hint": "Fields: name, description, method, endpoint, headers, query_params, path_params, body_params, values, error_handling, input_modes, output_modes, tags, examples."
     }
   },
   "modal": {

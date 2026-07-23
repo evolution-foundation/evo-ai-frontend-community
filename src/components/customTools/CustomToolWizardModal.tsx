@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Dialog, DialogContent, DialogTitle } from '@evoapi/design-system';
-import { X } from 'lucide-react';
+import { Dialog, DialogContent, DialogTitle, Button } from '@evoapi/design-system';
+import { X, Code2, LayoutList } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { CustomTool, CustomToolFormData } from '@/types/ai';
 import WizardProgress from '@/pages/Customer/Agents/Agent/wizard/WizardProgress';
+import { AdvancedJsonEditor } from '@/components/ai_agents/shared';
 import {
   Step1_Identity,
   Step2_Endpoint,
@@ -223,12 +224,21 @@ export default function CustomToolWizardModal({
   const [data, setData] = useState<WizardData>(() =>
     tool ? toolToWizardData(tool) : initialWizardData,
   );
+  // EVO-1738: advanced (raw JSON) mode — edit the whole save payload as JSON.
+  // jsonPayload holds edits while in JSON mode (source of truth for submit there);
+  // no back-map to the step form (the model's inverse mapping is lossy).
+  const [mode, setMode] = useState<'form' | 'json'>('form');
+  const [jsonValid, setJsonValid] = useState(true);
+  const [jsonPayload, setJsonPayload] = useState<CustomToolFormData | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!open) {
       const timeout = setTimeout(() => {
         setCurrentStep(1);
+        setMode('form');
+        setJsonValid(true);
+        setJsonPayload(null);
         setData(tool ? toolToWizardData(tool) : initialWizardData);
       }, 300);
       return () => clearTimeout(timeout);
@@ -268,7 +278,9 @@ export default function CustomToolWizardModal({
   const handleNext = () => setCurrentStep(s => Math.min(s + 1, TOTAL_STEPS));
   const handleBack = () => setCurrentStep(s => Math.max(s - 1, 1));
 
-  const handleSubmit = () => {
+  // Build the save payload from the step form. Extracted so advanced (raw JSON)
+  // mode can snapshot it and submit can pick the right source. EVO-1738.
+  const buildPayload = (): CustomToolFormData => {
     // Mode descriptions live in `values` under our namespaced key. We
     // never overwrite an unrelated user-owned `__evo_modes_meta__` key
     // because cleanValues stripped it on read and the user can't recreate
@@ -282,7 +294,7 @@ export default function CustomToolWizardModal({
         ? { ...data.values, [MODES_META_KEY]: modesMeta }
         : data.values;
 
-    const payload: CustomToolFormData = {
+    return {
       name: data.name.trim(),
       description: data.description.trim(),
       method: data.method,
@@ -301,8 +313,21 @@ export default function CustomToolWizardModal({
       tags: data.tags,
       examples: data.examples,
     };
-    onSubmit(payload);
   };
+
+  // In JSON mode the edited raw payload is the source of truth; otherwise the form.
+  const handleSubmit = () => {
+    onSubmit(mode === 'json' && jsonPayload ? jsonPayload : buildPayload());
+  };
+
+  const enterJsonMode = () => {
+    setJsonPayload(buildPayload());
+    setJsonValid(true);
+    setMode('json');
+  };
+
+  const jsonCanSubmit =
+    jsonValid && !!jsonPayload?.name?.trim() && !!jsonPayload?.endpoint?.trim();
 
   const renderStep = () => {
     switch (currentStep) {
@@ -398,7 +423,34 @@ export default function CustomToolWizardModal({
 
   const wizardContent = (
     <div className="flex flex-col h-full min-h-0">
-      <div className="flex items-center justify-end px-3 pt-3 pb-0 flex-shrink-0">
+      <div className="flex items-center justify-between px-3 pt-3 pb-0 flex-shrink-0">
+        {/* EVO-1738: Form ↔ advanced (raw JSON) mode toggle. */}
+        <div className="inline-flex rounded-md border p-0.5" role="tablist" aria-label={t('wizard.mode.label')}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'form'}
+            onClick={() => setMode('form')}
+            className={`inline-flex items-center gap-1.5 rounded px-3 py-1 text-xs font-medium transition-colors ${
+              mode === 'form' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <LayoutList className="h-3.5 w-3.5" />
+            {t('wizard.mode.form')}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'json'}
+            onClick={enterJsonMode}
+            className={`inline-flex items-center gap-1.5 rounded px-3 py-1 text-xs font-medium transition-colors ${
+              mode === 'json' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Code2 className="h-3.5 w-3.5" />
+            {t('wizard.mode.json')}
+          </button>
+        </div>
         <button
           type="button"
           onClick={() => onOpenChange(false)}
@@ -409,33 +461,59 @@ export default function CustomToolWizardModal({
         </button>
       </div>
 
-      <div className="flex flex-col flex-1 min-h-0">
-        <div className="border-b bg-transparent p-3 pt-1.5 flex-shrink-0">
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold leading-tight">{header.title}</h2>
-            {header.subtitle && (
-              <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">
-                {header.subtitle}
-              </p>
-            )}
+      {mode === 'json' ? (
+        <div className="flex flex-col flex-1 min-h-0">
+          <div className="border-b bg-transparent p-3 pt-1.5 flex-shrink-0 text-center">
+            <h2 className="text-2xl font-semibold leading-tight">{t('wizard.advanced.title')}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t('wizard.advanced.subtitle')}</p>
+          </div>
+          <div ref={contentRef} className="flex-1 overflow-y-auto px-4 py-3 min-h-0">
+            <AdvancedJsonEditor
+              value={(jsonPayload ?? buildPayload()) as unknown as Record<string, unknown>}
+              onChange={p => setJsonPayload(p as unknown as CustomToolFormData)}
+              onValidityChange={setJsonValid}
+              rows={22}
+              hint={t('wizard.advanced.hint')}
+            />
+          </div>
+          <div className="flex justify-end gap-2 flex-shrink-0 p-3 border-t">
+            <Button variant="outline" className="px-6" onClick={() => onOpenChange(false)}>
+              {t('wizard.actions.cancel')}
+            </Button>
+            <Button className="px-6" onClick={handleSubmit} disabled={loading || !jsonCanSubmit}>
+              {isEdit ? t('wizard.actions.save') : t('wizard.actions.create')}
+            </Button>
           </div>
         </div>
+      ) : (
+        <div className="flex flex-col flex-1 min-h-0">
+          <div className="border-b bg-transparent p-3 pt-1.5 flex-shrink-0">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold leading-tight">{header.title}</h2>
+              {header.subtitle && (
+                <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">
+                  {header.subtitle}
+                </p>
+              )}
+            </div>
+          </div>
 
-        <div className="py-2 px-4 flex-shrink-0 bg-transparent">
-          <WizardProgress
-            currentStep={currentStep}
-            totalSteps={TOTAL_STEPS}
-            steps={steps}
-          />
-        </div>
+          <div className="py-2 px-4 flex-shrink-0 bg-transparent">
+            <WizardProgress
+              currentStep={currentStep}
+              totalSteps={TOTAL_STEPS}
+              steps={steps}
+            />
+          </div>
 
-        <div
-          ref={contentRef}
-          className="flex-1 overflow-y-auto px-3 min-h-0"
-        >
-          {renderStep()}
+          <div
+            ref={contentRef}
+            className="flex-1 overflow-y-auto px-3 min-h-0"
+          >
+            {renderStep()}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 

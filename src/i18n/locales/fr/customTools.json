@@ -281,7 +281,18 @@
       "back": "Retour",
       "skip": "Passer",
       "create": "Créer l'outil",
-      "save": "Enregistrer les modifications"
+      "save": "Enregistrer les modifications",
+      "cancel": "Annuler"
+    },
+    "mode": {
+      "label": "Mode d'édition",
+      "form": "Formulaire",
+      "json": "JSON avancé"
+    },
+    "advanced": {
+      "title": "Configuration avancée (JSON)",
+      "subtitle": "Modifiez toute la configuration de l'outil en JSON brut.",
+      "hint": "Champs : name, description, method, endpoint, headers, query_params, path_params, body_params, values, error_handling, input_modes, output_modes, tags, examples."
     }
   },
   "modal": {

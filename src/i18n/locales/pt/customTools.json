@@ -281,7 +281,18 @@
       "back": "Voltar",
       "skip": "Pular",
       "create": "Criar tool",
-      "save": "Salvar alterações"
+      "save": "Salvar alterações",
+      "cancel": "Cancelar"
+    },
+    "mode": {
+      "label": "Modo de edição",
+      "form": "Formulário",
+      "json": "JSON avançado"
+    },
+    "advanced": {
+      "title": "Configuração avançada (JSON)",
+      "subtitle": "Edite a configuração inteira da tool como JSON cru.",
+      "hint": "Campos: name, description, method, endpoint, headers, query_params, path_params, body_params, values, error_handling, input_modes, output_modes, tags, examples."
     }
   },
   "modal": {
