@@ -354,5 +354,10 @@
     "createDenied": "Você não tem permissão para criar ferramentas personalizadas",
     "editDenied": "Você não tem permissão para editar ferramentas personalizadas",
     "deleteDenied": "Você não tem permissão para excluir ferramentas personalizadas"
+  },
+  "advancedJson": {
+    "title": "JSON avançado",
+    "mustBeObject": "O JSON deve ser um objeto.",
+    "invalid": "JSON inválido."
   }
 }

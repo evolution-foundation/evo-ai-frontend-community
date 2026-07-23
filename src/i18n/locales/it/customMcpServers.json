@@ -179,7 +179,18 @@
       "continue": "Continua",
       "back": "Indietro",
       "create": "Crea server MCP",
-      "save": "Salva modifiche"
+      "save": "Salva modifiche",
+      "cancel": "Annulla"
+    },
+    "mode": {
+      "label": "Modalità di modifica",
+      "form": "Modulo",
+      "json": "JSON avanzato"
+    },
+    "advanced": {
+      "title": "Configurazione avanzata (JSON)",
+      "subtitle": "Modifica l'intera configurazione del server come JSON grezzo.",
+      "hint": "Campi: name, description, url, headers, timeout, retry_count, tags."
     }
   },
   "modal": {

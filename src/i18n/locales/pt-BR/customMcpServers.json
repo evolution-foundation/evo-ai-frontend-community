@@ -179,7 +179,18 @@
       "continue": "Continuar",
       "back": "Voltar",
       "create": "Criar servidor MCP",
-      "save": "Salvar alterações"
+      "save": "Salvar alterações",
+      "cancel": "Cancelar"
+    },
+    "mode": {
+      "label": "Modo de edição",
+      "form": "Formulário",
+      "json": "JSON avançado"
+    },
+    "advanced": {
+      "title": "Configuração avançada (JSON)",
+      "subtitle": "Edite a configuração inteira do servidor como JSON cru.",
+      "hint": "Campos: name, description, url, headers, timeout, retry_count, tags."
     }
   },
   "modal": {

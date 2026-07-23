@@ -354,5 +354,10 @@
     "createDenied": "You don't have permission to create custom tools",
     "editDenied": "You don't have permission to edit custom tools",
     "deleteDenied": "You don't have permission to delete custom tools"
+  },
+  "advancedJson": {
+    "title": "Advanced JSON",
+    "mustBeObject": "The JSON must be an object.",
+    "invalid": "Invalid JSON."
   }
 }

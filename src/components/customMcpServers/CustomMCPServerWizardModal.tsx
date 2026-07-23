@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Dialog, DialogContent, DialogTitle } from '@evoapi/design-system';
-import { X } from 'lucide-react';
+import { Dialog, DialogContent, DialogTitle, Button } from '@evoapi/design-system';
+import { X, Code2, LayoutList } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { CustomMcpServer, CustomMcpServerFormData } from '@/types/ai';
 import WizardProgress from '@/pages/Customer/Agents/Agent/wizard/WizardProgress';
+import { AdvancedJsonEditor } from '@/components/ai_agents/shared';
 import {
   Step1_Identity,
   Step2_Connection,
@@ -71,12 +72,17 @@ export default function CustomMCPServerWizardModal({
   const [data, setData] = useState<WizardData>(() =>
     server ? serverToWizardData(server) : initialWizardData,
   );
+  // EVO-1739: advanced (raw JSON) mode — the whole config as editable JSON.
+  const [mode, setMode] = useState<'form' | 'json'>('form');
+  const [jsonValid, setJsonValid] = useState(true);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!open) {
       const timeout = setTimeout(() => {
         setCurrentStep(1);
+        setMode('form');
+        setJsonValid(true);
         setData(server ? serverToWizardData(server) : initialWizardData);
       }, 300);
       return () => clearTimeout(timeout);
@@ -124,6 +130,35 @@ export default function CustomMCPServerWizardModal({
     };
     onSubmit(payload);
   };
+
+  // EVO-1739: the config object shown/edited in advanced (raw JSON) mode.
+  const configObject = (): Record<string, unknown> => ({
+    name: data.name,
+    description: data.description,
+    url: data.url,
+    headers: data.headers,
+    timeout: data.timeout,
+    retry_count: data.retry_count,
+    tags: data.tags,
+  });
+
+  const applyJson = (parsed: Record<string, unknown>) => {
+    setData(prev => ({
+      ...prev,
+      name: typeof parsed.name === 'string' ? parsed.name : prev.name,
+      description: typeof parsed.description === 'string' ? parsed.description : prev.description,
+      url: typeof parsed.url === 'string' ? parsed.url : prev.url,
+      headers:
+        parsed.headers && typeof parsed.headers === 'object' && !Array.isArray(parsed.headers)
+          ? (parsed.headers as Record<string, unknown>)
+          : prev.headers,
+      timeout: typeof parsed.timeout === 'number' ? parsed.timeout : prev.timeout,
+      retry_count: typeof parsed.retry_count === 'number' ? parsed.retry_count : prev.retry_count,
+      tags: Array.isArray(parsed.tags) ? parsed.tags.map(String) : prev.tags,
+    }));
+  };
+
+  const canSubmitJson = jsonValid && !!data.name.trim() && !!data.url.trim();
 
   const renderStep = () => {
     switch (currentStep) {
@@ -190,7 +225,34 @@ export default function CustomMCPServerWizardModal({
 
   const wizardContent = (
     <div className="flex flex-col h-full min-h-0">
-      <div className="flex items-center justify-end px-3 pt-3 pb-0 flex-shrink-0">
+      <div className="flex items-center justify-between px-3 pt-3 pb-0 flex-shrink-0">
+        {/* EVO-1739: Form ↔ advanced (raw JSON) mode toggle. */}
+        <div className="inline-flex rounded-md border p-0.5" role="tablist" aria-label={t('wizard.mode.label')}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'form'}
+            onClick={() => setMode('form')}
+            className={`inline-flex items-center gap-1.5 rounded px-3 py-1 text-xs font-medium transition-colors ${
+              mode === 'form' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <LayoutList className="h-3.5 w-3.5" />
+            {t('wizard.mode.form')}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'json'}
+            onClick={() => setMode('json')}
+            className={`inline-flex items-center gap-1.5 rounded px-3 py-1 text-xs font-medium transition-colors ${
+              mode === 'json' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Code2 className="h-3.5 w-3.5" />
+            {t('wizard.mode.json')}
+          </button>
+        </div>
         <button
           type="button"
           onClick={() => onOpenChange(false)}
@@ -201,30 +263,56 @@ export default function CustomMCPServerWizardModal({
         </button>
       </div>
 
-      <div className="flex flex-col flex-1 min-h-0">
-        <div className="border-b bg-transparent p-3 pt-1.5 flex-shrink-0">
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold leading-tight">{header.title}</h2>
-            {header.subtitle && (
-              <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">
-                {header.subtitle}
-              </p>
-            )}
+      {mode === 'json' ? (
+        <div className="flex flex-col flex-1 min-h-0">
+          <div className="border-b bg-transparent p-3 pt-1.5 flex-shrink-0 text-center">
+            <h2 className="text-2xl font-semibold leading-tight">{t('wizard.advanced.title')}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t('wizard.advanced.subtitle')}</p>
+          </div>
+          <div ref={contentRef} className="flex-1 overflow-y-auto px-4 py-3 min-h-0">
+            <AdvancedJsonEditor
+              value={configObject()}
+              onChange={applyJson}
+              onValidityChange={setJsonValid}
+              rows={20}
+              hint={t('wizard.advanced.hint')}
+            />
+          </div>
+          <div className="flex justify-end gap-2 flex-shrink-0 p-3 border-t">
+            <Button variant="outline" className="px-6" onClick={() => onOpenChange(false)}>
+              {t('wizard.actions.cancel')}
+            </Button>
+            <Button className="px-6" onClick={handleSubmit} disabled={loading || !canSubmitJson}>
+              {isEdit ? t('wizard.actions.save') : t('wizard.actions.create')}
+            </Button>
           </div>
         </div>
+      ) : (
+        <div className="flex flex-col flex-1 min-h-0">
+          <div className="border-b bg-transparent p-3 pt-1.5 flex-shrink-0">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold leading-tight">{header.title}</h2>
+              {header.subtitle && (
+                <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">
+                  {header.subtitle}
+                </p>
+              )}
+            </div>
+          </div>
 
-        <div className="py-2 px-4 flex-shrink-0 bg-transparent">
-          <WizardProgress
-            currentStep={currentStep}
-            totalSteps={TOTAL_STEPS}
-            steps={steps}
-          />
-        </div>
+          <div className="py-2 px-4 flex-shrink-0 bg-transparent">
+            <WizardProgress
+              currentStep={currentStep}
+              totalSteps={TOTAL_STEPS}
+              steps={steps}
+            />
+          </div>
 
-        <div ref={contentRef} className="flex-1 overflow-y-auto px-3 min-h-0">
-          {renderStep()}
+          <div ref={contentRef} className="flex-1 overflow-y-auto px-3 min-h-0">
+            {renderStep()}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 
