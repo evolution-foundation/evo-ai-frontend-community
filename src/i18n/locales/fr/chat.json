@@ -324,6 +324,7 @@
       "pending": "En attente",
       "resolved": "Terminées",
       "unread": "Non lues",
+      "unanswered": "Sans réponse",
       "groups": "Groupes"
     },
     "searchPlaceholder": "Rechercher des conversations...",

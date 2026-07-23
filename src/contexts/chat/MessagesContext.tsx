@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useReducer, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { chatService } from '@/services/chat/chatService';
+import { useUnansweredConversationsStore } from '@/store/unansweredConversationsStore';
 import { extractMessagesData } from '@/utils/chat/responseHelpers';
 import { Attachment, Message, MessageSender, MessageTypeValue } from '@/types/chat/api';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -701,6 +702,13 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
             message: finalMessage,
           },
         });
+
+        // EVO-1963: a public agent reply clears waiting_since on the backend, so the
+        // "awaiting my reply" sidebar badge must refetch (this is the decisive trigger
+        // for the count — viewing no longer decrements it). Private notes don't reply.
+        if (!isPrivate) {
+          useUnansweredConversationsStore.getState().fetch();
+        }
 
         return response;
       } catch (error) {

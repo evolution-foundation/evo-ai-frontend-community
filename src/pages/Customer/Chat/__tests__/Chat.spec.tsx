@@ -33,6 +33,7 @@ const mockNavigate = vi.hoisted(() => vi.fn());
 vi.mock('react-router-dom', () => ({
   useParams: () => ({ conversationId: undefined }),
   useNavigate: () => mockNavigate,
+  useSearchParams: () => [new URLSearchParams(), vi.fn()],
 }));
 
 // ─── i18n ─────────────────────────────────────────────────────────────────────

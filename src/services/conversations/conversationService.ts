@@ -176,9 +176,11 @@ export const conversationAPI = {
   },
 
   // Aggregate unread incoming-message count across all accessible conversations
-  async getUnreadCount(): Promise<{ unread_count: number }> {
-    const response = await api.get('/conversations/unread_count');
-    return extractData<{ unread_count: number }>(response);
+  // EVO-1963: the sidebar badge = my open conversations awaiting my reply (not
+  // account-wide unread). Backend renamed the endpoint + field to match.
+  async getUnansweredCount(): Promise<{ unanswered_count: number }> {
+    const response = await api.get('/conversations/unanswered_count');
+    return extractData<{ unanswered_count: number }>(response);
   },
 
   // Mark conversation as unread

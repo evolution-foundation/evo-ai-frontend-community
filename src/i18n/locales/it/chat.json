@@ -324,6 +324,7 @@
       "pending": "In sospeso",
       "resolved": "Completate",
       "unread": "Non lette",
+      "unanswered": "Senza risposta",
       "groups": "Gruppi"
     },
     "searchPlaceholder": "Cerca conversazioni...",

@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { conversationAPI } from '@/services/conversations/conversationService';
 
-interface UnreadConversationsState {
-  totalUnread: number;
+interface UnansweredConversationsState {
+  totalUnanswered: number;
   isLoaded: boolean;
   fetch: () => Promise<void>;
   setTotal: (count: number) => void;
@@ -20,8 +20,8 @@ let trailingRequested = false;
 
 const FETCH_DEBOUNCE_MS = 400;
 
-export const useUnreadConversationsStore = create<UnreadConversationsState>((set) => ({
-  totalUnread: 0,
+export const useUnansweredConversationsStore = create<UnansweredConversationsState>((set) => ({
+  totalUnanswered: 0,
   isLoaded: false,
 
   fetch: async () => {
@@ -38,19 +38,19 @@ export const useUnreadConversationsStore = create<UnreadConversationsState>((set
         const seq = ++fetchSeq;
         inFlight = (async () => {
           try {
-            const { unread_count } = await conversationAPI.getUnreadCount();
+            const { unanswered_count } = await conversationAPI.getUnansweredCount();
             if (seq <= latestApplied) return;
             latestApplied = seq;
-            set({ totalUnread: Math.max(0, unread_count), isLoaded: true });
+            set({ totalUnanswered: Math.max(0, unanswered_count), isLoaded: true });
           } catch (error) {
-            console.warn('Failed to fetch total unread count:', error);
+            console.warn('Failed to fetch total unanswered count:', error);
           } finally {
             inFlight = null;
             const shouldTrail = trailingRequested;
             trailingRequested = false;
             resolve();
             if (shouldTrail) {
-              useUnreadConversationsStore.getState().fetch();
+              useUnansweredConversationsStore.getState().fetch();
             }
           }
         })();
@@ -59,13 +59,13 @@ export const useUnreadConversationsStore = create<UnreadConversationsState>((set
     return pending;
   },
 
-  setTotal: (count) => set({ totalUnread: Math.max(0, count), isLoaded: true }),
+  setTotal: (count) => set({ totalUnanswered: Math.max(0, count), isLoaded: true }),
 
   incrementBy: (delta) =>
-    set((state) => ({ totalUnread: Math.max(0, state.totalUnread + delta) })),
+    set((state) => ({ totalUnanswered: Math.max(0, state.totalUnanswered + delta) })),
 
   decrementBy: (delta) =>
-    set((state) => ({ totalUnread: Math.max(0, state.totalUnread - delta) })),
+    set((state) => ({ totalUnanswered: Math.max(0, state.totalUnanswered - delta) })),
 
   reset: () => {
     if (debounceTimer) {
@@ -76,6 +76,6 @@ export const useUnreadConversationsStore = create<UnreadConversationsState>((set
     inFlight = null;
     trailingRequested = false;
     latestApplied = fetchSeq;
-    set({ totalUnread: 0, isLoaded: false });
+    set({ totalUnanswered: 0, isLoaded: false });
   },
 }));

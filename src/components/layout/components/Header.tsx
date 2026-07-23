@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useUnreadConversationsStore } from '@/store/unreadConversationsStore';
+import { useUnansweredConversationsStore } from '@/store/unansweredConversationsStore';
 import { Link } from 'react-router-dom';
 import {
   Menu,
@@ -74,16 +74,16 @@ export default function Header({
 }: HeaderProps) {
   const { t } = useLanguage('layout');
   const [expandedMobileMenus, setExpandedMobileMenus] = useState<Set<string>>(new Set());
-  const totalUnread = useUnreadConversationsStore((state) => state.totalUnread);
+  const totalUnanswered = useUnansweredConversationsStore((state) => state.totalUnanswered);
 
   const enrichedMenuItems = useMemo(
     () =>
       menuItems.map((item) =>
-        item.href === '/conversations' && totalUnread > 0
-          ? { ...item, badge: totalUnread }
+        item.href === '/conversations' && totalUnanswered > 0
+          ? { ...item, badge: totalUnanswered, href: '/conversations?segment=unanswered' }
           : item,
       ),
-    [menuItems, totalUnread],
+    [menuItems, totalUnanswered],
   );
 
   return (

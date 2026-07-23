@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { Suspense, useEffect, useState, useCallback, useRef, useMemo } from 'react';
 
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useChatContext } from '@/contexts/chat/ChatContext';
 import { usePermissions } from '@/contexts/PermissionsContext';
@@ -14,6 +14,7 @@ import { useAssignmentHandlers } from '@/hooks/chat/useAssignmentHandlers';
 import { useFilterHandlers } from '@/hooks/chat/useFilterHandlers';
 
 import { loadConversationFilters, getDefaultFilter } from '@/utils/storage/filtersStorage';
+import { CONVERSATION_SEGMENTS } from '@/components/chat/chat-sidebar/conversationSegmentsHelpers';
 
 import { toast } from 'sonner';
 import { AxiosError } from 'axios';
@@ -82,6 +83,7 @@ const Chat = () => {
   const fetchLabels = useAppDataStore(state => state.fetchLabels);
   const { conversationId } = useParams<{ conversationId?: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const chatContext = useChatContext();
   // Explicitly type conversations to ensure TypeScript recognizes it has 'state'
   const conversations = chatContext.conversations;
@@ -245,9 +247,21 @@ const Chat = () => {
       return;
     }
 
+    // EVO-1963: clicar no badge da sidebar roteia com ?segment=unanswered → aplica
+    // o preset "Não respondidas" (mine + aguardando resposta), depois limpa o param
+    // pra não travar a visão em refreshes/navegações seguintes.
+    const segmentParam = searchParams.get('segment');
+    const segment = segmentParam
+      ? CONVERSATION_SEGMENTS.find(s => s.id === segmentParam)
+      : null;
+
     // 💾 PERSISTÊNCIA: Carregar filtros salvos ou usar padrão
     const savedFilters = loadConversationFilters();
-    const filtersToApply = savedFilters || getDefaultFilter();
+    const filtersToApply = segment ? segment.preset : (savedFilters || getDefaultFilter());
+
+    if (segment) {
+      setSearchParams({}, { replace: true });
+    }
 
     // Aplicar filtros (erros serão tratados no filterHandlers)
     handleApplyFilters(filtersToApply).catch(error => {

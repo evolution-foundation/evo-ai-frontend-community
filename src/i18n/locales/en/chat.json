@@ -329,6 +329,7 @@
       "pending": "Pending",
       "resolved": "Completed",
       "unread": "Unread",
+      "unanswered": "Unanswered",
       "groups": "Groups"
     },
     "searchPlaceholder": "Search conversations...",

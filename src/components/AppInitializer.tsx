@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAppDataStore } from '@/store/appDataStore';
 import { useAuthStore } from '@/store/authStore';
 import { tourService } from '@/services/tours/tourService';
-import { useUnreadConversationsStore } from '@/store/unreadConversationsStore';
+import { useUnansweredConversationsStore } from '@/store/unansweredConversationsStore';
 import i18n from '@/i18n/config';
 import LoadingScreen from '@/components/LoadingScreen';
 interface AppInitializerProps {
@@ -106,10 +106,10 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ children }) => {
 
   useEffect(() => {
     if (!user?.id) {
-      useUnreadConversationsStore.getState().reset();
+      useUnansweredConversationsStore.getState().reset();
       return;
     }
-    useUnreadConversationsStore.getState().fetch();
+    useUnansweredConversationsStore.getState().fetch();
   }, [user?.id]);
 
   useEffect(() => {
