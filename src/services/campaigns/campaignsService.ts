@@ -1,4 +1,5 @@
 import api from '@/services/core/apiEvoFlow';
+import { extractData, extractResponse } from '@/utils/apiHelpers';
 import type {
   Campaign,
   CampaignsResponse,
@@ -10,6 +11,12 @@ import type {
   BulkCampaignActionResponse,
 } from '@/types/campaigns';
 
+// EVO-1838: envelope unwrapping goes through the shared apiHelpers (extractData /
+// extractResponse), like journeyService (EVO-1836). The hand-rolled response.data.data
+// had no bare-body fallback and would yield undefined if an endpoint stopped passing
+// through the ResponseTransformInterceptor (e.g. @SkipResponseTransform). The two
+// methods that return the raw StandardResponse envelope on purpose (object `data`, not
+// an array) stay as-is — extractResponse hard-types `data` as an array.
 class CampaignsService {
   // List campaigns with pagination and filters
   async getCampaigns(params?: CampaignsListParams): Promise<CampaignsResponse> {
@@ -33,25 +40,25 @@ class CampaignsService {
     }
 
     const response = await api.get<CampaignsResponse>(`/campaigns?${queryParams.toString()}`);
-    return response.data;
+    return extractResponse<Campaign>(response) as CampaignsResponse;
   }
 
   // Get single campaign
   async getCampaign(campaignId: string): Promise<Campaign> {
     const response = await api.get<{ success: boolean; data: Campaign }>(`/campaigns/${campaignId}`);
-    return response.data.data;
+    return extractData<Campaign>(response);
   }
 
   // Create campaign
   async createCampaign(data: CampaignCreateData): Promise<Campaign> {
     const response = await api.post<{ success: boolean; data: Campaign }>('/campaigns', data);
-    return response.data.data;
+    return extractData<Campaign>(response);
   }
 
   // Update campaign
   async updateCampaign(campaignId: string, data: CampaignUpdateData): Promise<Campaign> {
     const response = await api.patch<{ success: boolean; data: Campaign }>(`/campaigns/${campaignId}`, data);
-    return response.data.data;
+    return extractData<Campaign>(response);
   }
 
   // Delete campaign
@@ -65,22 +72,22 @@ class CampaignsService {
       `/campaigns/${campaignId}/schedule`,
       { scheduleTo: scheduleDate }
     );
-    return response.data.data;
+    return extractData<Campaign>(response);
   }
 
   async pauseCampaign(campaignId: string): Promise<Campaign> {
     const response = await api.post<{ success: boolean; data: Campaign }>(`/campaigns/${campaignId}/pause`);
-    return response.data.data;
+    return extractData<Campaign>(response);
   }
 
   async resumeCampaign(campaignId: string): Promise<Campaign> {
     const response = await api.post<{ success: boolean; data: Campaign }>(`/campaigns/${campaignId}/resume`);
-    return response.data.data;
+    return extractData<Campaign>(response);
   }
 
   async stopCampaign(campaignId: string): Promise<Campaign> {
     const response = await api.post<{ success: boolean; data: Campaign }>(`/campaigns/${campaignId}/stop`);
-    return response.data.data;
+    return extractData<Campaign>(response);
   }
 
   async executeCampaign(campaignId: string): Promise<{ workflow_id: string; run_id: string; message: string }> {
@@ -88,16 +95,16 @@ class CampaignsService {
       success: boolean;
       data: { workflow_id: string; run_id: string; message: string };
     }>(`/campaigns/${campaignId}/execute`);
-    return response.data.data;
+    return extractData<{ workflow_id: string; run_id: string; message: string }>(response);
   }
 
-  // Statistics
+  // Statistics — returns the raw StandardResponse envelope by contract (object `data`).
   async getCampaignStats(campaignId: string): Promise<CampaignStatsResponse> {
     const response = await api.get<CampaignStatsResponse>(`/campaigns/${campaignId}/stats`);
     return response.data;
   }
 
-  // Bulk Actions
+  // Bulk Actions — returns the raw StandardResponse envelope by contract (object `data`).
   async bulkAction(params: BulkCampaignActionParams): Promise<BulkCampaignActionResponse> {
     const response = await api.post<BulkCampaignActionResponse>('/campaigns/bulk-action', params);
     return response.data;
@@ -106,7 +113,7 @@ class CampaignsService {
   // Duplicate campaign
   async duplicateCampaign(campaignId: string): Promise<Campaign> {
     const response = await api.post<{ success: boolean; data: Campaign }>(`/campaigns/${campaignId}/duplicate`);
-    return response.data.data;
+    return extractData<Campaign>(response);
   }
 }
 
