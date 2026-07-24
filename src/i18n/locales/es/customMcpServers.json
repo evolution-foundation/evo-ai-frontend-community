@@ -208,7 +208,8 @@
     "test": {
       "button": "Probar conexión",
       "testing": "Probando…",
-      "ok": "Conectado — {{count}} herramientas descubiertas",
+      "ok_one": "Conectado — {{count}} herramienta descubierta",
+      "ok_other": "Conectado — {{count}} herramientas descubiertas",
       "fail": "Error de conexión"
     }
   },
