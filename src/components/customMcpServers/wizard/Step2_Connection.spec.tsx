@@ -3,8 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Step2_Connection from './Step2_Connection';
 import { testCustomMcpServerConnection } from '@/services/agents/customMcpServerService';
 
-// EVO-1739: the test-before-save button is only worth having if its verdict is trustworthy
-// — a result must never outlive the url/headers it was produced for.
+// EVO-1739: a test result must never outlive the url/headers it was produced for.
 vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({
     t: (k: string, o?: Record<string, unknown>) => (o ? `${k}:${JSON.stringify(o)}` : k),
@@ -52,7 +51,7 @@ describe('Step2_Connection — test before save', () => {
     expect(testCustomMcpServerConnection).toHaveBeenCalledWith('https://good.example/mcp', {
       Authorization: 'Bearer sk',
     });
-    // The count comes from the live handshake, not from a persisted tools array.
+    // The count comes from the live handshake, not a persisted tools array.
     expect(successPanel()!.textContent).toContain('"count":3');
   });
 

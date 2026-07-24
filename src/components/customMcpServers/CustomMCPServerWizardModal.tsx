@@ -47,9 +47,7 @@ export default function CustomMCPServerWizardModal({
   );
   // EVO-1739: advanced (raw JSON) mode — the whole config as editable JSON.
   const [mode, setMode] = useState<'form' | 'json'>('form');
-  // Syntax validity (is it a JSON object?) is reported by the editor; `jsonIssues` holds
-  // the semantic problems this component finds in that object. Both must be clear before
-  // the config can be saved.
+  // Editor reports syntax; `jsonIssues` holds the semantic problems. Both must be clear.
   const [jsonValid, setJsonValid] = useState(true);
   const [jsonIssues, setJsonIssues] = useState<string[]>([]);
   const contentRef = useRef<HTMLDivElement | null>(null);
@@ -123,14 +121,12 @@ export default function CustomMCPServerWizardModal({
   const applyJson = (parsed: Record<string, unknown>) => {
     const { data: next, issues } = parseWizardConfig(parsed, t);
     setJsonIssues(issues);
-    // Commit only a fully valid config. A partial commit would leave `data` holding some
-    // of the user's edits and some stale values, which is the ambiguity the form/JSON
-    // round-trip cannot recover from. While issues are listed, submit is blocked anyway.
+    // All-or-nothing: a partial commit would mix fresh edits with stale values, which the
+    // form/JSON round-trip cannot untangle.
     if (issues.length === 0) setData(next);
   };
 
-  // Entering advanced mode re-derives the issues from the config that is about to be
-  // serialized into the editor, so the listed problems always describe what is on screen.
+  // Re-derive issues from the config about to be serialized, so they describe what shows.
   const enterJsonMode = () => {
     setJsonValid(true);
     setJsonIssues(parseWizardConfig(configObject(), t).issues);

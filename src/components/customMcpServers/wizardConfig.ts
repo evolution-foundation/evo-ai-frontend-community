@@ -1,9 +1,8 @@
 import type { CustomMcpServer } from '@/types/ai';
 
 /**
- * EVO-1739: the shape the MCP wizard edits, and the rules that decide whether a given
- * config is savable. Kept out of the modal so both the step form and the advanced
- * (raw JSON) mode answer to the same definition of "valid".
+ * EVO-1739: the shape the MCP wizard edits and the rules that make it savable. Kept out
+ * of the modal so the step form and the advanced (raw JSON) mode share one definition.
  */
 export interface WizardData {
   // Step 1 — Identity
@@ -52,18 +51,9 @@ const isPlainObject = (v: unknown): v is Record<string, unknown> =>
 const isInteger = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v);
 
 /**
- * Turn the raw JSON object from advanced mode into WizardData, reporting every problem
- * instead of silently keeping the previous value.
- *
- * Two rules make advanced mode an actual escape hatch rather than a lossy one:
- *  - a key that is ABSENT falls back to the empty/default value, so deleting `description`
- *    from the JSON really clears it (the earlier `typeof x === 'string' ? x : prev.x` kept
- *    the old value, which made a field impossible to empty);
- *  - a key with the WRONG type or an out-of-range value is an error the user sees, never a
- *    silent revert (`"timeout": "60"` used to save as 30 with no feedback at all).
- *
- * The checks mirror the per-step validation exactly, so the two modes cannot disagree
- * about what a valid server is.
+ * Turn the raw JSON from advanced mode into WizardData. An absent key falls back to the
+ * default, so deleting one clears the field; a wrong-typed or out-of-range one is a
+ * reported issue, never a silent revert.
  */
 export const parseWizardConfig = (
   parsed: Record<string, unknown>,
@@ -83,7 +73,6 @@ export const parseWizardConfig = (
     next.name = parsed.name;
   }
 
-  // description — optional; absent means empty.
   if (parsed.description === undefined) {
     next.description = '';
   } else if (typeof parsed.description !== 'string') {
@@ -106,8 +95,7 @@ export const parseWizardConfig = (
     }
   }
 
-  // headers — the API binds these into a string map, so a number here is a 400 at submit
-  // time rather than something the UI should wave through.
+  // headers — the API binds these into a string map, so a non-string is a 400 on submit.
   if (parsed.headers === undefined) {
     next.headers = {};
   } else if (!isPlainObject(parsed.headers)) {
@@ -148,7 +136,7 @@ export const parseWizardConfig = (
     next.retry_count = parsed.retry_count;
   }
 
-  // tags — a string array. `.map(String)` used to turn [1, {}] into ["1", "[object Object]"].
+  // tags — a string array; coercing would smuggle in [object Object].
   if (parsed.tags === undefined) {
     next.tags = [];
   } else if (!Array.isArray(parsed.tags) || parsed.tags.some(tag => typeof tag !== 'string')) {

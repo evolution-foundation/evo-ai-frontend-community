@@ -25,10 +25,8 @@ export default function Step2_Connection({ data, onChange, onNext, onBack }: Ste
   const [testResult, setTestResult] = useState<McpTestResult | null>(null);
   const [testError, setTestError] = useState('');
 
-  // EVO-1739: a result only describes the url/headers it was run against, so it is tagged
-  // with those and shown only while they still match. That covers editing after a test (a
-  // green "connected, 3 tools" panel must not keep vouching for a url the user has since
-  // replaced) as well as a reply that lands after the user already moved on.
+  // EVO-1739: tag the result with what it was run against and show it only while those
+  // still match — covers both editing after a test and a reply landing too late.
   const [testedKey, setTestedKey] = useState<string | null>(null);
   const connectionKey = `${data.url} ${JSON.stringify(data.headers ?? {})}`;
   const resultIsCurrent = testedKey === connectionKey;

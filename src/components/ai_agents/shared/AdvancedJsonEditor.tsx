@@ -3,15 +3,9 @@ import { Textarea } from '@evoapi/design-system';
 import { useLanguage } from '@/hooks/useLanguage';
 
 /**
- * EVO-1738/EVO-1739: full-config raw-JSON escape hatch for the Custom Tools / Custom
- * MCP wizards (n8n-style "advanced mode"). Renders the whole config object as editable
- * JSON, parses on every keystroke, and reports validity so the wizard can block submit
- * on malformed JSON. Shared primitive — the parent owns the object and the mode toggle.
- *
- * Validity has two layers, and the parent owns the second one: this component only
- * decides whether the text is *syntactically* a JSON object. Whether that object is a
- * usable config (url parses, timeout in range, …) is domain knowledge, so the parent
- * validates it and passes the messages back down via `issues` for display.
+ * EVO-1738/EVO-1739: raw-JSON escape hatch for the Custom Tools / Custom MCP wizards.
+ * Reports only *syntactic* validity — whether the config is usable is domain knowledge
+ * the parent owns and feeds back through `issues`.
  */
 export interface AdvancedJsonEditorProps {
   /** Current config object (rendered as pretty JSON on mount). */
@@ -42,10 +36,8 @@ export default function AdvancedJsonEditor({
   const [text, setText] = useState(() => JSON.stringify(value ?? {}, null, 2));
   const [error, setError] = useState('');
 
-  // The initial text is always valid JSON — we just serialized it — but the parent has no
-  // way to know that unless we say so. Without this it keeps whatever validity it was left
-  // with (e.g. `false` from a previous visit to advanced mode) and the submit button stays
-  // dead while a perfectly valid config sits on screen.
+  // Announce the initial text as valid, otherwise the parent keeps whatever validity a
+  // previous visit left it with and gates submit on stale state.
   const onValidityChangeRef = useRef(onValidityChange);
   onValidityChangeRef.current = onValidityChange;
   useEffect(() => {

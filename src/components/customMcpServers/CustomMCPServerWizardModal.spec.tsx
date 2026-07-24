@@ -4,9 +4,8 @@ import CustomMCPServerWizardModal from './CustomMCPServerWizardModal';
 import { parseWizardConfig } from './wizardConfig';
 import type { CustomMcpServer } from '@/types/ai';
 
-// EVO-1739: the advanced (raw JSON) escape hatch must be lossless and must not be a way
-// around the validation the step form enforces. Every case below reproduced a real defect
-// in the first cut of the wizard.
+// EVO-1739: the advanced (raw JSON) mode must be lossless and must not bypass the
+// validation the step form enforces.
 vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({
     t: (k: string, o?: Record<string, unknown>) => (o ? `${k}:${JSON.stringify(o)}` : k),
@@ -71,15 +70,14 @@ describe('parseWizardConfig', () => {
   });
 
   it('treats an absent key as cleared instead of keeping the old value', () => {
-    // Deleting `description` from the JSON must actually clear it. The first cut kept the
-    // previous value, so a field could never be emptied from advanced mode.
+    // Deleting a key must clear the field, not fall back to the previous value.
     const { data, issues } = parseWizardConfig({ ...validConfig, description: undefined }, t);
     expect(issues).toEqual([]);
     expect(data.description).toBe('');
   });
 
   it('reports a wrong-typed number instead of silently reverting it', () => {
-    // `"timeout": "60"` used to be dropped and saved as the default 30, with no feedback.
+    // A wrong-typed number must surface, not revert to the default.
     const { issues } = parseWizardConfig({ ...validConfig, timeout: '60' }, t);
     expect(issues).toContain(t('wizard.advanced.errors.timeoutRange', { min: 1, max: 300 }));
   });
@@ -111,7 +109,7 @@ describe('parseWizardConfig', () => {
   });
 
   it('names the header keys whose values are not text', () => {
-    // The API binds headers into a string map, so this would be a 400 at submit time.
+    // The API binds headers into a string map, so this is a 400 on submit.
     const { issues } = parseWizardConfig(
       { ...validConfig, headers: { 'X-Api-Key': 123, Ok: 'yes', 'X-Flag': true } },
       t,
@@ -122,7 +120,7 @@ describe('parseWizardConfig', () => {
   });
 
   it('rejects non-string tags rather than stringifying them', () => {
-    // `.map(String)` used to turn [1, {}] into ["1", "[object Object]"].
+    // Coercing would smuggle in [object Object].
     const { issues } = parseWizardConfig({ ...validConfig, tags: [1, {}] }, t);
     expect(issues).toContain(t('wizard.advanced.errors.tagsType'));
   });
@@ -137,9 +135,7 @@ describe('CustomMCPServerWizardModal — advanced JSON mode', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('re-enables submit when a valid config is back on screen', () => {
-    // Regression: validity was only ever reported from an edit, and never reset on a mode
-    // switch, so after typing malformed JSON the save button stayed dead even once the
-    // editor was showing a perfectly valid config again.
+    // Regression: submit used to latch disabled once malformed JSON had been typed.
     renderWizard();
     goJson();
     expect(saveButton()).not.toBeDisabled();
@@ -169,8 +165,7 @@ describe('CustomMCPServerWizardModal — advanced JSON mode', () => {
   });
 
   it('does not commit a partially valid edit', () => {
-    // While issues stand, nothing is applied — otherwise `data` ends up half the user's
-    // edit and half stale values, which the form/JSON round-trip cannot untangle.
+    // Nothing applies while issues stand, so `data` never mixes fresh and stale values.
     const onSubmit = renderWizard();
     goJson();
     writeJson({ ...validConfig, name: 'Renamed', timeout: 'nope' });
