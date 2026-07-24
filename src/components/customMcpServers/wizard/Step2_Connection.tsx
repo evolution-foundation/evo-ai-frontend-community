@@ -25,6 +25,14 @@ export default function Step2_Connection({ data, onChange, onNext, onBack }: Ste
   const [testResult, setTestResult] = useState<McpTestResult | null>(null);
   const [testError, setTestError] = useState('');
 
+  // EVO-1739: a result only describes the url/headers it was run against, so it is tagged
+  // with those and shown only while they still match. That covers editing after a test (a
+  // green "connected, 3 tools" panel must not keep vouching for a url the user has since
+  // replaced) as well as a reply that lands after the user already moved on.
+  const [testedKey, setTestedKey] = useState<string | null>(null);
+  const connectionKey = `${data.url} ${JSON.stringify(data.headers ?? {})}`;
+  const resultIsCurrent = testedKey === connectionKey;
+
   const validateUrl = (): boolean => {
     if (!data.url || !data.url.trim()) {
       setError(t('form.validation.urlRequired'));
@@ -48,6 +56,7 @@ export default function Step2_Connection({ data, onChange, onNext, onBack }: Ste
   // and surface the MCP handshake result (discovered tool count / error).
   const handleTest = async () => {
     if (!validateUrl()) return;
+    const key = connectionKey;
     setTesting(true);
     setTestResult(null);
     setTestError('');
@@ -58,6 +67,7 @@ export default function Step2_Connection({ data, onChange, onNext, onBack }: Ste
       const err = e as { response?: { data?: { message?: string } }; message?: string };
       setTestError(err?.response?.data?.message || err?.message || t('wizard.test.fail'));
     } finally {
+      setTestedKey(key);
       setTesting(false);
     }
   };
@@ -103,7 +113,7 @@ export default function Step2_Connection({ data, onChange, onNext, onBack }: Ste
               {testing ? t('wizard.test.testing') : t('wizard.test.button')}
             </Button>
 
-            {testResult && (
+            {resultIsCurrent && testResult && (
               <div
                 className={`flex items-start gap-2 rounded-md border p-3 text-sm ${
                   testResult.success
@@ -124,7 +134,7 @@ export default function Step2_Connection({ data, onChange, onNext, onBack }: Ste
               </div>
             )}
 
-            {testError && (
+            {resultIsCurrent && testError && (
               <div className="flex items-start gap-2 rounded-md border border-red-500/40 bg-red-500/5 p-3 text-sm text-red-700">
                 <XCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 <span>{testError}</span>
