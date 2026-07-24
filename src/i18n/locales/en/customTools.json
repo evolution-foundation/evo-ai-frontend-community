@@ -274,14 +274,27 @@
       "subtitle": "Add usage examples that help agents understand when to call this tool.",
       "helperText": "Examples are short text descriptions of how to use the tool.",
       "testHint": "After creating, you'll be able to test the tool against the real endpoint.",
-      "attachHint": "Creating the tool only adds it to the catalog. To have an agent use it, attach it to the agent in its Tools tab."
+      "attachHint": "Creating the tool only adds it to the catalog. To have an agent use it, attach it to the agent in its Tools tab.",
+      "testHintDraft": "Use “Test request” to try the endpoint before saving. The result reflects the config above, including path and query params."
     },
     "actions": {
       "continue": "Continue",
       "back": "Back",
       "skip": "Skip",
       "create": "Create tool",
-      "save": "Save changes"
+      "save": "Save changes",
+      "cancel": "Cancel"
+    },
+    "mode": {
+      "label": "Edit mode",
+      "form": "Form",
+      "json": "Advanced JSON"
+    },
+    "advanced": {
+      "title": "Advanced config (JSON)",
+      "subtitle": "Edit the whole tool config as raw JSON.",
+      "hint": "Fields: name, description, method, endpoint, headers, query_params, path_params, body_params, values, error_handling, input_modes, output_modes, tags, examples. Required: name, method, endpoint, headers, query_params, path_params, body_params, values, error_handling (use {} when empty).",
+      "missingFields": "Required fields missing from the JSON: {{fields}}. Add them back before saving."
     }
   },
   "modal": {

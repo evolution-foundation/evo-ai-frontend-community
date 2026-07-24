@@ -274,14 +274,27 @@
       "subtitle": "Ajoutez des exemples d'usage pour aider les agents à savoir quand appeler cet outil.",
       "helperText": "Les exemples sont de courtes descriptions d'utilisation de l'outil.",
       "testHint": "Après création, vous pourrez tester l'outil contre l'endpoint réel.",
-      "attachHint": "Créer l'outil ne fait que l'ajouter au catalogue. Pour qu'un agent l'utilise, attachez-le à l'agent dans son onglet Outils."
+      "attachHint": "Créer l'outil ne fait que l'ajouter au catalogue. Pour qu'un agent l'utilise, attachez-le à l'agent dans son onglet Outils.",
+      "testHintDraft": "Utilisez « Tester la requête » pour essayer l'endpoint avant d'enregistrer. Le résultat reflète la config ci-dessus, y compris les path et query params."
     },
     "actions": {
       "continue": "Continuer",
       "back": "Retour",
       "skip": "Passer",
       "create": "Créer l'outil",
-      "save": "Enregistrer les modifications"
+      "save": "Enregistrer les modifications",
+      "cancel": "Annuler"
+    },
+    "mode": {
+      "label": "Mode d'édition",
+      "form": "Formulaire",
+      "json": "JSON avancé"
+    },
+    "advanced": {
+      "title": "Configuration avancée (JSON)",
+      "subtitle": "Modifiez toute la configuration de l'outil en JSON brut.",
+      "hint": "Champs : name, description, method, endpoint, headers, query_params, path_params, body_params, values, error_handling, input_modes, output_modes, tags, examples. Obligatoires : name, method, endpoint, headers, query_params, path_params, body_params, values, error_handling (utilisez {} si vide).",
+      "missingFields": "Champs obligatoires absents du JSON : {{fields}}. Remettez-les avant d'enregistrer."
     }
   },
   "modal": {

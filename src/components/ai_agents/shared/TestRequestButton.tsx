@@ -11,7 +11,12 @@ import {
 } from '@evoapi/design-system';
 import { Play, ChevronDown, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { testCustomTool } from '@/services/agents/customToolsService';
+import {
+  testCustomTool,
+  testCustomToolPayload,
+  getErrorMessage,
+  type CustomToolTestPayload,
+} from '@/services/agents/customToolsService';
 import type { CustomToolTestResponse } from '@/types/ai';
 
 /** Shared between Custom Tools (EVO-1790) and Custom MCP (EVO-1791) UIs. */
@@ -20,6 +25,13 @@ export interface TestRequestButtonProps {
   toolId?: string;
   onResult?: (result: CustomToolTestResponse['test_result']) => void;
   disabled?: boolean;
+  /**
+   * EVO-1738 test-before-save: when provided, the button runs the DRAFT config
+   * through the stateless endpoint instead of replaying a saved tool. Takes
+   * precedence over toolId and lifts the create-mode lockout — that lockout only
+   * ever existed because an unsaved tool had no id to test.
+   */
+  getPayload?: () => CustomToolTestPayload;
 }
 
 type TestResult = CustomToolTestResponse['test_result'];
@@ -53,6 +65,7 @@ export default function TestRequestButton({
   toolId,
   onResult,
   disabled = false,
+  getPayload,
 }: TestRequestButtonProps) {
   const { t } = useLanguage('customTools');
   const [loading, setLoading] = useState(false);
@@ -61,25 +74,33 @@ export default function TestRequestButton({
   const [responseBody, setResponseBody] = useState<unknown>(null);
   const [headersOpen, setHeadersOpen] = useState(false);
 
-  const isCreateMode = mode === 'create';
-  const buttonDisabled = disabled || loading || isCreateMode || !toolId;
+  // With a draft payload there is nothing to be "not saved yet" about, so the
+  // create-mode tooltip/lockout does not apply.
+  const isCreateMode = !getPayload && mode === 'create';
+  const buttonDisabled = disabled || loading || (!getPayload && (isCreateMode || !toolId));
 
   const handleClick = async () => {
-    if (!toolId) return;
+    if (!getPayload && !toolId) return;
     setLoading(true);
     setError(null);
     setResult(null);
     setResponseBody(null);
     try {
-      const resp = await testCustomTool(toolId);
-      setResult(resp.test_result);
-      const body = (resp as unknown as Record<string, unknown>).body
-        ?? (resp.test_result as unknown as Record<string, unknown>).body;
-      setResponseBody(body ?? null);
-      onResult?.(resp.test_result);
+      if (getPayload) {
+        const { test_result } = await testCustomToolPayload(getPayload());
+        setResult(test_result);
+        setResponseBody(test_result?.body ?? null);
+        onResult?.(test_result);
+      } else {
+        const resp = await testCustomTool(toolId!);
+        const body = (resp as unknown as Record<string, unknown>).body
+          ?? (resp.test_result as unknown as Record<string, unknown>).body;
+        setResult(resp.test_result);
+        setResponseBody(body ?? null);
+        onResult?.(resp.test_result);
+      }
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg || t('testRequest.error'));
+      setError(getErrorMessage(e, t('testRequest.error')));
     } finally {
       setLoading(false);
     }

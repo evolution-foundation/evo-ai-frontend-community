@@ -274,14 +274,27 @@
       "subtitle": "Aggiungi esempi d'uso che aiutino gli agenti a sapere quando chiamare questo strumento.",
       "helperText": "Gli esempi sono brevi descrizioni di come usare lo strumento.",
       "testHint": "Dopo la creazione, potrai testare lo strumento contro l'endpoint reale.",
-      "attachHint": "Creare lo strumento lo aggiunge solo al catalogo. Perché un agente lo usi, collegalo all'agente nella sua scheda Strumenti."
+      "attachHint": "Creare lo strumento lo aggiunge solo al catalogo. Perché un agente lo usi, collegalo all'agente nella sua scheda Strumenti.",
+      "testHintDraft": "Usa “Prova richiesta” per provare l'endpoint prima di salvare. Il risultato riflette la config qui sopra, inclusi path e query params."
     },
     "actions": {
       "continue": "Continua",
       "back": "Indietro",
       "skip": "Salta",
       "create": "Crea strumento",
-      "save": "Salva modifiche"
+      "save": "Salva modifiche",
+      "cancel": "Annulla"
+    },
+    "mode": {
+      "label": "Modalità di modifica",
+      "form": "Modulo",
+      "json": "JSON avanzato"
+    },
+    "advanced": {
+      "title": "Configurazione avanzata (JSON)",
+      "subtitle": "Modifica l'intera configurazione dello strumento come JSON grezzo.",
+      "hint": "Campi: name, description, method, endpoint, headers, query_params, path_params, body_params, values, error_handling, input_modes, output_modes, tags, examples. Obbligatori: name, method, endpoint, headers, query_params, path_params, body_params, values, error_handling (usa {} se vuoti).",
+      "missingFields": "Campi obbligatori mancanti nel JSON: {{fields}}. Reinseriscili prima di salvare."
     }
   },
   "modal": {
