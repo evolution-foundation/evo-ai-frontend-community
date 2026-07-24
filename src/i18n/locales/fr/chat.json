@@ -1002,10 +1002,12 @@
     "moveError": "Erreur lors du déplacement vers l'étape",
     "removeError": "Erreur lors de la suppression du pipeline"
   },
+  "unansweredBadge": {
+    "menuAriaLabel_one": "{{count}} conversation en attente de votre réponse",
+    "menuAriaLabel_other": "{{count}} conversations en attente de votre réponse"
+  },
   "unreadBadge": {
     "ariaLabel_one": "{{count}} message non lu",
-    "ariaLabel_other": "{{count}} messages non lus",
-    "menuAriaLabel_one": "{{count}} conversation non lue",
-    "menuAriaLabel_other": "{{count}} conversations non lues"
+    "ariaLabel_other": "{{count}} messages non lus"
   }
 }

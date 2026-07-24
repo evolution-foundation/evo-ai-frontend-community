@@ -1055,10 +1055,12 @@
     "moveError": "Error moving to stage",
     "removeError": "Error removing from pipeline"
   },
+  "unansweredBadge": {
+    "menuAriaLabel_one": "{{count}} conversation awaiting your reply",
+    "menuAriaLabel_other": "{{count}} conversations awaiting your reply"
+  },
   "unreadBadge": {
     "ariaLabel_one": "{{count}} unread message",
-    "ariaLabel_other": "{{count}} unread messages",
-    "menuAriaLabel_one": "{{count}} unread conversation",
-    "menuAriaLabel_other": "{{count}} unread conversations"
+    "ariaLabel_other": "{{count}} unread messages"
   }
 }

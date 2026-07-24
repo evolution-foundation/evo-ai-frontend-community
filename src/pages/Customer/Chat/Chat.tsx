@@ -84,6 +84,15 @@ const Chat = () => {
   const { conversationId } = useParams<{ conversationId?: string }>();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  // EVO-1963: o preset vindo de ?segment=... (clique no badge da sidebar). Derivado
+  // de uma string, não do objeto searchParams, pra ser dependência estável — e
+  // resolvido UMA vez pros dois efeitos abaixo enxergarem a mesma decisão (um
+  // `segment` desconhecido tem que cair na visão salva, não em lista nenhuma).
+  const segmentParam = searchParams.get('segment');
+  const badgeSegment = useMemo(
+    () => (segmentParam ? CONVERSATION_SEGMENTS.find(s => s.id === segmentParam) ?? null : null),
+    [segmentParam],
+  );
   const chatContext = useChatContext();
   // Explicitly type conversations to ensure TypeScript recognizes it has 'state'
   const conversations = chatContext.conversations;
@@ -247,21 +256,15 @@ const Chat = () => {
       return;
     }
 
-    // EVO-1963: clicar no badge da sidebar roteia com ?segment=unanswered → aplica
-    // o preset "Não respondidas" (mine + aguardando resposta), depois limpa o param
-    // pra não travar a visão em refreshes/navegações seguintes.
-    const segmentParam = searchParams.get('segment');
-    const segment = segmentParam
-      ? CONVERSATION_SEGMENTS.find(s => s.id === segmentParam)
-      : null;
+    // EVO-1963: com um ?segment= reconhecido na URL quem aplica é o efeito abaixo —
+    // não aplicar os filtros salvos aqui evita duas cargas concorrentes no mount.
+    if (badgeSegment) {
+      return;
+    }
 
     // 💾 PERSISTÊNCIA: Carregar filtros salvos ou usar padrão
     const savedFilters = loadConversationFilters();
-    const filtersToApply = segment ? segment.preset : (savedFilters || getDefaultFilter());
-
-    if (segment) {
-      setSearchParams({}, { replace: true });
-    }
+    const filtersToApply = savedFilters || getDefaultFilter();
 
     // Aplicar filtros (erros serão tratados no filterHandlers)
     handleApplyFilters(filtersToApply).catch(error => {
@@ -273,6 +276,42 @@ const Chat = () => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [permissionsReady]);
+
+  // EVO-1963: clicar no badge da sidebar roteia com ?segment=unanswered → aplica o
+  // preset correspondente e limpa o param.
+  // A dependência é o PARAM, não o mount: /conversations e /conversations/:id são o
+  // mesmo elemento de rota, então clicar no badge já estando na tela de conversas
+  // muda só a querystring e NÃO remonta este componente — preso a [permissionsReady]
+  // o preset nunca era aplicado nesse caminho (o mais comum, já que a sidebar está
+  // visível justamente ali).
+  useEffect(() => {
+    if (!permissionsReady || !segmentParam) {
+      return;
+    }
+
+    // Só o `segment` sai da URL — outros params da rota são preservados. Sai mesmo
+    // quando não corresponde a segmento nenhum, pra não ficar grudado na barra.
+    setSearchParams(
+      prev => {
+        const next = new URLSearchParams(prev);
+        next.delete('segment');
+        return next;
+      },
+      { replace: true },
+    );
+
+    if (!badgeSegment || !can('conversations', 'read')) {
+      return;
+    }
+
+    handleApplyFilters(badgeSegment.preset).catch(error => {
+      const axiosError = error as AxiosError;
+      if (axiosError?.response?.status === 403 || axiosError?.response?.status === 404) {
+        console.error(`Sem permissão. Parando tentativas.`);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [permissionsReady, segmentParam]);
 
   const handleClearFilters = useCallback(async () => {
     setSelectedConversationIds(new Set());

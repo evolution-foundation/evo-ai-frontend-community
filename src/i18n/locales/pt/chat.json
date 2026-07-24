@@ -1005,10 +1005,12 @@
     "moveError": "Erro ao mover para o estágio",
     "removeError": "Erro ao remover do pipeline"
   },
+  "unansweredBadge": {
+    "menuAriaLabel_one": "{{count}} conversa aguardando sua resposta",
+    "menuAriaLabel_other": "{{count}} conversas aguardando sua resposta"
+  },
   "unreadBadge": {
     "ariaLabel_one": "{{count}} mensagem não lida",
-    "ariaLabel_other": "{{count}} mensagens não lidas",
-    "menuAriaLabel_one": "{{count}} conversa não lida",
-    "menuAriaLabel_other": "{{count}} conversas não lidas"
+    "ariaLabel_other": "{{count}} mensagens não lidas"
   }
 }

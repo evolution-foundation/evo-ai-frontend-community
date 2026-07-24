@@ -29,14 +29,20 @@ export default function MenuItem({
 }: MenuItemProps) {
   const { t } = useTranslation('chat');
   const hasSubItems = item.subItems && item.subItems.length > 0;
+  // EVO-1963: o badge do menu conta conversas AGUARDANDO RESPOSTA do usuário, não
+  // não-lidas — a chave antiga (unreadBadge.menuAriaLabel) descrevia a semântica
+  // anterior e passou a mentir pro leitor de tela e pro tooltip da sidebar colapsada.
   const badgeAriaLabel =
     item.badge && item.badge > 0
-      ? t('unreadBadge.menuAriaLabel', { count: item.badge })
+      ? t('unansweredBadge.menuAriaLabel', { count: item.badge })
       : undefined;
+  // `badgeHref` só troca o DESTINO do clique; `item.href` continua sendo o que o
+  // matcher de rota ativa compara (ver MenuItem.badgeHref em config/menuItems).
+  const linkTarget = item.badgeHref ?? item.href;
 
   const menuItem = (
     <Link
-      to={hasSubItems && !mobile && item.href === '#' ? '#' : item.href}
+      to={hasSubItems && !mobile && item.href === '#' ? '#' : linkTarget}
       onClick={onClick}
       className={cn(
         'relative flex items-center gap-3 px-3 py-2.5 rounded-md transition-all group',

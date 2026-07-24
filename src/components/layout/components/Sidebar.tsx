@@ -52,7 +52,7 @@ export default function Sidebar({
     () =>
       menuItems.map((item) =>
         item.href === '/conversations' && totalUnanswered > 0
-          ? { ...item, badge: totalUnanswered, href: '/conversations?segment=unanswered' }
+          ? { ...item, badge: totalUnanswered, badgeHref: '/conversations?segment=unanswered' }
           : item,
       ),
     [menuItems, totalUnanswered],

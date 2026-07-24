@@ -24,9 +24,10 @@ const statusFilter = (value: string): BaseFilter => ({
   values: value,
 });
 
-// unread / is_group: eixos de navegação (não-status) mapeados pra params GET em
-// convertFiltersToUrlParams. status ausente é injetado como 'all' lá, então estas
-// views abrangem todos os status (ex.: "Não lidas" = não lidas em qualquer status).
+// unread / unanswered / is_group: eixos de navegação (não-status) mapeados pra params
+// GET em convertFiltersToUrlParams. status ausente é injetado como 'all' lá, então
+// estas views abrangem todos os status (ex.: "Não lidas" = não lidas em qualquer
+// status; "Não respondidas" é a exceção — o backend a fixa em abertas).
 const boolFilter = (attributeKey: 'unread' | 'unanswered' | 'is_group'): BaseFilter => ({
   ...DEFAULT_BASE_FILTER,
   attributeKey,
@@ -34,22 +35,18 @@ const boolFilter = (attributeKey: 'unread' | 'unanswered' | 'is_group'): BaseFil
   values: 'true',
 });
 
-// EVO-1963: assignee_type=me scopes the "Não respondidas" view to the current user,
-// matching the sidebar badge (assigned to me + awaiting my reply).
-const assigneeFilter = (value: string): BaseFilter => ({
-  ...DEFAULT_BASE_FILTER,
-  attributeKey: 'assignee_type',
-  filterOperator: 'equal_to',
-  values: value,
-});
-
 export const CONVERSATION_SEGMENTS: ConversationSegment[] = [
   { id: 'open', labelKey: 'chatSidebar.segments.open', preset: [statusFilter('open')] },
   { id: 'pending', labelKey: 'chatSidebar.segments.pending', preset: [statusFilter('pending')] },
   { id: 'resolved', labelKey: 'chatSidebar.segments.resolved', preset: [statusFilter('resolved')] },
   { id: 'unread', labelKey: 'chatSidebar.segments.unread', preset: [boolFilter('unread')] },
-  // EVO-1963: mine + awaiting my reply — the set the sidebar badge counts.
-  { id: 'unanswered', labelKey: 'chatSidebar.segments.unanswered', preset: [assigneeFilter('me'), boolFilter('unanswered')] },
+  // EVO-1963: "minhas aguardando minha resposta" — o conjunto que o badge conta.
+  // UMA linha só, de propósito: shouldUseAdvancedFilters manda qualquer preset com
+  // mais de uma linha pro POST /conversations/filter, onde `unanswered` não é
+  // atributo conhecido (400 InvalidAttribute). O recorte "minhas" é aplicado no
+  // backend (ConversationFinder#apply_unanswered_filter), não com uma segunda
+  // linha assignee_type=me aqui.
+  { id: 'unanswered', labelKey: 'chatSidebar.segments.unanswered', preset: [boolFilter('unanswered')] },
   { id: 'groups', labelKey: 'chatSidebar.segments.groups', preset: [boolFilter('is_group')] },
 ];
 
@@ -68,13 +65,13 @@ const hasFilter = (active: ConversationFilter[], key: string, value: string): bo
 /**
  * Derive which segment the current GLOBAL activeFilters represent so the matching
  * chip can be highlighted. O eixo STATUS é refletido mesmo quando filtros avançados
- * o acompanham (Opção 1: chip de status preserva o avançado). unread/groups são
- * CHIP_ONLY e nunca coexistem com avançado, então exigem seleção única. Returns
+ * o acompanham (Opção 1: chip de status preserva o avançado). unread/unanswered/groups
+ * são CHIP_ONLY e nunca coexistem com avançado, então exigem seleção única. Returns
  * null para All (status=all) ou filtro avançado sem status reconhecível.
  */
 export const getActiveSegmentId = (active: ConversationFilter[]): ConversationSegmentId | null => {
   if (!active || active.length === 0) return null;
-  if (hasFilter(active, 'unanswered', 'true') && hasFilter(active, 'assignee_type', 'me')) return 'unanswered';
+  if (active.length === 1 && hasFilter(active, 'unanswered', 'true')) return 'unanswered';
   if (active.length === 1 && hasFilter(active, 'unread', 'true')) return 'unread';
   if (active.length === 1 && hasFilter(active, 'is_group', 'true')) return 'groups';
   // status coexiste com avançado — não guardar por length, senão o chip clicado

@@ -3,6 +3,7 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, act } from '@testing-library/react';
 import Chat from '../Chat';
+import { CONVERSATION_SEGMENTS } from '@/components/chat/chat-sidebar/conversationSegmentsHelpers';
 import type { Conversation } from '@/types/chat/api';
 
 // ─── Mutable test state ───────────────────────────────────────────────────────
@@ -30,10 +31,17 @@ const mockSelectedConversation = vi.hoisted(() => ({
 // ─── react-router-dom ─────────────────────────────────────────────────────────
 const mockNavigate = vi.hoisted(() => vi.fn());
 
+// EVO-1963: a querystring é mutável no teste porque o efeito do badge tem que
+// reagir a ELA, não ao mount — ver o describe no fim deste arquivo.
+const mockSearch = vi.hoisted(() => ({
+  params: new URLSearchParams(),
+  setParams: vi.fn(),
+}));
+
 vi.mock('react-router-dom', () => ({
   useParams: () => ({ conversationId: undefined }),
   useNavigate: () => mockNavigate,
-  useSearchParams: () => [new URLSearchParams(), vi.fn()],
+  useSearchParams: () => [mockSearch.params, mockSearch.setParams],
 }));
 
 // ─── i18n ─────────────────────────────────────────────────────────────────────
@@ -105,9 +113,13 @@ vi.mock('@/hooks/chat/useAssignmentHandlers', () => ({
 }));
 
 // ─── Filter handlers hook ─────────────────────────────────────────────────────
+const mockFilterHandlers = vi.hoisted(() => ({
+  handleApplyFilters: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock('@/hooks/chat/useFilterHandlers', () => ({
   useFilterHandlers: () => ({
-    handleApplyFilters: vi.fn().mockResolvedValue(undefined),
+    handleApplyFilters: mockFilterHandlers.handleApplyFilters,
     handleClearFilters: vi.fn().mockResolvedValue(undefined),
     reloadCurrentFilters: vi.fn().mockResolvedValue(undefined),
   }),
@@ -280,6 +292,65 @@ describe('Chat — handleMarkAsResolved navigation behavior', () => {
 
     expect(mockNavigate).not.toHaveBeenCalled();
     expect(mockSelectConversation).not.toHaveBeenCalled();
+
+    unmount();
+  });
+});
+
+// EVO-1963 — clicar no badge da sidebar roteia pra /conversations?segment=unanswered.
+describe('Chat — ?segment= preset (EVO-1963)', () => {
+  const unansweredPreset = CONVERSATION_SEGMENTS.find(s => s.id === 'unanswered')!.preset;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockState.selectedConversationId = null;
+    mockSelectedConversation.value = null;
+    mockSearch.params = new URLSearchParams();
+  });
+
+  it('applies the segment preset and strips the param from the URL', async () => {
+    mockSearch.params = new URLSearchParams('segment=unanswered');
+
+    const { unmount } = render(<Chat />);
+    await act(async () => {});
+
+    expect(mockFilterHandlers.handleApplyFilters).toHaveBeenCalledWith(unansweredPreset);
+    expect(mockSearch.setParams).toHaveBeenCalled();
+
+    unmount();
+  });
+
+  // A regressão que isto trava: o efeito estava preso a [permissionsReady], e
+  // /conversations e /conversations/:id são o MESMO elemento de rota — clicar no
+  // badge já estando na tela de conversas muda só a querystring e não remonta o
+  // componente, então o preset nunca era aplicado. Aqui não há remontagem: só um
+  // rerender com o param novo.
+  it('applies the preset when the param appears without a remount', async () => {
+    const { rerender, unmount } = render(<Chat />);
+    await act(async () => {});
+
+    expect(mockFilterHandlers.handleApplyFilters).not.toHaveBeenCalledWith(unansweredPreset);
+
+    mockSearch.params = new URLSearchParams('segment=unanswered');
+    await act(async () => {
+      rerender(<Chat />);
+    });
+
+    expect(mockFilterHandlers.handleApplyFilters).toHaveBeenCalledWith(unansweredPreset);
+
+    unmount();
+  });
+
+  it('falls back to the saved filters when the segment is unknown', async () => {
+    mockSearch.params = new URLSearchParams('segment=nope');
+
+    const { unmount } = render(<Chat />);
+    await act(async () => {});
+
+    // loadConversationFilters/getDefaultFilter estão mockados como [] — o que
+    // importa é que a lista carregue em vez de ficar sem nenhuma chamada.
+    expect(mockFilterHandlers.handleApplyFilters).toHaveBeenCalledWith([]);
+    expect(mockFilterHandlers.handleApplyFilters).not.toHaveBeenCalledWith(unansweredPreset);
 
     unmount();
   });
