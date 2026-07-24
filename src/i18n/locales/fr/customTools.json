@@ -293,6 +293,12 @@
       "title": "Configuration avancée (JSON)",
       "subtitle": "Modifiez toute la configuration de l'outil en JSON brut.",
       "hint": "Champs : name, description, method, endpoint, headers, query_params, path_params, body_params, values, error_handling, input_modes, output_modes, tags, examples."
+    },
+    "test": {
+      "button": "Tester la requête",
+      "testing": "Test en cours…",
+      "ok": "Requête OK — HTTP {{status}}",
+      "fail": "Échec de la requête"
     }
   },
   "modal": {

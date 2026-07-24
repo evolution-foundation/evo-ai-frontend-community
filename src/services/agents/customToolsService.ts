@@ -67,6 +67,28 @@ export const deleteCustomTool = async (id: string): Promise<void> => {
 };
 
 // Testa ferramenta personalizada
+// EVO-1738: stateless test-before-save result (self-contained here to avoid the
+// duplicated CustomToolTestResponse declaration in types/ai/customTool.ts).
+export interface CustomToolTestPayloadResult {
+  error: string;
+  headers: Record<string, string>;
+  response_time: number;
+  status_code: number;
+  success: boolean;
+  body?: string;
+}
+
+// EVO-1738: test an UNSAVED tool's request (test-before-save in the wizard).
+export const testCustomToolPayload = async (payload: {
+  method: string;
+  endpoint: string;
+  headers: Record<string, unknown>;
+  body_params: Record<string, unknown>;
+}): Promise<{ test_result: CustomToolTestPayloadResult }> => {
+  const response = await evoaiApi.post('/custom-tools/test', payload);
+  return extractData<{ test_result: CustomToolTestPayloadResult }>(response);
+};
+
 export const testCustomTool = async (id: string): Promise<CustomToolTestResponse> => {
   const response = await evoaiApi.get(`/custom-tools/${id}/test`);
   return extractData<any>(response);

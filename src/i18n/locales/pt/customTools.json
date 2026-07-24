@@ -293,6 +293,12 @@
       "title": "Configuração avançada (JSON)",
       "subtitle": "Edite a configuração inteira da tool como JSON cru.",
       "hint": "Campos: name, description, method, endpoint, headers, query_params, path_params, body_params, values, error_handling, input_modes, output_modes, tags, examples."
+    },
+    "test": {
+      "button": "Testar requisição",
+      "testing": "Testando…",
+      "ok": "Requisição OK — HTTP {{status}}",
+      "fail": "Falha na requisição"
     }
   },
   "modal": {

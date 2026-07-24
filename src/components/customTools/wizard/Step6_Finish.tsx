@@ -1,7 +1,18 @@
 import { useState } from 'react';
 import { Button, Input, Label } from '@evoapi/design-system';
-import { ArrowLeft, Plus, X, Check, Link2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Plus,
+  X,
+  Check,
+  Link2,
+  PlugZap,
+  Loader2,
+  CheckCircle2,
+  XCircle,
+} from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import type { CustomToolTestPayloadResult } from '@/services/agents/customToolsService';
 
 export interface Step6Data {
   examples: string[];
@@ -14,6 +25,11 @@ interface Step6Props {
   onSubmit: () => void;
   loading?: boolean;
   mode?: 'create' | 'edit';
+  // EVO-1738: test-before-save.
+  onTest?: () => void;
+  testing?: boolean;
+  testResult?: CustomToolTestPayloadResult | null;
+  testError?: string;
 }
 
 export default function Step6_Finish({
@@ -23,6 +39,10 @@ export default function Step6_Finish({
   onSubmit,
   loading = false,
   mode = 'create',
+  onTest,
+  testing = false,
+  testResult = null,
+  testError = '',
 }: Step6Props) {
   const { t } = useLanguage('customTools');
   const [newExample, setNewExample] = useState('');
@@ -97,6 +117,50 @@ export default function Step6_Finish({
               </div>
             )}
           </div>
+
+          {/* EVO-1738: test the request before saving. */}
+          {onTest && (
+            <div className="space-y-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="gap-2"
+                onClick={onTest}
+                disabled={testing}
+              >
+                {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlugZap className="h-4 w-4" />}
+                {testing ? t('wizard.test.testing') : t('wizard.test.button')}
+              </Button>
+
+              {testResult && (
+                <div
+                  className={`flex items-start gap-2 rounded-md border p-3 text-sm ${
+                    testResult.success
+                      ? 'border-green-500/40 bg-green-500/5 text-green-700'
+                      : 'border-red-500/40 bg-red-500/5 text-red-700'
+                  }`}
+                >
+                  {testResult.success ? (
+                    <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  ) : (
+                    <XCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  )}
+                  <span>
+                    {testResult.success
+                      ? t('wizard.test.ok', { status: testResult.status_code })
+                      : testResult.error || t('wizard.test.fail')}
+                  </span>
+                </div>
+              )}
+
+              {testError && (
+                <div className="flex items-start gap-2 rounded-md border border-red-500/40 bg-red-500/5 p-3 text-sm text-red-700">
+                  <XCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <span>{testError}</span>
+                </div>
+              )}
+            </div>
+          )}
 
           <p className="text-xs text-muted-foreground bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded p-3">
             {t('wizard.step6.testHint')}

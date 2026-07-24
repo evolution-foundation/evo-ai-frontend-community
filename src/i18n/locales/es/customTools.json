@@ -293,6 +293,12 @@
       "title": "Configuración avanzada (JSON)",
       "subtitle": "Edita toda la configuración de la herramienta como JSON sin formato.",
       "hint": "Campos: name, description, method, endpoint, headers, query_params, path_params, body_params, values, error_handling, input_modes, output_modes, tags, examples."
+    },
+    "test": {
+      "button": "Probar solicitud",
+      "testing": "Probando…",
+      "ok": "Solicitud OK — HTTP {{status}}",
+      "fail": "Error en la solicitud"
     }
   },
   "modal": {

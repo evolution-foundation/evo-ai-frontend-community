@@ -6,6 +6,10 @@ import { CustomTool, CustomToolFormData } from '@/types/ai';
 import WizardProgress from '@/pages/Customer/Agents/Agent/wizard/WizardProgress';
 import { AdvancedJsonEditor } from '@/components/ai_agents/shared';
 import {
+  testCustomToolPayload,
+  type CustomToolTestPayloadResult,
+} from '@/services/agents/customToolsService';
+import {
   Step1_Identity,
   Step2_Endpoint,
   Step3_Parameters,
@@ -230,6 +234,10 @@ export default function CustomToolWizardModal({
   const [mode, setMode] = useState<'form' | 'json'>('form');
   const [jsonValid, setJsonValid] = useState(true);
   const [jsonPayload, setJsonPayload] = useState<CustomToolFormData | null>(null);
+  // EVO-1738: test-before-save state.
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState<CustomToolTestPayloadResult | null>(null);
+  const [testError, setTestError] = useState('');
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -239,6 +247,9 @@ export default function CustomToolWizardModal({
         setMode('form');
         setJsonValid(true);
         setJsonPayload(null);
+        setTesting(false);
+        setTestResult(null);
+        setTestError('');
         setData(tool ? toolToWizardData(tool) : initialWizardData);
       }, 300);
       return () => clearTimeout(timeout);
@@ -329,6 +340,29 @@ export default function CustomToolWizardModal({
   const jsonCanSubmit =
     jsonValid && !!jsonPayload?.name?.trim() && !!jsonPayload?.endpoint?.trim();
 
+  // EVO-1738: test the current request (method/endpoint/headers/body_params) before
+  // saving, via the stateless endpoint; show the real HTTP status/result.
+  const handleTestRequest = async () => {
+    const p = mode === 'json' && jsonPayload ? jsonPayload : buildPayload();
+    setTesting(true);
+    setTestResult(null);
+    setTestError('');
+    try {
+      const res = await testCustomToolPayload({
+        method: p.method,
+        endpoint: p.endpoint,
+        headers: p.headers,
+        body_params: p.body_params,
+      });
+      setTestResult(res.test_result);
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } }; message?: string };
+      setTestError(err?.response?.data?.message || err?.message || t('wizard.test.fail'));
+    } finally {
+      setTesting(false);
+    }
+  };
+
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -412,6 +446,10 @@ export default function CustomToolWizardModal({
             onSubmit={handleSubmit}
             loading={loading}
             mode={isEdit ? 'edit' : 'create'}
+            onTest={handleTestRequest}
+            testing={testing}
+            testResult={testResult}
+            testError={testError}
           />
         );
       default:

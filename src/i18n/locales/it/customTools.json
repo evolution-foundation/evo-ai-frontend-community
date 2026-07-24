@@ -293,6 +293,12 @@
       "title": "Configurazione avanzata (JSON)",
       "subtitle": "Modifica l'intera configurazione dello strumento come JSON grezzo.",
       "hint": "Campi: name, description, method, endpoint, headers, query_params, path_params, body_params, values, error_handling, input_modes, output_modes, tags, examples."
+    },
+    "test": {
+      "button": "Prova richiesta",
+      "testing": "Prova in corso…",
+      "ok": "Richiesta OK — HTTP {{status}}",
+      "fail": "Richiesta fallita"
     }
   },
   "modal": {
