@@ -274,7 +274,8 @@
       "subtitle": "Agrega ejemplos de uso que ayuden a los agentes a saber cuándo llamar esta herramienta.",
       "helperText": "Los ejemplos son descripciones cortas de cómo usar la herramienta.",
       "testHint": "Después de crear, podrás probar la herramienta contra el endpoint real.",
-      "attachHint": "Crear la herramienta solo la agrega al catálogo. Para que un agente la use, adjúntala al agente en su pestaña Herramientas."
+      "attachHint": "Crear la herramienta solo la agrega al catálogo. Para que un agente la use, adjúntala al agente en su pestaña Herramientas.",
+      "testHintDraft": "Usa “Probar solicitud” para probar el endpoint antes de guardar. El resultado refleja la configuración de arriba, incluidos path y query params."
     },
     "actions": {
       "continue": "Continuar",
@@ -292,13 +293,8 @@
     "advanced": {
       "title": "Configuración avanzada (JSON)",
       "subtitle": "Edita toda la configuración de la herramienta como JSON sin formato.",
-      "hint": "Campos: name, description, method, endpoint, headers, query_params, path_params, body_params, values, error_handling, input_modes, output_modes, tags, examples."
-    },
-    "test": {
-      "button": "Probar solicitud",
-      "testing": "Probando…",
-      "ok": "Solicitud OK — HTTP {{status}}",
-      "fail": "Error en la solicitud"
+      "hint": "Campos: name, description, method, endpoint, headers, query_params, path_params, body_params, values, error_handling, input_modes, output_modes, tags, examples. Obligatorios: name, method, endpoint, headers, query_params, path_params, body_params, values, error_handling (usa {} si están vacíos).",
+      "missingFields": "Faltan campos obligatorios en el JSON: {{fields}}. Vuélvelos a agregar antes de guardar."
     }
   },
   "modal": {

@@ -78,13 +78,23 @@ export interface CustomToolTestPayloadResult {
   body?: string;
 }
 
-// EVO-1738: test an UNSAVED tool's request (test-before-save in the wizard).
-export const testCustomToolPayload = async (payload: {
+// EVO-1738: the request-shaping subset of the tool config the test endpoint runs.
+// path_params/query_params are part of it: without them the test hits
+// `/users/{user_id}` literally and drops the query string, so a green result
+// would describe a request that carried none of the user's configuration.
+export interface CustomToolTestPayload {
   method: string;
   endpoint: string;
-  headers: Record<string, unknown>;
-  body_params: Record<string, unknown>;
-}): Promise<{ test_result: CustomToolTestPayloadResult }> => {
+  headers?: Record<string, unknown>;
+  path_params?: Record<string, unknown>;
+  query_params?: Record<string, unknown>;
+  body_params?: Record<string, unknown>;
+}
+
+// EVO-1738: test an UNSAVED tool's request (test-before-save in the wizard).
+export const testCustomToolPayload = async (
+  payload: CustomToolTestPayload,
+): Promise<{ test_result: CustomToolTestPayloadResult }> => {
   const response = await evoaiApi.post('/custom-tools/test', payload);
   return extractData<{ test_result: CustomToolTestPayloadResult }>(response);
 };
@@ -117,13 +127,29 @@ export const initialCustomToolsState: CustomToolsState = {
   searchQuery: '',
 };
 
-// Error handling utility
+// Error handling utility.
+// Core's error envelope is { success: false, error: { code, message, details }, meta }.
+// The previous guard tested `data.message`, which never exists in that envelope, so
+// `data.error.message` was unreachable and callers only ever saw axios's generic
+// "Request failed with status code 400".
 export const getErrorMessage = (error: any, defaultMessage: string = 'Erro desconhecido'): string => {
-  if (error?.response?.data?.message) {
-    // Usar formato padrão de erro: { success: false, error: { code, message, details }, meta }
-  return error.response.data.error?.message || error.response.data.message;
+  const data = error?.response?.data;
+  const base = data?.error?.message || data?.message;
+  if (!base) return error?.message || defaultMessage;
+
+  // Validation errors carry the offending field in details.fields[]; without it the
+  // user reads "Validation failed" and cannot tell what needs fixing.
+  const fields = data?.error?.details?.fields;
+  if (Array.isArray(fields) && fields.length > 0) {
+    const detail = fields
+      .map((f: { field?: string; message?: string }) =>
+        f?.field ? `${f.field}: ${f.message ?? ''}`.trim() : f?.message,
+      )
+      .filter(Boolean)
+      .join('; ');
+    if (detail) return `${base} (${detail})`;
   }
-  return error?.message || defaultMessage;
+  return base;
 };
 
 export default {

@@ -4,11 +4,8 @@ import { X, Code2, LayoutList } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { CustomTool, CustomToolFormData } from '@/types/ai';
 import WizardProgress from '@/pages/Customer/Agents/Agent/wizard/WizardProgress';
-import { AdvancedJsonEditor } from '@/components/ai_agents/shared';
-import {
-  testCustomToolPayload,
-  type CustomToolTestPayloadResult,
-} from '@/services/agents/customToolsService';
+import { AdvancedJsonEditor, TestRequestButton } from '@/components/ai_agents/shared';
+import type { CustomToolTestPayload } from '@/services/agents/customToolsService';
 import {
   Step1_Identity,
   Step2_Endpoint,
@@ -190,6 +187,17 @@ const initialWizardData: WizardData = {
 
 const TOTAL_STEPS = 6;
 
+// Keys the API refuses to bind as nil (CustomToolBase `binding:"required"`).
+// buildPayload always emits them; raw JSON mode is the only way to lose one.
+const REQUIRED_PAYLOAD_KEYS = [
+  'headers',
+  'path_params',
+  'query_params',
+  'body_params',
+  'error_handling',
+  'values',
+] as const;
+
 const mergeErrorHandlingForSave = (
   eh: ErrorHandling,
   extras: Record<string, unknown>,
@@ -234,10 +242,10 @@ export default function CustomToolWizardModal({
   const [mode, setMode] = useState<'form' | 'json'>('form');
   const [jsonValid, setJsonValid] = useState(true);
   const [jsonPayload, setJsonPayload] = useState<CustomToolFormData | null>(null);
-  // EVO-1738: test-before-save state.
-  const [testing, setTesting] = useState(false);
-  const [testResult, setTestResult] = useState<CustomToolTestPayloadResult | null>(null);
-  const [testError, setTestError] = useState('');
+  // Form payload as of the last hand-off to JSON mode — lets enterJsonMode tell
+  // "user came back untouched" (keep their raw edits) from "user edited the form"
+  // (form wins, re-snapshot).
+  const [jsonBaseline, setJsonBaseline] = useState<CustomToolFormData | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -247,9 +255,7 @@ export default function CustomToolWizardModal({
         setMode('form');
         setJsonValid(true);
         setJsonPayload(null);
-        setTesting(false);
-        setTestResult(null);
-        setTestError('');
+        setJsonBaseline(null);
         setData(tool ? toolToWizardData(tool) : initialWizardData);
       }, 300);
       return () => clearTimeout(timeout);
@@ -332,36 +338,54 @@ export default function CustomToolWizardModal({
   };
 
   const enterJsonMode = () => {
-    setJsonPayload(buildPayload());
-    setJsonValid(true);
+    const fromForm = buildPayload();
+    // Re-snapshot only when the form actually moved since we last handed it over.
+    // Toggling Form → JSON used to overwrite the raw edits unconditionally, so a
+    // round trip through the form tab silently threw the user's JSON away.
+    const formChanged =
+      !jsonBaseline || JSON.stringify(fromForm) !== JSON.stringify(jsonBaseline);
+    if (formChanged || !jsonPayload) {
+      setJsonPayload(fromForm);
+      setJsonBaseline(fromForm);
+      setJsonValid(true);
+    }
     setMode('json');
   };
 
-  const jsonCanSubmit =
-    jsonValid && !!jsonPayload?.name?.trim() && !!jsonPayload?.endpoint?.trim();
+  // The API rejects a nil map on any of these (CustomToolBase binding:"required"),
+  // and the create/update error surfaces as a generic toast — so a payload missing
+  // one of them must never leave the editor.
+  const missingJsonKeys = jsonPayload
+    ? REQUIRED_PAYLOAD_KEYS.filter(
+        k => (jsonPayload as unknown as Record<string, unknown>)[k] == null,
+      )
+    : [];
 
-  // EVO-1738: test the current request (method/endpoint/headers/body_params) before
-  // saving, via the stateless endpoint; show the real HTTP status/result.
-  const handleTestRequest = async () => {
+  const jsonCanSubmit =
+    jsonValid &&
+    !!jsonPayload?.name?.trim() &&
+    !!jsonPayload?.endpoint?.trim() &&
+    !!jsonPayload?.method?.trim() &&
+    missingJsonKeys.length === 0;
+
+  // EVO-1738 test-before-save: the request-shaping subset of whichever source is
+  // authoritative right now. path/query params included — without them the test
+  // would report OK for a request missing the user's configuration.
+  const getTestPayload = (): CustomToolTestPayload => {
     const p = mode === 'json' && jsonPayload ? jsonPayload : buildPayload();
-    setTesting(true);
-    setTestResult(null);
-    setTestError('');
-    try {
-      const res = await testCustomToolPayload({
-        method: p.method,
-        endpoint: p.endpoint,
-        headers: p.headers,
-        body_params: p.body_params,
-      });
-      setTestResult(res.test_result);
-    } catch (e: unknown) {
-      const err = e as { response?: { data?: { message?: string } }; message?: string };
-      setTestError(err?.response?.data?.message || err?.message || t('wizard.test.fail'));
-    } finally {
-      setTesting(false);
-    }
+    return {
+      method: p.method,
+      endpoint: p.endpoint,
+      headers: p.headers,
+      path_params: p.path_params,
+      query_params: p.query_params,
+      body_params: p.body_params,
+    };
   };
+
+  // Remount the test button whenever the request definition changes, so a stale
+  // "HTTP 200" can never describe a config the user has since edited.
+  const testKey = JSON.stringify(getTestPayload());
 
   const renderStep = () => {
     switch (currentStep) {
@@ -446,10 +470,8 @@ export default function CustomToolWizardModal({
             onSubmit={handleSubmit}
             loading={loading}
             mode={isEdit ? 'edit' : 'create'}
-            onTest={handleTestRequest}
-            testing={testing}
-            testResult={testResult}
-            testError={testError}
+            getTestPayload={getTestPayload}
+            testKey={testKey}
           />
         );
       default:
@@ -505,7 +527,7 @@ export default function CustomToolWizardModal({
             <h2 className="text-2xl font-semibold leading-tight">{t('wizard.advanced.title')}</h2>
             <p className="text-sm text-muted-foreground mt-1">{t('wizard.advanced.subtitle')}</p>
           </div>
-          <div ref={contentRef} className="flex-1 overflow-y-auto px-4 py-3 min-h-0">
+          <div ref={contentRef} className="flex-1 overflow-y-auto px-4 py-3 min-h-0 space-y-3">
             <AdvancedJsonEditor
               value={(jsonPayload ?? buildPayload()) as unknown as Record<string, unknown>}
               onChange={p => setJsonPayload(p as unknown as CustomToolFormData)}
@@ -513,6 +535,15 @@ export default function CustomToolWizardModal({
               rows={22}
               hint={t('wizard.advanced.hint')}
             />
+
+            {jsonValid && missingJsonKeys.length > 0 && (
+              <p className="text-sm text-destructive" role="alert">
+                {t('wizard.advanced.missingFields', { fields: missingJsonKeys.join(', ') })}
+              </p>
+            )}
+
+            {/* Raw-JSON authors are exactly who needs test-before-save the most. */}
+            <TestRequestButton key={testKey} mode={isEdit ? 'edit' : 'create'} getPayload={getTestPayload} />
           </div>
           <div className="flex justify-end gap-2 flex-shrink-0 p-3 border-t">
             <Button variant="outline" className="px-6" onClick={() => onOpenChange(false)}>

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import CustomToolWizardModal from './CustomToolWizardModal';
 
@@ -6,9 +6,17 @@ vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('@/services/agents/customToolsService', () => ({
-  testCustomTool: vi.fn(),
-}));
+const mockTestCustomToolPayload = vi.fn();
+vi.mock('@/services/agents/customToolsService', async () => {
+  const actual = await vi.importActual<
+    typeof import('@/services/agents/customToolsService')
+  >('@/services/agents/customToolsService');
+  return {
+    getErrorMessage: actual.getErrorMessage,
+    testCustomTool: vi.fn(),
+    testCustomToolPayload: (...args: unknown[]) => mockTestCustomToolPayload(...args),
+  };
+});
 
 const makeProps = (overrides: Record<string, unknown> = {}) => ({
   open: true,
@@ -330,5 +338,139 @@ describe('CustomToolWizardModal', () => {
     expect(values.beta).toBe('b');
     expect(values.__evo_modes_meta__).toBeUndefined();
     expect(values.__modes_meta__).toBeUndefined();
+  });
+
+  // ----- EVO-1738 advanced (raw JSON) mode. R1 review: none of this branch had
+  // coverage — the toggle, the submit source and the required-key gate were all
+  // untested, and the gate is what stands between the user and an opaque 400.
+
+  const editorTextarea = () =>
+    screen.getByLabelText('advancedJson.title') as HTMLTextAreaElement;
+
+  const enterJsonMode = () => {
+    fireEvent.click(screen.getByRole('tab', { name: 'wizard.mode.json' }));
+  };
+
+  const fillNameAndEndpoint = () => {
+    fireEvent.change(screen.getAllByRole('textbox')[0], { target: { value: 'My Tool' } });
+    fireEvent.click(screen.getByRole('button', { name: 'wizard.actions.continue' }));
+    fireEvent.change(screen.getAllByRole('textbox')[0], {
+      target: { value: 'https://api.example.com/x' },
+    });
+  };
+
+  it('seeds the JSON editor from the form and submits the raw JSON verbatim', () => {
+    const onSubmit = vi.fn();
+    render(<CustomToolWizardModal {...makeProps({ onSubmit })} />);
+    fillNameAndEndpoint();
+    enterJsonMode();
+
+    const seeded = JSON.parse(editorTextarea().value);
+    expect(seeded.name).toBe('My Tool');
+    expect(seeded.endpoint).toBe('https://api.example.com/x');
+
+    fireEvent.change(editorTextarea(), {
+      target: { value: JSON.stringify({ ...seeded, description: 'edited raw' }) },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'wizard.actions.create' }));
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].description).toBe('edited raw');
+  });
+
+  it('blocks submit when the JSON drops a key the API requires', () => {
+    render(<CustomToolWizardModal {...makeProps()} />);
+    fillNameAndEndpoint();
+    enterJsonMode();
+
+    const seeded = JSON.parse(editorTextarea().value);
+    delete seeded.path_params;
+    fireEvent.change(editorTextarea(), { target: { value: JSON.stringify(seeded) } });
+
+    const createBtn = screen.getByRole('button', { name: 'wizard.actions.create' });
+    expect((createBtn as HTMLButtonElement).disabled).toBe(true);
+    // And say which key, otherwise the user only sees a disabled button.
+    expect(screen.getByRole('alert').textContent).toContain('wizard.advanced.missingFields');
+  });
+
+  it('blocks submit on malformed JSON', () => {
+    render(<CustomToolWizardModal {...makeProps()} />);
+    fillNameAndEndpoint();
+    enterJsonMode();
+
+    fireEvent.change(editorTextarea(), { target: { value: '{ not json' } });
+    const createBtn = screen.getByRole('button', { name: 'wizard.actions.create' });
+    expect((createBtn as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('keeps raw JSON edits across a round trip through the form tab', () => {
+    render(<CustomToolWizardModal {...makeProps()} />);
+    fillNameAndEndpoint();
+    enterJsonMode();
+
+    const seeded = JSON.parse(editorTextarea().value);
+    fireEvent.change(editorTextarea(), {
+      target: { value: JSON.stringify({ ...seeded, description: 'hand written' }) },
+    });
+
+    fireEvent.click(screen.getByRole('tab', { name: 'wizard.mode.form' }));
+    enterJsonMode();
+
+    // The form did not move, so the user's raw edits must survive.
+    expect(JSON.parse(editorTextarea().value).description).toBe('hand written');
+  });
+
+  it('re-seeds from the form when the form actually changed', () => {
+    render(<CustomToolWizardModal {...makeProps()} />);
+    fillNameAndEndpoint();
+    enterJsonMode();
+
+    const seeded = JSON.parse(editorTextarea().value);
+    fireEvent.change(editorTextarea(), {
+      target: { value: JSON.stringify({ ...seeded, description: 'hand written' }) },
+    });
+
+    fireEvent.click(screen.getByRole('tab', { name: 'wizard.mode.form' }));
+    fireEvent.change(screen.getAllByRole('textbox')[0], {
+      target: { value: 'https://api.example.com/changed' },
+    });
+    enterJsonMode();
+
+    const reseeded = JSON.parse(editorTextarea().value);
+    expect(reseeded.endpoint).toBe('https://api.example.com/changed');
+    expect(reseeded.description).toBe('');
+  });
+
+  it('tests the draft config from JSON mode, path and query params included', async () => {
+    mockTestCustomToolPayload.mockResolvedValue({
+      test_result: { error: '', headers: {}, response_time: 0.1, status_code: 200, success: true },
+    });
+    render(<CustomToolWizardModal {...makeProps()} />);
+    fillNameAndEndpoint();
+    enterJsonMode();
+
+    const seeded = JSON.parse(editorTextarea().value);
+    fireEvent.change(editorTextarea(), {
+      target: {
+        value: JSON.stringify({
+          ...seeded,
+          path_params: { id: '42' },
+          query_params: { limit: 10 },
+        }),
+      },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'testRequest.button' }));
+
+    await waitFor(() => {
+      expect(mockTestCustomToolPayload).toHaveBeenCalledTimes(1);
+    });
+    expect(mockTestCustomToolPayload).toHaveBeenCalledWith(
+      expect.objectContaining({
+        endpoint: 'https://api.example.com/x',
+        path_params: { id: '42' },
+        query_params: { limit: 10 },
+      }),
+    );
   });
 });
