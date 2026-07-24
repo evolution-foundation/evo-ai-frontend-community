@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Textarea } from '@evoapi/design-system';
 import { useLanguage } from '@/hooks/useLanguage';
 
@@ -7,6 +7,11 @@ import { useLanguage } from '@/hooks/useLanguage';
  * MCP wizards (n8n-style "advanced mode"). Renders the whole config object as editable
  * JSON, parses on every keystroke, and reports validity so the wizard can block submit
  * on malformed JSON. Shared primitive — the parent owns the object and the mode toggle.
+ *
+ * Validity has two layers, and the parent owns the second one: this component only
+ * decides whether the text is *syntactically* a JSON object. Whether that object is a
+ * usable config (url parses, timeout in range, …) is domain knowledge, so the parent
+ * validates it and passes the messages back down via `issues` for display.
  */
 export interface AdvancedJsonEditorProps {
   /** Current config object (rendered as pretty JSON on mount). */
@@ -15,6 +20,8 @@ export interface AdvancedJsonEditorProps {
   onChange: (parsed: Record<string, unknown>) => void;
   /** Called whenever the parse validity changes (false → wizard must block submit). */
   onValidityChange?: (valid: boolean) => void;
+  /** Semantic errors from the parent's own validation, listed under the editor. */
+  issues?: string[];
   rows?: number;
   label?: string;
   hint?: string;
@@ -24,6 +31,7 @@ export default function AdvancedJsonEditor({
   value,
   onChange,
   onValidityChange,
+  issues = [],
   rows = 18,
   label,
   hint,
@@ -33,6 +41,16 @@ export default function AdvancedJsonEditor({
   // advanced mode is (re)entered, so we never clobber in-progress typing with prop syncs.
   const [text, setText] = useState(() => JSON.stringify(value ?? {}, null, 2));
   const [error, setError] = useState('');
+
+  // The initial text is always valid JSON — we just serialized it — but the parent has no
+  // way to know that unless we say so. Without this it keeps whatever validity it was left
+  // with (e.g. `false` from a previous visit to advanced mode) and the submit button stays
+  // dead while a perfectly valid config sits on screen.
+  const onValidityChangeRef = useRef(onValidityChange);
+  onValidityChangeRef.current = onValidityChange;
+  useEffect(() => {
+    onValidityChangeRef.current?.(true);
+  }, []);
 
   const handleChange = (next: string) => {
     setText(next);
@@ -52,6 +70,8 @@ export default function AdvancedJsonEditor({
     }
   };
 
+  const hasProblem = !!error || issues.length > 0;
+
   return (
     <div className="space-y-1.5">
       {label && <span className="text-sm font-semibold block">{label}</span>}
@@ -60,14 +80,21 @@ export default function AdvancedJsonEditor({
         onChange={e => handleChange(e.target.value)}
         rows={rows}
         spellCheck={false}
-        className={`font-mono text-xs ${error ? 'border-red-500' : ''}`}
+        className={`font-mono text-xs ${hasProblem ? 'border-red-500' : ''}`}
         aria-label={label || t('advancedJson.title')}
+        aria-invalid={hasProblem}
       />
-      {error ? (
-        <p className="text-sm text-red-600">{error}</p>
-      ) : (
-        hint && <p className="text-xs text-muted-foreground">{hint}</p>
+      {error && <p className="text-sm text-red-600">{error}</p>}
+      {!error && issues.length > 0 && (
+        <ul className="space-y-0.5">
+          {issues.map(issue => (
+            <li key={issue} className="text-sm text-red-600">
+              {issue}
+            </li>
+          ))}
+        </ul>
       )}
+      {!hasProblem && hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }

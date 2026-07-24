@@ -190,7 +190,20 @@
     "advanced": {
       "title": "Configuration avancée (JSON)",
       "subtitle": "Modifiez toute la configuration du serveur en JSON brut.",
-      "hint": "Champs : name, description, url, headers, timeout, retry_count, tags."
+      "hint": "Champs : name, description, url, headers, timeout, retry_count, tags.",
+      "errors": {
+        "nameRequired": "Le champ « name » est obligatoire et ne peut pas être vide.",
+        "nameType": "Le champ « name » doit être du texte.",
+        "descriptionType": "Le champ « description » doit être du texte.",
+        "urlRequired": "Le champ « url » est obligatoire et ne peut pas être vide.",
+        "urlType": "Le champ « url » doit être du texte.",
+        "urlInvalid": "Le champ « url » n'est pas une URL valide (ex. : https://mon-serveur.com/mcp).",
+        "headersType": "Le champ « headers » doit être un objet.",
+        "headerValueType": "Les valeurs des en-têtes doivent être du texte : {{keys}}.",
+        "timeoutRange": "Le champ « timeout » doit être un nombre entier entre {{min}} et {{max}}.",
+        "retryRange": "Le champ « retry_count » doit être un nombre entier entre {{min}} et {{max}}.",
+        "tagsType": "Le champ « tags » doit être une liste de textes."
+      }
     },
     "test": {
       "button": "Tester la connexion",

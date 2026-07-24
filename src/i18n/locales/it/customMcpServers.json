@@ -190,7 +190,20 @@
     "advanced": {
       "title": "Configurazione avanzata (JSON)",
       "subtitle": "Modifica l'intera configurazione del server come JSON grezzo.",
-      "hint": "Campi: name, description, url, headers, timeout, retry_count, tags."
+      "hint": "Campi: name, description, url, headers, timeout, retry_count, tags.",
+      "errors": {
+        "nameRequired": "Il campo \"name\" è obbligatorio e non può essere vuoto.",
+        "nameType": "Il campo \"name\" deve essere testo.",
+        "descriptionType": "Il campo \"description\" deve essere testo.",
+        "urlRequired": "Il campo \"url\" è obbligatorio e non può essere vuoto.",
+        "urlType": "Il campo \"url\" deve essere testo.",
+        "urlInvalid": "Il campo \"url\" non è un URL valido (es.: https://mio-server.com/mcp).",
+        "headersType": "Il campo \"headers\" deve essere un oggetto.",
+        "headerValueType": "I valori degli header devono essere testo: {{keys}}.",
+        "timeoutRange": "Il campo \"timeout\" deve essere un numero intero tra {{min}} e {{max}}.",
+        "retryRange": "Il campo \"retry_count\" deve essere un numero intero tra {{min}} e {{max}}.",
+        "tagsType": "Il campo \"tags\" deve essere un elenco di testi."
+      }
     },
     "test": {
       "button": "Prova connessione",

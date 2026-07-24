@@ -190,7 +190,20 @@
     "advanced": {
       "title": "Advanced config (JSON)",
       "subtitle": "Edit the whole server config as raw JSON.",
-      "hint": "Fields: name, description, url, headers, timeout, retry_count, tags."
+      "hint": "Fields: name, description, url, headers, timeout, retry_count, tags.",
+      "errors": {
+        "nameRequired": "\"name\" is required and cannot be empty.",
+        "nameType": "\"name\" must be text.",
+        "descriptionType": "\"description\" must be text.",
+        "urlRequired": "\"url\" is required and cannot be empty.",
+        "urlType": "\"url\" must be text.",
+        "urlInvalid": "\"url\" is not a valid URL (e.g. https://my-server.com/mcp).",
+        "headersType": "\"headers\" must be an object.",
+        "headerValueType": "Header values must be text: {{keys}}.",
+        "timeoutRange": "\"timeout\" must be a whole number between {{min}} and {{max}}.",
+        "retryRange": "\"retry_count\" must be a whole number between {{min}} and {{max}}.",
+        "tagsType": "\"tags\" must be a list of text values."
+      }
     },
     "test": {
       "button": "Test connection",

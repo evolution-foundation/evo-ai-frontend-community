@@ -3,6 +3,12 @@ import { Dialog, DialogContent, DialogTitle, Button } from '@evoapi/design-syste
 import { X, Code2, LayoutList } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { CustomMcpServer, CustomMcpServerFormData } from '@/types/ai';
+import {
+  WizardData,
+  initialWizardData,
+  serverToWizardData,
+  parseWizardConfig,
+} from './wizardConfig';
 import WizardProgress from '@/pages/Customer/Agents/Agent/wizard/WizardProgress';
 import { AdvancedJsonEditor } from '@/components/ai_agents/shared';
 import {
@@ -23,39 +29,6 @@ interface CustomMCPServerWizardModalProps {
   server?: CustomMcpServer;
 }
 
-interface WizardData {
-  // Step 1 — Identity
-  name: string;
-  description: string;
-  tags: string[];
-  // Step 2 — Connection
-  url: string;
-  headers: Record<string, unknown>;
-  // Step 3 — Advanced
-  timeout: number;
-  retry_count: number;
-}
-
-const initialWizardData: WizardData = {
-  name: '',
-  description: '',
-  tags: [],
-  url: '',
-  headers: {},
-  timeout: 30,
-  retry_count: 3,
-};
-
-const serverToWizardData = (server: CustomMcpServer): WizardData => ({
-  name: server.name || '',
-  description: server.description || '',
-  tags: server.tags || [],
-  url: server.url || '',
-  headers: (server.headers as Record<string, unknown>) || {},
-  timeout: server.timeout ?? 30,
-  retry_count: server.retry_count ?? 3,
-});
-
 const TOTAL_STEPS = 4;
 
 export default function CustomMCPServerWizardModal({
@@ -74,7 +47,11 @@ export default function CustomMCPServerWizardModal({
   );
   // EVO-1739: advanced (raw JSON) mode — the whole config as editable JSON.
   const [mode, setMode] = useState<'form' | 'json'>('form');
+  // Syntax validity (is it a JSON object?) is reported by the editor; `jsonIssues` holds
+  // the semantic problems this component finds in that object. Both must be clear before
+  // the config can be saved.
   const [jsonValid, setJsonValid] = useState(true);
+  const [jsonIssues, setJsonIssues] = useState<string[]>([]);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -83,6 +60,7 @@ export default function CustomMCPServerWizardModal({
         setCurrentStep(1);
         setMode('form');
         setJsonValid(true);
+        setJsonIssues([]);
         setData(server ? serverToWizardData(server) : initialWizardData);
       }, 300);
       return () => clearTimeout(timeout);
@@ -143,22 +121,23 @@ export default function CustomMCPServerWizardModal({
   });
 
   const applyJson = (parsed: Record<string, unknown>) => {
-    setData(prev => ({
-      ...prev,
-      name: typeof parsed.name === 'string' ? parsed.name : prev.name,
-      description: typeof parsed.description === 'string' ? parsed.description : prev.description,
-      url: typeof parsed.url === 'string' ? parsed.url : prev.url,
-      headers:
-        parsed.headers && typeof parsed.headers === 'object' && !Array.isArray(parsed.headers)
-          ? (parsed.headers as Record<string, unknown>)
-          : prev.headers,
-      timeout: typeof parsed.timeout === 'number' ? parsed.timeout : prev.timeout,
-      retry_count: typeof parsed.retry_count === 'number' ? parsed.retry_count : prev.retry_count,
-      tags: Array.isArray(parsed.tags) ? parsed.tags.map(String) : prev.tags,
-    }));
+    const { data: next, issues } = parseWizardConfig(parsed, t);
+    setJsonIssues(issues);
+    // Commit only a fully valid config. A partial commit would leave `data` holding some
+    // of the user's edits and some stale values, which is the ambiguity the form/JSON
+    // round-trip cannot recover from. While issues are listed, submit is blocked anyway.
+    if (issues.length === 0) setData(next);
   };
 
-  const canSubmitJson = jsonValid && !!data.name.trim() && !!data.url.trim();
+  // Entering advanced mode re-derives the issues from the config that is about to be
+  // serialized into the editor, so the listed problems always describe what is on screen.
+  const enterJsonMode = () => {
+    setJsonValid(true);
+    setJsonIssues(parseWizardConfig(configObject(), t).issues);
+    setMode('json');
+  };
+
+  const canSubmitJson = jsonValid && jsonIssues.length === 0;
 
   const renderStep = () => {
     switch (currentStep) {
@@ -244,7 +223,7 @@ export default function CustomMCPServerWizardModal({
             type="button"
             role="tab"
             aria-selected={mode === 'json'}
-            onClick={() => setMode('json')}
+            onClick={enterJsonMode}
             className={`inline-flex items-center gap-1.5 rounded px-3 py-1 text-xs font-medium transition-colors ${
               mode === 'json' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
             }`}
@@ -274,6 +253,7 @@ export default function CustomMCPServerWizardModal({
               value={configObject()}
               onChange={applyJson}
               onValidityChange={setJsonValid}
+              issues={jsonIssues}
               rows={20}
               hint={t('wizard.advanced.hint')}
             />
