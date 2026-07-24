@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { getContactColor } from '@/utils/avatar';
+import { pipelineDeleteErrorKey } from '@/utils/pipelineDeleteError';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -564,13 +565,7 @@ export default function PipelineKanban() {
       navigate('/pipelines');
     } catch (error) {
       console.error('Error deleting pipeline:', error);
-      const code = (error as { response?: { data?: { error?: { code?: string } } } })
-        ?.response?.data?.error?.code;
-      toast.error(
-        code === 'CANNOT_DELETE_PIPELINE_WITH_CONVERSATIONS'
-          ? t('messages.deleteBlockedActiveItems')
-          : t('messages.deleteError'),
-      );
+      toast.error(t(pipelineDeleteErrorKey(error)));
     } finally {
       setIsDeletingPipeline(false);
     }

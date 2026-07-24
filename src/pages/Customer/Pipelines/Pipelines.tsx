@@ -13,6 +13,7 @@ import {
 } from '@evoapi/design-system';
 import { usePermissions } from '@/contexts/PermissionsContext';
 import { pipelinesService } from '@/services/pipelines';
+import { pipelineDeleteErrorKey } from '@/utils/pipelineDeleteError';
 import {
   Pipeline,
   PipelinesState,
@@ -275,13 +276,7 @@ export default function Pipelines() {
       setPipelineToDelete(null);
     } catch (error) {
       console.error('Error deleting pipeline:', error);
-      const code = (error as { response?: { data?: { error?: { code?: string } } } })
-        ?.response?.data?.error?.code;
-      toast.error(
-        code === 'CANNOT_DELETE_PIPELINE_WITH_CONVERSATIONS'
-          ? t('messages.deleteBlockedActiveItems')
-          : t('messages.deleteError'),
-      );
+      toast.error(t(pipelineDeleteErrorKey(error)));
     } finally {
       setState(prev => ({ ...prev, loading: { ...prev.loading, delete: false } }));
     }

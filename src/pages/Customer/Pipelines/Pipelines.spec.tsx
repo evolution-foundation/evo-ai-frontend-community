@@ -135,8 +135,19 @@ describe('Pipelines management screen', () => {
     }
 
     it('surfaces the active-items reason for the specific backend code', async () => {
+      // The full envelope Api::V1::PipelinesController#destroy renders — `success: false`
+      // included, since that is what marks the standard error format.
       deletePipeline.mockRejectedValue({
-        response: { data: { error: { code: 'CANNOT_DELETE_PIPELINE_WITH_CONVERSATIONS' } } },
+        response: {
+          status: 422,
+          data: {
+            success: false,
+            error: {
+              code: 'CANNOT_DELETE_PIPELINE_WITH_CONVERSATIONS',
+              message: 'Cannot delete pipeline with active items',
+            },
+          },
+        },
       });
       render(<Pipelines />);
       await screen.findByText('Retired funnel');
@@ -146,6 +157,7 @@ describe('Pipelines management screen', () => {
       await waitFor(() =>
         expect(error).toHaveBeenCalledWith('messages.deleteBlockedActiveItems'),
       );
+      expect(success).not.toHaveBeenCalled();
     });
 
     it('falls back to the generic message for any other failure', async () => {
@@ -156,6 +168,7 @@ describe('Pipelines management screen', () => {
       await clickDelete();
 
       await waitFor(() => expect(error).toHaveBeenCalledWith('messages.deleteError'));
+      expect(success).not.toHaveBeenCalled();
     });
   });
 
