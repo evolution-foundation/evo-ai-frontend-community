@@ -17,6 +17,11 @@ import type {
 // through the ResponseTransformInterceptor (e.g. @SkipResponseTransform). The two
 // methods that return the raw StandardResponse envelope on purpose (object `data`, not
 // an array) stay as-is — extractResponse hard-types `data` as an array.
+//
+// Caveat worth knowing before you rely on it: only extractData has the bare-body
+// fallback. extractResponse reads response.data.{success,data,meta} unconditionally,
+// so getCampaigns below gains consistency with journeyService but NOT robustness.
+// Hardening the shared helper is a follow-up on apiHelpers, not on this service.
 class CampaignsService {
   // List campaigns with pagination and filters
   async getCampaigns(params?: CampaignsListParams): Promise<CampaignsResponse> {

@@ -30,9 +30,13 @@ jobs:
       - name: Typecheck
         run: npx tsc -b
 
-      # Scoped to the specs that guard THIS card's behaviour — can() stays
-      # data-driven, and the installation-owner role is read-only. Runs in ~10s
-      # and is deterministic.
+      # Scoped, opt-in list: a spec earns a line here when it guards a behaviour
+      # we do not want silently reverted, is fully mocked, and runs fast.
+      #   - PermissionsContext / RoleDetail (EVO-2062): can() stays data-driven,
+      #     and the installation-owner role is read-only.
+      #   - campaignsService (EVO-1838): the campaign endpoints keep their
+      #     bare-body fallback when the backend skips the response envelope.
+      # The whole list runs in ~10s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
       # forked workers take ~30min on the runner and flake on worker OOM (the
@@ -44,4 +48,5 @@ jobs:
         run: |
           npx vitest run --reporter=basic \
             src/contexts/PermissionsContext.spec.tsx \
-            src/pages/Admin/Roles/RoleDetail.spec.tsx
+            src/pages/Admin/Roles/RoleDetail.spec.tsx \
+            src/services/campaigns/campaignsService.spec.ts
