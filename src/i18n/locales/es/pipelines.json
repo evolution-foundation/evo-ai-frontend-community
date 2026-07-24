@@ -46,6 +46,7 @@
     "updateError": "Error al actualizar pipeline",
     "deleteSuccess": "Pipeline eliminado con éxito",
     "deleteError": "Error al eliminar pipeline",
+    "deleteBlockedActiveItems": "Este pipeline todavía tiene elementos activos y no se puede eliminar. Complétalos o muévelos primero.",
     "duplicateSuccess": "Pipeline duplicado con éxito",
     "duplicateError": "Error al duplicar pipeline",
     "activateSuccess": "Pipeline activado con éxito",

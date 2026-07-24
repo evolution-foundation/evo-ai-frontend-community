@@ -275,7 +275,13 @@ export default function Pipelines() {
       setPipelineToDelete(null);
     } catch (error) {
       console.error('Error deleting pipeline:', error);
-      toast.error(t('messages.deleteError'));
+      const code = (error as { response?: { data?: { error?: { code?: string } } } })
+        ?.response?.data?.error?.code;
+      toast.error(
+        code === 'CANNOT_DELETE_PIPELINE_WITH_CONVERSATIONS'
+          ? t('messages.deleteBlockedActiveItems')
+          : t('messages.deleteError'),
+      );
     } finally {
       setState(prev => ({ ...prev, loading: { ...prev.loading, delete: false } }));
     }
