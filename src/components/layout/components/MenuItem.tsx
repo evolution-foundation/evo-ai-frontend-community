@@ -29,15 +29,11 @@ export default function MenuItem({
 }: MenuItemProps) {
   const { t } = useTranslation('chat');
   const hasSubItems = item.subItems && item.subItems.length > 0;
-  // EVO-1963: o badge do menu conta conversas AGUARDANDO RESPOSTA do usuário, não
-  // não-lidas — a chave antiga (unreadBadge.menuAriaLabel) descrevia a semântica
-  // anterior e passou a mentir pro leitor de tela e pro tooltip da sidebar colapsada.
+  // The menu badge counts conversations awaiting a reply, not unread ones.
   const badgeAriaLabel =
     item.badge && item.badge > 0
       ? t('unansweredBadge.menuAriaLabel', { count: item.badge })
       : undefined;
-  // `badgeHref` só troca o DESTINO do clique; `item.href` continua sendo o que o
-  // matcher de rota ativa compara (ver MenuItem.badgeHref em config/menuItems).
   const linkTarget = item.badgeHref ?? item.href;
 
   const menuItem = (

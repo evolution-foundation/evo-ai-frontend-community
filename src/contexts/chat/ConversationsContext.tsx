@@ -726,8 +726,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
           type: 'UPDATE_UNREAD_COUNT',
           payload: { conversationId, count: 0 },
         });
-        // EVO-1963: sem refetch aqui de propósito — ler não altera waiting_since,
-        // então marcar como lida não mexe no badge ("visualizar não decrementa").
+        // No badge refetch: reading does not change waiting_since.
 
         if (!options?.silent) {
           toast.success(t('contexts.conversations.success.markedAsRead'));
@@ -758,7 +757,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
           type: 'UPDATE_UNREAD_COUNT',
           payload: { conversationId, count: Math.max(1, currentCount) },
         });
-        // EVO-1963: idem markAsRead — não-lida e não-respondida são eixos distintos.
+        // No badge refetch: unread and unanswered are distinct axes.
 
         if (!options?.silent) {
           toast.success(t('contexts.conversations.success.markedAsUnread'));
@@ -853,9 +852,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
           payload: updatedConversation as unknown as Conversation,
         });
 
-        // EVO-1963: o badge conta as conversas ATRIBUÍDAS a mim, então atribuir/
-        // desatribuir entra e sai do contador. Sem este refetch o número só se
-        // acertava no próximo evento (mensagem/status) ou num reload.
+        // Assignment moves a conversation in and out of "mine".
         useUnansweredConversationsStore.getState().fetch();
 
         toast.success(

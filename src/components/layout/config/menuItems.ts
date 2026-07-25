@@ -43,11 +43,8 @@ export interface MenuItem {
   requiredRoleKey?: string;
   badge?: number;
   /**
-   * EVO-1963: destino do clique quando o item está com badge (ex.: conversas →
-   * `/conversations?segment=unanswered`). Fica separado de `href` de propósito:
-   * `href` é o que o matcher de rota ativa compara (useMenuState#isMenuItemActive),
-   * e ele não casa com querystring — sobrescrever `href` fazia o item perder o
-   * destaque de ativo justamente enquanto houvesse badge.
+   * Click target when the item has a badge. Separate from `href`, which
+   * useMenuState#isMenuItemActive compares and which never matches a querystring.
    */
   badgeHref?: string;
 }

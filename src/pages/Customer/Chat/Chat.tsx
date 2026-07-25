@@ -84,10 +84,8 @@ const Chat = () => {
   const { conversationId } = useParams<{ conversationId?: string }>();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  // EVO-1963: o preset vindo de ?segment=... (clique no badge da sidebar). Derivado
-  // de uma string, não do objeto searchParams, pra ser dependência estável — e
-  // resolvido UMA vez pros dois efeitos abaixo enxergarem a mesma decisão (um
-  // `segment` desconhecido tem que cair na visão salva, não em lista nenhuma).
+  // Resolved once so both effects below agree: an unknown segment has to fall back
+  // to the saved view, not to no list at all.
   const segmentParam = searchParams.get('segment');
   const badgeSegment = useMemo(
     () => (segmentParam ? CONVERSATION_SEGMENTS.find(s => s.id === segmentParam) ?? null : null),
@@ -256,8 +254,7 @@ const Chat = () => {
       return;
     }
 
-    // EVO-1963: com um ?segment= reconhecido na URL quem aplica é o efeito abaixo —
-    // não aplicar os filtros salvos aqui evita duas cargas concorrentes no mount.
+    // A recognized ?segment= is applied by the effect below.
     if (badgeSegment) {
       return;
     }
@@ -277,20 +274,14 @@ const Chat = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [permissionsReady]);
 
-  // EVO-1963: clicar no badge da sidebar roteia com ?segment=unanswered → aplica o
-  // preset correspondente e limpa o param.
-  // A dependência é o PARAM, não o mount: /conversations e /conversations/:id são o
-  // mesmo elemento de rota, então clicar no badge já estando na tela de conversas
-  // muda só a querystring e NÃO remonta este componente — preso a [permissionsReady]
-  // o preset nunca era aplicado nesse caminho (o mais comum, já que a sidebar está
-  // visível justamente ali).
+  // Keyed on the param, not on mount: /conversations and /conversations/:id are the
+  // same route element, so arriving from the sidebar badge does not remount Chat.
   useEffect(() => {
     if (!permissionsReady || !segmentParam) {
       return;
     }
 
-    // Só o `segment` sai da URL — outros params da rota são preservados. Sai mesmo
-    // quando não corresponde a segmento nenhum, pra não ficar grudado na barra.
+    // Only `segment` is stripped, recognized or not; other params survive.
     setSearchParams(
       prev => {
         const next = new URLSearchParams(prev);

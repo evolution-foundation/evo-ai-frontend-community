@@ -26,8 +26,7 @@ const statusFilter = (value: string): BaseFilter => ({
 
 // unread / unanswered / is_group: eixos de navegação (não-status) mapeados pra params
 // GET em convertFiltersToUrlParams. status ausente é injetado como 'all' lá, então
-// estas views abrangem todos os status (ex.: "Não lidas" = não lidas em qualquer
-// status; "Não respondidas" é a exceção — o backend a fixa em abertas).
+// estas views abrangem todos os status (ex.: "Não lidas" = não lidas em qualquer status).
 const boolFilter = (attributeKey: 'unread' | 'unanswered' | 'is_group'): BaseFilter => ({
   ...DEFAULT_BASE_FILTER,
   attributeKey,
@@ -40,12 +39,9 @@ export const CONVERSATION_SEGMENTS: ConversationSegment[] = [
   { id: 'pending', labelKey: 'chatSidebar.segments.pending', preset: [statusFilter('pending')] },
   { id: 'resolved', labelKey: 'chatSidebar.segments.resolved', preset: [statusFilter('resolved')] },
   { id: 'unread', labelKey: 'chatSidebar.segments.unread', preset: [boolFilter('unread')] },
-  // EVO-1963: "minhas aguardando minha resposta" — o conjunto que o badge conta.
-  // UMA linha só, de propósito: shouldUseAdvancedFilters manda qualquer preset com
-  // mais de uma linha pro POST /conversations/filter, onde `unanswered` não é
-  // atributo conhecido (400 InvalidAttribute). O recorte "minhas" é aplicado no
-  // backend (ConversationFinder#apply_unanswered_filter), não com uma segunda
-  // linha assignee_type=me aqui.
+  // Single row on purpose: shouldUseAdvancedFilters routes any multi-row preset to
+  // POST /filter, which has no `unanswered` attribute. The "mine" scoping is applied
+  // by the finder.
   { id: 'unanswered', labelKey: 'chatSidebar.segments.unanswered', preset: [boolFilter('unanswered')] },
   { id: 'groups', labelKey: 'chatSidebar.segments.groups', preset: [boolFilter('is_group')] },
 ];

@@ -31,8 +31,7 @@ const mockSelectedConversation = vi.hoisted(() => ({
 // ─── react-router-dom ─────────────────────────────────────────────────────────
 const mockNavigate = vi.hoisted(() => vi.fn());
 
-// EVO-1963: a querystring é mutável no teste porque o efeito do badge tem que
-// reagir a ELA, não ao mount — ver o describe no fim deste arquivo.
+// Mutable: the badge effect must react to the param, not to mount.
 const mockSearch = vi.hoisted(() => ({
   params: new URLSearchParams(),
   setParams: vi.fn(),
@@ -297,7 +296,7 @@ describe('Chat — handleMarkAsResolved navigation behavior', () => {
   });
 });
 
-// EVO-1963 — clicar no badge da sidebar roteia pra /conversations?segment=unanswered.
+// The sidebar badge routes to /conversations?segment=unanswered.
 describe('Chat — ?segment= preset (EVO-1963)', () => {
   const unansweredPreset = CONVERSATION_SEGMENTS.find(s => s.id === 'unanswered')!.preset;
 
@@ -320,11 +319,8 @@ describe('Chat — ?segment= preset (EVO-1963)', () => {
     unmount();
   });
 
-  // A regressão que isto trava: o efeito estava preso a [permissionsReady], e
-  // /conversations e /conversations/:id são o MESMO elemento de rota — clicar no
-  // badge já estando na tela de conversas muda só a querystring e não remonta o
-  // componente, então o preset nunca era aplicado. Aqui não há remontagem: só um
-  // rerender com o param novo.
+  // No remount here — only a rerender with the new param, which is what clicking
+  // the badge from the conversations screen does.
   it('applies the preset when the param appears without a remount', async () => {
     const { rerender, unmount } = render(<Chat />);
     await act(async () => {});
@@ -347,8 +343,7 @@ describe('Chat — ?segment= preset (EVO-1963)', () => {
     const { unmount } = render(<Chat />);
     await act(async () => {});
 
-    // loadConversationFilters/getDefaultFilter estão mockados como [] — o que
-    // importa é que a lista carregue em vez de ficar sem nenhuma chamada.
+    // Both storage mocks return [] — what matters is that the list loads at all.
     expect(mockFilterHandlers.handleApplyFilters).toHaveBeenCalledWith([]);
     expect(mockFilterHandlers.handleApplyFilters).not.toHaveBeenCalledWith(unansweredPreset);
 

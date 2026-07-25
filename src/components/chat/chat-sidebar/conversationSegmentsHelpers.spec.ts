@@ -4,8 +4,8 @@ import { convertBaseFiltersToConversationFilters } from '@/utils/chat/filterAdap
 import { shouldUseAdvancedFilters, convertFiltersToUrlParams } from '@/utils/chat/filterConverters';
 import type { ConversationFilter } from '@/types/chat/api';
 
-// EVO-1963: o chip "Não respondidas" tem que bater com o badge da sidebar E chegar no
-// backend pela via que sabe filtrá-lo.
+// The "unanswered" chip has to match the sidebar badge and reach the backend through
+// the path that can filter it.
 describe('conversationSegmentsHelpers — unanswered (EVO-1963)', () => {
   const cf = (key: string, value: string): ConversationFilter =>
     ({ attribute_key: key, filter_operator: 'equal_to', values: [value] } as unknown as ConversationFilter);
@@ -17,11 +17,7 @@ describe('conversationSegmentsHelpers — unanswered (EVO-1963)', () => {
     expect(unanswered.preset.map(f => `${f.attributeKey}=${f.values}`)).toEqual(['unanswered=true']);
   });
 
-  // O bug que isto trava: o preset original tinha 2 linhas (assignee_type=me +
-  // unanswered=true). shouldUseAdvancedFilters devolve true pra qualquer preset com
-  // mais de uma linha, então o chip ia pro POST /conversations/filter — onde
-  // `unanswered` não é atributo conhecido e a resposta é 400 InvalidAttribute.
-  // O recorte "minhas" mora no backend (ConversationFinder#apply_unanswered_filter).
+  // A multi-row preset goes to POST /filter, which has no `unanswered` attribute.
   it('routes through the GET path, not POST /filter (single-row preset)', () => {
     const apiFilters = convertBaseFiltersToConversationFilters(unanswered.preset);
     expect(shouldUseAdvancedFilters(apiFilters)).toBe(false);
