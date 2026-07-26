@@ -259,7 +259,12 @@ describe('ProductsImport connector flow (EVO-1785 Phase 2)', () => {
 
   it('WooCommerce: fetches, normalizes string price, dry-runs and submits', async () => {
     importFetchMock.mockResolvedValueOnce({
-      data: { items: [{ name: 'Widget', sku: 'W-1', default_price: '19.90', status: 'active', kind: 'physical' }] },
+      data: {
+        items: [{
+          name: 'Widget', sku: 'W-1', default_price: '19.90', status: 'active', kind: 'physical',
+          image_urls: ['https://cdn.example.com/w.png'],
+        }],
+      },
       meta: { source: 'woocommerce', count: 1 },
     });
     bulkProductsMock
@@ -291,10 +296,14 @@ describe('ProductsImport connector flow (EVO-1785 Phase 2)', () => {
 
     await screen.findByText('import.preview.runDryRun');
     await user.click(screen.getByText('import.preview.runDryRun'));
-    // String "19.90" must be normalized to the number 19.9 before hitting the bulk API.
+    // String "19.90" must be normalized to the number 19.9 before hitting the bulk API,
+    // and image_urls must pass through to the connector import (EVO-2226).
     await waitFor(() =>
       expect(bulkProductsMock).toHaveBeenCalledWith({
-        products: [{ name: 'Widget', sku: 'W-1', default_price: 19.9, status: 'active', kind: 'physical' }],
+        products: [{
+          name: 'Widget', sku: 'W-1', default_price: 19.9, status: 'active', kind: 'physical',
+          image_urls: ['https://cdn.example.com/w.png'],
+        }],
         dry_run: true,
       }),
     );

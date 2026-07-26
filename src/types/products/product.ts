@@ -103,6 +103,8 @@ export interface ProductBulkItem {
   stock_quantity?: number;
   labels?: string[];
   metadata?: Record<string, unknown>;
+  /** EVO-2226: remote image URLs; downloaded + attached server-side on import. */
+  image_urls?: string[];
 }
 
 export interface ProductBulkPayload {
@@ -164,6 +166,7 @@ export interface FetchedProductItem {
   status?: ProductStatus;
   stock_quantity?: number;
   labels?: string[];
+  image_urls?: string[];
 }
 
 export interface ProductImportFetchResponse {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   Dialog,
@@ -21,7 +21,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@evoapi/design-system';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Upload, X, ImageIcon } from 'lucide-react';
 import type {
   Product,
   ProductFormData,
@@ -93,6 +93,13 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
+  // EVO-2226: raw image files picked in the Media tab, uploaded on submit.
+  const [files, setFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Object URLs for previewing pending picks; revoked when the set changes/unmounts.
+  const filePreviews = useMemo(() => files.map((file) => ({ file, url: URL.createObjectURL(file) })), [files]);
+  useEffect(() => () => filePreviews.forEach((p) => URL.revokeObjectURL(p.url)), [filePreviews]);
 
   const isEdit = useMemo(() => Boolean(product?.id), [product]);
   const isPhysical = form.kind === 'physical';
@@ -120,6 +127,7 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
       setVariants([]);
       setLabelsText('');
     }
+    setFiles([]);
     setTouched({});
     setSubmitAttempted(false);
     setActiveTab('general');
@@ -185,7 +193,14 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
       })),
     };
 
-    await onSubmit(payload);
+    await onSubmit(payload, files.length ? files : undefined);
+  };
+
+  const handleFilesPicked = (list: FileList | null) => {
+    if (!list) return;
+    const picked = Array.from(list).filter((f) => f.type.startsWith('image/'));
+    setFiles((prev) => [...prev, ...picked]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -198,16 +213,13 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
           {/*
-            Media tab intentionally omitted: product image upload is not wired
-            end-to-end — the backend (products_controller#attach_images) only
-            attaches ActiveStorage signed_ids and explicitly drops raw multipart
-            files, which is all the client currently sends. Re-add a
-            <TabsTrigger value="media"> + <TabsContent value="media"> (file picker
-            + product.images preview, see git history) once a direct-upload /
-            signed_id flow exists.
+            EVO-2226: Media tab restored. The backend (products_controller#attach_images)
+            now accepts raw multipart uploads (validated type + size), which is what
+            productsService.buildFormData already sends as product[images][].
           */}
-          <TabsList className="grid grid-cols-3 w-full">
+          <TabsList className="grid grid-cols-4 w-full">
             <TabsTrigger value="general">{t('modal.tabs.general')}</TabsTrigger>
+            <TabsTrigger value="media">{t('modal.tabs.media')}</TabsTrigger>
             <TabsTrigger value="variants">{t('modal.tabs.variants')}</TabsTrigger>
             <TabsTrigger value="labels">{t('modal.tabs.labels')}</TabsTrigger>
           </TabsList>
@@ -366,6 +378,67 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
                 />
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="media" className="space-y-4 overflow-y-auto pt-4">
+            <div className="rounded-lg border border-dashed p-6 text-center">
+              <ImageIcon className="mx-auto h-8 w-8 text-muted-foreground" />
+              <p className="mt-2 text-sm text-muted-foreground">{t('media.uploadHint')}</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                data-testid="product-image-input"
+                onChange={(e) => handleFilesPicked(e.target.files)}
+              />
+              <Button type="button" variant="outline" className="mt-3" onClick={() => fileInputRef.current?.click()}>
+                <Upload className="h-4 w-4 mr-2" />
+                {t('media.selectFiles')}
+              </Button>
+            </div>
+
+            {isEdit && (product?.images?.length ?? 0) > 0 && (
+              <div className="space-y-2">
+                <Label>{t('media.existing')}</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {product!.images.map((img) => (
+                    <img
+                      key={img.id}
+                      src={img.url}
+                      alt={img.filename}
+                      className="aspect-square w-full rounded border object-cover"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {filePreviews.length > 0 && (
+              <div className="space-y-2">
+                <Label>{t('media.pending')}</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {filePreviews.map((preview, index) => (
+                    <div key={preview.url} className="relative">
+                      <img
+                        src={preview.url}
+                        alt={preview.file.name}
+                        className="aspect-square w-full rounded border object-cover"
+                      />
+                      <button
+                        type="button"
+                        aria-label={t('actions.delete')}
+                        onClick={() => setFiles((prev) => prev.filter((_, i) => i !== index))}
+                        className="absolute -right-1.5 -top-1.5 rounded-full bg-destructive p-0.5 text-white"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="variants" className="space-y-3 overflow-y-auto pt-4">

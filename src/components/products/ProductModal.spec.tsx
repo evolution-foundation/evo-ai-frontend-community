@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ProductModal from './ProductModal';
 import type { Product } from '@/types/products';
 
@@ -12,6 +13,9 @@ globalThis.ResizeObserver = globalThis.ResizeObserver ?? (ResizeObserverPolyfill
 const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
 if (!proto.hasPointerCapture) proto.hasPointerCapture = () => false;
 if (!proto.scrollIntoView) proto.scrollIntoView = () => {};
+// jsdom lacks object-URL support used by the Media tab image previews (EVO-2226).
+globalThis.URL.createObjectURL = globalThis.URL.createObjectURL ?? (() => 'blob:mock');
+globalThis.URL.revokeObjectURL = globalThis.URL.revokeObjectURL ?? (() => {});
 
 const baseProduct = (overrides: Partial<Product>): Product => ({
   id: 'p1',
@@ -52,6 +56,37 @@ describe('ProductModal (EVO-1783 Phase 1)', () => {
     expect(submitSpy).not.toHaveBeenCalled();
     expect(screen.getByText('validation.nameRequired')).toBeTruthy();
     expect(screen.getByText('validation.fixErrors')).toBeTruthy();
+  });
+
+  it('EVO-2226 — Media tab picks an image and submits it as a file', async () => {
+    const user = userEvent.setup();
+    const submitSpy = vi.fn(async () => {});
+    render(
+      <ProductModal open product={baseProduct({})} loading={false} onOpenChange={noop} onSubmit={submitSpy} />,
+    );
+    await user.click(screen.getByText('modal.tabs.media'));
+
+    const input = (await screen.findByTestId('product-image-input')) as HTMLInputElement;
+    const file = new File([new Uint8Array([1, 2, 3])], 'photo.png', { type: 'image/png' });
+    fireEvent.change(input, { target: { files: [file] } });
+
+    expect(await screen.findByText('media.pending')).toBeTruthy();
+
+    await user.click(screen.getByText('actions.update').closest('button') as HTMLButtonElement);
+    await waitFor(() => expect(submitSpy).toHaveBeenCalled());
+    const call = submitSpy.mock.calls.at(-1) as unknown as [unknown, File[] | undefined];
+    expect(call[1]).toHaveLength(1);
+    expect(call[1]![0].name).toBe('photo.png');
+  });
+
+  it('EVO-2226 — non-image files are ignored by the picker', async () => {
+    const user = userEvent.setup();
+    render(<ProductModal open product={baseProduct({})} loading={false} onOpenChange={noop} onSubmit={onSubmit} />);
+    await user.click(screen.getByText('modal.tabs.media'));
+    const input = (await screen.findByTestId('product-image-input')) as HTMLInputElement;
+    const pdf = new File(['x'], 'doc.pdf', { type: 'application/pdf' });
+    fireEvent.change(input, { target: { files: [pdf] } });
+    expect(screen.queryByText('media.pending')).toBeNull();
   });
 
   it('renders a server field error inline (AC4 — SKU uniqueness)', () => {

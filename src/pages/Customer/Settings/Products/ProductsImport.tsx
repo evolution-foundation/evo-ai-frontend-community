@@ -103,6 +103,9 @@ function toBulkItem(raw: FetchedProductItem): BulkItem {
     status: raw.status,
     stock_quantity: raw.stock_quantity ?? undefined,
     labels: raw.labels,
+    // EVO-2226: pass the connector's image URLs through to /products/bulk, which
+    // downloads + attaches them server-side.
+    image_urls: raw.image_urls,
   };
 }
 
