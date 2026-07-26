@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { assetUrl } from '@/utils/assetUrl';
 import {
   Dialog,
   DialogContent,
@@ -406,7 +407,7 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
                   {product!.images.map((img) => (
                     <img
                       key={img.id}
-                      src={img.url}
+                      src={assetUrl(img.url)}
                       alt={img.filename}
                       className="aspect-square w-full rounded border object-cover"
                     />
