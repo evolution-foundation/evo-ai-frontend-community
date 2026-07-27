@@ -89,8 +89,8 @@ describe('ProductModal (EVO-1783 Phase 1)', () => {
     expect(screen.queryByText('media.pending')).toBeNull();
   });
 
-  // EVO-2226 review (M4): the hint told users to drag files onto the zone, but
-  // nothing handled the drop — only the button worked.
+  // EVO-2226: the hint told users to drag files onto the zone, but nothing
+  // handled the drop — only the button worked.
   it('EVO-2226 — accepts an image dropped on the zone', async () => {
     const user = userEvent.setup();
     render(<ProductModal open product={baseProduct({})} loading={false} onOpenChange={noop} onSubmit={onSubmit} />);
@@ -103,8 +103,8 @@ describe('ProductModal (EVO-1783 Phase 1)', () => {
     expect(await screen.findByText('media.pending')).toBeTruthy();
   });
 
-  // EVO-2226 review (M2): a refused file used to disappear without a word — the
-  // product saved and the image simply was not there.
+  // EVO-2226: a refused file used to disappear without a word — the product
+  // saved and the image simply was not there.
   it('EVO-2226 — explains why a non-image file was refused', async () => {
     const user = userEvent.setup();
     render(<ProductModal open product={baseProduct({})} loading={false} onOpenChange={noop} onSubmit={onSubmit} />);
@@ -132,7 +132,7 @@ describe('ProductModal (EVO-1783 Phase 1)', () => {
     expect(screen.queryByText('media.pending')).toBeNull();
   });
 
-  // EVO-2226 review (M1): the manual path had no quantity cap at all.
+  // EVO-2226: the manual path had no quantity cap at all.
   it('EVO-2226 — stops at the per-product image ceiling', async () => {
     const user = userEvent.setup();
     render(<ProductModal open product={baseProduct({})} loading={false} onOpenChange={noop} onSubmit={onSubmit} />);

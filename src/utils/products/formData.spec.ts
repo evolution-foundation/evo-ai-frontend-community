@@ -38,9 +38,9 @@ describe('appendField', () => {
     expect(entries(build([], 'product[labels]'))).toEqual([['product[labels][]', '']]);
   });
 
-  // EVO-2226 review (H1): this is the regression. Serialising nested attributes
-  // as a JSON string made Rails' strong parameters drop the whole branch, so
-  // variant edits silently vanished on any submit that carried an image.
+  // EVO-2226: serialising nested attributes as a JSON string made strong
+  // parameters drop the whole branch, so variant edits silently vanished on any
+  // submit that carried an image.
   it('expands an array of objects into indexed Rails keys', () => {
     const value = [
       { id: 'v1', name: 'M', position: 0 },

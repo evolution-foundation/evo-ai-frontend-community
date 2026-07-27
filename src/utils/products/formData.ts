@@ -4,17 +4,10 @@ const isPlainObject = (value: unknown): value is Record<string, unknown> =>
 /**
  * Appends `value` to `formData` using Rails' nested-parameter convention.
  *
- * The product endpoints accept the same payload as JSON or as multipart — the
- * client switches to multipart the moment the user picks an image. Rails parses
- * the two into the same shape ONLY if nested values are expanded into indexed
- * keys (`product[variants_attributes][0][name]`); serialising them as a JSON
- * string instead makes strong parameters drop the whole branch without an
- * error, so variant and metadata edits vanish on any submit that carries a file.
- *
- * - `null` is sent as `''`, which Rails casts back to nil — omitting it would
- *   make "clear this field" a no-op on the multipart path only.
- * - an empty array is sent as a single `''` element, which is how the API is
- *   told "the new list is empty" (e.g. removing the last label).
+ * Nested values have to become indexed keys (`product[variants_attributes][0][name]`);
+ * sent as a JSON string, strong parameters drops the whole branch silently. `null`
+ * becomes `''` and an empty array a single blank element, so clearing a field or the
+ * last label works on multipart as it does on JSON.
  */
 export const appendField = (formData: FormData, key: string, value: unknown): void => {
   if (value === undefined) return;
