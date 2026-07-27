@@ -155,9 +155,8 @@ describe('Capture forms screen', () => {
     expect(screen.queryByText('status.archivedPipeline')).not.toBeInTheDocument();
   });
 
-  // EVO-2207: a lead is the contact, and its deal is optional — deleting the kanban card
-  // leaves pipeline_item_id/pipeline_id/pipeline_stage_id null. The row still has to
-  // render the person; only the destination column degrades.
+  // EVO-2207: deleting the kanban card nulls every deal field. The person still renders;
+  // only the destination column degrades.
   describe('leads dialog', () => {
     const LIVE_LEAD: FormLead = {
       id: 'contact-live',
@@ -188,8 +187,7 @@ describe('Capture forms screen', () => {
       render(<CrmForms />);
 
       const counter = await screen.findByRole('button', { name: '2' });
-      // openLeads resolves the fetch after the click returns; act() flushes it so the
-      // dialog state settles inside the test instead of warning about it.
+      // openLeads resolves its fetch after the click returns; act() flushes that update
       await act(async () => {
         fireEvent.click(counter);
       });
@@ -202,7 +200,7 @@ describe('Capture forms screen', () => {
 
       expect(await screen.findByText('Bruno Sá')).toBeInTheDocument();
       expect(screen.getByText('bruno@example.com')).toBeInTheDocument();
-      // the live lead still resolves its pipeline, so '—' is degradation, not a blank screen
+      // the live lead still resolves its pipeline, so '—' is degradation, not a blank tab
       expect(screen.getByText(ACTIVE_PIPELINE.name)).toBeInTheDocument();
       expect(screen.getByText('—')).toBeInTheDocument();
     });
