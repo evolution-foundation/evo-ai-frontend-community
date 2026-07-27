@@ -388,7 +388,7 @@ export default function CrmForms() {
                 </thead>
                 <tbody>
                   {leads.map(lead => (
-                    <tr key={lead.contact_id} className="border-b border-sidebar-border last:border-0">
+                    <tr key={lead.id} className="border-b border-sidebar-border last:border-0">
                       <td className="px-4 py-3">
                         <div className="font-medium text-sidebar-foreground">{lead.contact?.name || '—'}</div>
                         <div className="text-xs text-sidebar-foreground/60">{lead.contact?.email}</div>
