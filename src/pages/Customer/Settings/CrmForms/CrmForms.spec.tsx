@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import CrmForms from './CrmForms';
-import type { CrmForm } from '@/types/crmForms';
+import type { CrmForm, FormLead } from '@/types/crmForms';
 import type { Pipeline } from '@/types/analytics/pipelines';
 
 // EVO-2200: a capture form whose destination pipeline was archived used to resolve to
@@ -25,6 +25,7 @@ function buildForm(overrides: Partial<CrmForm> = {}): CrmForm {
 
 const list = vi.fn();
 const getPipelines = vi.fn();
+const getLeads = vi.fn();
 
 vi.mock('@/services/crmForms/crmFormsService', () => ({
   crmFormsService: {
@@ -32,7 +33,7 @@ vi.mock('@/services/crmForms/crmFormsService', () => ({
     create: vi.fn(),
     update: vi.fn(),
     remove: vi.fn(),
-    getLeads: vi.fn(),
+    getLeads: (...args: unknown[]) => getLeads(...args),
   },
 }));
 
@@ -152,5 +153,67 @@ describe('Capture forms screen', () => {
     expect(await screen.findByText('Website Contact')).toBeInTheDocument();
     await waitFor(() => expect(getPipelines).toHaveBeenCalled());
     expect(screen.queryByText('status.archivedPipeline')).not.toBeInTheDocument();
+  });
+
+  // EVO-2207: a lead is the contact, and its deal is optional — deleting the kanban card
+  // leaves pipeline_item_id/pipeline_id/pipeline_stage_id null. The row still has to
+  // render the person; only the destination column degrades.
+  describe('leads dialog', () => {
+    const LIVE_LEAD: FormLead = {
+      id: 'contact-live',
+      contact_id: 'contact-live',
+      pipeline_item_id: 'item-1',
+      contact: { id: 'contact-live', name: 'Ana Lima', email: 'ana@example.com' },
+      pipeline_id: ACTIVE_PIPELINE.id,
+      pipeline_stage_id: 'stage-1',
+      created_at: '2026-07-20T10:00:00Z',
+    };
+
+    const DELETED_CARD_LEAD: FormLead = {
+      id: 'contact-orphan',
+      contact_id: 'contact-orphan',
+      pipeline_item_id: null,
+      contact: { id: 'contact-orphan', name: 'Bruno Sá', email: 'bruno@example.com' },
+      pipeline_id: null,
+      pipeline_stage_id: null,
+      created_at: '2026-07-21T10:00:00Z',
+    };
+
+    async function openLeadsDialog() {
+      list.mockResolvedValue({
+        data: [buildForm({ leads_count: 2 })],
+        meta: { page: 1, page_size: 25, total: 1 },
+      });
+
+      render(<CrmForms />);
+
+      const counter = await screen.findByRole('button', { name: '2' });
+      // openLeads resolves the fetch after the click returns; act() flushes it so the
+      // dialog state settles inside the test instead of warning about it.
+      await act(async () => {
+        fireEvent.click(counter);
+      });
+    }
+
+    it('renders a lead whose card was deleted, with the destination degraded', async () => {
+      getLeads.mockResolvedValue({ leads: [DELETED_CARD_LEAD, LIVE_LEAD], count: 2 });
+
+      await openLeadsDialog();
+
+      expect(await screen.findByText('Bruno Sá')).toBeInTheDocument();
+      expect(screen.getByText('bruno@example.com')).toBeInTheDocument();
+      // the live lead still resolves its pipeline, so '—' is degradation, not a blank screen
+      expect(screen.getByText(ACTIVE_PIPELINE.name)).toBeInTheDocument();
+      expect(screen.getByText('—')).toBeInTheDocument();
+    });
+
+    it('does not fall back to the empty state when every card was deleted', async () => {
+      getLeads.mockResolvedValue({ leads: [DELETED_CARD_LEAD], count: 1 });
+
+      await openLeadsDialog();
+
+      expect(await screen.findByText('Bruno Sá')).toBeInTheDocument();
+      expect(screen.queryByText('leads.empty')).not.toBeInTheDocument();
+    });
   });
 });

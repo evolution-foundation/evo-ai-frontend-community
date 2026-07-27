@@ -57,11 +57,17 @@ export interface PaginationMeta {
   has_previous_page?: boolean;
 }
 
+// EVO-2207: a captured lead is the CONTACT that filled the form. The deal it opened is
+// optional and does not survive a kanban delete, so every deal field can come back null.
+// `id` now carries the contact, not the pipeline item it used to: prefer `contact_id` /
+// `pipeline_item_id`, which say which entity they point at.
 export interface FormLead {
   id: string;
+  contact_id: string;
+  pipeline_item_id?: string | null;
   contact?: { id: string; name?: string; email?: string } | null;
-  pipeline_id?: string;
-  pipeline_stage_id?: string;
+  pipeline_id?: string | null;
+  pipeline_stage_id?: string | null;
   created_at?: string;
 }
 
