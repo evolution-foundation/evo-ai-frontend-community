@@ -67,10 +67,16 @@
     "digitalNoStockHint": "Produtos digitais não têm stock."
   },
   "media": {
-    "uploadHint": "Arraste imagens para aqui ou utilize o botão em baixo.",
-    "selectFiles": "Selecionar ficheiros",
+    "uploadHint": "Arraste imagens para cá ou use o botão abaixo.",
+    "selectFiles": "Selecionar arquivos",
     "existing": "Imagens existentes",
-    "pending": "Pendentes de envio"
+    "pending": "Pendentes de envio",
+    "limits": "Até {{max}} imagens, {{size}} MB cada.",
+    "rejected": {
+      "invalidType": "\"{{name}}\": formato não suportado.",
+      "tooLarge": "\"{{name}}\": acima de {{size}} MB.",
+      "tooMany": "\"{{name}}\": limite de {{max}} imagens por produto atingido."
+    }
   },
   "variants": {
     "empty": "Sem variantes. Clique em \"Adicionar variante\".",

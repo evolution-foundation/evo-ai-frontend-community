@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { assetUrl } from '@/utils/assetUrl';
 import {
@@ -50,6 +50,13 @@ const STATUSES: ProductStatus[] = ['active', 'inactive', 'draft'];
 const CURRENCIES: ProductCurrency[] = ['BRL', 'USD', 'EUR'];
 const URL_REGEX = /^https?:\/\/.+/i;
 
+// EVO-2226: kept in step with Products::ImagePolicy on the API side.
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_IMAGES_PER_PRODUCT = 10;
+
+type RejectedFile = { name: string; reason: 'invalidType' | 'tooLarge' | 'tooMany' };
+
 // Empty input → null; non-numeric input (e.g. a pasted string) → null instead of NaN,
 // which would otherwise leak into the payload and bypass form validation.
 function toNumberOrNull(value: string): number | null {
@@ -96,6 +103,8 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
   const [activeTab, setActiveTab] = useState('general');
   // EVO-2226: raw image files picked in the Media tab, uploaded on submit.
   const [files, setFiles] = useState<File[]>([]);
+  const [rejectedFiles, setRejectedFiles] = useState<RejectedFile[]>([]);
+  const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Object URLs for previewing pending picks; revoked when the set changes/unmounts.
@@ -103,6 +112,7 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
   useEffect(() => () => filePreviews.forEach((p) => URL.revokeObjectURL(p.url)), [filePreviews]);
 
   const isEdit = useMemo(() => Boolean(product?.id), [product]);
+  const existingImageCount = product?.images?.length ?? 0;
   const isPhysical = form.kind === 'physical';
 
   useEffect(() => {
@@ -129,6 +139,7 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
       setLabelsText('');
     }
     setFiles([]);
+    setRejectedFiles([]);
     setTouched({});
     setSubmitAttempted(false);
     setActiveTab('general');
@@ -197,11 +208,38 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
     await onSubmit(payload, files.length ? files : undefined);
   };
 
+  // Mirrors Products::ImagePolicy on the server. Validating here is not a
+  // security control — it exists so a refused file says why, instead of the
+  // product saving and the image simply not being there.
   const handleFilesPicked = (list: FileList | null) => {
     if (!list) return;
-    const picked = Array.from(list).filter((f) => f.type.startsWith('image/'));
-    setFiles((prev) => [...prev, ...picked]);
+
+    const rejected: RejectedFile[] = [];
+    const accepted: File[] = [];
+    let slots = MAX_IMAGES_PER_PRODUCT - (existingImageCount + files.length);
+
+    Array.from(list).forEach((file) => {
+      if (!file.type.startsWith('image/') || !ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+        rejected.push({ name: file.name, reason: 'invalidType' });
+      } else if (file.size > MAX_IMAGE_BYTES) {
+        rejected.push({ name: file.name, reason: 'tooLarge' });
+      } else if (slots <= 0) {
+        rejected.push({ name: file.name, reason: 'tooMany' });
+      } else {
+        accepted.push(file);
+        slots -= 1;
+      }
+    });
+
+    if (accepted.length) setFiles((prev) => [...prev, ...accepted]);
+    setRejectedFiles(rejected);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setDragging(false);
+    handleFilesPicked(event.dataTransfer?.files ?? null);
   };
 
   return (
@@ -382,13 +420,27 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
           </TabsContent>
 
           <TabsContent value="media" className="space-y-4 overflow-y-auto pt-4">
-            <div className="rounded-lg border border-dashed p-6 text-center">
+            <div
+              data-testid="product-image-dropzone"
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={handleDrop}
+              className={`rounded-lg border border-dashed p-6 text-center transition-colors ${
+                dragging ? 'border-primary bg-primary/5' : ''
+              }`}
+            >
               <ImageIcon className="mx-auto h-8 w-8 text-muted-foreground" />
               <p className="mt-2 text-sm text-muted-foreground">{t('media.uploadHint')}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t('media.limits', { max: MAX_IMAGES_PER_PRODUCT, size: MAX_IMAGE_BYTES / (1024 * 1024) })}
+              </p>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept={ACCEPTED_IMAGE_TYPES.join(',')}
                 multiple
                 className="hidden"
                 data-testid="product-image-input"
@@ -399,6 +451,20 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
                 {t('media.selectFiles')}
               </Button>
             </div>
+
+            {rejectedFiles.length > 0 && (
+              <ul className="space-y-1 text-xs text-destructive" data-testid="product-image-rejections">
+                {rejectedFiles.map((rejected) => (
+                  <li key={`${rejected.name}-${rejected.reason}`}>
+                    {t(`media.rejected.${rejected.reason}`, {
+                      name: rejected.name,
+                      max: MAX_IMAGES_PER_PRODUCT,
+                      size: MAX_IMAGE_BYTES / (1024 * 1024),
+                    })}
+                  </li>
+                ))}
+              </ul>
+            )}
 
             {isEdit && (product?.images?.length ?? 0) > 0 && (
               <div className="space-y-2">
@@ -421,7 +487,7 @@ export default function ProductModal({ open, product, loading, errors, onOpenCha
                 <Label>{t('media.pending')}</Label>
                 <div className="grid grid-cols-4 gap-2">
                   {filePreviews.map((preview, index) => (
-                    <div key={preview.url} className="relative">
+                    <div key={`${preview.file.name}-${preview.file.size}-${index}`} className="relative">
                       <img
                         src={preview.url}
                         alt={preview.file.name}

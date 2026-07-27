@@ -70,7 +70,13 @@
     "uploadHint": "Drag images here or use the button below.",
     "selectFiles": "Select files",
     "existing": "Existing images",
-    "pending": "Pending upload"
+    "pending": "Pending upload",
+    "limits": "Up to {{max}} images, {{size}} MB each.",
+    "rejected": {
+      "invalidType": "\"{{name}}\": unsupported format.",
+      "tooLarge": "\"{{name}}\": over {{size}} MB.",
+      "tooMany": "\"{{name}}\": limit of {{max}} images per product reached."
+    }
   },
   "variants": {
     "empty": "No variants. Click \"Add variant\".",
