@@ -16,6 +16,7 @@ import { customAttributesService } from '@/services/customAttributes/customAttri
 import type { CustomAttributeDefinition } from '@/types/settings';
 import { VariableInput } from '@/components/journey/environment-manager';
 import { useLanguage } from '@/hooks/useLanguage';
+import { isExpressionFieldValid } from '@/utils/templateVariables';
 
 interface UpdateCustomAttributePanelProps {
   nodeId: string;
@@ -115,9 +116,10 @@ export function UpdateCustomAttributePanel({
   };
 
   const selectedAttribute = attributes.find(attr => attr.id === formData.attributeId);
-  const isValid = Boolean(
-    formData.attributeId && formData.newValue !== undefined && formData.newValue !== '',
-  );
+  const isValid =
+    Boolean(formData.attributeId && formData.newValue !== undefined && formData.newValue !== '') &&
+    // EVO-1872: block Save on an unbalanced {{ }} expression in the new value.
+    isExpressionFieldValid(formData.newValue);
   const dirty = useMemo(
     () => JSON.stringify(formData) !== JSON.stringify(originalData),
     [formData, originalData],
@@ -208,6 +210,7 @@ export function UpdateCustomAttributePanel({
             onChange={e => handleValueChange(e.target.value)}
             className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
             journeyId={journeyId}
+            validateExpression
           />
         );
 
@@ -220,6 +223,7 @@ export function UpdateCustomAttributePanel({
             onChange={e => handleValueChange(e.target.value)}
             className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
             journeyId={journeyId}
+            validateExpression
           />
         );
 
@@ -232,6 +236,7 @@ export function UpdateCustomAttributePanel({
             onChange={e => handleValueChange(e.target.value)}
             className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
             journeyId={journeyId}
+            validateExpression
           />
         );
     }

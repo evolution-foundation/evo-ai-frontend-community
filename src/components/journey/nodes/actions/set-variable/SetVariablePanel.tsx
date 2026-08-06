@@ -13,6 +13,7 @@ import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
 import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { VariableInput, VariableSelect } from '@/components/journey/environment-manager';
 import { useLanguage } from '@/hooks/useLanguage';
+import { isExpressionFieldValid } from '@/utils/templateVariables';
 
 interface SetVariablePanelProps {
   nodeId: string;
@@ -140,11 +141,14 @@ export function SetVariablePanel({
   };
 
   const selectedOperation = OPERATIONS.find(op => op.value === formData.operation);
-  const isValid = Boolean(
-    formData.variableName &&
-      (!selectedOperation?.needsValue || formData.value) &&
-      (!selectedOperation?.needsCategory || formData.category),
-  );
+  const isValid =
+    Boolean(
+      formData.variableName &&
+        (!selectedOperation?.needsValue || formData.value) &&
+        (!selectedOperation?.needsCategory || formData.category),
+    ) &&
+    // EVO-1872: an unbalanced {{ }} expression in the value blocks Save.
+    isExpressionFieldValid(formData.value);
   const dirty = useMemo(
     () => JSON.stringify(formData) !== JSON.stringify(originalData),
     [formData, originalData],
@@ -165,9 +169,7 @@ export function SetVariablePanel({
             placeholder={t('panels.setVariable.placeholders.numericAmount')}
             className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
             journeyId={journeyId}
-            onVariableInsert={variable => {
-              console.log('Variable inserted in numeric operation:', variable);
-            }}
+            validateExpression
           />
         );
 
@@ -179,9 +181,7 @@ export function SetVariablePanel({
             placeholder={t('panels.setVariable.placeholders.customValue')}
             className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
             journeyId={journeyId}
-            onVariableInsert={variable => {
-              console.log('Variable inserted in custom value:', variable);
-            }}
+            validateExpression
           />
         );
     }

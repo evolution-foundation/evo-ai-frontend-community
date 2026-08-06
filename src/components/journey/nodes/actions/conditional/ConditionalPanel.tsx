@@ -27,7 +27,7 @@ import { VariableInput, VariableSelect } from '@/components/journey/environment-
 import { v4 as uuidv4 } from 'uuid';
 import { useLanguage } from '@/hooks/useLanguage';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
-import { isBalancedExpression } from '@/utils/templateVariables';
+import { isExpressionFieldValid } from '@/utils/templateVariables';
 
 const PIPELINE_STAGE_OPERATORS = ['equals', 'not_equals'];
 
@@ -247,9 +247,7 @@ export function ConditionalPanel({
   const isConditionValueBalanced = (condition: Condition) => {
     if (condition.field === PIPELINE_STAGE_FIELD) return true;
     if (!needsValue(condition.operator)) return true;
-    const value = condition.value;
-    if (typeof value !== 'string' || value.trim() === '') return true;
-    return isBalancedExpression(value);
+    return isExpressionFieldValid(condition.value);
   };
 
   // Cheap derived traversal (a handful of conditions) — recompute on each
@@ -290,9 +288,6 @@ export function ConditionalPanel({
     const operatorOptions = isPipelineStageField
       ? OPERATORS.filter(option => PIPELINE_STAGE_OPERATORS.includes(option.value))
       : OPERATORS;
-
-    const valueBalanced = isConditionValueBalanced(condition);
-    const exprErrorId = `conditional-expr-error-${condition.id}`;
 
     return (
       <div
@@ -377,27 +372,19 @@ export function ConditionalPanel({
                 </SelectContent>
               </Select>
             ) : needsValue(condition.operator) ? (
-              <>
-                <VariableInput
-                  value={condition.value || ''}
-                  onChange={e =>
-                    updateCondition(pathId, condition.id, {
-                      value: e.target.value,
-                      valueLabel: undefined,
-                    })
-                  }
-                  placeholder={t('panels.conditional.value')}
-                  className="bg-sidebar border-sidebar-border text-sidebar-foreground"
-                  journeyId={journeyId}
-                  aria-invalid={!valueBalanced}
-                  aria-describedby={valueBalanced ? undefined : exprErrorId}
-                />
-                {!valueBalanced && (
-                  <p id={exprErrorId} className="mt-1 text-xs text-flow-feedback-error-fg">
-                    {t('environmentManager.invalidExpression')}
-                  </p>
-                )}
-              </>
+              <VariableInput
+                value={condition.value || ''}
+                onChange={e =>
+                  updateCondition(pathId, condition.id, {
+                    value: e.target.value,
+                    valueLabel: undefined,
+                  })
+                }
+                placeholder={t('panels.conditional.value')}
+                className="bg-sidebar border-sidebar-border text-sidebar-foreground"
+                journeyId={journeyId}
+                validateExpression
+              />
             ) : (
               <div className="h-10 flex items-center text-xs text-muted-foreground italic px-3">
                 {t('panels.conditional.notNecessary')}

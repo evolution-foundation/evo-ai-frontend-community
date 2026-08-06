@@ -73,6 +73,7 @@ export function WebhookBodyBuilder({ fields, bodyType, onChange, journeyId }: We
                     placeholder={t('panels.sendWebhook.body.builder.valuePlaceholder')}
                     className="bg-sidebar border-sidebar-border text-sidebar-foreground"
                     journeyId={journeyId}
+                    validateExpression
                   />
                 </div>
 

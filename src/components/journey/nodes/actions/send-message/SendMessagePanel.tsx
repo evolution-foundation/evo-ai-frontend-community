@@ -30,7 +30,7 @@ import {
   TemplateVariableMapping,
   TemplateVariableSource,
 } from './SendMessageNode';
-import { isBalancedExpression } from '@/utils/templateVariables';
+import { isExpressionFieldValid } from '@/utils/templateVariables';
 import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
 import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { automationService } from '@/services/automation/automationService';
@@ -491,7 +491,7 @@ export function SendMessagePanel({
       case 'fixed':
         return !!(mapping.value ?? '').trim();
       case 'expression':
-        return !!(mapping.expression ?? '').trim() && isBalancedExpression(mapping.expression!);
+        return !!(mapping.expression ?? '').trim() && isExpressionFieldValid(mapping.expression);
       default:
         return !!mapping.path;
     }
@@ -507,7 +507,7 @@ export function SendMessagePanel({
       mapping =>
         mapping.source === 'expression' &&
         !!(mapping.expression ?? '').trim() &&
-        !isBalancedExpression(mapping.expression!),
+        !isExpressionFieldValid(mapping.expression),
     );
   const missingRequiredVariables = isTemplateMode
     ? (selectedTemplate?.variables ?? []).filter(
@@ -782,11 +782,6 @@ export function SendMessagePanel({
                       mapping.source === 'contact' ||
                       mapping.source === 'conversation' ||
                       mapping.source === 'pipeline';
-                    const expressionInvalid =
-                      mapping.source === 'expression' &&
-                      !!(mapping.expression ?? '').trim() &&
-                      !isBalancedExpression(mapping.expression!);
-                    const exprErrorId = `send-message-expr-error-${variable.name}`;
 
                     return (
                       <div key={variable.name} className="space-y-1">
@@ -857,7 +852,7 @@ export function SendMessagePanel({
                           )}
 
                           {mapping.source === 'expression' && (
-                            <div className="w-full space-y-1">
+                            <div className="w-full">
                               <VariableTextarea
                                 value={mapping.expression ?? ''}
                                 onChange={e =>
@@ -868,17 +863,8 @@ export function SendMessagePanel({
                                 placeholder={t('panels.sendMessage.expressionPlaceholder')}
                                 className="min-h-[40px] resize-none"
                                 journeyId={journeyId}
-                                aria-invalid={expressionInvalid}
-                                aria-describedby={expressionInvalid ? exprErrorId : undefined}
+                                validateExpression
                               />
-                              {expressionInvalid && (
-                                <p
-                                  id={exprErrorId}
-                                  className="text-xs text-flow-feedback-error-fg"
-                                >
-                                  {t('panels.sendMessage.invalidExpression')}
-                                </p>
-                              )}
                             </div>
                           )}
                         </div>

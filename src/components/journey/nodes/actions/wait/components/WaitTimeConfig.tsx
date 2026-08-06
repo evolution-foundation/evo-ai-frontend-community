@@ -74,9 +74,6 @@ export function WaitTimeConfig({ data, onChange, journeyId }: WaitTimeConfigProp
           placeholder={t('panels.waitComponents.time.durationPlaceholder')}
           className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
           journeyId={journeyId}
-          onVariableInsert={variable => {
-            console.log('Variable inserted in wait duration:', variable);
-          }}
         />
         <p className="text-xs text-gray-500 dark:text-gray-400">
           {t('panels.waitComponents.time.variableHint')}

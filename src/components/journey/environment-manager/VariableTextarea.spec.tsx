@@ -52,6 +52,34 @@ describe('VariableTextarea — accessibility', () => {
   });
 });
 
+describe('VariableTextarea — expression validation (EVO-1872)', () => {
+  it('flags an unbalanced value: aria-invalid true + inline error wired to the field', () => {
+    render(<VariableTextarea journeyId="j1" validateExpression value="{{order_id" readOnly />);
+
+    const textarea = screen.getByRole('textbox');
+    expect(textarea).toHaveAttribute('aria-invalid', 'true');
+    const describedBy = textarea.getAttribute('aria-describedby');
+    expect(describedBy).toBeTruthy();
+    expect(document.getElementById(describedBy as string)).toBeInTheDocument();
+  });
+
+  it('treats a balanced value as valid: aria-invalid false, no inline error', () => {
+    render(<VariableTextarea journeyId="j1" validateExpression value="{{order_id}}" readOnly />);
+
+    const textarea = screen.getByRole('textbox');
+    expect(textarea).toHaveAttribute('aria-invalid', 'false');
+    expect(textarea.getAttribute('aria-describedby')).toBeFalsy();
+  });
+
+  it('does not validate when validateExpression is off (opt-in)', () => {
+    render(<VariableTextarea journeyId="j1" value="{{order_id" readOnly />);
+
+    const textarea = screen.getByRole('textbox');
+    expect(textarea.getAttribute('aria-invalid')).toBeFalsy();
+    expect(textarea.getAttribute('aria-describedby')).toBeFalsy();
+  });
+});
+
 describe('VariableTextarea — variable insertion (EVO-1855 item 4)', () => {
   // Capture synchronously inside the handler: the panels are controlled, so a
   // spy that doesn't write state back lets React reset the DOM value after the

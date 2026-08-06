@@ -11,6 +11,9 @@ interface PhoneInputProps {
   error?: boolean;
   placeholder?: string;
   className?: string;
+  // EVO-1872 (CR4): let callers wire the expression-error aria to the inner input.
+  'aria-invalid'?: React.AriaAttributes['aria-invalid'];
+  'aria-describedby'?: React.AriaAttributes['aria-describedby'];
 }
 
 /**
@@ -38,6 +41,8 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
   error = false,
   placeholder,
   className,
+  'aria-invalid': ariaInvalid,
+  'aria-describedby': ariaDescribedBy,
 }) => {
   return (
     <PhoneInputLib
@@ -57,6 +62,8 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
         disabled,
       }}
       numberInputProps={{
+        'aria-invalid': ariaInvalid,
+        'aria-describedby': ariaDescribedBy,
         className: cn(
           'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors',
           'file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground',
