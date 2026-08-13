@@ -90,4 +90,6 @@ jobs:
             src/components/journey/nodes/trigger/components/WebhookConfiguration.spec.tsx \
             src/components/journey/nodes/actions/wait/components/WaitTimeConfig.spec.tsx \
             src/components/journey/nodes/actions/send-webhook/components/WebhookBasicConfig.spec.tsx \
+            src/components/journey/nodes/actions/send-webhook/components/WebhookHeadersConfig.spec.tsx \
+            src/components/journey/nodes/actions/send-message/components/SendMessageAttachments.spec.tsx \
             src/components/journey/environment-manager/VariableMapping.spec.tsx

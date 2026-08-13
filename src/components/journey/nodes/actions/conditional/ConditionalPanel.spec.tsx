@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ConditionalPanel } from './ConditionalPanel';
 import { ConditionalNodeData } from './ConditionalNode';
-import '@/i18n/config';
+import i18n from '@/i18n/config';
 
 vi.mock('@/services/pipelines/pipelinesService', () => ({
   pipelinesService: {
@@ -36,6 +36,7 @@ const PLAN_INTEREST_ATTR = {
 };
 
 const PIPELINE_STAGE_FIELD = '{{conversation.pipeline_stage_id}}';
+const PATHS_TITLE = i18n.t('journey:panels.conditional.pathsTitle');
 
 const PIPELINES = [{ id: 'pipe-1', name: 'Sales' }];
 const STAGES = [
@@ -332,5 +333,31 @@ describe('ConditionalPanel — expression validation', () => {
     expect(
       await screen.findByRole('button', { name: INSERT_VARIABLE_NAME }),
     ).toBeInTheDocument();
+  });
+});
+
+describe('ConditionalPanel — o rótulo dos caminhos nomeia o grupo (CRM-141)', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  // The group lands on the Radix Tabs root, the only place in CRM-141 where it
+  // is not a plain <div> — assert the props survive the primitive.
+  it('names the paths tabs as a group', async () => {
+    mockGetPipelines.mockResolvedValue({ data: PIPELINES });
+    mockGetPipelineStages.mockResolvedValue({ data: STAGES });
+
+    render(
+      <ConditionalPanel
+        nodeId="n1"
+        data={dataWithStageCondition()}
+        onUpdate={vi.fn()}
+        onClose={vi.fn()}
+        journeyId="j1"
+      />,
+    );
+
+    const group = await screen.findByRole('group', { name: PATHS_TITLE });
+    expect(within(group).getByRole('tablist')).toBeTruthy();
   });
 });
