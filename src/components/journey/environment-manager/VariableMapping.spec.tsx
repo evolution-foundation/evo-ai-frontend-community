@@ -34,9 +34,9 @@ describe('VariableMapping — Label pareado por linha', () => {
       />,
     );
 
-    const sources = screen.getAllByLabelText(j('environmentManager.form.fields.description.label'));
-    const variables = screen.getAllByLabelText(j('environmentManager.form.fields.name.label'));
-    const transforms = screen.getAllByLabelText(j('environmentManager.form.fields.type.label'));
+    const sources = screen.getAllByLabelText(j('environmentManager.mapping.sourcePathLabel'));
+    const variables = screen.getAllByLabelText(j('environmentManager.mapping.variableLabel'));
+    const transforms = screen.getAllByLabelText(j('environmentManager.mapping.transformLabel'));
 
     expect(sources).toHaveLength(2);
     expect(variables).toHaveLength(2);

@@ -167,7 +167,7 @@ export function VariableMapping({
                     htmlFor={`variable-mapping-source-${mapping.id}`}
                     className="text-xs text-gray-600 font-medium"
                   >
-                    {t('environmentManager.form.fields.description.label')}
+                    {t('environmentManager.mapping.sourcePathLabel')}
                   </Label>
                   {paths && paths.length > 0 ? (
                     <Select
@@ -231,7 +231,7 @@ export function VariableMapping({
                       htmlFor={`variable-mapping-custom-path-${mapping.id}`}
                       className="text-xs text-gray-600 font-medium"
                     >
-                      {t('environmentManager.form.fields.name.help')}
+                      {t('environmentManager.mapping.customPathLabel')}
                     </Label>
                     <Input
                       id={`variable-mapping-custom-path-${mapping.id}`}
@@ -263,7 +263,7 @@ export function VariableMapping({
                     htmlFor={`variable-mapping-variable-${mapping.id}`}
                     className="text-xs text-gray-600 font-medium"
                   >
-                    {t('environmentManager.form.fields.name.label')}
+                    {t('environmentManager.mapping.variableLabel')}
                   </Label>
                   <VariableSelect
                     id={`variable-mapping-variable-${mapping.id}`}
@@ -283,7 +283,7 @@ export function VariableMapping({
                     htmlFor={`variable-mapping-transform-${mapping.id}`}
                     className="text-xs text-gray-600 font-medium"
                   >
-                    {t('environmentManager.form.fields.type.label')}
+                    {t('environmentManager.mapping.transformLabel')}
                   </Label>
                   <Select
                     value={mapping.transform || 'none'}

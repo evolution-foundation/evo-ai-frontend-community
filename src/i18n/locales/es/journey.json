@@ -537,6 +537,12 @@
         "deleteError": "Error al eliminar variable. Intente nuevamente."
       }
     },
+    "mapping": {
+      "sourcePathLabel": "Ruta de origen",
+      "customPathLabel": "Ruta personalizada",
+      "variableLabel": "Variable de destino",
+      "transformLabel": "Transformación"
+    },
     "customVariables": {
       "empty": {
         "title": "Ninguna variable creada",

@@ -549,6 +549,12 @@
         "deleteError": "Errore nell'eliminazione della variabile. Riprova."
       }
     },
+    "mapping": {
+      "sourcePathLabel": "Percorso di origine",
+      "customPathLabel": "Percorso personalizzato",
+      "variableLabel": "Variabile di destinazione",
+      "transformLabel": "Trasformazione"
+    },
     "customVariables": {
       "empty": {
         "title": "Nessuna variabile creata",

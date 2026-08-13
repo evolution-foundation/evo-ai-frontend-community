@@ -537,6 +537,12 @@
         "deleteError": "Erreur lors de la suppression de la variable. Réessayez."
       }
     },
+    "mapping": {
+      "sourcePathLabel": "Chemin source",
+      "customPathLabel": "Chemin personnalisé",
+      "variableLabel": "Variable cible",
+      "transformLabel": "Transformation"
+    },
     "customVariables": {
       "empty": {
         "title": "Aucune variable créée",
