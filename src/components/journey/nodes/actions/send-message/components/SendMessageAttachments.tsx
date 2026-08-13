@@ -51,16 +51,20 @@ export function SendMessageAttachments({
   return (
     <>
       <div className="space-y-2">
-        <Label htmlFor="send-message-attachments-input" className="text-sm font-medium">
+        <Label id="send-message-attachments-label" className="text-sm font-medium">
           {t('panels.sendMessage.attachments')}
         </Label>
 
+        {/* The file input is display:none, so it is out of the a11y tree and
+            cannot carry the label. The dropzone holds the visible control. */}
         <div
           className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
             isDragOver
               ? 'border-flow-node-action-message-fg bg-flow-node-action-message-bg'
               : 'border-border hover:border-flow-node-action-message-border'
           }`}
+          role="group"
+          aria-labelledby="send-message-attachments-label"
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
           onDrop={onDrop}
@@ -80,7 +84,6 @@ export function SendMessageAttachments({
             {t('panels.sendMessage.chooseFiles')}
           </Button>
           <input
-            id="send-message-attachments-input"
             ref={fileInputRef}
             type="file"
             multiple
