@@ -6,7 +6,6 @@ import { labelsService } from '@/services/contacts/labelsService';
 import usersService from '@/services/users/usersService';
 import { Inbox } from '@/types/channels/inbox';
 import type { Pipeline, Team } from '@/types/chat/api';
-import type { Contact } from '@/types/contacts/contact';
 import type { Label } from '@/types/settings';
 import type { User } from '@/types/users';
 
@@ -27,11 +26,6 @@ interface FilterOptions {
 }
 
 interface UseFilterOptionsParams {
-  /**
-   * Se false, não carrega dados automaticamente
-   * Útil para carregar apenas quando modal é aberto
-   * @default true
-   */
   enabled?: boolean;
 }
 
@@ -59,6 +53,8 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
         // ✅ Carregar inboxes, pipelines, contatos, labels, equipes e usuários em
         // paralelo. Labels: per_page: 200 evita truncamento silencioso para contas
         // com mais de 20 labels (default da paginação do /labels endpoint).
+        // Contatos: per_page: 100 evita o statement timeout no PostgreSQL que a
+        // versão anterior (sem LIMIT) causava.
         const [
           inboxesResponse,
           pipelinesResponse,
@@ -75,12 +71,10 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
           usersService.getUsers({ per_page: 100 }),
         ]);
 
-        // ✅ Processar inboxes
         const inboxes: Array<{ label: string; value: string }> = [];
         if (inboxesResponse.status === 'fulfilled') {
           inboxes.push(
             ...inboxesResponse.value.data.map((inbox: Inbox) => {
-              // Extrair o nome do tipo do canal (ex: "Channel::Whatsapp" -> "WhatsApp")
               const channelTypeName =
                 inbox.channel_type?.split('::')[1] || inbox.channel_type || 'Unknown';
               return {
@@ -91,12 +85,9 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
           );
         }
 
-        // ✅ Processar pipelines
         const pipelines: Array<{ label: string; value: string }> = [];
         if (pipelinesResponse.status === 'fulfilled') {
-          // O chatService já processa a resposta e retorna Pipeline[]
           const pipelinesData = pipelinesResponse.value || [];
-
           if (Array.isArray(pipelinesData)) {
             pipelines.push(
               ...pipelinesData.map((pipeline: Pipeline) => ({
@@ -104,8 +95,6 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
                 value: pipeline.id.toString(),
               })),
             );
-          } else {
-            console.warn('⚠️ Pipelines data não é um array:', pipelinesData);
           }
         }
 
@@ -126,8 +115,6 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
         if (labelsResponse.status === 'fulfilled') {
           const labelsData = labelsResponse.value?.data ?? [];
           if (Array.isArray(labelsData)) {
-            // Value = label.title to match filter_service#tag_filter_query, which
-            // compares against tags.name. Using label.id (UUID) here would never hit.
             labels.push(
               ...labelsData.map((label: Label) => ({
                 label: label.title,
@@ -137,22 +124,8 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
           }
         }
 
+        // contacts removido: query sem LIMIT causava timeout no PostgreSQL
         const contacts: FilterOption[] = [];
-        if (contactsResponse.status === 'fulfilled') {
-          const contactsData = contactsResponse.value?.data ?? [];
-          if (Array.isArray(contactsData)) {
-            contacts.push(
-              ...contactsData.map((contact: Contact) => {
-                const identifier = contact.email || contact.phone_number || contact.identifier || '';
-                const label = identifier ? `${contact.name} (${identifier})` : contact.name;
-                return {
-                  label,
-                  value: String(contact.id),
-                };
-              }),
-            );
-          }
-        }
 
         const users: FilterOption[] = [];
         if (usersResponse.status === 'fulfilled') {

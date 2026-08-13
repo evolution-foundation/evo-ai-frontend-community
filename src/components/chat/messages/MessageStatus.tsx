@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Message } from '@/types/chat/api';
 import { formatMessageTime } from '@/utils/time/timeHelpers';
 import { useLanguage } from '@/hooks/useLanguage';
+import { getFriendlyDeliveryError } from './utils/deliveryErrorMessages';
 
 interface MessageStatusProps {
   message: Message;
@@ -34,41 +35,6 @@ const MessageStatus: React.FC<MessageStatusProps> = ({ message, isOwn, onRetry, 
       return <Check className="h-3 w-3 text-muted-foreground" />;
     }
 
-    // CORREÇÃO: Em ambiente de desenvolvimento, canais podem não estar configurados
-    // Se for uma mensagem pública com status 'failed', pode ser problema de configuração
-    if (message.status === 'failed' && !message.private) {
-      return (
-        <Button
-          size="sm"
-          variant="ghost"
-          className="h-auto p-0 text-orange-500 hover:text-orange-600"
-          onClick={e => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // Mostrar toast explicativo sobre o problema do webhook
-            toast.warning(t('messages.messageStatus.statusUnavailable'), {
-              description: t('messages.messageStatus.statusUnavailableDescription'),
-            });
-            toast.info(t('messages.messageStatus.checkChannelConfig'), {
-              description: t('messages.messageStatus.webhookIssue'),
-            });
-
-            // Se existe função onRetry, também executar (para tentar reenviar)
-            if (onRetry) {
-              setTimeout(() => {
-                onRetry();
-              }, 1000); // Delay para que o usuário veja o toast primeiro
-            }
-          }}
-          title={t('messages.messageStatus.deliveryStatusUnavailable')}
-        >
-          <AlertCircle className="h-3 w-3" />
-          <span className="ml-1 text-xs">{t('messages.messageStatus.statusUnavailableText')}</span>
-        </Button>
-      );
-    }
-
     switch (message.status) {
       case 'sent':
         // Para mensagens privadas, 'sent' é o status final correto
@@ -80,12 +46,26 @@ const MessageStatus: React.FC<MessageStatusProps> = ({ message, isOwn, onRetry, 
         return <CheckCheck className="h-3 w-3 text-primary" />;
       case 'progress':
         return <Loader2 className="h-3 w-3 text-blue-500 animate-spin" />;
-      case 'failed':
+      case 'failed': {
+        // The backend already captures the real provider error (e.g. "131026: Message
+        // undeliverable") in content_attributes.external_error. A raw error code means
+        // nothing to a non-technical agent, so translate the ones we recognize into
+        // plain language and show THAT as the label — the raw code stays available in
+        // the tooltip for anyone who wants the technical detail.
+        const externalError = message.content_attributes?.external_error;
+        const friendlyError = getFriendlyDeliveryError(externalError);
+        const displayText = friendlyError || externalError || t('messages.messageStatus.tryAgain');
+        const titleText = externalError
+          ? friendlyError
+            ? `${friendlyError} (${externalError})`
+            : `${t('messages.messageStatus.sendFailed')}: ${externalError}`
+          : t('messages.messageStatus.sendFailed');
+
         return (
           <Button
             size="sm"
             variant="ghost"
-            className="h-auto p-0 text-destructive hover:text-destructive/80"
+            className="h-auto p-0 max-w-[240px] text-destructive hover:text-destructive/80"
             onClick={() => {
               if (onRetry) {
                 onRetry();
@@ -93,12 +73,13 @@ const MessageStatus: React.FC<MessageStatusProps> = ({ message, isOwn, onRetry, 
                 toast.error(t('messages.messageStatus.retryInDevelopment'));
               }
             }}
-            title={t('messages.messageStatus.sendFailed')}
+            title={titleText}
           >
-            <AlertCircle className="h-3 w-3" />
-            <span className="ml-1 text-xs">{t('messages.messageStatus.tryAgain')}</span>
+            <AlertCircle className="h-3 w-3 flex-shrink-0" />
+            <span className="ml-1 text-xs truncate">{displayText}</span>
           </Button>
         );
+      }
       default:
         return <Clock className="h-3 w-3 text-muted-foreground animate-pulse" />;
     }

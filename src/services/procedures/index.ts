@@ -1,0 +1,1 @@
+export { proceduresService } from './proceduresService';

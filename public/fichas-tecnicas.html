@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Central de Fichas T&eacute;cnicas | Kaiab&iacute; CRM</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --surface: #171d23;
+      --surface-2: #202832;
+      --border: #33404d;
+      --text: #f6f8fb;
+      --muted: #9aa7b5;
+      --primary: #2f80ed;
+      --primary-hover: #2469c8;
+      --success: #1f9d66;
+      --danger: #e05656;
+      --shadow: 0 16px 44px rgba(0, 0, 0, 0.26);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 20px;
+    }
+
+    .shell {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .title-group {
+      min-width: 0;
+    }
+
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 6px;
+      font-size: 22px;
+      line-height: 1.2;
+      font-weight: 750;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .counter {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 13px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .search {
+      position: relative;
+    }
+
+    .search svg {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      width: 19px;
+      height: 19px;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    input,
+    select {
+      width: 100%;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    input {
+      padding: 0 14px 0 42px;
+    }
+
+    select {
+      min-width: 190px;
+      padding: 0 34px 0 12px;
+      cursor: pointer;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(47, 128, 237, 0.22);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      min-height: 172px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      padding: 16px;
+      box-shadow: none;
+      transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .card:hover {
+      border-color: rgba(47, 128, 237, 0.78);
+      background: var(--surface-2);
+      transform: translateY(-1px);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      max-width: 100%;
+      min-height: 24px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(47, 128, 237, 0.34);
+      border-radius: 999px;
+      padding: 3px 9px;
+      color: #8ec2ff;
+      background: rgba(47, 128, 237, 0.12);
+      font-size: 11px;
+      line-height: 1.2;
+      font-weight: 700;
+      text-transform: uppercase;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .product-title {
+      margin: 0 0 6px;
+      font-size: 16px;
+      line-height: 1.35;
+      font-weight: 720;
+      overflow-wrap: anywhere;
+    }
+
+    .product-code {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: 0;
+      border-radius: 7px;
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 650;
+      text-decoration: none;
+      cursor: pointer;
+      color: var(--text);
+      background: #2b3440;
+      transition: background 160ms ease, transform 160ms ease;
+    }
+
+    .btn svg {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 auto;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      background: #364352;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-success,
+    .btn-success:hover {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .empty {
+      grid-column: 1 / -1;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 34px 16px;
+      color: var(--muted);
+      text-align: center;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 20;
+      max-width: min(360px, calc(100vw - 36px));
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: var(--success);
+      color: #fff;
+      box-shadow: var(--shadow);
+      font-size: 14px;
+      font-weight: 650;
+      opacity: 0;
+      transform: translateY(14px);
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.is-error {
+      background: var(--danger);
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 14px;
+      }
+
+      .topbar,
+      .toolbar {
+        display: block;
+      }
+
+      .counter {
+        display: inline-flex;
+        margin-top: 12px;
+      }
+
+      select {
+        margin-top: 10px;
+        min-width: 0;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="title-group">
+        <h1>
+          <svg aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M7 3h7l5 5v13H7z" stroke-width="1.8" stroke-linejoin="round"></path>
+            <path d="M14 3v6h5M10 13h6M10 17h6" stroke-width="1.8" stroke-linecap="round"></path>
+          </svg>
+          Central de Fichas T&eacute;cnicas
+        </h1>
+        <p class="subtitle">Pesquise o produto e envie o link direto ao distribuidor.</p>
+      </div>
+      <div id="counter" class="counter" aria-live="polite"></div>
+    </header>
+
+    <section class="toolbar" aria-label="Filtros">
+      <div class="search">
+        <svg aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.3-4.3m1.8-5.2a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path>
+        </svg>
+        <input id="searchInput" type="search" autocomplete="off" placeholder="Buscar por produto, c&oacute;digo ou categoria" autofocus>
+      </div>
+      <select id="categoryFilter" aria-label="Filtrar por categoria"></select>
+    </section>
+
+    <section id="productGrid" class="grid" aria-live="polite"></section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script type="application/json" id="productData">
+    [
+      {
+        "id": 1,
+        "nome": "Produto Modelo A",
+        "sku": "COD-101",
+        "categoria": "Linha Principal",
+        "pdfUrl": "https://www.dropbox.com/scl/fi/exemplo1.pdf?rlkey=xyz&dl=1"
+      },
+      {
+        "id": 2,
+        "nome": "Produto Modelo B",
+        "sku": "COD-102",
+        "categoria": "Linha Industrial",
+        "pdfUrl": "https://www.dropbox.com/scl/fi/exemplo2.pdf?rlkey=xyz&dl=1"
+      }
+    ]
+  </script>
+
+  <script>
+    const products = JSON.parse(document.getElementById('productData').textContent);
+    const grid = document.getElementById('productGrid');
+    const counter = document.getElementById('counter');
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const toast = document.getElementById('toast');
+
+    const icons = {
+      copy: '<svg aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 8h11v13H8z" stroke-width="1.8" stroke-linejoin="round"></path><path d="M5 16H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v1" stroke-width="1.8" stroke-linejoin="round"></path></svg>',
+      open: '<svg aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><path d="M20 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
+      check: '<svg aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>'
+    };
+
+    function normalize(value) {
+      return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function showToast(message, isError = false) {
+      toast.textContent = message;
+      toast.classList.toggle('is-error', isError);
+      toast.classList.add('is-visible');
+      clearTimeout(showToast.timeoutId);
+      showToast.timeoutId = setTimeout(() => toast.classList.remove('is-visible'), 2400);
+    }
+
+    async function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = document.execCommand('copy');
+      textarea.remove();
+
+      if (!copied) {
+        throw new Error('copy_failed');
+      }
+    }
+
+    function renderCategories() {
+      const categories = Array.from(new Set(products.map((product) => product.categoria))).sort((a, b) => a.localeCompare(b));
+      categoryFilter.innerHTML = '<option value="">Todas as categorias</option>' + categories.map((category) => {
+        return `<option value="${encodeURIComponent(category)}">${category}</option>`;
+      }).join('');
+    }
+
+    function productMatches(product, query, category) {
+      const matchesQuery = !query || [product.nome, product.sku, product.categoria].some((field) => normalize(field).includes(query));
+      const matchesCategory = !category || product.categoria === category;
+      return matchesQuery && matchesCategory;
+    }
+
+    function renderProducts() {
+      const query = normalize(searchInput.value.trim());
+      const category = decodeURIComponent(categoryFilter.value || '');
+      const visible = products.filter((product) => productMatches(product, query, category));
+
+      counter.textContent = `${visible.length} de ${products.length} fichas`;
+
+      if (!visible.length) {
+        grid.innerHTML = '<div class="empty">Nenhuma ficha encontrada.</div>';
+        return;
+      }
+
+      grid.innerHTML = visible.map((product) => `
+        <article class="card">
+          <div>
+            <span class="badge" title="${product.categoria}">${product.categoria}</span>
+            <h2 class="product-title">${product.nome}</h2>
+            <p class="product-code">C&oacute;digo: ${product.sku}</p>
+          </div>
+          <div class="actions">
+            <button class="btn copy-btn" type="button" data-url="${product.pdfUrl}">
+              ${icons.copy}
+              Copiar
+            </button>
+            <a class="btn btn-primary" href="${product.pdfUrl}" target="_blank" rel="noopener noreferrer">
+              ${icons.open}
+              Abrir PDF
+            </a>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    grid.addEventListener('click', async (event) => {
+      const button = event.target.closest('.copy-btn');
+      if (!button) return;
+
+      const original = button.innerHTML;
+      try {
+        await copyText(button.dataset.url);
+        button.innerHTML = `${icons.check} Copiado`;
+        button.classList.add('btn-success');
+        showToast('Link copiado com sucesso.');
+        setTimeout(() => {
+          button.innerHTML = original;
+          button.classList.remove('btn-success');
+        }, 1800);
+      } catch {
+        showToast('Nao foi possivel copiar o link.', true);
+      }
+    });
+
+    searchInput.addEventListener('input', renderProducts);
+    categoryFilter.addEventListener('change', renderProducts);
+
+    renderCategories();
+    renderProducts();
+  </script>
+</body>
+</html>

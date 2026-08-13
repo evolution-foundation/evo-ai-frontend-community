@@ -81,7 +81,7 @@
       },
       "messageSignature": {
         "title": "Signature de messages personnels",
-        "description": "Créez une signature de message unique qui apparaîtra à la fin de chaque message que vous envoyez depuis n'importe quelle boîte de réception.",
+        "description": "Créez une signature de message unique qui apparaîtra en gras au début de chaque message que vous envoyez depuis n'importe quelle boîte de réception.",
         "label": "Signature du message",
         "placeholder": "Insérez ici votre signature de message personnel."
       },

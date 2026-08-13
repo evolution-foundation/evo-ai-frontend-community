@@ -500,7 +500,12 @@
       "twentyFourHours": "24 heures",
       "enableDay": "Activer {{day}}",
       "open24Hours": "Ouvert 24 heures",
-      "startPlaceholder": "Début"
+      "startPlaceholder": "Début",
+      "endPlaceholder": "Fin",
+      "timeError": "L'heure de fin doit être postérieure à l'heure de début",
+      "lunchBreak": "Pause déjeuner",
+      "breakLabel": "Pause",
+      "breakTimeError": "La pause doit se situer dans les horaires du jour, en commençant avant qu'ils ne se terminent"
     },
     "csat": {
       "title": "Enquête de Satisfaction (CSAT)",

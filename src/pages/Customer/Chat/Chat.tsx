@@ -838,17 +838,27 @@ const Chat = () => {
           onConversationSelect={handleConversationSelect}
           onFilterApply={handleApplyFilters}
           onFilterClear={handleClearFilters}
+          onMarkAsRead={handleMarkAsRead}
+          onMarkAsUnread={handleMarkAsUnread}
+          onMarkAsOpen={handleMarkAsOpen}
+          onMarkAsResolved={handleMarkAsResolved}
+          onPostpone={handlePostpone}
+          onMarkAsSnoozed={handleMarkAsSnoozed}
+          onSetPriority={handleSetPriority}
           onPinConversation={handlePinConversation}
           onUnpinConversation={handleUnpinConversation}
           onArchiveConversation={handleArchiveConversation}
           onUnarchiveConversation={handleUnarchiveConversation}
+          onAssignAgent={handleAssignAgent}
+          onAssignTeam={handleAssignTeam}
+          onAssignTag={handleAssignTag}
           onDeleteConversation={handleDeleteConversation}
           selectedConversationIds={selectedConversationIds}
           onToggleSelect={handleToggleConversationSelection}
           onClearSelection={handleClearSelection}
-          onBulkSetStatus={handleBulkSetStatus}
-          isBulkUpdatingStatus={isBulkUpdatingStatus}
-          canBulkUpdateStatus={can('conversations', 'update')}
+          onBulkResolve={() => handleBulkSetStatus('resolved')}
+          isBulkResolving={isBulkUpdatingStatus}
+          canBulkResolve={can('conversations', 'update')}
           width={sidebarWidth}
         />
 

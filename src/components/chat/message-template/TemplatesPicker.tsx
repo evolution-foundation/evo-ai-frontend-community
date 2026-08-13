@@ -17,6 +17,28 @@ interface TemplatesPickerProps {
   onSelect: (template: MessageTemplate) => void;
 }
 
+const getTemplateBody = (template: MessageTemplate): string => {
+  if (template.content) {
+    return template.content;
+  }
+
+  if (template.components) {
+    if (Array.isArray(template.components)) {
+      const bodyComponent = template.components.find(c => c.type === 'BODY');
+      if (bodyComponent?.text) {
+        return bodyComponent.text;
+      }
+    } else {
+      const bodyComponent = template.components.body || template.components.BODY;
+      if (bodyComponent?.text) {
+        return bodyComponent.text;
+      }
+    }
+  }
+
+  return '';
+};
+
 const TemplatesPicker: React.FC<TemplatesPickerProps> = ({ isWhatsAppCloud, templates, onSelect }) => {
   const { t } = useLanguage('chat');
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,9 +57,11 @@ const TemplatesPicker: React.FC<TemplatesPickerProps> = ({ isWhatsAppCloud, temp
     }
 
     const query = searchQuery.toLowerCase();
-    return visibleTemplates.filter(template =>
-      template.name.toLowerCase().includes(query),
-    );
+    return visibleTemplates.filter(template => {
+      const nameMatch = template.name.toLowerCase().includes(query);
+      const bodyMatch = getTemplateBody(template).toLowerCase().includes(query);
+      return nameMatch || bodyMatch;
+    });
   }, [visibleTemplates, searchQuery]);
 
 
@@ -56,13 +80,14 @@ const TemplatesPicker: React.FC<TemplatesPickerProps> = ({ isWhatsAppCloud, temp
       </div>
 
       {/* Lista de templates */}
-      <Card className="max-h-[300px] overflow-y-auto border border-border">
+      <Card className="max-h-[400px] overflow-y-auto border border-border">
         <div className="p-2 space-y-2">
           {filteredTemplates.length > 0 ? (
             filteredTemplates.map((template, index) => {
               const isEnabled = isWhatsAppCloud ? isTemplateSendable(template) : true;
               const badgeKey = isWhatsAppCloud ? getStatusBadgeKey(template) : null;
               const showBadge = badgeKey !== null && badgeKey !== 'approved';
+              const templateBody = getTemplateBody(template);
 
               return (
                 <div key={template.id || index}>
@@ -95,11 +120,24 @@ const TemplatesPicker: React.FC<TemplatesPickerProps> = ({ isWhatsAppCloud, temp
                       </span>
                     </div>
 
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground mb-1">
-                        {t('messageTemplates.picker.labels.category')}
-                      </p>
-                      <p className="text-xs">{template.category}</p>
+                    <div className="flex flex-col gap-2">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-0.5">
+                          {t('messageTemplates.picker.labels.category')}
+                        </p>
+                        <p className="text-xs">{template.category}</p>
+                      </div>
+
+                      {templateBody && (
+                        <div className="mt-1 p-2.5 bg-muted/40 rounded-md border border-border/30">
+                          <p className="text-[11px] font-medium text-muted-foreground mb-1">
+                            {t('messageTemplates.picker.labels.templateBody')}
+                          </p>
+                          <p className="text-xs text-foreground/90 whitespace-pre-wrap break-words line-clamp-3 leading-relaxed">
+                            {templateBody}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </button>
 

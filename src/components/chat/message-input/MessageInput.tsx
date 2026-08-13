@@ -23,6 +23,7 @@ import { AudioRecordingData } from '@/hooks/chat/useAudioRecorder';
 import { useCannedResponses } from '@/hooks/chat/useCannedResponses';
 import { useMessageSignature } from '@/hooks/useMessageSignature';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuth } from '@/contexts/AuthContext';
 
 import FileUpload from './FileUpload';
@@ -91,6 +92,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 }) => {
   const { t } = useLanguage('chat');
   const { user } = useAuth();
+  const isMobile = useIsMobile();
 
   // Detectar se é WhatsApp Cloud (apenas Cloud, não baileys/evolution/evolution_go)
   // Usado para features específicas da Cloud API (templates, etc.)
@@ -716,8 +718,15 @@ const MessageInput: React.FC<MessageInputProps> = ({
             )}
 
             {/* + menu */}
+            {/* isDisabled em canal WhatsApp Cloud só acontece pela janela de 24h (a
+                desconexão Z-API/Evolution é exclusiva de outros providers) — nesse caso
+                a única saída é enviar um template, então o "+" precisa continuar
+                clicável até lá em vez de travar o agente sem nenhuma rota de resposta. */}
             <ComposerPlusMenu
-              disabled={isDisabled || isSending || isPendingConversation}
+              disabled={
+                (isDisabled && !isWhatsAppCloud) || isSending || isPendingConversation
+              }
+              restrictToTemplatesOnly={isDisabled && isWhatsAppCloud && !isSending && !isPendingConversation}
               onOpenQuickReplies={handleCannedResponsesClick}
               onPickDocuments={() =>
                 document.getElementById('composer-file-input-document')?.click()
@@ -726,15 +735,33 @@ const MessageInput: React.FC<MessageInputProps> = ({
               onOpenConversationNote={() => setNotesMode(true)}
               onSchedule={() => setShowScheduleModal(true)}
               onOpenTemplates={isWhatsAppCloud ? handleTemplateClick : undefined}
+              // Below md, Emoji/Macros/Assinatura/IA fold into this menu instead of
+              // their own always-visible icons — six icon buttons plus the text
+              // field otherwise squeeze the composer pill down to near-nothing on
+              // phone-width screens (see useIsMobile below).
+              mobileExtraActions={
+                isMobile
+                  ? {
+                      onOpenEmoji: handleEmojiClick,
+                      onOpenMacros: conversationId
+                        ? () => document.getElementById('composer-macros-trigger')?.click()
+                        : undefined,
+                      onToggleSignature:
+                        hasSignature && !isPendingConversation ? toggleSignature : undefined,
+                      onOpenAIAssistance: () =>
+                        document.getElementById('composer-ai-trigger')?.click(),
+                    }
+                  : undefined
+              }
             />
 
-            {/* Emoji */}
+            {/* Emoji — hidden below md, folded into the "+" menu instead (see mobileExtraActions above) */}
             <div className="relative flex-shrink-0">
               <Button
                 variant="ghost"
                 size="icon"
                 disabled={isDisabled || isSending || isPendingConversation}
-                className="h-9 w-9 flex-shrink-0 hover:bg-accent disabled:opacity-50"
+                className="hidden md:inline-flex h-9 w-9 flex-shrink-0 hover:bg-accent disabled:opacity-50"
                 onClick={handleEmojiClick}
               >
                 <Smile className="h-[22px] w-[22px] text-primary" strokeWidth={2.2} />
@@ -746,22 +773,24 @@ const MessageInput: React.FC<MessageInputProps> = ({
               />
             </div>
 
-            {/* Macros */}
+            {/* Macros — hidden below md, folded into the "+" menu instead */}
             {conversationId && (
               <MacrosButton
                 conversationId={String(conversationId)}
                 disabled={isDisabled || isSending || isPendingConversation}
+                triggerId="composer-macros-trigger"
               />
             )}
 
-            {/* Message Signature (extra do CRM, sem equivalente no protótipo — mantido) */}
+            {/* Message Signature (extra do CRM, sem equivalente no protótipo — mantido).
+                Hidden below md, folded into the "+" menu instead. */}
             {hasSignature && !isPendingConversation && (
               <div className="relative group flex-shrink-0">
                 <Button
                   variant="ghost"
                   size="icon"
                   disabled={isDisabled || isSending}
-                  className={`h-9 w-9 flex-shrink-0 hover:bg-accent disabled:opacity-50 transition-colors ${
+                  className={`hidden md:inline-flex h-9 w-9 flex-shrink-0 hover:bg-accent disabled:opacity-50 transition-colors ${
                     isSignatureEnabled ? 'text-green-600 dark:text-green-400' : ''
                   }`}
                   onClick={toggleSignature}
@@ -864,6 +893,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
               }}
               disabled={isDisabled || isSending || isPendingConversation}
               conversationId={conversationId?.toString()}
+              triggerId="composer-ai-trigger"
             />
 
             {/* Mic / Send — troca conforme conteúdo digitado */}

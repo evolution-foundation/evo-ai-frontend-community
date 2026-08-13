@@ -85,13 +85,11 @@
       "sharedLocation": "Posizione condivisa",
       "openInMaps": "Apri in Google Maps"
     },
+    "messageContact": {
+      "sharedContact": "Contatto condiviso",
+      "unknownPhone": "Numero di telefono non disponibile"
+    },
     "messageStatus": {
-      "statusUnavailable": "Stato del messaggio non disponibile",
-      "statusUnavailableDescription": "Il messaggio è stato inviato, ma non siamo riusciti a confermare lo stato di consegna.",
-      "checkChannelConfig": "Verifica la configurazione del canale",
-      "webhookIssue": "Il webhook potrebbe essere obsoleto o inattivo.",
-      "deliveryStatusUnavailable": "Stato di consegna non disponibile - Clicca per maggiori dettagli",
-      "statusUnavailableText": "Stato non disponibile",
       "retryInDevelopment": "Funzionalità di nuovo tentativo in sviluppo",
       "sendFailed": "Invio fallito - Clicca per riprovare",
       "tryAgain": "Riprova"
@@ -736,7 +734,8 @@
     },
     "signature": {
       "enable": "Abilita firma",
-      "disable": "Disabilita firma"
+      "disable": "Disabilita firma",
+      "menuLabel": "Firma"
     },
     "placeholders": {
       "default": "Digita il tuo messaggio... (digita / per risposte pronte)",
@@ -749,7 +748,8 @@
       "documents": "Documenti",
       "media": "Foto e Video",
       "conversationNote": "Note della Conversazione",
-      "schedule": "Pianifica"
+      "schedule": "Pianifica",
+      "emoji": "Emoji"
     },
     "macros": {
       "tooltip": "Macro",

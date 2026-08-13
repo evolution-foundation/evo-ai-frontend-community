@@ -14,7 +14,7 @@ export const PERMISSION_DOMAINS: PermissionDomain[] = [
   {
     key: 'attendance',
     labelKey: 'domains.attendance',
-    resources: ['conversations', 'canned_responses', 'macros', 'labels', 'csat_survey_responses'],
+    resources: ['conversations', 'procedures', 'canned_responses', 'macros', 'labels', 'csat_survey_responses'],
   },
   {
     key: 'contacts',

@@ -102,8 +102,8 @@ export default function CampaignsTable({
           <div className="font-medium text-sm truncate mb-1">{campaign.title}</div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <CampaignTypeBadge type={campaign.type} />
-            {campaign.channel_type !== undefined && (
-              <CampaignChannelBadge channelType={campaign.channel_type} />
+            {campaign.channelType !== undefined && (
+              <CampaignChannelBadge channelType={campaign.channelType} />
             )}
           </div>
         </div>
@@ -121,10 +121,10 @@ export default function CampaignsTable({
       sortable: true,
       render: campaign => (
         <div className="text-right">
-          <div className="font-medium">{formatNumber(campaign.contacts_count)}</div>
-          {campaign.stats?.total_sent !== undefined && campaign.stats.total_sent > 0 && (
+          <div className="font-medium">{formatNumber(campaign.contactsCount)}</div>
+          {campaign.sentContacts !== undefined && campaign.sentContacts > 0 && (
             <div className="text-xs text-muted-foreground">
-              {formatNumber(campaign.stats.total_sent)} {t('table.sent')}
+              {formatNumber(campaign.sentContacts)} {t('table.sent')}
             </div>
           )}
         </div>
@@ -135,14 +135,17 @@ export default function CampaignsTable({
       label: t('table.columns.delivery'),
       sortable: false,
       render: campaign => {
-        const deliveryRate = campaign.stats?.total_sent
-          ? formatPercentage(campaign.stats.total_delivered || 0, campaign.stats.total_sent)
+        // No per-message delivery-receipt tracking wired up yet (would need
+        // campaign-tracker's data), so this reflects sent/total-audience
+        // progress rather than actual WhatsApp delivery confirmations.
+        const deliveryRate = campaign.contactsCount
+          ? formatPercentage(campaign.sentContacts || 0, campaign.contactsCount)
           : '0%';
         return (
           <div className="text-right">
             <div className="font-medium">{deliveryRate}</div>
             <div className="text-xs text-muted-foreground">
-              {formatNumber(campaign.stats?.total_delivered || 0)} {t('table.delivered')}
+              {formatNumber(campaign.sentContacts || 0)} {t('table.sent')}
             </div>
           </div>
         );
@@ -172,10 +175,10 @@ export default function CampaignsTable({
       sortable: true,
       render: campaign => (
         <div className="text-sm">
-          {formatDate(campaign.created_at)}
-          {campaign.schedule_to && (
+          {formatDate(campaign.createdAt || campaign.created_at)}
+          {campaign.scheduleTo && (
             <div className="text-xs text-muted-foreground">
-              {t('table.scheduled')}: {formatDate(campaign.schedule_to)}
+              {t('table.scheduled')}: {formatDate(campaign.scheduleTo)}
             </div>
           )}
         </div>

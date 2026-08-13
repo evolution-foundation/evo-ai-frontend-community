@@ -45,7 +45,7 @@ export function ContactEventsTimeline({
     // the estimate just needs to be in the right ballpark.
     estimateSize: () => 96,
     overscan: 8,
-    getItemKey: (index) => events[index]?.id ?? index,
+    getItemKey: (index: number) => events[index]?.id ?? index,
   });
 
   // Prefetch trigger: whenever the visible window reaches within
@@ -87,7 +87,7 @@ export function ContactEventsTimeline({
         className="relative p-3"
         style={{ height: `${virtualizer.getTotalSize()}px` }}
       >
-        {virtualizer.getVirtualItems().map((item) => {
+        {virtualizer.getVirtualItems().map((item: any) => {
           const event = events[item.index];
           if (!event) return null;
           return (

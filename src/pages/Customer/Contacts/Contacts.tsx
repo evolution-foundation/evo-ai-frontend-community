@@ -608,7 +608,7 @@ export default function Contacts() {
     setExportModalOpen(true);
   };
 
-  const handleImportModalSubmit = async (file: File) => {
+  const handleImportModalSubmit = async (file: File, label?: string) => {
     if (!can('contacts', 'read')) {
       toast.error('Você não tem permissão para visualizar contatos');
       return;
@@ -617,7 +617,7 @@ export default function Contacts() {
     setState(prev => ({ ...prev, loading: { ...prev.loading, import: true } }));
 
     try {
-      await contactsService.importContacts(file);
+      await contactsService.importContacts(file, label);
       toast.success(t('messages.importQueued'));
 
       // Refresh the list

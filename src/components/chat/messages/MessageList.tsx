@@ -60,12 +60,18 @@ interface MessageListProps {
   isPostConversation?: boolean;
   postData?: PostData;
   messageModerations?: Map<string, FacebookCommentModeration>; // Map of message_id -> moderation
+  conversationId?: string | null; // Repassado pra resolver replies fora da página carregada
   onLoadMore: () => void;
   onRetryMessage: (messageId: string) => void;
   onReplyToMessage: (message: Message) => void;
   onCopyMessage: (message: Message) => void;
   onDeleteMessage: (message: Message) => Promise<void>;
 }
+
+// Máximo de páginas antigas que carregamos automaticamente atrás de uma
+// mensagem citada antes de desistir - evita loop infinito se a mensagem foi
+// apagada ou pertence a outra conversa por algum dado inconsistente.
+const MAX_JUMP_LOAD_ATTEMPTS = 40;
 
 // Helper function para normalizar timestamp de mensagens (mesma lógica do MessagesContext)
 const normalizeMessageTimestamp = (message: Message): number => {
@@ -117,6 +123,7 @@ const MessageList: React.FC<MessageListProps> = ({
   isPostConversation = false,
   postData,
   messageModerations,
+  conversationId = null,
   onLoadMore,
   onRetryMessage,
   onReplyToMessage,
@@ -130,6 +137,52 @@ const MessageList: React.FC<MessageListProps> = ({
   const hasInitialScrolled = useRef(false);
   const lastLoadTime = useRef(0); // ✅ Throttle do carregamento
   const isScrollLocked = useRef(false); // ✅ Bloquear scroll reset após inicial
+
+  // "Jump to reply" (EVO reply-jump fix): a mensagem citada pode estar fora
+  // da página atualmente carregada. pendingJumpMessageId dispara um loop de
+  // onLoadMore() até ela aparecer no DOM (ou desistimos - ver
+  // MAX_JUMP_LOAD_ATTEMPTS), então rola até ela.
+  const [pendingJumpMessageId, setPendingJumpMessageId] = useState<string | null>(null);
+  const jumpAttemptsRef = useRef(0);
+
+  const scrollToMessageInDom = useCallback((messageId: string): boolean => {
+    const el = scrollRef.current?.querySelector(
+      `[data-message-id="${CSS.escape(messageId)}"]`,
+    );
+    if (!el) return false;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return true;
+  }, []);
+
+  const handleJumpToMessage = useCallback(
+    (messageId: string) => {
+      jumpAttemptsRef.current = 0;
+      if (scrollToMessageInDom(messageId)) return;
+      setPendingJumpMessageId(messageId);
+    },
+    [scrollToMessageInDom],
+  );
+
+  useEffect(() => {
+    if (!pendingJumpMessageId) return;
+
+    if (scrollToMessageInDom(pendingJumpMessageId)) {
+      setPendingJumpMessageId(null);
+      return;
+    }
+
+    if (isLoadingMore) return; // uma página já está a caminho, espera ela chegar
+
+    if (!hasMoreMessages || jumpAttemptsRef.current >= MAX_JUMP_LOAD_ATTEMPTS) {
+      // Mensagem não apareceu mesmo carregando tudo que dá (apagada, ou
+      // de outra conversa) - desiste silenciosamente.
+      setPendingJumpMessageId(null);
+      return;
+    }
+
+    jumpAttemptsRef.current += 1;
+    onLoadMore();
+  }, [pendingJumpMessageId, messages, hasMoreMessages, isLoadingMore, onLoadMore, scrollToMessageInDom]);
 
   // 🎯 SCROLL POSITION SIMPLES (WhatsApp style)
   const scrollHeightRef = useRef(0);
@@ -457,6 +510,8 @@ const MessageList: React.FC<MessageListProps> = ({
                           showTimestamp={isLastReply}
                           labels={labels}
                           allMessages={messages}
+                          conversationId={conversationId}
+                          onJumpToMessage={handleJumpToMessage}
                           isPostConversation={isPostConversation}
                           isThreadReply={true}
                           isFacebookStyle={true}
@@ -540,6 +595,8 @@ const MessageList: React.FC<MessageListProps> = ({
                           showTimestamp={true}
                           labels={labels}
                           allMessages={messages}
+                          conversationId={conversationId}
+                          onJumpToMessage={handleJumpToMessage}
                           isPostConversation={isPostConversation}
                           isThreadRoot={true}
                           isFacebookStyle={true}
@@ -595,6 +652,8 @@ const MessageList: React.FC<MessageListProps> = ({
                     showTimestamp={true}
                     labels={labels}
                     allMessages={messages}
+                    conversationId={conversationId}
+                    onJumpToMessage={handleJumpToMessage}
                     isPostConversation={isPostConversation}
                     moderation={moderation}
                     onRetry={() => onRetryMessage(message.id)}

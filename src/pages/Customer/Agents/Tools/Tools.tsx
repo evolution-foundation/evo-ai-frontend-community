@@ -55,7 +55,7 @@ export default function Tools() {
   const loadTools = useCallback(
     async (params?: Partial<ToolsListParams>) => {
       if (!can('ai_tools', 'read')) {
-        toast.error(t('errors.permissionDenied'));
+        toast.error(t('messages.loadError'));
         return;
       }
       setState(prev => ({ ...prev, loading: { ...prev.loading, list: true } }));
@@ -94,7 +94,7 @@ export default function Tools() {
         }));
       } catch (error) {
         console.error('Error loading tools:', error);
-        toast.error(t('errors.loadError'));
+        toast.error(t('messages.loadError'));
         setState(prev => ({ ...prev, loading: { ...prev.loading, list: false } }));
       }
     },
@@ -151,7 +151,7 @@ export default function Tools() {
       await loadTools({ skip: 0 });
     } catch (error) {
       console.error('Error applying filters:', error);
-      toast.error(t('errors.applyFiltersError'));
+      toast.error(t('messages.loadError'));
     }
   };
 
@@ -248,13 +248,13 @@ export default function Tools() {
       <div className="flex-1 overflow-auto">
         {state.loading.list ? (
           <div className="flex items-center justify-center py-16">
-            <div className="text-muted-foreground">{t('loading.tools')}</div>
+            <div className="text-muted-foreground">{t('loading')}</div>
           </div>
         ) : state.tools.length === 0 ? (
           <EmptyState
             icon={Wrench}
-            title={t('emptyState.title')}
-            description={t('emptyState.description')}
+            title={t('table.empty.title')}
+            description={t('table.empty.description')}
             className="h-full"
           />
         ) : viewMode === 'cards' ? (

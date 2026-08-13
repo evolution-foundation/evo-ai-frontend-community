@@ -523,6 +523,13 @@ export default function CSATForm({
               </p>
             </div>
           )}
+
+          {/* Save Button */}
+          <div className="flex justify-end pt-4 border-t border-border mt-6">
+            <Button onClick={handleSaveSettings} disabled={isUpdating} className="min-w-32">
+              {isUpdating ? t('settings.csat.buttons.saving') : t('settings.csat.buttons.save')}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

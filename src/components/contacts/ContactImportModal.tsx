@@ -9,13 +9,14 @@ import {
   DialogTitle,
   Button,
   Label,
+  Input,
 } from '@evoapi/design-system';
 import { Upload, Trash2, FileText, Download } from 'lucide-react';
 
 interface ContactImportModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onImport: (file: File) => Promise<void>;
+  onImport: (file: File, label?: string) => Promise<void>;
   loading?: boolean;
 }
 
@@ -27,6 +28,7 @@ export default function ContactImportModal({
 }: ContactImportModalProps) {
   const { t } = useLanguage('contacts');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [batchLabel, setBatchLabel] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -61,8 +63,9 @@ export default function ContactImportModal({
 
     setUploading(true);
     try {
-      await onImport(selectedFile);
+      await onImport(selectedFile, batchLabel.trim() || undefined);
       handleRemoveFile();
+      setBatchLabel('');
       onOpenChange(false);
     } catch (error) {
       console.error('Error importing contacts:', error);
@@ -154,6 +157,20 @@ export default function ContactImportModal({
               className="hidden"
               id="file-upload"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="import-batch-label">{t('import.labelField')}</Label>
+            <Input
+              id="import-batch-label"
+              value={batchLabel}
+              onChange={(e) => setBatchLabel(e.target.value)}
+              placeholder={t('import.labelPlaceholder')}
+              disabled={loading || uploading}
+            />
+            <p className="text-xs text-muted-foreground">
+              {t('import.labelDescription')}
+            </p>
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">

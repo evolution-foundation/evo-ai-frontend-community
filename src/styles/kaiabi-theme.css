@@ -1,0 +1,536 @@
+/* 🎨 Tema Personalizado Kaiabí CRM - Cores e Design Premium */
+
+:root {
+  /* ☀️ Tema Claro */
+  --background: #EBEBEB; /* Off-white do cliente */
+  --foreground: #183729; /* Verde Floresta do cliente */
+  
+  --card: #FFFFFF; /* Cards brancos */
+  --card-foreground: #183729;
+  
+  --popover: #FFFFFF;
+  --popover-foreground: #183729;
+  
+  --primary: #183729; /* Verde Floresta */
+  --primary-foreground: #FFFFFF;
+  
+  --secondary: #E0E8E4; /* Verde Musgo Claro para balão recebido */
+  --secondary-foreground: #183729;
+  
+  --muted: #F3F3F3;
+  --muted-foreground: #3E564F;
+  
+  --accent: #BEA588; /* Dourado Soft */
+  --accent-foreground: #183729;
+  
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  
+  --border: #D1DED8; /* Bordas suaves */
+  --input: #D1DED8;
+  --ring: #183729;
+  --radius: 0.5rem; /* Ajustado para um arredondamento suave padrão */
+
+  /* Variáveis de Sidebar (Tema Claro) */
+  --sidebar: #FFFFFF; /* Barra lateral branca no tema claro */
+  --sidebar-foreground: #183729; /* Texto Verde Floresta */
+  --sidebar-primary: #183729; /* Destaque ativo Verde Floresta */
+  --sidebar-primary-foreground: #FFFFFF; /* Texto no ativo */
+  --sidebar-accent: #EBEBEB;
+  --sidebar-accent-foreground: #183729;
+  --sidebar-border: #D1DED8;
+  --sidebar-ring: #183729;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   REGRAS EXCLUSIVAS DO TEMA CLARO (Evita conflitos com o tema escuro do usuário)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root:not(.dark) header, 
+:root:not(.dark) .header,
+:root:not(.dark) [class*="header"],
+:root:not(.dark) [class*="Header"],
+:root:not(.dark) .bg-sidebar.border-b {
+  background-color: var(--sidebar) !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--sidebar-foreground) !important;
+}
+
+:root:not(.dark) [class*="Header"] button,
+:root:not(.dark) header button,
+:root:not(.dark) .bg-sidebar.border-b button,
+:root:not(.dark) [class*="Header"] svg,
+:root:not(.dark) header svg,
+:root:not(.dark) .bg-sidebar.border-b svg,
+:root:not(.dark) [class*="Header"] a,
+:root:not(.dark) header a {
+  color: var(--sidebar-foreground) !important;
+}
+
+:root:not(.dark) aside,
+:root:not(.dark) .sidebar,
+:root:not(.dark) [role="navigation"],
+:root:not(.dark) [class*="sidebar"],
+:root:not(.dark) [class*="Sidebar"] {
+  background-color: var(--sidebar) !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+:root:not(.dark) aside a, 
+:root:not(.dark) .sidebar a, 
+:root:not(.dark) [role="navigation"] a {
+  color: var(--sidebar-foreground) !important;
+  opacity: 0.75;
+  border-radius: 6px !important;
+  margin: 2px 8px !important;
+}
+
+:root:not(.dark) aside a:hover, 
+:root:not(.dark) .sidebar a:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+:root:not(.dark) aside a[class*="active"], 
+:root:not(.dark) .sidebar a[class*="active"], 
+:root:not(.dark) [role="navigation"] a[class*="active"] {
+  color: var(--sidebar-primary-foreground) !important;
+  background-color: var(--sidebar-primary) !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+}
+
+:root:not(.dark) main {
+  background-color: var(--card) !important;
+}
+
+:root:not(.dark) .bg-card,
+:root:not(.dark) .card {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+}
+
+/* Chat e contatos no tema claro */
+:root:not(.dark) [data-tour="chat-conversations-list"] > div {
+  margin: 8px 12px !important;
+  padding: 14px !important;
+  border-radius: 8px !important;
+  background-color: var(--muted) !important;
+  border: 1px solid var(--border) !important;
+}
+
+:root:not(.dark) [data-tour="chat-conversations-list"] > div.bg-primary\/10 {
+  background-color: rgba(24, 55, 41, 0.06) !important;
+  border: 1.5px solid var(--primary) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TEMA ESCURO CUSTOMIZADO (Deep Navy / Steel Blue)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.dark {
+  /* 🌙 Cores Mapeadas */
+  --background: #0F1722; /* Fundo Principal */
+  --foreground: #EBEBEB; /* Texto Primário */
+  
+  --card: #151F2E; /* Superfícies */
+  --card-foreground: #EBEBEB;
+  
+  --popover: #151F2E;
+  --popover-foreground: #EBEBEB;
+  
+  --primary: #6B8FD6; /* Destaques / Primária */
+  --primary-foreground: #0F1722;
+  
+  --secondary: #1C2B3F; /* Superfícies Elevadas */
+  --secondary-foreground: #EBEBEB;
+  
+  --muted: #1C2B3F;
+  --muted-foreground: #A9B7C6; /* Texto Secundário */
+  
+  --accent: #1C2B3F;
+  --accent-foreground: #6B8FD6;
+  
+  --destructive: #E36A6A; /* Erro / Crítico */
+  --destructive-foreground: #FFFFFF;
+  
+  --border: #263446; /* Bordas / Divisórias */
+  --input: #263446;
+  --ring: #6B8FD6;
+  --radius: 0.5rem; /* Ajustado para um arredondamento suave padrão */
+
+  /* Cores Semânticas Adicionais */
+  --success: #4CAF7D;
+  --success-foreground: #0F1722;
+  --warning: #F0B35A;
+  --warning-foreground: #0F1722;
+
+  /* Variáveis de Sidebar (Tema Escuro) */
+  --sidebar: #151F2E; /* Superfícies */
+  --sidebar-foreground: #EBEBEB;
+  --sidebar-primary: #6B8FD6; /* Destaques */
+  --sidebar-primary-foreground: #0F1722;
+  --sidebar-accent: #1C2B3F; /* Superfícies Elevadas */
+  --sidebar-accent-foreground: #EBEBEB;
+  --sidebar-border: #263446;
+  --sidebar-ring: #6B8FD6;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Aprimoramento Visual e Redesign de Componentes
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* 1. Navbar / Cabeçalho Superior e Ícones do Topo */
+header, 
+.header,
+[class*="header"],
+[class*="Header"],
+.bg-sidebar.border-b {
+  background-color: var(--sidebar) !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--sidebar-foreground) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Garantir 100% de contraste de todos os ícones, textos e botões do topo */
+[class*="Header"] button,
+header button,
+.bg-sidebar.border-b button,
+[class*="Header"] svg,
+header svg,
+.bg-sidebar.border-b svg,
+[class*="Header"] a,
+header a {
+  color: var(--sidebar-foreground) !important;
+}
+
+.dark header, 
+.dark .header,
+.dark [class*="header"],
+.dark [class*="Header"],
+.dark .bg-sidebar.border-b {
+  background-color: var(--sidebar) !important;
+  border-bottom: 1px solid var(--sidebar-border) !important;
+  color: var(--sidebar-foreground) !important;
+}
+
+/* 2. Menu Lateral Esquerdo e Submenus (Layout Plano e Integrado) */
+aside,
+.sidebar,
+[role="navigation"],
+[class*="sidebar"],
+[class*="Sidebar"] {
+  background-color: var(--sidebar) !important;
+  border-right: 1px solid var(--border) !important;
+  transition: all 0.3s ease !important;
+}
+
+aside a, 
+.sidebar a, 
+[role="navigation"] a {
+  color: var(--sidebar-foreground) !important;
+  opacity: 0.75;
+  transition: all 0.2s ease-in-out;
+  border-radius: 6px !important;
+  margin: 2px 8px !important;
+}
+
+aside a:hover, 
+.sidebar a:hover, 
+[role="navigation"] a:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Item de Menu Ativo */
+aside a[class*="active"], 
+.sidebar a[class*="active"], 
+[role="navigation"] a[class*="active"],
+aside a.active, 
+.sidebar a.active {
+  color: var(--sidebar-primary-foreground) !important;
+  background-color: var(--sidebar-primary) !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+}
+
+/* Logo "KAIABÍ" e Texto Superior */
+[class*="logo"] text,
+[class*="Logo"] text,
+span[class*="logo"],
+span[class*="Logo"],
+.bg-sidebar.border-b [class*="Logo"] svg,
+.bg-sidebar.border-b [class*="logo"] svg {
+  color: var(--sidebar-foreground) !important;
+  fill: var(--sidebar-foreground) !important;
+}
+
+/* 3. Inputs de Texto, Textareas e Selects Nativos (Evita wrappers de input e quebras de layout) */
+input[type="text"], 
+input[type="search"], 
+input[type="email"], 
+input[type="password"], 
+input[type="tel"], 
+textarea,
+select,
+.chat-input {
+  border-radius: 6px !important;
+  border: 1.5px solid var(--border) !important;
+  background-color: var(--card) !important;
+  color: var(--foreground) !important;
+  transition: all 0.2s ease !important;
+}
+
+.dark input[type="text"], 
+.dark input[type="search"], 
+.dark input[type="email"], 
+.dark input[type="password"], 
+.dark input[type="tel"], 
+.dark textarea,
+.dark select,
+.dark .chat-input {
+  background-color: rgba(15, 23, 34, 0.5) !important;
+  border-color: var(--border) !important;
+}
+
+input[type="text"]:focus, 
+input[type="search"]:focus, 
+textarea:focus {
+  outline: none !important;
+  border-color: var(--ring) !important;
+  box-shadow: 0 0 0 2px rgba(107, 143, 214, 0.15) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ESTRUTURA: Painel Principal Integrado (Layout Plano, Sem Margens Externas)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.flex.flex-1.min-h-0.relative {
+  background-color: var(--background) !important;
+  padding: 0 !important;
+}
+
+main {
+  background-color: var(--card) !important;
+  overflow: auto !important;
+  transition: all 0.3s ease !important;
+}
+
+.dark main {
+  background-color: var(--card) !important; /* Superfícies #151F2E */
+}
+
+/* Remover padding duplo e fundo rígido das páginas de Chat internas */
+.h-full.w-full.flex.flex-col.md\:flex-row {
+  padding: 0 !important;
+  gap: 0 !important;
+  background-color: transparent !important;
+}
+
+[data-tour="chat-sidebar"] {
+  border-radius: 0 !important;
+  border: none !important;
+  background-color: transparent !important;
+  border-right: 1px solid var(--border) !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+[data-tour="chat-main-area"] {
+  border-radius: 0 !important;
+  border: none !important;
+  background-color: transparent !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CARDS RAIZ (DASHBOARD E PIPELINES)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.bg-card,
+.card {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+  transition: all 0.25s ease-in-out !important;
+}
+
+.dark .bg-card,
+.dark .card {
+  background-color: var(--secondary) !important; /* Superfícies Elevadas #1C2B3F */
+  border-color: rgba(255, 255, 255, 0.04) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Hover nos cards */
+.bg-card:hover,
+.card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark .bg-card:hover,
+.dark .card:hover {
+  background-color: rgba(40, 58, 82, 0.85) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   AJUSTES DE CONTRASTE E LIMPEZA DE CABEÇALHOS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+[class*="PageHeader"],
+[class*="page-header"],
+div:has(> h1):not([class*="Header"]) {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Garantir 100% de leitura de descrições e legendas escuras no modo escuro */
+.dark .text-muted-foreground,
+.dark [class*="muted-foreground"],
+.dark p[class*="text-zinc-"],
+.dark span[class*="text-zinc-"] {
+  color: var(--muted-foreground) !important; /* Texto Secundário #A9B7C6 */
+}
+
+.dark h1, .dark h2, .dark h3, .dark h4 {
+  color: var(--foreground) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CARDS DE CONVERSA E CHECKBOXES
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Cards de Contato */
+[data-tour="chat-conversations-list"] > div {
+  margin: 8px 12px !important;
+  padding: 14px !important;
+  border-radius: 8px !important;
+  border: 1px solid transparent !important;
+  background-color: var(--secondary) !important; /* Superfícies Elevadas #1C2B3F */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.dark [data-tour="chat-conversations-list"] > div {
+  background-color: var(--secondary) !important;
+  border-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Efeito Hover nos cards */
+[data-tour="chat-conversations-list"] > div:hover {
+  transform: translateY(-1px);
+  background-color: rgba(107, 143, 214, 0.08) !important;
+}
+
+.dark [data-tour="chat-conversations-list"] > div:hover {
+  background-color: rgba(107, 143, 214, 0.08) !important;
+}
+
+/* Card Selecionado com Destaque Máximo */
+[data-tour="chat-conversations-list"] > div.bg-primary\/10 {
+  background-color: var(--primary) !important; /* Destaque azul #6B8FD6 */
+  border: 1.5px solid var(--primary) !important;
+  box-shadow: 0 4px 15px rgba(107, 143, 214, 0.25) !important;
+}
+
+[data-tour="chat-conversations-list"] > div.bg-primary\/10 * {
+  color: var(--primary-foreground) !important; /* Texto escuro #0F1722 para contraste */
+}
+
+/* Checkboxes Radix/Shadcn Modernos */
+button[role="checkbox"],
+[data-tour="chat-conversations-list"] button[role="checkbox"],
+[data-tour="chat-sidebar"] button[role="checkbox"] {
+  background-color: var(--card) !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: 4px !important;
+  width: 18px !important;
+  height: 18px !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.dark button[role="checkbox"],
+.dark [data-tour="chat-conversations-list"] button[role="checkbox"] {
+  background-color: rgba(15, 23, 34, 0.4) !important;
+  border-color: var(--border) !important;
+}
+
+button[role="checkbox"][data-state="checked"],
+[data-tour="chat-conversations-list"] button[role="checkbox"][data-state="checked"],
+[data-tour="chat-sidebar"] button[role="checkbox"][data-state="checked"] {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+/* Garantir cor correta do ícone de check dentro do checkbox Radix */
+button[role="checkbox"] svg,
+[data-tour="chat-conversations-list"] button[role="checkbox"] svg {
+  stroke: var(--primary-foreground) !important;
+  fill: none !important;
+}
+
+.dark button[role="checkbox"][data-state="checked"] svg {
+  stroke: #0F1722 !important; /* Azul escuro no fundo do check */
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   INPUT FLUTUANTE E MENUS DE FILTROS (LIQUID GLASS SUAVE)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Caixa de Digitação Flutuante */
+[data-tour="chat-main-area"] .flex-shrink-0.w-full {
+  padding: 0 20px 20px 20px !important;
+  background-color: transparent !important;
+}
+
+[data-tour="chat-main-area"] .flex-shrink-0.w-full > div {
+  border-radius: 12px !important;
+  border: 1px solid var(--border) !important;
+  background-color: var(--card) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05) !important;
+  padding: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.dark [data-tour="chat-main-area"] .flex-shrink-0.w-full > div {
+  background-color: rgba(28, 43, 63, 0.65) !important; /* Liquid glass azul escuro translúcido */
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-tour="chat-main-area"] .flex-shrink-0.w-full > div:focus-within {
+  border-color: var(--primary) !important;
+  box-shadow: 0 8px 30px rgba(107, 143, 214, 0.15) !important;
+}
+
+/* Filtros de Chats (Pílulas no topo da lista) */
+[role="tablist"] {
+  background-color: var(--muted) !important;
+  padding: 4px !important;
+  border-radius: 8px !important;
+  margin: 10px 12px !important;
+}
+
+.dark [role="tablist"] {
+  background-color: rgba(15, 23, 34, 0.4) !important;
+}
+
+[role="tab"] {
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  padding: 6px 12px !important;
+}
+
+[role="tab"][aria-selected="true"] {
+  background-color: var(--card) !important;
+  color: var(--primary) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+}

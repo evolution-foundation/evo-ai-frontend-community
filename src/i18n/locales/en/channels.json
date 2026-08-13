@@ -517,7 +517,12 @@
       "twentyFourHours": "24 hours",
       "enableDay": "Enable {{day}}",
       "open24Hours": "Open 24 hours",
-      "startPlaceholder": "Start"
+      "startPlaceholder": "Start",
+      "endPlaceholder": "End",
+      "timeError": "End time must be after start time",
+      "lunchBreak": "Lunch break",
+      "breakLabel": "Break",
+      "breakTimeError": "The break must fall within the day's hours, starting before it ends"
     },
     "csat": {
       "title": "Customer Satisfaction (CSAT) Survey",

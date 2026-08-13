@@ -279,6 +279,21 @@ class ChatService {
     });
   }
 
+  // Resolves a single message the client doesn't have loaded yet - used by
+  // the reply preview to show real content/scroll to a quoted message that
+  // sits outside the currently paginated window.
+  //
+  // ref goes in the query string, not the URL path: it can be our internal
+  // UUID OR a WhatsApp source_id, and those are base64-ish and can contain
+  // "/" - as a path segment that 404s (nginx/Rails routing treats it as a
+  // separator even percent-encoded), where a query param is fine.
+  async getMessage(conversationId: string, messageId: string): Promise<Message> {
+    const response = await api.get(`/conversations/${conversationId}/messages/resolve`, {
+      params: { ref: messageId },
+    });
+    return extractData<Message>(response);
+  }
+
   async updateMessage(
     conversationId: string,
     messageId: string,

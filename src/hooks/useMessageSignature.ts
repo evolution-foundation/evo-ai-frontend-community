@@ -32,7 +32,7 @@ export const useMessageSignature = () => {
     return signature;
   }, [user]);
 
-  // Anexar assinatura ao conteúdo da mensagem se estiver habilitada
+  // Antepõe a assinatura (em negrito) ao início do conteúdo da mensagem se estiver habilitada
   const appendSignatureIfEnabled = useCallback(
     (content: string) => {
       if (!isSignatureEnabled) {
@@ -44,16 +44,27 @@ export const useMessageSignature = () => {
         return content;
       }
 
-      if (content.trim().endsWith(signature.trim())) {
+      // Ignora um "*" ou "<p><strong>" já presentes na frente, senão o guard
+      // nunca reconhece um conteúdo que já recebeu o prefixo antes.
+      const contentWithoutLeadingMarkup = content.trim().replace(/^(<p>)?(<strong>|\*)/i, '');
+      if (contentWithoutLeadingMarkup.startsWith(signature.trim())) {
         return content;
       }
 
       const isHtml = /<[a-z][\s\S]*>/i.test(content);
       if (isHtml) {
-        return `${content}<p><br></p><p>${signature}</p>`;
+        // Injeta dentro do primeiro <p> (se houver) pra ficar na mesma linha
+        // da mensagem, em vez de um parágrafo próprio acima dela.
+        const openingParagraphMatch = content.match(/^\s*<p[^>]*>/i);
+        const prefix = `<strong>${signature}:</strong> `;
+        if (openingParagraphMatch) {
+          const tagLength = openingParagraphMatch[0].length;
+          return content.slice(0, tagLength) + prefix + content.slice(tagLength);
+        }
+        return prefix + content;
       }
 
-      return `${content}\n\n${signature}`;
+      return `*${signature}:* ${content}`;
     },
     [isSignatureEnabled, getSignature],
   );

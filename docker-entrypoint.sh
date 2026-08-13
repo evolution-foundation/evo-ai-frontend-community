@@ -12,7 +12,7 @@ set -e
 HTML_DIR="/usr/share/nginx/html"
 
 # Replace VITE_* variables in all JS files
-# The build uses empty strings or defaults — we replace them at runtime
+# The build uses empty strings or defaults Ã¢â‚¬â€ we replace them at runtime
 for file in $(find "$HTML_DIR" -name '*.js' -type f); do
   # Replace each VITE_* env var if set
   [ -n "$VITE_API_URL" ] && sed -i "s|VITE_API_URL_PLACEHOLDER|${VITE_API_URL}|g" "$file"

@@ -53,7 +53,7 @@ export default defineConfig({
   },
   server: {
     host: true, // Listen on all addresses
-    port: 5173,
+    port: 5174,
     strictPort: true,
     allowedHosts: true, // Allow all hosts (like evolution-hub)
     cors: true, // Enable CORS for ngrok
@@ -61,6 +61,28 @@ export default defineConfig({
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+    },
+    proxy: {
+      '/proxy-crm': {
+        target: 'https://crm.kaiabi.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/proxy-crm/, '')
+      },
+      '/proxy-auth': {
+        target: 'https://auth.kaiabi.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/proxy-auth/, '')
+      },
+      '/proxy-core': {
+        target: 'https://core.kaiabi.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/proxy-core/, '')
+      },
+      '/proxy-bot': {
+        target: 'https://bot.kaiabi.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/proxy-bot/, '')
+      }
     },
     hmr: {
       // Reduce HMR overhead via ngrok

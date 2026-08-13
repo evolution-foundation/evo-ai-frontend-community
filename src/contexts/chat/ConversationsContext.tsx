@@ -5,6 +5,14 @@ import { conversationsReducer } from '@/contexts/chat/ConversationsContextReduce
 import { ConversationsContext } from '@/contexts/chat/ConversationsContextInstance';
 
 import { useLanguage } from '@/hooks/useLanguage';
+import { useFilters } from '@/contexts/chat/FiltersContext';
+import {
+  convertFiltersToApiFormat,
+  convertFiltersToUrlParams,
+  shouldUseAdvancedFilters,
+  createSearchFilter,
+  combineSearchWithFilters,
+} from '@/utils/chat/filterConverters';
 
 import { chatService } from '@/services/chat/chatService';
 import { conversationAPI } from '@/services/conversations/conversationService';
@@ -22,6 +30,7 @@ import { matchesConversationId } from '@/utils/chat/conversationMatcher';
 
 export function ConversationsProvider({ children }: { children: React.ReactNode }) {
   const { t } = useLanguage('chat');
+  const { state: filtersState } = useFilters();
   const [state, dispatch] = useReducer(conversationsReducer, initialState);
 
   // Refs para evitar chamadas múltiplas simultâneas
@@ -51,18 +60,88 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         return;
       }
 
+      const requestedPage = Number(params?.page || 1);
+      const isFirstPage = requestedPage === 1;
+
       loadingRef.current = true;
-      dispatch({ type: 'SET_CONVERSATIONS_LOADING', payload: true });
+      if (isFirstPage) {
+        dispatch({ type: 'SET_CONVERSATIONS_LOADING', payload: true });
+      }
 
       try {
-        const requestedPage = Number(params?.page || 1);
         const shouldAppend = requestedPage > 1;
-        if (!shouldAppend) {
-          const listParams: ConversationListParams = { ...(params ?? {}) };
-          delete listParams.page;
-          currentQueryRef.current = { kind: 'list', params: listParams };
+        const activeFilters = filtersState.activeFilters;
+        const searchTerm = filtersState.searchTerm;
+
+        // Construir filtros mesclando o status atual se houver
+        const statusParam = params?.status;
+        let finalFilters = [...activeFilters];
+        if (statusParam && statusParam !== 'all' && !finalFilters.some(f => f.attribute_key === 'status')) {
+          finalFilters.push({
+            attribute_key: 'status',
+            filter_operator: 'equal_to',
+            values: [statusParam],
+            query_operator: 'and',
+          });
         }
-        const response = await chatService.getConversations(params);
+
+        let response;
+        if (searchTerm && searchTerm.trim().length > 0) {
+          if (finalFilters.length > 0 && shouldUseAdvancedFilters(finalFilters)) {
+            const filterRequest = {
+              ...convertFiltersToApiFormat(finalFilters),
+              q: searchTerm,
+              page: requestedPage,
+            };
+            if (!shouldAppend) {
+              currentQueryRef.current = { kind: 'filter', request: filterRequest };
+            }
+            response = await chatService.filterConversations(filterRequest);
+          } else {
+            const filterParams = finalFilters.length > 0 ? convertFiltersToUrlParams(finalFilters) : {};
+            const searchParams = createSearchFilter(searchTerm);
+            const combined = combineSearchWithFilters(searchParams, filterParams);
+            const getParams = {
+              ...combined,
+              ...params,
+              page: requestedPage,
+            };
+            if (!shouldAppend) {
+              const { page, ...listParams } = getParams;
+              currentQueryRef.current = { kind: 'list', params: listParams };
+            }
+            response = await chatService.getConversations(getParams);
+          }
+        } else if (finalFilters.length > 0) {
+          if (shouldUseAdvancedFilters(finalFilters)) {
+            const filterRequest = {
+              ...convertFiltersToApiFormat(finalFilters),
+              page: requestedPage,
+            };
+            if (!shouldAppend) {
+              currentQueryRef.current = { kind: 'filter', request: filterRequest };
+            }
+            response = await chatService.filterConversations(filterRequest);
+          } else {
+            const filterParams = convertFiltersToUrlParams(finalFilters);
+            const getParams = {
+              ...filterParams,
+              ...params,
+              page: requestedPage,
+            };
+            if (!shouldAppend) {
+              const { page, ...listParams } = getParams;
+              currentQueryRef.current = { kind: 'list', params: listParams };
+            }
+            response = await chatService.getConversations(getParams);
+          }
+        } else {
+          if (!shouldAppend) {
+            const { page, ...listParams } = params ?? {};
+            currentQueryRef.current = { kind: 'list', params: listParams };
+          }
+          response = await chatService.getConversations(params);
+        }
 
         if (!response || !response.data) {
           dispatch({
@@ -111,9 +190,12 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
       } finally {
         // Reset ref always
         loadingRef.current = false;
+        if (isFirstPage) {
+          dispatch({ type: 'SET_CONVERSATIONS_LOADING', payload: false });
+        }
       }
     },
-    [t], // Adicionado t para traduções
+    [t, filtersState.activeFilters, filtersState.searchTerm],
   );
 
   const loadMoreConversations = useCallback(async () => {

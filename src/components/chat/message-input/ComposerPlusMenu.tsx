@@ -7,12 +7,23 @@ import {
   StickyNote,
   CalendarClock,
   LayoutTemplate,
+  Smile,
+  Zap,
+  PenLine,
+  Sparkles,
 } from 'lucide-react';
 
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface ComposerPlusMenuProps {
   disabled?: boolean;
+  /**
+   * Janela de 24h do WhatsApp Cloud expirada: o gatilho "+" continua clicável
+   * (não usa `disabled`), mas só o item "templates" fica ativo — os demais
+   * ficam visíveis e esmaecidos, já que enviá-los falharia do mesmo jeito no
+   * backend. Sem isso o agente fica sem nenhuma rota pra reabrir a conversa.
+   */
+  restrictToTemplatesOnly?: boolean;
   onOpenQuickReplies: () => void;
   onPickDocuments: () => void;
   onPickMedia: () => void;
@@ -20,6 +31,18 @@ interface ComposerPlusMenuProps {
   onSchedule: () => void;
   /** WhatsApp Cloud templates — sem equivalente no protótipo, mantido como 6º item quando disponível. */
   onOpenTemplates?: () => void;
+  /**
+   * Emoji/Macros/Assinatura/IA dobram pra dentro deste menu só no mobile (tela
+   * estreita não cabe 6 ícones + campo de texto sem espremer o campo — ver
+   * MessageInput). O caller só passa isto quando `isMobile`; cada ação some
+   * do objeto se a feature correspondente não estiver disponível.
+   */
+  mobileExtraActions?: {
+    onOpenEmoji: () => void;
+    onToggleSignature?: () => void;
+    onOpenMacros?: () => void;
+    onOpenAIAssistance?: () => void;
+  };
 }
 
 const ITEM_ICON_BOX =
@@ -33,12 +56,14 @@ const ITEM_ICON_BOX =
  */
 const ComposerPlusMenu: React.FC<ComposerPlusMenuProps> = ({
   disabled = false,
+  restrictToTemplatesOnly = false,
   onOpenQuickReplies,
   onPickDocuments,
   onPickMedia,
   onOpenConversationNote,
   onSchedule,
   onOpenTemplates,
+  mobileExtraActions,
 }) => {
   const { t } = useLanguage('chat');
   const [open, setOpen] = useState(false);
@@ -103,6 +128,46 @@ const ComposerPlusMenu: React.FC<ComposerPlusMenuProps> = ({
           },
         ]
       : []),
+    ...(mobileExtraActions
+      ? [
+          {
+            key: 'emoji',
+            label: t('messageInput.composerMenu.emoji'),
+            icon: <Smile className="h-4 w-4" />,
+            onClick: mobileExtraActions.onOpenEmoji,
+          },
+          ...(mobileExtraActions.onOpenMacros
+            ? [
+                {
+                  key: 'macros',
+                  label: t('messageInput.macros.tooltip'),
+                  icon: <Zap className="h-4 w-4" />,
+                  onClick: mobileExtraActions.onOpenMacros,
+                },
+              ]
+            : []),
+          ...(mobileExtraActions.onToggleSignature
+            ? [
+                {
+                  key: 'signature',
+                  label: t('messageInput.signature.menuLabel'),
+                  icon: <PenLine className="h-4 w-4" />,
+                  onClick: mobileExtraActions.onToggleSignature,
+                },
+              ]
+            : []),
+          ...(mobileExtraActions.onOpenAIAssistance
+            ? [
+                {
+                  key: 'ai-assist',
+                  label: t('aiAssistance.button.title'),
+                  icon: <Sparkles className="h-4 w-4" />,
+                  onClick: mobileExtraActions.onOpenAIAssistance,
+                },
+              ]
+            : []),
+        ]
+      : []),
   ];
 
   return (
@@ -135,28 +200,35 @@ const ComposerPlusMenu: React.FC<ComposerPlusMenuProps> = ({
             zIndex: 100,
           }}
         >
-          {items.map(item => (
-            <div
-              key={item.key}
-              onClick={() => {
-                setOpen(false);
-                item.onClick();
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '9px 10px',
-                borderRadius: 10,
-                cursor: 'pointer',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#f4f6f9')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-            >
-              <span className={ITEM_ICON_BOX}>{item.icon}</span>
-              <span style={{ fontSize: 14.5, color: '#2b3240', fontWeight: 500 }}>{item.label}</span>
-            </div>
-          ))}
+          {items.map(item => {
+            const itemDisabled = restrictToTemplatesOnly && item.key !== 'templates';
+            return (
+              <div
+                key={item.key}
+                onClick={() => {
+                  if (itemDisabled) return;
+                  setOpen(false);
+                  item.onClick();
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '9px 10px',
+                  borderRadius: 10,
+                  cursor: itemDisabled ? 'not-allowed' : 'pointer',
+                  opacity: itemDisabled ? 0.4 : 1,
+                }}
+                onMouseEnter={e => {
+                  if (!itemDisabled) e.currentTarget.style.background = '#f4f6f9';
+                }}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              >
+                <span className={ITEM_ICON_BOX}>{item.icon}</span>
+                <span style={{ fontSize: 14.5, color: '#2b3240', fontWeight: 500 }}>{item.label}</span>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

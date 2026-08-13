@@ -22,6 +22,8 @@ interface MacrosButtonProps {
   conversationId: string;
   disabled?: boolean;
   onMacroExecuted?: () => void;
+  /** Lets the composer's mobile "+" menu open this dropdown via getElementById(...).click(). */
+  triggerId?: string;
 }
 
 const ITEM_ICON_BOX =
@@ -31,6 +33,7 @@ const MacrosButton: React.FC<MacrosButtonProps> = ({
   conversationId,
   disabled = false,
   onMacroExecuted,
+  triggerId,
 }) => {
   const { t } = useLanguage('chat');
   const [open, setOpen] = useState(false);
@@ -120,11 +123,16 @@ const MacrosButton: React.FC<MacrosButtonProps> = ({
     <>
       <div ref={rootRef} className="relative flex-shrink-0" style={{ position: 'relative' }}>
         <Button
+          id={triggerId}
           variant="ghost"
           size="icon"
           disabled={disabled}
           onClick={() => !disabled && setOpen(prev => !prev)}
-          className="h-9 w-9 flex-shrink-0 hover:bg-accent disabled:opacity-50"
+          // Hidden below md: on phones this trigger folds into the composer's "+"
+          // menu instead (see MessageInput), which opens the same dropdown via
+          // triggerId — a hidden button still dispatches onClick when triggered
+          // programmatically, so no behavior is lost, only the always-visible icon.
+          className="hidden md:inline-flex h-9 w-9 flex-shrink-0 hover:bg-accent disabled:opacity-50"
           title={t('messageInput.macros.tooltip')}
         >
           <Zap className="h-4 w-4 text-primary" />

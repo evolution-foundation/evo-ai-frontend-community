@@ -86,13 +86,11 @@
       "sharedLocation": "Shared location",
       "openInMaps": "Open in Google Maps"
     },
+    "messageContact": {
+      "sharedContact": "Shared contact",
+      "unknownPhone": "Phone number not available"
+    },
     "messageStatus": {
-      "statusUnavailable": "Message status unavailable",
-      "statusUnavailableDescription": "The message was sent, but we could not confirm the delivery status.",
-      "checkChannelConfig": "Check channel configuration",
-      "webhookIssue": "The webhook may be outdated or inactive.",
-      "deliveryStatusUnavailable": "Delivery status unavailable - Click for more details",
-      "statusUnavailableText": "Status unavailable",
       "retryInDevelopment": "Retry functionality in development",
       "sendFailed": "Send failed - Click to try again",
       "tryAgain": "Try again"
@@ -264,6 +262,8 @@
     },
     "banner": {
       "whatsappMessage": "You can only reply to this conversation using a message template due to",
+      "whatsappMessageWithElapsed": "The 24-hour messaging window expired {{elapsed}} ago. You can only reply using a message template due to",
+      "windowExpiringSoon": "⏳ {{remaining}} left to reply freely before the 24-hour messaging window expires.",
       "cannotReply": "You cannot reply because",
       "linkText": "24-hour messaging window restrictions",
       "zapiDisconnected": "WhatsApp disconnected. Connect the number to send messages."
@@ -761,7 +761,8 @@
     },
     "signature": {
       "enable": "Enable signature",
-      "disable": "Disable signature"
+      "disable": "Disable signature",
+      "menuLabel": "Signature"
     },
     "placeholders": {
       "default": "Type your message... (type / for canned responses)",
@@ -774,7 +775,8 @@
       "documents": "Documents",
       "media": "Photos and Videos",
       "conversationNote": "Conversation Notes",
-      "schedule": "Schedule"
+      "schedule": "Schedule",
+      "emoji": "Emoji"
     },
     "macros": {
       "tooltip": "Macros",

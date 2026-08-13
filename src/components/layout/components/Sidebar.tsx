@@ -44,7 +44,6 @@ export default function Sidebar({
   const prevActiveSubmenuRef = useRef<MenuItemType | null>(null);
 
   const companyName = t('sidebar.footer.brand');
-  const supportWhatsappUrl = 'https://api.whatsapp.com/send/?phone=553196219989&text=Ol%C3%A1%21+Preciso+de+suporte.&type=phone_number&app_absent=0';
 
   const totalUnread = useUnreadConversationsStore((state) => state.totalUnread);
 
@@ -227,29 +226,6 @@ export default function Sidebar({
                 <div className="text-sm text-primary font-medium">{companyName}</div>
                 <div className="text-xs text-muted-foreground mt-1">
                   {t('sidebar.footer.copyright', { year: currentYear })}
-                </div>
-                {__APP_VERSION__ !== 'dev' && (
-                  <div className="text-xs text-muted-foreground/70 mt-1">
-                    {__APP_VERSION__}
-                  </div>
-                )}
-                <div className="mt-2 flex flex-col gap-1 text-xs">
-                  <a
-                    href="https://docs.evolutionfoundation.com.br/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {t('sidebar.footer.documentation')}
-                  </a>
-                  <a
-                    href={supportWhatsappUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {t('sidebar.footer.support')}
-                  </a>
                 </div>
               </>
             )}

@@ -88,7 +88,9 @@ export default function BusinessHoursForm({
   }, [workingHoursEnabled, outOfOfficeMessage, outOfOfficeMessageTemplateId, workingHours, timezone]);
 
   // Check if there are validation errors
-  const hasErrors = timeSlots.some(slot => slot.from && slot.to && !slot.valid);
+  const hasErrors = timeSlots.some(
+    slot => (slot.from && slot.to && !slot.valid) || (slot.hasBreak && slot.breakValid === false),
+  );
 
   // Handle time slot updates
   const handleSlotUpdate = useCallback((dayIndex: number, updatedSlot: TimeSlot) => {

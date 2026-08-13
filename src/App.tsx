@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+// Force HMR stylesheet reload buster: 2
 import AppRouter from './routes';
 import { AuthProvider } from './contexts/AuthContext';
 import { DarkModeProvider } from './contexts/ThemeContext';

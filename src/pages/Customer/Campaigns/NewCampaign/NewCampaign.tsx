@@ -4,6 +4,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CampaignType, CampaignChannelType, CampaignStatus } from '@/types/campaigns';
 import { campaignsService } from '@/services/campaigns';
+import { labelsService } from '@/services/contacts/labelsService';
 
 // Wizard components - 5 PASSOS
 import WizardProgress from './wizard/WizardProgress';
@@ -272,6 +273,26 @@ export default function NewCampaign() {
     const toastId = toast.loading(isEditMode ? t('loading.updating') : t('loading.creating'));
 
     try {
+      // evo-flow's SegmentQueryBuilderService#getContactsByTags matches by
+      // `tag.name` (evo-flow's local tags table, synced from CRM via label
+      // events, has no relationship to CRM's label UUIDs — its own `id` is
+      // freshly generated per row). wizardData.tag_ids holds CRM label UUIDs
+      // (plus `!id`-prefixed exclusions the backend doesn't support), so it
+      // must be resolved to label titles here or the tag filter silently
+      // matches zero contacts. Only plain inclusions are resolved; exclusion
+      // filtering isn't implemented on the backend yet.
+      let resolvedTagNames: string[] = [];
+      if (wizardData.contact_selection === 'tags' && (wizardData.tag_ids?.length ?? 0) > 0) {
+        const includedTagIds = (wizardData.tag_ids || []).filter(id => !id.startsWith('!'));
+        if (includedTagIds.length > 0) {
+          const labelsRes = await labelsService.getLabels({ per_page: 200 });
+          const allLabels = labelsRes.data || [];
+          resolvedTagNames = includedTagIds
+            .map(id => allLabels.find(l => l.id === id)?.title)
+            .filter((title): title is string => Boolean(title));
+        }
+      }
+
       // Build campaign data
       const wizardState = {
         name: wizardData.name,
@@ -307,11 +328,15 @@ export default function NewCampaign() {
       };
 
       const campaignData = {
-        name: currentCampaignName || wizardData.name.toLowerCase().replace(/\s+/g, '_'),
+        // Backend's `campaigns.name` column is varchar(40) - untruncated slugs from
+        // longer titles blew past that and crashed the INSERT (QueryFailedError:
+        // value too long for type character varying(40)).
+        name: currentCampaignName || wizardData.name.toLowerCase().replace(/\s+/g, '_').slice(0, 40),
         title: wizardData.name,
         description: wizardData.description,
         type: wizardData.type as CampaignType,
-        channel_type: wizardData.channel_type as CampaignChannelType,
+        // Same class of bug as sendToAll/tags/inboxId above: DTO is camelCase.
+        channelType: wizardData.channel_type as CampaignChannelType,
         status: wizardData.type === CampaignType.TRIGGER
           ? CampaignStatus.SCHEDULED // Trigger campaigns start as SCHEDULED until event fires
           : wizardData.schedule_option === 'now' 
@@ -324,7 +349,13 @@ export default function NewCampaign() {
             : undefined,
 
         // Inbox (apenas 1)
-        inbox_id: wizardData.inbox_id,
+        // evo-flow's CreateCampaignDto is camelCase and ValidationPipe uses
+        // whitelist:true — any snake_case key here is silently dropped
+        // instead of erroring, so a naming mismatch never surfaces as a bug
+        // report until someone notices the campaign behaving as if the field
+        // was never set (EVO analysis 2026-07-17: this is what made every
+        // tag-targeted campaign silently fall back to "send to all").
+        inboxId: wizardData.inbox_id,
 
         // Templates
         template_ids: wizardData.template_ids,
@@ -384,9 +415,14 @@ export default function NewCampaign() {
           : undefined,
 
         // Contacts
-        send_to_all: wizardData.contact_selection === 'all',
+        // sendToAll/tags must match evo-flow's CreateCampaignDto exactly (see
+        // note on inboxId above). segment_ids has no DTO counterpart at all
+        // yet — direct segment-based audience selection at creation time is
+        // a separate, still-unimplemented gap (trigger campaigns can target
+        // a segment via triggerConfig.segment_id, but that's a different path).
+        sendToAll: wizardData.contact_selection === 'all',
         segment_ids: wizardData.segment_ids,
-        tag_ids: wizardData.tag_ids,
+        tags: resolvedTagNames,
         steps: {
           ...existingSteps,
           wizard_state: wizardState,
@@ -441,7 +477,21 @@ export default function NewCampaign() {
         await campaignsService.updateCampaign(campaignId, campaignData as any);
         toast.success(t('messages.updateSuccess'), { id: toastId });
       } else {
-        await campaignsService.createCampaign(campaignData as any);
+        const createdCampaign = await campaignsService.createCampaign(campaignData as any);
+
+        // template_ids has no home in CreateCampaignDto — templates are
+        // associated one at a time via a dedicated endpoint
+        // (POST /campaigns/:id/templates). Without this call the campaign
+        // is created with zero templates and campaign-sender has nothing to
+        // dispatch. Edit-mode template changes aren't reconciled here yet
+        // (would need to diff against existing CampaignTemplate rows to
+        // avoid duplicating associations on every save) — known gap.
+        const templateIds = wizardData.template_ids || [];
+        for (let i = 0; i < templateIds.length; i++) {
+          const variant = templateIds.length > 1 ? String.fromCharCode(65 + i) : undefined;
+          await campaignsService.addCampaignTemplate(createdCampaign.id, templateIds[i], variant);
+        }
+
         toast.success(t('messages.createSuccess'), { id: toastId });
       }
     } catch (error) {

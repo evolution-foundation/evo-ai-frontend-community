@@ -2,9 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Evo CRM</title>
+    <!-- interactive-widget=resizes-content: on supporting mobile browsers (Chrome/Edge
+         Android 108+), asks the OS keyboard to shrink the actual viewport instead of
+         just the visual one, so our h-dvh + flex layout keeps the message composer
+         above the keyboard instead of it being covered. Safari iOS ignores this value
+         safely; useVisualViewportHeight() covers that case in JS. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>Kaiabí CRM</title>
   </head>
   <body>
     <div id="root"></div>

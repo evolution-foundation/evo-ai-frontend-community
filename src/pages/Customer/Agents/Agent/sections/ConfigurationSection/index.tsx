@@ -25,6 +25,8 @@ import {
 
 interface AdvancedSettingsData {
   planner: boolean;
+  load_memory: boolean;
+  preload_memory: boolean;
 }
 
 interface ConfigurationSectionProps {
@@ -91,6 +93,7 @@ const ConfigurationSection = ({
   externalConfigData,
   apiKeys,
   behaviorSettings,
+  advancedSettings,
   inactivityActions,
   transferRules,
   pipelineRules,
@@ -103,6 +106,7 @@ const ConfigurationSection = ({
   onTaskConfigChange,
   onExternalConfigChange,
   onBehaviorSettingsChange,
+  onAdvancedSettingsChange,
   onInactivityActionsChange,
   onTransferRulesChange,
   onPipelineRulesChange,
@@ -160,11 +164,13 @@ const ConfigurationSection = ({
               externalConfigData={externalConfigData}
               apiKeys={apiKeys}
               behaviorSettings={behaviorSettings}
+              advancedSettings={advancedSettings}
               onLLMConfigChange={onLLMConfigChange}
               onA2AConfigChange={onA2AConfigChange}
               onTaskConfigChange={onTaskConfigChange}
               onExternalConfigChange={onExternalConfigChange}
               onBehaviorSettingsChange={onBehaviorSettingsChange}
+              onAdvancedSettingsChange={onAdvancedSettingsChange}
               onShowTransferRulesModal={() => setShowTransferRulesModal(true)}
               onShowPipelineRulesModal={() => setShowPipelineRulesModal(true)}
               onShowContactEditModal={() => setShowContactEditModal(true)}

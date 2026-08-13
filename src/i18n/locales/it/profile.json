@@ -81,7 +81,7 @@
       },
       "messageSignature": {
         "title": "Firma messaggi personali",
-        "description": "Crea una firma messaggio univoca da visualizzare alla fine di ogni messaggio che invii da qualsiasi casella di posta.",
+        "description": "Crea una firma messaggio univoca da visualizzare in grassetto all'inizio di ogni messaggio che invii da qualsiasi casella di posta.",
         "label": "Firma del messaggio",
         "placeholder": "Inserisci qui la tua firma messaggio personale."
       },

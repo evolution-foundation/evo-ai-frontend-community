@@ -48,6 +48,18 @@ class CampaignsService {
     return response.data.data;
   }
 
+  // Associate a message template with a campaign. There is no bulk endpoint —
+  // evo-flow's CampaignTemplatesController takes one messageTemplateId per
+  // POST. `variant` distinguishes templates for A/B testing (defaults to 'A'
+  // on the backend when omitted).
+  async addCampaignTemplate(
+    campaignId: string,
+    messageTemplateId: string,
+    variant?: string
+  ): Promise<void> {
+    await api.post(`/campaigns/${campaignId}/templates`, { messageTemplateId, variant });
+  }
+
   // Update campaign
   async updateCampaign(campaignId: string, data: CampaignUpdateData): Promise<Campaign> {
     const response = await api.patch<{ success: boolean; data: Campaign }>(`/campaigns/${campaignId}`, data);

@@ -16,7 +16,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, filename, className = ''
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [playbackRate, setPlaybackRate] = useState(1);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Opções de velocidade de reprodução
+  const speedOptions = [1, 1.5, 2];
+  const speedLabel = `${playbackRate}x`;
 
   // Formatar tempo em mm:ss
   const formatTime = (seconds: number): string => {
@@ -77,6 +82,20 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, filename, className = ''
       audio.removeEventListener('error', handleError);
     };
   }, [src]);
+
+  // Aplicar velocidade ao elemento de áudio
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackRate;
+    }
+  }, [playbackRate]);
+
+  // Ciclar pela velocidade: 1x → 1.5x → 2x → 1x
+  const cycleSpeed = () => {
+    const currentIndex = speedOptions.indexOf(playbackRate);
+    const nextIndex = (currentIndex + 1) % speedOptions.length;
+    setPlaybackRate(speedOptions[nextIndex]);
+  };
 
   // Controlar reprodução
   const togglePlayPause = () => {
@@ -159,6 +178,19 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, filename, className = ''
             <span className="text-xs text-muted-foreground font-mono w-8">
               {formatTime(duration)}
             </span>
+
+            {/* Botão de velocidade */}
+            <button
+              onClick={cycleSpeed}
+              className={`
+                px-1.5 py-0.5 rounded text-xs font-bold transition-all duration-150
+                text-muted-foreground hover:text-foreground bg-muted hover:bg-muted/80
+                ${playbackRate !== 1 ? 'ring-1 ring-primary ring-opacity-60 text-primary' : ''}
+              `}
+              title="Velocidade de reprodução"
+            >
+              {speedLabel}
+            </button>
           </div>
         </div>
       </div>

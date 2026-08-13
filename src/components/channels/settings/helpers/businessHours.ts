@@ -8,6 +8,13 @@ export interface TimeSlot {
   to: string;
   valid: boolean;
   openAllDay?: boolean;
+  // Optional lunch break: when set, the day is worked in two stretches —
+  // `from`–`breakFrom` (morning) and `breakTo`–`to` (afternoon) — and
+  // (breakFrom, breakTo) is the break itself, when nobody is available.
+  hasBreak?: boolean;
+  breakFrom?: string;
+  breakTo?: string;
+  breakValid?: boolean;
 }
 
 export interface BusinessHourSlot {
@@ -18,6 +25,12 @@ export interface BusinessHourSlot {
   close_hour: number;
   close_minutes: number;
   open_all_day: boolean;
+  // Optional second (open, close) window — the gap between close_* and open_hour_2 is
+  // the lunch break. Sent as null (all four) when the day has no break.
+  open_hour_2?: number | null;
+  open_minutes_2?: number | null;
+  close_hour_2?: number | null;
+  close_minutes_2?: number | null;
 }
 
 export interface TimeZone {
@@ -47,32 +60,24 @@ export const getDayNames = (): Record<number, string> => ({
   6: i18n.t('channels:settings.businessHours.days.saturday'),
 });
 
-// Generate time slots with specified step (in minutes)
+// Generate time slots (24h format, e.g. "08:00", "13:30") with specified step (in minutes)
 export const generateTimeSlots = (step = 30): string[] => {
-  const date = new Date(1970, 1, 1);
   const slots: string[] = [];
 
-  while (date.getDate() === 1) {
-    slots.push(
-      date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-      }),
-    );
-    date.setMinutes(date.getMinutes() + step);
+  for (let minutes = 0; minutes < 24 * 60; minutes += step) {
+    const hour = Math.floor(minutes / 60);
+    const minute = minutes % 60;
+    slots.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`);
   }
 
   return slots;
 };
 
-// Convert hour and minute to time string
+// Convert hour and minute to a 24h time string (e.g. "08:00", "17:30")
 export const getTime = (hour: number, minute: number): string => {
-  const meridian = hour > 11 ? 'PM' : 'AM';
-  const modHour = hour > 12 ? hour % 12 : hour || 12;
-  const parsedHour = modHour < 10 ? `0${modHour}` : modHour;
-  const parsedMinute = minute < 10 ? `0${minute}` : minute;
-  return `${parsedHour}:${parsedMinute} ${meridian}`;
+  const parsedHour = hour < 10 ? `0${hour}` : `${hour}`;
+  const parsedMinute = minute < 10 ? `0${minute}` : `${minute}`;
+  return `${parsedHour}:${parsedMinute}`;
 };
 
 // Parse business hours from API format to UI format
@@ -86,10 +91,20 @@ export const timeSlotParse = (timeSlots: BusinessHourSlot[]): TimeSlot[] => {
       close_minutes: closeMinutes,
       closed_all_day: closedAllDay,
       open_all_day: openAllDay,
+      open_hour_2: openHour2,
+      open_minutes_2: openMinutes2,
+      close_hour_2: closeHour2,
+      close_minutes_2: closeMinutes2,
     } = slot;
 
+    const hasBreak = !closedAllDay && openHour2 != null && openMinutes2 != null && closeHour2 != null && closeMinutes2 != null;
+
     const from = closedAllDay ? '' : getTime(openHour, openMinutes);
-    const to = closedAllDay ? '' : getTime(closeHour, closeMinutes);
+    // With a break, the day's real end is close_hour_2 and close_hour/close_minutes
+    // mark where the break starts instead of where the day ends.
+    const to = closedAllDay ? '' : getTime(hasBreak ? (closeHour2 as number) : closeHour, hasBreak ? (closeMinutes2 as number) : closeMinutes);
+    const breakFrom = hasBreak ? getTime(closeHour, closeMinutes) : undefined;
+    const breakTo = hasBreak ? getTime(openHour2 as number, openMinutes2 as number) : undefined;
 
     return {
       day,
@@ -97,6 +112,10 @@ export const timeSlotParse = (timeSlots: BusinessHourSlot[]): TimeSlot[] => {
       from,
       valid: !closedAllDay,
       openAllDay,
+      hasBreak,
+      breakFrom,
+      breakTo,
+      breakValid: hasBreak ? validateBreakSlot(from, breakFrom, breakTo, to) : undefined,
     };
   });
 };
@@ -106,16 +125,33 @@ export const timeSlotTransform = (timeSlots: TimeSlot[]): BusinessHourSlot[] => 
   return timeSlots.map(slot => {
     const closed = slot.openAllDay ? false : !(slot.to && slot.from);
     const openAllDay = slot.openAllDay || false;
+    const hasBreak = !openAllDay && Boolean(slot.hasBreak && slot.breakFrom && slot.breakTo);
     let openHour = 0;
     let openMinutes = 0;
     let closeHour = 0;
     let closeMinutes = 0;
+    let openHour2: number | null = null;
+    let openMinutes2: number | null = null;
+    let closeHour2: number | null = null;
+    let closeMinutes2: number | null = null;
 
     if (!closed && slot.from && slot.to) {
-      openHour = getHours(parse(slot.from, 'hh:mm a', new Date()));
-      openMinutes = getMinutes(parse(slot.from, 'hh:mm a', new Date()));
-      closeHour = getHours(parse(slot.to, 'hh:mm a', new Date()));
-      closeMinutes = getMinutes(parse(slot.to, 'hh:mm a', new Date()));
+      openHour = getHours(parse(slot.from, 'HH:mm', new Date()));
+      openMinutes = getMinutes(parse(slot.from, 'HH:mm', new Date()));
+
+      if (hasBreak && slot.breakFrom && slot.breakTo) {
+        // close_* marks the START of the break; open_*_2/close_*_2 is the afternoon
+        // stretch that ends at the day's real "to".
+        closeHour = getHours(parse(slot.breakFrom, 'HH:mm', new Date()));
+        closeMinutes = getMinutes(parse(slot.breakFrom, 'HH:mm', new Date()));
+        openHour2 = getHours(parse(slot.breakTo, 'HH:mm', new Date()));
+        openMinutes2 = getMinutes(parse(slot.breakTo, 'HH:mm', new Date()));
+        closeHour2 = getHours(parse(slot.to, 'HH:mm', new Date()));
+        closeMinutes2 = getMinutes(parse(slot.to, 'HH:mm', new Date()));
+      } else {
+        closeHour = getHours(parse(slot.to, 'HH:mm', new Date()));
+        closeMinutes = getMinutes(parse(slot.to, 'HH:mm', new Date()));
+      }
     }
 
     return {
@@ -126,6 +162,10 @@ export const timeSlotTransform = (timeSlots: TimeSlot[]): BusinessHourSlot[] => 
       close_hour: closeHour,
       close_minutes: closeMinutes,
       open_all_day: openAllDay,
+      open_hour_2: openHour2,
+      open_minutes_2: openMinutes2,
+      close_hour_2: closeHour2,
+      close_minutes_2: closeMinutes2,
     };
   });
 };
@@ -135,11 +175,11 @@ export const validateTimeSlot = (from: string, to: string): boolean => {
   if (!from || !to) return false;
 
   try {
-    const fromDate = parse(from, 'hh:mm a', new Date());
-    const toDate = parse(to, 'hh:mm a', new Date());
+    const fromDate = parse(from, 'HH:mm', new Date());
+    const toDate = parse(to, 'HH:mm', new Date());
 
     // Special case for midnight (next day)
-    if (to === '12:00 AM') return true;
+    if (to === '00:00') return true;
 
     return differenceInMinutes(toDate, fromDate) > 0;
   } catch {
@@ -147,24 +187,50 @@ export const validateTimeSlot = (from: string, to: string): boolean => {
   }
 };
 
-// Calculate total hours for a time slot
+// Validate a lunch break: from < breakFrom < breakTo < to, all on the same day.
+export const validateBreakSlot = (from?: string, breakFrom?: string, breakTo?: string, to?: string): boolean => {
+  if (!from || !breakFrom || !breakTo || !to) return false;
+  if (!validateTimeSlot(breakFrom, breakTo)) return false;
+
+  try {
+    const fromDate = parse(from, 'HH:mm', new Date());
+    const breakFromDate = parse(breakFrom, 'HH:mm', new Date());
+    const breakToDate = parse(breakTo, 'HH:mm', new Date());
+    const toDate = to === '00:00' ? parse('23:59', 'HH:mm', new Date()) : parse(to, 'HH:mm', new Date());
+
+    return differenceInMinutes(breakFromDate, fromDate) > 0 && differenceInMinutes(toDate, breakToDate) > 0;
+  } catch {
+    return false;
+  }
+};
+
+// Calculate total hours for a time slot (subtracts the lunch break, if any)
 export const calculateTotalHours = (timeSlot: TimeSlot): number => {
   if (timeSlot.openAllDay) return 24;
 
   if (!timeSlot.from || !timeSlot.to || !timeSlot.valid) return 0;
 
   try {
-    const fromDate = parse(timeSlot.from, 'hh:mm a', new Date());
-    const toDate = parse(timeSlot.to, 'hh:mm a', new Date());
+    const fromDate = parse(timeSlot.from, 'HH:mm', new Date());
+    const toDate = parse(timeSlot.to, 'HH:mm', new Date());
 
+    let totalMinutes: number;
     // Handle midnight as next day
-    if (timeSlot.to === '12:00 AM') {
+    if (timeSlot.to === '00:00') {
       const nextDayMidnight = new Date(toDate);
       nextDayMidnight.setDate(nextDayMidnight.getDate() + 1);
-      return differenceInMinutes(nextDayMidnight, fromDate) / 60;
+      totalMinutes = differenceInMinutes(nextDayMidnight, fromDate);
+    } else {
+      totalMinutes = Math.max(0, differenceInMinutes(toDate, fromDate));
     }
 
-    return Math.max(0, differenceInMinutes(toDate, fromDate) / 60);
+    if (timeSlot.hasBreak && timeSlot.breakValid && timeSlot.breakFrom && timeSlot.breakTo) {
+      const breakFromDate = parse(timeSlot.breakFrom, 'HH:mm', new Date());
+      const breakToDate = parse(timeSlot.breakTo, 'HH:mm', new Date());
+      totalMinutes -= Math.max(0, differenceInMinutes(breakToDate, breakFromDate));
+    }
+
+    return Math.max(0, totalMinutes / 60);
   } catch {
     return 0;
   }

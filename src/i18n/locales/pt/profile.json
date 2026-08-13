@@ -81,7 +81,7 @@
       },
       "messageSignature": {
         "title": "Assinatura de mensagens pessoais",
-        "description": "Crie uma assinatura de mensagem única para aparecer no final de cada mensagem que você enviar de qualquer caixa de entrada.",
+        "description": "Crie uma assinatura de mensagem única para aparecer em negrito no início de cada mensagem que você enviar de qualquer caixa de entrada.",
         "label": "Assinatura da mensagem",
         "placeholder": "Insira aqui a assinatura de sua mensagem pessoal."
       },

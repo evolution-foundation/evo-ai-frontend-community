@@ -95,7 +95,7 @@
       },
       "messageSignature": {
         "title": "Personal Message Signature",
-        "description": "Create a unique message signature to appear at the end of every message you send from any inbox.",
+        "description": "Create a unique message signature to appear in bold at the beginning of every message you send from any inbox.",
         "label": "Message Signature",
         "placeholder": "Insert your personal message signature here."
       },

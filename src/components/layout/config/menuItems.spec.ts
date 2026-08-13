@@ -114,6 +114,15 @@ describe('menuItems — EVO-1938 admin Settings gating for the default agent', (
     },
   );
 
+  it('gates Procedimentos on procedures.read', () => {
+    const procedimentos = findSubItem('/settings/procedures');
+
+    expect(procedimentos.resource).toBe('procedures');
+    expect(procedimentos.action).toBe('read');
+    expect(isVisible(procedimentos, agentGranted)).toBe(false);
+    expect(isVisible(procedimentos, [...agentGranted, 'procedures.read'])).toBe(true);
+  });
+
   it('shows the admin Settings items to an administrator that holds the reads', () => {
     const adminGranted = [...agentGranted, 'integrations.read', 'segments.read'];
     expect(isVisible(findSubItem('/settings/integrations'), adminGranted)).toBe(true);

@@ -28,6 +28,7 @@ import MicrosoftCallback from '@/pages/MicrosoftCallback';
 import SurveyResponse from '@/pages/Public/Survey/SurveyResponse';
 import PublicChatPage from '@/pages/Public/Chat/ChatPage';
 import FormPage from '@/pages/Public/Form/FormPage';
+import PublicProcedure from '@/pages/Public/Procedures';
 
 // Páginas customer
 import Dashboard from '@/pages/Customer/Dashboard';
@@ -61,6 +62,7 @@ import JourneyFlowEditor from '@/pages/Customer/Journey/JourneyFlowEditor';
 import Campaigns from '@/pages/Customer/Campaigns/Campaigns';
 import NewCampaign from '@/pages/Customer/Campaigns/NewCampaign/NewCampaign';
 import CannedResponses from '@/pages/Customer/Settings/CannedResponses';
+import Procedures from '@/pages/Customer/Settings/Procedures';
 import MessageTemplates from '@/pages/Customer/Settings/MessageTemplates';
 import { Macros } from '@/pages/Customer/Settings/Macros';
 import Products, { ProductsImport } from '@/pages/Customer/Settings/Products';
@@ -192,6 +194,8 @@ const AppRouter = () => {
               </PublicRoute>
             }
           />
+
+          <Route path="/procedures/public/:token" element={<PublicProcedure />} />
 
           {/* Instagram OAuth Callback */}
           <Route
@@ -769,6 +773,21 @@ const AppRouter = () => {
                   <MainLayout>
                     <PermissionRoute resource="canned_responses" action="read">
                       <CannedResponses />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/settings/procedures"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="procedures" action="read">
+                      <Procedures />
                     </PermissionRoute>
                   </MainLayout>
                 </CustomerRoute>

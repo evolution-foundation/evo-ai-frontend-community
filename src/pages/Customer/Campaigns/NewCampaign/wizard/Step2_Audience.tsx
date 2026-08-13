@@ -156,17 +156,20 @@ const Step2_Audience = ({ data, onChange, onNext, onBack }: Step2Props) => {
       });
       includedTags.forEach(tagId => {
         const label = labels.find(l => l.id === tagId);
-        // Labels don't have contact count in the API, estimate based on total
-        if (label) estimatedContacts += Math.floor((totalContacts || 0) * 0.1);
+        // usage_count comes straight from the API (Label#usage_count on the
+        // CRM side) — real count of contacts+conversations tagged with this
+        // label, not a guess. Slightly over-counts vs. contacts-only since it
+        // includes conversations, but far closer than a flat % of the base.
+        if (label) estimatedContacts += label.usage_count || 0;
       });
-      // Subtract excluded (simplified)
+      // Subtract excluded
       excludedSegments.forEach(segId => {
         const seg = segments.find(s => s.id === segId);
         if (seg) estimatedContacts = Math.max(0, estimatedContacts - (seg.contactsCount || 0) * 0.1);
       });
       excludedTags.forEach(tagId => {
         const label = labels.find(l => l.id === tagId);
-        if (label) estimatedContacts = Math.max(0, estimatedContacts - Math.floor((totalContacts || 0) * 0.05));
+        if (label) estimatedContacts = Math.max(0, estimatedContacts - (label.usage_count || 0));
       });
     }
 

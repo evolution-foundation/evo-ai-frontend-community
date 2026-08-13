@@ -28,6 +28,7 @@ import {
   Route,
   ShieldCheck,
   FileText,
+  BookOpenCheck,
 } from 'lucide-react';
 
 export interface MenuItem {
@@ -238,6 +239,13 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         href: '/settings/canned-responses',
         icon: MessageCircle,
         resource: 'canned_responses',
+        action: 'read',
+      },
+      {
+        name: t('menu.settings.procedures'),
+        href: '/settings/procedures',
+        icon: BookOpenCheck,
+        resource: 'procedures',
         action: 'read',
       },
       {

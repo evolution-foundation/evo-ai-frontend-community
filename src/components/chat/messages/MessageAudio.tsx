@@ -44,7 +44,18 @@ const MessageAudio: React.FC<MessageAudioProps> = ({ attachments }) => {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [durations, setDurations] = useState<Record<string, number>>({});
+  const [playbackRate, setPlaybackRate] = useState(1);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Opções de velocidade: 1x → 1.5x → 2x → 1x
+  const speedOptions = [1, 1.5, 2];
+  const speedLabel = `${playbackRate}x`;
+
+  const cycleSpeed = () => {
+    const currentIndex = speedOptions.indexOf(playbackRate);
+    const nextIndex = (currentIndex + 1) % speedOptions.length;
+    setPlaybackRate(speedOptions[nextIndex]);
+  };
 
   // Cache global de durações por attachment (persiste entre re-renders)
   const globalDurationsRef = useRef<Record<string, number>>({});
@@ -399,6 +410,13 @@ const MessageAudio: React.FC<MessageAudioProps> = ({ attachments }) => {
     };
   }, []);
 
+  // Aplicar velocidade ao elemento de áudio sempre que mudar
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackRate;
+    }
+  }, [playbackRate]);
+
   // Carregar durações usando o próprio elemento de reprodução
   useEffect(() => {
     // AGUARDAR UM POUCO PARA O DOM ESTAR PRONTO
@@ -501,6 +519,19 @@ const MessageAudio: React.FC<MessageAudioProps> = ({ attachments }) => {
                       </span>
                     </div>
                   </div>
+
+                  {/* Botão de velocidade */}
+                  <button
+                    onClick={cycleSpeed}
+                    className={`
+                      h-7 px-1.5 rounded text-xs font-bold flex-shrink-0 transition-all duration-150
+                      text-muted-foreground hover:text-foreground bg-muted/60 hover:bg-muted
+                      ${playbackRate !== 1 ? 'ring-1 ring-primary text-primary' : ''}
+                    `}
+                    title="Velocidade de reprodução"
+                  >
+                    {speedLabel}
+                  </button>
 
                   {/* Menu/Download */}
                   <Button

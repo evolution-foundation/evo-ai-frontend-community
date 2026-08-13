@@ -67,7 +67,14 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ attachment, messageType, onTo
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [playbackRate, setPlaybackRate] = useState(1);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Opções de velocidade de reprodução
+  const speedOptions = [1, 1.5, 2];
+
+  // Formatar label da velocidade (ex: "1x", "1.5x", "2x")
+  const speedLabel = `${playbackRate}x`;
 
   const audioUrl = attachment.data_url || attachment.file_url;
   const filename = attachment.fallback_title || t('attachments.audio.title');
@@ -136,6 +143,20 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ attachment, messageType, onTo
       audio.removeEventListener('error', handleError);
     };
   }, [audioUrl, onToast]);
+
+  // Aplicar velocidade ao elemento de áudio sempre que mudar
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackRate;
+    }
+  }, [playbackRate]);
+
+  // Ciclar pela velocidade: 1x → 1.5x → 2x → 1x
+  const cycleSpeed = () => {
+    const currentIndex = speedOptions.indexOf(playbackRate);
+    const nextIndex = (currentIndex + 1) % speedOptions.length;
+    setPlaybackRate(speedOptions[nextIndex]);
+  };
 
   // Controlar reprodução
   const togglePlayPause = () => {
@@ -240,6 +261,21 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ attachment, messageType, onTo
                 {filename}
               </span>
             </div>
+            {/* Botão de velocidade */}
+            <button
+              onClick={cycleSpeed}
+              className={`
+                flex-shrink-0 px-1.5 py-0.5 rounded text-xs font-bold transition-all duration-150
+                ${messageType === 'out'
+                  ? 'text-white/90 hover:text-white bg-white/10 hover:bg-white/20'
+                  : 'text-slate-600 hover:text-slate-800 bg-slate-200 hover:bg-slate-300'
+                }
+                ${playbackRate !== 1 ? 'ring-1 ring-current ring-opacity-50' : ''}
+              `}
+              title="Velocidade de reprodução"
+            >
+              {speedLabel}
+            </button>
             <button
               onClick={downloadAudio}
               className={`

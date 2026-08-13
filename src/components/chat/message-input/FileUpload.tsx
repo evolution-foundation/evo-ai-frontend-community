@@ -198,8 +198,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
         disabled={disabled}
       />
 
-      {/* Upload Trigger */}
+      {/* Upload Trigger — `contents` keeps this wrapper out of the parent flex
+          row's box model. Without it, every hidden-trigger instance (children=
+          <></>, used by the composer's three hidden pickers) still counts as a
+          zero-width flex item that claims its own `gap` slot, stealing width
+          from siblings sized via `flex-1` (see the message composer pill). */}
       <span
+        className="contents"
         onClick={() => {
           if (!disabled) {
             document.getElementById(inputId)?.click();

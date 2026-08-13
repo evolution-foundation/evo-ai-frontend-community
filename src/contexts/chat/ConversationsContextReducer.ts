@@ -205,11 +205,11 @@ export function conversationsReducer(
       // Quando seleciona conversa, zera o unread_count
       const updatedConversations = state.conversations
         .filter(conv => conv !== null && conv !== undefined && conv.id)
-        .map(conv => (conv.id === action.payload ? { ...conv, unread_count: 0 } : conv));
+        .map(conv => (payloadStr && matchesConversationId(conv, payloadStr) ? { ...conv, unread_count: 0 } : conv));
 
       // Encontrar a conversa selecionada para armazenar os dados
       const selectedConversation = payloadStr
-        ? state.conversations.find(conv => String(conv.id) === payloadStr) || null
+        ? state.conversations.find(conv => matchesConversationId(conv, payloadStr)) || null
         : null;
 
       return {
@@ -478,7 +478,7 @@ export function conversationsReducer(
         conversations: state.conversations
           .filter(conv => conv !== null && conv !== undefined && conv.id)
           .map(conv =>
-            conv.id === conversationId ? { ...conv, last_activity_at: lastActivityAt } : conv,
+            matchesConversationId(conv, conversationId) ? { ...conv, last_activity_at: lastActivityAt } : conv,
           ),
       };
     }
@@ -507,7 +507,7 @@ export function conversationsReducer(
         conversations: state.conversations
           .filter(conv => conv !== null && conv !== undefined && conv.id)
           .map(conv =>
-            String(conv.id) === conversationIdStr
+            matchesConversationId(conv, conversationIdStr)
               ? { ...conv, unread_count: newCount }
               : conv,
           ),

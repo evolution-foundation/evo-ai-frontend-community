@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@evoapi/design-system';
 import { Minus } from 'lucide-react';
-import { TimeSlot, generateTimeSlots, validateTimeSlot, calculateTotalHours } from './helpers/businessHours';
+import { TimeSlot, generateTimeSlots, validateTimeSlot, validateBreakSlot, calculateTotalHours } from './helpers/businessHours';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface BusinessDayProps {
@@ -14,19 +14,20 @@ export default function BusinessDay({ dayName, timeSlot, onUpdate }: BusinessDay
   const { t } = useLanguage('channels');
   // Generate time slots
   const fromTimeSlots = useMemo(() => generateTimeSlots(30), []);
-  const toTimeSlots = useMemo(() => fromTimeSlots.filter(slot => slot !== '12:00 AM'), [fromTimeSlots]);
+  const toTimeSlots = useMemo(() => fromTimeSlots.filter(slot => slot !== '00:00'), [fromTimeSlots]);
 
   const isDayEnabled = Boolean(timeSlot.from && timeSlot.to);
   const hasError = !timeSlot.valid && isDayEnabled;
+  const hasBreakError = Boolean(timeSlot.hasBreak) && timeSlot.breakValid === false;
   const totalHours = calculateTotalHours(timeSlot);
 
   const handleDayToggle = (checked: boolean) => {
     if (checked) {
-      // Enable day with default hours (9 AM to 5 PM)
+      // Enable day with default hours (09:00 to 17:00)
       onUpdate({
         ...timeSlot,
-        from: '09:00 AM',
-        to: '05:00 PM',
+        from: '09:00',
+        to: '17:00',
         valid: true,
         openAllDay: false,
       });
@@ -44,20 +45,24 @@ export default function BusinessDay({ dayName, timeSlot, onUpdate }: BusinessDay
 
   const handleOpenAllDayToggle = (checked: boolean) => {
     if (checked) {
-      // Set to 24 hours
+      // Set to 24 hours — a full day has no lunch break to configure
       onUpdate({
         ...timeSlot,
-        from: '12:00 AM',
-        to: '11:59 PM',
+        from: '00:00',
+        to: '23:59',
         valid: true,
         openAllDay: true,
+        hasBreak: false,
+        breakFrom: undefined,
+        breakTo: undefined,
+        breakValid: undefined,
       });
     } else {
       // Set to default business hours
       onUpdate({
         ...timeSlot,
-        from: '09:00 AM',
-        to: '05:00 PM',
+        from: '09:00',
+        to: '17:00',
         valid: true,
         openAllDay: false,
       });
@@ -66,19 +71,58 @@ export default function BusinessDay({ dayName, timeSlot, onUpdate }: BusinessDay
 
   const handleFromTimeChange = (value: string) => {
     const valid = validateTimeSlot(value, timeSlot.to);
+    const breakValid = timeSlot.hasBreak ? validateBreakSlot(value, timeSlot.breakFrom, timeSlot.breakTo, timeSlot.to) : undefined;
     onUpdate({
       ...timeSlot,
       from: value,
       valid,
+      breakValid,
     });
   };
 
   const handleToTimeChange = (value: string) => {
     const valid = validateTimeSlot(timeSlot.from, value);
+    const breakValid = timeSlot.hasBreak ? validateBreakSlot(timeSlot.from, timeSlot.breakFrom, timeSlot.breakTo, value) : undefined;
     onUpdate({
       ...timeSlot,
       to: value,
       valid,
+      breakValid,
+    });
+  };
+
+  const handleBreakToggle = (checked: boolean) => {
+    if (checked) {
+      onUpdate({
+        ...timeSlot,
+        hasBreak: true,
+      });
+    } else {
+      onUpdate({
+        ...timeSlot,
+        hasBreak: false,
+        breakFrom: undefined,
+        breakTo: undefined,
+        breakValid: undefined,
+      });
+    }
+  };
+
+  const handleBreakFromChange = (value: string) => {
+    const breakValid = validateBreakSlot(timeSlot.from, value, timeSlot.breakTo, timeSlot.to);
+    onUpdate({
+      ...timeSlot,
+      breakFrom: value,
+      breakValid,
+    });
+  };
+
+  const handleBreakToChange = (value: string) => {
+    const breakValid = validateBreakSlot(timeSlot.from, timeSlot.breakFrom, value, timeSlot.to);
+    onUpdate({
+      ...timeSlot,
+      breakTo: value,
+      breakValid,
     });
   };
 
@@ -145,6 +189,17 @@ export default function BusinessDay({ dayName, timeSlot, onUpdate }: BusinessDay
                 ))}
               </SelectContent>
             </Select>
+
+            {/* Lunch Break Toggle */}
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={timeSlot.hasBreak || false}
+                onCheckedChange={handleBreakToggle}
+                disabled={timeSlot.openAllDay}
+                aria-label={t('settings.businessDay.lunchBreak')}
+              />
+              <span className="text-sm font-medium whitespace-nowrap">{t('settings.businessDay.lunchBreak')}</span>
+            </div>
           </div>
 
           {/* Error Message */}
@@ -153,6 +208,55 @@ export default function BusinessDay({ dayName, timeSlot, onUpdate }: BusinessDay
               <span className="text-xs text-red-500">
                 {t('settings.businessDay.timeError')}
               </span>
+            </div>
+          )}
+
+          {/* Lunch Break Controls */}
+          {timeSlot.hasBreak && !timeSlot.openAllDay && (
+            <div className="flex flex-col pt-3 mt-3 border-t border-dashed border-border">
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-muted-foreground whitespace-nowrap min-w-28">
+                  {t('settings.businessDay.breakLabel')}
+                </span>
+
+                <Select value={timeSlot.breakFrom || ''} onValueChange={handleBreakFromChange}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder={t('settings.businessDay.startPlaceholder')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {fromTimeSlots.map((slot) => (
+                      <SelectItem key={slot} value={slot}>
+                        {slot}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <div className="flex items-center px-2">
+                  <Minus className="h-4 w-4 text-muted-foreground" />
+                </div>
+
+                <Select value={timeSlot.breakTo || ''} onValueChange={handleBreakToChange}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder={t('settings.businessDay.endPlaceholder')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {toTimeSlots.map((slot) => (
+                      <SelectItem key={slot} value={slot}>
+                        {slot}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {hasBreakError && (
+                <div className="pt-2">
+                  <span className="text-xs text-red-500">
+                    {t('settings.businessDay.breakTimeError')}
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>

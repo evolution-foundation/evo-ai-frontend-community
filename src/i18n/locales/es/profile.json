@@ -81,7 +81,7 @@
       },
       "messageSignature": {
         "title": "Firma de mensajes personales",
-        "description": "Cree una firma de mensaje única para aparecer al final de cada mensaje que envíe desde cualquier bandeja de entrada.",
+        "description": "Cree una firma de mensaje única para aparecer en negrita al inicio de cada mensaje que envíe desde cualquier bandeja de entrada.",
         "label": "Firma del mensaje",
         "placeholder": "Inserte aquí la firma de su mensaje personal."
       },

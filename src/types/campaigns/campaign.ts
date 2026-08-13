@@ -75,13 +75,19 @@ export interface Campaign {
   description?: string;
   publisher?: string;
   schedule_to?: string;
+  scheduleTo?: string;
   scheduled_job_id?: string;
 
   // Status e controle
   status: CampaignStatus;
   spread_sending?: number;
   sent_contacts?: number;
+  sentContacts?: number;
+  failedContacts?: number;
   sent_percentage?: number;
+  // Populado via loadRelationCountAndMap no findAll do backend - total de
+  // contatos no lote da campanha (nao so os ja enviados).
+  contactsCount?: number;
 
   // Segmentação e audiência
   query?: string;
@@ -93,6 +99,7 @@ export interface Campaign {
   type: CampaignType;
   inbox_id?: string;
   channel_type?: CampaignChannelType;
+  channelType?: CampaignChannelType;
   is_rate_limit: boolean;
   is_run_segment: boolean;
 
@@ -115,6 +122,7 @@ export interface Campaign {
 
   // Timestamps
   created_at: string;
+  createdAt?: string;
   updated_at: string;
   deleted_at?: string;
 

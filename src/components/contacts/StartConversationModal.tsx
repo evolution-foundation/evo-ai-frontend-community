@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   Dialog,
   DialogContent,
@@ -78,6 +80,8 @@ export default function StartConversationModal({
   contact,
 }: StartConversationModalProps) {
   const { t } = useLanguage('contacts');
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [selectedInboxId, setSelectedInboxId] = useState<string>('');
   const [message, setMessage] = useState('');
   const [availableInboxes, setAvailableInboxes] = useState<ContactableInboxes[]>([]);
@@ -278,6 +282,7 @@ export default function StartConversationModal({
       const conversationData: ConversationCreateData = {
         contact_id: contact.id,
         inbox_id: selectedInboxId,
+        assignee_id: user?.id?.toString(),
       };
       if (selectedInbox?.source_id) {
         conversationData.source_id = selectedInbox.source_id;
@@ -310,8 +315,8 @@ export default function StartConversationModal({
       if (data && data.id) {
         onOpenChange(false);
 
-        // Redirect to conversation like the Vue frontend does
-        window.location.href = `/conversations/${data.id}`;
+        // Redirect to conversation using SPA routing to avoid full page reloads
+        navigate(`/conversations/${data.id}`);
 
         // Reset form
         setMessage('');
@@ -362,7 +367,7 @@ export default function StartConversationModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />

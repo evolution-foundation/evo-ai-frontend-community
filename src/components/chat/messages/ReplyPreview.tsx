@@ -12,9 +12,13 @@ import {
 interface ReplyPreviewProps {
   message?: Message | null;
   isOwn: boolean;
+  // Rola até a mensagem citada, carregando páginas mais antigas se ela ainda
+  // não estiver na tela. Sem isso, cai no fallback antigo (só rola se a
+  // mensagem já estiver renderizada no DOM agora).
+  onJumpToMessage?: (messageId: string) => void;
 }
 
-const ReplyPreview: React.FC<ReplyPreviewProps> = ({ message, isOwn }) => {
+const ReplyPreview: React.FC<ReplyPreviewProps> = ({ message, isOwn, onJumpToMessage }) => {
   const { t } = useLanguage('chat');
 
   const previewContent = useMemo(() => {
@@ -55,6 +59,14 @@ const ReplyPreview: React.FC<ReplyPreviewProps> = ({ message, isOwn }) => {
 
   const handleClick = () => {
     if (!message) return;
+
+    if (onJumpToMessage) {
+      onJumpToMessage(String(message.id));
+      return;
+    }
+
+    // Fallback (no jump handler wired up): only works if the message
+    // already happens to be rendered.
     const messageElement = document.querySelector(
       `[data-message-id="${CSS.escape(String(message.id))}"]`,
     );

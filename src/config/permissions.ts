@@ -72,6 +72,7 @@ const RESOURCE_DEFINITIONS = [
   { key: 'labels', actions: ['read', 'create', 'update', 'delete'], category: 'settings' as const },
   { key: 'custom_attribute_definitions', actions: ['read', 'create', 'update', 'delete'], category: 'settings' as const },
   { key: 'canned_responses', actions: ['read', 'create', 'update', 'delete'], category: 'settings' as const },
+  { key: 'procedures', actions: ['read', 'create', 'update', 'delete', 'publish', 'share', 'send_to_customer', 'manage_visibility', 'write'], category: 'settings' as const },
   { key: 'message_templates', actions: ['read', 'create', 'update', 'delete'], category: 'settings' as const },
   { key: 'macros', actions: ['read', 'create', 'update', 'delete', 'execute'], category: 'settings' as const },
   { key: 'automation_rules', actions: ['read', 'create', 'update', 'delete', 'clone'], category: 'settings' as const },

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Badge } from '@evoapi/design-system/badge';
 import {
   ContextMenu,
@@ -27,11 +27,13 @@ import MessageAudio from '@/components/chat/messages/MessageAudio';
 import MessageVideo from '@/components/chat/messages/MessageVideo';
 import MessageInputSelect from '@/components/chat/messages/MessageInputSelect';
 import MessageLocation from '@/components/chat/messages/MessageLocation';
+import MessageContact from '@/components/chat/messages/MessageContact';
 import MessageCarousel from '@/components/chat/messages/MessageCarousel';
 import MessageStatus from '@/components/chat/messages/MessageStatus';
 import SystemMessage from '@/components/chat/messages/SystemMessage';
 import ReplyPreview from '@/components/chat/messages/ReplyPreview';
 import { FacebookCommentModeration } from '@/types/channels/inbox';
+import { getCachedReplyMessage, fetchReplyMessage } from '@/utils/chat/replyMessageCache';
 
 interface MessageBubbleProps {
   message: Message;
@@ -42,6 +44,8 @@ interface MessageBubbleProps {
   showTimestamp?: boolean;
   labels?: Array<{ id: string; title: string; color: string }>;
   allMessages?: Message[]; // Todas as mensagens para buscar reply
+  conversationId?: string | null; // Necessário pra buscar a mensagem citada quando ela não está em allMessages
+  onJumpToMessage?: (messageId: string) => void; // Rola até (carregando páginas antigas se precisar) a mensagem citada
   isPostConversation?: boolean;
   isThreadRoot?: boolean;
   isThreadReply?: boolean;
@@ -62,6 +66,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   showTimestamp = true,
   labels = [],
   allMessages = [],
+  conversationId = null,
+  onJumpToMessage,
   isPostConversation: _isPostConversation = false, // Prefixado com _ para evitar erro TS (pode ser usado no futuro)
   isThreadRoot: _isThreadRoot = false, // Prefixado com _ para evitar erro TS (pode ser usado no futuro)
   isThreadReply = false,
@@ -92,18 +98,49 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   const replyToExternalId = message.content_attributes?.in_reply_to_external_id;
   const hasReplyReference = Boolean(replyToMessageId || replyToExternalId);
 
+  // Bumped after a background fetch resolves a reply target that wasn't in
+  // allMessages, to force replyToMessage below to re-check the (module-level,
+  // shared across bubbles) cache populated by that fetch.
+  const [fetchedReplyTick, setFetchedReplyTick] = useState(0);
+
+  // Whichever reference the message actually carries - an inbound WhatsApp
+  // reply quotes the OTHER party's WhatsApp message id (in_reply_to_external_id,
+  // never our internal id), while in_reply_to is our own id. The backend's
+  // GET .../messages/:id resolves either (falls back to source_id when :id
+  // isn't a UUID), so one lookup id covers both cases.
+  const replyLookupId = replyToMessageId || replyToExternalId;
+
   const replyToMessage = useMemo(() => {
     if (!hasReplyReference) return null;
     if (replyToMessageId) {
-      return allMessages.find(msg => String(msg.id) === String(replyToMessageId)) ?? null;
+      const local = allMessages.find(msg => String(msg.id) === String(replyToMessageId));
+      if (local) return local;
     }
     if (replyToExternalId) {
-      return allMessages.find(
+      const local = allMessages.find(
         msg => msg.source_id && String(msg.source_id) === String(replyToExternalId),
-      ) ?? null;
+      );
+      if (local) return local;
     }
-    return null;
-  }, [hasReplyReference, replyToMessageId, replyToExternalId, allMessages]);
+    return replyLookupId ? (getCachedReplyMessage(String(replyLookupId)) ?? null) : null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchedReplyTick exists only to re-run this memo after a cache write
+  }, [hasReplyReference, replyToMessageId, replyToExternalId, replyLookupId, allMessages, fetchedReplyTick]);
+
+  // The quoted message wasn't in the currently loaded page - fetch it directly
+  // so the preview shows real content instead of the generic "Mensagem
+  // anterior" fallback (EVO reply-jump fix).
+  useEffect(() => {
+    if (!replyLookupId || replyToMessage || !conversationId) return;
+
+    let cancelled = false;
+    fetchReplyMessage(conversationId, String(replyLookupId)).then(fetched => {
+      if (!cancelled && fetched) setFetchedReplyTick(tick => tick + 1);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [replyLookupId, replyToMessage, conversationId]);
 
   const handleCopyMessage = () => {
     if (message.content) {
@@ -207,6 +244,20 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               />
             )}
             <MessageLocation attachments={message.attachments} />
+          </>
+        );
+      } else if (fileType === 'contact') {
+        return (
+          <>
+            {message.content && (
+              <MessageText
+                content={message.content}
+                isPrivateNote={isPrivate}
+                contentType={message.content_type}
+                contentAttributes={message.content_attributes}
+              />
+            )}
+            <MessageContact attachments={message.attachments} />
           </>
         );
       } else if (fileType === 'image' || fileType.includes('image/')) {
@@ -366,7 +417,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               )}
 
               {hasReplyReference && !isPrivate && (
-                <ReplyPreview message={replyToMessage} isOwn={false} />
+                <ReplyPreview
+                  message={replyToMessage}
+                  isOwn={false}
+                  onJumpToMessage={onJumpToMessage}
+                />
               )}
 
               <div className={timestampVariant === 'tuck' ? 'overflow-hidden' : undefined}>
@@ -527,7 +582,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             )}
 
             {hasReplyReference && !isPrivate && (
-              <ReplyPreview message={replyToMessage} isOwn={isOwn} />
+              <ReplyPreview
+                message={replyToMessage}
+                isOwn={isOwn}
+                onJumpToMessage={onJumpToMessage}
+              />
             )}
 
             <div className={timestampVariant === 'tuck' ? 'overflow-hidden' : undefined}>

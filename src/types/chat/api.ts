@@ -176,7 +176,7 @@ export { Agent };
 export interface Attachment {
   id: string;
   message_id: string;
-  file_type: 'image' | 'video' | 'audio' | 'file' | 'location';
+  file_type: 'image' | 'video' | 'audio' | 'file' | 'location' | 'contact';
   extension: string | null;
   data_url: string;
   thumb_url: string | null;
@@ -201,6 +201,9 @@ export interface MessageContentAttributes extends Record<string, unknown> {
   is_unsupported?: boolean;
   deleted?: boolean;
   external_created_at?: number;
+  // Real provider error captured when status is 'failed' (e.g. "131026: Message
+  // undeliverable") — shown directly in MessageStatus instead of a generic label.
+  external_error?: string;
 }
 
 // ===== MESSAGE =====

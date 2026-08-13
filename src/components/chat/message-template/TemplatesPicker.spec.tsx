@@ -182,6 +182,32 @@ describe('TemplatesPicker', () => {
     expect(screen.queryByText('ini_approved')).toBeNull();
   });
 
+  it('search filter narrows visible set by content', () => {
+    const templateWithContent: MessageTemplate = {
+      id: 'content-1',
+      name: 'hello_world_content',
+      content: 'This is template body content that we search for',
+      language: 'en_US',
+      category: 'UTILITY',
+      status: 'APPROVED',
+    };
+    render(
+      <TemplatesPicker
+        isWhatsAppCloud={false}
+        templates={[approved, templateWithContent]}
+        onSelect={vi.fn()}
+      />,
+    );
+
+    const searchInput = screen.getByPlaceholderText(
+      'messageTemplates.picker.searchPlaceholder',
+    );
+    fireEvent.change(searchInput, { target: { value: 'body content' } });
+
+    expect(screen.getByText('hello_world_content')).toBeTruthy();
+    expect(screen.queryByText('ini_approved')).toBeNull();
+  });
+
   it('empty-state appears only when search yields zero results', () => {
     render(
       <TemplatesPicker

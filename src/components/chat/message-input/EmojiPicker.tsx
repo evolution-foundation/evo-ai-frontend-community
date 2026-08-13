@@ -72,19 +72,20 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiSelect, onClose, isOpe
   return (
     <div
       ref={pickerRef}
-      className="absolute bottom-full left-0 mb-2 z-[9999]"
-      style={{
-        minWidth: '350px',
-        maxWidth: '350px',
-      }}
+      // Fixed 350px used to overflow off-screen on phones narrower than ~380px
+      // (the picker is anchored to the emoji button near the left of the
+      // composer, so capping the width — not repositioning — is enough to
+      // keep it on-screen). Height is likewise capped against the viewport so
+      // it doesn't get clipped under a shorter mobile browser window.
+      className="absolute bottom-full left-0 mb-2 z-[9999] w-[min(350px,calc(100vw-2rem))]"
     >
       <div className="bg-background border-2 border-border rounded-lg shadow-2xl overflow-hidden">
         <EmojiPickerReact
           onEmojiClick={handleEmojiClick}
           theme={emojiTheme}
           searchPlaceHolder={t('messageInput.emojiPicker.searchPlaceholder')}
-          width="350px"
-          height="400px"
+          width="100%"
+          height="min(400px, 60vh)"
           previewConfig={{
             showPreview: false,
           }}

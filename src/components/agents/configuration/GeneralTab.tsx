@@ -37,6 +37,7 @@ import {
   Tag,
   ShoppingCart,
   ChevronDown,
+  Brain,
 } from 'lucide-react';
 import { ApiKeysModal } from '@/components/ApiKeysModal';
 import ModelSelector from '@/components/ai_agents/ModelSelector';
@@ -50,6 +51,12 @@ import {
   isExternalAgent,
 } from '@/utils/agents';
 import { BehaviorSettings } from './types';
+
+interface AdvancedSettingsData {
+  planner: boolean;
+  load_memory: boolean;
+  preload_memory: boolean;
+}
 
 interface GeneralTabProps {
   agent: Agent;
@@ -69,6 +76,7 @@ interface GeneralTabProps {
   } | null;
   apiKeys: ApiKey[];
   behaviorSettings: BehaviorSettings;
+  advancedSettings: AdvancedSettingsData;
   onLLMConfigChange: (data: LLMConfigData) => void;
   onA2AConfigChange: (data: A2AConfigData) => void;
   onTaskConfigChange: (data: TaskConfigData) => void;
@@ -84,6 +92,7 @@ interface GeneralTabProps {
     };
   }) => void;
   onBehaviorSettingsChange: (settings: BehaviorSettings) => void;
+  onAdvancedSettingsChange: (settings: AdvancedSettingsData) => void;
   onShowTransferRulesModal: () => void;
   onShowPipelineRulesModal: () => void;
   onShowContactEditModal: () => void;
@@ -99,11 +108,13 @@ export const GeneralTab = ({
   externalConfigData,
   apiKeys,
   behaviorSettings,
+  advancedSettings,
   onLLMConfigChange,
   onA2AConfigChange,
   onTaskConfigChange,
   onExternalConfigChange,
   onBehaviorSettingsChange,
+  onAdvancedSettingsChange,
   onShowTransferRulesModal,
   onShowPipelineRulesModal,
   onShowContactEditModal,
@@ -117,6 +128,18 @@ export const GeneralTab = ({
   const [openModel, setOpenModel] = useState(true);
   const [openBehavior, setOpenBehavior] = useState(true);
   const [openMessages, setOpenMessages] = useState(true);
+
+  // Handler para mudanças nas configurações avançadas
+  const handleAdvancedSettingsChange = useCallback(
+    (field: keyof AdvancedSettingsData, value: boolean) => {
+      const updatedSettings = {
+        ...advancedSettings,
+        [field]: value,
+      };
+      onAdvancedSettingsChange(updatedSettings);
+    },
+    [advancedSettings, onAdvancedSettingsChange]
+  );
 
   // Handler para mudanças no LLM config
   const handleLLMConfigChange = useCallback(
@@ -394,6 +417,96 @@ export const GeneralTab = ({
                   }
                 />
               </div>
+
+              {/* Planner */}
+              <div className="flex items-start justify-between py-3 border-t">
+                <div className="flex items-start gap-3 flex-1">
+                  <Zap className="h-5 w-5 text-yellow-500 mt-0.5" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Label htmlFor="planner" className="font-medium cursor-pointer">
+                        {t('planner.title')}
+                      </Label>
+                      <Badge
+                        variant={advancedSettings.planner ? 'default' : 'outline'}
+                        className="text-xs"
+                      >
+                        {advancedSettings.planner
+                          ? t('advancedBot.active')
+                          : t('advancedBot.inactive')}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{t('planner.description')}</p>
+                  </div>
+                </div>
+                <Switch
+                  id="planner"
+                  checked={advancedSettings.planner}
+                  onCheckedChange={checked => handleAdvancedSettingsChange('planner', checked)}
+                />
+              </div>
+
+              {/* Memória */}
+              <div className="flex items-start justify-between py-3 border-t">
+                <div className="flex items-start gap-3 flex-1">
+                  <Brain className="h-5 w-5 text-blue-500 mt-0.5" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Label htmlFor="load-memory" className="font-medium cursor-pointer">
+                        {t('memory.loadMemory') || 'Memória'}
+                      </Label>
+                      <Badge
+                        variant={advancedSettings.load_memory ? 'default' : 'outline'}
+                        className="text-xs"
+                      >
+                        {advancedSettings.load_memory
+                          ? t('advancedBot.active') || 'Ativo'
+                          : t('advancedBot.inactive') || 'Inativo'}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {t('memory.loadMemoryDescription') || 'Permite que o agente acesse o histórico de conversas passadas para manter o contexto do cliente.'}
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  id="load-memory"
+                  checked={advancedSettings.load_memory}
+                  onCheckedChange={checked => {
+                    onAdvancedSettingsChange({
+                      ...advancedSettings,
+                      load_memory: checked,
+                      preload_memory: checked ? advancedSettings.preload_memory || true : false,
+                    });
+                  }}
+                />
+              </div>
+
+              {/* Preload Memory */}
+              {advancedSettings.load_memory && (
+                <div className="flex items-start justify-between py-3 border-t pl-8">
+                  <div className="flex items-start gap-3 flex-1">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Label htmlFor="preload-memory" className="font-medium cursor-pointer">
+                          {t('memory.preloadMemory') || 'Pré-carregar Memória'}
+                        </Label>
+                        <Badge variant="outline" className="text-xs">
+                          {t('advancedBot.optimization') || 'Otimização'}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {t('memory.preloadMemoryDescription') || 'Carrega previamente as memórias do contato no início da conversa para otimizar o tempo de resposta.'}
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    id="preload-memory"
+                    checked={advancedSettings.preload_memory}
+                    onCheckedChange={checked => handleAdvancedSettingsChange('preload_memory', checked)}
+                  />
+                </div>
+              )}
 
               {/* Permitir registrar lembretes */}
               <div className="flex items-center justify-between py-3 border-b last:border-0">

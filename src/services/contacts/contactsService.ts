@@ -344,9 +344,10 @@ class ContactsService {
   }
 
   // Import/Export
-  async importContacts(file: File): Promise<ContactImportResponse> {
+  async importContacts(file: File, label?: string): Promise<ContactImportResponse> {
     const formData = new FormData();
     formData.append('import_file', file);
+    if (label) formData.append('label', label);
 
     const response = await api.post(`/contacts/import`, formData, {
       headers: {

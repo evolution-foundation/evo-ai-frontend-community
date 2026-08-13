@@ -85,13 +85,11 @@
       "sharedLocation": "Localização compartilhada",
       "openInMaps": "Abrir no Google Maps"
     },
+    "messageContact": {
+      "sharedContact": "Contato compartilhado",
+      "unknownPhone": "Telefone não informado"
+    },
     "messageStatus": {
-      "statusUnavailable": "Status da mensagem indisponível",
-      "statusUnavailableDescription": "A mensagem foi enviada, mas não conseguimos confirmar o status de entrega.",
-      "checkChannelConfig": "Verifique a configuração do canal",
-      "webhookIssue": "O webhook pode estar desatualizado ou inativo.",
-      "deliveryStatusUnavailable": "Status de entrega indisponível - Clique para mais detalhes",
-      "statusUnavailableText": "Status indisponível",
       "retryInDevelopment": "Funcionalidade de reenvio em desenvolvimento",
       "sendFailed": "Falha no envio - Clique para tentar novamente",
       "tryAgain": "Tentar novamente"
@@ -263,6 +261,8 @@
     },
     "banner": {
       "whatsappMessage": "Você só pode responder a esta conversa usando um modelo de mensagem devido a",
+      "whatsappMessageWithElapsed": "A janela de mensagem de 24 horas expirou há {{elapsed}}. Você só pode responder usando um modelo de mensagem devido a",
+      "windowExpiringSoon": "⏳ Restam {{remaining}} para responder livremente antes da janela de mensagem de 24 horas expirar.",
       "cannotReply": "Você não pode responder porque",
       "linkText": "Restrições de janela de mensagem de 24 horas",
       "zapiDisconnected": "WhatsApp desconectado. Conecte o número para enviar mensagens."
@@ -739,7 +739,8 @@
     },
     "signature": {
       "enable": "Habilitar assinatura",
-      "disable": "Desabilitar assinatura"
+      "disable": "Desabilitar assinatura",
+      "menuLabel": "Assinatura"
     },
     "placeholders": {
       "default": "Digite sua mensagem... (digite / para respostas prontas)",
@@ -752,7 +753,8 @@
       "documents": "Documentos",
       "media": "Fotos e Vídeos",
       "conversationNote": "Notas da Conversa",
-      "schedule": "Agendar"
+      "schedule": "Agendar",
+      "emoji": "Emoji"
     },
     "macros": {
       "tooltip": "Macros",
@@ -794,7 +796,8 @@
     },
     "attributes": {
       "status": "Status",
-      "assignee_type": "Responsável",
+      "assignee_type": "Responsável (Geral)",
+      "assignee_id": "Atendente Específico",
       "inbox_id": "Canal",
       "channel_type": "Tipo de Canal",
       "team_id": "Equipe",

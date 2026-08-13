@@ -16,6 +16,8 @@ interface AIAssistanceButtonProps {
   onApplyText: (text: string) => void;
   disabled?: boolean;
   conversationId?: string;
+  /** Lets the composer's mobile "+" menu open this via getElementById(...).click(). */
+  triggerId?: string;
 }
 
 const AIAssistanceButton: React.FC<AIAssistanceButtonProps> = ({
@@ -23,6 +25,7 @@ const AIAssistanceButton: React.FC<AIAssistanceButtonProps> = ({
   onApplyText,
   disabled = false,
   conversationId,
+  triggerId,
 }) => {
   const { t } = useLanguage('chat');
   const config = useGlobalConfig();
@@ -156,10 +159,13 @@ const AIAssistanceButton: React.FC<AIAssistanceButtonProps> = ({
   return (
     <>
       <Button
+        id={triggerId}
         variant="ghost"
         size="icon"
         disabled={disabled}
-        className="h-9 w-9 flex-shrink-0 hover:bg-accent disabled:opacity-50"
+        // Hidden below md: folds into the composer's "+" menu on phones instead
+        // (see MessageInput) — opened via triggerId, same reasoning as MacrosButton.
+        className="hidden md:inline-flex h-9 w-9 flex-shrink-0 hover:bg-accent disabled:opacity-50"
         onClick={handleOpenActions}
         title={t('aiAssistance.button.title')}
       >
