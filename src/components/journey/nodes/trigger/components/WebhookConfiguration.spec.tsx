@@ -59,10 +59,6 @@ describe('WebhookConfiguration — trigger URL generation', () => {
   });
 });
 
-// CRM-141: os rótulos que apontam para um controle único passaram a usar
-// htmlFor; os que cobrem um conjunto (a lista de headers) usam role="group" +
-// aria-labelledby. Os cabeçalhos de seção sem controle correspondente ficam
-// deliberadamente como estão.
 describe('WebhookConfiguration — Label pareado com o controle', () => {
   afterEach(() => {
     vi.clearAllMocks();

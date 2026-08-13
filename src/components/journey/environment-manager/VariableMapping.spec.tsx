@@ -23,9 +23,6 @@ const mappings: DataMapping[] = [
   { id: 'm2', sourcePath: 'webhook.body.timestamp', variableName: 'seenAt', transform: 'date' },
 ];
 
-// CRM-141: as linhas de mapeamento repetem os mesmos rótulos, então o
-// pareamento precisa ser por linha — id fixo colidiria e o label apontaria
-// sempre para a primeira. getAllByLabelText prova que cada linha tem o seu.
 describe('VariableMapping — Label pareado por linha', () => {
   it('gives every row its own label/control pair', () => {
     render(

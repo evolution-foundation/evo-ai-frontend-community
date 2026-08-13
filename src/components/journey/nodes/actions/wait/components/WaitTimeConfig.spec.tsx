@@ -19,9 +19,6 @@ vi.mock('@/hooks/useJourneyVariables', () => ({
 
 const j = (key: string) => i18n.t(`journey:${key}`);
 
-// CRM-141: a CRM-123 pareou os 23 painéis de topo; os subcomponentes ficaram
-// com <Label> solto. getByLabelText só resolve com htmlFor/id de verdade — some
-// se o pareamento for desfeito.
 describe('WaitTimeConfig — Label pareado com o controle', () => {
   it('pairs the duration and time-unit labels with their controls', () => {
     const data = { duration: 5, timeUnit: 'hours' } as WaitNodeData;

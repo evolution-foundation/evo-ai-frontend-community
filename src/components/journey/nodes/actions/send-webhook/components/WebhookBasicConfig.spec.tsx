@@ -19,8 +19,6 @@ vi.mock('@/hooks/useJourneyVariables', () => ({
 
 const j = (key: string) => i18n.t(`journey:${key}`);
 
-// CRM-141: os 4 campos deste subcomponente tinham <Label> sem htmlFor. Cada
-// getByLabelText abaixo quebra se o pareamento for desfeito.
 describe('WebhookBasicConfig — Label pareado com o controle', () => {
   it('pairs url, method, timeout and retry labels with their controls', () => {
     const data = {

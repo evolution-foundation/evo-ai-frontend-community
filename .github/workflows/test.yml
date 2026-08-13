@@ -50,10 +50,9 @@ jobs:
       #     apply call, SessionsViewer debounces search and keeps stats
       #     isolated from filters, and the locale-driven date/i18n specs
       #     guard against hardcoded pt-BR creeping back in.
-      #   - Journey subcomponent labels (CRM-141): every <Label> that names a
-      #     single control resolves through getByLabelText, and the ones that
-      #     cover a set (webhook headers) expose a named group — the trigger,
-      #     wait, send-webhook and environment-manager folders each have one.
+      #   - Journey subcomponent labels: every <Label> that names a single
+      #     control resolves through getByLabelText, and the ones that cover
+      #     a set (webhook headers) expose a named group.
       # The whole list runs in ~30s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
