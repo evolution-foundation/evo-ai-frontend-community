@@ -395,6 +395,7 @@ function CustomKeyValueEditor({
   className?: string;
   t: (key: string) => string;
 }) {
+  const labelId = useId();
   const [pairs, setPairs] = useState<Pair[]>(() => pairsFromValue(value));
 
   // F5 fix: resync pairs when the value's KEY SET changes upstream (e.g.,
@@ -437,16 +438,13 @@ function CustomKeyValueEditor({
     <div
       className={cn('space-y-3', className)}
       role="group"
-      aria-labelledby="event-properties-custom-label"
+      aria-labelledby={labelId}
     >
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
         <span>{t('propertiesForm.customWarning')}</span>
       </div>
-      <Label
-        id="event-properties-custom-label"
-        className="text-sm font-medium uppercase tracking-wide text-muted-foreground"
-      >
+      <Label id={labelId} className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
         {t('propertiesForm.customSectionLabel')}
       </Label>
       {pairs.map((pair, index) => (
