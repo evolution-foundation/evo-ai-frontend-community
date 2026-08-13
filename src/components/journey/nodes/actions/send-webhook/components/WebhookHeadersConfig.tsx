@@ -82,7 +82,14 @@ export function WebhookHeadersConfig({ data, onChange, journeyId }: WebhookHeade
       </div>
 
       {/* Lista de headers */}
-      <div className="space-y-3" role="group" aria-labelledby="send-webhook-headers-label">
+      {/* The group only exists once there is something to group — an empty
+          state named "HTTP headers" would announce a set that has no rows. */}
+      <div
+        className="space-y-3"
+        {...(headers.length > 0
+          ? { role: 'group', 'aria-labelledby': 'send-webhook-headers-label' }
+          : {})}
+      >
         {headers.length === 0 ? (
           <div className="p-4 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 dark:bg-gray-950/20 text-center">
             <p className="text-sm text-gray-500">{t('panels.sendWebhook.headers.noHeadersConfigured')}</p>
