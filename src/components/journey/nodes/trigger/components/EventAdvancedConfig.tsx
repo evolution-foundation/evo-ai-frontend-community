@@ -36,8 +36,8 @@ export function EventAdvancedConfig({
   return (
     <>
       <Separator />
-      <div className="space-y-3">
-        <Label className="text-sm font-medium">
+      <div className="space-y-3" role="group" aria-labelledby="event-trigger-capture-label">
+        <Label id="event-trigger-capture-label" className="text-sm font-medium">
           {t('triggerComponents.event.captureEventData')}
         </Label>
         <VariableMapping

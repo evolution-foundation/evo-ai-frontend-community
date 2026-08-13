@@ -136,7 +136,7 @@ export function CustomAttributeConfiguration({
 
         {/* Seleção do Atributo */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium">
+          <Label htmlFor="custom-attribute-trigger-attribute" className="text-sm font-medium">
             {t('triggerComponents.customAttribute.customAttribute')}
           </Label>
           {error ? (
@@ -157,7 +157,10 @@ export function CustomAttributeConfiguration({
               }}
               disabled={loadingAttributes}
             >
-              <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+              <SelectTrigger
+                id="custom-attribute-trigger-attribute"
+                className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+              >
                 <SelectValue
                   placeholder={
                     loadingAttributes
@@ -208,11 +211,14 @@ export function CustomAttributeConfiguration({
 
         {/* Operador */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium">
+          <Label htmlFor="custom-attribute-trigger-operator" className="text-sm font-medium">
             {t('triggerComponents.customAttribute.condition')}
           </Label>
           <Select value={operator} onValueChange={onOperatorChange}>
-            <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+            <SelectTrigger
+              id="custom-attribute-trigger-operator"
+              className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+            >
               <SelectValue placeholder={t('triggerComponents.customAttribute.selectCondition')} />
             </SelectTrigger>
             <SelectContent className="bg-sidebar border-sidebar-border">
@@ -232,10 +238,11 @@ export function CustomAttributeConfiguration({
         {/* Valor */}
         {needsValue(operator) && (
           <div className="space-y-2">
-            <Label className="text-sm font-medium">
+            <Label htmlFor="custom-attribute-trigger-value" className="text-sm font-medium">
               {t('triggerComponents.customAttribute.value')}
             </Label>
             <VariableInput
+              id="custom-attribute-trigger-value"
               value={value}
               onChange={e => onValueChange(e.target.value)}
               placeholder={t('triggerComponents.customAttribute.enterValue')}
@@ -321,8 +328,12 @@ export function CustomAttributeConfiguration({
         {onVariableMappingsChange && (
           <>
             <Separator />
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">
+            <div
+              className="space-y-3"
+              role="group"
+              aria-labelledby="custom-attribute-trigger-capture-label"
+            >
+              <Label id="custom-attribute-trigger-capture-label" className="text-sm font-medium">
                 {t('triggerComponents.customAttribute.captureAttributeData')}
               </Label>
               <VariableMapping

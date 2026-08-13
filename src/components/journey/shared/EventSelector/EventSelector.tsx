@@ -52,6 +52,9 @@ export interface EventSelectorProps {
   disabled?: boolean;
   placeholder?: string;
   className?: string;
+  // Lets a caller pair its own <Label htmlFor> with the trigger. Omitted → the
+  // generated id is used, as before.
+  id?: string;
 }
 
 const CATEGORY_ICON: Record<EventCategory, LucideIcon> = {
@@ -70,9 +73,11 @@ export function EventSelector({
   disabled,
   placeholder,
   className,
+  id: idProp,
 }: EventSelectorProps) {
   const { t, currentLanguage } = useLanguage('events');
-  const id = useId();
+  const generatedId = useId();
+  const id = idProp ?? generatedId;
   const [open, setOpen] = useState(false);
 
   const visibleCategories = filterByCategory ?? EVENT_CATEGORIES;

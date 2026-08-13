@@ -354,10 +354,14 @@ export function EnvironmentManager({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium text-sidebar-foreground mb-2 block">
+                  <Label
+                    htmlFor="env-manager-new-name"
+                    className="text-sm font-medium text-sidebar-foreground mb-2 block"
+                  >
                     {t('environmentManager.form.fields.name.label')}
                   </Label>
                   <Input
+                    id="env-manager-new-name"
                     placeholder={t('environmentManager.form.fields.name.placeholder')}
                     value={newVariable.name}
                     onChange={e => setNewVariable(prev => ({ ...prev, name: e.target.value }))}
@@ -369,7 +373,10 @@ export function EnvironmentManager({
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-sidebar-foreground mb-2 block">
+                  <Label
+                    htmlFor="env-manager-new-type"
+                    className="text-sm font-medium text-sidebar-foreground mb-2 block"
+                  >
                     {t('environmentManager.form.fields.type.label')}
                   </Label>
                   <Select
@@ -378,7 +385,7 @@ export function EnvironmentManager({
                       setNewVariable(prev => ({ ...prev, type: value }))
                     }
                   >
-                    <SelectTrigger className="bg-sidebar border-sidebar-border">
+                    <SelectTrigger id="env-manager-new-type" className="bg-sidebar border-sidebar-border">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -391,10 +398,14 @@ export function EnvironmentManager({
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-sidebar-foreground mb-2 block">
+                  <Label
+                    htmlFor="env-manager-new-description"
+                    className="text-sm font-medium text-sidebar-foreground mb-2 block"
+                  >
                     {t('environmentManager.form.fields.description.label')}
                   </Label>
                   <Input
+                    id="env-manager-new-description"
                     placeholder={t('environmentManager.form.fields.description.placeholder')}
                     value={newVariable.description}
                     onChange={e =>
@@ -405,10 +416,14 @@ export function EnvironmentManager({
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-sidebar-foreground mb-2 block">
+                  <Label
+                    htmlFor="env-manager-new-default"
+                    className="text-sm font-medium text-sidebar-foreground mb-2 block"
+                  >
                     {t('environmentManager.form.fields.defaultValue.label')}
                   </Label>
                   <Input
+                    id="env-manager-new-default"
                     placeholder={t('environmentManager.form.fields.defaultValue.placeholder')}
                     value={newVariable.defaultValue}
                     onChange={e =>

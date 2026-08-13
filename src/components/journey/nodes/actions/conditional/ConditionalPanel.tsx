@@ -558,7 +558,7 @@ export function ConditionalPanel({
     >
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label id="conditional-paths-label" className="text-sidebar-foreground font-medium">
             {t('panels.conditional.pathsTitle')}
           </Label>
           <Button variant="outline" size="sm" onClick={addPath}>
@@ -569,7 +569,12 @@ export function ConditionalPanel({
 
         {formData.paths.length > 0 ? (
           <>
-            <Tabs value={activePathId} onValueChange={setActivePathId}>
+            <Tabs
+              value={activePathId}
+              onValueChange={setActivePathId}
+              role="group"
+              aria-labelledby="conditional-paths-label"
+            >
               <TabsList
                 className="grid w-full"
                 style={{

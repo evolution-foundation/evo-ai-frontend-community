@@ -155,11 +155,14 @@ export function WaitConditionConfig({ data, onChange, journeyId }: WaitCondition
     <div className="space-y-4">
       {/* Seletor de Tipo */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium">
+        <Label htmlFor="wait-condition-type" className="text-sm font-medium">
           {t('panels.waitComponents.condition.typeLabel')}
         </Label>
         <Select value={conditionType} onValueChange={handleConditionTypeChange}>
-          <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+          <SelectTrigger
+            id="wait-condition-type"
+            className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+          >
             <SelectValue placeholder={t('panels.waitComponents.condition.selectTypePlaceholder')} />
           </SelectTrigger>
           <SelectContent className="bg-sidebar border-sidebar-border">
@@ -178,8 +181,8 @@ export function WaitConditionConfig({ data, onChange, journeyId }: WaitCondition
 
       {/* Configuração específica do tipo */}
       {conditionType && (
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">
+        <div className="space-y-3" role="group" aria-labelledby="wait-condition-config-label">
+          <Label id="wait-condition-config-label" className="text-sm font-medium">
             {t('panels.waitComponents.condition.configurationLabel')} -{' '}
             {CONDITION_TYPES.find(t => t.value === conditionType)?.label}
           </Label>
@@ -189,13 +192,14 @@ export function WaitConditionConfig({ data, onChange, journeyId }: WaitCondition
 
       {/* Seleção de Variável para Comparação */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium">
+        <Label htmlFor="wait-condition-variable" className="text-sm font-medium">
           {t('panels.waitComponents.condition.variableLabel')}
         </Label>
         <p className="text-xs text-gray-500 dark:text-gray-400">
           {t('panels.waitComponents.condition.variableDescription')}
         </p>
         <VariableSelect
+          id="wait-condition-variable"
           value={data.conditionValue || ''}
           onValueChange={variable => onChange({ conditionValue: variable })}
           placeholder={t('panels.waitComponents.condition.variablePlaceholder')}
@@ -224,10 +228,11 @@ export function WaitConditionConfig({ data, onChange, journeyId }: WaitCondition
         {data.enableFallback && (
           <div className="grid grid-cols-2 gap-3 pl-6">
             <div className="space-y-2">
-              <Label className="text-xs">
+              <Label htmlFor="wait-condition-fallback-time" className="text-xs">
                 {t('panels.waitComponents.condition.fallbackTimeLabel')}
               </Label>
               <Input
+                id="wait-condition-fallback-time"
                 type="number"
                 min="1"
                 value={data.fallbackTime || 1}
@@ -237,11 +242,14 @@ export function WaitConditionConfig({ data, onChange, journeyId }: WaitCondition
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs">
+              <Label htmlFor="wait-condition-fallback-unit" className="text-xs">
                 {t('panels.waitComponents.condition.fallbackUnitLabel')}
               </Label>
               <Select value={data.fallbackUnit || 'hours'} onValueChange={handleFallbackUnitChange}>
-                <SelectTrigger className="bg-sidebar border-sidebar-border text-sidebar-foreground">
+                <SelectTrigger
+                  id="wait-condition-fallback-unit"
+                  className="bg-sidebar border-sidebar-border text-sidebar-foreground"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-sidebar border-sidebar-border">

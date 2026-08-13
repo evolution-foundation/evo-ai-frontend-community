@@ -72,14 +72,17 @@ export function SegmentConfiguration({
 
         {/* Ação do Segmento */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium">
+          <Label htmlFor="segment-trigger-action" className="text-sm font-medium">
             {t('triggerComponents.segment.segmentAction')}
           </Label>
           <Select
             value={segmentAction}
             onValueChange={(value: 'entered' | 'exited') => onSegmentActionChange(value)}
           >
-            <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+            <SelectTrigger
+              id="segment-trigger-action"
+              className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+            >
               <SelectValue placeholder={t('triggerComponents.segment.selectAction')} />
             </SelectTrigger>
             <SelectContent className="bg-sidebar border-sidebar-border">
@@ -103,7 +106,9 @@ export function SegmentConfiguration({
 
         {/* Seleção do Segmento */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('triggerComponents.segment.segment')}</Label>
+          <Label htmlFor="segment-trigger-segment" className="text-sm font-medium">
+            {t('triggerComponents.segment.segment')}
+          </Label>
           {error ? (
             <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30">
               <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
@@ -117,7 +122,10 @@ export function SegmentConfiguration({
               }}
               disabled={loadingSegments}
             >
-              <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+              <SelectTrigger
+                id="segment-trigger-segment"
+                className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+              >
                 <SelectValue
                   placeholder={
                     loadingSegments

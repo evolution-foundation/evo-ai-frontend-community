@@ -211,9 +211,14 @@ export function WaitEventConfig({ data, onChange, journeyId }: WaitEventConfigPr
     <div className="space-y-4">
       {/* Seletor de Tipo */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium">{t('panels.waitComponents.event.typeLabel')}</Label>
+        <Label htmlFor="wait-event-type" className="text-sm font-medium">
+          {t('panels.waitComponents.event.typeLabel')}
+        </Label>
         <Select value={eventType} onValueChange={handleEventTypeChange}>
-          <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+          <SelectTrigger
+            id="wait-event-type"
+            className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+          >
             <SelectValue placeholder={t('panels.waitComponents.event.selectTypePlaceholder')} />
           </SelectTrigger>
           <SelectContent className="bg-sidebar border-sidebar-border">
@@ -232,8 +237,8 @@ export function WaitEventConfig({ data, onChange, journeyId }: WaitEventConfigPr
 
       {/* Configuração específica do tipo */}
       {eventType && (
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">
+        <div className="space-y-3" role="group" aria-labelledby="wait-event-config-label">
+          <Label id="wait-event-config-label" className="text-sm font-medium">
             {t('panels.waitComponents.event.configurationLabel')} -{' '}
             {EVENT_TYPE_OPTIONS.find(t => t.value === eventType)?.label}
           </Label>
@@ -261,10 +266,11 @@ export function WaitEventConfig({ data, onChange, journeyId }: WaitEventConfigPr
         {data.enableFallback && (
           <div className="grid grid-cols-2 gap-3 pl-6">
             <div className="space-y-2">
-              <Label className="text-xs">
+              <Label htmlFor="wait-event-fallback-time" className="text-xs">
                 {t('panels.waitComponents.event.fallbackTimeLabel')}
               </Label>
               <Input
+                id="wait-event-fallback-time"
                 type="number"
                 min="1"
                 value={data.fallbackTime || 1}
@@ -274,11 +280,14 @@ export function WaitEventConfig({ data, onChange, journeyId }: WaitEventConfigPr
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs">
+              <Label htmlFor="wait-event-fallback-unit" className="text-xs">
                 {t('panels.waitComponents.event.fallbackUnitLabel')}
               </Label>
               <Select value={data.fallbackUnit || 'hours'} onValueChange={handleFallbackUnitChange}>
-                <SelectTrigger className="bg-sidebar border-sidebar-border text-sidebar-foreground">
+                <SelectTrigger
+                  id="wait-event-fallback-unit"
+                  className="bg-sidebar border-sidebar-border text-sidebar-foreground"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-sidebar border-sidebar-border">

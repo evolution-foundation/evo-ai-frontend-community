@@ -163,7 +163,10 @@ export function VariableMapping({
               <div className="flex items-end gap-2">
                 {/* Caminho de origem */}
                 <div className="flex-1 space-y-1">
-                  <Label className="text-xs text-gray-600 font-medium">
+                  <Label
+                    htmlFor={`variable-mapping-source-${mapping.id}`}
+                    className="text-xs text-gray-600 font-medium"
+                  >
                     {t('environmentManager.form.fields.description.label')}
                   </Label>
                   {paths && paths.length > 0 ? (
@@ -184,7 +187,10 @@ export function VariableMapping({
                         }
                       }}
                     >
-                      <SelectTrigger className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 h-8 w-full">
+                      <SelectTrigger
+                        id={`variable-mapping-source-${mapping.id}`}
+                        className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 h-8 w-full"
+                      >
                         <SelectValue placeholder={t('environmentManager.searchPlaceholder')} />
                       </SelectTrigger>
                       <SelectContent className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 max-h-[200px]">
@@ -209,6 +215,7 @@ export function VariableMapping({
                     </Select>
                   ) : (
                     <Input
+                      id={`variable-mapping-source-${mapping.id}`}
                       placeholder={t('environmentManager.form.fields.name.placeholder')}
                       value={mapping.sourcePath || ''}
                       onChange={e => updateMapping(mapping.id, 'sourcePath', e.target.value)}
@@ -220,10 +227,14 @@ export function VariableMapping({
                 {/* Input para caminho personalizado quando selecionado */}
                 {showCustomInput[mapping.id] && (
                   <div className="flex-1 space-y-1">
-                    <Label className="text-xs text-gray-600 font-medium">
+                    <Label
+                      htmlFor={`variable-mapping-custom-path-${mapping.id}`}
+                      className="text-xs text-gray-600 font-medium"
+                    >
                       {t('environmentManager.form.fields.name.help')}
                     </Label>
                     <Input
+                      id={`variable-mapping-custom-path-${mapping.id}`}
                       placeholder={t('environmentManager.form.fields.name.placeholder')}
                       value={mapping.sourcePath || ''}
                       onChange={e => {
@@ -248,10 +259,14 @@ export function VariableMapping({
 
                 {/* Variável destino */}
                 <div className="flex-1 space-y-1">
-                  <Label className="text-xs text-gray-600 font-medium">
+                  <Label
+                    htmlFor={`variable-mapping-variable-${mapping.id}`}
+                    className="text-xs text-gray-600 font-medium"
+                  >
                     {t('environmentManager.form.fields.name.label')}
                   </Label>
                   <VariableSelect
+                    id={`variable-mapping-variable-${mapping.id}`}
                     value={mapping.variableName}
                     onValueChange={value => updateMapping(mapping.id, 'variableName', value)}
                     journeyId={journeyId}
@@ -264,14 +279,20 @@ export function VariableMapping({
 
                 {/* Transformação */}
                 <div className="w-24 space-y-1">
-                  <Label className="text-xs text-gray-600 font-medium">
+                  <Label
+                    htmlFor={`variable-mapping-transform-${mapping.id}`}
+                    className="text-xs text-gray-600 font-medium"
+                  >
                     {t('environmentManager.form.fields.type.label')}
                   </Label>
                   <Select
                     value={mapping.transform || 'none'}
                     onValueChange={value => updateMapping(mapping.id, 'transform', value)}
                   >
-                    <SelectTrigger className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 h-8 w-full">
+                    <SelectTrigger
+                      id={`variable-mapping-transform-${mapping.id}`}
+                      className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 h-8 w-full"
+                    >
                       <SelectValue>
                         {mapping.transform && (
                           <span

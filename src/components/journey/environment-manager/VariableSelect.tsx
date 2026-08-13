@@ -302,10 +302,11 @@ const VariableSelect = forwardRef<HTMLButtonElement, VariableSelectProps>(
 
             <div className="space-y-4">
               <div>
-                <Label className="text-sm font-medium">
+                <Label htmlFor="variable-select-new-name" className="text-sm font-medium">
                   {t('environmentManager.form.fields.name.label')}
                 </Label>
                 <Input
+                  id="variable-select-new-name"
                   value={newVariableName}
                   onChange={e => setNewVariableName(e.target.value)}
                   placeholder={t('environmentManager.form.fields.name.placeholder')}
@@ -317,7 +318,7 @@ const VariableSelect = forwardRef<HTMLButtonElement, VariableSelectProps>(
               </div>
 
               <div>
-                <Label className="text-sm font-medium">
+                <Label htmlFor="variable-select-new-type" className="text-sm font-medium">
                   {t('environmentManager.form.fields.type.label')}
                 </Label>
                 <Select
@@ -326,7 +327,7 @@ const VariableSelect = forwardRef<HTMLButtonElement, VariableSelectProps>(
                     setNewVariableType(value)
                   }
                 >
-                  <SelectTrigger className="mt-1">
+                  <SelectTrigger id="variable-select-new-type" className="mt-1">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -347,10 +348,11 @@ const VariableSelect = forwardRef<HTMLButtonElement, VariableSelectProps>(
               </div>
 
               <div>
-                <Label className="text-sm font-medium">
+                <Label htmlFor="variable-select-new-description" className="text-sm font-medium">
                   {t('environmentManager.form.fields.description.label')}
                 </Label>
                 <Input
+                  id="variable-select-new-description"
                   value={newVariableDescription}
                   onChange={e => setNewVariableDescription(e.target.value)}
                   placeholder={t('environmentManager.form.fields.description.placeholder')}
@@ -359,10 +361,11 @@ const VariableSelect = forwardRef<HTMLButtonElement, VariableSelectProps>(
               </div>
 
               <div>
-                <Label className="text-sm font-medium">
+                <Label htmlFor="variable-select-new-default" className="text-sm font-medium">
                   {t('environmentManager.form.fields.defaultValue.label')}
                 </Label>
                 <Input
+                  id="variable-select-new-default"
                   value={newVariableDefaultValue}
                   onChange={e => setNewVariableDefaultValue(e.target.value)}
                   placeholder={t('environmentManager.form.fields.defaultValue.placeholder')}

@@ -58,7 +58,9 @@ export function WebhookHeadersConfig({ data, onChange, journeyId }: WebhookHeade
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Label className="text-sm font-medium">{t('panels.sendWebhook.headers.httpHeaders')}</Label>
+        <Label id="send-webhook-headers-label" className="text-sm font-medium">
+          {t('panels.sendWebhook.headers.httpHeaders')}
+        </Label>
         <div className="flex gap-2">
           {/* Botões para headers comuns */}
           {COMMON_HEADERS.slice(0, 2).map((preset, index) => (
@@ -80,7 +82,7 @@ export function WebhookHeadersConfig({ data, onChange, journeyId }: WebhookHeade
       </div>
 
       {/* Lista de headers */}
-      <div className="space-y-3">
+      <div className="space-y-3" role="group" aria-labelledby="send-webhook-headers-label">
         {headers.length === 0 ? (
           <div className="p-4 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 dark:bg-gray-950/20 text-center">
             <p className="text-sm text-gray-500">{t('panels.sendWebhook.headers.noHeadersConfigured')}</p>
@@ -98,8 +100,11 @@ export function WebhookHeadersConfig({ data, onChange, journeyId }: WebhookHeade
                 <div className="grid grid-cols-12 gap-3 items-end">
                   {/* Key */}
                   <div className="col-span-4">
-                    <Label className="text-xs">{t('panels.sendWebhook.headers.headerName')}</Label>
+                    <Label htmlFor={`send-webhook-header-name-${index}`} className="text-xs">
+                      {t('panels.sendWebhook.headers.headerName')}
+                    </Label>
                     <VariableInput
+                      id={`send-webhook-header-name-${index}`}
                       value={header.key}
                       onChange={e => updateHeader(index, { key: e.target.value })}
                       placeholder={t('panels.sendWebhook.headers.headerNamePlaceholder')}
@@ -110,9 +115,12 @@ export function WebhookHeadersConfig({ data, onChange, journeyId }: WebhookHeade
 
                   {/* Value */}
                   <div className="col-span-6">
-                    <Label className="text-xs">{t('panels.sendWebhook.headers.headerValue')}</Label>
+                    <Label htmlFor={`send-webhook-header-value-${index}`} className="text-xs">
+                      {t('panels.sendWebhook.headers.headerValue')}
+                    </Label>
                     <div className="relative">
                       <VariableInput
+                        id={`send-webhook-header-value-${index}`}
                         type={shouldHide ? 'password' : 'text'}
                         value={header.value}
                         onChange={e => updateHeader(index, { value: e.target.value })}
@@ -164,10 +172,17 @@ export function WebhookHeadersConfig({ data, onChange, journeyId }: WebhookHeade
       {/* Headers comuns sugeridos */}
       {headers.length === 0 && (
         <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/30">
-          <Label className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2 block">
+          <Label
+            id="send-webhook-suggested-headers-label"
+            className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2 block"
+          >
             {t('panels.sendWebhook.headers.suggestedHeaders')}
           </Label>
-          <div className="flex flex-wrap gap-2">
+          <div
+            className="flex flex-wrap gap-2"
+            role="group"
+            aria-labelledby="send-webhook-suggested-headers-label"
+          >
             {COMMON_HEADERS.map((preset, index) => (
               <Button
                 key={index}

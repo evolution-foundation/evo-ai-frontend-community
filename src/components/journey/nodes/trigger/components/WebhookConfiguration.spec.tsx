@@ -1,7 +1,7 @@
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { WebhookConfiguration } from './WebhookConfiguration';
-import '@/i18n/config';
+import i18n from '@/i18n/config';
 
 // WebhookConfiguration auto-generates its trigger URL from the REAL journey id.
 // journeyId optional and removed the campaign sentinel, so this pins
@@ -34,6 +34,8 @@ function renderWebhook(journeyId?: string) {
   return { onWebhookUrlChange };
 }
 
+const j = (key: string) => i18n.t(`journey:${key}`);
+
 describe('WebhookConfiguration — trigger URL generation', () => {
   afterEach(() => {
     vi.clearAllMocks();
@@ -54,5 +56,41 @@ describe('WebhookConfiguration — trigger URL generation', () => {
     // Give the effect a tick; it must stay silent without a journey (no sentinel URL).
     await new Promise(resolve => setTimeout(resolve, 0));
     expect(onWebhookUrlChange).not.toHaveBeenCalled();
+  });
+});
+
+// CRM-141: os rótulos que apontam para um controle único passaram a usar
+// htmlFor; os que cobrem um conjunto (a lista de headers) usam role="group" +
+// aria-labelledby. Os cabeçalhos de seção sem controle correspondente ficam
+// deliberadamente como estão.
+describe('WebhookConfiguration — Label pareado com o controle', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('pairs the URL and payload labels with their fields', () => {
+    renderWebhook('journey-uuid-123');
+
+    expect(screen.getByLabelText(j('triggerComponents.webhook.webhookUrl')).tagName).toBe('INPUT');
+    expect(screen.getByLabelText(j('triggerComponents.webhook.payloadStructure')).tagName).toBe(
+      'TEXTAREA',
+    );
+  });
+
+  it('names the header list as a group instead of leaving a loose label', () => {
+    const onExpectedHeadersChange = vi.fn();
+    render(
+      <WebhookConfiguration
+        webhookUrl="https://example.test/hook"
+        expectedHeaders={[{ name: 'x-token', value: 'abc' }]}
+        onWebhookUrlChange={vi.fn()}
+        onExpectedHeadersChange={onExpectedHeadersChange}
+        journeyId="journey-uuid-123"
+      />,
+    );
+
+    expect(
+      screen.getByRole('group', { name: j('triggerComponents.webhook.expectedHeaders') }),
+    ).toBeTruthy();
   });
 });

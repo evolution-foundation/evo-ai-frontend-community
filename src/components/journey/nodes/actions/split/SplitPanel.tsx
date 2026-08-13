@@ -220,7 +220,7 @@ export function SplitPanel({ nodeId, data, onUpdate, onClose }: SplitPanelProps)
       contentClassName="max-w-3xl"
     >
       <div className="space-y-4">
-        <Label className="text-sidebar-foreground font-medium">
+        <Label id="split-variants-label" className="text-sidebar-foreground font-medium">
           {t('panels.split.configuration')}
         </Label>
 
@@ -234,7 +234,7 @@ export function SplitPanel({ nodeId, data, onUpdate, onClose }: SplitPanelProps)
           </Button>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3" role="group" aria-labelledby="split-variants-label">
           {formData.variants && formData.variants.length > 0 ? (
             formData.variants.map(variant => renderVariant(variant))
           ) : (

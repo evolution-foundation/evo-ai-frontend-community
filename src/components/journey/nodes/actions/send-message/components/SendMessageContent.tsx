@@ -178,8 +178,14 @@ export function SendMessageContent({
 
       {selectedTemplate && (selectedTemplate.variables?.length ?? 0) > 0 && (
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('panels.sendMessage.templateVariables')}</Label>
-          <div className="space-y-3">
+          <Label id="send-message-template-vars-label" className="text-sm font-medium">
+            {t('panels.sendMessage.templateVariables')}
+          </Label>
+          <div
+            className="space-y-3"
+            role="group"
+            aria-labelledby="send-message-template-vars-label"
+          >
             {selectedTemplate.variables!.map(variable => {
               if (!variable.name) return null;
               const mapping = getVariableMapping(variable.name);

@@ -144,7 +144,7 @@ export function PipelineStageChangedConfiguration({
       )}
 
       <div className="space-y-2">
-        <Label className="text-sidebar-foreground font-medium">
+        <Label htmlFor="pipeline-stage-trigger-pipeline" className="text-sidebar-foreground font-medium">
           {t('triggerComponents.pipelineStageChanged.pipeline')}
         </Label>
         <Select
@@ -153,8 +153,8 @@ export function PipelineStageChangedConfiguration({
           disabled={loadingPipelines}
         >
           <SelectTrigger
+            id="pipeline-stage-trigger-pipeline"
             className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
-            aria-label={t('triggerComponents.pipelineStageChanged.pipeline')}
           >
             <SelectValue
               placeholder={
@@ -180,7 +180,7 @@ export function PipelineStageChangedConfiguration({
       </div>
 
       <div className="space-y-2">
-        <Label className="text-sidebar-foreground font-medium">
+        <Label htmlFor="pipeline-stage-trigger-from" className="text-sidebar-foreground font-medium">
           {t('triggerComponents.pipelineStageChanged.fromStage')}
         </Label>
         <Select
@@ -189,8 +189,8 @@ export function PipelineStageChangedConfiguration({
           disabled={!selection.pipelineId || loadingStages}
         >
           <SelectTrigger
+            id="pipeline-stage-trigger-from"
             className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
-            aria-label={t('triggerComponents.pipelineStageChanged.fromStage')}
           >
             <SelectValue
               placeholder={
@@ -214,7 +214,7 @@ export function PipelineStageChangedConfiguration({
       </div>
 
       <div className="space-y-2">
-        <Label className="text-sidebar-foreground font-medium">
+        <Label htmlFor="pipeline-stage-trigger-to" className="text-sidebar-foreground font-medium">
           {t('triggerComponents.pipelineStageChanged.toStage')}
         </Label>
         <Select
@@ -223,8 +223,8 @@ export function PipelineStageChangedConfiguration({
           disabled={!selection.pipelineId || loadingStages}
         >
           <SelectTrigger
+            id="pipeline-stage-trigger-to"
             className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
-            aria-label={t('triggerComponents.pipelineStageChanged.toStage')}
           >
             <SelectValue
               placeholder={

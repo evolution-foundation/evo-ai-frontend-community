@@ -51,7 +51,9 @@ export function SendMessageAttachments({
   return (
     <>
       <div className="space-y-2">
-        <Label className="text-sm font-medium">{t('panels.sendMessage.attachments')}</Label>
+        <Label htmlFor="send-message-attachments-input" className="text-sm font-medium">
+          {t('panels.sendMessage.attachments')}
+        </Label>
 
         <div
           className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
@@ -78,6 +80,7 @@ export function SendMessageAttachments({
             {t('panels.sendMessage.chooseFiles')}
           </Button>
           <input
+            id="send-message-attachments-input"
             ref={fileInputRef}
             type="file"
             multiple
@@ -90,10 +93,14 @@ export function SendMessageAttachments({
 
       {attachments.length > 0 && (
         <div className="space-y-2">
-          <Label className="text-sm font-medium">
+          <Label id="send-message-attachments-list-label" className="text-sm font-medium">
             {t('panels.sendMessage.attachmentsList', { count: attachments.length })}
           </Label>
-          <div className="space-y-2 max-h-32 overflow-y-auto">
+          <div
+            className="space-y-2 max-h-32 overflow-y-auto"
+            role="group"
+            aria-labelledby="send-message-attachments-list-label"
+          >
             {attachments.map(attachment => (
               <div
                 key={attachment.id}

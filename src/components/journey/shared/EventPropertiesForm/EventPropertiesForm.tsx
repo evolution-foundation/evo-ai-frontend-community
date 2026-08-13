@@ -187,12 +187,15 @@ function SchemaDrivenFields({
 }
 
 function FieldSection({ title, children }: { title: string; children: React.ReactNode }) {
+  const labelId = useId();
   return (
     <div className="space-y-3">
-      <Label className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+      <Label id={labelId} className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
         {title}
       </Label>
-      <div className="space-y-2">{children}</div>
+      <div className="space-y-2" role="group" aria-labelledby={labelId}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -431,12 +434,19 @@ function CustomKeyValueEditor({
   };
 
   return (
-    <div className={cn('space-y-3', className)}>
+    <div
+      className={cn('space-y-3', className)}
+      role="group"
+      aria-labelledby="event-properties-custom-label"
+    >
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
         <span>{t('propertiesForm.customWarning')}</span>
       </div>
-      <Label className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+      <Label
+        id="event-properties-custom-label"
+        className="text-sm font-medium uppercase tracking-wide text-muted-foreground"
+      >
         {t('propertiesForm.customSectionLabel')}
       </Label>
       {pairs.map((pair, index) => (

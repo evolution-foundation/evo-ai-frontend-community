@@ -82,9 +82,12 @@ export function WebhookAuthConfig({ data, onChange, journeyId }: WebhookAuthConf
         return (
           <div className="space-y-3">
             <div className="space-y-2">
-              <Label className="text-sm font-medium">{t('panels.sendWebhook.auth.bearerToken')}</Label>
+              <Label htmlFor="send-webhook-auth-token" className="text-sm font-medium">
+                {t('panels.sendWebhook.auth.bearerToken')}
+              </Label>
               <div className="relative">
                 <Input
+                  id="send-webhook-auth-token"
                   type={showSensitive.token ? 'text' : 'password'}
                   value={data.authToken || ''}
                   onChange={e => onChange({ authToken: e.target.value })}
@@ -117,8 +120,11 @@ export function WebhookAuthConfig({ data, onChange, journeyId }: WebhookAuthConf
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">{t('panels.sendWebhook.auth.username')}</Label>
+                <Label htmlFor="send-webhook-auth-username" className="text-sm font-medium">
+                  {t('panels.sendWebhook.auth.username')}
+                </Label>
                 <VariableInput
+                  id="send-webhook-auth-username"
                   value={data.authUsername || ''}
                   onChange={e => onChange({ authUsername: e.target.value })}
                   placeholder={t('panels.sendWebhook.auth.usernamePlaceholder')}
@@ -127,9 +133,12 @@ export function WebhookAuthConfig({ data, onChange, journeyId }: WebhookAuthConf
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">{t('panels.sendWebhook.auth.password')}</Label>
+                <Label htmlFor="send-webhook-auth-password" className="text-sm font-medium">
+                  {t('panels.sendWebhook.auth.password')}
+                </Label>
                 <div className="relative">
                   <Input
+                    id="send-webhook-auth-password"
                     type={showSensitive.password ? 'text' : 'password'}
                     value={data.authPassword || ''}
                     onChange={e => onChange({ authPassword: e.target.value })}
@@ -162,8 +171,11 @@ export function WebhookAuthConfig({ data, onChange, journeyId }: WebhookAuthConf
         return (
           <div className="space-y-3">
             <div className="space-y-2">
-              <Label className="text-sm font-medium">{t('panels.sendWebhook.auth.headerName')}</Label>
+              <Label htmlFor="send-webhook-auth-apikey-header" className="text-sm font-medium">
+                {t('panels.sendWebhook.auth.headerName')}
+              </Label>
               <VariableInput
+                id="send-webhook-auth-apikey-header"
                 value={data.authApiKeyHeader || ''}
                 onChange={e => onChange({ authApiKeyHeader: e.target.value })}
                 placeholder={t('panels.sendWebhook.auth.headerNamePlaceholder')}
@@ -175,9 +187,12 @@ export function WebhookAuthConfig({ data, onChange, journeyId }: WebhookAuthConf
               </p>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm font-medium">{t('panels.sendWebhook.auth.apiKey')}</Label>
+              <Label htmlFor="send-webhook-auth-apikey" className="text-sm font-medium">
+                {t('panels.sendWebhook.auth.apiKey')}
+              </Label>
               <div className="relative">
                 <Input
+                  id="send-webhook-auth-apikey"
                   type={showSensitive.apiKey ? 'text' : 'password'}
                   value={data.authApiKey || ''}
                   onChange={e => onChange({ authApiKey: e.target.value })}
@@ -240,9 +255,14 @@ export function WebhookAuthConfig({ data, onChange, journeyId }: WebhookAuthConf
     <div className="space-y-4">
       {/* Tipo de Autenticação */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium">{t('panels.sendWebhook.auth.authType')}</Label>
+        <Label htmlFor="send-webhook-auth-type" className="text-sm font-medium">
+          {t('panels.sendWebhook.auth.authType')}
+        </Label>
         <Select value={data.authenticationType || 'none'} onValueChange={handleAuthTypeChange}>
-          <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+          <SelectTrigger
+            id="send-webhook-auth-type"
+            className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-sidebar border-sidebar-border">

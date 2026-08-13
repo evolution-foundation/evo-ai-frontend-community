@@ -222,8 +222,8 @@ export function WaitPanel({ nodeId, data, onUpdate, onClose, journeyId }: WaitPa
           </Select>
         </div>
 
-        <div className="space-y-4">
-          <Label className="text-sidebar-foreground font-medium">
+        <div className="space-y-4" role="group" aria-labelledby="wait-config-label">
+          <Label id="wait-config-label" className="text-sidebar-foreground font-medium">
             {t('panels.wait.configuration')} - {currentOption.label}
           </Label>
           {renderConfigurationSection()}

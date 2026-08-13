@@ -170,14 +170,17 @@ export function ContactConfiguration({
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {/* Campo */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-medium">
+                    <Label htmlFor={`contact-trigger-field-${index}`} className="text-xs font-medium">
                       {t('triggerComponents.contact.field')}
                     </Label>
                     <Select
                       value={field.field}
                       onValueChange={value => updateField(index, { field: value })}
                     >
-                      <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+                      <SelectTrigger
+                        id={`contact-trigger-field-${index}`}
+                        className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+                      >
                         <SelectValue placeholder={t('triggerComponents.contact.selectField')} />
                       </SelectTrigger>
                       <SelectContent className="bg-sidebar border-sidebar-border">
@@ -196,14 +199,20 @@ export function ContactConfiguration({
 
                   {/* Operador */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-medium">
+                    <Label
+                      htmlFor={`contact-trigger-operator-${index}`}
+                      className="text-xs font-medium"
+                    >
                       {t('triggerComponents.contact.condition')}
                     </Label>
                     <Select
                       value={field.operator}
                       onValueChange={value => updateField(index, { operator: value })}
                     >
-                      <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+                      <SelectTrigger
+                        id={`contact-trigger-operator-${index}`}
+                        className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+                      >
                         <SelectValue placeholder={t('triggerComponents.contact.selectCondition')} />
                       </SelectTrigger>
                       <SelectContent className="bg-sidebar border-sidebar-border">
@@ -223,10 +232,11 @@ export function ContactConfiguration({
                   {/* Valor */}
                   {needsValue(field.operator) && (
                     <div className="space-y-2">
-                      <Label className="text-xs font-medium">
+                      <Label htmlFor={`contact-trigger-value-${index}`} className="text-xs font-medium">
                         {t('triggerComponents.contact.value')}
                       </Label>
                       <VariableInput
+                        id={`contact-trigger-value-${index}`}
                         value={typeof field.value === 'string' ? field.value : ''}
                         onChange={e => updateField(index, { value: e.target.value })}
                         placeholder={t('triggerComponents.contact.enterValue')}
@@ -292,8 +302,8 @@ export function ContactConfiguration({
         {onVariableMappingsChange && (
           <>
             <Separator />
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">
+            <div className="space-y-3" role="group" aria-labelledby="contact-trigger-capture-label">
+              <Label id="contact-trigger-capture-label" className="text-sm font-medium">
                 {t('triggerComponents.contact.captureContactData')}
               </Label>
               <VariableMapping
