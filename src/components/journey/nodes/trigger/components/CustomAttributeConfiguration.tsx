@@ -328,21 +328,19 @@ export function CustomAttributeConfiguration({
         {onVariableMappingsChange && (
           <>
             <Separator />
-            <div
-              className="space-y-3"
-              role="group"
-              aria-labelledby="custom-attribute-trigger-capture-label"
-            >
+            <div className="space-y-3">
               <Label id="custom-attribute-trigger-capture-label" className="text-sm font-medium">
                 {t('triggerComponents.customAttribute.captureAttributeData')}
               </Label>
-              <VariableMapping
-                mappings={variableMappings}
-                onMappingsChange={onVariableMappingsChange}
-                paths={generateCustomAttributePaths()}
-                journeyId={journeyId}
-                className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border"
-              />
+              <div role="group" aria-labelledby="custom-attribute-trigger-capture-label">
+                <VariableMapping
+                  mappings={variableMappings}
+                  onMappingsChange={onVariableMappingsChange}
+                  paths={generateCustomAttributePaths()}
+                  journeyId={journeyId}
+                  className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border"
+                />
+              </div>
             </div>
           </>
         )}

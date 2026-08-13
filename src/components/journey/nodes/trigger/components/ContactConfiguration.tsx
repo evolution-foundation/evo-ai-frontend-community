@@ -302,17 +302,19 @@ export function ContactConfiguration({
         {onVariableMappingsChange && (
           <>
             <Separator />
-            <div className="space-y-3" role="group" aria-labelledby="contact-trigger-capture-label">
+            <div className="space-y-3">
               <Label id="contact-trigger-capture-label" className="text-sm font-medium">
                 {t('triggerComponents.contact.captureContactData')}
               </Label>
-              <VariableMapping
-                mappings={variableMappings}
-                onMappingsChange={onVariableMappingsChange}
-                paths={generateContactPaths()}
-                journeyId={journeyId}
-                className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border"
-              />
+              <div role="group" aria-labelledby="contact-trigger-capture-label">
+                <VariableMapping
+                  mappings={variableMappings}
+                  onMappingsChange={onVariableMappingsChange}
+                  paths={generateContactPaths()}
+                  journeyId={journeyId}
+                  className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border"
+                />
+              </div>
             </div>
           </>
         )}

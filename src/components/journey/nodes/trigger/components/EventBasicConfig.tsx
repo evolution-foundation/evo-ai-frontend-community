@@ -202,18 +202,20 @@ export function EventBasicConfig({
         </div>
 
         {/* Propriedades do evento */}
-        <div className="space-y-3" role="group" aria-labelledby="event-trigger-properties-label">
+        <div className="space-y-3">
           <Label
             id="event-trigger-properties-label"
             className="text-sidebar-foreground font-medium text-sm"
           >
             {t('triggerComponents.event.eventProperties')}
           </Label>
-          <EventPropertiesForm
-            eventName={formEventName}
-            value={record}
-            onChange={handlePropertiesRecordChange}
-          />
+          <div role="group" aria-labelledby="event-trigger-properties-label">
+            <EventPropertiesForm
+              eventName={formEventName}
+              value={record}
+              onChange={handlePropertiesRecordChange}
+            />
+          </div>
         </div>
       </div>
 

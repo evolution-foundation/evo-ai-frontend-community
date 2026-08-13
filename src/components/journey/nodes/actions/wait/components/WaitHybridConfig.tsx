@@ -159,7 +159,7 @@ export function WaitHybridConfig({ data, onChange, journeyId }: WaitHybridConfig
       </div>
 
       {/* Condição ou Evento */}
-      <div className="space-y-3" role="group" aria-labelledby="wait-hybrid-stop-label">
+      <div className="space-y-3">
         <Label id="wait-hybrid-stop-label" className="text-sm font-medium">
           {t('panels.waitComponents.hybrid.stopConditionLabel')}
         </Label>
@@ -167,6 +167,8 @@ export function WaitHybridConfig({ data, onChange, journeyId }: WaitHybridConfig
         <Tabs
           value={triggerType}
           onValueChange={(value: string) => handleTriggerTypeChange(value as 'event' | 'condition')}
+          role="group"
+          aria-labelledby="wait-hybrid-stop-label"
         >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="event">{t('panels.waitComponents.hybrid.tabs.event')}</TabsTrigger>

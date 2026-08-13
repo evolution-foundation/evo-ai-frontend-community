@@ -222,11 +222,13 @@ export function WaitPanel({ nodeId, data, onUpdate, onClose, journeyId }: WaitPa
           </Select>
         </div>
 
-        <div className="space-y-4" role="group" aria-labelledby="wait-config-label">
+        <div className="space-y-4">
           <Label id="wait-config-label" className="text-sidebar-foreground font-medium">
             {t('panels.wait.configuration')} - {currentOption.label}
           </Label>
-          {renderConfigurationSection()}
+          <div role="group" aria-labelledby="wait-config-label">
+            {renderConfigurationSection()}
+          </div>
         </div>
       </div>
     </NodeConfigModal>

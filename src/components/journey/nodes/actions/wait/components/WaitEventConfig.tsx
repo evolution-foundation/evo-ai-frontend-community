@@ -237,12 +237,14 @@ export function WaitEventConfig({ data, onChange, journeyId }: WaitEventConfigPr
 
       {/* Configuração específica do tipo */}
       {eventType && (
-        <div className="space-y-3" role="group" aria-labelledby="wait-event-config-label">
+        <div className="space-y-3">
           <Label id="wait-event-config-label" className="text-sm font-medium">
             {t('panels.waitComponents.event.configurationLabel')} -{' '}
             {EVENT_TYPE_OPTIONS.find(t => t.value === eventType)?.label}
           </Label>
-          {renderEventConfiguration()}
+          <div role="group" aria-labelledby="wait-event-config-label">
+            {renderEventConfiguration()}
+          </div>
         </div>
       )}
 

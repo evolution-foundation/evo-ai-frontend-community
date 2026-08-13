@@ -181,12 +181,14 @@ export function WaitConditionConfig({ data, onChange, journeyId }: WaitCondition
 
       {/* Configuração específica do tipo */}
       {conditionType && (
-        <div className="space-y-3" role="group" aria-labelledby="wait-condition-config-label">
+        <div className="space-y-3">
           <Label id="wait-condition-config-label" className="text-sm font-medium">
             {t('panels.waitComponents.condition.configurationLabel')} -{' '}
             {CONDITION_TYPES.find(t => t.value === conditionType)?.label}
           </Label>
-          {renderConditionConfiguration()}
+          <div role="group" aria-labelledby="wait-condition-config-label">
+            {renderConditionConfiguration()}
+          </div>
         </div>
       )}
 
