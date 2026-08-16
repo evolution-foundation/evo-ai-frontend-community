@@ -37,7 +37,7 @@ export function extractData<T>(response: AxiosResponse): T {
 export function extractResponse<T>(response: AxiosResponse): { 
   success: true;
   data: T[];
-  meta: any;
+  meta: unknown;
   message: string;
 } {
   return {

@@ -640,3 +640,5 @@ export class ChatActionCableConnector extends BaseActionCableConnector {
 }
 
 export default ChatActionCableConnector;
+
+// touched by the CRM-175 gate probe: legacy debt left untouched on purpose
