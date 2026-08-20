@@ -498,6 +498,9 @@
       "actions": "actions",
       "executeSuccess": "Macro \"{{name}}\" exécutée avec succès",
       "executeError": "Erreur lors de l'exécution de la macro \"{{name}}\"",
+      "executePartialError": "Macro \"{{name}}\" exécutée avec des échecs",
+      "executeQueued": "Macro \"{{name}}\" en file d'attente — en attente du webhook",
+      "executeUnresolved": "Macro \"{{name}}\" exécutée, mais ces conversations sont introuvables : {{ids}}",
       "dialog": {
         "title": "Exécuter la Macro",
         "description": "Êtes-vous sûr de vouloir exécuter la macro {{name}} ? Cette action appliquera {{count}} {{actionLabel}} à cette conversation.",

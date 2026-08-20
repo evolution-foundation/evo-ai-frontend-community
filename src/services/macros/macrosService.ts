@@ -67,7 +67,7 @@ class MacrosService {
   }
 
   // Execute macro — returns execution results with status per action
-  async executeMacro(data: MacroExecuteData): Promise<{ data?: { executions?: Array<{ id: string; status: string; error_message?: string; actions_result?: Array<{ action: string; status: string; error?: string }> }> } }> {
+  async executeMacro(data: MacroExecuteData): Promise<{ data?: { executions?: Array<{ id: string; status: string; error_message?: string; actions_result?: Array<{ action: string; status: string; error?: string }> }>; unresolved_conversation_ids?: string[] } }> {
     const response = await api.post(`/macros/${data.macroId}/execute`, {
       conversation_ids: data.conversationIds,
     });
