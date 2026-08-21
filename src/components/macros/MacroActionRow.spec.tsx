@@ -29,7 +29,15 @@ vi.mock('@evoapi/design-system', () => ({
       {children}
     </select>
   ),
-  SelectTrigger: () => null,
+  // An <option>: the only element a test can read the trigger's aria wiring
+  // from while the Select above is a native <select>.
+  SelectTrigger: (props: Record<string, unknown>) => (
+    // Empty children on purpose: <SelectValue /> renders null, and React cannot
+    // infer an option value from a complex child.
+    <option data-testid="select-trigger" {...props}>
+      {null}
+    </option>
+  ),
   SelectValue: () => null,
   SelectContent: ({ children }: { children: ReactNode }) => <>{children}</>,
   // Text children only: the action-type items wrap their label in a <div>,
@@ -197,7 +205,7 @@ describe('MacroActionRow', () => {
     // "failed to load" describes a choice the user cannot have made yet. Each of
     // these three renders the warning if the guard is reduced to the action name.
     it.each([
-      ['the list is still loading', { optionsLoading: true, options: LOADED_AGENT }],
+      ['the list is still loading', { optionsLoading: true, options: EMPTY_OPTIONS }],
       ['no agent is registered', { options: EMPTY_OPTIONS }],
       ['the agents source failed', { options: EMPTY_OPTIONS, failedSources: ['agents' as const] }],
     ])('does not warn while %s', (_label, extra) => {
@@ -206,11 +214,21 @@ describe('MacroActionRow', () => {
       expect(screen.queryByText(WARNING)).toBeNull();
     });
 
+    // Reopening the modal refetches over the agents already in state: the
+    // select keeps listing them and stays pickable, so no placeholder is on
+    // screen to carry the message in its place.
+    it('keeps warning while a refetch runs over an already loaded list', () => {
+      renderRow({ actionName: 'assign_agent', options: LOADED_AGENT, optionsLoading: true });
+
+      expect(screen.getByText(WARNING)).toBeTruthy();
+    });
+
     it('points the select at the warning so a screen reader reaches it', () => {
       renderRow({ actionName: 'assign_agent', options: LOADED_AGENT });
 
       const warning = screen.getByText(WARNING);
-      expect(warning.getAttribute('id')).toBeTruthy();
+      const [, configTrigger] = screen.getAllByTestId('select-trigger');
+      expect(configTrigger.getAttribute('aria-describedby')).toBe(warning.getAttribute('id'));
     });
 
     // change_status shares the `select` branch and carries no source, which is

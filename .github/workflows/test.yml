@@ -80,6 +80,13 @@ jobs:
       #   - menuItems (CRM-166): the Settings entries gated on an administrative
       #     key stay gated on it — Atributos Personalizados above all, whose read
       #     the agent now holds. Also covers the EVO-1938/CRM-70 gates already there.
+      #   - MacroActionRow (CRM-162): the assign_agent warning renders whenever
+      #     there is an agent list to pick from — a reopened modal refetching over
+      #     the previous one included — and never on the other select actions.
+      #     Also guards the aria wiring from the select to the warning.
+      #   - i18n-parity (CRM-162): every locale keeps the same key set. A key added
+      #     to one locale only is invisible until someone on another locale reads
+      #     the raw key on screen.
       # The whole list runs in ~30s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -127,7 +134,9 @@ jobs:
             src/components/contacts/ContactNotesCard.spec.tsx \
             src/components/rbac-render-gates.spec.tsx \
             src/components/customAttributes/CustomAttributesForm.spec.tsx \
-            src/components/layout/config/menuItems.spec.ts
+            src/components/layout/config/menuItems.spec.ts \
+            src/components/macros/MacroActionRow.spec.tsx \
+            src/i18n/locales/i18n-parity.spec.ts
 
   # Lint gate scoped to the files the PR touched.
   eslint:
