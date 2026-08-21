@@ -86,50 +86,39 @@ const MacrosButton: React.FC<MacrosButtonProps> = ({
       });
 
       const executions = response?.data?.executions || (response as any)?.executions || [];
-      const unresolvedIds: string[] =
-        response?.data?.unresolved_conversation_ids ||
-        (response as unknown as { unresolved_conversation_ids?: string[] })
-          ?.unresolved_conversation_ids ||
-        [];
+      const unresolvedCount: number =
+        response?.data?.unresolved_conversation_count ??
+        (response as unknown as { unresolved_conversation_count?: number })
+          ?.unresolved_conversation_count ??
+        0;
       const hasFailure = executions.some((exec: any) => exec.status === 'failed');
       const hasPending = executions.some((exec: any) => exec.status === 'pending');
 
-      // CRM-152: zero executions is not success. The backend now answers 404 here, so
-      // this branch is the belt to that suspenders — an empty list must never reach
-      // the green toast, whatever the status code says.
+      // Emitted before the early return and outside the chain below: a run can both
+      // fail on one conversation and not find another.
+      if (unresolvedCount > 0) {
+        toast.warning(
+          t('contactSidebar.macros.executeUnresolved', {
+            name: selectedMacro.name,
+            count: unresolvedCount,
+          }),
+        );
+      }
+
+      // Zero executions is not success. The backend answers 404 here; this is the
+      // guard for any response that still gets through with an empty list.
       if (executions.length === 0) {
         toast.error(t('contactSidebar.macros.executeError', { name: selectedMacro.name }));
         return;
       }
 
-      // Emitted on its own rather than as a branch: a run can BOTH fail on one
-      // conversation and not find another, and an exclusive chain would hide one of them.
-      if (unresolvedIds.length > 0) {
-        toast.warning(
-          t('contactSidebar.macros.executeUnresolved', {
-            name: selectedMacro.name,
-            ids: unresolvedIds.join(', '),
-          }),
-        );
-      }
-
       if (hasFailure) {
-        const failedExec = executions.find((exec: any) => exec.status === 'failed');
-        const failedActions = failedExec?.actions_result
-          ?.filter((a: any) => a.status === 'failed')
-          ?.map((a: any) => a.action)
-          ?.join(', ');
-        toast.error(
-          t('contactSidebar.macros.executePartialError', { name: selectedMacro.name }) ||
-            `Macro "${selectedMacro.name}" executada com falhas${failedActions ? `: ${failedActions}` : ''}`,
-        );
+        toast.error(t('contactSidebar.macros.executePartialError', { name: selectedMacro.name }));
       } else if (hasPending) {
         // Webhook actions are async — wait for macro.execution.completed
         // WebSocket event before confirming success/failure to the user.
         toast.info(t('contactSidebar.macros.executeQueued', { name: selectedMacro.name }));
-      } else if (unresolvedIds.length === 0) {
-        // A partial run already got its warning above; green would overwrite it with a
-        // claim of a clean run.
+      } else if (unresolvedCount === 0) {
         toast.success(t('contactSidebar.macros.executeSuccess', { name: selectedMacro.name }));
       }
       onMacroExecuted?.();

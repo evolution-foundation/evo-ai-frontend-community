@@ -4,9 +4,9 @@ import React from 'react';
 
 vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({
-    // Echo the key plus the interpolated ids so an assertion can tell the toasts apart.
+    // Echo the key plus the count so assertions can tell the toasts apart.
     t: (key: string, vars?: Record<string, unknown>) =>
-      vars?.ids ? `${key}:${String(vars.ids)}` : key,
+      vars?.count === undefined ? key : `${key}:${String(vars.count)}`,
   }),
 }));
 
@@ -41,8 +41,6 @@ describe('MacrosButton — CRM-152 execution feedback', () => {
     vi.mocked(macrosService.getMacros).mockResolvedValue({ data: [MACRO] } as never);
   });
 
-  // The bug: `executions.some(...)` over [] is false for both failure and pending, so
-  // an empty list fell through to the success branch and painted the toast green.
   it('never shows the success toast when nothing executed', async () => {
     vi.mocked(macrosService.executeMacro).mockResolvedValue({
       data: { macro_id: 'macro-1', executions: [] },
@@ -55,7 +53,6 @@ describe('MacrosButton — CRM-152 execution feedback', () => {
     expect(toast.warning).not.toHaveBeenCalled();
   });
 
-  // The backend answers 404 for that case, which axios rejects — same outcome required.
   it('shows the error toast when the request rejects', async () => {
     vi.mocked(macrosService.executeMacro).mockRejectedValue(new Error('Request failed'));
 
@@ -69,34 +66,42 @@ describe('MacrosButton — CRM-152 execution feedback', () => {
     vi.mocked(macrosService.executeMacro).mockResolvedValue({
       data: {
         executions: [{ id: 'e1', conversation_id: 'conv-1', status: 'completed' }],
-        unresolved_conversation_ids: ['404-a', '404-b'],
+        unresolved_conversation_count: 2,
       },
     } as never);
 
     await runMacro();
 
     await waitFor(() =>
-      expect(toast.warning).toHaveBeenCalledWith(
-        'contactSidebar.macros.executeUnresolved:404-a, 404-b',
-      ),
+      expect(toast.warning).toHaveBeenCalledWith('contactSidebar.macros.executeUnresolved:2'),
     );
     expect(toast.success).not.toHaveBeenCalled();
   });
 
-  // A failure and an unresolved id are independent facts: an exclusive chain would
-  // report one and swallow the other.
-  it('reports the failure AND the unresolved ids together', async () => {
+  it('reports the failure AND the unresolved count together', async () => {
     vi.mocked(macrosService.executeMacro).mockResolvedValue({
       data: {
         executions: [{ id: 'e1', conversation_id: 'conv-1', status: 'failed', actions_result: [] }],
-        unresolved_conversation_ids: ['404-a'],
+        unresolved_conversation_count: 1,
       },
     } as never);
 
     await runMacro();
 
     await waitFor(() => expect(toast.error).toHaveBeenCalled());
-    expect(toast.warning).toHaveBeenCalledWith('contactSidebar.macros.executeUnresolved:404-a');
+    expect(toast.warning).toHaveBeenCalledWith('contactSidebar.macros.executeUnresolved:1');
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it('warns about the unresolved count even when nothing executed', async () => {
+    vi.mocked(macrosService.executeMacro).mockResolvedValue({
+      data: { executions: [], unresolved_conversation_count: 3 },
+    } as never);
+
+    await runMacro();
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalled());
+    expect(toast.warning).toHaveBeenCalledWith('contactSidebar.macros.executeUnresolved:3');
     expect(toast.success).not.toHaveBeenCalled();
   });
 
@@ -104,7 +109,7 @@ describe('MacrosButton — CRM-152 execution feedback', () => {
     vi.mocked(macrosService.executeMacro).mockResolvedValue({
       data: {
         executions: [{ id: 'e1', conversation_id: 'conv-1', status: 'completed' }],
-        unresolved_conversation_ids: [],
+        unresolved_conversation_count: 0,
       },
     } as never);
 

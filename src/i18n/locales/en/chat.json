@@ -513,7 +513,8 @@
       "executeError": "Error executing macro \"{{name}}\"",
       "executePartialError": "Macro \"{{name}}\" completed with failures",
       "executeQueued": "Macro \"{{name}}\" queued — waiting for webhook",
-      "executeUnresolved": "Macro \"{{name}}\" executed, but these conversations were not found: {{ids}}",
+      "executeUnresolved_one": "Macro \"{{name}}\" executed, but 1 conversation was not found",
+      "executeUnresolved_other": "Macro \"{{name}}\" executed, but {{count}} conversations were not found",
       "dialog": {
         "title": "Execute Macro",
         "description": "Are you sure you want to execute the macro {{name}}? This action will apply {{count}} {{actionLabel}} to this conversation.",
