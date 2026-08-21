@@ -62,6 +62,7 @@
   "actionRow": {
     "selectPlaceholder": "Seleccione una opción",
     "multiSelectPlaceholder": "Seleccione opciones",
+    "assignAgentInboxWarning": "Esta asignación solo se aplica a las conversaciones cuya bandeja de entrada tiene a este agente como miembro. En las demás la acción falla, y una acción fallida marca toda la ejecución como fallida.",
     "loadingOptions": "Cargando opciones...",
     "loadFailed": "No fue posible cargar las opciones",
     "emptyTeams": "Ningún equipo registrado",

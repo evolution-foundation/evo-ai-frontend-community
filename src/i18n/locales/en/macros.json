@@ -62,6 +62,7 @@
   "actionRow": {
     "selectPlaceholder": "Select an option",
     "multiSelectPlaceholder": "Select options",
+    "assignAgentInboxWarning": "This assignment only applies to conversations whose inbox has this agent as a member. In the others the action fails, and a failed action marks the whole execution as failed.",
     "loadingOptions": "Loading options...",
     "loadFailed": "Could not load the options",
     "emptyTeams": "No teams registered",

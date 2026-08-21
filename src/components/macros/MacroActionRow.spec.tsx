@@ -169,10 +169,60 @@ describe('MacroActionRow', () => {
   });
 
   describe('assign_agent (select)', () => {
+    const AGENT = { id: '7c9e1a2b-3d4f-4a56-b7c8-9d0e1f2a3b4c', name: 'Ana' };
+    const WARNING = 'actionRow.assignAgentInboxWarning';
+    const LOADED_AGENT = { ...EMPTY_OPTIONS, agents: [AGENT] };
+
     it('says "no agents registered" when the list is empty and not loading', () => {
       renderRow({ actionName: 'assign_agent' });
 
       expect(screen.getByText('actionRow.emptyAgents')).toBeTruthy();
+    });
+
+    it('warns that the assignment only lands on inboxes the agent belongs to', () => {
+      renderRow({ actionName: 'assign_agent', options: LOADED_AGENT });
+
+      expect(screen.getByText(WARNING)).toBeTruthy();
+    });
+
+    // The list stays complete on purpose, so the warning is the only thing
+    // keeping the form from promising an assignment the execution rejects.
+    it('warns without filtering the agent list', () => {
+      renderRow({ actionName: 'assign_agent', options: LOADED_AGENT });
+
+      expect(screen.getByRole('option', { name: AGENT.name })).toBeTruthy();
+    });
+
+    // Naming "this agent" while the select says "loading" / "none registered" /
+    // "failed to load" describes a choice the user cannot have made yet. Each of
+    // these three renders the warning if the guard is reduced to the action name.
+    it.each([
+      ['the list is still loading', { optionsLoading: true, options: LOADED_AGENT }],
+      ['no agent is registered', { options: EMPTY_OPTIONS }],
+      ['the agents source failed', { options: EMPTY_OPTIONS, failedSources: ['agents' as const] }],
+    ])('does not warn while %s', (_label, extra) => {
+      renderRow({ actionName: 'assign_agent', ...extra });
+
+      expect(screen.queryByText(WARNING)).toBeNull();
+    });
+
+    it('points the select at the warning so a screen reader reaches it', () => {
+      renderRow({ actionName: 'assign_agent', options: LOADED_AGENT });
+
+      const warning = screen.getByText(WARNING);
+      expect(warning.getAttribute('id')).toBeTruthy();
+    });
+
+    // change_status shares the `select` branch and carries no source, which is
+    // where a refactor of the switch would most likely leak the warning.
+    it.each([
+      ['assign_team', { ...EMPTY_OPTIONS, teams: [TEAM_DIGIT] }],
+      ['change_status', EMPTY_OPTIONS],
+      ['change_priority', EMPTY_OPTIONS],
+    ])('does not warn on %s', (actionName, options) => {
+      renderRow({ actionName, options });
+
+      expect(screen.queryByText(WARNING)).toBeNull();
     });
   });
 

@@ -45,6 +45,14 @@ export default function MacroActionRow({
 
   const selectedActionConfig = MACRO_ACTION_TYPES.find(a => a.key === action.action_name);
 
+  // The list is deliberately unfiltered: no inbox exists at form time, and one
+  // macro runs over conversations from several inboxes. Warning about an agent
+  // is only truthful once there is a loaded list to pick one from — while it is
+  // loading, empty or failed, the placeholder already owns the message.
+  const assignAgentWarningId = `macro-action-${index}-assign-agent-warning`;
+  const showAssignAgentWarning =
+    action.action_name === 'assign_agent' && !optionsLoading && options.agents.length > 0;
+
   const handleFieldChange = (field: keyof MacroAction, value: string) => {
     const updated = { ...action, [field]: value };
 
@@ -135,7 +143,10 @@ export default function MacroActionRow({
             onValueChange={value => handleParamsChange([value])}
             disabled={disabled}
           >
-            <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+            <SelectTrigger
+              className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+              aria-describedby={showAssignAgentWarning ? assignAgentWarningId : undefined}
+            >
               <SelectValue placeholder={t('actionRow.selectPlaceholder')} />
             </SelectTrigger>
             <SelectContent className="bg-sidebar border-sidebar-border">
@@ -399,6 +410,14 @@ export default function MacroActionRow({
           </div>
         )}
       </div>
+
+      {/* Outside the row: inside it, the extra height would push the bottom
+          aligned column off the baseline the other column keeps. */}
+      {showAssignAgentWarning && (
+        <p id={assignAgentWarningId} className="mt-3 text-sm text-sidebar-foreground/70">
+          {t('actionRow.assignAgentInboxWarning')}
+        </p>
+      )}
     </div>
   );
 }

@@ -62,6 +62,7 @@
   "actionRow": {
     "selectPlaceholder": "Sélectionnez une option",
     "multiSelectPlaceholder": "Sélectionnez des options",
+    "assignAgentInboxWarning": "Cette attribution ne s'applique qu'aux conversations dont la boîte de réception a cet agent comme membre. Dans les autres l'action échoue, et une action en échec marque toute l'exécution comme échouée.",
     "loadingOptions": "Chargement des options...",
     "loadFailed": "Impossible de charger les options",
     "emptyTeams": "Aucune équipe enregistrée",

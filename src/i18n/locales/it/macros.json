@@ -62,6 +62,7 @@
   "actionRow": {
     "selectPlaceholder": "Seleziona un'opzione",
     "multiSelectPlaceholder": "Seleziona opzioni",
+    "assignAgentInboxWarning": "Questa assegnazione si applica solo alle conversazioni la cui casella di posta ha questo agente come membro. Nelle altre l'azione fallisce, e un'azione fallita segna l'intera esecuzione come fallita.",
     "loadingOptions": "Caricamento opzioni...",
     "loadFailed": "Non è stato possibile caricare le opzioni",
     "emptyTeams": "Nessun team registrato",
