@@ -3,18 +3,9 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 /**
- * CRM-210 review — this file had NO tests, which is how H3 shipped.
- *
- * H3: the catch block read `data.message` and then `data.error`. The auth's
- * error_response answers `{ success:false, error:{ code, message }, meta }`, so
- * `data.message` never exists and `data.error` is an OBJECT — truthy, so it
- * short-circuited the generic fallback and handed an object to toast(). React 19
- * throws "Objects are not valid as a React child" from the <Toaster/>, and with
- * no ErrorBoundary above it the root unmounts: white screen. On the MOST likely
- * paths, too — weak password (422), self (403), super_admin target (403).
- *
- * The regression guard is therefore not "an error is shown" but "what reaches
- * toast is a STRING".
+ * CRM-210 — the guard is not "an error is shown" but "what reaches toast is a
+ * STRING": handing toast() an object makes React 19 unmount the root from the
+ * <Toaster/>, and there is no ErrorBoundary above it.
  */
 
 const setPasswordMock = vi.fn();

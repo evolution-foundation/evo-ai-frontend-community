@@ -336,18 +336,11 @@ export default function Users() {
 
   const callerIsSuperAdmin = currentUser?.role?.key === 'super_admin';
 
-  // The permission pair alone is not the whole rule. The backend also refuses
-  // two cases (users_controller#set_password), and offering a button for either
-  // means the admin types a password and only THEN gets a 403:
-  //   1. yourself — self-service lives in account settings
-  //   2. a super_admin, unless you are one too
-  // Rule as specified: super_admin sets anyone's password; an owner sets agents'
-  // but never a super_admin's.
+  // Mirrors the backend's target guards (users_controller#set_password) so the
+  // button is never offered for a case it would refuse with a 403.
   const canSetPasswordFor = (user: User) => {
     if (!canSetPassword) return false;
-    // String() because currentUserId is already stringified and the list may
-    // carry a numeric id — a strict === between 1 and '1' would silently offer
-    // the button on your own card.
+    // currentUserId is stringified; the list may carry a numeric id.
     if (String(user.id) === currentUserId) return false;
     if (user.role?.key === 'super_admin' && !callerIsSuperAdmin) return false;
     return true;

@@ -76,12 +76,8 @@ describe('expandCoarseKeys', () => {
   });
 });
 
-// CRM-210: STANDALONE_ACTIONS mirrors the backend's STANDALONE_ACTIONS_BY_RESOURCE
-// by hand, and this mirror drifted once already — `users.reset_password` was added
-// to the catalog as standalone but not here, so the key fell into the coarse write
-// group. Ticking Escrita on Users then granted account takeover and unticking it
-// revoked the key silently, while granting it ON ITS OWN — the escape hatch the
-// deliberately narrow migration relies on for custom roles — became impossible.
+// STANDALONE_ACTIONS mirrors the backend by hand and has drifted once; a key that
+// falls into the write group is granted and revoked by the coarse Write checkbox.
 describe('standalone keys never fall into a coarse group', () => {
   const catalogHasAll = () => true;
   const USERS_ACTIONS = ['read', 'create', 'update', 'delete', 'manage', 'reset_password'];

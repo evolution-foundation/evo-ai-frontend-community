@@ -25,12 +25,8 @@ type SetPasswordModalProps = {
 
 /**
  * CRM-210 — an admin sets another user's password directly.
- *
- * The backend is the authority here: it gates on users.reset_password AND
- * users.manage, refuses self-service and super_admin escalation, enforces the
- * model's complexity rule, and revokes the target's login sessions. This dialog
- * only does the local mismatch check (so the user is not charged a round trip
- * for a typo) and surfaces whatever the API answers.
+ * The backend is the authority; this dialog only fails fast on what it can
+ * check locally and shows whatever the API answers.
  */
 export default function SetPasswordModal({ open, onOpenChange, user }: SetPasswordModalProps) {
   const { t } = useLanguage('users');
@@ -52,10 +48,7 @@ export default function SetPasswordModal({ open, onOpenChange, user }: SetPasswo
   const handleSubmit = async () => {
     if (!user) return;
 
-    // CRM-210 review (M2): mirror the backend's rule so the admin is not charged
-    // a round trip to be told what we already know. The backend stays the
-    // authority — Devise's password_length (8..128) plus User#password_complexity
-    // (lower, upper, digit, special) — this only fails fast on the obvious cases.
+    // Local mirror of the backend rule, so an obvious reject costs no round trip.
     const problem = passwordProblem(password);
     if (problem) {
       toast.error(t(problem));
@@ -73,18 +66,8 @@ export default function SetPasswordModal({ open, onOpenChange, user }: SetPasswo
       toast.success(t('setPassword.success', { count: result?.revoked_sessions ?? 0 }));
       handleOpenChange(false);
     } catch (error) {
-      // The API carries the actionable reason (weak password, forbidden target,
-      // missing permission) — showing it beats a generic failure message.
-      //
-      // Read through extractError(), the house helper. The first version reached
-      // for `data.message` and then `data.error`, which is wrong twice over: the
-      // auth's error_response answers `{ success:false, error:{ code, message },
-      // meta }`, so `data.message` never exists, and `data.error` is an OBJECT —
-      // truthy, so it short-circuited the generic fallback and handed the object
-      // to toast(). React 19 then throws "Objects are not valid as a React
-      // child" from the <Toaster/> in App.tsx, and with no ErrorBoundary above
-      // it that unmounts the root: a white screen, on the MOST likely paths
-      // (weak password 422, self 403, super_admin target 403).
+      // extractError() unwraps the auth's `{ error: { code, message } }` envelope
+      // and always yields a string — toast() renders it as a React child.
       const { message } = extractError(error);
       toast.error(message || t('setPassword.error'));
       setSaving(false);

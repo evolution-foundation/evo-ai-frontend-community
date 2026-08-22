@@ -10,8 +10,7 @@ type UserCardProps = {
   onEdit?: (user: User) => void;
   onDelete?: (user: User) => void;
   canDelete?: boolean;
-  // CRM-210: only rendered when the caller holds users.reset_password AND
-  // users.manage — the page decides, the card just shows what it is given.
+  // CRM-210: the page decides who may see it; the card just renders what it gets.
   onSetPassword?: (user: User) => void;
 };
 

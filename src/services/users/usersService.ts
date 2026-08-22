@@ -90,10 +90,8 @@ class UsersService {
     return extractData<{ message: string }>(response);
   }
 
-  // CRM-210: an admin sets another user's password directly, with no e-mail
-  // round trip. Backend gates it on users.reset_password AND users.manage, and
-  // revokes the target's login sessions — see
-  // evo-auth-service-community Api::V1::UsersController#set_password.
+  // CRM-210: admin sets another user's password. Revokes the target's login
+  // sessions — see evo-auth-service-community UsersController#set_password.
   async setPassword(
     userId: string,
     password: string,

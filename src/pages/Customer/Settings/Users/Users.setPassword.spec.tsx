@@ -2,16 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 
 /**
- * CRM-210: who may set whose password.
- *
- * The rule is hierarchical, not a flat permission check:
- *   - super_admin sets anyone's password
- *   - an owner sets an agent's, but NEVER a super_admin's
- *   - nobody sets their own here (that is account settings)
- *
- * The backend enforces all three (users_controller#set_password). The screen
- * must not OFFER a button for a case the backend refuses, otherwise the admin
- * types a new password and only then gets a 403.
+ * CRM-210 — the rule is hierarchical, not a flat permission check, and the
+ * backend enforces it (users_controller#set_password). The screen must not
+ * OFFER a button for a case the backend refuses.
  */
 
 const h = vi.hoisted(() => ({
