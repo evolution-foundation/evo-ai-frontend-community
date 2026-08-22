@@ -228,15 +228,20 @@ describe('MacroActionRow', () => {
 
       const warning = screen.getByText(WARNING);
       const [, configTrigger] = screen.getAllByTestId('select-trigger');
-      expect(configTrigger.getAttribute('aria-describedby')).toBe(warning.getAttribute('id'));
+      // Both sides asserted present: dropping the id and the attribute together
+      // would otherwise leave this comparing an absent value to an absent one.
+      expect(warning.id).toBeTruthy();
+      expect(configTrigger.getAttribute('aria-describedby')).toBe(warning.id);
     });
 
     // change_status shares the `select` branch and carries no source, which is
-    // where a refactor of the switch would most likely leak the warning.
+    // where a refactor of the switch would most likely leak the warning. The
+    // agent list is loaded on purpose: with it empty these pass on the list
+    // guard alone and say nothing about the action name.
     it.each([
-      ['assign_team', { ...EMPTY_OPTIONS, teams: [TEAM_DIGIT] }],
-      ['change_status', EMPTY_OPTIONS],
-      ['change_priority', EMPTY_OPTIONS],
+      ['assign_team', { ...LOADED_AGENT, teams: [TEAM_DIGIT] }],
+      ['change_status', LOADED_AGENT],
+      ['change_priority', LOADED_AGENT],
     ])('does not warn on %s', (actionName, options) => {
       renderRow({ actionName, options });
 
