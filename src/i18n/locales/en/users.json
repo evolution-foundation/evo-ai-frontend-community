@@ -9,7 +9,8 @@
     "actions": {
       "chat": "Chat",
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "setPassword": "Change password"
     }
   },
   "details": {
@@ -235,5 +236,16 @@
       "deleting": "Deleting...",
       "confirm": "Delete All"
     }
+  },
+  "setPassword": {
+    "title": "Change password",
+    "description": "Set a new password for {{name}}. All their active sessions will be signed out.",
+    "password": "New password",
+    "confirm": "Confirm password",
+    "submit": "Change password",
+    "cancel": "Cancel",
+    "success": "Password changed. Sessions signed out: {{count}}",
+    "error": "Could not change the password",
+    "mismatch": "Passwords do not match"
   }
 }

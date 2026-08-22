@@ -79,6 +79,7 @@ vi.mock('@/components/users', () => ({
   UserFormModal: () => null,
   BulkInviteModal: () => null,
   UserDetails: () => null,
+  SetPasswordModal: () => null,
 }));
 
 import Users from './Users';

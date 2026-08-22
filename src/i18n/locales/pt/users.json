@@ -9,7 +9,8 @@
     "actions": {
       "chat": "Conversar",
       "edit": "Editar",
-      "delete": "Deletar"
+      "delete": "Deletar",
+      "setPassword": "Alterar senha"
     }
   },
   "details": {
@@ -235,5 +236,16 @@
       "deleting": "Deletando...",
       "confirm": "Deletar Todos"
     }
+  },
+  "setPassword": {
+    "title": "Alterar senha",
+    "description": "Define uma nova senha para {{name}}. Todas as sessões ativas dele serão encerradas.",
+    "password": "Nova senha",
+    "confirm": "Confirmar senha",
+    "submit": "Alterar senha",
+    "cancel": "Cancelar",
+    "success": "Senha alterada. Sessões encerradas: {{count}}",
+    "error": "Não foi possível alterar a senha",
+    "mismatch": "As senhas não coincidem"
   }
 }

@@ -33,6 +33,7 @@ import {
   BulkInviteModal,
   UsersFilter,
   UserDetails,
+  SetPasswordModal,
 } from '@/components/users';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 
@@ -74,6 +75,9 @@ export default function Users() {
   const [userModalOpen, setUserModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [bulkInviteModalOpen, setBulkInviteModalOpen] = useState(false);
+  // CRM-210
+  const [setPasswordModalOpen, setSetPasswordModalOpen] = useState(false);
+  const [userToSetPassword, setUserToSetPassword] = useState<User | null>(null);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<BaseFilter[]>([]);
   // EVO-1947: the applied-filter chips are built at apply time and capture a
@@ -326,6 +330,21 @@ export default function Users() {
     setDeleteDialogOpen(true);
   };
 
+  // CRM-210: mirrors the backend gate — users.reset_password (the standalone
+  // key) AND users.manage (administrative). The backend re-checks both, plus
+  // the self/super_admin guards; this only avoids offering a button that would
+  // 403.
+  const canSetPassword = can('users', 'reset_password') && can('users', 'manage');
+
+  const handleSetPassword = (user: User) => {
+    if (!canSetPassword) {
+      toast.error(t('messages.permissionDenied.update'));
+      return;
+    }
+    setUserToSetPassword(user);
+    setSetPasswordModalOpen(true);
+  };
+
   const handleBulkInvite = () => {
     if (!can('users', 'create')) {
       toast.error(t('messages.permissionDenied.invite'));
@@ -514,6 +533,7 @@ export default function Users() {
                 onEdit={handleEditUser}
                 onDelete={handleDeleteUser}
                 canDelete={canDeleteUser(user)}
+                onSetPassword={canSetPassword ? handleSetPassword : undefined}
               />
             ))}
           </div>
@@ -629,6 +649,13 @@ export default function Users() {
         isOpen={bulkInviteModalOpen}
         onClose={() => setBulkInviteModalOpen(false)}
         onSuccess={handleBulkInviteSuccess}
+      />
+
+      {/* CRM-210: admin sets another user's password */}
+      <SetPasswordModal
+        open={setPasswordModalOpen}
+        onOpenChange={setSetPasswordModalOpen}
+        user={userToSetPassword}
       />
 
       {/* Users Filter Modal */}

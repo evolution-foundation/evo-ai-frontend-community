@@ -9,7 +9,8 @@
     "actions": {
       "chat": "Conversar",
       "edit": "Editar",
-      "delete": "Eliminar"
+      "delete": "Eliminar",
+      "setPassword": "Cambiar contraseña"
     }
   },
   "details": {
@@ -235,5 +236,16 @@
       "deleting": "Eliminando...",
       "confirm": "Eliminar Todos"
     }
+  },
+  "setPassword": {
+    "title": "Cambiar contraseña",
+    "description": "Define una nueva contraseña para {{name}}. Se cerrarán todas sus sesiones activas.",
+    "password": "Nueva contraseña",
+    "confirm": "Confirmar contraseña",
+    "submit": "Cambiar contraseña",
+    "cancel": "Cancelar",
+    "success": "Contraseña cambiada. Sesiones cerradas: {{count}}",
+    "error": "No se pudo cambiar la contraseña",
+    "mismatch": "Las contraseñas no coinciden"
   }
 }

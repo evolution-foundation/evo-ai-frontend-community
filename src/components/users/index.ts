@@ -7,3 +7,4 @@ export { default as UserFormModal } from './UserFormModal';
 export { default as BulkInviteModal } from './BulkInviteModal';
 export { default as UserStatusBadge } from './UserStatusBadge';
 export { default as UserDetails } from './UserDetails';
+export { default as SetPasswordModal } from './SetPasswordModal';

@@ -1,5 +1,5 @@
 import { Button, Card, CardContent, Avatar, AvatarFallback } from '@evoapi/design-system';
-import { Edit, MessageSquare, Trash2 } from 'lucide-react';
+import { Edit, KeyRound, MessageSquare, Trash2 } from 'lucide-react';
 import { User } from '@/types/users';
 import UserStatusBadge from './UserStatusBadge';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -10,6 +10,9 @@ type UserCardProps = {
   onEdit?: (user: User) => void;
   onDelete?: (user: User) => void;
   canDelete?: boolean;
+  // CRM-210: only rendered when the caller holds users.reset_password AND
+  // users.manage — the page decides, the card just shows what it is given.
+  onSetPassword?: (user: User) => void;
 };
 
 export default function UserCard({
@@ -18,6 +21,7 @@ export default function UserCard({
   onEdit,
   onDelete,
   canDelete = true,
+  onSetPassword,
 }: UserCardProps) {
   const { t } = useLanguage('users');
 
@@ -103,6 +107,22 @@ export default function UserCard({
               >
                 <Edit className="h-4 w-4 mr-2" />
                 {t('card.actions.edit')}
+              </Button>
+              {((canDelete && onDelete) || onSetPassword) && (
+                <div className="w-px bg-sidebar-border" />
+              )}
+            </>
+          )}
+          {onSetPassword && (
+            <>
+              <Button
+                variant="ghost"
+                className="rounded-none h-12 px-4 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/40"
+                onClick={() => onSetPassword(user)}
+                title={t('card.actions.setPassword')}
+                aria-label={t('card.actions.setPassword')}
+              >
+                <KeyRound className="h-4 w-4" />
               </Button>
               {canDelete && onDelete && <div className="w-px bg-sidebar-border" />}
             </>

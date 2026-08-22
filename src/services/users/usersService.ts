@@ -90,6 +90,22 @@ class UsersService {
     return extractData<{ message: string }>(response);
   }
 
+  // CRM-210: an admin sets another user's password directly, with no e-mail
+  // round trip. Backend gates it on users.reset_password AND users.manage, and
+  // revokes the target's login sessions — see
+  // evo-auth-service-community Api::V1::UsersController#set_password.
+  async setPassword(
+    userId: string,
+    password: string,
+    passwordConfirmation: string
+  ): Promise<{ success: boolean; revoked_sessions: number }> {
+    const response = await apiAuth.post(`/users/${userId}/set_password`, {
+      password,
+      password_confirmation: passwordConfirmation,
+    });
+    return extractData<{ success: boolean; revoked_sessions: number }>(response);
+  }
+
   // Bulk invite users
   async bulkInvite(params: BulkInviteParams): Promise<BulkInviteResponse> {
     const response = await apiAuth.post('/users/bulk_create', params);
