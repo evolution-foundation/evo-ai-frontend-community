@@ -45,12 +45,8 @@ export default function MacroActionRow({
 
   const selectedActionConfig = MACRO_ACTION_TYPES.find(a => a.key === action.action_name);
 
-  // The list is deliberately unfiltered: no inbox exists at form time, and one
-  // macro runs over conversations from several inboxes. Warning about an agent
-  // is only truthful once there is a list to pick one from: an empty one
-  // renders the placeholder, which owns the message instead. A reopened modal
-  // refetches with the previous agents still listed and pickable, so
-  // `optionsLoading` is not what hides the warning.
+  // An empty list renders the placeholder, which owns the message instead. Not
+  // `optionsLoading`: a reopened modal refetches with the old agents pickable.
   const assignAgentWarningId = `macro-action-${index}-assign-agent-warning`;
   const showAssignAgentWarning = action.action_name === 'assign_agent' && options.agents.length > 0;
 
