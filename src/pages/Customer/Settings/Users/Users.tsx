@@ -331,13 +331,30 @@ export default function Users() {
   };
 
   // CRM-210: mirrors the backend gate — users.reset_password (the standalone
-  // key) AND users.manage (administrative). The backend re-checks both, plus
-  // the self/super_admin guards; this only avoids offering a button that would
-  // 403.
+  // key) AND users.manage (administrative).
   const canSetPassword = can('users', 'reset_password') && can('users', 'manage');
 
+  const callerIsSuperAdmin = currentUser?.role?.key === 'super_admin';
+
+  // The permission pair alone is not the whole rule. The backend also refuses
+  // two cases (users_controller#set_password), and offering a button for either
+  // means the admin types a password and only THEN gets a 403:
+  //   1. yourself — self-service lives in account settings
+  //   2. a super_admin, unless you are one too
+  // Rule as specified: super_admin sets anyone's password; an owner sets agents'
+  // but never a super_admin's.
+  const canSetPasswordFor = (user: User) => {
+    if (!canSetPassword) return false;
+    // String() because currentUserId is already stringified and the list may
+    // carry a numeric id — a strict === between 1 and '1' would silently offer
+    // the button on your own card.
+    if (String(user.id) === currentUserId) return false;
+    if (user.role?.key === 'super_admin' && !callerIsSuperAdmin) return false;
+    return true;
+  };
+
   const handleSetPassword = (user: User) => {
-    if (!canSetPassword) {
+    if (!canSetPasswordFor(user)) {
       toast.error(t('messages.permissionDenied.update'));
       return;
     }
@@ -533,7 +550,7 @@ export default function Users() {
                 onEdit={handleEditUser}
                 onDelete={handleDeleteUser}
                 canDelete={canDeleteUser(user)}
-                onSetPassword={canSetPassword ? handleSetPassword : undefined}
+                onSetPassword={canSetPasswordFor(user) ? handleSetPassword : undefined}
               />
             ))}
           </div>
