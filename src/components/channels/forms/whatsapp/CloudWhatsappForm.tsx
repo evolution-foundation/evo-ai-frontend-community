@@ -73,7 +73,7 @@ export const CloudWhatsappForm = ({ form, onFormChange, canFB, onCancel }: Cloud
       }
 
       try {
-        const data = JSON.parse(event.data);
+        if (typeof event.data !== 'string' || !event.data.startsWith('{')) return; const data = JSON.parse(event.data);
         if (data.type === 'WA_EMBEDDED_SIGNUP') {
           setSessionInfo(data);
 
