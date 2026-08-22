@@ -36,7 +36,8 @@ vi.mock('@/services/users', () => ({
   usersService: { setPassword: (...args: unknown[]) => setPasswordMock(...args) },
 }));
 
-import SetPasswordModal, { passwordProblem } from './SetPasswordModal';
+import SetPasswordModal from './SetPasswordModal';
+import { passwordProblem } from './passwordRules';
 
 const USER = { id: '7', name: 'Agente Teste', email: 'a@e.com' } as never;
 const VALID = 'Senha!Forte1';

@@ -15,33 +15,13 @@ import { User } from '@/types/users';
 import { usersService } from '@/services/users';
 import { useLanguage } from '@/hooks/useLanguage';
 import { extractError } from '@/utils/apiHelpers';
+import { passwordProblem } from './passwordRules';
 
 type SetPasswordModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user: User | null;
 };
-
-/** Mirrors Devise's password_length (8..128) + User#password_complexity. */
-const PASSWORD_MIN_LENGTH = 8;
-const PASSWORD_MAX_LENGTH = 128;
-
-/**
- * Returns the i18n key of the first rule the password breaks, or null.
- *
- * Exported so the rule is testable without driving the dialog, and so a reader
- * can diff it against app/models/user.rb#password_complexity.
- */
-export function passwordProblem(password: string): string | null {
-  if (password.length < PASSWORD_MIN_LENGTH) return 'setPassword.tooShort';
-  if (password.length > PASSWORD_MAX_LENGTH) return 'setPassword.tooLong';
-  if (!/[a-z]/.test(password)) return 'setPassword.missingLowercase';
-  if (!/[A-Z]/.test(password)) return 'setPassword.missingUppercase';
-  if (!/\d/.test(password)) return 'setPassword.missingNumber';
-  // Same class as the backend's PASSWORD_SPECIAL_CHAR_REGEX = /[^A-Za-z0-9]/.
-  if (!/[^A-Za-z0-9]/.test(password)) return 'setPassword.missingSpecial';
-  return null;
-}
 
 /**
  * CRM-210 — an admin sets another user's password directly.
