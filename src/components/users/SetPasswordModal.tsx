@@ -14,12 +14,34 @@ import { toast } from 'sonner';
 import { User } from '@/types/users';
 import { usersService } from '@/services/users';
 import { useLanguage } from '@/hooks/useLanguage';
+import { extractError } from '@/utils/apiHelpers';
 
 type SetPasswordModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user: User | null;
 };
+
+/** Mirrors Devise's password_length (8..128) + User#password_complexity. */
+const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_MAX_LENGTH = 128;
+
+/**
+ * Returns the i18n key of the first rule the password breaks, or null.
+ *
+ * Exported so the rule is testable without driving the dialog, and so a reader
+ * can diff it against app/models/user.rb#password_complexity.
+ */
+export function passwordProblem(password: string): string | null {
+  if (password.length < PASSWORD_MIN_LENGTH) return 'setPassword.tooShort';
+  if (password.length > PASSWORD_MAX_LENGTH) return 'setPassword.tooLong';
+  if (!/[a-z]/.test(password)) return 'setPassword.missingLowercase';
+  if (!/[A-Z]/.test(password)) return 'setPassword.missingUppercase';
+  if (!/\d/.test(password)) return 'setPassword.missingNumber';
+  // Same class as the backend's PASSWORD_SPECIAL_CHAR_REGEX = /[^A-Za-z0-9]/.
+  if (!/[^A-Za-z0-9]/.test(password)) return 'setPassword.missingSpecial';
+  return null;
+}
 
 /**
  * CRM-210 — an admin sets another user's password directly.
@@ -50,6 +72,16 @@ export default function SetPasswordModal({ open, onOpenChange, user }: SetPasswo
   const handleSubmit = async () => {
     if (!user) return;
 
+    // CRM-210 review (M2): mirror the backend's rule so the admin is not charged
+    // a round trip to be told what we already know. The backend stays the
+    // authority — Devise's password_length (8..128) plus User#password_complexity
+    // (lower, upper, digit, special) — this only fails fast on the obvious cases.
+    const problem = passwordProblem(password);
+    if (problem) {
+      toast.error(t(problem));
+      return;
+    }
+
     if (password !== confirmation) {
       toast.error(t('setPassword.mismatch'));
       return;
@@ -63,12 +95,18 @@ export default function SetPasswordModal({ open, onOpenChange, user }: SetPasswo
     } catch (error) {
       // The API carries the actionable reason (weak password, forbidden target,
       // missing permission) — showing it beats a generic failure message.
-      const message =
-        (error as { response?: { data?: { message?: string; error?: string } } })?.response?.data
-          ?.message ??
-        (error as { response?: { data?: { error?: string } } })?.response?.data?.error ??
-        t('setPassword.error');
-      toast.error(message);
+      //
+      // Read through extractError(), the house helper. The first version reached
+      // for `data.message` and then `data.error`, which is wrong twice over: the
+      // auth's error_response answers `{ success:false, error:{ code, message },
+      // meta }`, so `data.message` never exists, and `data.error` is an OBJECT —
+      // truthy, so it short-circuited the generic fallback and handed the object
+      // to toast(). React 19 then throws "Objects are not valid as a React
+      // child" from the <Toaster/> in App.tsx, and with no ErrorBoundary above
+      // it that unmounts the root: a white screen, on the MOST likely paths
+      // (weak password 422, self 403, super_admin target 403).
+      const { message } = extractError(error);
+      toast.error(message || t('setPassword.error'));
       setSaving(false);
     }
   };

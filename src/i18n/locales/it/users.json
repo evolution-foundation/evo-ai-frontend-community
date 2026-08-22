@@ -246,6 +246,12 @@
     "cancel": "Annulla",
     "success": "Password cambiata. Sessioni chiuse: {{count}}",
     "error": "Impossibile cambiare la password",
-    "mismatch": "Le password non coincidono"
+    "mismatch": "Le password non coincidono",
+    "tooShort": "La password deve contenere almeno 8 caratteri",
+    "tooLong": "La password può contenere al massimo 128 caratteri",
+    "missingLowercase": "La password deve includere almeno una lettera minuscola",
+    "missingUppercase": "La password deve includere almeno una lettera maiuscola",
+    "missingNumber": "La password deve includere almeno un numero",
+    "missingSpecial": "La password deve includere almeno un carattere speciale"
   }
 }

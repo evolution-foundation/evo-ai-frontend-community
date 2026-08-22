@@ -246,6 +246,12 @@
     "cancel": "Cancelar",
     "success": "Senha alterada. Sessões encerradas: {{count}}",
     "error": "Não foi possível alterar a senha",
-    "mismatch": "As senhas não coincidem"
+    "mismatch": "As senhas não coincidem",
+    "tooShort": "A senha precisa ter pelo menos 8 caracteres",
+    "tooLong": "A senha pode ter no máximo 128 caracteres",
+    "missingLowercase": "A senha precisa incluir pelo menos uma letra minúscula",
+    "missingUppercase": "A senha precisa incluir pelo menos uma letra maiúscula",
+    "missingNumber": "A senha precisa incluir pelo menos um número",
+    "missingSpecial": "A senha precisa incluir pelo menos um caractere especial"
   }
 }

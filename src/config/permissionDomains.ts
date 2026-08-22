@@ -192,7 +192,15 @@ const READ_ACTIONS = new Set([
 //   users.manage            still being defined; left alone on purpose
 const STANDALONE_ACTIONS: Record<string, Set<string>> = {
   conversations: new Set(['read_all']),
-  users: new Set(['manage']),
+  // CRM-210: reset_password is standalone on the backend
+  // (ResourceActionsConfig::STANDALONE_ACTIONS_BY_RESOURCE) so the coarse
+  // `users.write` never implies it — taking over an account is a bigger power
+  // than editing a profile. This mirror had been left behind, which put the key
+  // in the "write" group: ticking Escrita on Users granted account takeover, and
+  // unticking it revoked the key silently. It also removed the only way to grant
+  // the key ON ITS OWN — the escape hatch the deliberately narrow migration
+  // relies on for custom roles.
+  users: new Set(['manage', 'reset_password']),
   // CRM-70 use-vs-manage: Settings-screen management, own row like users.manage.
   macros: new Set(['manage']),
   message_templates: new Set(['manage']),

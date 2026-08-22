@@ -246,6 +246,12 @@
     "cancel": "Cancel",
     "success": "Password changed. Sessions signed out: {{count}}",
     "error": "Could not change the password",
-    "mismatch": "Passwords do not match"
+    "mismatch": "Passwords do not match",
+    "tooShort": "Password must be at least 8 characters",
+    "tooLong": "Password must be at most 128 characters",
+    "missingLowercase": "Password must include at least one lowercase letter",
+    "missingUppercase": "Password must include at least one uppercase letter",
+    "missingNumber": "Password must include at least one number",
+    "missingSpecial": "Password must include at least one special character"
   }
 }
