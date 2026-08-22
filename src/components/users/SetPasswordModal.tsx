@@ -26,7 +26,7 @@ type SetPasswordModalProps = {
 /**
  * CRM-210 — an admin sets another user's password directly.
  * The backend is the authority; this dialog only fails fast on what it can
- * check locally and shows whatever the API answers.
+ * check locally.
  */
 export default function SetPasswordModal({ open, onOpenChange, user }: SetPasswordModalProps) {
   const { t } = useLanguage('users');
