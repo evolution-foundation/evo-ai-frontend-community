@@ -70,6 +70,20 @@ describe('SetPasswordModal', () => {
       expect(arg).toBe(message);
     });
 
+    // A 5xx body is written for whoever operates the API. apiErrorMessage() drops
+    // it; extractError() surfaced the driver's own words to the admin on screen.
+    it('keeps a 5xx operator message off the screen', async () => {
+      setPasswordMock.mockRejectedValue(
+        apiError(500, 'ERR_UNDEFINED_COLUMN', 'PG::UndefinedColumn: column users.foo does not exist')
+      );
+      render(<SetPasswordModal open user={USER} onOpenChange={() => {}} />);
+
+      await fillAndSubmit(VALID);
+
+      await waitFor(() => expect(toastError).toHaveBeenCalled());
+      expect(toastError).toHaveBeenCalledWith('setPassword.error');
+    });
+
     it('never passes an object, even when the API answers something unexpected', async () => {
       // The shape that used to slip through: `error` present but not an envelope
       // we know. It must degrade to the generic string, not to an object.

@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 import { User } from '@/types/users';
 import { usersService } from '@/services/users';
 import { useLanguage } from '@/hooks/useLanguage';
-import { extractError } from '@/utils/apiHelpers';
+import { apiErrorMessage } from '@/utils/apiHelpers';
 import { passwordProblem } from './passwordRules';
 
 type SetPasswordModalProps = {
@@ -66,10 +66,9 @@ export default function SetPasswordModal({ open, onOpenChange, user }: SetPasswo
       toast.success(t('setPassword.success', { count: result?.revoked_sessions ?? 0 }));
       handleOpenChange(false);
     } catch (error) {
-      // extractError() unwraps the auth's `{ error: { code, message } }` envelope
-      // and always yields a string — toast() renders it as a React child.
-      const { message } = extractError(error);
-      toast.error(message || t('setPassword.error'));
+      // apiErrorMessage() yields the backend's own message, or undefined for a 5xx
+      // and for anything off-envelope — those fall back to the localized string.
+      toast.error(apiErrorMessage(error) || t('setPassword.error'));
       setSaving(false);
     }
   };
