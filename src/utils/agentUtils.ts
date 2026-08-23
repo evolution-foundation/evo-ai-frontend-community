@@ -58,14 +58,10 @@ export const extractBackendErrorMessage = (error: any): string => {
     }
   }
 
-  // CRM-116: o core-service (Go) responde `{ success:false, error:{ code, message } }`.
-  // Nenhum dos dois ramos acima casa com esse envelope: `detail` é shape do FastAPI e
-  // `data.message` não existe ali. Sem esta linha, tudo que o core recusa cai no
-  // `error.message` do axios — quem estourava a cota do plano via
-  // "Request failed with status code 422", sem uma palavra sobre plano ou limite.
-  //
-  // Mesmo bug já corrigido neste SPA em services/agents/customToolsService.ts
-  // (getErrorMessage), com a mesma leitura de `data.error.message`.
+  // CRM-116: the core-service (Go) answers `{ success:false, error:{ code, message } }`,
+  // which neither branch above matches — so every core refusal fell through to
+  // axios's generic "Request failed with status code N". Same read as
+  // services/agents/customToolsService.ts.
   if (error?.response?.data?.error?.message) {
     return error.response.data.error.message;
   }

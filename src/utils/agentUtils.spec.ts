@@ -2,29 +2,22 @@ import { describe, it, expect } from 'vitest';
 import { extractBackendErrorMessage } from './agentUtils';
 
 /**
- * CRM-116 — o motivo da recusa nunca chegava ao usuário.
+ * CRM-116 — the reason for a refusal never reached the user.
  *
- * O core-service (Go) responde `{ success:false, error:{ code, message } }`.
- * `extractBackendErrorMessage` lia `data.detail` (shape do FastAPI) e
- * `data.message`, e nenhum dos dois existe nesse envelope — então TUDO que o core
- * recusa caía no `error.message` do axios.
- *
- * Na prática: quem estourava a cota de agentes do plano via
- * "Request failed with status code 422", sem uma palavra sobre plano ou limite.
- * A recusa funcionava; a explicação se perdia no caminho.
- *
- * O mesmo bug já tinha sido corrigido neste SPA em customToolsService.ts, com o
- * comentário dizendo que antes "callers only ever saw axios's generic message".
+ * The core-service answers `{ success:false, error:{ code, message } }`, which
+ * matches neither the FastAPI `detail` branch nor `data.message` — so every core
+ * refusal fell through to axios's generic message. A tenant over its plan limit
+ * read "Request failed with status code 422", with no mention of a limit.
  */
 describe('extractBackendErrorMessage', () => {
-  /** O envelope real do core-service. */
+  /** The core-service's real envelope. */
   const coreError = (status: number, code: string, message: string) => ({
-    message: `Request failed with status code ${status}`, // o que o axios põe
+    message: `Request failed with status code ${status}`, // what axios puts there
     response: { status, data: { success: false, error: { code, message }, meta: {} } },
   });
 
-  describe('o envelope do core-service (a regressão)', () => {
-    it('mostra o motivo da cota estourada, não a mensagem do axios', () => {
+  describe("the core-service's envelope (the regression)", () => {
+    it('shows why the quota refused, not axios\'s message', () => {
       const error = coreError(422, 'QUOTA_EXCEEDED', 'agents limit reached (2/2, requested 500)');
 
       const result = extractBackendErrorMessage(error);
@@ -37,13 +30,13 @@ describe('extractBackendErrorMessage', () => {
       [403, 'FORBIDDEN', 'You do not have permission to create agents'],
       [400, 'BAD_REQUEST', 'Invalid agent configuration'],
       [500, 'INTERNAL_ERROR', 'Something went wrong'],
-    ])('vale para qualquer status do core (%i %s)', (status, code, message) => {
+    ])('holds for any core status (%i %s)', (status, code, message) => {
       expect(extractBackendErrorMessage(coreError(status, code, message))).toBe(message);
     });
   });
 
-  describe('os shapes que já funcionavam continuam funcionando', () => {
-    it('mantém a personalização do 422 do processor (FastAPI, data.detail)', () => {
+  describe('the shapes that already worked still work', () => {
+    it("keeps the processor's 422 wording (FastAPI, data.detail)", () => {
       const error = {
         response: {
           status: 422,
@@ -54,31 +47,31 @@ describe('extractBackendErrorMessage', () => {
       expect(extractBackendErrorMessage(error)).toContain('não pode conter espaços');
     });
 
-    it('mantém o ramo data.message', () => {
+    it('keeps the data.message branch', () => {
       const error = { response: { status: 400, data: { message: 'plain message shape' } } };
 
       expect(extractBackendErrorMessage(error)).toBe('plain message shape');
     });
 
-    it('cai no erro do axios quando não há resposta (rede)', () => {
+    it("falls back to axios's error when there is no response (network)", () => {
       expect(extractBackendErrorMessage({ message: 'Network Error' })).toBe('Network Error');
     });
 
-    it('tem um último recurso quando não há nada', () => {
+    it('has a last resort when there is nothing at all', () => {
       expect(extractBackendErrorMessage({})).toBe('Erro desconhecido ao salvar agente');
     });
   });
 
-  describe('precedência', () => {
-    it('o detail do FastAPI ganha do envelope do core no mesmo 422', () => {
-      // Um 422 com `detail` vem do processor e já tinha tratamento amigável;
-      // o envelope do core não deve atropelá-lo.
+  describe('precedence', () => {
+    it("the FastAPI detail wins over the core envelope on the same 422", () => {
+      // A 422 carrying `detail` comes from the processor and already has friendly
+      // wording; the core envelope must not override it.
       const error = {
         response: {
           status: 422,
           data: {
             detail: [{ msg: 'Input should be a valid UUID' }],
-            error: { code: 'X', message: 'nao deve aparecer' },
+            error: { code: 'X', message: 'must not surface' },
           },
         },
       };
@@ -86,7 +79,7 @@ describe('extractBackendErrorMessage', () => {
       expect(extractBackendErrorMessage(error)).toContain('UUID');
     });
 
-    it('o envelope do core ganha do error.message do axios', () => {
+    it("the core envelope wins over axios's error.message", () => {
       const error = coreError(422, 'QUOTA_EXCEEDED', 'agents limit reached (2/2)');
 
       expect(extractBackendErrorMessage(error)).not.toBe(error.message);
