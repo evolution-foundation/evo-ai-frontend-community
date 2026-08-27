@@ -1,6 +1,6 @@
-# Contributing to Evo CRM Frontend
+# Contributing to AutomaLead Frontend
 
-Thanks for your interest in contributing to Evo CRM Frontend! This document
+Thanks for your interest in contributing to AutomaLead Frontend! This document
 outlines how to contribute effectively.
 
 ## Code of Conduct
@@ -81,7 +81,7 @@ governed separately by [TRADEMARKS.md](./TRADEMARKS.md).
 - **Documentation**: [docs.evolutionfoundation.com.br](https://docs.evolutionfoundation.com.br)
 - **Email**: suporte@evofoundation.com.br
 
-Thanks for helping make Evo CRM Frontend better!
+Thanks for helping make AutomaLead Frontend better!
 
 ---
 

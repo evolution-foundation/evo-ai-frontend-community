@@ -33,11 +33,11 @@
       "options": ["Nunca usei", "Já usei, mas era difícil", "Tenho experiência com CRM", "Estou migrando de outro sistema"]
     },
     "goal": {
-      "label": "Qual é o seu principal objetivo com o Evo CRM?",
+      "label": "Qual é o seu principal objetivo com o AutomaLead?",
       "options": ["Organizar o atendimento", "Automatizar com IA", "Escalar o time", "Centralizar os canais", "Acompanhar métricas"]
     },
     "submit": {
-      "idle": "Começar a usar o Evo CRM",
+      "idle": "Começar a usar o AutomaLead",
       "loading": "Salvando..."
     },
     "footer": "Leva menos de 1 minuto · Você pode alterar depois nas configurações"
