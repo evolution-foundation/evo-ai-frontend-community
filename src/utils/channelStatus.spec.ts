@@ -63,6 +63,12 @@ describe('deriveInboxStatus', () => {
     expect(deriveInboxStatus(inbox({ connection_state: 'error' }))).toBe('error');
   });
 
+  it('flags an unknown state that came WITH a provider signal', () => {
+    expect(
+      deriveInboxStatus(inbox({ connection_state: 'unknown', health_source: 'provider_event' })),
+    ).toBe('attention');
+  });
+
   it('treats unmonitored (unknown) channels as active — explicit degrade, not broken', () => {
     expect(deriveInboxStatus(inbox({ connection_state: 'unknown', health_source: 'none' }))).toBe('active');
   });
