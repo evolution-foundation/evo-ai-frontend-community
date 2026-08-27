@@ -9,6 +9,7 @@ import {
   evolutionHubService,
   type HubChannel,
 } from '@/services/integrations';
+import { useFacebookSdk } from '@/hooks/useFacebookSdk';
 
 /**
  * Hub-relayed Inbox creation button.
@@ -52,6 +53,14 @@ interface InboxShowResponse {
 
 type Mode = 'new' | 'existing';
 
+interface SignupData {
+  phone_number_id: string;
+  waba_id: string;
+  business_id: string;
+}
+
+const META_ORIGINS = ['https://www.facebook.com', 'https://web.facebook.com'];
+
 const HUB_TYPE_BY_CHANNEL: Record<
   HubConnectButtonProps['channelType'],
   HubChannel['type']
@@ -80,6 +89,10 @@ export default function HubConnectButton({
   const [inboxId, setInboxId] = useState<number | null>(null);
   const [linkedDone, setLinkedDone] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'waiting' | 'connected'>('waiting');
+
+  const { loadSdk, initSdk } = useFacebookSdk();
+  const [signupData, setSignupData] = useState<SignupData | null>(null);
+  const [authCode, setAuthCode] = useState<string | null>(null);
 
   const [availableChannels, setAvailableChannels] = useState<HubChannel[]>([]);
   const [loadingChannels, setLoadingChannels] = useState(false);
@@ -187,6 +200,106 @@ export default function HubConnectButton({
     };
   }, [inboxId, connectionStatus, markConnected]);
 
+  // Os ids do canal chegam por postMessage e o code pelo callback do FB.login;
+  // só dá para postar no Hub com os dois.
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if (!META_ORIGINS.includes(event.origin)) return;
+      try {
+        const data = JSON.parse(event.data);
+        if (data?.type !== 'WA_EMBEDDED_SIGNUP') return;
+
+        if (data.event === 'FINISH' || data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING') {
+          setSignupData({
+            phone_number_id: data.data?.phone_number_id ?? '',
+            waba_id: data.data?.waba_id ?? '',
+            business_id: data.data?.business_id ?? '',
+          });
+        } else if (data.event === 'CANCEL') {
+          toast.error('Conexão cancelada na Meta.');
+          setSubmitting(false);
+        } else if (data.event === 'ERROR') {
+          toast.error(data.data?.error_message || 'A Meta recusou a conexão.');
+          setSubmitting(false);
+        }
+      } catch {
+        // Mensagem da Meta que não é JSON do signup.
+      }
+    };
+
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
+
+  useEffect(() => {
+    if (!signupData || !authCode || inboxId === null) return;
+
+    let cancelled = false;
+    evolutionHubService
+      .connectWhatsapp(inboxId, { ...signupData, auth_code: authCode })
+      .then(() => {
+        if (cancelled) return;
+        toast.success('Conexão enviada ao Hub. Aguardando confirmação do canal…');
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        toast.error(apiErrorMessage(error) ?? 'Falha ao concluir a conexão no Hub');
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setSignupData(null);
+        setAuthCode(null);
+        setSubmitting(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [signupData, authCode, inboxId]);
+
+  // Sem app e config do canal (o caso do app compartilhado hoje) devolve false
+  // e o chamador abre a aba do Hub.
+  const startEmbeddedSignup = async (id: number): Promise<boolean> => {
+    let info;
+    try {
+      info = await evolutionHubService.getConnectInfo(id);
+    } catch {
+      return false;
+    }
+
+    if (!info?.meta_app_id || !info?.meta_config_id) return false;
+    if (info.byo_config_missing || info.can_connect === false) return false;
+
+    try {
+      await loadSdk();
+    } catch {
+      return false;
+    }
+    if (!window.FB) return false;
+
+    initSdk({ appId: info.meta_app_id });
+    window.FB.login(
+      (response: unknown) => {
+        const code = (response as { authResponse?: { code?: string } })?.authResponse?.code;
+        if (!code) {
+          // Domínio não liberado, popup fechado ou permissão negada — o SDK não
+          // distingue, e sem tratar a tela ficava "conectando" para sempre.
+          toast.error('A Meta não concluiu a autorização. Use o link para abrir o fluxo em outra aba.');
+          setSubmitting(false);
+          return;
+        }
+        setAuthCode(code);
+      },
+      {
+        config_id: info.meta_config_id,
+        response_type: 'code',
+        override_default_response_type: true,
+        extras: { version: 'v3', featureType: 'whatsapp_business_app_onboarding' },
+      },
+    );
+    return true;
+  };
+
   const handleCreateNew = async () => {
     setSubmitting(true);
     try {
@@ -205,9 +318,16 @@ export default function HubConnectButton({
 
       setInboxId(inbox.id);
       setPublicLink(link);
+      onCreated?.({ inboxId: inbox.id, publicLink: link });
+
+      const inPage = channelType === 'whatsapp_cloud' && (await startEmbeddedSignup(inbox.id));
+      if (inPage) {
+        toast.success('Inbox criada. Conclua a conexão na janela da Meta.');
+        return;
+      }
+
       window.open(link, '_blank', 'noopener,noreferrer');
       toast.success('Inbox criada. Conclua a conexão na aba que foi aberta.');
-      onCreated?.({ inboxId: inbox.id, publicLink: link });
     } catch (error: unknown) {
       // Hub errors arrive structured (PLAN_FORBIDS_SHARED, QUOTA_EXCEEDED);
       // reading `data.message` raw dropped the translated text.
