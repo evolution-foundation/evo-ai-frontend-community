@@ -1642,6 +1642,7 @@
       "unmonitored": "Non monitorato",
       "checking": "Verifica in corso..."
     },
+    "needsAttention": "{{count}} connessione/i che richiedono attenzione",
     "liveCheckFailed": "La verifica in tempo reale non è riuscita — viene mostrato l'ultimo stato noto",
     "moreInboxes": "+{{count}} altre caselle",
     "providersCount": "{{count}} provider",

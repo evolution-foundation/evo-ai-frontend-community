@@ -1703,6 +1703,7 @@
       "unmonitored": "Non surveillé",
       "checking": "Vérification..."
     },
+    "needsAttention": "{{count}} connexion(s) nécessitant une attention",
     "liveCheckFailed": "La vérification en direct a échoué — affichage du dernier état connu",
     "moreInboxes": "+{{count}} autres boîtes de réception",
     "providersCount": "{{count}} fournisseurs",

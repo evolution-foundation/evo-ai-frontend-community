@@ -1701,6 +1701,7 @@
       "unmonitored": "Sem monitorização",
       "checking": "A verificar..."
     },
+    "needsAttention": "{{count}} ligação(ões) a precisar de atenção",
     "liveCheckFailed": "A verificação ao vivo falhou — a mostrar o último estado conhecido",
     "moreInboxes": "+{{count}} outras caixas de entrada",
     "providersCount": "{{count}} providers",

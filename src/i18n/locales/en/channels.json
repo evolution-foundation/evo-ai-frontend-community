@@ -1763,6 +1763,7 @@
       "unmonitored": "Not monitored",
       "checking": "Checking..."
     },
+    "needsAttention": "{{count}} connection(s) needing attention",
     "liveCheckFailed": "Live check failed — showing the last known state",
     "moreInboxes": "+{{count}} more inboxes",
     "providersCount": "{{count}} providers",

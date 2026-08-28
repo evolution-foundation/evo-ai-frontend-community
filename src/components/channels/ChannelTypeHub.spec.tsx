@@ -94,6 +94,39 @@ describe('ChannelTypeHub', () => {
     expect(within(manageButton).getByText('1')).toBeInTheDocument();
   });
 
+  it('counts channels needing attention on the card face, not only inside the popover', () => {
+    render(
+      <ChannelTypeHub
+        inboxes={[
+          inbox({ channel_type: 'Channel::Whatsapp', connection_state: 'connected', name: 'OK' }),
+          inbox({ id: 'w2', channel_type: 'Channel::Whatsapp', connection_state: 'pending', name: 'Pendente' }),
+        ]}
+        isLoading={false}
+        onAdd={noop}
+        onOpenInbox={noop}
+        onDelete={noop}
+      />,
+    );
+
+    const manageButton = screen.getByRole('button', { name: 'overview.actions.manage' });
+    expect(within(manageButton).getByText('2')).toBeInTheDocument();
+    expect(within(manageButton).getByTestId('needs-attention-count')).toHaveTextContent('1');
+  });
+
+  it('does not show the attention count when every channel is healthy', () => {
+    render(
+      <ChannelTypeHub
+        inboxes={[inbox({ channel_type: 'Channel::Whatsapp', connection_state: 'connected' })]}
+        isLoading={false}
+        onAdd={noop}
+        onOpenInbox={noop}
+        onDelete={noop}
+      />,
+    );
+
+    expect(screen.queryByTestId('needs-attention-count')).toBeNull();
+  });
+
   it('marks a configured type with a disconnected inbox as an error state', () => {
     render(
       <ChannelTypeHub

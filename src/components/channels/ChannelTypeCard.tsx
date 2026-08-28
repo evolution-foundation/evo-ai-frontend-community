@@ -57,7 +57,8 @@ export default function ChannelTypeCard({
   disabledReason,
 }: ChannelTypeCardProps) {
   const { t } = useLanguage('channels');
-  const { type, total, status } = typeStatus;
+  const { type, total, status, attentionCount, errorCount } = typeStatus;
+  const needsAttention = attentionCount + errorCount;
   const isConfigured = total > 0;
   const capabilities = CHANNEL_CAPABILITIES[type.type] ?? [];
   // Only WhatsApp surfaces a provider count pill, sourced from the catalog entry.
@@ -129,6 +130,20 @@ export default function ChannelTypeCard({
                 />
                 <Link2 className="h-3.5 w-3.5" aria-hidden="true" />
                 <span className="tabular-nums">{total}</span>
+                {needsAttention > 0 && (
+                  <span
+                    data-testid="needs-attention-count"
+                    title={t('overview.needsAttention', { count: needsAttention })}
+                    className={cn(
+                      'rounded-full px-1.5 text-[11px] font-semibold tabular-nums',
+                      errorCount > 0
+                        ? 'bg-red-500/15 text-red-600 dark:text-red-400'
+                        : 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
+                    )}
+                  >
+                    {needsAttention}
+                  </span>
+                )}
                 <ChevronRight className="h-4 w-4 text-muted-foreground/60" aria-hidden="true" />
               </button>
             </ChannelConnectionsPopover>
