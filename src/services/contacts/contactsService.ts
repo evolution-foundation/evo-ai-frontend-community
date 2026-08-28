@@ -21,21 +21,16 @@ import type {
   ContactableInboxes,
 } from '@/types/contacts';
 
-// O POST /contacts responde `data: { contact, contact_inbox }` — aninhado —
-// enquanto GET e PATCH respondem o contato na raiz de `data`. Como o
-// `extractData` desembrulha um nivel so, o create devolvia o envelope e o
-// chamador lia `.id` como undefined, navegando para /contacts/undefined.
-// O fallback mantem o create funcionando caso o backend passe a achatar a
-// resposta, sem precisar de deploy casado.
+// POST /contacts nests the contact under `data.contact`, while GET and PATCH put it at
+// the root of `data`. The flat fallback keeps a future backend change from needing a
+// coordinated deploy.
 function unwrapCreatedContact(response: AxiosResponse): Contact {
   const payload = extractData<Contact | { contact?: Contact }>(response);
   const nested = (payload as { contact?: Contact })?.contact;
   return nested ?? (payload as Contact);
 }
 
-// Profundidade maxima ao serializar um valor em FormData. Passar disso so
-// acontece com dado malformado ou ciclico — e um ciclo travaria a aba, entao
-// aqui e erro explicito em vez de recursao infinita.
+// Guards the recursion below: cyclic data would hang the tab instead of raising.
 const MAX_FORM_DEPTH = 8;
 
 function isPlainObject(value: object): boolean {
@@ -43,36 +38,21 @@ function isPlainObject(value: object): boolean {
   return proto === Object.prototype || proto === null;
 }
 
-// O Rails le `key[]` como array e `key[0]` como hash, e o controller de
-// contatos recusa um `labels` nao-array com 422. O laco original testava
-// `typeof value === 'object'` ANTES de `Array.isArray`, e como array e objeto o
-// ramo de array nunca era alcancado; alem disso ele descia um nivel so, entao
-// atributo aninhado virava a string literal "[object Object]". Recursao sobre a
-// forma real faz o ramo com avatar enviar o mesmo que o ramo JSON envia.
-//
-// Duas coisas que o multipart nao consegue expressar, e que por isso ficam
-// registradas aqui em vez de viverem como surpresa:
-//
-//  - ARRAY E OBJETO VAZIOS SAO OMITIDOS. Nao ha como mandar `[]`: `key[]=` vira
-//    `[""]`, que o controller recusa como label em branco. Em CREATE isso e
-//    inofensivo (ausente e vazio dao no mesmo). Em UPDATE nao seria: la, chave
-//    ausente significa "nao mexe" e `[]` significa "limpa tudo" — por isso o
-//    `updateContact` NAO reusa este helper.
-//  - TIPO ESCALAR SE PERDE. Multipart so carrega texto, entao `42`/`false`
-//    chegam como "42"/"false". Para coluna tipada o Rails converte de volta; em
-//    `custom_attributes` (jsonb livre) o valor fica string. Inerente ao ramo com
-//    avatar, nao ao helper.
+// Serializes a value into the bracket keys Rails parses back: `key[]` as an array,
+// `key[sub]` as a hash. Two limits the multipart body cannot express: empty arrays and
+// objects are dropped, and scalars arrive as text (`42` becomes "42", which persists as
+// a string in the free-form custom_attributes jsonb).
 function appendFormValue(formData: FormData, key: string, value: unknown, depth = 0): void {
   if (value === undefined || value === null) return;
 
-  // File herda de Blob; ambos vao crus, sem String().
+  // File extends Blob; both go raw, never through String().
   if (value instanceof Blob) {
     formData.append(key, value);
     return;
   }
 
   if (depth >= MAX_FORM_DEPTH) {
-    throw new Error(`appendFormValue: profundidade maxima excedida em "${key}" (dado ciclico ou malformado)`);
+    throw new Error(`appendFormValue: max depth exceeded at "${key}" (cyclic or malformed data)`);
   }
 
   if (Array.isArray(value)) {
@@ -86,8 +66,7 @@ function appendFormValue(formData: FormData, key: string, value: unknown, depth 
   }
 
   if (typeof value === 'object') {
-    // Date/Map/Set e afins nao tem entries uteis: descer neles apagaria o valor
-    // em silencio, que era metade do bug original.
+    // Date, Map and friends have no useful entries: descending would drop the value.
     if (!isPlainObject(value as object)) {
       formData.append(key, String(value));
       return;
@@ -186,7 +165,8 @@ class ContactsService {
     if (avatar) {
       const formData = new FormData();
 
-      // Add basic fields
+      // Left as-is, outside CRM-321's scope. Like appendFormValue it drops empty arrays,
+      // so a multipart update cannot clear labels while the JSON branch can.
       Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           if (typeof value === 'object' && !Array.isArray(value)) {
