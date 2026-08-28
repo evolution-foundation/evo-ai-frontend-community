@@ -33,13 +33,36 @@ function unwrapCreatedContact(response: AxiosResponse): Contact {
   return nested ?? (payload as Contact);
 }
 
+// Profundidade maxima ao serializar um valor em FormData. Passar disso so
+// acontece com dado malformado ou ciclico — e um ciclo travaria a aba, entao
+// aqui e erro explicito em vez de recursao infinita.
+const MAX_FORM_DEPTH = 8;
+
+function isPlainObject(value: object): boolean {
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+}
+
 // O Rails le `key[]` como array e `key[0]` como hash, e o controller de
-// contatos rejeita um `labels` nao-array com 422. O laco original testava
+// contatos recusa um `labels` nao-array com 422. O laco original testava
 // `typeof value === 'object'` ANTES de `Array.isArray`, e como array e objeto o
 // ramo de array nunca era alcancado; alem disso ele descia um nivel so, entao
 // atributo aninhado virava a string literal "[object Object]". Recursao sobre a
 // forma real faz o ramo com avatar enviar o mesmo que o ramo JSON envia.
-function appendFormValue(formData: FormData, key: string, value: unknown): void {
+//
+// Duas coisas que o multipart nao consegue expressar, e que por isso ficam
+// registradas aqui em vez de viverem como surpresa:
+//
+//  - ARRAY E OBJETO VAZIOS SAO OMITIDOS. Nao ha como mandar `[]`: `key[]=` vira
+//    `[""]`, que o controller recusa como label em branco. Em CREATE isso e
+//    inofensivo (ausente e vazio dao no mesmo). Em UPDATE nao seria: la, chave
+//    ausente significa "nao mexe" e `[]` significa "limpa tudo" — por isso o
+//    `updateContact` NAO reusa este helper.
+//  - TIPO ESCALAR SE PERDE. Multipart so carrega texto, entao `42`/`false`
+//    chegam como "42"/"false". Para coluna tipada o Rails converte de volta; em
+//    `custom_attributes` (jsonb livre) o valor fica string. Inerente ao ramo com
+//    avatar, nao ao helper.
+function appendFormValue(formData: FormData, key: string, value: unknown, depth = 0): void {
   if (value === undefined || value === null) return;
 
   // File herda de Blob; ambos vao crus, sem String().
@@ -48,14 +71,30 @@ function appendFormValue(formData: FormData, key: string, value: unknown): void 
     return;
   }
 
+  if (depth >= MAX_FORM_DEPTH) {
+    throw new Error(`appendFormValue: profundidade maxima excedida em "${key}" (dado ciclico ou malformado)`);
+  }
+
   if (Array.isArray(value)) {
-    value.forEach(item => appendFormValue(formData, `${key}[]`, item));
+    value.forEach(item => appendFormValue(formData, `${key}[]`, item, depth + 1));
+    return;
+  }
+
+  if (value instanceof Date) {
+    formData.append(key, value.toISOString());
     return;
   }
 
   if (typeof value === 'object') {
+    // Date/Map/Set e afins nao tem entries uteis: descer neles apagaria o valor
+    // em silencio, que era metade do bug original.
+    if (!isPlainObject(value as object)) {
+      formData.append(key, String(value));
+      return;
+    }
+
     Object.entries(value as Record<string, unknown>).forEach(([subKey, subValue]) =>
-      appendFormValue(formData, `${key}[${subKey}]`, subValue),
+      appendFormValue(formData, `${key}[${subKey}]`, subValue, depth + 1),
     );
     return;
   }

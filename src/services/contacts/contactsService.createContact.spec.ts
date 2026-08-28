@@ -15,6 +15,19 @@ vi.mock('@/services/core/api', () => ({
 // O POST /contacts responde `data: { contact, contact_inbox }`, enquanto GET e
 // PATCH respondem o contato na raiz. Sem desembrulhar, o create devolvia o
 // envelope e a tela navegava para /contacts/undefined.
+// Achata um payload JSON nas mesmas chaves com colchete que o Rails espera,
+// para comparar ramo-a-ramo o que cada caminho de fato manda.
+function flattenForRails(value: unknown, key = ''): Array<[string, string]> {
+  if (value === undefined || value === null) return [];
+  if (Array.isArray(value)) return value.flatMap(item => flattenForRails(item, `${key}[]`));
+  if (typeof value === 'object') {
+    return Object.entries(value as Record<string, unknown>).flatMap(([subKey, subValue]) =>
+      flattenForRails(subValue, key ? `${key}[${subKey}]` : subKey),
+    );
+  }
+  return [[key, String(value)]];
+}
+
 describe('contactsService.createContact', () => {
   const postMock = vi.mocked(api.post);
 
@@ -88,6 +101,82 @@ describe('contactsService.createContact', () => {
 
     const formData = postMock.mock.calls[0][1] as FormData;
     expect(formData.get('avatar')).toBeInstanceOf(File);
+  });
+
+  // O AC do card e "criar COM avatar tem o MESMO comportamento". Os exemplos
+  // acima olham a forma do FormData isolada; este cobra a equivalencia, que e a
+  // invariante que quebrou.
+  it('manda pelos dois ramos o mesmo conjunto de campos', async () => {
+    const payload = {
+      name: 'Gal',
+      email: 'gal@example.com',
+      blocked: false,
+      labels: ['vip', 'lead'],
+      company_ids: ['co-1', 'co-2'],
+      custom_attributes: { plano: 'gold' },
+      additional_attributes: { city: 'Recife', location: { city: 'Recife', timezone: 'America/Recife' } },
+    };
+
+    postMock.mockResolvedValue({ data: { data: { contact: { id: 'c-7' } } } } as never);
+    await contactsService.createContact({ ...payload } as never);
+    const jsonBody = postMock.mock.calls[0][1] as Record<string, unknown>;
+
+    postMock.mockClear();
+    await contactsService.createContact({
+      ...payload,
+      avatar: new File(['x'], 'a.png', { type: 'image/png' }),
+    } as never);
+    const formData = postMock.mock.calls[0][1] as FormData;
+
+    const fromJson = flattenForRails(jsonBody).sort();
+    const fromForm = [...formData.entries()]
+      .filter(([key]) => key !== 'avatar')
+      .map(([key, value]) => [key, String(value)] as [string, string])
+      .sort();
+
+    expect(fromForm).toEqual(fromJson);
+  });
+
+  it('omite array e objeto vazios, que o multipart nao consegue expressar', async () => {
+    postMock.mockResolvedValue({ data: { data: { contact: { id: 'c-8' } } } } as never);
+
+    await contactsService.createContact({
+      name: 'Hugo',
+      labels: [],
+      custom_attributes: {},
+      avatar: new File(['x'], 'a.png', { type: 'image/png' }),
+    } as never);
+
+    const formData = postMock.mock.calls[0][1] as FormData;
+    expect(formData.getAll('labels[]')).toEqual([]);
+    expect([...formData.keys()]).toEqual(['name', 'avatar']);
+  });
+
+  it('serializa Date como ISO em vez de apagar o valor', async () => {
+    postMock.mockResolvedValue({ data: { data: { contact: { id: 'c-9' } } } } as never);
+    const when = new Date('2026-08-28T12:00:00.000Z');
+
+    await contactsService.createContact({
+      name: 'Iris',
+      additional_attributes: { seen_at: when },
+      avatar: new File(['x'], 'a.png', { type: 'image/png' }),
+    } as never);
+
+    const formData = postMock.mock.calls[0][1] as FormData;
+    expect(formData.get('additional_attributes[seen_at]')).toBe('2026-08-28T12:00:00.000Z');
+  });
+
+  it('estoura com erro claro em dado ciclico em vez de travar a aba', async () => {
+    const cyclic: Record<string, unknown> = { city: 'Recife' };
+    cyclic.self = cyclic;
+
+    await expect(
+      contactsService.createContact({
+        name: 'Joao',
+        additional_attributes: cyclic,
+        avatar: new File(['x'], 'a.png', { type: 'image/png' }),
+      } as never),
+    ).rejects.toThrow(/profundidade maxima excedida/);
   });
 
   it('aceita a forma plana caso o backend deixe de aninhar', async () => {
