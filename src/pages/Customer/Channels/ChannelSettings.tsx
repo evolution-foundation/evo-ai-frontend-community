@@ -221,7 +221,7 @@ function useInbox(inbox: Inbox | null): InboxHook {
 
     // Can lock to single conversation
     const canLocktoSingleConversation =
-      isASmsInbox || isAWhatsAppChannel || isAFacebookInbox || isAPIInbox;
+      isASmsInbox || isAWhatsAppChannel || isAFacebookInbox || isAPIInbox || isAWebWidgetInbox;
 
     // Templates support - channels that support message templates
     const supportsTemplates =

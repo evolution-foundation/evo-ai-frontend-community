@@ -1,9 +1,19 @@
+import { useState } from 'react';
 import AgentToolsSection from '@/components/ai_agents/AgentToolsSection';
 import CustomToolsSection from '@/components/ai_agents/CustomToolsSection';
+import AdvancedSettingsSection from '@/components/ai_agents/AdvancedSettingsSection';
 import { CustomTool } from '@/types/ai';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Users, Code } from 'lucide-react';
 import { Agent } from '@/types';
+
+interface AdvancedSettingsData {
+  load_memory: boolean;
+  preload_memory: boolean;
+  planner: boolean;
+  load_knowledge: boolean;
+  knowledge_tags: string[];
+}
 
 interface ToolsSectionProps {
   agentTools: string[];
@@ -11,8 +21,10 @@ interface ToolsSectionProps {
   customTools: {
     http_tools: CustomTool[];
   };
+  advancedSettings: AdvancedSettingsData;
   onAgentToolsChange: (agentTools: string[], agentToolsData?: Agent[]) => void;
   onCustomToolsChange: (customTools: { http_tools: CustomTool[] }) => void;
+  onAdvancedSettingsChange: (settings: AdvancedSettingsData) => void;
   editingAgentId?: string;
   folderId?: string;
 }
@@ -21,12 +33,15 @@ const ToolsSection = ({
   agentTools,
   agentToolsData,
   customTools,
+  advancedSettings,
   onAgentToolsChange,
   onCustomToolsChange,
+  onAdvancedSettingsChange,
   editingAgentId,
   folderId,
 }: ToolsSectionProps) => {
   const { t } = useLanguage('aiAgents');
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
 
   return (
     <div className="space-y-8">
@@ -83,6 +98,15 @@ const ToolsSection = ({
           />
         </div>
       </div>
+
+      {/* Configurações Avançadas (memória, planner) */}
+      <AdvancedSettingsSection
+        data={advancedSettings}
+        isOpen={showAdvancedSettings}
+        onToggle={() => setShowAdvancedSettings(prev => !prev)}
+        onAdvancedSettingsChange={onAdvancedSettingsChange}
+        isReadOnly={false}
+      />
     </div>
   );
 };

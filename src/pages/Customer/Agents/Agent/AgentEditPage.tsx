@@ -930,6 +930,7 @@ const AgentEditPage = () => {
             agentTools={agentTools}
             agentToolsData={agentToolsData}
             customTools={customTools}
+            advancedSettings={advancedSettings}
             onAgentToolsChange={(newAgentTools, newAgentToolsData) => {
               setAgentTools(newAgentTools);
               setAgentToolsData(newAgentToolsData || []);
@@ -937,6 +938,10 @@ const AgentEditPage = () => {
             }}
             onCustomToolsChange={newCustomTools => {
               setCustomTools(newCustomTools);
+              setIsDirty(true);
+            }}
+            onAdvancedSettingsChange={settings => {
+              setAdvancedSettings(prev => ({ ...prev, ...settings }));
               setIsDirty(true);
             }}
             editingAgentId={id}
