@@ -33,6 +33,36 @@ function unwrapCreatedContact(response: AxiosResponse): Contact {
   return nested ?? (payload as Contact);
 }
 
+// O Rails le `key[]` como array e `key[0]` como hash, e o controller de
+// contatos rejeita um `labels` nao-array com 422. O laco original testava
+// `typeof value === 'object'` ANTES de `Array.isArray`, e como array e objeto o
+// ramo de array nunca era alcancado; alem disso ele descia um nivel so, entao
+// atributo aninhado virava a string literal "[object Object]". Recursao sobre a
+// forma real faz o ramo com avatar enviar o mesmo que o ramo JSON envia.
+function appendFormValue(formData: FormData, key: string, value: unknown): void {
+  if (value === undefined || value === null) return;
+
+  // File herda de Blob; ambos vao crus, sem String().
+  if (value instanceof Blob) {
+    formData.append(key, value);
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach(item => appendFormValue(formData, `${key}[]`, item));
+    return;
+  }
+
+  if (typeof value === 'object') {
+    Object.entries(value as Record<string, unknown>).forEach(([subKey, subValue]) =>
+      appendFormValue(formData, `${key}[${subKey}]`, subValue),
+    );
+    return;
+  }
+
+  formData.append(key, String(value));
+}
+
 class ContactsService {
   // List contacts with pagination and filters
   async getContacts(params?: ContactsListParams): Promise<ContactsResponse> {
@@ -93,23 +123,7 @@ class ContactsService {
       const formData = new FormData();
 
       // Add basic fields
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          if (typeof value === 'object') {
-            // Handle custom_attributes and additional_attributes
-            Object.entries(value).forEach(([subKey, subValue]) => {
-              if (subValue !== undefined && subValue !== null) {
-                formData.append(`${key}[${subKey}]`, String(subValue));
-              }
-            });
-          } else if (Array.isArray(value)) {
-            // Handle labels array
-            value.forEach(item => formData.append(`${key}[]`, String(item)));
-          } else {
-            formData.append(key, String(value));
-          }
-        }
-      });
+      Object.entries(data).forEach(([key, value]) => appendFormValue(formData, key, value));
 
       // Add avatar file
       formData.append('avatar', avatar);
