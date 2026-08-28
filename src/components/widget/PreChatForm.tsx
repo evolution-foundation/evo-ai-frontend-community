@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { Button, Input, Textarea, Checkbox } from '@evoapi/design-system';
 import { useLanguage } from '@/hooks/useLanguage';
 import { PhoneInput } from '@/components/shared/PhoneInput';
+import { getDefaultPhoneCountry } from '@/components/shared/localeToPhoneCountry';
 import '@/components/shared/PhoneInput.css';
 import { getLabel, getPlaceHolder } from '@/components/channels/settings/helpers/preChatHelpers';
 import type {
@@ -332,7 +333,7 @@ export const PreChatForm: React.FC<PreChatFormProps> = ({
                   onChange={formField.onChange}
                   placeholder={field.placeholder}
                   error={hasError}
-                  defaultCountry="BR"
+                  defaultCountry={getDefaultPhoneCountry(currentLanguage)}
                 />
                 {fieldError && <p className="text-red-500 text-xs mt-1">{fieldError.message}</p>}
               </div>

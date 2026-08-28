@@ -37,6 +37,7 @@ import { labelsService } from '@/services/contacts';
 import { Label as LabelType } from '@/types/settings';
 
 import { PhoneInput } from '@/components/shared/PhoneInput';
+import { getDefaultPhoneCountry } from '@/components/shared/localeToPhoneCountry';
 import { TaxIdInput } from '@/components/shared/TaxIdInput';
 import { validateTaxId, getTaxIdLabel } from '@/utils/validation';
 import '@/components/shared/PhoneInput.css';
@@ -119,12 +120,14 @@ export default function ContactForm({
   onSubmit,
   onCancel,
 }: ContactFormProps) {
-  const { t } = useLanguage('contacts');
+  const { t, currentLanguage } = useLanguage('contacts');
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [availableLabels, setAvailableLabels] = useState<LabelType[]>([]);
-  const [phoneCountry, setPhoneCountry] = useState<Country>('BR'); // Track phone country
+  const [phoneCountry, setPhoneCountry] = useState<Country>(() =>
+    getDefaultPhoneCountry(currentLanguage),
+  ); // Track phone country, seeded from the app locale
   const [customAttributes, setCustomAttributes] = useState<Record<string, unknown>>({});
 
   const countryOptions = [
