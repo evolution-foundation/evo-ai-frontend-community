@@ -417,7 +417,7 @@
   /* Elements with inline color styles will use those, others will use default black */
   /* This ensures HTML email templates maintain their original colors regardless of theme */
   .email-html-content-wrapper *:not([style*="color"]) {
-    color: #000000 !important;
+    color: #ffffff !important;
   }
 
   /* Elements without explicit color should use black, not theme colors */
@@ -426,7 +426,7 @@
   .email-html-content-wrapper span:not([style*="color"]),
   .email-html-content-wrapper td:not([style*="color"]),
   .email-html-content-wrapper th:not([style*="color"]) {
-    color: #000000 !important;
+    color: #ffffff !important;
   }
 }
 
