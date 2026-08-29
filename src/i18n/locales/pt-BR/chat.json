@@ -514,6 +514,8 @@
       "executeError": "Erro ao executar macro \"{{name}}\"",
       "executePartialError": "Macro \"{{name}}\" executada com falhas",
       "executeQueued": "Macro \"{{name}}\" enfileirada — aguardando webhook",
+      "executeUnresolved_one": "Macro \"{{name}}\" executada, mas 1 conversa não foi encontrada",
+      "executeUnresolved_other": "Macro \"{{name}}\" executada, mas {{count}} conversas não foram encontradas",
       "dialog": {
         "title": "Executar Macro",
         "description": "Você tem certeza que deseja executar a macro {{name}}? Esta ação aplicará {{count}} {{actionLabel}} nesta conversa.",

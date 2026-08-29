@@ -499,6 +499,10 @@
       "actions": "azioni",
       "executeSuccess": "Macro \"{{name}}\" eseguita con successo",
       "executeError": "Errore nell'esecuzione della macro \"{{name}}\"",
+      "executePartialError": "Macro \"{{name}}\" eseguita con errori",
+      "executeQueued": "Macro \"{{name}}\" in coda — in attesa del webhook",
+      "executeUnresolved_one": "Macro \"{{name}}\" eseguita, ma 1 conversazione non è stata trovata",
+      "executeUnresolved_other": "Macro \"{{name}}\" eseguita, ma {{count}} conversazioni non sono state trovate",
       "dialog": {
         "title": "Eseguire Macro",
         "description": "Sei sicuro di voler eseguire la macro {{name}}? Questa azione applicherà {{count}} {{actionLabel}} a questa conversazione.",

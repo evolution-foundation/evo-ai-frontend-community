@@ -86,24 +86,39 @@ const MacrosButton: React.FC<MacrosButtonProps> = ({
       });
 
       const executions = response?.data?.executions || (response as any)?.executions || [];
+      const unresolvedCount: number =
+        response?.data?.unresolved_conversation_count ??
+        (response as unknown as { unresolved_conversation_count?: number })
+          ?.unresolved_conversation_count ??
+        0;
       const hasFailure = executions.some((exec: any) => exec.status === 'failed');
       const hasPending = executions.some((exec: any) => exec.status === 'pending');
 
-      if (hasFailure) {
-        const failedExec = executions.find((exec: any) => exec.status === 'failed');
-        const failedActions = failedExec?.actions_result
-          ?.filter((a: any) => a.status === 'failed')
-          ?.map((a: any) => a.action)
-          ?.join(', ');
-        toast.error(
-          t('contactSidebar.macros.executePartialError', { name: selectedMacro.name }) ||
-            `Macro "${selectedMacro.name}" executada com falhas${failedActions ? `: ${failedActions}` : ''}`,
+      // Emitted before the early return and outside the chain below: a run can both
+      // fail on one conversation and not find another.
+      if (unresolvedCount > 0) {
+        toast.warning(
+          t('contactSidebar.macros.executeUnresolved', {
+            name: selectedMacro.name,
+            count: unresolvedCount,
+          }),
         );
+      }
+
+      // Zero executions is not success. The backend answers 404 here; this is the
+      // guard for any response that still gets through with an empty list.
+      if (executions.length === 0) {
+        toast.error(t('contactSidebar.macros.executeError', { name: selectedMacro.name }));
+        return;
+      }
+
+      if (hasFailure) {
+        toast.error(t('contactSidebar.macros.executePartialError', { name: selectedMacro.name }));
       } else if (hasPending) {
         // Webhook actions are async — wait for macro.execution.completed
         // WebSocket event before confirming success/failure to the user.
         toast.info(t('contactSidebar.macros.executeQueued', { name: selectedMacro.name }));
-      } else {
+      } else if (unresolvedCount === 0) {
         toast.success(t('contactSidebar.macros.executeSuccess', { name: selectedMacro.name }));
       }
       onMacroExecuted?.();
