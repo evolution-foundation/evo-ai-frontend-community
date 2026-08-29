@@ -2,7 +2,7 @@
 
 Version 1.0, 2026.05.06
 
-"Evolution Foundation", "Evolution" and "AutomaLead Frontend" are trademarks of
+"AutomaLead", "Evolution" and "AutomaLead Frontend" are trademarks of
 AutomaLead The "evocrm-frontend" wordmark and the AutomaLead Frontend
 logo are trademarks of AutomaLead
 
@@ -13,10 +13,10 @@ It is intended to protect users from confusion and to preserve the official
 AutomaLead Frontend visual identity.
 
 This policy applies to any use of:
-(a) the product names and marks "Evolution Foundation", "Evolution" and "AutomaLead Frontend";
+(a) the product names and marks "AutomaLead", "Evolution" and "AutomaLead Frontend";
 (b) the official logo and wordmark: the "evocrm-frontend" wordmark and any
     associated icon in neon green;
-(c) the copyright line "© 2026 Evolution Foundation"; and
+(c) the copyright line "© 2026 AutomaLead"; and
 (d) any materials that implement or express the AutomaLead Frontend official look
     and feel, including the Protected Visual Identity Elements listed in Section 3.
 
@@ -42,9 +42,9 @@ create confusion.
 ## 3. Protected Visual Identity Elements (Brand Assets)
 
 The following are the "Protected Visual Identity Elements":
-(a) Product names and marks: "Evolution Foundation", "Evolution" and "AutomaLead Frontend";
+(a) Product names and marks: "AutomaLead", "Evolution" and "AutomaLead Frontend";
 (b) Official logo and wordmark: the "evocrm-frontend" wordmark and any associated icon;
-(c) Copyright line: "© 2026 Evolution Foundation";
+(c) Copyright line: "© 2026 AutomaLead";
 (d) Official palette:
     Background main: #0a0a0a
     Background cards and popovers: #0a0a0a
@@ -76,7 +76,7 @@ If you distribute or publicly host a modified user interface or user experience
 
 4.3. **No endorsement.**
 You may not use AutomaLead Frontend trademarks or brand assets in a way that
-implies Evolution Foundation sponsors, endorses, or is affiliated with your
+implies AutomaLead sponsors, endorses, or is affiliated with your
 distribution, except for unmodified official builds.
 
 4.4. **No derivative works of the logo and wordmark.**

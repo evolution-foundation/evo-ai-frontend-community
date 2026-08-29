@@ -174,7 +174,7 @@ Stabilization release — focused on fixes for large-file upload, configuration 
 - **EVO-1063 — Password validation** — inline checklist + structured errors on user creation (consumes the structured 422 response from auth-service).
 - **EVO-1053** — error gating, stale closure, helper extraction, and test coverage (review round 4).
 - **Integrations** — configs normalized and improved error handling.
-- **Docs** standardized for Evolution Foundation 2026 (README, LICENSE, NOTICE, TRADEMARKS).
+- **Docs** standardized for AutomaLead 2026 (README, LICENSE, NOTICE, TRADEMARKS).
 - **Docs (org)** — GitHub URLs updated from `EvolutionAPI` to `evolution-foundation`.
 
 ### Fixed
