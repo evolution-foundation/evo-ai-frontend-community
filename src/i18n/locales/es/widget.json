@@ -130,6 +130,17 @@
     "success": "Email guardado con éxito!",
     "error": "Error al guardar email. Intente nuevamente."
   },
+  "csat": {
+    "success": "¡Gracias por su feedback!",
+    "error": "Error al enviar su evaluación. Intente nuevamente.",
+    "ratings": {
+      "1": "Malo",
+      "2": "Regular",
+      "3": "Promedio",
+      "4": "Bueno",
+      "5": "Excelente"
+    }
+  },
   "preChatForm": {
     "message": "Mensaje",
     "messagePlaceholder": "Escriba su mensaje aquí...",
