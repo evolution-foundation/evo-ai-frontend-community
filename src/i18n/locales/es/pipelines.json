@@ -381,7 +381,9 @@
       "base": {
         "no_customer_reply": "Cliente sin responder",
         "stage_stagnation": "Detenido en la etapa"
-      }
+      },
+      "day": "día",
+      "days": "días"
     },
     "triggers": {
       "label_added": "Etiqueta agregada",

@@ -420,7 +420,9 @@
       "base": {
         "no_customer_reply": "Customer not replying",
         "stage_stagnation": "Stuck in stage"
-      }
+      },
+      "day": "day",
+      "days": "days"
     },
     "triggers": {
       "label_added": "Label added",

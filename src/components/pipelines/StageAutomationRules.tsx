@@ -73,7 +73,9 @@ const makeEmptyRule = (): StageAutomationRule => ({
 });
 
 const CONVERSATION_STATUSES = ['open', 'resolved', 'pending', 'snoozed'] as const;
-const INACTIVITY_MINUTES = [2, 5, 10, 15, 30, 60, 120, 240, 480, 720, 1440] as const;
+const INACTIVITY_MINUTES = [
+  2, 5, 10, 15, 30, 60, 120, 240, 480, 720, 1440, 2880, 4320, 10080, 20160, 43200,
+] as const;
 const INACTIVITY_BASES: InactivityBase[] = ['no_customer_reply', 'stage_stagnation'];
 
 const ANY_VALUE_SENTINEL = '__any__';
@@ -137,8 +139,13 @@ export default function StageAutomationRules({
   const otherStages = stages.filter(s => s.id !== currentStageId);
 
   // Format the inactivity delay label: minutes below 60, hours when a whole
-  // multiple of 60 (the stored value stays in minutes, only the label changes).
+  // multiple of 60, days when a whole multiple of 1440 (the stored value
+  // stays in minutes, only the label changes).
   const formatInactivityLabel = (m: number): string => {
+    if (m >= 1440 && m % 1440 === 0) {
+      const d = m / 1440;
+      return `${d} ${t(d === 1 ? 'stageAutomation.inactivity.day' : 'stageAutomation.inactivity.days')}`;
+    }
     if (m < 60 || m % 60 !== 0) {
       return `${m} ${t('stageAutomation.inactivity.minutes')}`;
     }

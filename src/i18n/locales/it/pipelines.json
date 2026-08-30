@@ -370,13 +370,36 @@
     "triggers": {
       "label_added": "Etichetta aggiunta",
       "conversation_status_changed": "Stato conversazione modificato",
-      "custom_attribute_updated": "Attributo personalizzato aggiornato"
+      "custom_attribute_updated": "Attributo personalizzato aggiornato",
+      "inactivity": "In caso di inattività"
     },
     "actions": {
       "move_to_stage": "Sposta alla fase",
       "move_to_pipeline": "Sposta in un'altra pipeline",
       "assign_agent": "Assegna agente",
-      "apply_label": "Applica etichetta"
+      "apply_label": "Applica etichetta",
+      "send_ai_message": "Messaggio tramite agente IA",
+      "send_direct_message": "Messaggio diretto",
+      "send_template": "Invia modello",
+      "finalize": "Termina conversazione"
+    },
+    "selectAgentBot": "Seleziona agente IA...",
+    "selectTemplate": "Seleziona modello...",
+    "noAgentBots": "Nessun agente IA disponibile",
+    "noTemplates": "Nessun modello disponibile",
+    "aiMessagePlaceholder": "Cosa deve dire l'agente? (opzionale)",
+    "directMessagePlaceholder": "Messaggio da inviare...",
+    "finalizeMessagePlaceholder": "Messaggio di chiusura (opzionale)...",
+    "inactivity": {
+      "minutes": "minuti",
+      "hour": "ora",
+      "hours": "ore",
+      "day": "giorno",
+      "days": "giorni",
+      "base": {
+        "no_customer_reply": "Cliente senza risposta",
+        "stage_stagnation": "Bloccato nella fase"
+      }
     }
   },
   "editStage": {
