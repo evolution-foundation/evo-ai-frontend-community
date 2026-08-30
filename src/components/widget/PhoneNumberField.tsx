@@ -5,17 +5,12 @@ import es from 'react-phone-number-input/locale/es.json';
 import fr from 'react-phone-number-input/locale/fr.json';
 import it from 'react-phone-number-input/locale/it.json';
 import pt from 'react-phone-number-input/locale/pt.json';
-import ptBR from 'react-phone-number-input/locale/pt-BR.json';
 import { cn } from '@/lib/utils';
 
-const COUNTRY_LABELS: Record<string, Partial<Record<Country, string>>> = {
-  en,
-  es,
-  fr,
-  it,
-  pt,
-  'pt-BR': ptBR,
-};
+// Keyed by base language only (no region variants like 'pt-BR') — resolved
+// generically below by stripping the region suffix, so it doesn't need a
+// dedicated entry (or file) per regional locale.
+const COUNTRY_LABELS: Record<string, Partial<Record<Country, string>>> = { en, es, fr, it, pt };
 
 interface PhoneNumberFieldProps {
   value: string;
@@ -60,7 +55,7 @@ export const PhoneNumberField = ({
   className,
 }: PhoneNumberFieldProps) => {
   const countries = useRef(getCountries()).current;
-  const labels = COUNTRY_LABELS[language] || en;
+  const labels = COUNTRY_LABELS[language] || COUNTRY_LABELS[language.split('-')[0]] || en;
 
   const initial = splitValue(value, countries);
   const [country, setCountry] = useState<Country>(initial.country || defaultCountry);
