@@ -14,6 +14,8 @@ import {
 } from '@/components/shared/attachments';
 import { ReplyToMessage } from './ReplyToMessage';
 import { EmailCollectInput } from './EmailCollectInput';
+import { CSATInput } from './CSATInput';
+import type { CSATSurveyResponse } from '@/types/core/survey';
 import { openAttachmentInNewTab } from '@/components/chat/messages/utils/openAttachmentInNewTab';
 
 export interface MessageItem {
@@ -55,6 +57,7 @@ export interface MessageItem {
         quoted?: string;
       };
     };
+    display_type?: 'emoji' | 'star';
   };
 }
 
@@ -179,10 +182,35 @@ const MessageList: React.FC<MessageListProps> = ({
       {items.map(m => {
         const hasAvatar = !!(m.avatarUrl || inboundAvatarUrl);
         const isEmailCollect = m.contentType === 'input_email';
+        const isCsat = m.contentType === 'input_csat';
+        const csatSubmittedRating = (m.submittedValues as { csat_survey_response?: CSATSurveyResponse })
+          ?.csat_survey_response?.rating;
         const isSelect =
           m.contentType === 'input_select' && Array.isArray(m.items) && m.items.length > 0;
         const selectDisabled = isSelect && !!m.submittedValues;
         const selectText = isSelect ? stripSelectFromText(m.text, m.items || []) : m.text;
+
+        // Render CSAT survey as a special interactive message
+        if (isCsat) {
+          return (
+            <div key={m.id} className="mb-2 flex justify-center animate-fadeIn">
+              <div className="max-w-[90%] w-full mx-auto">
+                <div className="text-[13px] leading-tight rounded-[10px] shadow-sm bg-white border border-slate-200 px-3 py-3">
+                  {m.text && (
+                    <div className="whitespace-pre-wrap break-words text-slate-700 mb-2 text-center">
+                      {m.text}
+                    </div>
+                  )}
+                  <CSATInput
+                    messageId={m.originalId || m.id}
+                    displayType={m.contentAttributes?.display_type}
+                    alreadySubmittedRating={csatSubmittedRating}
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        }
 
         // Render email collect input as a special interactive message
         if (isEmailCollect) {
