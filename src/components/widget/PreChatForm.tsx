@@ -4,9 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button, Input, Textarea, Checkbox } from '@evoapi/design-system';
 import { useLanguage } from '@/hooks/useLanguage';
-import { PhoneInput } from '@/components/shared/PhoneInput';
+import { PhoneNumberField } from '@/components/widget/PhoneNumberField';
 import { getDefaultPhoneCountry } from '@/components/shared/localeToPhoneCountry';
-import '@/components/shared/PhoneInput.css';
 import { getLabel, getPlaceHolder } from '@/components/channels/settings/helpers/preChatHelpers';
 import type {
   PreChatField,
@@ -46,10 +45,15 @@ const createValidationSchema = (fields: PreChatField[], hasActiveCampaign: boole
         validator = z.string().email(t('preChatForm.validation.invalidEmail'));
         break;
       case 'phone':
+        // The country code comes from a dropdown (always a valid, known
+        // calling code) and the number from a plain digits field, so the
+        // composed value is well-formed by construction — no need to
+        // re-validate E.164 shape here. Just guard against a country
+        // selected with too few digits typed after it.
         validator = z
           .string()
           .refine(
-            val => val.startsWith('+') && /^\+[1-9]\d{1,14}$/.test(val),
+            val => val.replace(/\D/g, '').length >= 8,
             t('preChatForm.validation.invalidPhone'),
           );
         break;
@@ -106,8 +110,6 @@ const createValidationSchema = (fields: PreChatField[], hasActiveCampaign: boole
 
   return z.object(schemaFields);
 };
-
-// Phone input component removed - now using shared PhoneInput
 
 export const PreChatForm: React.FC<PreChatFormProps> = ({
   config,
@@ -313,7 +315,8 @@ export const PreChatForm: React.FC<PreChatFormProps> = ({
           />
         );
 
-      case 'phone':
+      case 'phone': {
+        const defaultPhoneCountry = getDefaultPhoneCountry(currentLanguage);
         return (
           <Controller
             key={field.name}
@@ -328,18 +331,20 @@ export const PreChatForm: React.FC<PreChatFormProps> = ({
                 >
                   {field.label}
                 </label>
-                <PhoneInput
+                <PhoneNumberField
                   value={formField.value || ''}
                   onChange={formField.onChange}
                   placeholder={field.placeholder}
                   error={hasError}
-                  defaultCountry={getDefaultPhoneCountry(currentLanguage)}
+                  defaultCountry={defaultPhoneCountry}
+                  language={currentLanguage}
                 />
                 {fieldError && <p className="text-red-500 text-xs mt-1">{fieldError.message}</p>}
               </div>
             )}
           />
         );
+      }
 
       default:
         return (
