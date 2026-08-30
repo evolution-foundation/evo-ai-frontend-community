@@ -130,6 +130,17 @@
     "success": "Email enregistré avec succès !",
     "error": "Erreur lors de l'enregistrement. Veuillez réessayer."
   },
+  "csat": {
+    "success": "Merci pour votre retour !",
+    "error": "Erreur lors de l'envoi de votre évaluation. Veuillez réessayer.",
+    "ratings": {
+      "1": "Mauvais",
+      "2": "Passable",
+      "3": "Moyen",
+      "4": "Bon",
+      "5": "Excellent"
+    }
+  },
   "preChatForm": {
     "message": "Message",
     "messagePlaceholder": "Écrivez votre message ici...",

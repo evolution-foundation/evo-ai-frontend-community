@@ -147,14 +147,17 @@ export default function Widget() {
       submittedEmail: m.submitted_email || undefined,
       items: Array.isArray(m.content_attributes?.items) ? m.content_attributes.items : undefined,
       submittedValues: m.content_attributes?.submitted_values || undefined,
-      contentAttributes: m.content_attributes?.email
-        ? {
-            email: {
-              html_content: m.content_attributes.email.html_content,
-              text_content: m.content_attributes.email.text_content,
-            },
-          }
-        : undefined,
+      contentAttributes: (() => {
+        const email = m.content_attributes?.email;
+        const displayType = m.content_attributes?.display_type;
+        if (!email && !displayType) return undefined;
+        return {
+          email: email
+            ? { html_content: email.html_content, text_content: email.text_content }
+            : undefined,
+          display_type: displayType,
+        };
+      })(),
     };
   };
 
