@@ -22,7 +22,7 @@ const CUSTOM_MODEL_OPTION = '__custom_model__';
 const CUSTOM_OPENAI_PROVIDER = 'custom_openai_compatible';
 
 // Shown before an API key is chosen, and as the fallback when a live listing fails. For
-// the providers with no listing endpoint at all (Vertex, Bedrock, Perplexity) it is the
+// the providers with no listing endpoint at all (Vertex, Bedrock) it is the
 // only source there will ever be. Prefer a rolling alias: it is the only entry here that
 // does not rot on its own.
 export const availableModels = [
@@ -48,12 +48,6 @@ export const availableModels = [
   { value: 'together_ai/deepseek-ai/DeepSeek-V4-Flash-0731', label: 'DeepSeek V4 Flash (Together)', provider: 'together_ai' },
   { value: 'together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo', label: 'Llama 3.3 70B Instruct Turbo', provider: 'together_ai' },
   { value: 'together_ai/Qwen/Qwen3.5-9B', label: 'Qwen 3.5 9B', provider: 'together_ai' },
-  // Sonar Chat Completions is supported only until 2026-09-27; past that these ids need
-  // a new integration, not new values.
-  { value: 'perplexity/sonar-pro', label: 'Sonar Pro', provider: 'perplexity' },
-  { value: 'perplexity/sonar', label: 'Sonar', provider: 'perplexity' },
-  { value: 'perplexity/sonar-reasoning-pro', label: 'Sonar Reasoning Pro', provider: 'perplexity' },
-  { value: 'perplexity/sonar-deep-research', label: 'Sonar Deep Research', provider: 'perplexity' },
   // `global.` where Bedrock offers global routing, `us.` only where it does not, so the
   // picker never pins data residency the deployment did not ask for. Sonnet 4.5 EOL from
   // 2026-09-29.

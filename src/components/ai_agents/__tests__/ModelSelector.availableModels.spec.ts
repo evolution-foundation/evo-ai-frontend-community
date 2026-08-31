@@ -20,6 +20,11 @@ const PROVIDER_PREFIX: Record<string, string> = {
 // (pkg/api_key/service/models_fetcher.go); update both together.
 const LISTS_LIVE = ['openai', 'gemini', 'anthropic', 'openrouter', 'deepseek', 'together_ai', 'fireworks_ai'];
 
+// Perplexity is offered as a key type but has no id worth pinning: Sonar Chat
+// Completions rejects any request carrying tools, and its successor speaks the
+// Responses API, which the runtime cannot reach yet.
+const PINNED_ON_PURPOSE_EMPTY = ['perplexity'];
+
 // One current family. The live list wins the moment a key is chosen, so each extra
 // pinned entry is only more surface to rot.
 const MAX_PINNED_WHEN_LISTED_LIVE = 3;
@@ -63,7 +68,7 @@ describe('availableModels', () => {
 
   it('pins at least one entry per provider, so a failed listing is never an empty picker', () => {
     const empty = Object.keys(PROVIDER_PREFIX).filter(
-      p => !availableModels.some(m => m.provider === p),
+      p => !PINNED_ON_PURPOSE_EMPTY.includes(p) && !availableModels.some(m => m.provider === p),
     );
     expect(empty).toEqual([]);
   });
