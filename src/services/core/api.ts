@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/store/authStore';
+import { activeTenantId } from '@/services/core/activeTenant';
 import { requestMonitor } from '@/utils/requestMonitor';
 import apiAuth from '@/services/core/apiAuth';
 import { applySetupInterceptor } from '@/services/core/setupInterceptor';
@@ -67,6 +68,13 @@ api.interceptors.request.use(config => {
   const authHeader = useAuthStore.getState().getAuthHeader();
   if (authHeader) {
     config.headers.Authorization = authHeader.Authorization;
+  }
+
+  // Active account (embedded portal): the CRM and its evo-flow proxies scope by
+  // X-Evo-Tenant-Id; absent (standalone community) nothing is sent.
+  const tenantId = activeTenantId();
+  if (tenantId) {
+    config.headers['X-Evo-Tenant-Id'] = tenantId;
   }
 
   if (config.data instanceof FormData && config.headers['Content-Type'] === undefined) {
