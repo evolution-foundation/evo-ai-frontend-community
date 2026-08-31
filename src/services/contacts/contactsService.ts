@@ -105,10 +105,10 @@ class ContactsService {
           'Content-Type': 'multipart/form-data',
         },
       });
-      return extractData<Contact>(response);
+      return extractData<{ contact: Contact }>(response).contact;
     } else {
       const response = await api.post(`/contacts`, data);
-      return extractData<Contact>(response);
+      return extractData<{ contact: Contact }>(response).contact;
     }
   }
 
