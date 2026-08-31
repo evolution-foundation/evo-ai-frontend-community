@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button, Badge, Card, CardContent } from '@evoapi/design-system';
 import { toast } from 'sonner';
 import {
@@ -20,8 +20,8 @@ import {
 } from 'lucide-react';
 import { journeyService } from '@/services';
 import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { useLanguage } from '@/hooks/useLanguage';
+import { getDateFnsLocale } from '@/lib/dateFnsLocale';
 
 interface SessionsViewerProps {
   journeyId: string;
@@ -65,7 +65,8 @@ interface JourneySession {
 }
 
 export function SessionsViewer({ journeyId, journeyName, onClose }: SessionsViewerProps) {
-  const { t } = useLanguage('journey');
+  const { t, currentLanguage } = useLanguage('journey');
+  const dateFnsLocale = getDateFnsLocale(currentLanguage);
 
   const getStatusConfig = () => ({
     active: {
@@ -119,45 +120,86 @@ export function SessionsViewer({ journeyId, journeyName, onClose }: SessionsView
   const [selectedSession, setSelectedSession] = useState<JourneySession | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchContact, setSearchContact] = useState('');
+  const [debouncedSearchContact, setDebouncedSearchContact] = useState('');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const pageSize = 20;
 
-  const loadSessions = async () => {
+  // Debounced separately from the raw input so typing stays instant while the
+  // query itself waits for a pause — was firing 2 requests per keystroke.
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      setDebouncedSearchContact(searchContact.trim());
+      setPage(1);
+    }, 400);
+    return () => clearTimeout(handle);
+  }, [searchContact]);
+
+  // `t` troca de identidade a cada render antes do i18n ficar pronto; num ref
+  // para não religar loadSessions/loadStats a cada render.
+  const tRef = useRef(t);
+  useEffect(() => {
+    tRef.current = t;
+  }, [t]);
+
+  // `isStale` lets the auto-fetch effect below discard a response that's no
+  // longer for the current filters (a slower earlier request resolving after
+  // a faster later one used to overwrite `sessions` with stale data).
+  const loadSessions = useCallback(
+    async (isStale: () => boolean = () => false) => {
+      try {
+        setLoading(true);
+        const params: any = {
+          page,
+          pageSize,
+        };
+
+        if (filterStatus !== 'all') {
+          params.status = filterStatus;
+        }
+
+        if (debouncedSearchContact) {
+          params.contactId = debouncedSearchContact;
+        }
+
+        const response = await journeyService.getJourneySessions(journeyId, params);
+        if (isStale()) return;
+
+        setSessions(response.data.sessions || []);
+        setTotal(response.data.total || 0);
+      } catch (error) {
+        if (isStale()) return;
+        console.error('Erro ao carregar sessões:', error);
+        toast.error(tRef.current('sessions.viewer.messages.loadError'));
+      } finally {
+        if (!isStale()) setLoading(false);
+      }
+    },
+    [journeyId, filterStatus, debouncedSearchContact, page],
+  );
+
+  // Independent of filterStatus/search/page — refetching it on every keystroke
+  // was wasted (and doubled) request volume for numbers that hadn't changed.
+  const loadStats = useCallback(async () => {
     try {
-      setLoading(true);
-      const params: any = {
-        page,
-        pageSize,
-      };
-
-      if (filterStatus !== 'all') {
-        params.status = filterStatus;
-      }
-
-      if (searchContact.trim()) {
-        params.contactId = searchContact.trim();
-      }
-
-      const [sessionsResponse, statsResponse] = await Promise.all([
-        journeyService.getJourneySessions(journeyId, params),
-        journeyService.getJourneySessionStats(journeyId),
-      ]);
-
-      setSessions(sessionsResponse.data.sessions || []);
-      setTotal(sessionsResponse.data.total || 0);
-      setStats(statsResponse.data);
+      const response = await journeyService.getJourneySessionStats(journeyId);
+      setStats(response.data);
     } catch (error) {
-      console.error('Erro ao carregar sessões:', error);
-      toast.error(t('sessions.viewer.messages.loadError'));
-    } finally {
-      setLoading(false);
+      console.error('Erro ao carregar estatísticas de sessões:', error);
     }
-  };
+  }, [journeyId]);
 
   useEffect(() => {
-    loadSessions();
-  }, [journeyId, filterStatus, searchContact, page]);
+    loadStats();
+  }, [loadStats]);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadSessions(() => cancelled);
+    return () => {
+      cancelled = true;
+    };
+  }, [loadSessions]);
 
   const handleDeleteSession = async (sessionId: string) => {
     if (!confirm(t('sessions.viewer.actions.confirmDelete'))) return;
@@ -166,6 +208,7 @@ export function SessionsViewer({ journeyId, journeyName, onClose }: SessionsView
       await journeyService.deleteJourneySession(journeyId, sessionId);
       toast.success(t('sessions.viewer.messages.deleteSuccess'));
       loadSessions();
+      loadStats();
     } catch (error) {
       console.error('Erro ao deletar sessão:', error);
       toast.error(t('sessions.viewer.messages.deleteError'));
@@ -179,6 +222,7 @@ export function SessionsViewer({ journeyId, journeyName, onClose }: SessionsView
       await journeyService.cancelJourneySession(journeyId, sessionId);
       toast.success(t('sessions.viewer.messages.cancelSuccess'));
       loadSessions();
+      loadStats();
     } catch (error: any) {
       console.error('Erro ao cancelar sessão:', error);
       toast.error(error?.message || t('sessions.viewer.messages.cancelError'));
@@ -289,7 +333,6 @@ export function SessionsViewer({ journeyId, journeyName, onClose }: SessionsView
                 value={searchContact}
                 onChange={e => {
                   setSearchContact(e.target.value);
-                  setPage(1);
                 }}
                 placeholder={t('sessions.viewer.filters.searchPlaceholder')}
                 className="flex-1 bg-sidebar border border-sidebar-border rounded-md px-3 py-2 text-sm text-sidebar-foreground placeholder:text-sidebar-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary"
@@ -348,7 +391,7 @@ export function SessionsViewer({ journeyId, journeyName, onClose }: SessionsView
                                 <span>
                                   {formatDistanceToNow(new Date(session.createdAt), {
                                     addSuffix: true,
-                                    locale: ptBR,
+                                    locale: dateFnsLocale,
                                   })}
                                 </span>
                               </div>
@@ -516,7 +559,7 @@ export function SessionsViewer({ journeyId, journeyName, onClose }: SessionsView
                             {log.nodeType} •{' '}
                             {formatDistanceToNow(new Date(log.timestamp), {
                               addSuffix: true,
-                              locale: ptBR,
+                              locale: dateFnsLocale,
                             })}
                           </div>
                           {log.error && (

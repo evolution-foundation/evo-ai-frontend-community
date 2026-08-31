@@ -8,6 +8,10 @@ export interface CustomTool {
   error_handling: Record<string, unknown>;
   examples: string[];
   headers: Record<string, unknown>;
+  /** EVO-2250 story 2.4: map of header name -> vault credential id. A MAP by
+   * design (one credential per secret): a tool with two auth headers holds
+   * two entries, never a single scalar reference. */
+  credential_refs?: Record<string, string>;
   id: string;
   input_modes: string[];
   method: string;
@@ -27,6 +31,7 @@ export interface CustomToolCreate {
   error_handling: Record<string, unknown>;
   examples: string[];
   headers: Record<string, unknown>;
+  credential_refs?: Record<string, string>;
   input_modes: string[];
   method: string;
   name: string;
@@ -44,6 +49,7 @@ export interface CustomToolUpdate {
   error_handling?: Record<string, unknown>;
   examples?: string[];
   headers?: Record<string, unknown>;
+  credential_refs?: Record<string, string>;
   input_modes?: string[];
   method?: string;
   name?: string;

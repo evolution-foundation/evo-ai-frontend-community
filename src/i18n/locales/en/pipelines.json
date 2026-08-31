@@ -46,6 +46,7 @@
     "updateError": "Error updating pipeline",
     "deleteSuccess": "Pipeline deleted successfully",
     "deleteError": "Error deleting pipeline",
+    "deleteBlockedActiveItems": "This pipeline still has active items and cannot be deleted. Remove the items from the pipeline first.",
     "duplicateSuccess": "Pipeline duplicated successfully",
     "duplicateError": "Error duplicating pipeline",
     "activateSuccess": "Pipeline activated successfully",
@@ -202,6 +203,7 @@
     "namePlaceholder": "Ex: Leads Qualified",
     "descriptionLabel": "Description",
     "descriptionPlaceholder": "Describe the purpose of this stage...",
+    "characterCount": "{{current}}/{{max}} characters",
     "color": "Stage Color",
     "colorSelected": "Selected Color",
     "stageType": "Stage Type",
@@ -849,6 +851,25 @@
     }
   },
   "dialog": {
+      "deactivatePipeline": {
+      "lookupFailed": "We could not check what depends on this pipeline. Deactivate anyway?",
+      "draft": "draft",
+      "viaRoutingRule": "via routing rule",
+      "namesRedacted": "{{count}} form in total — you do not have permission to see their names.",
+      "namesRedacted_plural": "{{count}} forms in total — you do not have permission to see their names.",
+          "title": "Deactivate pipeline",
+          "description": "\"{{name}}\" will be hidden from every pipeline picker. Anything already inside it stays where it is.",
+          "checking": "Checking what depends on this pipeline…",
+          "formsHeading": "{{count}} capture form sends leads here:",
+          "formsHeading_plural": "{{count}} capture forms send leads here:",
+          "noForms": "No capture form feeds this pipeline.",
+          "draftsHeading": "{{count}} draft form targets this pipeline (not capturing yet):",
+          "draftsHeading_plural": "{{count}} draft forms target this pipeline (not capturing yet):",
+          "published": "published",
+          "partialWarning": "Only capture forms were checked. Automations and journeys were not inspected.",
+          "cancel": "Cancel",
+          "confirm": "Deactivate"
+      },
     "deletePipeline": {
       "title": "Delete Pipeline",
       "description": "Are you sure you want to delete this pipeline? This action cannot be undone and will affect all related data.",

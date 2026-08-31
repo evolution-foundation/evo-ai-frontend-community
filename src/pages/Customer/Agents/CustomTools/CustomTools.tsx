@@ -10,6 +10,7 @@ import EmptyState from '@/components/base/EmptyState';
 import { CustomTool, CustomToolsState, CustomToolFormData, CustomToolsListParams, CustomToolTestResponse } from '@/types/ai';
 import { BaseFilter, AppliedFilter, CUSTOM_TOOL_FILTER_TYPES } from '@/types/core';
 import { buildAppliedFilterChips } from '@/utils/appliedFilterChips';
+import { AgentsTabsLayout } from '@/components/agents';
 import {
   CustomToolCard,
   CustomToolsHeader,
@@ -79,8 +80,8 @@ export default function CustomTools() {
   // Load tools
   const loadTools = useCallback(
     async (params?: Partial<CustomToolsListParams>, filtersOverride?: BaseFilter[]) => {
+      // No toast: `AgentsTabsLayout` is already redirecting whoever lacks `read`.
       if (!can('ai_custom_tools', 'read')) {
-        toast.error(t('permissions.viewDenied'));
         return;
       }
       setState(prev => ({ ...prev, loading: { ...prev.loading, list: true } }));
@@ -396,10 +397,12 @@ export default function CustomTools() {
   }
 
   return (
-    <div className="h-full flex flex-col p-4" data-tour="agents-custom-tools-page">
+    <AgentsTabsLayout tab="customTools">
+    <div className="flex h-full flex-col px-[34px] pb-5" data-tour="agents-custom-tools-page">
       <AgentsCustomToolsTour />
-      <div data-tour="agents-custom-tools-header">
+      <div className="mt-6" data-tour="agents-custom-tools-header">
         <CustomToolsHeader
+          hideTitle
           totalCount={state.meta.pagination.total}
           selectedCount={state.selectedToolIds.length}
           searchValue={state.searchQuery}
@@ -436,7 +439,7 @@ export default function CustomTools() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto" data-tour="agents-custom-tools-content">
+      <div className="mt-5 flex-1 overflow-auto" data-tour="agents-custom-tools-content">
         {state.loading.list ? (
           <div className="flex items-center justify-center py-16">
             <div className="text-muted-foreground">{t('loading.tools')}</div>
@@ -567,5 +570,6 @@ export default function CustomTools() {
         result={testResultData}
       />
     </div>
+    </AgentsTabsLayout>
   );
 }

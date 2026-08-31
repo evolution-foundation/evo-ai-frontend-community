@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
+import { AI_CREDENTIALS_ROUTE } from '@/components/ApiKeysModal';
 import {
   Dialog,
   DialogContent,
@@ -7,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
   Button,
-  Input,
   Card,
   Switch,
   Label
@@ -33,13 +34,12 @@ export default function OpenAIModal({
   loading: submitting = false
 }: OpenAIModalProps) {
   const { t } = useLanguage('integrations');
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<OpenAIFormData>({
     api_key: '',
     enable_audio_transcription: false
   });
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const openaiHook = hook as OpenAIHook | undefined;
@@ -54,29 +54,18 @@ export default function OpenAIModal({
         enable_audio_transcription: false
       });
     }
-    setErrors({});
   }, [hook, open]);
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.api_key.trim()) {
-      newErrors.api_key = t('openai.modal.fields.apiKey.required');
-    } else if (!formData.api_key.startsWith('sk-')) {
-      newErrors.api_key = t('openai.modal.fields.apiKey.invalid');
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
+  // The credential is registered under Settings > AI Credentials (EVO-2250);
+  // this screen only carries the feature toggles, so there is nothing left to
+  // validate here.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) return;
-
     setLoading(true);
     try {
+      // The hook update REPLACES the settings jsonb, so the stored key has to
+      // travel with the payload. Dropping it would erase a migrated credential
+      // and, on an install whose only key lives here, silently switch AI off.
       await onSubmit(formData as unknown as Record<string, unknown>);
     } catch {
       // Error is handled by parent component
@@ -106,24 +95,18 @@ export default function OpenAIModal({
             <h4 className="font-semibold mb-4">{t('openai.modal.apiConfig')}</h4>
 
             <div className="space-y-4">
-              <div>
-                <label htmlFor="api_key" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  {t('openai.modal.fields.apiKey.label')} *
-                </label>
-                <Input
-                  id="api_key"
-                  type="password"
-                  placeholder={t('openai.modal.fields.apiKey.placeholder')}
-                  value={formData.api_key}
-                  onChange={(e) => setFormData(prev => ({ ...prev, api_key: e.target.value }))}
-                  className={errors.api_key ? 'border-red-500' : ''}
-                />
-                {errors.api_key && (
-                  <p className="text-sm text-red-600 mt-1">{errors.api_key}</p>
-                )}
-                <p className="text-xs text-slate-500 mt-1">
-                  {t('openai.modal.fields.apiKey.hint')}
+              <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+                <p className="text-sm text-slate-700 dark:text-slate-300">
+                  {t('openai.modal.credentialMoved')}
                 </p>
+                <Button
+                  type="button"
+                  variant="link"
+                  className="px-0 h-auto text-sm"
+                  onClick={() => navigate(AI_CREDENTIALS_ROUTE)}
+                >
+                  {t('openai.modal.goToCredentials')}
+                </Button>
               </div>
 
               {/* Audio Transcription Toggle */}

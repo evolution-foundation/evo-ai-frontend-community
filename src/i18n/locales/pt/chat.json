@@ -79,7 +79,8 @@
     "messageList": {
       "loadingConversation": "Carregando conversa...",
       "loadingPrevious": "Carregando mensagens anteriores...",
-      "conversationStart": "Início da conversa"
+      "conversationStart": "Início da conversa",
+      "newMessage": "Nova mensagem"
     },
     "messageLocation": {
       "sharedLocation": "Localização compartilhada",
@@ -90,10 +91,11 @@
       "statusUnavailableDescription": "A mensagem foi enviada, mas não conseguimos confirmar o status de entrega.",
       "checkChannelConfig": "Verifique a configuração do canal",
       "webhookIssue": "O webhook pode estar desatualizado ou inativo.",
+      "messageNotSent": "A mensagem não foi enviada",
       "deliveryStatusUnavailable": "Status de entrega indisponível - Clique para mais detalhes",
       "statusUnavailableText": "Status indisponível",
-      "retryInDevelopment": "Funcionalidade de reenvio em desenvolvimento",
-      "sendFailed": "Falha no envio - Clique para tentar novamente",
+      "sendFailedText": "Falha no envio",
+      "sendFailed": "Falha no envio - Clique para ver o motivo",
       "tryAgain": "Tentar novamente"
     },
     "replyPreview": {
@@ -313,6 +315,7 @@
     },
     "openConversation": "Abrir Conversa",
     "closeConversation": "Fechar conversa",
+    "backToConversations": "Voltar para as conversas",
     "phoneNumber": "Número de telefone",
     "openContactPanel": "Abrir detalhes do contato",
     "closeContactPanel": "Fechar detalhes do contato"
@@ -324,6 +327,7 @@
       "pending": "Pendentes",
       "resolved": "Concluídas",
       "unread": "Não lidas",
+      "unanswered": "Não respondidas",
       "groups": "Grupos"
     },
     "searchPlaceholder": "Buscar conversas...",
@@ -752,7 +756,8 @@
       "documents": "Documentos",
       "media": "Fotos e Vídeos",
       "conversationNote": "Notas da Conversa",
-      "schedule": "Agendar"
+      "schedule": "Agendar Mensagem",
+      "scheduleDisabledHint": "Escreva uma mensagem para poder agendar"
     },
     "macros": {
       "tooltip": "Macros",
@@ -761,7 +766,7 @@
     "schedule": {
       "title": "Agendar mensagem",
       "messagePreview": "Mensagem",
-      "emptyMessage": "Escreva uma mensagem no composer antes de agendar.",
+      "emptyMessage": "Nenhuma mensagem escrita para agendar.",
       "dateTime": "Data e hora",
       "note": "Observação",
       "notePlaceholder": "Observação interna (opcional)",
@@ -1004,10 +1009,12 @@
     "moveError": "Erro ao mover para o estágio",
     "removeError": "Erro ao remover do pipeline"
   },
+  "unansweredBadge": {
+    "menuAriaLabel_one": "{{count}} conversa aguardando sua resposta",
+    "menuAriaLabel_other": "{{count}} conversas aguardando sua resposta"
+  },
   "unreadBadge": {
     "ariaLabel_one": "{{count}} mensagem não lida",
-    "ariaLabel_other": "{{count}} mensagens não lidas",
-    "menuAriaLabel_one": "{{count}} conversa não lida",
-    "menuAriaLabel_other": "{{count}} conversas não lidas"
+    "ariaLabel_other": "{{count}} mensagens não lidas"
   }
 }

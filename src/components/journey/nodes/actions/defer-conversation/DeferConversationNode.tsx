@@ -31,7 +31,7 @@ interface DeferConversationNodeProps {
 }
 
 export function DeferConversationNode({ selected, data, id }: DeferConversationNodeProps) {
-  const { t } = useLanguage('journey');
+  const { t, currentLanguage } = useLanguage('journey');
   const hasSnoozeConfig = !!(data.snooze_type && (data.snooze_until || data.snooze_duration));
 
   const getDisplayText = () => {
@@ -63,8 +63,8 @@ export function DeferConversationNode({ selected, data, id }: DeferConversationN
       try {
         const date = new Date(data.snooze_until);
         return t('panels.deferConversation.node.untilDate', {
-          date: date.toLocaleDateString('pt-BR'),
-          time: date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+          date: date.toLocaleDateString(currentLanguage),
+          time: date.toLocaleTimeString(currentLanguage, { hour: '2-digit', minute: '2-digit' })
         });
       } catch (error) {
         return t('panels.deferConversation.node.invalidDate');
@@ -87,8 +87,8 @@ export function DeferConversationNode({ selected, data, id }: DeferConversationN
       try {
         const date = new Date(data.snooze_until);
         return t('panels.deferConversation.node.configPreview.untilDate', {
-          date: date.toLocaleDateString('pt-BR'),
-          time: date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+          date: date.toLocaleDateString(currentLanguage),
+          time: date.toLocaleTimeString(currentLanguage, { hour: '2-digit', minute: '2-digit' })
         });
       } catch (error) {
         return t('panels.deferConversation.node.configPreview.invalidDate');

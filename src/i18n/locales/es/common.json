@@ -150,5 +150,21 @@
   },
   "validation": {
     "required": "Este campo es obligatorio"
+  },
+  "permissions": {
+    "loadFailed": {
+      "title": "No fue posible cargar tus permisos",
+      "description": "Esto no significa que no tengas acceso — la verificación de permisos falló. Inténtalo de nuevo.",
+      "retry": "Intentar de nuevo",
+      "retrying": "Intentando de nuevo…",
+      "signOut": "Cerrar sesión"
+    }
+  },
+  "customAttributes": {
+    "loadFailed": {
+      "title": "No se pudieron cargar los atributos personalizados",
+      "description": "Esto no significa que no haya ninguno: falló la carga de las definiciones. Inténtalo de nuevo.",
+      "retry": "Intentar de nuevo"
+    }
   }
 }

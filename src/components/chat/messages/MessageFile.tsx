@@ -68,33 +68,33 @@ const MessageFile: React.FC<MessageFileProps> = ({ attachments }) => {
   const getFileIcon = (extension?: string) => {
     if (!extension)
       return (
-        <File className="h-6 w-6 text-primary-foreground/80 dark:text-primary-foreground/70" />
+        <File className="h-6 w-6 opacity-80" />
       );
 
     const ext = extension.toLowerCase();
 
     if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
       return (
-        <Image className="h-6 w-6 text-primary-foreground/80 dark:text-primary-foreground/70" />
+        <Image className="h-6 w-6 opacity-80" />
       );
     }
     if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) {
       return (
-        <Music className="h-6 w-6 text-primary-foreground/80 dark:text-primary-foreground/70" />
+        <Music className="h-6 w-6 opacity-80" />
       );
     }
     if (['mp4', 'avi', 'mov', 'wmv'].includes(ext)) {
       return (
-        <Video className="h-6 w-6 text-primary-foreground/80 dark:text-primary-foreground/70" />
+        <Video className="h-6 w-6 opacity-80" />
       );
     }
     if (['pdf', 'doc', 'docx', 'txt'].includes(ext)) {
       return (
-        <FileText className="h-6 w-6 text-primary-foreground/80 dark:text-primary-foreground/70" />
+        <FileText className="h-6 w-6 opacity-80" />
       );
     }
 
-    return <File className="h-6 w-6 text-primary-foreground/80 dark:text-primary-foreground/70" />;
+    return <File className="h-6 w-6 opacity-80" />;
   };
 
   return (
@@ -116,10 +116,10 @@ const MessageFile: React.FC<MessageFileProps> = ({ attachments }) => {
           {getFileIcon(attachment.extension!)}
 
           <div className="flex-1 min-w-0">
-            <div className="font-medium truncate text-sm">
+            <div className="font-medium truncate text-xs">
               {attachment.fallback_title || t('messages.messageFile.fileFallbackTitle')}
             </div>
-            <div className="text-xs text-primary-foreground/80 dark:text-primary-foreground/70">
+            <div className="text-xs opacity-70">
               {formatFileSize(attachment.file_size)}
               {attachment.extension && ` • ${attachment.extension.toUpperCase()}`}
             </div>
@@ -129,7 +129,7 @@ const MessageFile: React.FC<MessageFileProps> = ({ attachments }) => {
             size="sm"
             variant="ghost"
             onClick={() => downloadFile(attachment)}
-            className="h-8 w-8 rounded-full hover:bg-primary-foreground/20 text-primary-foreground/80 dark:text-primary-foreground/70 flex-shrink-0 p-0"
+            className="h-8 w-8 rounded-full hover:bg-primary-foreground/20 opacity-80 flex-shrink-0 p-0 cursor-pointer"
           >
             <Download className="h-3 w-3" />
           </Button>

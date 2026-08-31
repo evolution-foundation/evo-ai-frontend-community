@@ -480,7 +480,9 @@ function useChatIntegration() {
           }
         }
 
-        // Preservar labels existentes quando WS envia dados incompletos (sem título ou cor)
+        // Keep the labels on screen when the WS payload is incomplete (no title or colour).
+        // With labels_data the colour always arrives, so this now only guards against a
+        // backend older than CRM-155. An empty list still passes: a removal has to reflect.
         const existingLabels = existingConversation?.labels || [];
         const incomingLabels = conversation.labels || [];
         const incomingLabelsComplete =

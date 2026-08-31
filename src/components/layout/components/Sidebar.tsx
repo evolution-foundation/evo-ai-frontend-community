@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useUnreadConversationsStore } from '@/store/unreadConversationsStore';
+import { useUnansweredConversationsStore } from '@/store/unansweredConversationsStore';
 import { Link, useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
 import {
@@ -45,16 +45,16 @@ export default function Sidebar({
 
   const companyName = t('sidebar.footer.brand');
 
-  const totalUnread = useUnreadConversationsStore((state) => state.totalUnread);
+  const totalUnanswered = useUnansweredConversationsStore((state) => state.totalUnanswered);
 
   const enrichedMenuItems = useMemo(
     () =>
       menuItems.map((item) =>
-        item.href === '/conversations' && totalUnread > 0
-          ? { ...item, badge: totalUnread }
+        item.href === '/conversations' && totalUnanswered > 0
+          ? { ...item, badge: totalUnanswered, badgeHref: '/conversations?segment=unanswered' }
           : item,
       ),
-    [menuItems, totalUnread],
+    [menuItems, totalUnanswered],
   );
 
   const mainMenuItems = enrichedMenuItems.filter(item => item.href !== '/tutorials');

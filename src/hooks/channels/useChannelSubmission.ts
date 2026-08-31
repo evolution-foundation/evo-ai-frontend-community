@@ -27,6 +27,7 @@ import NotificameService from '@/services/channels/notificameService';
 import { ChannelType, FormData } from '@/hooks/channels/useChannelForm';
 import { useChannelValidation } from '@/hooks/channels/useChannelValidation';
 import { useAppDataStore } from '@/store/appDataStore';
+import { apiErrorMessage } from '@/utils/apiHelpers';
 
 export const useChannelSubmission = (form?: FormData) => {
   const navigate = useNavigate();
@@ -147,7 +148,7 @@ export const useChannelSubmission = (form?: FormData) => {
           result = { success: true, message: 'Conexão verificada com sucesso' };
           setHealthCheckPassed(true);
         } catch (error) {
-          result = { success: false, error: (error as Error).message };
+          result = { success: false, error: apiErrorMessage(error) || (error as Error).message };
           setHealthCheckPassed(false);
         }
       } else if (selectedProvider.id === 'evolution_go') {
@@ -201,7 +202,7 @@ export const useChannelSubmission = (form?: FormData) => {
           result = { success: true, message: 'Conexão verificada com sucesso' };
           setHealthCheckPassed(true);
         } catch (error) {
-          result = { success: false, error: (error as Error).message };
+          result = { success: false, error: apiErrorMessage(error) || (error as Error).message };
           setHealthCheckPassed(false);
         }
       } else if (selectedProvider.id === 'twilio' && selectedChannel.type === 'whatsapp') {
@@ -216,7 +217,7 @@ export const useChannelSubmission = (form?: FormData) => {
               : undefined,
           });
         } catch (error) {
-          result = { success: false, error: (error as Error).message };
+          result = { success: false, error: apiErrorMessage(error) || (error as Error).message };
         }
       } else if (selectedProvider.id === 'notificame') {
         try {
@@ -226,7 +227,7 @@ export const useChannelSubmission = (form?: FormData) => {
             phone_number: getStr(form, 'phone_number'),
           });
         } catch (error) {
-          result = { success: false, error: (error as Error).message };
+          result = { success: false, error: apiErrorMessage(error) || (error as Error).message };
         }
       }
 
@@ -238,7 +239,9 @@ export const useChannelSubmission = (form?: FormData) => {
         }
       }
     } catch (error) {
-      toast.error((error as Error).message || 'Erro no teste de conexão');
+      toast.error(
+        apiErrorMessage(error) || (error as Error).message || 'Erro no teste de conexão',
+      );
     } finally {
       setIsTesting(false);
     }
@@ -441,7 +444,9 @@ export const useChannelSubmission = (form?: FormData) => {
                   : undefined,
               });
             } catch (error) {
-              throw new Error((error as Error).message || 'Falha na verificação do Twilio');
+              throw new Error(
+                apiErrorMessage(error) || (error as Error).message || 'Falha na verificação do Twilio',
+              );
             }
             payload = {
               name: getStr(form, 'name') || 'WhatsApp Twilio',
@@ -467,7 +472,11 @@ export const useChannelSubmission = (form?: FormData) => {
                 phone_number: getStr(form, 'phone_number'),
               });
             } catch (error) {
-              throw new Error((error as Error).message || 'Falha na verificação do Notificame');
+              throw new Error(
+                apiErrorMessage(error) ||
+                  (error as Error).message ||
+                  'Falha na verificação do Notificame',
+              );
             }
             payload = {
               name: getStr(form, 'name') || 'WhatsApp Notificame',
@@ -712,7 +721,7 @@ export const useChannelSubmission = (form?: FormData) => {
       }
     } catch (e: unknown) {
       const err = e as Error;
-      toast.error(err?.message || 'Falha ao criar canal');
+      toast.error(apiErrorMessage(e) || err?.message || 'Falha ao criar canal');
     } finally {
       setIsSubmitting(false);
     }

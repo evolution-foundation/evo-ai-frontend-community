@@ -17,6 +17,7 @@ import type {
   ContactImportResponse,
   ContactExportResponse,
   ContactNote,
+  ContactNoteDeleteResponse,
   ContactConversation,
   ContactableInboxes,
 } from '@/types/contacts';
@@ -277,9 +278,9 @@ class ContactsService {
     return extractData<ContactNote>(response);
   }
 
-  async deleteContactNote(contactId: string, noteId: string): Promise<{ message: string }> {
+  async deleteContactNote(contactId: string, noteId: string): Promise<ContactNoteDeleteResponse> {
     const response = await api.delete(`/contacts/${contactId}/notes/${noteId}`);
-    return extractData<{ message: string }>(response);
+    return response.data as ContactNoteDeleteResponse;
   }
 
   // Contact Conversations

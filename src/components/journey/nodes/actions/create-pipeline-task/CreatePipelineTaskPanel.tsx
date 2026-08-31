@@ -140,10 +140,11 @@ export function CreatePipelineTaskPanel({
         )}
 
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="create-task-title" className="text-sidebar-foreground font-medium">
             {t('panels.createPipelineTask.taskTitle')}
           </Label>
           <Input
+            id="create-task-title"
             value={title}
             onChange={e => setTitle(e.target.value)}
             placeholder={t('panels.createPipelineTask.taskTitlePlaceholder')}
@@ -156,10 +157,11 @@ export function CreatePipelineTaskPanel({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="create-task-description" className="text-sidebar-foreground font-medium">
             {t('panels.createPipelineTask.description')}
           </Label>
           <Textarea
+            id="create-task-description"
             value={description}
             onChange={e => setDescription(e.target.value)}
             placeholder={t('panels.createPipelineTask.descriptionPlaceholder')}
@@ -168,11 +170,12 @@ export function CreatePipelineTaskPanel({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="create-task-type" className="text-sidebar-foreground font-medium">
             {t('panels.createPipelineTask.taskType')}
           </Label>
           <Select value={taskType} onValueChange={setTaskType}>
             <SelectTrigger
+              id="create-task-type"
               className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
               aria-label={t('panels.createPipelineTask.taskType')}
             >
@@ -189,11 +192,12 @@ export function CreatePipelineTaskPanel({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="create-task-assignee" className="text-sidebar-foreground font-medium">
             {t('panels.createPipelineTask.assignee')}
           </Label>
           <Select value={assignedToId} onValueChange={setAssignedToId} disabled={loading}>
             <SelectTrigger
+              id="create-task-assignee"
               className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
               aria-label={t('panels.createPipelineTask.assignee')}
             >
@@ -214,11 +218,12 @@ export function CreatePipelineTaskPanel({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="create-task-due" className="text-sidebar-foreground font-medium">
             {t('panels.createPipelineTask.dueDate')}
           </Label>
           <Select value={duePreset} onValueChange={setDuePreset}>
             <SelectTrigger
+              id="create-task-due"
               className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
               aria-label={t('panels.createPipelineTask.dueDate')}
             >
@@ -239,11 +244,12 @@ export function CreatePipelineTaskPanel({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="create-task-priority" className="text-sidebar-foreground font-medium">
             {t('panels.createPipelineTask.priority')}
           </Label>
           <Select value={priority} onValueChange={setPriority}>
             <SelectTrigger
+              id="create-task-priority"
               className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
               aria-label={t('panels.createPipelineTask.priority')}
             >

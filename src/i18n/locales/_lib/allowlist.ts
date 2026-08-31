@@ -52,7 +52,7 @@ export const COMMON_ALLOWED = new Set<string>([
   'Flowise', 'Typebot', 'Rasa', 'N8N', 'CSML', 'OpenAI', 'Azure OpenAI',
   'Anthropic', 'Cohere', 'Groq', 'Mistral AI', 'Google', 'Google Translate',
   'Google Calendar', 'Google Sheets', 'Gmail', 'Slack', 'HubSpot', 'GitHub',
-  'Notion', 'Stripe', 'PayPal', 'Shopify', 'Linear', 'Canva', 'Monday.com',
+  'Notion', 'Stripe', 'PayPal', 'Shopify', 'WooCommerce', 'Linear', 'Canva', 'Monday.com',
   'Atlassian', 'Asana', 'Supabase', 'Microsoft Azure', 'Microsoft / Azure',
   'Amazon S3', 'Z-API', 'Notificame', 'Bandwidth', 'BMS', 'LeadSquared',
   'Marketplace', 'Live Chat', 'LINE', 'LinkedIn', 'Twitter', 'Outlook',
@@ -139,8 +139,13 @@ export const PER_FILE_ALLOWED: Record<string, Set<string>> = {
   ]),
   'pipelines.json': new Set(['Euro (EUR)']),
   // 'SKU-001' is a placeholder example code; 'Euro (EUR)' is the currency's own
-  // name in pt-BR (same allowance as pipelines.json above).
-  'products.json': new Set(['SKU-001', 'Euro (EUR)']),
+  // name in pt-BR (same allowance as pipelines.json above). 'Consumer key/secret'
+  // are WooCommerce's own credential-field names (kept as-is in every locale);
+  // 'my-shop.myshopify.com' is a sample domain literal.
+  'products.json': new Set([
+    'SKU-001', 'Euro (EUR)', 'Consumer key', 'Consumer secret',
+    'my-shop.myshopify.com',
+  ]),
   'crmForms.json': new Set([
     'Leads', 'Leads — {{name}}', 'E-mail', 'Pipeline…', 'pipeline…', 'key', 'label',
   ]),

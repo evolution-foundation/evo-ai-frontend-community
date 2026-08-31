@@ -64,7 +64,9 @@ function App() {
         <DarkModeProvider>
           <GlobalConfigProvider>
             <UISettingsApplier />
-            <PermissionsProvider>
+            {/* RouterGuard renders the same panel and knows which paths are
+                public, so the provider must not block here (CRM-164). */}
+            <PermissionsProvider blockOnLoadFailure={false}>
             <NotificationsProvider>
               <AppInitializer>
                 <PluginSlot id="notifications.banner" />

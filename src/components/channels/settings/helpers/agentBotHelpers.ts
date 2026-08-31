@@ -6,7 +6,8 @@ export interface AgentBot {
   name: string;
   description: string;
   outgoing_url: string;
-  api_key?: string;
+  /** EVO-2250 story 2.4: scalar vault reference (a bot holds one secret). */
+  credential_id?: string;
   bot_type: string;
   bot_provider: string;
   thumbnail?: string;
@@ -28,7 +29,7 @@ export interface AgentBotFormData {
   name: string;
   description: string;
   outgoing_url: string;
-  api_key: string;
+  credential_id: string;
   bot_provider: string;
   avatar?: File | null;
   avatarUrl: string;
@@ -93,7 +94,7 @@ export const getDefaultAgentBotFormData = (): AgentBotFormData => ({
   name: '',
   description: '',
   outgoing_url: '',
-  api_key: '',
+  credential_id: '',
   bot_provider: 'webhook_provider',
   avatar: null,
   avatarUrl: '',
@@ -197,8 +198,10 @@ export const prepareAgentBotPayload = (formData: AgentBotFormData) => {
   payload.append('delay_per_character', formData.delay_per_character.toString());
   payload.append('debounce_time', formData.debounce_time.toString());
 
-  if (formData.api_key) {
-    payload.append('api_key', formData.api_key);
+  // No api_key: story 2.7 dropped it from the permitted params, so sending it
+  // is silently discarded and the bot ends up with no credential at all.
+  if (formData.credential_id) {
+    payload.append('credential_id', formData.credential_id);
   }
 
   if (formData.avatar) {
@@ -213,7 +216,7 @@ export const parseAgentBotForForm = (bot: AgentBot): AgentBotFormData => ({
   name: bot.name || '',
   description: bot.description || '',
   outgoing_url: bot.outgoing_url || bot.bot_config?.webhook_url || '',
-  api_key: bot.api_key || '',
+  credential_id: bot.credential_id || '',
   bot_provider: bot.bot_provider || 'webhook_provider',
   avatar: null,
   avatarUrl: bot.thumbnail || '',

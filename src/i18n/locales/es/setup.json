@@ -57,6 +57,10 @@
     "title": "¡Configuración completa!",
     "description": "Ahora puede iniciar sesión con sus credenciales."
   },
+  "degraded": {
+    "title": "Configuración completada, con un pendiente",
+    "description": "La instalación terminó, pero el aprovisionamiento de la cuenta no se completó. Se reintenta automáticamente en ~10 minutos."
+  },
   "error": {
     "generic": "Ocurrió un error durante la configuración. Por favor, inténtelo de nuevo.",
     "alreadySetup": "Esta instancia ya ha sido configurada."

@@ -57,6 +57,10 @@
     "title": "Configuração concluída!",
     "description": "Agora pode entrar com as suas credenciais."
   },
+  "degraded": {
+    "title": "Configuração concluída, com uma pendência",
+    "description": "A instalação terminou, mas o aprovisionamento da conta não completou. Repete automaticamente em até ~10 minutos."
+  },
   "error": {
     "generic": "Ocorreu um erro durante a configuração. Tente novamente.",
     "alreadySetup": "Esta instância já foi configurada."

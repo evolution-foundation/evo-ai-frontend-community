@@ -32,6 +32,7 @@ import type { AgentBotOption, MessageTemplateOption } from './StageAutomationRul
 import { LocalAttributeDefinition, LocalAttributeDefinitionPayload } from '@/types/pipelines/localAttributeDefinition';
 import PipelineStageCustomAttributes from './PipelineStageCustomAttributes';
 import StageAutomationRules, { type PipelineWithStages } from './StageAutomationRules';
+import { buildAutomationRulesPayload } from './stageAutomationPayload';
 
 // Cores predefinidas para as etapas
 const getStageColors = (t: (key: string) => string) => [
@@ -60,7 +61,7 @@ interface EditStageModalProps {
     name: string;
     color: string;
     stage_type: string;
-    automation_rules?: { description?: string; rules?: StageAutomationRule[] };
+    automation_rules: { description: string; rules: StageAutomationRule[] };
     custom_fields?: Record<string, unknown> & {
       attributes?: string[];
     };
@@ -230,11 +231,9 @@ export default function EditStageModal({
 
   const handleSubmit = () => {
     if (!name.trim() || !stage) return;
-    
-    const automationRulesPayload: { description?: string; rules?: StageAutomationRule[] } = {};
-    if (description) automationRulesPayload.description = description;
-    if (automationRules.length > 0) automationRulesPayload.rules = automationRules;
-    
+
+    const automationRulesPayload = buildAutomationRulesPayload(description, automationRules);
+
     const attributeKeys = Object.keys(customAttributes);
     const attributeDefinitions = Object.entries(customAttributes).reduce(
       (acc, [key, value]) => {
@@ -261,7 +260,7 @@ export default function EditStageModal({
       name: name.trim(),
       color,
       stage_type: stageType,
-      automation_rules: Object.keys(automationRulesPayload).length > 0 ? automationRulesPayload : undefined,
+      automation_rules: automationRulesPayload,
       custom_fields: attributeKeys.length > 0
         ? {
             ...existingCustomFields,

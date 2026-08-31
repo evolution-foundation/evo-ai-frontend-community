@@ -22,6 +22,8 @@ interface CustomMCPDialogProps {
   onOpenChange: (open: boolean) => void;
   onSave: (selectedServerIds: string[]) => void;
   initialSelectedIds?: string[];
+  /** Hides the "create new MCP" shortcuts: they navigate away and drop the unsaved form. */
+  hideCreateNew?: boolean;
 }
 
 const CustomMCPDialog = ({
@@ -29,6 +31,7 @@ const CustomMCPDialog = ({
   onOpenChange,
   onSave,
   initialSelectedIds = [],
+  hideCreateNew = false,
 }: CustomMCPDialogProps) => {
   const { t } = useLanguage('aiAgents');
   const navigate = useNavigate();
@@ -40,7 +43,6 @@ const CustomMCPDialog = ({
   const hasLoadedRef = useRef(false);
   const initialSelectionSetRef = useRef(false);
 
-  // Initialize selected servers when dialog opens - very simple and stable
   useEffect(() => {
     if (open && !initialSelectionSetRef.current) {
       setSelectedServerIds([...initialSelectedIds]);
@@ -48,7 +50,6 @@ const CustomMCPDialog = ({
     }
   }, [open, initialSelectedIds]);
 
-  // Cleanup when dialog closes - separate effect for clarity
   useEffect(() => {
     if (!open) {
       setCustomMCPServers([]);
@@ -60,14 +61,11 @@ const CustomMCPDialog = ({
     }
   }, [open]);
 
-  // Load all servers when dialog opens (we'll filter locally)
   useEffect(() => {
-    // Only load if dialog is open and we haven't loaded yet
     if (!open || hasLoadedRef.current) {
       return;
     }
 
-    // Load custom MCP servers
     const loadServers = async () => {
       try {
         setLoading(true);
@@ -78,7 +76,7 @@ const CustomMCPDialog = ({
       } catch (error) {
         console.error('Error loading custom MCP servers:', error);
         setCustomMCPServers([]);
-        hasLoadedRef.current = false; // Allow retry on error
+        hasLoadedRef.current = false;
       } finally {
         setLoading(false);
       }
@@ -113,8 +111,10 @@ const CustomMCPDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+        {/* `sm:text-center` and not `text-center`: tailwind-merge only cancels a
+            responsive variant with another responsive variant. */}
+        <DialogHeader className="sm:text-center">
+          <DialogTitle className="flex items-center justify-center gap-2">
             <Server className="h-5 w-5 text-emerald-500" />
             {t('dialogs.customMcp.title')}
           </DialogTitle>
@@ -122,20 +122,20 @@ const CustomMCPDialog = ({
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden flex flex-col">
-          {/* Search */}
           <div className="p-4 border-b">
+            {/* No border/background/height override on the Input, so the `--ring` focus
+                token shows. */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder={t('dialogs.customMcp.searchPlaceholder')}
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-9"
               />
             </div>
           </div>
 
-          {/* Servers List */}
           <div className="flex-1 overflow-auto p-4">
             {loading ? (
               <div className="flex items-center justify-center h-32">
@@ -231,7 +231,7 @@ const CustomMCPDialog = ({
                 <p className="text-muted-foreground text-sm mt-1 mb-3">
                   {!searchTerm && t('dialogs.customMcp.createFirst')}
                 </p>
-                {!searchTerm && (
+                {!searchTerm && !hideCreateNew && (
                   <Button
                     size="sm"
                     onClick={() => {
@@ -248,7 +248,6 @@ const CustomMCPDialog = ({
             )}
           </div>
 
-          {/* Selected Count */}
           {selectedServerIds.length > 0 && (
             <div className="border-t p-4">
               <p className="text-sm text-muted-foreground">
@@ -258,12 +257,13 @@ const CustomMCPDialog = ({
           )}
         </div>
 
-        <DialogFooter className="border-t p-4">
+        <DialogFooter className="gap-2 border-t p-4 sm:justify-start">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t('actions.cancel')}
           </Button>
-          {customMCPServers.length > 0 && (
+          {customMCPServers.length > 0 && !hideCreateNew && (
             <Button
+              className="flex-1"
               onClick={() => {
                 onOpenChange(false);
                 navigate('/custom-mcp-servers');
@@ -273,10 +273,10 @@ const CustomMCPDialog = ({
               {t('tools.mcpServers.add')}
             </Button>
           )}
-          <Button onClick={handleSave} disabled={selectedServerIds.length === 0}>
-            {selectedServerIds.length === 0
-              ? t('dialogs.customMcp.selectServers')
-              : t('dialogs.customMcp.addSelected', { count: selectedServerIds.length })}
+          {/* `onSave` replaces the whole selection, so confirming with none checked is
+              how every server gets unlinked. */}
+          <Button className="flex-1" onClick={handleSave}>
+            {t('dialogs.customMcp.saveSelection', { count: selectedServerIds.length })}
           </Button>
         </DialogFooter>
       </DialogContent>

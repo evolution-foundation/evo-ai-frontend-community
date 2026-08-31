@@ -926,6 +926,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
             <TabsContent value="botConfiguration">
               {activeTab === 'botConfiguration' && <AgentBotConfigurationForm
                 inboxId={inboxId}
+                registerSave={handle => registerTabSave('botConfiguration', handle)}
                 onUpdate={success => {
                   if (success) {
                     // Optionally refresh inbox data or show success feedback

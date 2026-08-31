@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { Suspense, useEffect, useState, useCallback, useRef, useMemo } from 'react';
 
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useChatContext } from '@/contexts/chat/ChatContext';
 import { usePermissions } from '@/contexts/PermissionsContext';
@@ -14,6 +14,7 @@ import { useAssignmentHandlers } from '@/hooks/chat/useAssignmentHandlers';
 import { useFilterHandlers } from '@/hooks/chat/useFilterHandlers';
 
 import { loadConversationFilters, getDefaultFilter } from '@/utils/storage/filtersStorage';
+import { CONVERSATION_SEGMENTS } from '@/components/chat/chat-sidebar/conversationSegmentsHelpers';
 
 import { toast } from 'sonner';
 import { AxiosError } from 'axios';
@@ -45,7 +46,6 @@ import type { DashboardApp } from '../../../types/integrations';
 import type { AssignmentOption, AssignmentType } from '@/components/chat/assignment';
 import { labelsService } from '@/services/contacts/labelsService';
 import { useAppDataStore } from '@/store/appDataStore';
-import type { Label } from '@/types/settings';
 import chatService from '@/services/chat/chatService';
 
 const ContactSidebar = React.lazy(() => import('@/components/chat/contact-sidebar/ContactSidebar'));
@@ -82,6 +82,14 @@ const Chat = () => {
   const fetchLabels = useAppDataStore(state => state.fetchLabels);
   const { conversationId } = useParams<{ conversationId?: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Resolved once so both effects below agree: an unknown segment has to fall back
+  // to the saved view, not to no list at all.
+  const segmentParam = searchParams.get('segment');
+  const badgeSegment = useMemo(
+    () => (segmentParam ? CONVERSATION_SEGMENTS.find(s => s.id === segmentParam) ?? null : null),
+    [segmentParam],
+  );
   const chatContext = useChatContext();
   // Explicitly type conversations to ensure TypeScript recognizes it has 'state'
   const conversations = chatContext.conversations;
@@ -245,6 +253,11 @@ const Chat = () => {
       return;
     }
 
+    // A recognized ?segment= is applied by the effect below.
+    if (badgeSegment) {
+      return;
+    }
+
     // 💾 PERSISTÊNCIA: Carregar filtros salvos ou usar padrão
     const savedFilters = loadConversationFilters();
     const filtersToApply = savedFilters || getDefaultFilter();
@@ -259,6 +272,36 @@ const Chat = () => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [permissionsReady]);
+
+  // Keyed on the param, not on mount: /conversations and /conversations/:id are the
+  // same route element, so arriving from the sidebar badge does not remount Chat.
+  useEffect(() => {
+    if (!permissionsReady || !segmentParam) {
+      return;
+    }
+
+    // Only `segment` is stripped, recognized or not; other params survive.
+    setSearchParams(
+      prev => {
+        const next = new URLSearchParams(prev);
+        next.delete('segment');
+        return next;
+      },
+      { replace: true },
+    );
+
+    if (!badgeSegment || !can('conversations', 'read')) {
+      return;
+    }
+
+    handleApplyFilters(badgeSegment.preset).catch(error => {
+      const axiosError = error as AxiosError;
+      if (axiosError?.response?.status === 403 || axiosError?.response?.status === 404) {
+        console.error(`Sem permissão. Parando tentativas.`);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [permissionsReady, segmentParam]);
 
   const handleClearFilters = useCallback(async () => {
     setSelectedConversationIds(new Set());
@@ -669,9 +712,7 @@ const Chat = () => {
     show_on_sidebar?: boolean;
   }): Promise<AssignmentOption> => {
     try {
-      // labelsService.createLabel returns the unwrapped Label (extractData unwraps response.data.data)
-      // despite the declared LabelResponse type — service typing is inconsistent across the codebase.
-      const label = (await labelsService.createLabel(data)) as unknown as Label;
+      const label = await labelsService.createLabel(data);
       if (!label?.id || !label?.title) {
         throw new Error('Invalid label payload returned from API');
       }

@@ -1,6 +1,6 @@
 import { useLanguage } from '@/hooks/useLanguage';
 import { Badge } from '@evoapi/design-system';
-import { Edit, Trash2, Play, Eye, Globe, Lock } from 'lucide-react';
+import { Edit, Trash2, Eye, Globe, Lock } from 'lucide-react';
 import { Macro } from '@/types/automation';
 import { BaseTable, TableColumn, TableAction } from '@/components/base';
 import { useDateFormat } from '@/hooks/useDateFormat';
@@ -14,7 +14,6 @@ interface MacrosTableProps {
   onMacroClick: (macro: Macro) => void;
   onEditMacro: (macro: Macro) => void;
   onDeleteMacro: (macro: Macro) => void;
-  onExecuteMacro: (macro: Macro) => void;
   onCreateMacro?: () => void;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
@@ -32,7 +31,6 @@ export default function MacrosTable({
   onMacroClick,
   onEditMacro,
   onDeleteMacro,
-  onExecuteMacro,
   onCreateMacro,
   sortBy,
   sortOrder,
@@ -136,13 +134,6 @@ export default function MacrosTable({
       onClick: onMacroClick,
     },
     {
-      label: t('table.actions.execute'),
-      icon: <Play className="h-4 w-4" />,
-      onClick: onExecuteMacro,
-      variant: 'default',
-      show: () => isReady && can('macros', 'execute'),
-    },
-    {
       label: t('table.actions.edit'),
       icon: <Edit className="h-4 w-4" />,
       onClick: onEditMacro,
@@ -171,7 +162,7 @@ export default function MacrosTable({
       getRowKey={getRowKey || ((macro: Macro) => macro.id.toString())}
       emptyTitle={t('empty.title')}
       emptyDescription={t('empty.description')}
-      emptyAction={onCreateMacro && isReady && can('macros', 'create') ? {
+      emptyAction={onCreateMacro && isReady && can('macros', 'manage') ? {
         label: t('empty.action'),
         onClick: onCreateMacro,
       } : undefined}

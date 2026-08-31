@@ -17,6 +17,10 @@ import {
 import { processAgentData } from '@/utils/agentUtils';
 import { extractData, buildPaginationParams, extractResponse } from '@/utils/apiHelpers';
 
+export interface ListApiKeysOptions {
+  active?: boolean;
+}
+
 class AgentsService {
   // AI Agents
   async createAgent(data: AgentCreate): Promise<Agent> {
@@ -124,10 +128,19 @@ class AgentsService {
     return extractData<ApiKey>(response);
   }
 
-  async listApiKeys(page = 1, pageSize = 100): Promise<ApiKey[]> {
-    const response = await evoaiApi.get('/agents/apikeys', {
-      params: buildPaginationParams(page, pageSize),
-    });
+  // The core lists only active keys unless `active` is sent explicitly, so
+  // callers picking a credential for an agent keep the default and the
+  // settings screen asks for the inactive ones as well.
+  async listApiKeys(
+    page = 1,
+    pageSize = 100,
+    options?: ListApiKeysOptions,
+  ): Promise<ApiKey[]> {
+    const params: Record<string, unknown> = buildPaginationParams(page, pageSize);
+    if (options?.active !== undefined) {
+      params.active = String(options.active);
+    }
+    const response = await evoaiApi.get('/agents/apikeys', { params });
     return extractData<ApiKey[]>(response);
   }
 
@@ -187,7 +200,8 @@ export const updateFolder = (folderId: string, data: FolderUpdate) => agentsServ
 export const deleteFolder = (folderId: string) => agentsService.deleteFolder(folderId);
 
 export const createApiKey = (data: ApiKeyCreate) => agentsService.createApiKey(data);
-export const listApiKeys = (page?: number, pageSize?: number) => agentsService.listApiKeys(page, pageSize);
+export const listApiKeys = (page?: number, pageSize?: number, options?: ListApiKeysOptions) =>
+  agentsService.listApiKeys(page, pageSize, options);
 export const updateApiKey = (keyId: string, data: ApiKeyUpdate) => agentsService.updateApiKey(keyId, data);
 export const deleteApiKey = (keyId: string) => agentsService.deleteApiKey(keyId);
 

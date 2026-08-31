@@ -46,6 +46,7 @@
     "updateError": "Erro ao atualizar pipeline",
     "deleteSuccess": "Pipeline deletado com sucesso",
     "deleteError": "Erro ao deletar pipeline",
+    "deleteBlockedActiveItems": "Este pipeline ainda tem itens ativos e não pode ser eliminado. Remova os itens do pipeline primeiro.",
     "duplicateSuccess": "Pipeline duplicado com sucesso",
     "duplicateError": "Erro ao duplicar pipeline",
     "activateSuccess": "Pipeline ativado com sucesso",
@@ -196,6 +197,7 @@
     "namePlaceholder": "Ex: Leads Qualificados",
     "descriptionLabel": "Descrição",
     "descriptionPlaceholder": "Descreva o propósito desta etapa...",
+    "characterCount": "{{current}}/{{max}} caracteres",
     "color": "Cor da Etapa",
     "colorSelected": "Cor selecionada",
     "stageType": "Tipo de Etapa",
@@ -835,6 +837,25 @@
     }
   },
   "dialog": {
+      "deactivatePipeline": {
+      "lookupFailed": "Não foi possível verificar o que depende deste pipeline. Desativar mesmo assim?",
+      "draft": "rascunho",
+      "viaRoutingRule": "por regra de encaminhamento",
+      "namesRedacted": "{{count}} formulário no total — não tem permissão para ver os nomes.",
+      "namesRedacted_plural": "{{count}} formulários no total — não tem permissão para ver os nomes.",
+          "title": "Desativar pipeline",
+          "description": "\"{{name}}\" vai desaparecer de todos os seletores de pipeline. O que já está dentro dele permanece onde está.",
+          "checking": "A verificar o que depende deste pipeline…",
+          "formsHeading": "{{count}} formulário de captura envia leads para aqui:",
+          "formsHeading_plural": "{{count}} formulários de captura enviam leads para aqui:",
+          "noForms": "Nenhum formulário de captura alimenta este pipeline.",
+          "draftsHeading": "{{count}} formulário em rascunho aponta para este pipeline (ainda não capta):",
+          "draftsHeading_plural": "{{count}} formulários em rascunho apontam para este pipeline (ainda não captam):",
+          "published": "publicado",
+          "partialWarning": "Apenas formulários de captura foram verificados. Automações e jornadas não foram consultadas.",
+          "cancel": "Cancelar",
+          "confirm": "Desativar"
+      },
     "deletePipeline": {
       "title": "Deletar Pipeline",
       "description": "Tem certeza de que deseja deletar este pipeline? Esta ação não pode ser desfeita e afetará todos os dados relacionados.",

@@ -46,6 +46,8 @@ export interface BulkItem {
   status?: ProductStatus;
   stock_quantity?: number;
   labels?: string[];
+  /** EVO-2226: remote image URLs carried from the connector to /products/bulk. */
+  image_urls?: string[];
 }
 
 export interface FieldError {

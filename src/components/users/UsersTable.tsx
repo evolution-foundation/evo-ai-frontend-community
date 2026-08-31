@@ -146,7 +146,6 @@ export default function UsersTable({
     {
       key: 'id',
       label: t('table.columns.id'),
-      sortable: true,
       width: '80px',
       render: user => <span className="font-mono text-xs text-muted-foreground">{user.id}</span>,
     },

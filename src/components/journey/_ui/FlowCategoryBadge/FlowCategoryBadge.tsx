@@ -1,7 +1,8 @@
 import { forwardRef, type HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
-import type { FlowActionSubtype } from '../FlowNode/FlowNode';
 import { flowCategoryBadgeVariants, type FlowCategoryBadgeKind } from './styles';
+
+export type FlowActionSubtype = 'message' | 'webhook' | 'label' | 'pipeline';
 
 export type FlowCategoryBadgeProps =
   | (HTMLAttributes<HTMLSpanElement> & {

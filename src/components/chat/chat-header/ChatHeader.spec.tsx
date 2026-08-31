@@ -522,3 +522,56 @@ describe('ChatHeader contact panel', () => {
   });
 
 });
+
+// jsdom does not evaluate media queries, so these lock the responsive classes
+// themselves — a className "cleanup" is exactly how EVO-2234 would come back.
+describe('ChatHeader mobile layout (EVO-2234)', () => {
+  beforeEach(() => {
+    vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [] } as never);
+    vi.mocked(pipelinesService.getPipelinesByConversation).mockResolvedValue([]);
+  });
+
+  it('names the mobile back button (the only exit once the close X is desktop-only)', () => {
+    render(<ChatHeader {...defaultProps} />);
+
+    const back = screen.getByRole('button', { name: 'chatHeader.backToConversations' });
+    expect(back).toHaveClass('md:hidden');
+  });
+
+  it('keeps the close (X) button out of the mobile header', () => {
+    render(<ChatHeader {...defaultProps} />);
+
+    const close = screen.getByRole('button', { name: 'chatHeader.closeConversation' });
+    expect(close).toHaveClass('hidden');
+    expect(close).toHaveClass('md:inline-flex');
+  });
+
+  it('lets the contact name truncate instead of pushing the actions off-screen', () => {
+    render(<ChatHeader {...defaultProps} />);
+
+    const name = screen.getByRole('heading', { name: 'Test Contact' });
+    expect(name).toHaveClass('truncate');
+    expect(name).toHaveClass('max-w-full');
+  });
+
+  it('lets the inbox name shrink and truncate instead of overflowing the header', () => {
+    render(<ChatHeader {...defaultProps} />);
+
+    const inbox = screen.getByText('WhatsApp');
+    // min-w-0 is what actually allows the shrink: a flex item's automatic minimum
+    // size is its content, so truncate alone would never engage.
+    expect(inbox).toHaveClass('min-w-0');
+    expect(inbox).toHaveClass('truncate');
+  });
+
+  it('still states the status as text on mobile, not by color alone', () => {
+    render(<ChatHeader {...defaultProps} />);
+
+    const longPill = screen.getByText('• chatHeader.statusPill.open');
+    expect(longPill).toHaveClass('hidden');
+    expect(longPill).toHaveClass('md:inline');
+
+    const shortStatus = screen.getByText('• open');
+    expect(shortStatus).toHaveClass('md:hidden');
+  });
+});

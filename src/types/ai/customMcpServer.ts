@@ -4,6 +4,9 @@ export interface CustomMcpServer {
   client_id: string;
   description: string;
   headers: Record<string, unknown>;
+  /** EVO-2250 story 2.4: map of header name -> vault credential id (never a
+   * scalar column — one credential per secret). */
+  credential_refs?: Record<string, string>;
   id: string;
   name: string;
   retry_count: number;
@@ -18,6 +21,7 @@ export interface CustomMcpServer {
 export interface CustomMcpServerCreate {
   description: string;
   headers: Record<string, unknown>;
+  credential_refs?: Record<string, string>;
   name: string;
   retry_count: number;
   tags: string[];
@@ -28,6 +32,7 @@ export interface CustomMcpServerCreate {
 export interface CustomMcpServerUpdate {
   description?: string;
   headers?: Record<string, unknown>;
+  credential_refs?: Record<string, string>;
   name?: string;
   retry_count?: number;
   tags?: string[];
@@ -60,6 +65,13 @@ export interface CustomMcpServerTestResponse {
     // Refletir sempre este valor no toast, não `server.tools.length` (DB-stale).
     tools_count?: number;
   };
+}
+
+// EVO-1739: the stateless test-before-save result (no persisted server).
+export type McpTestResult = CustomMcpServerTestResponse['test_result'];
+
+export interface CustomMcpServerTestConnectionResponse {
+  test_result: McpTestResult;
 }
 
 export interface ListCustomMcpServersParams {

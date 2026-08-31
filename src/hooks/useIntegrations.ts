@@ -31,6 +31,9 @@ export interface KnowledgeNexusConfig {
   // it on save when the user enters a new key. Optional so a re-edit doesn't
   // need to retype the key (omit the field to keep the stored value).
   nexus_api_key?: string;
+  // EVO-2250 story 2.4: vault reference for the API key. Scalar here because
+  // the Nexus integration has a single secret.
+  credential_id?: string;
   space_id?: string;
   default_top_k?: number;
   default_filters?: Record<string, unknown>;

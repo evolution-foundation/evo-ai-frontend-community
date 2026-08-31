@@ -310,7 +310,9 @@
         "apiUrl": "https://api.openai.com/v1",
         "apiSecret": "Enter new API key",
         "model": "gpt-4o"
-      }
+      },
+      "credentialMoved": "The AI credential now lives in Settings > AI Credentials.",
+      "goToCredentials": "Go to AI Credentials"
     },
     "prompts": {
       "cardTitle": "AI Prompt Templates",

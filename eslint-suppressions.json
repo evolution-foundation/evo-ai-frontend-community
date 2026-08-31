@@ -1,0 +1,1614 @@
+{
+  "src/components/AccessTokens/AccessTokenModal.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/AppInitializer.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/BrandIcon.tsx": {
+    "react-refresh/only-export-components": {
+      "count": 2
+    }
+  },
+  "src/components/agents/AgentWizardModal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/components/agents/ExternalAgentConfig.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    }
+  },
+  "src/components/agents/chat/AgentChatMessage.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    }
+  },
+  "src/components/agents/chat/AgentChatMessageList.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/agents/providerConfigs/DifyConfigForm.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/agents/providerConfigs/OpenAIConfigForm.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/ai_agents/Dialogs/MCPConfigDialog.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/components/ai_agents/Dialogs/MCPServersDialog.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/ai_agents/Dialogs/ToolsDialog.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    }
+  },
+  "src/components/ai_agents/Forms/A2AConfigForm.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    }
+  },
+  "src/components/ai_agents/Forms/BasicInfoForm.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/ai_agents/Forms/SubAgentsForm.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/ai_agents/Forms/TaskConfigForm.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    }
+  },
+  "src/components/ai_agents/ModelSelector.tsx": {
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/components/auth/EmailConfirmation.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/auth/ResetPassword.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/components/automation/ConditionRow.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/base/BaseFilter.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/base/BaseFlowCanvas.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    }
+  },
+  "src/components/base/BaseFlowEditor.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    }
+  },
+  "src/components/base/BaseNodePanel.spec.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/base/BaseTable.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/campaigns/CampaignCard.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/components/channels/FacebookChannelForm.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 11
+    }
+  },
+  "src/components/channels/forms/whatsapp/CloudWhatsappForm.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    }
+  },
+  "src/components/channels/forms/whatsapp/index.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/channels/settings/AuthorizationBanners.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 22
+    }
+  },
+  "src/components/channels/settings/CSATDisplayTypeSelector.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/channels/settings/CSATForm.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/components/channels/settings/ConfigurationForm.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 32
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/channels/settings/ModerationDashboard.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/channels/settings/PreChatFields.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/channels/settings/TemplatePreview.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/channels/settings/WidgetBuilderForm.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/channels/settings/helpers/widgetHelpers.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "no-empty": {
+      "count": 2
+    },
+    "no-useless-escape": {
+      "count": 6
+    }
+  },
+  "src/components/channels/settings/widget/WidgetPreview.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/charts/AreaChartCard.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/charts/BarChartCard.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/charts/DonutChartCard.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/components/chat/contact-drawer/ConversationActions.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/components/chat/conversation/ConversationActionsDropdown.spec.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/components/chat/message-input/MacrosButton.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "src/components/chat/messages/MessageAudio.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/chat/messages/MessageBubble.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/components/chat/rich-text-editor/RichTextEditor.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/contacts/ContactExportModal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/customAttributes/CustomAttributeModal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/customMcpServers/CustomMCPServerDetails.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "src/components/integrations/AsanaConfigDialog.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/AtlassianConfigDialog.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/CallbackPage.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/CanvaConfigDialog.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/ElevenLabsConfigDialog.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/GitHubConfigDialog.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/GoogleCalendarConfigDialog.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/GoogleSheetsConfigDialog.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/HubSpotConfigDialog.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/LinearConfigDialog.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/MondayConfigDialog.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/NotionConfigDialog.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/PayPalConfigDialog.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/StripeConfigDialog.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/SupabaseConfigDialog.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/base/IntegrationStatus.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/providers/bms/BMSModal.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/providers/dashboard/DashboardAppsList.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/providers/dashboard/DashboardAppsTable.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/components/integrations/providers/oauth/OAuthAppsList.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/providers/slack/SlackIntegration.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/providers/webhooks/WebhooksList.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/providers/webhooks/WebhooksTable.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/integrations/shared/IntegrationModal.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/journey/SessionsViewer.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "src/components/journey/environment-manager/EnvironmentManager.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/components/journey/environment-manager/VariableInput.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/components/journey/environment-manager/VariableMapping.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/journey/environment-manager/VariableTextarea.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/add-label/AddLabelPanel.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/assign-agent/AssignAgentNode.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/components/journey/nodes/actions/assign-agent/AssignAgentPanel.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/assign-bot/AssignBotNode.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/components/journey/nodes/actions/assign-team/AssignTeamNode.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/components/journey/nodes/actions/assign-team/AssignTeamPanel.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/assign-to-pipeline/AssignToPipelinePanel.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/change-priority/ChangePriorityNode.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/change-priority/ChangePriorityPanel.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/conditional/ConditionalNode.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/components/journey/nodes/actions/create-pipeline-task/CreatePipelineTaskPanel.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/defer-conversation/DeferConversationNode.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/components/journey/nodes/actions/defer-conversation/DeferConversationPanel.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/move-to-pipeline-stage/MoveToPipelineStagePanel.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    }
+  },
+  "src/components/journey/nodes/actions/mute-conversation/MuteConversationNode.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/components/journey/nodes/actions/mute-conversation/MuteConversationPanel.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/remove-label/RemoveLabelPanel.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/resolve-conversation/ResolveConversationNode.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/components/journey/nodes/actions/resolve-conversation/ResolveConversationPanel.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/scheduled-action/ScheduledActionNode.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/send-canned-response/SendCannedResponsePanel.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/send-email-team/SendEmailTeamNode.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/components/journey/nodes/actions/send-email-team/SendEmailTeamPanel.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/send-message/SendMessageNode.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/components/journey/nodes/actions/send-message/SendMessagePanel.spec.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "src/components/journey/nodes/actions/send-message/SendMessagePanel.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/send-transcript/SendTranscriptNode.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/components/journey/nodes/actions/send-transcript/SendTranscriptPanel.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/split/SplitPanel.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/transfer-journey/TransferJourneyPanel.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/update-custom-attribute/UpdateCustomAttributePanel.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/wait/WaitNode.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/components/journey/nodes/actions/wait/components/WaitConditionConfig.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/journey/nodes/actions/wait/components/WaitEventConfig.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/components/journey/nodes/trigger/components/PipelineStageChangedConfiguration.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    }
+  },
+  "src/components/journey/shared/EventPropertiesForm/EventPropertiesForm.spec.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/components/labels/LabelModal.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/layout/MainLayout.spec.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    }
+  },
+  "src/components/layout/components/MenuItem.spec.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/components/layout/components/Sidebar.spec.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "src/components/macros/MacrosHeader.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/pipelines/ConversationPipelineItem.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/pipelines/CreatePipelineModal.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    }
+  },
+  "src/components/pipelines/EditPipelineModal.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/pipelines/PipelineItemCard.spec.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/pipelines/tasks/PipelineTasksList.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/components/scheduledActions/ScheduledActionsList.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/segments/SegmentConditionEditor.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/segments/SegmentModal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/shared/attachments/SharedAudioBubble.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/tools/ToolCard.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/tools/ToolDetails.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/components/tools/ToolsTable.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/users/BulkInviteModal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/users/UserFormModal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/components/users/UsersTable.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/widget/ChatAttachment.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/components/widget/MessageList.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/components/widget/PreChatForm.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    }
+  },
+  "src/contexts/AgentFormContext.tsx": {
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/contexts/AuthContext.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/contexts/DnDContext.tsx": {
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/contexts/GlobalConfigContext.tsx": {
+    "react-refresh/only-export-components": {
+      "count": 6
+    }
+  },
+  "src/contexts/JourneyValidationContext.tsx": {
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/contexts/NotificationsContext.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 10
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-refresh/only-export-components": {
+      "count": 3
+    }
+  },
+  "src/contexts/PermissionsContext.tsx": {
+    "react-refresh/only-export-components": {
+      "count": 2
+    }
+  },
+  "src/contexts/ThemeContext.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/contexts/agents/AgentChatContext.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    },
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/contexts/chat/ChatContext.tsx": {
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/contexts/chat/ConversationsContext.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/contexts/chat/FiltersContext.tsx": {
+    "react-refresh/only-export-components": {
+      "count": 2
+    }
+  },
+  "src/contexts/chat/MessagesContext.tsx": {
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/contexts/chat/UIContext.tsx": {
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/contexts/chat/WebSocketContext.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/hooks/channels/useChannelSubmission.spec.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/hooks/channels/useChannelSubmission.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/hooks/chat/useAudioRecorder.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/hooks/chat/usePersistence.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/hooks/chat/useWebSocket.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/hooks/integrations/useIntegrationDetails.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/hooks/integrations/useOAuthFlow.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/hooks/useAccount.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    }
+  },
+  "src/hooks/useAgentTypes.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/hooks/useAgentWebSocket.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/hooks/useAvailableAgents.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/hooks/useContactPiiMasking.spec.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/hooks/useDebounce.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/hooks/useJoyride.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/hooks/useNotificationWebSocket.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/hooks/useTools.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/hooks/useTranslation.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/hooks/useWidgetConfig.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/hooks/widget/useWidgetChat.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/hooks/widget/useWidgetRealtime.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/lib/utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/pages/Admin/Roles/RoleDetail.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 5
+    }
+  },
+  "src/pages/Admin/Settings/OpenAIConfig.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/pages/Admin/Settings/SocialLoginConfig.spec.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/pages/Customer/Agents/Agent/AgentEditPage.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "src/pages/Customer/Agents/Agent/AgentPage.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 4
+    }
+  },
+  "src/pages/Customer/Campaigns/NewCampaign/NewCampaign.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "src/pages/Customer/Campaigns/NewCampaign/components/CampaignTriggerConfig.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/pages/Customer/Campaigns/NewCampaign/wizard/Step4_Settings.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/pages/Customer/Channels/ChannelSettings.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/pages/Customer/Channels/NewChannel/NewChannel.spec.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/pages/Customer/Channels/NewChannel/NewChannelModal.spec.tsx": {
+    "react-hooks/rules-of-hooks": {
+      "count": 1
+    }
+  },
+  "src/pages/Customer/Contacts/Contacts.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/pages/Customer/Contacts/ScheduledActions.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/pages/Customer/Journey/Journey.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/pages/Customer/Journey/JourneyFlowEditor.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    }
+  },
+  "src/pages/Customer/Pipelines/PipelineKanban.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/pages/Customer/Settings/AccessTokens/AccessTokens.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/pages/Customer/Settings/Account/AccountSettings.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/pages/OAuth/OAuthAuthorize.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/pages/OAuth/OAuthLogin.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/pages/Public/Survey/SurveyResponse.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "src/pages/Setup/Setup.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/pages/Shared/Marketplace/Marketplace.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/pages/Shared/Profile/Profile.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    }
+  },
+  "src/pages/Widget/index.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 38
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    },
+    "no-empty": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/services/account/accountService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "src/services/agents/agentService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/services/agents/chatService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/services/agents/customMcpServerService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/services/agents/customToolsService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "src/services/agents/integrationService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/services/agents/mcpServerService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/services/agents/sessionService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/services/agents/toolsService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/services/auth/accessTokensService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/services/auth/authService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 12
+    }
+  },
+  "src/services/auth/oauthService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/services/auth/profileService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/services/automation/automationService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 34
+    }
+  },
+  "src/services/cannedResponses/cannedResponsesService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "src/services/channels/channelConfigurationService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 53
+    }
+  },
+  "src/services/channels/channelsService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 11
+    }
+  },
+  "src/services/channels/evolutionGoService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 10
+    }
+  },
+  "src/services/channels/evolutionService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 10
+    }
+  },
+  "src/services/channels/instagramService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/services/channels/twilioService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/services/channels/whatsappService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "src/services/chat/websocket/BaseActionCableConnector.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/services/chat/websocket/ChatActionCableConnector.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/services/conversations/conversationService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 13
+    }
+  },
+  "src/services/core/apiAuth.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/services/core/websocket/actionCableService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/services/dashboard/customerDashboardService.spec.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "src/services/integrations/asanaService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/services/integrations/atlassianService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/services/integrations/hubspotService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/services/integrations/linearService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/services/integrations/mondayService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/services/integrations/notionService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/services/integrations/openaiService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/services/integrations/paypalService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/services/journeys/journeyService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 23
+    }
+  },
+  "src/services/notifications/NotificationSettingsService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/services/notifications/NotificationsService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/services/pipelines/pipelineTasksService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/services/profile/twoFactorService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "src/services/rbac/rbacService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    }
+  },
+  "src/services/scheduledActions/scheduledActionsService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    }
+  },
+  "src/services/segments/segmentsService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/services/widget/widgetApi.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/services/widget/widgetService.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 17
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    },
+    "no-empty": {
+      "count": 4
+    }
+  },
+  "src/store/authStore.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/tours/tourRegistry.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/types/agents/agent.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 4
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/types/ai/customMcpServer.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 1
+    }
+  },
+  "src/types/ai/customTool.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 1
+    }
+  },
+  "src/types/ai/mcpServer.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 1
+    }
+  },
+  "src/types/analytics/pipelines.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 9
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/types/analytics/segments.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/types/auth/accessTokens.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 2
+    }
+  },
+  "src/types/auth/auth.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 1
+    }
+  },
+  "src/types/auth/rbac.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 3
+    }
+  },
+  "src/types/automation/automation.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 3
+    }
+  },
+  "src/types/automation/journeys.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 3
+    }
+  },
+  "src/types/automation/macros.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/types/campaigns/campaign.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 5
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 11
+    }
+  },
+  "src/types/chat/api.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    }
+  },
+  "src/types/contacts/contact.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 8
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/types/core/api.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    }
+  },
+  "src/types/integrations/main.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/types/notifications/messages.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/types/notifications/notifications.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 1
+    }
+  },
+  "src/types/products/product.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 3
+    }
+  },
+  "src/types/settings/account.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/types/settings/customAttributes.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 3
+    }
+  },
+  "src/types/settings/customer.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 1
+    }
+  },
+  "src/types/settings/labels.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 3
+    }
+  },
+  "src/types/settings/preChat.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/types/users/teams.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 3
+    }
+  },
+  "src/types/users/users.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 3
+    }
+  },
+  "src/utils/agentUtils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/utils/apiHelpers.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "src/utils/chat/conversationStatus.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/utils/chat/filterAdapters.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/utils/chat/responseHelpers.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "src/utils/clarityUtils.spec.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/utils/clarityUtils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "prefer-rest-params": {
+      "count": 1
+    }
+  },
+  "src/utils/colorUtils.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/utils/createCallbackPage.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/utils/retry/retryHelper.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/utils/time/formatDateTime.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/utils/validation.ts": {
+    "no-case-declarations": {
+      "count": 1
+    }
+  }
+}

@@ -1,30 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Button,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Badge,
-  Card,
-  Label,
-  Checkbox,
-} from '@evoapi/design-system';
-import { VariableTextarea } from '@/components/journey/environment-manager';
-import {
-  MessageSquare,
-  Paperclip,
-  Upload,
-  X,
-  File,
-  CheckCircle,
-  AlertCircle,
-  Mail,
-  Phone,
-  Send,
-} from 'lucide-react';
+import { Badge } from '@evoapi/design-system';
+import { MessageSquare, Paperclip } from 'lucide-react';
 import {
   SendMessageNodeData,
   TemplateVariableMapping,
@@ -38,6 +14,12 @@ import MessageTemplateService from '@/services/channels/messageTemplatesService'
 import type { MessageTemplate } from '@/types/channels/inbox';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
+import { SendMessageChannelConfig } from './components/SendMessageChannelConfig';
+import { SendMessageContent } from './components/SendMessageContent';
+import {
+  SendMessageAttachments,
+  type AttachmentFile,
+} from './components/SendMessageAttachments';
 
 // WhatsApp Cloud requires a Meta-approved template for bot-initiated messages
 // outside the 24h window — both STI spellings exist across the codebase.
@@ -54,32 +36,6 @@ interface SendMessagePanelProps {
   journeyId?: string;
 }
 
-interface AttachmentFile {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  status: 'uploading' | 'uploaded' | 'error';
-  uploadProgress?: number;
-}
-
-// EVO-1267: curated field paths per root source — every entry must be
-// resolvable by the CRM's TemplateVariableResolver (attribute or arity-0
-// reader on the root record).
-const SOURCE_FIELD_PATHS: Record<'contact' | 'conversation' | 'pipeline', string[]> = {
-  contact: ['name', 'email', 'phone_number', 'identifier'],
-  conversation: ['display_id', 'status'],
-  pipeline: ['pipeline_stage.name', 'pipeline.name', 'entered_at'],
-};
-
-const VARIABLE_SOURCES: TemplateVariableSource[] = [
-  'fixed',
-  'contact',
-  'conversation',
-  'pipeline',
-  'expression',
-];
-
 const ALLOWED_INBOX_TYPES = [
   'Channel::Email',
   'Channel::Whatsapp',
@@ -93,62 +49,6 @@ const ALLOWED_INBOX_TYPES = [
   'Channel::Line',
   'Channel::Twilio',
 ];
-
-const getInboxIcon = (channelType: string) => {
-  switch (channelType) {
-    case 'Channel::Email':
-      return <Mail className="w-4 h-4" />;
-    case 'Channel::Whatsapp':
-      return <MessageSquare className="w-4 h-4" />;
-    case 'Channel::Sms':
-    case 'Channel::TwilioSms':
-    case 'Channel::Twilio':
-      return <Phone className="w-4 h-4" />;
-    case 'Channel::Telegram':
-      return <Send className="w-4 h-4" />;
-    case 'Channel::FacebookPage':
-      return <MessageSquare className="w-4 h-4" />;
-    case 'Channel::Instagram':
-      return <MessageSquare className="w-4 h-4" />;
-    case 'Channel::Api':
-      return <Send className="w-4 h-4" />;
-    case 'Channel::WebWidget':
-      return <MessageSquare className="w-4 h-4" />;
-    case 'Channel::Line':
-      return <MessageSquare className="w-4 h-4" />;
-    default:
-      return <MessageSquare className="w-4 h-4" />;
-  }
-};
-
-const getChannelTypeName = (channelType: string) => {
-  switch (channelType) {
-    case 'Channel::Email':
-      return 'Email';
-    case 'Channel::Whatsapp':
-      return 'WhatsApp';
-    case 'Channel::Sms':
-      return 'SMS';
-    case 'Channel::TwilioSms':
-      return 'SMS (Twilio)';
-    case 'Channel::Twilio':
-      return 'Twilio';
-    case 'Channel::Telegram':
-      return 'Telegram';
-    case 'Channel::FacebookPage':
-      return 'Messenger';
-    case 'Channel::Instagram':
-      return 'Instagram';
-    case 'Channel::Api':
-      return 'API';
-    case 'Channel::WebWidget':
-      return 'Chat Widget';
-    case 'Channel::Line':
-      return 'LINE';
-    default:
-      return channelType.replace('Channel::', '');
-  }
-};
 
 export function SendMessagePanel({
   nodeId,
@@ -368,6 +268,15 @@ export function SendMessagePanel({
     }));
   };
 
+  const handleUseEventChannelChange = (checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      useEventChannel: checked,
+      inboxId: checked ? '' : prev.inboxId,
+      inboxName: checked ? '' : prev.inboxName,
+    }));
+  };
+
   const handleTemplateChange = (templateId: string) => {
     const template = templates.find(item => String(item.id) === templateId);
     const defaults: Record<string, string> = {};
@@ -465,14 +374,6 @@ export function SendMessagePanel({
     onUpdate(nodeId, updatedData);
     toast.success(t('panels.sendMessage.successMessage'));
     onClose();
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   const getCharacterCount = () => formData.message?.length || 0;
@@ -588,431 +489,49 @@ export function SendMessagePanel({
           </FlowFeedbackBanner>
         )}
 
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('panels.sendMessage.mode')}</Label>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant={isTemplateMode ? 'outline' : 'default'}
-              disabled={isCloudInbox}
-              onClick={() => handleModeChange('text')}
-            >
-              {t('panels.sendMessage.modeText')}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={isTemplateMode ? 'default' : 'outline'}
-              onClick={() => handleModeChange('template')}
-            >
-              {t('panels.sendMessage.modeTemplate')}
-            </Button>
-          </div>
-          {isCloudInbox && (
-            <p className="text-xs text-muted-foreground">
-              {t('panels.sendMessage.templateRequiredForCloud')}
-            </p>
-          )}
-        </div>
+        <SendMessageChannelConfig
+          isTemplateMode={isTemplateMode}
+          isCloudInbox={isCloudInbox}
+          onModeChange={handleModeChange}
+          useEventChannel={formData.useEventChannel}
+          onUseEventChannelChange={handleUseEventChannelChange}
+          loading={loading}
+          filteredInboxes={filteredInboxes}
+          inboxId={formData.inboxId}
+          onInboxChange={handleInboxChange}
+        />
+
+        <SendMessageContent
+          isTemplateMode={isTemplateMode}
+          journeyId={journeyId}
+          loading={loading}
+          inboxId={formData.inboxId}
+          templates={templates}
+          loadingTemplates={loadingTemplates}
+          templateId={formData.templateId}
+          selectedTemplate={selectedTemplate}
+          onTemplateChange={handleTemplateChange}
+          getVariableMapping={getVariableMapping}
+          onVariableMappingChange={handleVariableMappingChange}
+          onVariableSourceChange={handleVariableSourceChange}
+          message={formData.message}
+          onMessageChange={value => setFormData(prev => ({ ...prev, message: value }))}
+          characterCount={getCharacterCount()}
+          characterCountColor={getCharacterCountColor()}
+        />
 
         {!isTemplateMode && (
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="useEventChannel"
-                checked={formData.useEventChannel}
-                onCheckedChange={checked => {
-                  setFormData(prev => ({
-                    ...prev,
-                    useEventChannel: !!checked,
-                    inboxId: checked ? '' : prev.inboxId,
-                    inboxName: checked ? '' : prev.inboxName,
-                  }));
-                }}
-              />
-              <Label htmlFor="useEventChannel" className="text-sm font-medium cursor-pointer">
-                {t('panels.sendMessage.useEventChannel')}
-              </Label>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {t('panels.sendMessage.useEventChannelDescription')}
-            </p>
-          </div>
-        )}
-
-        {!formData.useEventChannel && (
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">{t('panels.sendMessage.sendChannel')}</Label>
-
-            {loading ? (
-              <div className="flex items-center justify-center p-8 border-2 border-dashed border-border rounded-lg">
-                <div className="animate-spin w-6 h-6 border-2 border-flow-node-action-message-fg border-t-transparent rounded-full mr-2" />
-                <span className="text-sm text-muted-foreground">
-                  {t('panels.sendMessage.loadingChannels')}
-                </span>
-              </div>
-            ) : filteredInboxes.length === 0 ? (
-              <Card className="p-6 text-center">
-                <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm font-medium mb-1">
-                  {t('panels.sendMessage.noChannelsAvailable')}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t('panels.sendMessage.configureChannels')}
-                </p>
-              </Card>
-            ) : (
-              <>
-                <Select value={formData.inboxId} onValueChange={handleInboxChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={t('panels.sendMessage.chooseChannel')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filteredInboxes.map((inbox: any) => (
-                      <SelectItem key={inbox.id} value={String(inbox.id)}>
-                        <div className="flex items-center gap-2">
-                          {getInboxIcon(inbox.channel_type)}
-                          <span>{inbox.name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            ({getChannelTypeName(inbox.channel_type)})
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  {t('panels.sendMessage.channelsDescription')}
-                </p>
-              </>
-            )}
-          </div>
-        )}
-
-        {isTemplateMode ? (
-          <div className="space-y-3">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">{t('panels.sendMessage.template')}</Label>
-              {!formData.inboxId ? (
-                <p className="text-xs text-muted-foreground">
-                  {t('panels.sendMessage.selectChannelForTemplate')}
-                </p>
-              ) : loadingTemplates ? (
-                <div className="flex items-center gap-2 p-3 border border-dashed border-border rounded-lg">
-                  <div className="animate-spin w-4 h-4 border-2 border-flow-node-action-message-fg border-t-transparent rounded-full" />
-                  <span className="text-sm text-muted-foreground">
-                    {t('panels.sendMessage.loadingTemplates')}
-                  </span>
-                </div>
-              ) : templates.length === 0 ? (
-                <Card className="p-4 text-center">
-                  <AlertCircle className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-xs text-muted-foreground">
-                    {t('panels.sendMessage.noTemplates')}
-                  </p>
-                </Card>
-              ) : (
-                <Select value={formData.templateId} onValueChange={handleTemplateChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={t('panels.sendMessage.chooseTemplate')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {templates.map(template => (
-                      <SelectItem key={template.id} value={String(template.id)}>
-                        <div className="flex items-center gap-2">
-                          <span>{template.name}</span>
-                          {template.language && (
-                            <span className="text-xs text-muted-foreground">
-                              ({template.language})
-                            </span>
-                          )}
-                          {template.category && (
-                            <Badge variant="outline" className="text-[10px]">
-                              {template.category}
-                            </Badge>
-                          )}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
-
-            {selectedTemplate && (
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  {t('panels.sendMessage.templatePreview')}
-                </Label>
-                <Card className="p-3 space-y-2">
-                  {Array.isArray(selectedTemplate.components) &&
-                  selectedTemplate.components.length > 0 ? (
-                    selectedTemplate.components.map((component, index) =>
-                      component?.text ? (
-                        <p
-                          key={index}
-                          className={
-                            component.type === 'BODY'
-                              ? 'text-sm whitespace-pre-wrap'
-                              : 'text-xs text-muted-foreground whitespace-pre-wrap'
-                          }
-                        >
-                          {component.text}
-                        </p>
-                      ) : null,
-                    )
-                  ) : (
-                    <p className="text-sm whitespace-pre-wrap">{selectedTemplate.content}</p>
-                  )}
-                </Card>
-              </div>
-            )}
-
-            {selectedTemplate && (selectedTemplate.variables?.length ?? 0) > 0 && (
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  {t('panels.sendMessage.templateVariables')}
-                </Label>
-                <div className="space-y-3">
-                  {selectedTemplate.variables!.map(variable => {
-                    if (!variable.name) return null;
-                    const mapping = getVariableMapping(variable.name);
-                    const isRootSource =
-                      mapping.source === 'contact' ||
-                      mapping.source === 'conversation' ||
-                      mapping.source === 'pipeline';
-                    const expressionInvalid =
-                      mapping.source === 'expression' &&
-                      !!(mapping.expression ?? '').trim() &&
-                      !isBalancedExpression(mapping.expression!);
-                    const exprErrorId = `send-message-expr-error-${variable.name}`;
-
-                    return (
-                      <div key={variable.name} className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">
-                          {variable.label || variable.name}
-                          {variable.required && (
-                            <span className="text-flow-feedback-error-fg"> *</span>
-                          )}
-                        </Label>
-                        <div className="flex gap-2">
-                          <Select
-                            value={mapping.source}
-                            onValueChange={source =>
-                              handleVariableSourceChange(
-                                variable.name!,
-                                source as TemplateVariableSource,
-                              )
-                            }
-                          >
-                            <SelectTrigger className="w-44 shrink-0">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {VARIABLE_SOURCES.map(source => (
-                                <SelectItem key={source} value={source}>
-                                  {t(`panels.sendMessage.variableSources.${source}`)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-
-                          {mapping.source === 'fixed' && (
-                            <Input
-                              value={mapping.value ?? ''}
-                              onChange={e =>
-                                handleVariableMappingChange(variable.name!, {
-                                  value: e.target.value,
-                                })
-                              }
-                              placeholder={variable.example || variable.name}
-                            />
-                          )}
-
-                          {isRootSource && (
-                            <Select
-                              value={mapping.path ?? ''}
-                              onValueChange={path =>
-                                handleVariableMappingChange(variable.name!, { path })
-                              }
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue
-                                  placeholder={t('panels.sendMessage.chooseField')}
-                                />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {SOURCE_FIELD_PATHS[
-                                  mapping.source as keyof typeof SOURCE_FIELD_PATHS
-                                ].map(path => (
-                                  <SelectItem key={path} value={path}>
-                                    {t(
-                                      `panels.sendMessage.variableFields.${mapping.source}.${path.replace(/\./g, '_')}`,
-                                    )}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-
-                          {mapping.source === 'expression' && (
-                            <div className="w-full space-y-1">
-                              <VariableTextarea
-                                value={mapping.expression ?? ''}
-                                onChange={e =>
-                                  handleVariableMappingChange(variable.name!, {
-                                    expression: e.target.value,
-                                  })
-                                }
-                                placeholder={t('panels.sendMessage.expressionPlaceholder')}
-                                className="min-h-[40px] resize-none"
-                                journeyId={journeyId}
-                                aria-invalid={expressionInvalid}
-                                aria-describedby={expressionInvalid ? exprErrorId : undefined}
-                              />
-                              {expressionInvalid && (
-                                <p
-                                  id={exprErrorId}
-                                  className="text-xs text-flow-feedback-error-fg"
-                                >
-                                  {t('panels.sendMessage.invalidExpression')}
-                                </p>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        {mapping.source !== 'fixed' && (
-                          <Input
-                            value={mapping.fallback ?? ''}
-                            onChange={e =>
-                              handleVariableMappingChange(variable.name!, {
-                                fallback: e.target.value,
-                              })
-                            }
-                            placeholder={t('panels.sendMessage.fallbackPlaceholder')}
-                            className="text-xs"
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {t('panels.sendMessage.variableSourcesHint')}
-                </p>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">{t('panels.sendMessage.message')}</Label>
-            <VariableTextarea
-              value={formData.message || ''}
-              onChange={e => setFormData(prev => ({ ...prev, message: e.target.value }))}
-              placeholder={t('panels.sendMessage.messagePlaceholder')}
-              className="min-h-[120px] resize-none"
-              disabled={loading}
-              journeyId={journeyId}
-            />
-
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-muted-foreground">{t('panels.sendMessage.useVariables')}</span>
-              <span className={getCharacterCountColor()}>{getCharacterCount()}/1000</span>
-            </div>
-          </div>
-        )}
-
-        {!isTemplateMode && (
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('panels.sendMessage.attachments')}</Label>
-
-          <div
-            className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
-              isDragOver
-                ? 'border-flow-node-action-message-fg bg-flow-node-action-message-bg'
-                : 'border-border hover:border-flow-node-action-message-border'
-            }`}
+          <SendMessageAttachments
+            attachments={attachments}
+            isDragOver={isDragOver}
+            loading={loading}
+            fileInputRef={fileInputRef}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-          >
-            <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
-            <p className="text-sm text-foreground mb-1">{t('panels.sendMessage.dragFiles')}</p>
-            <p className="text-xs text-muted-foreground mb-3">
-              {t('panels.sendMessage.maxFileSize')}
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={loading}
-            >
-              <Paperclip className="w-3 h-3 mr-1" />
-              {t('panels.sendMessage.chooseFiles')}
-            </Button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              className="hidden"
-              onChange={handleFileInputChange}
-              accept="*/*"
-            />
-          </div>
-        </div>
-        )}
-
-        {!isTemplateMode && attachments.length > 0 && (
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">
-              {t('panels.sendMessage.attachmentsList', { count: attachments.length })}
-            </Label>
-            <div className="space-y-2 max-h-32 overflow-y-auto">
-              {attachments.map(attachment => (
-                <div
-                  key={attachment.id}
-                  className="flex items-center gap-3 p-2 rounded-md bg-muted/30 border border-border"
-                >
-                  <div className="flex-shrink-0">
-                    {attachment.status === 'uploading' && (
-                      <div className="w-4 h-4 border-2 border-flow-node-action-message-fg border-t-transparent rounded-full animate-spin" />
-                    )}
-                    {attachment.status === 'uploaded' && (
-                      <CheckCircle className="w-4 h-4 text-flow-feedback-success-fg" />
-                    )}
-                    {attachment.status === 'error' && (
-                      <AlertCircle className="w-4 h-4 text-flow-feedback-error-fg" />
-                    )}
-                  </div>
-
-                  <File className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate">{attachment.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {attachment.size > 0 && formatFileSize(attachment.size)}
-                      {attachment.status === 'uploading' &&
-                        ` - ${t('panels.sendMessage.uploading', {
-                          progress: attachment.uploadProgress,
-                        })}`}
-                      {attachment.status === 'error' && ` - ${t('panels.sendMessage.uploadError')}`}
-                    </div>
-                  </div>
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeAttachment(attachment.id)}
-                    className="flex-shrink-0 h-7 w-7 text-flow-feedback-error-fg hover:text-flow-feedback-error-fg"
-                    aria-label={t('panels.sendMessage.removeAttachmentLabel') || 'Remove attachment'}
-                  >
-                    <X className="w-3 h-3" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
+            onFileInputChange={handleFileInputChange}
+            onRemoveAttachment={removeAttachment}
+          />
         )}
 
         {(isTemplateMode ? !!selectedTemplate : !!formData.message?.trim()) && (

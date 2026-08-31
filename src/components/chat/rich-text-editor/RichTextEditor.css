@@ -35,6 +35,12 @@
   color: hsl(var(--muted-foreground));
   position: absolute;
   pointer-events: none;
+  /* EVO-2234: keep the placeholder on one line and cut it with an ellipsis
+     instead of letting a long string clip mid-word on narrow (mobile) widths. */
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .prosemirror-editor:focus:empty:before,

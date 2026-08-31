@@ -28,7 +28,6 @@ const AgentToolsSection = ({
 
   const handleAddAgentTools = useCallback(
     (selectedAgents: Agent[]) => {
-      // Evitar duplicatas
       const existingIds = agentTools;
       const newAgentIds = selectedAgents
         .map(agent => agent.id)
@@ -139,13 +138,22 @@ const AgentToolsSection = ({
           )}
         </div>
       ) : (
-        <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-dashed">
-          <div>
-            <p className="font-medium">{t('tools.agentTools.noAgents')}</p>
-            <p className="text-sm text-muted-foreground">{t('tools.agentTools.subtitle')}</p>
+        <div className="flex flex-col items-start justify-between gap-3 rounded-[10px] border border-border bg-card p-4 sm:flex-row sm:items-center sm:gap-4">
+          {/* Stacks below `sm`: side by side the button does not shrink and squeezes
+              the text to one word per line. */}
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-foreground">{t('tools.agentTools.noAgents')}</p>
+            <p className="mt-[3px] text-[13px] text-muted-foreground">
+              {t('tools.agentTools.subtitle')}
+            </p>
           </div>
           {!isReadOnly && (
-            <Button variant="outline" size="sm" onClick={() => setShowAgentToolsDialog(true)}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-shrink-0"
+              onClick={() => setShowAgentToolsDialog(true)}
+            >
               <Plus className="h-4 w-4 mr-2" />
               {t('actions.add')}
             </Button>
@@ -153,7 +161,6 @@ const AgentToolsSection = ({
         </div>
       )}
 
-      {/* Modal de Agentes */}
       <AgentToolsDialog
         open={showAgentToolsDialog}
         onOpenChange={setShowAgentToolsDialog}

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { getContactColor } from '@/utils/avatar';
+import { pipelineDeleteErrorKey } from '@/utils/pipelineDeleteError';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -49,6 +50,7 @@ import {
   PipelineItem,
   UpdatePipelineData,
   CreateStageData,
+  StageAutomationRule,
 } from '@/types/analytics';
 import EditPipelineModal from '@/components/pipelines/EditPipelineModal';
 import CreateStageModal from '@/components/pipelines/CreateStageModal';
@@ -564,7 +566,7 @@ export default function PipelineKanban() {
       navigate('/pipelines');
     } catch (error) {
       console.error('Error deleting pipeline:', error);
-      toast.error(t('messages.deleteError'));
+      toast.error(t(pipelineDeleteErrorKey(error)));
     } finally {
       setIsDeletingPipeline(false);
     }
@@ -706,7 +708,7 @@ export default function PipelineKanban() {
     name: string;
     color: string;
     stage_type: string;
-    automation_rules?: { description?: string };
+    automation_rules: { description: string; rules: StageAutomationRule[] };
     custom_fields?: Record<string, unknown>;
   }) => {
     if (!stageToEdit || !pipelineId) return;

@@ -436,10 +436,12 @@ const ChatHeader = ({
   return (
     <div className="relative z-20 flex-shrink-0 p-3 md:p-4 border-b bg-background/95 backdrop-blur-sm">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {/* Back button for mobile */}
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Back button for mobile — the only way out of the conversation on mobile
+              (the close X is desktop-only), so it needs an accessible name of its own. */}
           <Button variant="ghost" size="sm" className="md:hidden" onClick={onBackClick}>
             <ArrowLeft className="h-4 w-4" />
+            <span className="sr-only">{t('chatHeader.backToConversations')}</span>
           </Button>
           <div
             className="cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all rounded-full"
@@ -447,10 +449,10 @@ const ChatHeader = ({
           >
             <ContactAvatar contact={conversation.contact} />
           </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap min-w-0">
               <h3
-                className="font-semibold cursor-pointer hover:text-primary transition-colors"
+                className="font-semibold cursor-pointer hover:text-primary transition-colors truncate max-w-full"
                 onClick={onContactSidebarOpen}
               >
                 {conversation.contact?.name || t('chatHeader.contactNoName')}
@@ -466,7 +468,10 @@ const ChatHeader = ({
               )}
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              {inboxName && <span>{inboxName}</span>}
+              {/* min-w-0: a flex item's automatic minimum size is its content, so without
+                  it a long inbox name overflows the header and runs under the action
+                  buttons on mobile instead of truncating (EVO-2234). */}
+              {inboxName && <span className="min-w-0 truncate">{inboxName}</span>}
               {(() => {
                 const meta = STATUS_META_LIGHT[conversation.status] || STATUS_META_LIGHT.snoozed;
                 // Rótulo LONGO do protótipo ("Atendimento em Aberto" etc.), distinto do
@@ -478,20 +483,29 @@ const ChatHeader = ({
                   STATUS_META[conversation.status]?.label || getStatusLabel(conversation.status, t),
                 );
                 return (
-                  <span
-                    style={{
-                      background: meta.bg,
-                      border: `1px solid ${meta.border}`,
-                      color: meta.text,
-                      borderRadius: 9,
-                      padding: '7px 14px',
-                      fontSize: 13,
-                      fontWeight: 600,
-                      lineHeight: 1,
-                    }}
-                  >
-                    • {pillLabel}
-                  </span>
+                  <>
+                    {/* Mobile carries the status as short text: the pill is hidden here and
+                        the ConversationStatusButton labels the NEXT action ("Concluir"), not
+                        the current state — without this the status would be color-only. */}
+                    <span className="md:hidden flex-shrink-0">
+                      • {getStatusLabel(conversation.status, t)}
+                    </span>
+                    <span
+                      className="hidden md:inline"
+                      style={{
+                        background: meta.bg,
+                        border: `1px solid ${meta.border}`,
+                        color: meta.text,
+                        borderRadius: 9,
+                        padding: '7px 14px',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        lineHeight: 1,
+                      }}
+                    >
+                      • {pillLabel}
+                    </span>
+                  </>
                 );
               })()}
             </div>
@@ -511,12 +525,12 @@ const ChatHeader = ({
           {/* Dropdown de ações da conversa */}
           {renderConversationStatusDropdown()}
 
-          {/* Botão fechar conversa */}
+          {/* Botão fechar conversa — hidden on mobile: the back arrow already leaves the conversation */}
           <Button
             variant="ghost"
             size="sm"
             onClick={onCloseConversation}
-            className="text-muted-foreground hover:text-foreground"
+            className="hidden md:inline-flex text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4" />
             <span className="sr-only">{t('chatHeader.closeConversation')}</span>

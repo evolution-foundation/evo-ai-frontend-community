@@ -16,11 +16,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@evoapi/design-system';
-import { Plus, Globe, Lock } from 'lucide-react';
+import { Plus, Globe, Lock, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
-import { Macro, MACRO_ACTION_TYPES } from '@/types/automation';
+import { Macro, MacroAction, MACRO_ACTION_TYPES } from '@/types/automation';
 import { macrosService } from '@/services/macros';
+import type { MacroFormData, MacroFormDataSource } from '@/services/macros';
 import MacroActionRow from './MacroActionRow';
+
+const ALL_FORM_DATA_SOURCES: MacroFormDataSource[] = ['inboxes', 'agents', 'teams', 'labels'];
 
 interface MacroFormModalProps {
   isOpen: boolean;
@@ -32,11 +35,13 @@ interface MacroFormModalProps {
 interface FormData {
   name: string;
   visibility: 'personal' | 'global';
-  actions: Array<{
-    action_name: string;
-    action_params: any[];
-  }>;
+  actions: MacroAction[];
 }
+
+type FormOptions = Pick<
+  MacroFormData,
+  'inboxes' | 'agents' | 'teams' | 'labels' | 'campaigns'
+>;
 
 const initialFormData: FormData = {
   name: '',
@@ -54,30 +59,28 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [formDataOptions, setFormDataOptions] = useState<{
-    inboxes: any[];
-    agents: any[];
-    teams: any[];
-    labels: any[];
-    campaigns: any[];
-  }>({
+  const [formDataOptions, setFormDataOptions] = useState<FormOptions>({
     inboxes: [],
     agents: [],
     teams: [],
     labels: [],
     campaigns: [],
   });
+  // Starts true: the fetch is fired by an effect, which only runs after the
+  // first paint — false here shows "nothing registered" for a frame.
+  const [optionsLoading, setOptionsLoading] = useState(true);
+  const [failedSources, setFailedSources] = useState<MacroFormDataSource[]>([]);
 
   const isEditing = !!macro;
 
-  // Carregar dados do formulário
+  // Load the form option lists
   useEffect(() => {
     if (isOpen) {
       loadFormData();
     }
   }, [isOpen]);
 
-  // Carregar dados da macro para edição
+  // Load the macro being edited
   useEffect(() => {
     if (isOpen) {
       if (macro) {
@@ -94,11 +97,16 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
   }, [isOpen, macro]);
 
   const loadFormData = async () => {
+    setOptionsLoading(true);
     try {
-      const data = await macrosService.getFormData();
+      const { failedSources: failed, ...data } = await macrosService.getFormData();
       setFormDataOptions(data);
+      setFailedSources(failed);
     } catch (error) {
-      console.error('Erro ao carregar dados do formulário:', error);
+      console.error('Failed to load the macro form data:', error);
+      setFailedSources(ALL_FORM_DATA_SOURCES);
+    } finally {
+      setOptionsLoading(false);
     }
   };
 
@@ -113,22 +121,22 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
       newErrors.actions = t('modal.validation.actionsRequired');
     }
 
-    // Validar ações
+    // Validate actions
     formData.actions.forEach((action, index) => {
       if (!action.action_name) {
         newErrors[`action_${index}_name`] = t('modal.validation.actionTypeRequired');
       }
 
-      // Validar parâmetros para ações que precisam
+      // Validate params for the actions that take one
       const actionType = MACRO_ACTION_TYPES.find(type => type.key === action.action_name);
       if (actionType && actionType.inputType && actionType.inputType !== null) {
-        // Para multi_select, verificar se tem pelo menos um item selecionado
+        // multi_select needs at least one item selected
         if (actionType.inputType === 'multi_select') {
           if (!action.action_params || action.action_params.length === 0) {
             newErrors[`action_${index}_params`] = t('modal.validation.selectAtLeastOne');
           }
         }
-        // Para outros tipos com input, verificar se o primeiro parâmetro existe
+        // Every other input type needs a first param
         else if (
           !action.action_params ||
           action.action_params.length === 0 ||
@@ -170,13 +178,13 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
     }
   };
 
-  const handleFieldChange = (field: keyof FormData, value: any) => {
+  const handleFieldChange = (field: keyof FormData, value: FormData[keyof FormData]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
     }));
 
-    // Limpar erro do campo
+    // Clear the field error
     if (errors[field]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -208,23 +216,18 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
     }));
   };
 
-  const updateAction = (index: number, updatedAction: any) => {
+  const updateAction = (index: number, updatedAction: MacroAction) => {
     setFormData(prev => ({
       ...prev,
       actions: prev.actions.map((action, i) => (i === index ? updatedAction : action)),
     }));
 
-    // Limpar erros relacionados à ação
+    // Clear the errors tied to this action
     const newErrors = { ...errors };
     delete newErrors[`action_${index}_name`];
     delete newErrors[`action_${index}_params`];
     setErrors(newErrors);
   };
-
-  // const getActionTypeLabel = (actionType: string) => {
-  //   const actionTypeObj = MACRO_ACTION_TYPES.find(type => type.key === actionType);
-  //   return actionTypeObj?.name || actionType;
-  // };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -236,7 +239,23 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Informações básicas */}
+          {failedSources.length > 0 && (
+            <div className="flex items-start gap-2 rounded-md border border-red-500/40 bg-red-500/10 p-3">
+              <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-red-500" />
+              <div className="text-sm text-red-500">
+                <p className="font-medium">{t('modal.optionsError.title')}</p>
+                <p>
+                  {t('modal.optionsError.description', {
+                    sources: failedSources
+                      .map(source => t(`modal.optionsError.sources.${source}`))
+                      .join(', '),
+                  })}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Basic information */}
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-sidebar-foreground">
@@ -255,7 +274,7 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
               {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
             </div>
 
-            {/* Visibilidade */}
+            {/* Visibility */}
             <div className="space-y-4">
               <Label className="text-sidebar-foreground">{t('modal.form.visibility')}</Label>
               <div className="grid grid-cols-2 gap-4">
@@ -310,7 +329,7 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
 
           <Separator className="bg-sidebar-border" />
 
-          {/* Ações */}
+          {/* Actions */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
@@ -348,6 +367,8 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
                   canRemove={formData.actions.length > 1}
                   errors={errors}
                   disabled={loading}
+                  optionsLoading={optionsLoading}
+                  failedSources={failedSources}
                 />
               ))}
             </div>

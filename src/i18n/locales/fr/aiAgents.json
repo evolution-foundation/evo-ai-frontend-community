@@ -418,8 +418,7 @@
       "more": "plus",
       "createFirst": "Créez votre premier serveur MCP personnalisé",
       "serversSelected": "{{count}} serveur(s) sélectionné(s)",
-      "selectServers": "Sélectionner des Serveurs",
-      "addSelected": "Ajouter les Sélectionnés ({{count}})",
+      "saveSelection": "Enregistrer la sélection ({{count}})",
       "save": "Ajouter",
       "cancel": "Annuler"
     },
@@ -544,6 +543,18 @@
     "agentType": "{{type}}",
     "testAI": "Testez votre IA",
     "profile": {
+      "summary": {
+        "title": "Résumé de l'agent",
+        "type": "Type",
+        "native": "Natif",
+        "external": "Externe",
+        "model": "Modèle",
+        "createdAt": "Créé le",
+        "subAgents": "Sous-agents",
+        "products": "Produits",
+        "tipTitle": "Conseil de configuration",
+        "tipBody": "Renseignez le Rôle et l'Objectif pour que l'agent comprenne mieux son contexte et réponde avec plus de précision."
+      },
       "title": "Informations personnelles",
       "subtitle": "Configurez les informations de base de votre agent",
       "name": "Nom de l'agent",
@@ -747,10 +758,15 @@
         "selectTeamPlaceholder": "Sélectionnez une équipe",
         "returnOnFinish": "Retourner à la fin",
         "instructions": "Instructions :",
-        "instructionsPlaceholder": "Lorsque le client veut parler de tel sujet...",
+        "instructionsPlaceholder": "Décrivez les conditions de transfert de la conversation (ex : lorsque le client demande à parler à un humain)...",
         "addRule": "+ Ajouter une règle de transfert",
         "modalTitle": "Règles de Transfert",
         "modalDescription": "Configurez quand et comment l'agent doit transférer des conversations à des humains, d'autres agents ou des équipes."
+      },
+      "modalFooter": {
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "saving": "Enregistrement..."
       },
       "pipelineRules": {
         "description": "Configurez les instructions pour que l'agent manipule les pipelines et attribue des conversations à des étapes spécifiques.",
@@ -866,10 +882,10 @@
       "title": "Intégrations",
       "subtitle": "Connectez votre agent à d'autres applications, cela lui permet d'obtenir des informations plus précises ou de planifier des réunions pour vous.",
       "comingSoon": "Bientôt disponible...",
-      "activate": "ACTIVER",
-      "active": "ACTIF",
-      "configure": "CONFIGURER",
-      "notAvailable": "NON DISPONIBLE",
+      "activate": "Activer",
+      "active": "Activé",
+      "configure": "Configurer",
+      "notAvailable": "Bientôt",
       "elevenlabs": {
         "description": "Avec ElevenLabs, vous donnez à votre agent la capacité de répondre à vos clients en audio, le rendant encore plus humanisé."
       },
@@ -1187,6 +1203,7 @@
   },
   "actions": {
     "save": "Enregistrer",
+    "close": "Fermer",
     "cancel": "Annuler",
     "delete": "Supprimer",
     "edit": "Modifier",
@@ -1440,6 +1457,7 @@
   "chat": {
     "newConversation": "Nouvelle Conversation",
     "searchConversations": "Rechercher des conversations...",
+    "conversations": "Conversations",
     "noConversations": "Aucune conversation",
     "loading": "Chargement de la conversation...",
     "chatWithAgent": "Chat avec {{name}}",
@@ -1447,7 +1465,7 @@
     "selectConversation": "Sélectionner une conversation",
     "chooseOrStart": "Choisissez une conversation existante ou démarrez-en une nouvelle.",
     "selectOrCreateSession": "Sélectionnez une conversation ou créez-en une nouvelle",
-    "selectSessionMessage": "Choisissez une conversation existante dans la liste sur le côté ou cliquez sur \"Nouvelle Conversation\" pour commencer.",
+    "selectSessionMessage": "Ouvrez l'icône des conversations pour en choisir une existante ou cliquez sur \"+\" pour en démarrer une nouvelle.",
     "typeMessage": "Tapez votre message...",
     "deleteSession": "Supprimer la Session",
     "deleteSessionConfirm": "Êtes-vous sûr de vouloir supprimer cette session ? Cette action ne peut pas être annulée.",

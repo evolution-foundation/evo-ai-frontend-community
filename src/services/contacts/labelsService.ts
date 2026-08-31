@@ -1,6 +1,6 @@
 import api from '@/services/core/api';
 import { extractData, extractResponse } from '@/utils/apiHelpers';
-import { LabelsResponse, LabelResponse, LabelDeleteResponse, Label } from '@/types/settings';
+import { LabelsResponse, Label } from '@/types/settings';
 
 class LabelsService {
   async getLabels(params?: { per_page?: number; page?: number }): Promise<LabelsResponse> {
@@ -8,14 +8,16 @@ class LabelsService {
     return extractResponse<Label>(response) as LabelsResponse;
   }
 
+  // extractData strips the {success, data} envelope, so the write methods below
+  // are typed as the payload — typing them as the envelope makes callers unwrap twice.
   async createLabel(data: {
     title: string;
     description?: string;
     color: string;
     show_on_sidebar?: boolean;
-  }): Promise<LabelResponse> {
+  }): Promise<Label> {
     const response = await api.post('/labels', { label: data });
-    return extractData<LabelResponse>(response);
+    return extractData<Label>(response);
   }
 
   async updateLabel(
@@ -26,14 +28,14 @@ class LabelsService {
       color?: string;
       show_on_sidebar?: boolean;
     },
-  ): Promise<LabelResponse> {
+  ): Promise<Label> {
     const response = await api.patch(`/labels/${labelId}`, { label: data });
-    return extractData<LabelResponse>(response);
+    return extractData<Label>(response);
   }
 
-  async deleteLabel(labelId: string): Promise<LabelDeleteResponse> {
+  async deleteLabel(labelId: string): Promise<{ id: string }> {
     const response = await api.delete(`/labels/${labelId}`);
-    return extractData<LabelDeleteResponse>(response);
+    return extractData<{ id: string }>(response);
   }
 }
 

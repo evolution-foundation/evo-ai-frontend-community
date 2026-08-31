@@ -16,6 +16,10 @@ class PermissionsService {
   // ⚡ OTIMIZAÇÃO: Aumentado cache de 5min para 30min
   // Permissões mudam raramente, não é necessário revalidar a cada 5 minutos
   private readonly CACHE_DURATION = 30 * 60 * 1000; // 30 minutos (antes: 5 minutos)
+  // Bounds the stale-cache fallback below. Unbounded, a revoked permission
+  // would stay granted for the life of the tab and `loadFailed` would never
+  // fire (CRM-164).
+  private readonly MAX_STALE_DURATION = 60 * 60 * 1000; // 1h past expiry
 
   // Cache para permissões do usuário (global)
   private userPermissionsCache: string[] | null = null;
@@ -27,6 +31,12 @@ class PermissionsService {
   // ⚡ Proteção: Promise em cache para evitar múltiplas requisições simultâneas
   private userPermissionsPromise: Promise<string[]> | null = null;
   private accountPermissionsPromise: Promise<string[]> | null = null;
+
+  // Identifies the request that owns the dedup slot above. Comparing against
+  // the Promise itself would be simpler, but the self-reference inside the IIFE
+  // that creates it does not compile (TS2454).
+  private userPermissionsRequestId = 0;
+  private accountPermissionsRequestId = 0;
 
   /**
    * Busca todas as configurações de recursos e permissões do backend
@@ -82,35 +92,44 @@ class PermissionsService {
     }
 
     // Criar nova Promise e armazenar
-    this.userPermissionsPromise = (async () => {
-    try {
-      const response = await apiAuth.get('/permissions');
+    // `forceRefresh` bypasses the dedup guard, so a newer promise can land in
+    // the slot mid-flight; only its owner may clear it.
+    const requestId = ++this.userPermissionsRequestId;
+    const promise = (async () => {
+      try {
+        const response = await apiAuth.get('/permissions');
 
-      const responseData = extractData<{ permissions: string[] }>(response);
-      this.userPermissionsCache = responseData.permissions || [];
-      this.permissionsCacheExpiry = now + this.CACHE_DURATION;
+        const responseData = extractData<{ permissions: string[] }>(response);
+        const permissions = responseData.permissions || [];
 
-        // Limpar Promise após sucesso
-        this.userPermissionsPromise = null;
+        // Only the owner writes: an older response would overwrite fresh data.
+        if (this.userPermissionsRequestId === requestId) {
+          this.userPermissionsCache = permissions;
+          this.permissionsCacheExpiry = Date.now() + this.CACHE_DURATION;
+          this.userPermissionsPromise = null;
+        }
 
-      return this.userPermissionsCache || [];
-    } catch (error) {
+        return permissions;
+      } catch (error) {
         // Limpar Promise em caso de erro
-        this.userPermissionsPromise = null;
+        if (this.userPermissionsRequestId === requestId) this.userPermissionsPromise = null;
 
-      console.error('Erro ao buscar permissões do usuário:', error);
+        console.error('Erro ao buscar permissões do usuário:', error);
 
-      // Se tiver cache antigo, usar como fallback
-      if (this.userPermissionsCache) {
-        console.warn('Usando cache antigo de permissões do usuário');
-        return this.userPermissionsCache;
+        // Fall back to the previous list while it is inside the tolerance window
+        if (this.userPermissionsCache && Date.now() < this.permissionsCacheExpiry + this.MAX_STALE_DURATION) {
+          console.warn('Usando cache antigo de permissões do usuário');
+          return this.userPermissionsCache;
+        }
+
+        // CRM-164: with no cache to serve, the failure MUST propagate.
+        // Returning [] here reached the user as a permission denial.
+        throw error;
       }
-
-      return [];
-    }
     })();
 
-    return this.userPermissionsPromise;
+    this.userPermissionsPromise = promise;
+    return promise;
   }
 
   /**
@@ -130,34 +149,41 @@ class PermissionsService {
     }
 
     // Criar nova Promise e armazenar
+    const requestId = ++this.accountPermissionsRequestId;
     const promise = (async () => {
       try {
         const response = await apiAuth.get('/permissions');
 
         const responseData = extractData<{ permissions: string[] }>(response);
         const permissions = responseData.permissions || [];
-        this.accountPermissionsData = {
-          permissions,
-          expiry: now + this.CACHE_DURATION
-        };
 
-        // Limpar Promise após sucesso
-        this.accountPermissionsPromise = null;
+        // See getUserPermissions: only the owning request writes the cache.
+        if (this.accountPermissionsRequestId === requestId) {
+          this.accountPermissionsData = {
+            permissions,
+            expiry: Date.now() + this.CACHE_DURATION
+          };
+          this.accountPermissionsPromise = null;
+        }
 
         return permissions;
       } catch (error) {
         // Limpar Promise em caso de erro
-        this.accountPermissionsPromise = null;
+        if (this.accountPermissionsRequestId === requestId) this.accountPermissionsPromise = null;
 
         console.error('Erro ao buscar permissões do account:', error);
 
-        // Se tiver cache antigo, usar como fallback
-        if (this.accountPermissionsData) {
+        // Fall back to the previous list while it is inside the tolerance window
+        if (
+          this.accountPermissionsData &&
+          Date.now() < this.accountPermissionsData.expiry + this.MAX_STALE_DURATION
+        ) {
           console.warn('Usando cache antigo de permissões do account');
           return this.accountPermissionsData.permissions;
         }
 
-        return [];
+        // CRM-164: see getUserPermissions — a failure with no cache propagates.
+        throw error;
       }
     })();
 

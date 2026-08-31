@@ -17,7 +17,7 @@ export type { BaseStatsGridProps } from './BaseStatsGrid';
 // Flow Components
 export { BaseFlowCanvas } from './BaseFlowCanvas';
 export { BaseFlowEditor } from './BaseFlowEditor';
-export { BaseFlowNode, NodeHeader, NodeContent } from './BaseFlowNode';
+export { BaseFlowNode } from './BaseFlowNode';
 export { BaseNodePanel } from './BaseNodePanel';
 export { BaseFlowContextMenu } from './BaseFlowContextMenu';
 export { BaseFlowHelperLines } from './BaseFlowHelperLines';
@@ -58,9 +58,7 @@ export type {
 
 export type {
   BaseFlowNodeProps,
-  NodeBorderColor,
-  NodeHeaderProps,
-  NodeContentProps
+  NodeBorderColor
 } from './BaseFlowNode';
 
 export type {

@@ -233,7 +233,7 @@ const MessageText: React.FC<MessageTextProps> = ({
   const parsedContent = parseMessageContent(safeContent);
 
   return (
-    <div className="whitespace-pre-wrap break-words">
+    <div className="whitespace-pre-wrap break-words text-sm">
       {parsedContent.elements}
       {parsedContent.detectedUrls.length > 0 && (
         <div className="mt-1">

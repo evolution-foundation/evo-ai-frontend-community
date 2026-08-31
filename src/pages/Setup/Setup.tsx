@@ -152,9 +152,19 @@ const Setup: React.FC = () => {
         }
       }
 
-      toast.success(t('success.title'), {
-        description: t('success.description'),
-      });
+      // Both paths stay on the success flow: the install finished and the admin
+      // exists. The description comes from the server, which is the side that knows
+      // what is pending and what to check — same preference as the catch below.
+      if (result.status === 'degraded') {
+        toast.warning(t('degraded.title'), {
+          description: result.message || t('degraded.description'),
+          duration: 12000,
+        });
+      } else {
+        toast.success(t('success.title'), {
+          description: t('success.description'),
+        });
+      }
 
       if (result.survey_token) {
         sessionStorage.setItem('survey_token', result.survey_token);

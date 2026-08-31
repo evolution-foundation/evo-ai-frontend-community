@@ -16,6 +16,11 @@ import {
 } from '@evoapi/design-system';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import {
+  VaultCredentialSelect,
+  useVaultCredentials,
+  useVaultMigrationState,
+} from '@/components/ai_agents/shared';
 import type { KnowledgeNexusConfig } from '@/hooks/useIntegrations';
 import {
   agentIntegrationsService,
@@ -38,6 +43,7 @@ const DEFAULT_TIMEOUT = 15;
 interface DialogState {
   nexus_base_url: string;
   nexus_api_key: string;
+  credential_id: string;
   space_id: string;
   default_top_k: number;
   timeout_seconds: number;
@@ -51,6 +57,16 @@ const KnowledgeNexusConfigDialog = ({
   initialConfig,
 }: KnowledgeNexusConfigDialogProps) => {
   const { t } = useLanguage('aiAgents');
+  const { t: tVault } = useLanguage('integrationCredentials');
+  // Gated on `open`: this dialog mounts closed on every agent screen, and an
+  // eager fetch would fire one vault listing (a 403, for users without the
+  // grant) per render of those screens.
+  const vaultCredentials = useVaultCredentials(open);
+  // Story 2.7: once the guard says migrated, the inline key field retires and
+  // the vault reference is the way to register the secret. The stored key is
+  // never touched: a blank/absent nexus_api_key already means "keep it".
+  const migrationState = useVaultMigrationState(open);
+  const nexusKeyRetired = Boolean(migrationState.retired.knowledge_nexus);
 
   // Backend strips `nexus_api_key` before returning the config (defense-in-depth
   // in useIntegrations.sanitizeConfig). When `connected === true` but the key
@@ -61,6 +77,7 @@ const KnowledgeNexusConfigDialog = ({
   const [config, setConfig] = useState<DialogState>({
     nexus_base_url: initialConfig?.nexus_base_url || '',
     nexus_api_key: initialConfig?.nexus_api_key || '',
+    credential_id: initialConfig?.credential_id || '',
     space_id: initialConfig?.space_id || '',
     default_top_k: initialConfig?.default_top_k ?? DEFAULT_TOP_K,
     timeout_seconds: initialConfig?.timeout_seconds ?? DEFAULT_TIMEOUT,
@@ -73,6 +90,7 @@ const KnowledgeNexusConfigDialog = ({
       setConfig({
         nexus_base_url: initialConfig?.nexus_base_url || '',
         nexus_api_key: '',
+        credential_id: initialConfig?.credential_id || '',
         space_id: initialConfig?.space_id || '',
         default_top_k: initialConfig?.default_top_k ?? DEFAULT_TOP_K,
         timeout_seconds: initialConfig?.timeout_seconds ?? DEFAULT_TIMEOUT,
@@ -145,7 +163,11 @@ const KnowledgeNexusConfigDialog = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, config.nexus_base_url, config.nexus_api_key, manualSpaceMode]);
 
-  const apiKeyOk = config.nexus_api_key.trim() !== '' || hasSavedApiKey;
+  // A vault reference satisfies the key requirement on its own (story 2.4):
+  // the runtime resolves the secret from the vault by credential_id.
+  const usingVaultCredential = config.credential_id.trim() !== '';
+  const apiKeyOk =
+    config.nexus_api_key.trim() !== '' || hasSavedApiKey || usingVaultCredential;
   const isValid =
     config.nexus_base_url.trim() !== '' && apiKeyOk && config.space_id.trim() !== '';
 
@@ -157,8 +179,12 @@ const KnowledgeNexusConfigDialog = ({
       default_top_k: config.default_top_k,
       timeout_seconds: config.timeout_seconds,
     };
+    if (usingVaultCredential) {
+      payload.credential_id = config.credential_id;
+    }
     // Only include the API key when the user actually typed one; leaving it
-    // blank means "keep whatever is stored on the backend".
+    // blank means "keep whatever is stored on the backend". While the inline
+    // fallback exists (until story 2.7) a typed key still travels along.
     const typedKey = config.nexus_api_key.trim();
     if (typedKey) {
       payload.nexus_api_key = typedKey;
@@ -204,11 +230,34 @@ const KnowledgeNexusConfigDialog = ({
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="nexus_credential_id">{tVault('refsEditor.nexusLabel')}</Label>
+            <VaultCredentialSelect
+              id="nexus_credential_id"
+              value={config.credential_id || undefined}
+              onChange={credentialId =>
+                setConfig({ ...config, credential_id: credentialId ?? '' })
+              }
+              credentials={vaultCredentials}
+            />
+            <p className="text-xs text-muted-foreground">{tVault('refsEditor.nexusHint')}</p>
+          </div>
+
+          {nexusKeyRetired ? (
+            // Retired (story 2.7): the inline key entry is gone, the vault
+            // reference above is how the secret is registered. The stored key
+            // is untouched: the save payload simply omits nexus_api_key, which
+            // has always meant "keep whatever is stored".
+            <p className="text-xs text-muted-foreground">
+              {tVault('retirement.nexusKeyLocked')}
+            </p>
+          ) : (
+          <div className="space-y-2">
             <Label htmlFor="nexus_api_key">
               {t('edit.integrations.knowledgeNexus.apiKey') || 'API Key'}
             </Label>
             <Input
               id="nexus_api_key"
+              disabled={usingVaultCredential}
               type="password"
               placeholder={
                 hasSavedApiKey
@@ -231,6 +280,7 @@ const KnowledgeNexusConfigDialog = ({
               </p>
             )}
           </div>
+          )}
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">

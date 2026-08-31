@@ -33,7 +33,6 @@ export default function EditableContactCustomAttributes({
       onUpdateSuccess={onContactUpdate}
       translationNamespace="chat"
       translationKeys={{
-        loadError: 'contactSidebar.customAttributes.loadError',
         updateSuccess: 'contactSidebar.customAttributes.updateSuccess',
         updateError: 'contactSidebar.customAttributes.updateError',
         noAttributes: 'contactSidebar.customAttributes.noAttributes',

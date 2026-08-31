@@ -10,6 +10,7 @@ import userEvent from '@testing-library/user-event';
 // never reach the save payload.
 
 const bulkUpdateMock = vi.fn().mockResolvedValue({ id: 'r1', permissions_by_resource: {} });
+const createMock = vi.fn().mockResolvedValue({ id: 'r2', key: 'agent_copy', system: false, name: 'Agent (copy)' });
 
 // Stable references: loadData depends on [id, t, navigate]; fresh identities
 // each render would re-fire the effect in a loop (stuck loading).
@@ -30,18 +31,24 @@ vi.mock('@/contexts/PermissionsContext', () => ({
 
 // Mutable so each test can seed the role's real grants before rendering.
 let rolePermissions: Record<string, string[]> = { labels: ['create'] };
+// Which role is being edited, and whether it is a system role.
+let roleKey = 'agent';
+let roleSystem = false;
 
 vi.mock('@/services/roles/rolesService', () => ({
   rolesService: {
     get: vi.fn().mockImplementation(() =>
       Promise.resolve({
         id: 'r1',
+        key: roleKey,
+        system: roleSystem,
         name: 'Agent',
         description: '',
         permissions_by_resource: rolePermissions,
       }),
     ),
     bulkUpdatePermissions: (...args: unknown[]) => bulkUpdateMock(...args),
+    create: (...args: unknown[]) => createMock(...args),
   },
 }));
 
@@ -84,7 +91,7 @@ vi.mock('@/services/permissions', () => ({
               stats: { name: 'Statistics', description: '', basic: false, implied_by: null },
             },
           },
-          // CRM domain, with a nested child (pipeline_stages under pipelines).
+          // CRM domain, with nested children (pipeline_stages, pipeline_items) under pipelines.
           pipelines: {
             name: 'Pipelines',
             description: '',
@@ -98,6 +105,14 @@ vi.mock('@/services/permissions', () => ({
             actions: {
               read: { name: 'View', description: '', basic: false, implied_by: null },
               create: { name: 'Create', description: '', basic: false, implied_by: null },
+            },
+          },
+          // CRM-178: card writes, write-only (reads stay on pipelines.read).
+          pipeline_items: {
+            name: 'Pipeline Cards',
+            description: '',
+            actions: {
+              update: { name: 'Manage cards', description: '', basic: false, implied_by: null },
             },
           },
           // Channels domain: nested child (working_hours) + an inbox template action.
@@ -198,10 +213,105 @@ beforeAll(() => {
 
 beforeEach(() => {
   bulkUpdateMock.mockClear();
+  createMock.mockClear();
+  navigateStub.mockClear();
   rolePermissions = { labels: ['create'] };
+  roleKey = 'agent';
+  roleSystem = false;
 });
 
 const cb = (key: string) => document.getElementById(key) as HTMLButtonElement | null;
+
+// Auth answers 403 on bulk_update_permissions for any system role, so the editor
+// renders one read-only: grid visible, no toggles, no Save, lock notice. A checkbox
+// whose save is refused is the lying control this screen exists to eliminate.
+describe('RoleDetail — system roles are read-only', () => {
+  it('offers no Save button for a system role', async () => {
+    roleSystem = true;
+    render(<RoleDetail />);
+    await waitFor(() => expect(cb('group-labels-write')).not.toBeNull());
+
+    expect(screen.queryByText('savePermissions')).toBeNull();
+  });
+
+  it('renders its checkboxes disabled and shows the read-only notice, grid still visible', async () => {
+    roleSystem = true;
+    render(<RoleDetail />);
+    await waitFor(() => expect(cb('group-labels-write')).not.toBeNull());
+
+    expect(cb('group-labels-write')).toBeDisabled();
+    expect(screen.getByTestId('system-role-readonly-notice')).toBeTruthy();
+  });
+
+  // Pinned separately from the generic system-role case: it is the one the backend
+  // guard is keyed on.
+  it('is read-only for the installation owner specifically', async () => {
+    roleKey = 'super_admin';
+    roleSystem = true;
+    render(<RoleDetail />);
+    await waitFor(() => expect(cb('group-labels-write')).not.toBeNull());
+
+    expect(screen.queryByText('savePermissions')).toBeNull();
+    expect(cb('group-labels-write')).toBeDisabled();
+  });
+
+  it('still lets a custom (non-system) role be edited and saved', async () => {
+    roleSystem = false;
+    render(<RoleDetail />);
+    await waitFor(() => expect(cb('group-labels-write')).not.toBeNull());
+
+    expect(cb('group-labels-write')).not.toBeDisabled();
+    expect(screen.queryByTestId('system-role-readonly-notice')).toBeNull();
+    await userEvent.click(screen.getByText('savePermissions'));
+    await waitFor(() => expect(bulkUpdateMock).toHaveBeenCalled());
+  });
+});
+
+// The read-only notice names this action, so it has to exist and has to carry the
+// source permissions over.
+describe('RoleDetail — duplicating a system role as a custom one', () => {
+  const openDialog = async () => {
+    roleSystem = true;
+    render(<RoleDetail />);
+    await waitFor(() => expect(cb('group-labels-write')).not.toBeNull());
+    await userEvent.click(screen.getByText('detail.duplicate'));
+  };
+
+  it('offers the duplicate action on a system role and not on a custom one', async () => {
+    await openDialog();
+    expect(screen.getByText('detail.duplicateTitle')).toBeTruthy();
+  });
+
+  it('creates the copy and carries the source permissions over', async () => {
+    await openDialog();
+    await userEvent.click(screen.getByText('detail.duplicateConfirm'));
+
+    await waitFor(() => expect(createMock).toHaveBeenCalled());
+    // The copy is written by id of the NEW role, never the source.
+    const [newId, keys] = bulkUpdateMock.mock.calls.at(-1) as [string, string[]];
+    expect(newId).toBe('r2');
+    expect(keys).toContain('labels.create');
+    // …and the user lands on the copy, which is editable.
+    await waitFor(() => expect(navigateStub).toHaveBeenCalledWith('/settings/roles/r2'));
+  });
+
+  it('keeps the created role and still navigates when copying the permissions fails', async () => {
+    bulkUpdateMock.mockRejectedValueOnce(new Error('403'));
+    await openDialog();
+    await userEvent.click(screen.getByText('detail.duplicateConfirm'));
+
+    await waitFor(() => expect(navigateStub).toHaveBeenCalledWith('/settings/roles/r2'));
+    expect(createMock).toHaveBeenCalled();
+  });
+
+  it('does not offer it on a custom role — that one is editable in place', async () => {
+    roleSystem = false;
+    render(<RoleDetail />);
+    await waitFor(() => expect(cb('group-labels-write')).not.toBeNull());
+
+    expect(screen.queryByText('detail.duplicate')).toBeNull();
+  });
+});
 
 describe('RoleDetail — locked basic/implied permissions', () => {
   // A locked permission is held regardless of the role, so the editor offers no
@@ -380,9 +490,11 @@ describe('RoleDetail — bulk select', () => {
 
     const savedKeys = bulkUpdateMock.mock.calls[0][1] as string[];
     expect(savedKeys).toContain('pipelines.read');
-    // pipeline_stages renders inside the pipelines row but is its own resource.
+    // pipeline_stages/pipeline_items render inside the pipelines row but are their
+    // own resources.
     expect(savedKeys).toContain('pipeline_stages.read');
     expect(savedKeys).toContain('pipeline_stages.create');
+    expect(savedKeys).toContain('pipeline_items.update');
     // Another section is untouched.
     expect(savedKeys).not.toContain('conversations.read');
   });
@@ -543,5 +655,17 @@ describe('RoleDetail — domain grouping, system filter, search, nesting', () =>
 
     expect(screen.getByText('detail.nested.pipelineStages')).toBeTruthy();
     expect(screen.getByText('detail.nested.workingHours')).toBeTruthy();
+  });
+
+  // CRM-178: pipeline_items joined RESOURCE_NESTING. Without a matching
+  // NESTED_LABEL_KEYS entry the row renders t(undefined) — checkboxes with no name.
+  it('nests pipeline_items under Pipelines WITH a label (CRM-178, AC6)', async () => {
+    render(<RoleDetail />);
+    await waitFor(() => expect(cb('group-pipelines-read')).not.toBeNull());
+
+    expect(cb('group-pipeline_items-write')).not.toBeNull();
+    expect(cb('resource-pipeline_items')).toBeNull();
+
+    expect(screen.getByText('detail.nested.pipelineItems')).toBeTruthy();
   });
 });

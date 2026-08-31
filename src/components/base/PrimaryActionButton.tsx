@@ -47,8 +47,13 @@ export default function PrimaryActionButton({
     return <span className="mr-2">{icon}</span>;
   };
 
+  // The design-system Button sets no `type`, so the HTML default (submit) applies:
+  // inside a <form> this fires onClick AND submits. The prop contract here is
+  // onClick-only, and `action.onClick` in EmptyState is typed `() => void`, so the
+  // event never surfaces for a caller to preventDefault — the tsc cannot catch it.
   const button = (
     <Button
+      type="button"
       variant={variant}
       size={size}
       onClick={onClick}

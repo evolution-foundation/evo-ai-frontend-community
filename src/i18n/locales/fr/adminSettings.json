@@ -303,7 +303,9 @@
         "apiUrl": "https://api.openai.com/v1",
         "apiSecret": "Entrez la nouvelle cle API",
         "model": "gpt-4o"
-      }
+      },
+      "credentialMoved": "L'identifiant d'IA se trouve maintenant dans Paramètres > Identifiants d'IA.",
+      "goToCredentials": "Aller aux Identifiants d'IA"
     },
     "prompts": {
       "cardTitle": "Modeles de Prompts IA",

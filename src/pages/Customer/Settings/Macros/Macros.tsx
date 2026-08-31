@@ -39,7 +39,6 @@ const INITIAL_STATE: MacrosState = {
     create: false,
     update: false,
     delete: false,
-    execute: false,
   },
   filters: [],
   searchQuery: '',
@@ -167,7 +166,7 @@ export default function Macros() {
 
   // Macro actions
   const handleMacroClick = (macro: Macro) => {
-    if (!can('macros', 'update')) {
+    if (!can('macros', 'manage')) {
       toast.error(t('messages.permissionDenied.update'));
       return;
     }
@@ -176,7 +175,7 @@ export default function Macros() {
   };
 
   const handleCreateMacro = () => {
-    if (!can('macros', 'create')) {
+    if (!can('macros', 'manage')) {
       toast.error(t('messages.permissionDenied.create'));
       return;
     }
@@ -185,7 +184,7 @@ export default function Macros() {
   };
 
   const handleEditMacro = (macro: Macro) => {
-    if (!can('macros', 'update')) {
+    if (!can('macros', 'manage')) {
       toast.error(t('messages.permissionDenied.update'));
       return;
     }
@@ -202,16 +201,6 @@ export default function Macros() {
     setDeleteDialogOpen(true);
   };
 
-  const handleExecuteMacro = async (macro: Macro) => {
-    if (!can('macros', 'execute')) {
-      toast.error(t('messages.permissionDenied.execute'));
-      return;
-    }
-    // This would typically open a dialog to select conversations
-    // For now, we'll just show a success message
-    toast.success(t('messages.executeSuccess', { name: macro.name }));
-  };
-
   // Bulk actions
   const handleBulkDelete = () => {
     if (!can('macros', 'delete')) {
@@ -223,7 +212,7 @@ export default function Macros() {
 
   const canDeleteMacro = () => permissionsReady && can('macros', 'delete');
 
-  const canEditMacro = () => permissionsReady && can('macros', 'update');
+  const canEditMacro = () => permissionsReady && can('macros', 'manage');
 
   // Confirm delete single macro
   const confirmDeleteMacro = async () => {
@@ -332,7 +321,6 @@ export default function Macros() {
             onMacroClick={handleMacroClick}
             onEditMacro={handleEditMacro}
             onDeleteMacro={handleDeleteMacro}
-            onExecuteMacro={handleExecuteMacro}
             onCreateMacro={handleCreateMacro}
             sortBy={state.sortBy}
             sortOrder={state.sortOrder}

@@ -11,6 +11,10 @@ interface FlowiseConfigFormProps {
   onChange: (config: FlowiseConfig) => void;
   errors?: Record<string, string>;
   disabled?: boolean;
+  /** EVO-2250 story 2.7: the inline secret retired behind the migration
+   * guard. Only the secret input locks; address fields stay editable. */
+  secretRetired?: boolean;
+  secretRetiredHint?: string;
 }
 
 export const FlowiseConfigForm = ({
@@ -18,6 +22,8 @@ export const FlowiseConfigForm = ({
   onChange,
   errors = {},
   disabled = false,
+  secretRetired = false,
+  secretRetiredHint,
 }: FlowiseConfigFormProps) => {
   const { t } = useLanguage('aiAgents');
   
@@ -44,8 +50,11 @@ export const FlowiseConfigForm = ({
           value={config.apiKey || ''}
           onChange={(e) => onChange({ ...config, apiKey: e.target.value })}
           placeholder="sk-..."
-          disabled={disabled}
+          disabled={disabled || secretRetired}
         />
+        {secretRetired && secretRetiredHint && (
+          <p className="text-xs text-muted-foreground">{secretRetiredHint}</p>
+        )}
       </div>
     </>
   );

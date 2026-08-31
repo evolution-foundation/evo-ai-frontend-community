@@ -137,6 +137,17 @@ export interface MessageUpdatedEvent {
   }>;
 }
 
+/**
+ * Full label on the event payload. `labels` stays a list of titles because the
+ * same body feeds the customer webhooks; `labels_data` is the additive field
+ * carrying id and colour. Optional: a backend older than CRM-155 omits it.
+ */
+export interface ConversationEventLabel {
+  id: string;
+  title: string;
+  color: string;
+}
+
 /** Conversation event payload: id is canonical UUID; display_id is for UI display only (e.g. #12345). */
 export interface ConversationCreatedEvent {
   id: string; // UUID
@@ -175,6 +186,7 @@ export interface ConversationCreatedEvent {
     hmac_verified: boolean;
   };
   labels: string[]; // Evolution usa string[] para labels
+  labels_data?: ConversationEventLabel[];
   unread_count: number;
   is_group?: boolean;
   additional_attributes?: Record<string, unknown>;
@@ -222,6 +234,7 @@ export interface ConversationUpdatedEvent {
     hmac_verified: boolean;
   };
   labels: string[];
+  labels_data?: ConversationEventLabel[];
   unread_count: number;
   is_group?: boolean;
   additional_attributes?: Record<string, unknown>;

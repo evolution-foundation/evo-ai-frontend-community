@@ -160,5 +160,21 @@
   },
   "validation": {
     "required": "This field is required"
+  },
+  "permissions": {
+    "loadFailed": {
+      "title": "Could not load your permissions",
+      "description": "This does not mean you lack access — the permission check failed. Try again.",
+      "retry": "Try again",
+      "retrying": "Trying again…",
+      "signOut": "Sign out"
+    }
+  },
+  "customAttributes": {
+    "loadFailed": {
+      "title": "Could not load the custom attributes",
+      "description": "This does not mean there are none — loading the definitions failed. Try again.",
+      "retry": "Try again"
+    }
   }
 }

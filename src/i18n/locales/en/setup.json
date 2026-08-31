@@ -57,6 +57,10 @@
     "title": "Setup complete!",
     "description": "You can now sign in with your credentials."
   },
+  "degraded": {
+    "title": "Setup complete, with one pending step",
+    "description": "The install finished, but provisioning the account did not complete. It retries automatically within ~10 minutes."
+  },
   "error": {
     "generic": "An error occurred during setup. Please try again.",
     "alreadySetup": "This instance has already been set up."

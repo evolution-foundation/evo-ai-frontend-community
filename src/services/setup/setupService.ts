@@ -32,8 +32,13 @@ export interface BootstrapPayload {
 }
 
 export interface BootstrapResponse {
+  /** 'ok' | 'degraded' (CRM-262) — widened, since the wizard runs pre-login and
+   *  cannot assume which version of the auth service answered it. */
   status: string;
-  message: string;
+  /** Nullable on purpose: this is the server-authored copy the degraded warning
+   *  shows, and a warning with an empty body is the exact failure this card is
+   *  about. The caller falls back to local copy rather than trusting it. */
+  message: string | null;
   survey_token: string | null;
 }
 

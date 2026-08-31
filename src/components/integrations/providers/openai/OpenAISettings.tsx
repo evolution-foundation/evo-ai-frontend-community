@@ -239,14 +239,15 @@ export default function OpenAISettings({ onBack }: OpenAISettingsProps = {}) {
               </div>
 
               <div className="space-y-4">
+                {/* Reading hook.settings.api_key here would lie on a migrated
+                    install: the credential lives in the registry, not in the
+                    hook, so this points at the screen that owns it. */}
                 <div>
                   <label className="text-xs text-slate-500">
                     {t('openai.settings.configuration.apiKey')}
                   </label>
-                  <p className="text-sm font-mono bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
-                    {hook.settings?.api_key
-                      ? '••••••••••••••••'
-                      : t('openai.settings.configuration.notConfigured')}
+                  <p className="text-sm">
+                    {t('openai.settings.configuration.managedElsewhere')}
                   </p>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">

@@ -176,9 +176,14 @@ export function WebhookBodyConfig({ data, onChange, journeyId }: WebhookBodyConf
     <div className="space-y-4">
       {/* Tipo do Body */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium">{t('panels.sendWebhook.body.contentType')}</Label>
+        <Label htmlFor="send-webhook-body-type" className="text-sm font-medium">
+          {t('panels.sendWebhook.body.contentType')}
+        </Label>
         <Select value={data.bodyType || 'json'} onValueChange={handleBodyTypeChange}>
-          <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+          <SelectTrigger
+            id="send-webhook-body-type"
+            className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-sidebar border-sidebar-border">
@@ -241,8 +246,14 @@ export function WebhookBodyConfig({ data, onChange, journeyId }: WebhookBodyConf
           {/* Templates para JSON (apenas modo bruto) */}
           {bodyType === 'json' && (
             <div className="space-y-2">
-              <Label className="text-sm font-medium">{t('panels.sendWebhook.body.jsonTemplates')}</Label>
-              <div className="flex gap-2 flex-wrap">
+              <Label id="send-webhook-body-templates-label" className="text-sm font-medium">
+                {t('panels.sendWebhook.body.jsonTemplates')}
+              </Label>
+              <div
+                className="flex gap-2 flex-wrap"
+                role="group"
+                aria-labelledby="send-webhook-body-templates-label"
+              >
                 {Object.entries(JSON_TEMPLATES).map(([name, template]) => (
                   <Button
                     key={name}
@@ -269,9 +280,12 @@ export function WebhookBodyConfig({ data, onChange, journeyId }: WebhookBodyConf
 
           {/* Editor do Body (bruto) */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">{t('panels.sendWebhook.body.bodyContent')}</Label>
+            <Label htmlFor="send-webhook-body-content" className="text-sm font-medium">
+              {t('panels.sendWebhook.body.bodyContent')}
+            </Label>
             <div className="relative">
               <VariableTextarea
+                id="send-webhook-body-content"
                 value={data.body || ''}
                 onChange={e => handleBodyChange(e.target.value)}
                 placeholder={

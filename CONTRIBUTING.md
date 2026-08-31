@@ -63,6 +63,56 @@ See [README.md](./README.md) for project-specific setup instructions.
 - Document public APIs and non-obvious behavior
 - Keep commits atomic and focused
 
+### The lint baseline
+
+`eslint-suppressions.json` records the lint debt this repository already
+carried when the `ESLint (diff)` gate was introduced — per file, per rule, as a
+count. ESLint applies it automatically; you do not pass a flag to opt in.
+
+It exists so the gate fails you for violations **you** wrote, not for whatever
+was already in a file you happened to touch. Practically:
+
+- **Touching a file with old errors is fine.** Nothing to do.
+- **Adding a violation fails the gate**, as it always has. When the rule already
+  has a baseline entry for that file, ESLint reports *every* occurrence in the
+  file, not only the new one — yours is the one in your diff.
+- **Fixing an old violation** leaves the baseline overstated, and a bare
+  `npx eslint` exits 2 ("There are suppressions left that do not occur
+  anymore"). Run `npx eslint --prune-suppressions .` and commit the result. CI
+  will not block you on this — it prints a reminder — but the baseline only
+  shrinks if someone commits the prune, and shrinking it is the point.
+
+`npm run lint` tolerates an overstated baseline (`--pass-on-unpruned-suppressions`)
+so that one person's unpruned fix does not break everyone else's local lint;
+`npm run lint:fix` prunes as it goes, so the shrink lands in your diff.
+
+Three things that surprise people:
+
+- **Renaming a file loses its entry.** The baseline is keyed by path, so a
+  renamed file arrives with its whole backlog looking brand new, and the gate
+  fails you for all of it. Re-key it with `npx eslint --suppress-all <new
+  path>`, which touches only that file. The re-keyed entry makes the baseline
+  *grow* in your diff — that is the rename being recorded at its new path, not
+  debt being added, and it is the expected shape of a rename PR.
+- **Pruning the whole tree can sweep up more than your PR.** Debt paid in
+  earlier PRs where nobody pruned shows up in your diff. That is expected — it
+  is catch-up, not a mistake.
+- **A deleted file's entry outlives the PR that deleted it.** The gate lints
+  added, changed and renamed files, never deletions, so a deletion-only PR
+  prunes nothing. ESLint drops entries for files that no longer exist on the
+  next prune of any kind, so the *following* PR is the one whose CI reports a
+  shrink it did not earn. The notice is misattributed; the baseline is right.
+
+After bumping ESLint or its plugins, regenerate the baseline
+(`npx eslint --suppress-all .`): new rules and fixed false positives move the
+counts in both directions.
+
+Always scope these commands to `.`, not to `src`. The gate lints every changed
+`.ts`/`.tsx` in the repository, which includes `vite.config.ts`, `e2e/` and the
+other config files — they are clean today, so a `src`-scoped snapshot happens to
+match, but the first violation to land outside `src` would fail PRs over debt
+they did not write, which is exactly what this baseline exists to prevent.
+
 ## Branch Strategy
 
 - `main` — stable production-ready code

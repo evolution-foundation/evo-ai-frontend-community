@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { expandCoarseKeys } from './permissionDomains';
+import { expandCoarseKeys, groupOfAction, groupsFor, isStandaloneAction } from './permissionDomains';
 
 // EVO-2127: expandCoarseKeys turns the granular keys the editor is about to save
 // into the additive, guarded coarse read/write/delete keys the screen shows.
@@ -73,5 +73,34 @@ describe('expandCoarseKeys', () => {
     expect(out).toContain('ai_agents.write'); // catalog declares it
     expect(out).not.toContain('legacy.write'); // guard: catalog lacks it → no 422
     expect(out).toEqual(expect.arrayContaining(['ai_agents.create', 'legacy.create']));
+  });
+});
+
+// STANDALONE_ACTIONS mirrors the backend by hand and has drifted once; a key that
+// falls into the write group is granted and revoked by the coarse Write checkbox.
+describe('standalone keys never fall into a coarse group', () => {
+  const catalogHasAll = () => true;
+  const USERS_ACTIONS = ['read', 'create', 'update', 'delete', 'manage', 'reset_password'];
+
+  it.each([
+    ['users', 'reset_password'],
+    ['users', 'manage'],
+    ['conversations', 'read_all'],
+  ])('%s.%s is standalone and belongs to no group', (resource, action) => {
+    expect(isStandaloneAction(resource, action)).toBe(true);
+    expect(groupOfAction(resource, action)).toBeNull();
+  });
+
+  it('keeps reset_password out of the Users write group', () => {
+    const write = groupsFor('users', USERS_ACTIONS).find(g => g.key === 'write');
+    expect(write?.actions).toEqual(['create', 'update']);
+  });
+
+  // The other direction: holding the standalone key must not synthesize the coarse
+  // write, matching ResourceActionsConfig.manageable_write_actions on the backend.
+  it('does not synthesize users.write from the standalone key', () => {
+    expect(expandCoarseKeys(['users.reset_password'], catalogHasAll)).toEqual([
+      'users.reset_password',
+    ]);
   });
 });

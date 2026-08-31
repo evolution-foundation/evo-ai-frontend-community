@@ -63,16 +63,6 @@ export function SendTranscriptPanel({ nodeId, data, onUpdate, onClose }: SendTra
     onClose();
   };
 
-  useEffect(() => {
-    if (formDataOptions.teams.length > 0 || formDataOptions.agents.length > 0) {
-      const updatedData: SendTranscriptNodeData = {
-        ...data,
-        formDataOptions,
-      };
-      onUpdate(nodeId, updatedData);
-    }
-  }, [formDataOptions, data, nodeId, onUpdate]);
-
   const getCharacterCount = (text: string) => text.length;
 
   const getCharacterCountColor = (text: string, max: number) => {
@@ -105,10 +95,11 @@ export function SendTranscriptPanel({ nodeId, data, onUpdate, onClose }: SendTra
     >
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="send-transcript-email" className="text-sidebar-foreground font-medium">
             {t('panels.sendTranscript.destinationEmail')}
           </Label>
           <Input
+            id="send-transcript-email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder={t('panels.sendTranscript.emailPlaceholder')}
@@ -129,10 +120,11 @@ export function SendTranscriptPanel({ nodeId, data, onUpdate, onClose }: SendTra
         </div>
 
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="send-transcript-subject" className="text-sidebar-foreground font-medium">
             {t('panels.sendTranscript.emailSubject')}
           </Label>
           <Input
+            id="send-transcript-subject"
             value={subject}
             onChange={e => setSubject(e.target.value)}
             placeholder={t('panels.sendTranscript.subjectPlaceholder')}

@@ -1,12 +1,11 @@
 import api from '@/services/core/api';
 import { extractData, extractResponse } from '@/utils/apiHelpers';
+import { appendField } from '@/utils/products/formData';
 import {
   Product,
   ProductFormData,
   ProductsListParams,
   ProductsResponse,
-  ProductResponse,
-  ProductDeleteResponse,
   ProductVariant,
   ProductVariantFormData,
   PipelineItemProductLink,
@@ -14,6 +13,9 @@ import {
   ProductBulkPayload,
   ProductBulkRealResponse,
   ProductBulkDryRunResponse,
+  ProductImportSource,
+  ProductImportCredentials,
+  ProductImportFetchResponse,
 } from '@/types/products';
 
 class ProductsService {
@@ -31,7 +33,7 @@ class ProductsService {
 
   async getProduct(id: string): Promise<Product> {
     const response = await api.get(`${this.baseUrl}/${id}`);
-    return extractData<ProductResponse>(response).data;
+    return extractData<Product>(response);
   }
 
   async createProduct(payload: ProductFormData, files?: File[]): Promise<Product> {
@@ -40,11 +42,11 @@ class ProductsService {
       const response = await api.post(this.baseUrl, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      return extractData<ProductResponse>(response).data;
+      return extractData<Product>(response);
     }
 
     const response = await api.post(this.baseUrl, { product: payload });
-    return extractData<ProductResponse>(response).data;
+    return extractData<Product>(response);
   }
 
   async updateProduct(id: string, payload: Partial<ProductFormData>, files?: File[]): Promise<Product> {
@@ -53,11 +55,11 @@ class ProductsService {
       const response = await api.patch(`${this.baseUrl}/${id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      return extractData<ProductResponse>(response).data;
+      return extractData<Product>(response);
     }
 
     const response = await api.patch(`${this.baseUrl}/${id}`, { product: payload });
-    return extractData<ProductResponse>(response).data;
+    return extractData<Product>(response);
   }
 
   /**
@@ -79,9 +81,22 @@ class ProductsService {
     return response.data;
   }
 
-  async deleteProduct(id: string): Promise<ProductDeleteResponse> {
+  /**
+   * Fetches a remote store's catalog, already mapped into the bulk-import item shape:
+   * the caller runs it through the same dry-run + `bulkProducts` path the CSV import
+   * uses. Credentials are one-time.
+   */
+  async importFetch(
+    source: ProductImportSource,
+    credentials: ProductImportCredentials,
+  ): Promise<ProductImportFetchResponse> {
+    const response = await api.post(`${this.baseUrl}/import_fetch`, { source, credentials });
+    return response.data as ProductImportFetchResponse;
+  }
+
+  async deleteProduct(id: string): Promise<{ id: string }> {
     const response = await api.delete(`${this.baseUrl}/${id}`);
-    return extractData<ProductDeleteResponse>(response);
+    return extractData<{ id: string }>(response);
   }
 
   // ---------- Variants ----------
@@ -163,22 +178,7 @@ class ProductsService {
 
   private buildFormData(payload: Partial<ProductFormData>, files: File[]): FormData {
     const formData = new FormData();
-    Object.entries(payload).forEach(([key, value]) => {
-      if (value === undefined || value === null) return;
-      if (key === 'variants_attributes' && Array.isArray(value)) {
-        formData.append(`product[${key}]`, JSON.stringify(value));
-        return;
-      }
-      if (key === 'labels' && Array.isArray(value)) {
-        value.forEach((label) => formData.append('product[labels][]', String(label)));
-        return;
-      }
-      if (key === 'metadata' && typeof value === 'object') {
-        formData.append('product[metadata]', JSON.stringify(value));
-        return;
-      }
-      formData.append(`product[${key}]`, String(value));
-    });
+    Object.entries(payload).forEach(([key, value]) => appendField(formData, `product[${key}]`, value));
 
     files.forEach((file) => {
       formData.append('product[images][]', file, file.name);

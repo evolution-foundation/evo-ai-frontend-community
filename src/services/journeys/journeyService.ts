@@ -1,4 +1,4 @@
-import apiEvoFlow from '../core/apiEvoFlow';
+import api from '@/services/core/api';
 import { extractData, extractResponse } from '@/utils/apiHelpers';
 import type {
   Journey,
@@ -8,6 +8,37 @@ import type {
   JourneyResponse,
   JourneyDeleteResponse
 } from '@/types/automation';
+
+// EVO-2191: the CRM proxy does not relay evo-flow's error body verbatim — it wraps
+// it (`{ errors: <evo-flow body> }`) and answers its own guards with shapes of its
+// own: invalid subpath (400) and oversized payload (413) as `{ errors: { message } }`,
+// evo-flow not configured (503) as `{ error: { code, message } }`, permission denied
+// (403) as a top-level `{ message }`. Reading only `data.message`, as the pre-proxy
+// code did, collapsed every one of those into the generic fallback and the user lost
+// the reason. Walk the shapes before falling back.
+type ProxyErrorBody = {
+  message?: string;
+  // The CRM renders a permission denial as `{ error: '<string>', message }` and a
+  // coded failure as `{ error: { code, message } }` — both shapes reach here.
+  error?: string | { message?: string };
+  errors?: string | { message?: string; error?: { message?: string } };
+};
+
+function apiErrorMessage(error: unknown, fallback: string): string {
+  const data = (error as { response?: { data?: ProxyErrorBody } })?.response?.data;
+  const wrapped = data?.errors;
+
+  if (typeof wrapped === 'string' && wrapped) return wrapped;
+
+  const wrappedMessage =
+    wrapped && typeof wrapped === 'object'
+      ? wrapped.message || wrapped.error?.message
+      : undefined;
+  const codedMessage =
+    data?.error && typeof data.error === 'object' ? data.error.message : undefined;
+
+  return wrappedMessage || codedMessage || data?.message || fallback;
+}
 
 class JourneyService {
   private getBaseUrl() {
@@ -23,28 +54,23 @@ class JourneyService {
     },
   ): Promise<JourneysResponse> {
     try {
-      const response = await apiEvoFlow.get(this.getBaseUrl(), {
+      const response = await api.get(this.getBaseUrl(), {
         params,
       });
       return extractResponse<Journey>(response) as JourneysResponse;
     } catch (error: any) {
       console.error('Erro ao buscar jornadas:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao buscar jornadas');
+      throw new Error(apiErrorMessage(error, 'Erro ao buscar jornadas'));
     }
   }
 
   async getJourney(id: string): Promise<Journey> {
     try {
-      const response = await apiEvoFlow.get(`${this.getBaseUrl()}/${id}`);
+      const response = await api.get(`${this.getBaseUrl()}/${id}`);
       return extractData<Journey>(response);
     } catch (error: any) {
       console.error('Erro ao buscar jornada:', error);
-      // Usar formato padrão de erro: { success: false, error: { code, message, details }, meta }
-      const errorMessage =
-        error?.response?.data?.error?.message ||
-        error?.response?.data?.message ||
-        'Erro ao buscar jornada';
-      throw new Error(errorMessage);
+      throw new Error(apiErrorMessage(error, 'Erro ao buscar jornada'));
     }
   }
 
@@ -52,7 +78,7 @@ class JourneyService {
     payload: CreateJourneyPayload,
   ): Promise<Journey> {
     try {
-      const response = await apiEvoFlow.post(
+      const response = await api.post(
         this.getBaseUrl(),
         {
           name: payload.name,
@@ -66,13 +92,7 @@ class JourneyService {
       return extractData<Journey>(response);
     } catch (error: any) {
       console.error('Erro ao criar jornada:', error);
-
-      // Usar formato padrão de erro: { success: false, error: { code, message, details }, meta }
-      const errorMessage =
-        error?.response?.data?.error?.message ||
-        error?.response?.data?.message ||
-        'Erro ao criar jornada';
-      throw new Error(errorMessage);
+      throw new Error(apiErrorMessage(error, 'Erro ao criar jornada'));
     }
   }
 
@@ -88,47 +108,41 @@ class JourneyService {
         delete updateData.id;
       }
 
-      const response = await apiEvoFlow.patch(`${this.getBaseUrl()}/${id}`, updateData);
+      const response = await api.patch(`${this.getBaseUrl()}/${id}`, updateData);
 
       return extractData<Journey>(response);
     } catch (error: any) {
       console.error('Erro ao atualizar jornada:', error);
-
-      // Usar formato padrão de erro: { success: false, error: { code, message, details }, meta }
-      const errorMessage =
-        error?.response?.data?.error?.message ||
-        error?.response?.data?.message ||
-        'Erro ao atualizar jornada';
-      throw new Error(errorMessage);
+      throw new Error(apiErrorMessage(error, 'Erro ao atualizar jornada'));
     }
   }
 
   async deleteJourney(id: string): Promise<JourneyDeleteResponse> {
     try {
-      const response = await apiEvoFlow.delete(`${this.getBaseUrl()}/${id}`);
+      const response = await api.delete(`${this.getBaseUrl()}/${id}`);
       return extractData<JourneyDeleteResponse>(response);
     } catch (error: any) {
       console.error('Erro ao excluir jornada:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao excluir jornada');
+      throw new Error(apiErrorMessage(error, 'Erro ao excluir jornada'));
     }
   }
 
   async toggleJourney(id: string): Promise<JourneyResponse> {
     try {
-      const response = await apiEvoFlow.post(
+      const response = await api.post(
         `${this.getBaseUrl()}/${id}/toggle-active`,
         {},
       );
       return extractData<JourneyResponse>(response);
     } catch (error: any) {
       console.error('Erro ao alterar status da jornada:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao alterar status da jornada');
+      throw new Error(apiErrorMessage(error, 'Erro ao alterar status da jornada'));
     }
   }
 
   async duplicateJourney(id: string): Promise<{ data: Journey }> {
     try {
-      const response = await apiEvoFlow.post(
+      const response = await api.post(
         `${this.getBaseUrl()}/${id}/duplicate`,
         {},
       );
@@ -137,7 +151,7 @@ class JourneyService {
       };
     } catch (error: any) {
       console.error('Erro ao duplicar jornada:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao duplicar jornada');
+      throw new Error(apiErrorMessage(error, 'Erro ao duplicar jornada'));
     }
   }
 
@@ -145,7 +159,9 @@ class JourneyService {
     triggerType: string,
   ): Promise<{ data: Journey[] }> {
     try {
-      const response = await apiEvoFlow.get(`${this.getBaseUrl()}/trigger-type/${triggerType}`);
+      const response = await api.get(
+        `${this.getBaseUrl()}/trigger-type/${encodeURIComponent(triggerType)}`,
+      );
       const data = extractData<Journey[]>(response);
       return {
         data: Array.isArray(data) ? data : [],
@@ -153,14 +169,14 @@ class JourneyService {
     } catch (error: any) {
       console.error('Erro ao buscar jornadas por tipo de trigger:', error);
       throw new Error(
-        error?.response?.data?.message || 'Erro ao buscar jornadas por tipo de trigger',
+        apiErrorMessage(error, 'Erro ao buscar jornadas por tipo de trigger'),
       );
     }
   }
 
   async getJourneyVariables(id: string): Promise<{ data: any[] }> {
     try {
-      const response = await apiEvoFlow.get(`${this.getBaseUrl()}/${id}/variables`);
+      const response = await api.get(`${this.getBaseUrl()}/${id}/variables`);
 
       const data = extractData<unknown[]>(response);
       return {
@@ -169,7 +185,7 @@ class JourneyService {
     } catch (error: any) {
       console.error('❌ Erro ao buscar variáveis da jornada:', error);
       console.error('❌ Error details:', error?.response?.data);
-      throw new Error(error?.response?.data?.message || 'Erro ao buscar variáveis da jornada');
+      throw new Error(apiErrorMessage(error, 'Erro ao buscar variáveis da jornada'));
     }
   }
 
@@ -178,14 +194,14 @@ class JourneyService {
     variables: any[],
   ): Promise<{ data: any[] }> {
     try {
-      const response = await apiEvoFlow.post(`${this.getBaseUrl()}/${id}/variables`, variables);
+      const response = await api.post(`${this.getBaseUrl()}/${id}/variables`, variables);
       const data = extractData<unknown[]>(response);
       return {
         data: Array.isArray(data) ? data : [],
       };
     } catch (error: any) {
       console.error('Erro ao atualizar variáveis da jornada:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao atualizar variáveis da jornada');
+      throw new Error(apiErrorMessage(error, 'Erro ao atualizar variáveis da jornada'));
     }
   }
 
@@ -203,7 +219,7 @@ class JourneyService {
     },
   ): Promise<{ data: any }> {
     try {
-      const response = await apiEvoFlow.get(`${this.getBaseUrl()}/${journeyId}/sessions`, {
+      const response = await api.get(`${this.getBaseUrl()}/${journeyId}/sessions`, {
         params,
       });
       return {
@@ -211,7 +227,7 @@ class JourneyService {
       };
     } catch (error: any) {
       console.error('Erro ao buscar sessões da jornada:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao buscar sessões da jornada');
+      throw new Error(apiErrorMessage(error, 'Erro ao buscar sessões da jornada'));
     }
   }
 
@@ -222,13 +238,13 @@ class JourneyService {
     };
   }> {
     try {
-      const response = await apiEvoFlow.get(`${this.getBaseUrl()}/${journeyId}/sessions/stats`);
+      const response = await api.get(`${this.getBaseUrl()}/${journeyId}/sessions/stats`);
       return {
         data: extractData(response),
       };
     } catch (error: any) {
       console.error('Erro ao buscar estatísticas de sessões:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao buscar estatísticas de sessões');
+      throw new Error(apiErrorMessage(error, 'Erro ao buscar estatísticas de sessões'));
     }
   }
 
@@ -237,7 +253,7 @@ class JourneyService {
     sessionId: string,
   ): Promise<{ data: any }> {
     try {
-      const response = await apiEvoFlow.get(
+      const response = await api.get(
         `${this.getBaseUrl()}/${journeyId}/sessions/${sessionId}`,
       );
       return {
@@ -245,7 +261,7 @@ class JourneyService {
       };
     } catch (error: any) {
       console.error('Erro ao buscar sessão:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao buscar sessão');
+      throw new Error(apiErrorMessage(error, 'Erro ao buscar sessão'));
     }
   }
 
@@ -254,10 +270,10 @@ class JourneyService {
     sessionId: string,
   ): Promise<void> {
     try {
-      await apiEvoFlow.delete(`${this.getBaseUrl()}/${journeyId}/sessions/${sessionId}`);
+      await api.delete(`${this.getBaseUrl()}/${journeyId}/sessions/${sessionId}`);
     } catch (error: any) {
       console.error('Erro ao deletar sessão:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao deletar sessão');
+      throw new Error(apiErrorMessage(error, 'Erro ao deletar sessão'));
     }
   }
 
@@ -266,7 +282,7 @@ class JourneyService {
     sessionId: string,
   ): Promise<{ data: any }> {
     try {
-      const response = await apiEvoFlow.post(
+      const response = await api.post(
         `${this.getBaseUrl()}/${journeyId}/sessions/${sessionId}/cancel`,
         {},
       );
@@ -275,7 +291,7 @@ class JourneyService {
       };
     } catch (error: any) {
       console.error('Erro ao cancelar sessão:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao cancelar sessão');
+      throw new Error(apiErrorMessage(error, 'Erro ao cancelar sessão'));
     }
   }
 
@@ -284,7 +300,7 @@ class JourneyService {
     status: string,
   ): Promise<{ data: { deleted: number } }> {
     try {
-      const response = await apiEvoFlow.delete(
+      const response = await api.delete(
         `${this.getBaseUrl()}/${journeyId}/sessions/bulk/${status}`,
       );
       return {
@@ -292,7 +308,7 @@ class JourneyService {
       };
     } catch (error: any) {
       console.error('Erro ao deletar sessões em lote:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao deletar sessões em lote');
+      throw new Error(apiErrorMessage(error, 'Erro ao deletar sessões em lote'));
     }
   }
 }

@@ -242,22 +242,16 @@ export default function Labels() {
     try {
       if (editingLabel) {
         // Update existing label
-        const response = await labelsService.updateLabel(editingLabel.id, data);
+        await labelsService.updateLabel(editingLabel.id, data);
         toast.success(t('messages.updateSuccess'));
-
-        // Update the specific label in the list
-        const updatedLabel = response.data;
-        setState(prev => ({
-          ...prev,
-          labels: prev.labels.map(label => (label.id === editingLabel.id ? updatedLabel : label)),
-        }));
       } else {
         // Create new label
         await labelsService.createLabel(data);
         toast.success(t('messages.createSuccess'));
       }
 
-      // Refresh the entire list for new labels
+      // Refresh the whole list: loadLabels() flips loading.list, so patching a
+      // single row here would never paint.
       loadLabels();
 
       // Close modal and clear editing state

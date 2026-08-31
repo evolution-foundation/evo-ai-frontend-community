@@ -1,14 +1,7 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@evoapi/design-system';
 import { Agent } from '@/types/agents';
 import { AgentChatProvider } from '@/contexts/agents/AgentChatContext';
-import { AgentChatSessionList, AgentChatArea } from '@/pages/Customer/Agents/Agent/chat';
-import { useLanguage } from '@/hooks/useLanguage';
+import { AgentChatArea } from '@/pages/Customer/Agents/Agent/chat';
+import { AgentChatPanelHeader } from './chat/AgentChatPanelHeader';
 
 interface AgentTestChatProps {
   open: boolean;
@@ -16,23 +9,20 @@ interface AgentTestChatProps {
   agent: Agent;
 }
 
+/**
+ * Side panel, not a modal: a flex sibling of the content, so the edit area shrinks and
+ * stays editable while the chat is open. Below 768px its 360px minimum does not fit,
+ * so it leaves the flow and covers the screen instead of overflowing the page.
+ */
 export default function AgentTestChat({ open, onOpenChange, agent }: AgentTestChatProps) {
-  const { t } = useLanguage('aiAgents');
+  if (!open) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="!w-[90vw] !max-w-[90vw] h-[90vh] max-h-[90vh] overflow-hidden p-0 sm:!max-w-[90vw]">
-        <DialogHeader className="sr-only">
-          <DialogTitle>{t('chat.chatWithAgent', { name: agent.name })}</DialogTitle>
-          <DialogDescription>{t('chat.startConversation')}</DialogDescription>
-        </DialogHeader>
-        <AgentChatProvider agentId={agent.id} key={open ? 'open' : 'closed'}>
-          <div className="flex h-full overflow-hidden">
-            <AgentChatSessionList />
-            <AgentChatArea agent={agent} />
-          </div>
-        </AgentChatProvider>
-      </DialogContent>
-    </Dialog>
+    <aside className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-background md:static md:z-auto md:w-[460px] md:min-w-[360px] md:flex-shrink-0 md:border-l md:border-border">
+      <AgentChatProvider agentId={agent.id}>
+        <AgentChatPanelHeader agent={agent} onClose={() => onOpenChange(false)} />
+        <AgentChatArea agent={agent} />
+      </AgentChatProvider>
+    </aside>
   );
 }

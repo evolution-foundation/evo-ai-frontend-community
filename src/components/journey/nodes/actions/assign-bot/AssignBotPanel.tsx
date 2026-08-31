@@ -3,20 +3,12 @@ import { Bot, Inbox } from 'lucide-react';
 import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
 import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { useLanguage } from '@/hooks/useLanguage';
+import { AssignBotNodeData } from './AssignBotNode';
 
 export interface AssignBotPanelProps {
   nodeId: string;
-  data: {
-    bot_id?: string;
-    bot_name?: string;
-    inbox_id?: string;
-    inbox_name?: string;
-    formDataOptions?: {
-      bots?: any[];
-      inboxes?: any[];
-    };
-  };
-  onUpdate: (nodeId: string, data: any) => void;
+  data: AssignBotNodeData;
+  onUpdate: (nodeId: string, newData: AssignBotNodeData) => void;
   onClose: () => void;
 }
 

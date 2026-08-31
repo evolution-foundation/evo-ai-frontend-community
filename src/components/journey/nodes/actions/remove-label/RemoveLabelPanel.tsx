@@ -103,13 +103,13 @@ export function RemoveLabelPanel({ nodeId, data, onUpdate, onClose }: RemoveLabe
         )}
 
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('panels.removeLabel.labelToRemove')}</Label>
+          <Label htmlFor="remove-label-select" className="text-sm font-medium">{t('panels.removeLabel.labelToRemove')}</Label>
           <Select
             value={formData.labelId || ''}
             onValueChange={handleLabelChange}
             disabled={loading}
           >
-            <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+            <SelectTrigger id="remove-label-select" className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
               <SelectValue
                 placeholder={
                   loading

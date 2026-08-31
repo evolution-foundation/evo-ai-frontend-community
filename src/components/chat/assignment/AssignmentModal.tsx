@@ -237,10 +237,10 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({
                 if (!option) return null;
 
                 return (
-                  <Badge key={id} variant="secondary" className="flex items-center gap-1">
-                    {option.name}
+                  <Badge key={id} variant="secondary" className="flex items-center gap-1 max-w-[180px]">
+                    <span className="truncate">{option.name}</span>
                     <X
-                      className="h-3 w-3 cursor-pointer hover:text-destructive"
+                      className="h-3 w-3 shrink-0 cursor-pointer hover:text-destructive"
                       onClick={e => {
                         e.stopPropagation();
                         handleToggleSelection(id);

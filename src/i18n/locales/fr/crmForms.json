@@ -19,6 +19,8 @@
     "actions": "Actions"
   },
   "status": {
+    "archivedPipeline": "Pipeline archivé",
+    "archivedPipelineHint": "Le pipeline de destination de ce formulaire est archivé. Les leads sont toujours capturés et listés ici, mais le pipeline n'apparaît plus sur l'écran des pipelines.",
     "published": "Publié",
     "draft": "Brouillon"
   },
