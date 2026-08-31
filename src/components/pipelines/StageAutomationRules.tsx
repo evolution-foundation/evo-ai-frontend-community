@@ -158,7 +158,7 @@ export default function StageAutomationRules({
         ? [...INACTIVITY_MINUTES]
         : [...INACTIVITY_MINUTES, iv.minutes].sort((a, b) => a - b);
       return (
-        <div className="flex-1 grid grid-cols-2 gap-2">
+        <div className="flex-1 min-w-0 grid grid-cols-2 gap-2">
           <Select
             value={String(iv.minutes)}
             onValueChange={v =>
@@ -166,7 +166,7 @@ export default function StageAutomationRules({
             }
             disabled={disabled}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full min-w-0 [&>span]:truncate">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -185,7 +185,7 @@ export default function StageAutomationRules({
             }
             disabled={disabled}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full min-w-0 [&>span]:truncate">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -209,7 +209,7 @@ export default function StageAutomationRules({
           }
           disabled={disabled}
         >
-          <SelectTrigger className="flex-1">
+          <SelectTrigger className="flex-1 min-w-0 [&>span]:truncate">
             <SelectValue placeholder={t('stageAutomation.anyLabel')} />
           </SelectTrigger>
           <SelectContent>
@@ -245,7 +245,7 @@ export default function StageAutomationRules({
           }
           disabled={disabled}
         >
-          <SelectTrigger className="flex-1">
+          <SelectTrigger className="flex-1 min-w-0 [&>span]:truncate">
             <SelectValue placeholder={t('stageAutomation.anyValue')} />
           </SelectTrigger>
           <SelectContent>
@@ -279,7 +279,7 @@ export default function StageAutomationRules({
           onValueChange={v => updateRule(index, { action_value: v })}
           disabled={disabled}
         >
-          <SelectTrigger className="flex-1">
+          <SelectTrigger className="flex-1 min-w-0 [&>span]:truncate">
             <SelectValue placeholder={t('stageAutomation.selectStage')} />
           </SelectTrigger>
           <SelectContent>
@@ -309,13 +309,13 @@ export default function StageAutomationRules({
       const selectedPipeline = otherPipelines.find(p => p.id === selectedPipelineId);
 
       return (
-        <div className="flex-1 grid grid-cols-2 gap-2">
+        <div className="flex-1 min-w-0 grid grid-cols-2 gap-2">
           <Select
             value={selectedPipelineId || ''}
             onValueChange={v => updateRule(index, { action_value: v })}
             disabled={disabled}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full min-w-0 [&>span]:truncate">
               <SelectValue placeholder={t('stageAutomation.selectPipeline')} />
             </SelectTrigger>
             <SelectContent>
@@ -342,7 +342,7 @@ export default function StageAutomationRules({
             }
             disabled={disabled || !selectedPipeline}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full min-w-0 [&>span]:truncate">
               <SelectValue placeholder={t('stageAutomation.selectStage')} />
             </SelectTrigger>
             <SelectContent>
@@ -370,7 +370,7 @@ export default function StageAutomationRules({
           onValueChange={v => updateRule(index, { action_value: v })}
           disabled={disabled}
         >
-          <SelectTrigger className="flex-1">
+          <SelectTrigger className="flex-1 min-w-0 [&>span]:truncate">
             <SelectValue placeholder={t('stageAutomation.selectAgent')} />
           </SelectTrigger>
           <SelectContent>
@@ -395,7 +395,7 @@ export default function StageAutomationRules({
           onValueChange={v => updateRule(index, { action_value: v })}
           disabled={disabled}
         >
-          <SelectTrigger className="flex-1">
+          <SelectTrigger className="flex-1 min-w-0 [&>span]:truncate">
             <SelectValue placeholder={t('stageAutomation.selectLabel')} />
           </SelectTrigger>
           <SelectContent>
@@ -429,7 +429,7 @@ export default function StageAutomationRules({
             onValueChange={v => updateRule(index, { action_value: v })}
             disabled={disabled}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full min-w-0 [&>span]:truncate">
               <SelectValue placeholder={t('stageAutomation.selectAgentBot')} />
             </SelectTrigger>
             <SelectContent>
@@ -483,7 +483,7 @@ export default function StageAutomationRules({
           onValueChange={v => updateRule(index, { action_value: v })}
           disabled={disabled}
         >
-          <SelectTrigger className="flex-1">
+          <SelectTrigger className="flex-1 min-w-0 [&>span]:truncate">
             <SelectValue placeholder={t('stageAutomation.selectTemplate')} />
           </SelectTrigger>
           <SelectContent>
@@ -563,7 +563,7 @@ export default function StageAutomationRules({
                   }}
                   disabled={disabled}
                 >
-                  <SelectTrigger className="w-[200px]">
+                  <SelectTrigger className="w-[200px] shrink-0 [&>span]:truncate">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -585,7 +585,7 @@ export default function StageAutomationRules({
                   onValueChange={v => updateRule(index, { action: v as StageAutomationAction, action_value: '' })}
                   disabled={disabled}
                 >
-                  <SelectTrigger className="w-[200px]">
+                  <SelectTrigger className="w-[200px] shrink-0 [&>span]:truncate">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
