@@ -44,7 +44,7 @@ const AddUsers: React.FC = () => {
       setIsLoading(true);
       const [teamResponse, usersResponse, membersResponse] = await Promise.all([
         TeamsService.getTeam(teamId),
-        usersService.getUsers(),
+        usersService.getUsers({ per_page: 100 }),
         TeamsService.getTeamMembers(teamId),
       ]);
 
