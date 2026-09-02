@@ -6,29 +6,6 @@
   gap: 0.5rem;
 }
 
-.phone-input .PhoneInputCountry {
-  margin-right: 0.5rem;
-  display: flex;
-  align-items: center;
-}
-
-.phone-input .PhoneInputCountrySelect {
-  appearance: none;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  font-size: 1.5rem;
-}
-
-.phone-input .PhoneInputCountrySelect:focus {
-  outline: none;
-}
-
-.phone-input .PhoneInputCountrySelectArrow {
-  display: none;
-}
-
 .phone-input input[type="tel"] {
   flex: 1;
 }
@@ -46,11 +23,4 @@
 .phone-input .PhoneInputInput:disabled {
   cursor: not-allowed;
   opacity: 0.5;
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .phone-input .PhoneInputCountrySelect {
-    color: hsl(var(--foreground));
-  }
 }
