@@ -7,7 +7,7 @@
 import type { AxiosResponse } from 'axios';
 import type {
   ErrorInfo,
-
+  PaginationMeta,
 } from '@/types/core';
 
 /**
@@ -225,5 +225,29 @@ export function buildPaginationParams(page: number, pageSize: number): { page: n
     page,
     pageSize, // Padrão: camelCase conforme API_RESPONSE_STANDARD.md
   };
+}
+
+/**
+ * Fetches every page of a paginated list endpoint and concatenates the results.
+ * A list screen backed only by page 1 (e.g. `api.get('/inboxes')` with no page
+ * param) silently truncates at the backend's default page size — see CRM's
+ * `apply_pagination` (defaults to 20). This walks `meta.pagination.has_next_page`
+ * until it's false, so callers don't have to reimplement the loop per resource.
+ */
+export async function fetchAllPages<T>(
+  fetchPage: (page: number) => Promise<{ data: T[]; meta?: { pagination?: PaginationMeta } }>,
+): Promise<T[]> {
+  const first = await fetchPage(1);
+  const items = [...first.data];
+
+  let pagination = first.meta?.pagination;
+  while (pagination?.has_next_page) {
+    const nextPage = pagination.page + 1;
+    const response = await fetchPage(nextPage);
+    items.push(...response.data);
+    pagination = response.meta?.pagination;
+  }
+
+  return items;
 }
 
