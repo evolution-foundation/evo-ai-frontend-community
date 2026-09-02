@@ -32,6 +32,13 @@ const SERVER_TO_FORM_FIELD: Record<string, string> = {
   name: 'fullName',
 };
 
+// Configs saved before FIELD_TYPES.PHONE existed persisted the phoneNumber
+// field with type: 'text', so it silently fell through to the plain-text
+// branch below with no country dropdown. Resolving by name keeps already
+//-saved accounts working without a data migration.
+const resolveFieldType = (field: PreChatField): PreChatField['type'] =>
+  field.name === 'phoneNumber' ? 'phone' : field.type;
+
 // Validation schema factory
 const createValidationSchema = (fields: PreChatField[], hasActiveCampaign: boolean, t: (key: string) => string) => {
   const schemaFields: Record<string, z.ZodTypeAny> = {};
@@ -40,7 +47,7 @@ const createValidationSchema = (fields: PreChatField[], hasActiveCampaign: boole
     let validator: z.ZodTypeAny;
 
     // Base validation based on type
-    switch (field.type) {
+    switch (resolveFieldType(field)) {
       case 'email':
         validator = z.string().email(t('preChatForm.validation.invalidEmail'));
         break;
@@ -252,7 +259,7 @@ export const PreChatForm: React.FC<PreChatFormProps> = ({
     const fieldError = errors[field.name];
     const hasError = !!fieldError;
 
-    switch (field.type) {
+    switch (resolveFieldType(field)) {
       case 'select':
         return (
           <Controller
