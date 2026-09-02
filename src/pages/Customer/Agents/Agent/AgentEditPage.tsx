@@ -22,6 +22,7 @@ import { CustomTool } from '@/types/ai';
 import { MCPServerConfig } from '@/types/ai';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import usersService from '@/services/users/usersService';
+import { fetchAllPages } from '@/utils/apiHelpers';
 import teamsService from '@/services/teams/teamsService';
 import ProfileSection from './sections/ProfileSection';
 import ProductsSection from './sections/ProductsSection';
@@ -261,8 +262,7 @@ const AgentEditPage = () => {
 
   const loadUsers = useCallback(async () => {
     try {
-      const response = await usersService.getUsers();
-      const users = response.data || [];
+      const users = await fetchAllPages(page => usersService.getUsers({ page }));
 
       const transformedUsers = users.map(user => ({
         id: user.id,

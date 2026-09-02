@@ -18,6 +18,7 @@ import {
 import { scheduledActionsService } from '@/services/scheduledActions/scheduledActionsService';
 import InboxesService from '@/services/channels/inboxesService';
 import { contactsService } from '@/services/contacts';
+import { fetchAllPages } from '@/utils/apiHelpers';
 import type { ScheduledAction, CreateScheduledAction } from '@/types/automation';
 import type { Inbox } from '@/types/channels/inbox';
 import type { Contact } from '@/types/contacts';
@@ -77,8 +78,7 @@ export function ScheduleActionModal({
 
       setLoadingInboxes(true);
       try {
-        const response = await InboxesService.list();
-        const inboxes = response.data || [];
+        const inboxes = await fetchAllPages(page => InboxesService.list({ page }));
         setAvailableInboxes(getMessagingInboxes(inboxes));
 
       } catch (error) {
