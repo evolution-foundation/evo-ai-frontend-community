@@ -10,6 +10,7 @@ import TeamsService from '@/services/teams/teamsService';
 import type { Team } from '@/types/users';
 import { usersService } from '@/services/users';
 import type { User } from '@/types/users';
+import { fetchAllPages } from '@/utils/apiHelpers';
 
 // The team_members payload shape varies depending on which endpoint serialized
 // it (user_id is the canonical field, user.id and id show up in legacy
@@ -42,14 +43,14 @@ const AddUsers: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const [teamResponse, usersResponse, membersResponse] = await Promise.all([
+      const [teamResponse, allUsers, membersResponse] = await Promise.all([
         TeamsService.getTeam(teamId),
-        usersService.getUsers({ per_page: 100 }),
+        fetchAllPages(page => usersService.getUsers({ page })),
         TeamsService.getTeamMembers(teamId),
       ]);
 
       setTeam(teamResponse);
-      setUsers(usersResponse.data || []);
+      setUsers(allUsers);
       const existingMemberIds = (membersResponse as unknown as TeamMembershipRow[])
         .map(extractMemberId)
         .filter((id): id is string => Boolean(id));
