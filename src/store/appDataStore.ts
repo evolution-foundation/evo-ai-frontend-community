@@ -4,6 +4,7 @@ import usersService from '@/services/users/usersService';
 import InboxesService from '@/services/channels/inboxesService';
 import { labelsService } from '@/services/contacts/labelsService';
 import TeamsService from '@/services/teams/teamsService';
+import { fetchAllPages } from '@/utils/apiHelpers';
 import type { Account } from '@/types/settings';
 import type { User } from '@/types/users';
 import type { Inbox } from '@/types/channels/inbox';
@@ -116,9 +117,9 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
 
     set({ isLoadingAgents: true });
     try {
-      const response = await usersService.getUsers();
+      const agents = await fetchAllPages(page => usersService.getUsers({ page }));
       set({
-        agents: response.data,
+        agents,
         isLoadingAgents: false,
         lastFetchTimestamps: { ...state.lastFetchTimestamps, agents: now }
       });
@@ -140,9 +141,9 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
 
     set({ isLoadingInboxes: true });
     try {
-      const inboxes = await InboxesService.list();
+      const inboxes = await fetchAllPages(page => InboxesService.list({ page }));
       set({
-        inboxes: inboxes.data,
+        inboxes,
         isLoadingInboxes: false,
         lastFetchTimestamps: { ...state.lastFetchTimestamps, inboxes: now }
       });
