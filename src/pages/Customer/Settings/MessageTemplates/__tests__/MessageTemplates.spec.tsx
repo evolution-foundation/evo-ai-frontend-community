@@ -117,6 +117,7 @@ beforeEach(() => {
   h.inboxes = [
     { id: 'wa-1', name: 'WhatsApp Cloud', channel_type: 'Channel::Whatsapp', provider: 'whatsapp_cloud' },
     { id: 'em-1', name: 'Email Inbox', channel_type: 'Channel::Email' },
+    { id: 'ev-1', name: 'Evolution API', channel_type: 'Channel::Whatsapp', provider: 'evolution' },
   ];
   h.globalService.getTemplates.mockResolvedValue(stdResponse);
   h.channelService.getTemplates.mockResolvedValue(stdResponse);
@@ -163,6 +164,20 @@ describe('MessageTemplates (unified screen)', () => {
     const syncBtn = await screen.findByText('actions.sync');
     fireEvent.click(syncBtn);
     await waitFor(() => expect(h.channelService.syncTemplates).toHaveBeenCalledWith('wa-1'));
+  });
+
+  // Regression: shares the 'Channel::Whatsapp' channel_type with whatsapp_cloud,
+  // but evolution has no real Meta approval workflow. The sync button and the
+  // approved/pending/rejected badge must not show for it (status.active instead).
+  it('hides the Meta sync button and shows local active/inactive for a non-Meta WhatsApp provider', async () => {
+    render(<MessageTemplates />);
+    await screen.findByText('welcome');
+    fireEvent.change(screen.getByTestId('ds-select'), { target: { value: 'ev-1' } });
+    await waitFor(() =>
+      expect(h.channelService.getTemplates).toHaveBeenCalledWith('ev-1', expect.objectContaining({ page: 1 })),
+    );
+    expect(screen.queryByText('actions.sync')).not.toBeInTheDocument();
+    expect(await screen.findByText('status.active')).toBeInTheDocument();
   });
 
   it('routes New to the EmailTemplateEditor for an email inbox (no inline modal)', async () => {
