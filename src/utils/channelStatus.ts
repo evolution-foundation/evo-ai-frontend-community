@@ -10,7 +10,7 @@ import { ChannelType, ChannelTypeId } from '@/types/channels/providers';
  * live Evolution instance check (`useLiveChannelStatus`) — instead of deriving
  * it from `reauthorization_required` alone.
  */
-export type ChannelHealthStatus = 'active' | 'attention' | 'error' | 'available';
+export type ChannelHealthStatus = 'active' | 'attention' | 'error' | 'unmonitored' | 'available';
 
 /** Live overlay map (inbox id -> freshly fetched state) from useLiveChannelStatus. */
 export type LiveStatusOverlay = Record<string, InboxConnectionState>;
@@ -76,17 +76,23 @@ export function resolveInboxConnectionState(
 
 /**
  * Hub-level status of a single configured inbox. A configured inbox is never
- * `available` — that only applies to a channel TYPE with no inboxes at all.
- * `unknown` counts as active: it means the type has no health signal
- * (explicit degrade), not that the channel is broken.
+ * `available` nor `unmonitored` — both are TYPE-level verdicts.
+ *
+ * `unknown` splits by `health_source`: with a real source the backend looked
+ * and found nothing confirming the connection, which must not read as active.
+ * With `none` there is nothing to look at, so it stays active HERE and never
+ * inflates `attentionCount`/`errorCount`; the TYPE downgrades to `unmonitored`
+ * in `buildChannelTypeStatuses`. A payload without `health_source` predates
+ * EVO-1674 and keeps the old benefit of the doubt (CRM-339).
  */
 export function deriveInboxStatus(
   inbox: Inbox,
   live?: LiveStatusOverlay,
-): Exclude<ChannelHealthStatus, 'available'> {
+): Exclude<ChannelHealthStatus, 'available' | 'unmonitored'> {
   const state = resolveInboxConnectionState(inbox, live);
   if (state === 'error' || state === 'disconnected') return 'error';
   if (state === 'pending') return 'attention';
+  if (state === 'unknown' && inbox.health_source && inbox.health_source !== 'none') return 'attention';
   return 'active';
 }
 
@@ -112,10 +118,15 @@ export function buildChannelTypeStatuses(
     const attentionCount = matched.filter(inbox => deriveInboxStatus(inbox, live) === 'attention').length;
     const activeCount = matched.length - errorCount - attentionCount;
 
+    // Types the backend has no health support for (Telegram, SMS, API, Web Widget)
+    // report `health_source: 'none'` on every inbox: calling that "active" claims a
+    // health the backend says it does not know. A partial mix stays `active` — at
+    // least one connection is confirmed.
     let status: ChannelHealthStatus = 'available';
     if (matched.length > 0) {
       if (errorCount > 0) status = 'error';
       else if (attentionCount > 0) status = 'attention';
+      else if (inboxStates.every(info => info.unmonitored)) status = 'unmonitored';
       else status = 'active';
     }
 

@@ -49,8 +49,12 @@ vi.mock('sonner', () => ({
   },
 }));
 
+// Mutable so the CRM-495 example can flip the verdict between two renders of the
+// same instance, which is the whole point: no remount is allowed to be the fix.
+let canRead = true;
+
 vi.mock('@/contexts/PermissionsContext', () => ({
-  usePermissions: () => ({ can: () => true, isReady: true, loading: false }),
+  usePermissions: () => ({ can: () => canRead, isReady: true, loading: false }),
 }));
 
 vi.mock('@/hooks/useLanguage', () => ({
@@ -81,8 +85,25 @@ async function clickActivate() {
 describe('Pipelines management screen', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    canRead = true;
     getPipelines.mockResolvedValue({ data: [inactivePipeline], meta: {} });
     togglePipelineStatus.mockResolvedValue({ ...inactivePipeline, is_active: true });
+  });
+
+  // CRM-495: the screen used to read the permission once, on the first render where
+  // it was ready, and a false answered before the grants landed stuck until remount.
+  it('loads on its own when the read permission lands after the first render (CRM-495)', async () => {
+    canRead = false;
+    const { rerender } = render(<Pipelines />);
+
+    await waitFor(() => expect(error).toHaveBeenCalledWith('messages.noPermissionRead'));
+    expect(getPipelines).not.toHaveBeenCalled();
+
+    canRead = true;
+    rerender(<Pipelines />);
+
+    await waitFor(() => expect(getPipelines).toHaveBeenCalledTimes(1));
+    expect(error).toHaveBeenCalledTimes(1);
   });
 
   it('asks the API for inactive pipelines too (AC2, AC3)', async () => {

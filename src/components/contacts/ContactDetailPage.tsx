@@ -46,18 +46,10 @@ export default function ContactDetailPage({
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {contact && (
-            // Deliberate exception to the semantic-token rule: the prototype calls for a
-            // green "Iniciar Conversa" CTA (WhatsApp-style action-affordance, same family as
-            // the online-status green used elsewhere), and the design system has no
-            // general-purpose success/green button token — `--flow-feedback-success-*` is a
-            // light-tint banner triad (bg/fg/border for flow-canvas feedback), not a solid
-            // CTA fill, so it doesn't fit here. Using Tailwind's named green until a
-            // dedicated `bg-success`-style button token exists.
             <Button
               size="sm"
               onClick={() => onStartConversation(contact)}
               disabled={contact.blocked}
-              className="bg-green-600 hover:bg-green-700 text-white"
             >
               <MessageSquare className="h-4 w-4 mr-2" />
               {t('details.actions.startConversation')}

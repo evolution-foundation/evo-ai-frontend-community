@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { usePermissions } from '@/contexts/PermissionsContext';
+import { useCredentialScopePermissions } from '@/hooks/useCredentialScopePermissions';
 import { toast } from 'sonner';
 import {
   Badge,
@@ -77,7 +77,6 @@ interface ConsumerInUse {
 
 export default function IntegrationCredentials() {
   const { t } = useLanguage('integrationCredentials');
-  const { can, isReady: permissionsReady } = usePermissions();
 
   const [credentials, setCredentials] = useState<IntegrationCredential[]>([]);
   const [loading, setLoading] = useState(false);
@@ -89,14 +88,14 @@ export default function IntegrationCredentials() {
     useState<IntegrationCredential | null>(null);
   const [consumersInUse, setConsumersInUse] = useState<ConsumerInUse[]>([]);
 
-  const canRead = can('ai_integration_credentials', 'read');
-  const canCreate = can('ai_integration_credentials', 'create');
-  const canUpdate = can('ai_integration_credentials', 'update');
-  const canDelete = can('ai_integration_credentials', 'delete');
-  // Writing at the installation level is a separate privilege: an account admin
-  // sees the inherited default but cannot change it (story 2.2, same rule as
-  // the AI credentials screen).
-  const canManageInstallation = can('installation_configs', 'manage');
+  const {
+    can,
+    permissionsReady,
+    canRead,
+    canCreateInScope,
+    canUpdateInScope,
+    canDeleteInScope,
+  } = useCredentialScopePermissions('ai_integration_credentials');
   // Disconnecting delegates to the agent-integration flow, which the backend
   // gates on ai_agents.update — the vault grants play no part here.
   const canDisconnect = can('ai_agents', 'update');
@@ -228,10 +227,6 @@ export default function IntegrationCredentials() {
     setFormOpen(true);
   };
 
-  // Editing an installation credential needs the installation privilege;
-  // account credentials only need ai_integration_credentials.update.
-  const canWriteScope = (scope: ApiKeyScope) =>
-    scope === 'installation' ? canManageInstallation : canUpdate;
 
   const openEditForm = (credential: IntegrationCredential) => {
     setDraft({
@@ -251,7 +246,8 @@ export default function IntegrationCredentials() {
       return;
     }
 
-    if (!canWriteScope(draft.scope)) {
+    const allowed = isEditing ? canUpdateInScope(draft.scope) : canCreateInScope(draft.scope);
+    if (!allowed) {
       toast.error(t('messages.permissionDenied.installation'));
       return;
     }
@@ -373,7 +369,7 @@ export default function IntegrationCredentials() {
   }
 
   const renderCredentialsTable = (rows: IntegrationCredential[], scope: ApiKeyScope) => {
-    const writable = canWriteScope(scope);
+    const writable = canUpdateInScope(scope);
 
     return (
       <div className="overflow-x-auto border rounded-lg">
@@ -430,7 +426,7 @@ export default function IntegrationCredentials() {
                         </span>
                       )
                     )}
-                    {canDelete && writable && (
+                    {canDeleteInScope(scope) && (
                       <Button
                         variant="ghost"
                         size="sm"
@@ -457,7 +453,7 @@ export default function IntegrationCredentials() {
           <h1 className="text-2xl font-semibold">{t('title')}</h1>
           <p className="text-muted-foreground">{t('description')}</p>
         </div>
-        {canCreate && (
+        {canCreateInScope('account') && (
           <Button onClick={() => openCreateForm('account')}>
             <Plus className="mr-2 h-4 w-4" />
             {t('actions.add')}
@@ -504,7 +500,7 @@ export default function IntegrationCredentials() {
             title={t('empty.title')}
             description={t('empty.description')}
             action={
-              canCreate
+              canCreateInScope('account')
                 ? { label: t('actions.addFirst'), onClick: () => openCreateForm('account') }
                 : undefined
             }
@@ -519,7 +515,7 @@ export default function IntegrationCredentials() {
           <h2 className="text-sm font-medium uppercase text-muted-foreground">
             {t('sections.installation')}
           </h2>
-          {canManageInstallation && (
+          {canCreateInScope('installation') && (
             <Button variant="outline" size="sm" onClick={() => openCreateForm('installation')}>
               <Plus className="mr-2 h-4 w-4" />
               {t('actions.add')}

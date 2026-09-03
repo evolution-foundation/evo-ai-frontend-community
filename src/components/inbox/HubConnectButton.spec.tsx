@@ -3,9 +3,16 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import HubConnectButton from './HubConnectButton';
 import { api } from '@/services/core';
+import hubApi from '@/services/core/api';
 
 vi.mock('@/services/core', () => ({
   api: { post: vi.fn(), get: vi.fn() },
+}));
+
+// evolutionHubService imports axios by module path, not through the barrel, so
+// the mock above does not reach it — without this one the service hits the network.
+vi.mock('@/services/core/api', () => ({
+  default: { post: vi.fn(), get: vi.fn(), delete: vi.fn() },
 }));
 
 // useGlobalConfig returns the config flat (GlobalConfigContextValue extends
@@ -36,6 +43,19 @@ async function emitir(status: string, inboxId: string = INBOX_ID) {
     window.dispatchEvent(
       new CustomEvent('evolution:hubChannelConnection', {
         detail: { inbox_id: inboxId, connection_status: status },
+      }),
+    );
+  });
+}
+
+// Meta reports the signup outcome by postMessage from its own origin; the
+// component ignores every other sender.
+async function emitirMeta(event: string) {
+  await act(async () => {
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        origin: 'https://www.facebook.com',
+        data: JSON.stringify({ type: 'WA_EMBEDDED_SIGNUP', event }),
       }),
     );
   });
@@ -106,5 +126,65 @@ describe('HubConnectButton — estado real da conexão', () => {
 
     await waitFor(() => expect(api.get).toHaveBeenCalled());
     expect(screen.getByTestId('hub-waiting')).toBeInTheDocument();
+  });
+});
+
+// The Hub channel is created before the operator ever reaches Meta, so an
+// attempt ending in cancel or error has to take the inbox down with it: the
+// orphan burns plan quota and shows up as a connection that never happened.
+describe('HubConnectButton — descarte da conexão que não concluiu', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(window, 'open').mockImplementation(() => null);
+    vi.mocked(hubApi.delete).mockResolvedValue({} as never);
+  });
+
+  it('descarta a inbox que acabou de criar quando a Meta cancela', async () => {
+    await criarInbox();
+
+    await emitirMeta('CANCEL');
+
+    expect(hubApi.delete).toHaveBeenCalledWith(`/inboxes/${INBOX_ID}/hub_connection`);
+  });
+
+  it('descarta também quando a Meta recusa a conexão', async () => {
+    await criarInbox();
+
+    await emitirMeta('ERROR');
+
+    expect(hubApi.delete).toHaveBeenCalledWith(`/inboxes/${INBOX_ID}/hub_connection`);
+  });
+
+  // The public link dies with the Hub channel: reopening it would send the
+  // operator to a page that no longer exists.
+  it('oferece recomeçar no lugar do link morto depois do descarte', async () => {
+    await criarInbox();
+
+    await emitirMeta('CANCEL');
+
+    expect(await screen.findByRole('button', { name: /tentar de novo/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /outra aba/i })).not.toBeInTheDocument();
+  });
+
+  it('nunca descarta uma conexão que já entrou', async () => {
+    await criarInbox();
+    await emitir('connected');
+    await screen.findByTestId('hub-connected');
+
+    await emitirMeta('CANCEL');
+
+    expect(hubApi.delete).not.toHaveBeenCalled();
+  });
+
+  it('não trava a tela quando o próprio descarte falha', async () => {
+    vi.mocked(hubApi.delete).mockRejectedValue(new Error('canal já conectado'));
+    await criarInbox();
+
+    await emitirMeta('CANCEL');
+
+    // Stays on the failure screen with a way out: the pending inbox is still
+    // visible and deletable from the listing, which runs the same cleanup.
+    expect(await screen.findByTestId('hub-failed')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /outra aba/i })).toBeInTheDocument();
   });
 });
