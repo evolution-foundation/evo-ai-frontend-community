@@ -22,9 +22,14 @@ vi.mock('./AuthContext', () => ({
 // Mirrors the store: `isLoggedIn` is derived from the current user, so it is
 // false for exactly as long as `useAuth().user` is null. Pinning it to true
 // hid the CRM-494 window, where the provider mounts with neither.
-vi.mock('@/store/authStore', () => ({
-  useAuthStore: { getState: () => ({ isLoggedIn: Boolean(mockUser()?.id) }) },
-}));
+// Real zustand store: the provider SUBSCRIBES to isLoggedIn (the F5 race fix),
+// so the mock must be reactive — a plain getState object cannot be called as a
+// hook and could never exercise the hydration flip.
+vi.mock('@/store/authStore', async () => {
+  const { create } = await import('zustand');
+  return { useAuthStore: create(() => ({ isLoggedIn: true })) };
+});
+import { useAuthStore } from '@/store/authStore';
 
 const mockAccountPermissions = vi.fn<[], Promise<string[]>>();
 const mockUserPermissions = vi.fn<[], Promise<string[]>>();
@@ -98,6 +103,7 @@ async function renderWith(role: string, granted: string[]) {
 describe('PermissionsContext — can() stays data-driven (no role short-circuit)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useAuthStore.setState({ isLoggedIn: true });
   });
 
   it('denies a permission the user was not granted, even for super_admin', async () => {
@@ -419,5 +425,33 @@ describe('PermissionsContext — an unfetched list is never ready (CRM-494)', ()
     fireEvent.click(screen.getByText('retry'));
 
     await waitFor(() => expect(mockResourceActions).toHaveBeenCalledTimes(2));
+  });
+
+  // F5 inside the embed: the bridge delivers `user` BEFORE the auth store
+  // hydrates isLoggedIn. CRM-494 already keeps the legs at `pending` there;
+  // this pins the OTHER half — the hydration flip must RE-RUN the fetches.
+  // With the old getState() snapshot (invisible to React) this test fails on
+  // the second expectation: ready stays false forever.
+  it('stays pending before hydration, then loads when isLoggedIn flips', async () => {
+    const { act } = await import('@testing-library/react');
+    useAuthStore.setState({ isLoggedIn: false });
+    mockUser.mockReturnValue({ id: 'u1', role: 'agent' });
+    mockUserPermissions.mockResolvedValue(['contacts.read']);
+    mockAccountPermissions.mockResolvedValue(['contacts.read']);
+
+    render(
+      <PermissionsProvider>
+        <Probe />
+      </PermissionsProvider>,
+    );
+
+    expect(screen.getByTestId('ready').textContent).toBe('false');
+
+    await act(async () => {
+      useAuthStore.setState({ isLoggedIn: true });
+    });
+
+    await waitFor(() => expect(screen.getByTestId('ready').textContent).toBe('true'));
+    expect(screen.getByTestId('contacts-read').textContent).toBe('true');
   });
 });
