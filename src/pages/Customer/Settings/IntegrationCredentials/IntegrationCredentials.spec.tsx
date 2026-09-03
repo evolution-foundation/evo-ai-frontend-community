@@ -227,6 +227,29 @@ describe('IntegrationCredentials — creating only static (AC2, AC4)', () => {
     const [payload] = createIntegrationCredential.mock.calls[0];
     expect(payload.kind).toBe('static');
     expect(payload.value).toBe('app-secret-0001');
+    // The page-level button is the account one: without this the row could
+    // silently land at another scope.
+    expect(payload.scope).toBe('account');
+  });
+
+  // handleSave used to run every save through the update gate, so a create-only
+  // grant was refused a credential the server would have accepted.
+  it('creates at account scope without ai_integration_credentials.update', async () => {
+    const user = userEvent.setup();
+    granted = ['ai_integration_credentials.read', 'ai_integration_credentials.create'];
+    createIntegrationCredential.mockResolvedValue(DIFY_CREDENTIAL);
+    render(<IntegrationCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+
+    await user.type(await screen.findByLabelText('form.labels.name'), 'Nova');
+    await user.type(screen.getByLabelText('form.labels.provider'), 'dify');
+    await user.type(screen.getByLabelText('form.labels.value'), 'create-only-0001');
+    await user.click(screen.getByText('actions.save'));
+
+    await waitFor(() => expect(createIntegrationCredential).toHaveBeenCalled());
+    expect(createIntegrationCredential.mock.calls[0][0]).toMatchObject({ scope: 'account' });
   });
 
   it('blocks the save when name, provider or value is missing', async () => {
@@ -364,11 +387,17 @@ describe('IntegrationCredentials — OAuth connections section (2.5 AC1, AC2, AC
 });
 
 // EVO-2250 story 2.2: the installation link of the chain. Writing at that
-// level is gated on installation_configs.manage, NOT on the update grant of
-// the resource — the negative proofs below fail if the component ever swaps
-// canManageInstallation for canUpdate.
+// level needs installation_configs.manage ON TOP of the resource grant for the
+// verb in play — never one instead of the other. The negative proofs below fail
+// if the component ever swaps one for the other, in either direction.
 describe('IntegrationCredentials — installation scope (2.2 AC8)', () => {
   const findInstallationRow = () => screen.findByRole('cell', { name: 'n8n da casa' });
+
+  // Scoped to the section instead of indexed into getAllByText: the account's
+  // add button lives in the page header, so an index follows any layout change
+  // to the wrong button.
+  const installationSection = () => screen.getByLabelText('sections.installation');
+  const addInstallationButton = () => within(installationSection()).getByText('actions.add');
 
   beforeEach(() => {
     listIntegrationCredentials.mockResolvedValue([DIFY_CREDENTIAL, INSTALLATION_CREDENTIAL]);
@@ -422,6 +451,81 @@ describe('IntegrationCredentials — installation scope (2.2 AC8)', () => {
     const [id, payload] = updateIntegrationCredential.mock.calls[0];
     expect(id).toBe('cred-installation');
     expect(payload.scope).toBe('installation');
+  });
+
+  // The whole point of the section: the CREATE carries scope 'installation',
+  // or the row lands on the account and the Evo default stays empty. Updating
+  // an existing row cannot prove this — it inherits the scope it already had.
+  it('lets an installation admin CREATE at that level, carrying the scope', async () => {
+    const user = userEvent.setup();
+    granted = [...ALL_PERMISSIONS, 'installation_configs.manage'];
+    createIntegrationCredential.mockResolvedValue(INSTALLATION_CREDENTIAL);
+    render(<IntegrationCredentials />);
+
+    await findInstallationRow();
+    await user.click(addInstallationButton());
+
+    await user.type(await screen.findByLabelText('form.labels.name'), 'Nova da casa');
+    await user.type(screen.getByLabelText('form.labels.provider'), 'n8n');
+    await user.type(screen.getByLabelText('form.labels.value'), 'house-secret-0002');
+    await user.click(screen.getByText('actions.save'));
+
+    await waitFor(() => expect(createIntegrationCredential).toHaveBeenCalled());
+    expect(createIntegrationCredential.mock.calls[0][0]).toMatchObject({
+      name: 'Nova da casa',
+      provider: 'n8n',
+      value: 'house-secret-0002',
+      kind: 'static',
+      scope: 'installation',
+    });
+  });
+
+  // The scope privilege is ON TOP of ai_integration_credentials.create, not
+  // instead of it: offering the button to someone the server will refuse is a
+  // dead end.
+  it('hides the installation add button without ai_integration_credentials.create', async () => {
+    granted = [
+      ...ALL_PERMISSIONS.filter(
+        permission => permission !== 'ai_integration_credentials.create',
+      ),
+      'installation_configs.manage',
+    ];
+    render(<IntegrationCredentials />);
+
+    await findInstallationRow();
+    expect(within(installationSection()).queryByText('actions.add')).not.toBeInTheDocument();
+  });
+
+  // The same rule on the update axis: the PUT route demands
+  // ai_integration_credentials.update whatever the scope, so
+  // installation_configs.manage alone must not light up the edit controls.
+  it('keeps the installation row read-only without ai_integration_credentials.update', async () => {
+    granted = [
+      ...ALL_PERMISSIONS.filter(
+        permission => permission !== 'ai_integration_credentials.update',
+      ),
+      'installation_configs.manage',
+    ];
+    render(<IntegrationCredentials />);
+
+    await findInstallationRow();
+    expect(screen.queryAllByLabelText('actions.edit')).toHaveLength(0);
+    expect(screen.getByText('inheritedReadOnly')).toBeInTheDocument();
+  });
+
+  // Delete does not travel through update: dropping the update grant must not
+  // take the trash icon with it, on either row.
+  it('keeps the delete control without ai_integration_credentials.update', async () => {
+    granted = [
+      ...ALL_PERMISSIONS.filter(
+        permission => permission !== 'ai_integration_credentials.update',
+      ),
+      'installation_configs.manage',
+    ];
+    render(<IntegrationCredentials />);
+
+    await findInstallationRow();
+    expect(screen.getAllByLabelText('actions.delete')).toHaveLength(2);
   });
 
   it('shows the empty hint when the installation has nothing', async () => {

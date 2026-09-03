@@ -102,6 +102,10 @@ export default function HubConnectButton({
   // toast and the screen kept spinning on "waiting" forever.
   const [signupError, setSignupError] = useState<string | null>(null);
   const [inPageSignup, setInPageSignup] = useState(false);
+  // Whether the failed attempt's inbox was actually discarded. Drives the
+  // recovery button: the public link dies with the Hub channel, so offering to
+  // reopen it after a discard would send the operator to a dead page.
+  const [discarded, setDiscarded] = useState(false);
 
   const [availableChannels, setAvailableChannels] = useState<HubChannel[]>([]);
   const [loadingChannels, setLoadingChannels] = useState(false);
@@ -186,7 +190,7 @@ export default function HubConnectButton({
   // anyway. `provider_event` means the Hub actually confirmed the connection —
   // `stored_flag` is the resolver assuming a configured token channel is live.
   useEffect(() => {
-    if (inboxId === null || connectionStatus === 'connected') return;
+    if (inboxId === null || connectionStatus === 'connected' || discarded) return;
 
     const reconcile = async () => {
       if (document.visibilityState !== 'visible') return;
@@ -207,14 +211,34 @@ export default function HubConnectButton({
       document.removeEventListener('visibilitychange', reconcile);
       window.removeEventListener('focus', reconcile);
     };
-  }, [inboxId, connectionStatus, markConnected]);
+  }, [inboxId, connectionStatus, discarded, markConnected]);
 
-  const failSignup = useCallback((message: string) => {
-    toast.error(message);
-    setSignupError(message);
-    setSignupData(null);
-    setAuthCode(null);
+  // The Hub channel is created before the Meta round-trip, so an attempt that
+  // ends in cancel or error leaves it orphaned on both sides, burning a slot of
+  // the plan's channel quota. Only the inbox this component just created is
+  // ever discarded — the id never comes from a listing.
+  const discardPendingInbox = useCallback(async (id: number) => {
+    try {
+      await evolutionHubService.abortConnection(id);
+      setDiscarded(true);
+    } catch {
+      // Best effort by design: the pending inbox stays visible in the channel
+      // list and can still be deleted there, which runs the same cleanup.
+    }
   }, []);
+
+  const failSignup = useCallback(
+    (message: string) => {
+      toast.error(message);
+      setSignupError(message);
+      setSignupData(null);
+      setAuthCode(null);
+      // A cancel can race a connection that already went through; the backend
+      // refuses that discard too, this is just the cheap first check.
+      if (inboxId !== null && !alreadyConnected.current) void discardPendingInbox(inboxId);
+    },
+    [inboxId, discardPendingInbox],
+  );
 
   // The channel ids arrive by postMessage and the code by the FB.login callback;
   // the Hub can only be called with both.
@@ -395,6 +419,18 @@ export default function HubConnectButton({
     }
   };
 
+  // Back to the form after a discard: the inbox and the Hub channel behind
+  // publicLink are gone, so a retry has to create a new pair.
+  const restartConnection = () => {
+    alreadyConnected.current = false;
+    setSignupError(null);
+    setDiscarded(false);
+    setInboxId(null);
+    setPublicLink(null);
+    setInPageSignup(false);
+    setConnectionStatus('waiting');
+  };
+
   const handleSubmit = () => {
     if (!name.trim()) {
       toast.error('Informe um nome para a inbox antes de continuar.');
@@ -429,17 +465,28 @@ export default function HubConnectButton({
             <span>A conexão não foi concluída.</span>
           </div>
           <p className="text-xs text-muted-foreground">{signupError}</p>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              setSignupError(null);
-              window.open(publicLink, '_blank', 'noopener,noreferrer');
-            }}
-          >
-            <ExternalLink className="h-4 w-4 mr-2" />
-            Tentar pelo Hub em outra aba
-          </Button>
+          {discarded ? (
+            <>
+              <p className="text-xs text-muted-foreground">
+                A conexão pendente foi descartada. Comece de novo quando quiser.
+              </p>
+              <Button type="button" variant="outline" onClick={restartConnection}>
+                Tentar de novo
+              </Button>
+            </>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setSignupError(null);
+                window.open(publicLink, '_blank', 'noopener,noreferrer');
+              }}
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Tentar pelo Hub em outra aba
+            </Button>
+          )}
         </div>
       );
     }

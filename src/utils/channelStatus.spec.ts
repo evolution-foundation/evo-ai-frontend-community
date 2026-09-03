@@ -66,6 +66,19 @@ describe('deriveInboxStatus', () => {
   it('treats unmonitored (unknown) channels as active — explicit degrade, not broken', () => {
     expect(deriveInboxStatus(inbox({ connection_state: 'unknown', health_source: 'none' }))).toBe('active');
   });
+
+  it('flags an unknown channel that does have a health source — nothing confirmed the connection', () => {
+    expect(deriveInboxStatus(inbox({ connection_state: 'unknown', health_source: 'stored_flag' }))).toBe(
+      'attention',
+    );
+    expect(deriveInboxStatus(inbox({ connection_state: 'unknown', health_source: 'provider_event' }))).toBe(
+      'attention',
+    );
+  });
+
+  it('keeps pre-EVO-1674 payloads, which carry no health source, on active', () => {
+    expect(deriveInboxStatus(inbox({}))).toBe('active');
+  });
 });
 
 describe('buildChannelTypeStatuses', () => {
@@ -109,14 +122,52 @@ describe('buildChannelTypeStatuses', () => {
     expect(whatsapp.inboxStates[0].state).toBe('disconnected');
   });
 
-  it('flags unmonitored inboxes in inboxStates', () => {
+  it('reports a type whose every inbox lacks a health signal as unmonitored, not active', () => {
     const result = buildChannelTypeStatuses(types, [
       inbox({ id: 's1', channel_type: 'Channel::Sms', connection_state: 'unknown', health_source: 'none' }),
     ]);
     const sms = result.find(r => r.type.type === 'sms')!;
 
     expect(sms.inboxStates[0].unmonitored).toBe(true);
-    expect(sms.status).toBe('active');
+    expect(sms.status).toBe('unmonitored');
+    // The verdict is label-only: the per-inbox counts stay as they were, so the
+    // "needs attention" counters are not inflated by a missing signal.
+    expect(sms.activeCount).toBe(1);
+    expect(sms.attentionCount).toBe(0);
+    expect(sms.errorCount).toBe(0);
+  });
+
+  it('keeps a type active when only part of it lacks a health signal', () => {
+    const result = buildChannelTypeStatuses(types, [
+      inbox({ id: 'w1', channel_type: 'Channel::Whatsapp', connection_state: 'connected' }),
+      inbox({ id: 'w2', channel_type: 'Channel::Whatsapp', connection_state: 'unknown', health_source: 'none' }),
+    ]);
+    const whatsapp = result.find(r => r.type.type === 'whatsapp')!;
+    expect(whatsapp.status).toBe('active');
+  });
+
+  it('lets a real fault outrank a missing signal', () => {
+    const result = buildChannelTypeStatuses(types, [
+      inbox({ id: 's1', channel_type: 'Channel::Sms', connection_state: 'unknown', health_source: 'none' }),
+      inbox({ id: 's2', channel_type: 'Channel::Sms', connection_state: 'disconnected' }),
+    ]);
+    const sms = result.find(r => r.type.type === 'sms')!;
+    expect(sms.status).toBe('error');
+  });
+
+  it('does not badge a token-based channel green while nothing confirms its connection', () => {
+    const result = buildChannelTypeStatuses(types, [
+      inbox({
+        id: 'w1',
+        channel_type: 'Channel::Whatsapp',
+        connection_state: 'unknown',
+        health_source: 'stored_flag',
+      }),
+    ]);
+    const whatsapp = result.find(r => r.type.type === 'whatsapp')!;
+
+    expect(whatsapp).toMatchObject({ total: 1, activeCount: 0, attentionCount: 1, status: 'attention' });
+    expect(whatsapp.inboxStates[0].unmonitored).toBe(false);
   });
 
   it('ignores inboxes whose type is not in the catalog', () => {

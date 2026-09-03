@@ -21,7 +21,8 @@ import { ApiKey } from '@/types/agents';
 import { ApiKeysModal } from '@/components/ApiKeysModal';
 import { useLanguage } from '@/hooks/useLanguage';
 import AdvancedBotConfig, { AdvancedBotConfigData } from './AdvancedBotConfig';
-import ModelSelector, { availableModels } from '@/components/ai_agents/ModelSelector';
+import ModelSelector from '@/components/ai_agents/ModelSelector';
+import { AI_PROVIDERS } from '@/constants/aiProviders';
 
 type AgentPageMode = 'create' | 'edit' | 'view';
 
@@ -144,13 +145,13 @@ const LLMConfigForm = ({
     if (!selectedApiKey) return;
     if (selectedApiKey.provider === CUSTOM_OPENAI_PROVIDER) return;
 
-    // Verificar se o modelo atual é compatível com o provider da chave API
-    // O ModelSelector já faz essa validação, mas mantemos aqui para garantir consistência
-    const providerModels = availableModels.filter(model => model.provider === selectedApiKey.provider);
-    const modelIsKnownForProvider = providerModels.some(model => model.value === data.model);
-    const modelIsKnown = availableModels.some(model => model.value === data.model);
+    // Read the prefix, not the pinned list: a model value is `provider/model` whether it
+    // came from availableModels or the live listing, and the pinned list shrinks. Keying
+    // on membership let every pruned id pass as "unknown" and saved the mismatch.
+    const [modelProvider] = data.model.split('/');
+    const isKnownProvider = AI_PROVIDERS.some(provider => provider.value === modelProvider);
 
-    if (modelIsKnown && !modelIsKnownForProvider) {
+    if (isKnownProvider && modelProvider !== selectedApiKey.provider) {
       onChange({ ...data, model: '' });
     }
   }, [data.api_key_id, data.model, apiKeys, onChange, data]);

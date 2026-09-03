@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AgentsCustomMCPsTour } from '@/tours';
 import {
@@ -65,7 +66,7 @@ const INITIAL_STATE: CustomMcpServersState = {
 };
 
 export default function CustomMCPServers() {
-  const { can, isReady: permissionsReady } = usePermissions();
+  const { can } = usePermissions();
   const { t } = useLanguage('customMcpServers');
   const location = useLocation();
   const navigate = useNavigate();
@@ -89,7 +90,6 @@ export default function CustomMCPServers() {
   activeFiltersRef.current = activeFilters;
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilter[]>([]);
   const [testingServer, setTestingServer] = useState<string | null>(null);
-  const hasLoaded = useRef(false);
   // EVO-1953: debounce the server-side search so typing fires one request after
   // it settles, not one per keystroke.
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -156,17 +156,10 @@ export default function CustomMCPServers() {
     [can, t, activeFilters],
   );
 
-  // Initial load
-  useEffect(() => {
-    if (!permissionsReady) {
-      return;
-    }
-
-    if (!hasLoaded.current) {
-      hasLoaded.current = true;
-      loadServers();
-    }
-  }, [permissionsReady, loadServers]);
+  usePermissionGatedLoad({
+    resource: 'ai_custom_mcp_servers',
+    load: loadServers,
+  });
 
   // Handlers
   const handleSearchChange = (query: string) => {

@@ -40,6 +40,7 @@ import {
   GitBranch,
   MessageSquare,
   FileText,
+  Link2,
 } from 'lucide-react';
 
 import { pipelinesService } from '@/services/pipelines';
@@ -62,6 +63,7 @@ import DeleteStageModal from '@/components/pipelines/DeleteStageModal';
 import DeletePipelineModal from '@/components/pipelines/DeletePipelineModal';
 import ReorderStagesModal from '@/components/pipelines/ReorderStagesModal';
 import PipelineCaptureFormsModal from '@/components/pipelines/PipelineCaptureFormsModal';
+import PipelinePurchaseWebhookModal from '@/components/pipelines/PipelinePurchaseWebhookModal';
 import { ScheduleActionModal } from '@/components/scheduledActions';
 
 // Status/priority badge styles use the design system's semantic Tailwind classes
@@ -178,6 +180,7 @@ export default function PipelineKanban() {
   const [showDeletePipelineModal, setShowDeletePipelineModal] = useState(false);
   const [showReorderStagesModal, setShowReorderStagesModal] = useState(false);
   const [showCaptureFormsModal, setShowCaptureFormsModal] = useState(false);
+  const [showPurchaseWebhookModal, setShowPurchaseWebhookModal] = useState(false);
   const [isDeletingPipeline, setIsDeletingPipeline] = useState(false);
   const [isReorderingStages, setIsReorderingStages] = useState(false);
   const [scheduleActionOpen, setScheduleActionOpen] = useState(false);
@@ -904,6 +907,10 @@ export default function PipelineKanban() {
                       <FileText className="h-4 w-4 mr-2" />
                       {t('kanban.header.captureForms')}
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowPurchaseWebhookModal(true)}>
+                      <Link2 className="h-4 w-4 mr-2" />
+                      {t('kanban.header.purchaseWebhook')}
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem className="text-destructive" onClick={handleDeletePipeline}>
                       <Trash2 className="h-4 w-4 mr-2" />
@@ -1629,6 +1636,14 @@ export default function PipelineKanban() {
         pipeline={pipeline}
         stages={stages}
         allPipelines={allPipelines}
+      />
+
+      {/* An approved purchase on a payment platform becomes a lead in THIS
+          pipeline — the signed URL for it is minted here. */}
+      <PipelinePurchaseWebhookModal
+        open={showPurchaseWebhookModal}
+        onOpenChange={setShowPurchaseWebhookModal}
+        pipeline={pipeline}
       />
     </div>
   );

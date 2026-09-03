@@ -6,6 +6,8 @@ import es from './es/contacts.json';
 import fr from './fr/contacts.json';
 // Renamed to avoid shadowing vitest's `it` block helper.
 import itLocale from './it/contacts.json';
+// Shared rule on purpose: a private copy drifts from it silently.
+import { PURE_INTERPOLATION_RE } from './_lib/parity';
 
 function flatten(obj: unknown, prefix = ''): string[] {
   if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) return [];
@@ -187,7 +189,6 @@ describe('contacts i18n parity (EVO-1244)', () => {
       'Twilio SMS', 'WhatsApp', 'Website',
       'Identify', 'Track', 'Page', 'Screen', 'Segment',
     ]);
-    const PURE_INTERPOLATION_RE = /^\{\{[a-zA-Z_][a-zA-Z0-9_]*\}\}[^a-zA-Z]*$/;
     const leaks: string[] = [];
     for (const key of evo1244Keys) {
       const enVal = getAtPath(en, key);

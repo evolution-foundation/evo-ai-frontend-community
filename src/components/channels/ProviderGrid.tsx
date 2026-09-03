@@ -54,7 +54,7 @@ const ProviderGrid: React.FC<ProviderGridProps> = ({
             onClick={() => !disabled && onSelect(provider)}
           >
             {provider.recommended && (
-              <div className="absolute -top-2 right-4 bg-green-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+              <div className="absolute -top-2 right-4 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full font-medium">
                 {t('newChannel.providers.badges.recommended')}
               </div>
             )}
