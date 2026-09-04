@@ -87,6 +87,30 @@ const DAY_LABEL_FROM_MINUTES = 7 * MINUTES_PER_DAY;
 const ANY_VALUE_SENTINEL = '__any__';
 const PLACEHOLDER_SENTINEL = '__placeholder__';
 
+// The design-system forces `display: flex` on span[data-slot=select-value]
+// (*:data-[slot=select-value]:flex), and text-overflow: ellipsis never applies
+// to a flex container — a plain `[&>span]:truncate` hard-clips. The attribute
+// selector outranks that rule, so the value box becomes a block and truncates
+// with an ellipsis (CRM-471). Long names inside DotOption need their own
+// `truncate` for the same reason.
+const VALUE_TRUNCATE = '[&>span[data-slot=select-value]]:block [&>span]:truncate';
+const FIXED_SELECT = `w-[200px] shrink-0 ${VALUE_TRUNCATE}`;
+const FILL_SELECT = `w-full min-w-0 ${VALUE_TRUNCATE}`;
+const GROW_SELECT = `flex-1 min-w-0 ${VALUE_TRUNCATE}`;
+
+// Radix only renders the placeholder for value === '' — a stale value (deleted
+// template, pipeline that is now the current one) would render an empty box.
+const knownOr = (value: string, known: readonly string[]) => (known.includes(value) ? value : '');
+
+function DotOption({ color, children }: { color?: string; children: string }) {
+  return (
+    <span className="flex items-center gap-2 min-w-0">
+      <span className="w-3 h-3 rounded-full inline-block shrink-0" style={{ backgroundColor: color }} />
+      <span className="truncate">{children}</span>
+    </span>
+  );
+}
+
 // trigger_value is an object for the inactivity trigger, a string otherwise.
 function asInactivityValue(value: StageAutomationRule['trigger_value']): InactivityTriggerValue {
   if (value && typeof value === 'object') {
@@ -204,7 +228,7 @@ export default function StageAutomationRules({
             }
             disabled={disabled}
           >
-            <SelectTrigger className="w-full min-w-0 [&>span]:truncate">
+            <SelectTrigger className={FILL_SELECT}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -217,13 +241,13 @@ export default function StageAutomationRules({
           </Select>
 
           <Select
-            value={iv.base}
+            value={knownOr(iv.base, INACTIVITY_BASES)}
             onValueChange={v =>
               updateRule(index, { trigger_value: { ...iv, base: v as InactivityBase } })
             }
             disabled={disabled}
           >
-            <SelectTrigger className="w-full min-w-0 [&>span]:truncate">
+            <SelectTrigger className={FILL_SELECT}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -241,13 +265,16 @@ export default function StageAutomationRules({
     if (rule.trigger === 'label_added') {
       return (
         <Select
-          value={asStringValue(rule.trigger_value) || ANY_VALUE_SENTINEL}
+          value={knownOr(asStringValue(rule.trigger_value) || ANY_VALUE_SENTINEL, [
+            ANY_VALUE_SENTINEL,
+            ...labels.map(l => l.title),
+          ])}
           onValueChange={v =>
             updateRule(index, { trigger_value: v === ANY_VALUE_SENTINEL ? '' : v })
           }
           disabled={disabled}
         >
-          <SelectTrigger className="flex-1 min-w-0 [&>span]:truncate">
+          <SelectTrigger className={GROW_SELECT}>
             <SelectValue placeholder={t('stageAutomation.anyLabel')} />
           </SelectTrigger>
           <SelectContent>
@@ -259,13 +286,7 @@ export default function StageAutomationRules({
             ) : (
               labels.map(l => (
                 <SelectItem key={l.id} value={l.title}>
-                  <span className="flex items-center gap-2">
-                    <span
-                      className="w-3 h-3 rounded-full inline-block shrink-0"
-                      style={{ backgroundColor: l.color }}
-                    />
-                    {l.title}
-                  </span>
+                  <DotOption color={l.color}>{l.title}</DotOption>
                 </SelectItem>
               ))
             )}
@@ -277,13 +298,16 @@ export default function StageAutomationRules({
     if (rule.trigger === 'conversation_status_changed') {
       return (
         <Select
-          value={asStringValue(rule.trigger_value) || ANY_VALUE_SENTINEL}
+          value={knownOr(asStringValue(rule.trigger_value) || ANY_VALUE_SENTINEL, [
+            ANY_VALUE_SENTINEL,
+            ...CONVERSATION_STATUSES,
+          ])}
           onValueChange={v =>
             updateRule(index, { trigger_value: v === ANY_VALUE_SENTINEL ? '' : v })
           }
           disabled={disabled}
         >
-          <SelectTrigger className="flex-1 min-w-0 [&>span]:truncate">
+          <SelectTrigger className={GROW_SELECT}>
             <SelectValue placeholder={t('stageAutomation.anyValue')} />
           </SelectTrigger>
           <SelectContent>
@@ -313,11 +337,11 @@ export default function StageAutomationRules({
     if (rule.action === 'move_to_stage') {
       return (
         <Select
-          value={rule.action_value || ''}
+          value={knownOr(rule.action_value || '', otherStages.map(s => s.id))}
           onValueChange={v => updateRule(index, { action_value: v })}
           disabled={disabled}
         >
-          <SelectTrigger className="flex-1 min-w-0 [&>span]:truncate">
+          <SelectTrigger className={GROW_SELECT}>
             <SelectValue placeholder={t('stageAutomation.selectStage')} />
           </SelectTrigger>
           <SelectContent>
@@ -326,13 +350,7 @@ export default function StageAutomationRules({
             ) : (
               otherStages.map(s => (
                 <SelectItem key={s.id} value={s.id}>
-                  <span className="flex items-center gap-2">
-                    <span
-                      className="w-3 h-3 rounded-full inline-block shrink-0"
-                      style={{ backgroundColor: s.color }}
-                    />
-                    {s.name}
-                  </span>
+                  <DotOption color={s.color}>{s.name}</DotOption>
                 </SelectItem>
               ))
             )}
@@ -349,11 +367,11 @@ export default function StageAutomationRules({
       return (
         <div className="flex-1 min-w-0 grid grid-cols-2 gap-2">
           <Select
-            value={selectedPipelineId || ''}
+            value={knownOr(selectedPipelineId || '', otherPipelines.map(p => p.id))}
             onValueChange={v => updateRule(index, { action_value: v })}
             disabled={disabled}
           >
-            <SelectTrigger className="w-full min-w-0 [&>span]:truncate">
+            <SelectTrigger className={FILL_SELECT}>
               <SelectValue placeholder={t('stageAutomation.selectPipeline')} />
             </SelectTrigger>
             <SelectContent>
@@ -372,7 +390,7 @@ export default function StageAutomationRules({
           </Select>
 
           <Select
-            value={selectedStageId || ''}
+            value={knownOr(selectedStageId || '', (selectedPipeline?.stages ?? []).map(s => s.id))}
             onValueChange={v =>
               updateRule(index, {
                 action_value: selectedPipelineId ? `${selectedPipelineId}:${v}` : '',
@@ -380,7 +398,7 @@ export default function StageAutomationRules({
             }
             disabled={disabled || !selectedPipeline}
           >
-            <SelectTrigger className="w-full min-w-0 [&>span]:truncate">
+            <SelectTrigger className={FILL_SELECT}>
               <SelectValue placeholder={t('stageAutomation.selectStage')} />
             </SelectTrigger>
             <SelectContent>
@@ -404,11 +422,11 @@ export default function StageAutomationRules({
     if (rule.action === 'assign_agent') {
       return (
         <Select
-          value={rule.action_value || ''}
+          value={knownOr(rule.action_value || '', agents.map(a => a.id))}
           onValueChange={v => updateRule(index, { action_value: v })}
           disabled={disabled}
         >
-          <SelectTrigger className="flex-1 min-w-0 [&>span]:truncate">
+          <SelectTrigger className={GROW_SELECT}>
             <SelectValue placeholder={t('stageAutomation.selectAgent')} />
           </SelectTrigger>
           <SelectContent>
@@ -429,11 +447,11 @@ export default function StageAutomationRules({
     if (rule.action === 'apply_label') {
       return (
         <Select
-          value={rule.action_value || ''}
+          value={knownOr(rule.action_value || '', labels.map(l => l.title))}
           onValueChange={v => updateRule(index, { action_value: v })}
           disabled={disabled}
         >
-          <SelectTrigger className="flex-1 min-w-0 [&>span]:truncate">
+          <SelectTrigger className={GROW_SELECT}>
             <SelectValue placeholder={t('stageAutomation.selectLabel')} />
           </SelectTrigger>
           <SelectContent>
@@ -444,13 +462,7 @@ export default function StageAutomationRules({
             ) : (
               labels.map(l => (
                 <SelectItem key={l.id} value={l.title}>
-                  <span className="flex items-center gap-2">
-                    <span
-                      className="w-3 h-3 rounded-full inline-block shrink-0"
-                      style={{ backgroundColor: l.color }}
-                    />
-                    {l.title}
-                  </span>
+                  <DotOption color={l.color}>{l.title}</DotOption>
                 </SelectItem>
               ))
             )}
@@ -461,13 +473,13 @@ export default function StageAutomationRules({
 
     if (rule.action === 'send_ai_message') {
       return (
-        <div className="flex-1 space-y-2">
+        <div className="flex-1 min-w-0 space-y-2">
           <Select
-            value={rule.action_value || ''}
+            value={knownOr(rule.action_value || '', agentBots.map(b => b.id))}
             onValueChange={v => updateRule(index, { action_value: v })}
             disabled={disabled}
           >
-            <SelectTrigger className="w-full min-w-0 [&>span]:truncate">
+            <SelectTrigger className={FILL_SELECT}>
               <SelectValue placeholder={t('stageAutomation.selectAgentBot')} />
             </SelectTrigger>
             <SelectContent>
@@ -525,11 +537,11 @@ export default function StageAutomationRules({
       return (
         <div className="flex-1 min-w-0">
           <Select
-            value={rule.action_value || ''}
+            value={knownOr(rule.action_value || '', messageTemplates.map(tpl => tpl.id))}
             onValueChange={v => updateRule(index, { action_value: v })}
             disabled={disabled}
           >
-            <SelectTrigger className="w-full min-w-0 [&>span]:truncate">
+            <SelectTrigger className={FILL_SELECT}>
               <SelectValue placeholder={t('stageAutomation.selectTemplate')} />
             </SelectTrigger>
             <SelectContent>
@@ -625,7 +637,9 @@ export default function StageAutomationRules({
                   }}
                   disabled={disabled}
                 >
-                  <SelectTrigger className="w-[200px] shrink-0 [&>span]:truncate">
+                  <SelectTrigger
+                    className={rule.trigger === 'custom_attribute_updated' ? GROW_SELECT : FIXED_SELECT}
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -647,7 +661,7 @@ export default function StageAutomationRules({
                   onValueChange={v => updateRule(index, { action: v as StageAutomationAction, action_value: '' })}
                   disabled={disabled}
                 >
-                  <SelectTrigger className="w-[200px] shrink-0 [&>span]:truncate">
+                  <SelectTrigger className={FIXED_SELECT}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
