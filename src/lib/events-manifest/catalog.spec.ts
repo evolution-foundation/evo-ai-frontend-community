@@ -38,7 +38,7 @@ describe('frontend events manifest mirror', () => {
     );
   });
 
-  it('groups events by category covering all 5 categories', () => {
+  it('groups events by category covering all 6 categories', () => {
     const grouped = Object.fromEntries(EVENT_CATEGORIES.map((c) => [c, getEventsByCategory(c)]));
     expect(grouped.contact.length).toBeGreaterThanOrEqual(6);
     // EVO-1263: 2 original (created/resolved) + 5 added (activity, first_reply,
@@ -46,6 +46,8 @@ describe('frontend events manifest mirror', () => {
     expect(grouped.conversation).toHaveLength(7);
     expect(grouped.message.length).toBeGreaterThanOrEqual(4);
     expect(grouped.campaign.length).toBeGreaterThanOrEqual(4);
+    // CRM-316: the purchase captured by the CRM webhook, in its own group.
+    expect(grouped.purchase.map((e) => e.eventName)).toEqual(['purchase.approved']);
     expect(grouped.custom).toHaveLength(1);
   });
 
@@ -53,9 +55,12 @@ describe('frontend events manifest mirror', () => {
   // EvoFlow::EVENT_NAMES (lib/events/evo_flow_event_names.rb), which has 22
   // canonical names including `custom`. This count is the single guard keeping
   // the frontend manifest faithful to the backend enum — keep it strict.
-  it('mirrors the backend EvoFlow::EVENT_NAMES count exactly (22)', () => {
-    expect(EVENT_NAMES).toHaveLength(22);
-    expect(getEventCatalog()).toHaveLength(22);
+  // 22 + purchase.approved (CRM-316). pipeline.stage_changed exists on the
+  // backend but is deliberately absent here: the journey builder exposes it
+  // as its own trigger type, not as a pickable event.
+  it('mirrors the backend EvoFlow::EVENT_NAMES count exactly (23)', () => {
+    expect(EVENT_NAMES).toHaveLength(23);
+    expect(getEventCatalog()).toHaveLength(23);
   });
 
   // EVO-1263 (AC1): the 5 conversation events that previously existed only in
