@@ -71,25 +71,6 @@ export function recordToProperties(
   });
 }
 
-/**
- * Required-field validation for the structured form. Custom or unknown events
- * have no schema → always valid. For canonical events, every key in the
- * event's `schema.required` must be present with a non-empty value.
- */
-export function validateEventProperties(
-  eventName: string,
-  record: Record<string, unknown>,
-): { valid: boolean; missing: string[] } {
-  const entry = getEvent(eventName);
-  if (!entry || isCustomEvent(eventName)) return { valid: true, missing: [] };
-
-  const missing = Object.keys(entry.schema.required).filter((key) => {
-    const value = record[key];
-    return value === undefined || value === null || value === '';
-  });
-  return { valid: missing.length === 0, missing };
-}
-
 function fieldType(eventName: string, key: string): FieldSpec['type'] | undefined {
   const entry = getEvent(eventName);
   if (!entry) return undefined;

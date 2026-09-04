@@ -68,15 +68,15 @@ describe('journey i18n parity (EVO-1260)', () => {
     expect(empties).toEqual([]);
   });
 
-  // EVO-1275: the event-switch confirm-modal keys were added to ALL six
-  // locales (the strict en↔pt-BR mirror would otherwise leave pt/es/fr/it
-  // unguarded against silent drift/removal). Assert presence + non-empty
+  // EVO-1275 / CRM-519: the event-switch keys were added to ALL six locales
+  // (the strict en↔pt-BR mirror would otherwise leave pt/es/fr/it unguarded
+  // against silent drift/removal). CRM-519 replaced the confirm modal with an
+  // inline "N filters removed" notice + Undo. Assert presence + non-empty
   // across every shipped locale, mirroring the EVO-1260 pattern above.
   const evo1275Keys = [
-    'triggerComponents.event.eventSwitch.title',
-    'triggerComponents.event.eventSwitch.body',
-    'triggerComponents.event.eventSwitch.preserve',
-    'triggerComponents.event.eventSwitch.clear',
+    'triggerComponents.event.eventSwitch.dropped_one',
+    'triggerComponents.event.eventSwitch.dropped_other',
+    'triggerComponents.event.eventSwitch.undo',
   ];
 
   it.each([

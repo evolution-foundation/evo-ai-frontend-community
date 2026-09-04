@@ -3,6 +3,9 @@ export type FieldType = 'string' | 'number' | 'boolean' | 'date' | 'uuid' | 'obj
 export interface FieldSpec {
   type: FieldType;
   description?: string;
+  // Closed set of values the producer emits (rendered as a select). Frontend
+  // extension over the evo-flow mirror; absent means free text.
+  options?: readonly string[];
 }
 
 export interface EventSchema {

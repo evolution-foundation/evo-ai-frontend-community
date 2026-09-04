@@ -1776,7 +1776,7 @@
     }
   },
   "triggerComponents": {
-    "triggerType": "Type de déclencheur",
+    "triggerType": "Comment le parcours démarre",
     "selectType": "Sélectionnez le type",
     "types": {
       "manual": "Entrée manuelle",
@@ -1918,11 +1918,15 @@
       "value": "Valeur",
       "captureEventData": "Capturer les données de l'événement",
       "eventSwitch": {
-        "title": "Conserver les valeurs compatibles ?",
-        "body": "Vous avez changé d'événement. Conserver les valeurs de propriété qui existent aussi sur le nouvel événement (même nom et type) ou tout effacer ?",
-        "preserve": "Conserver compatibles",
-        "clear": "Tout effacer"
-      }
+        "dropped_one": "1 filtre supprimé car il n'existe pas sur {{event}}.",
+        "dropped_other": "{{count}} filtres supprimés car ils n'existent pas sur {{event}}.",
+        "undo": "Annuler"
+      },
+      "customEventNameLabel": "Nom de l'événement personnalisé",
+      "customEventNamePlaceholder": "Saisissez le nom de l'événement custom (ex. : button_clicked)",
+      "customEventWarning": "Les événements custom n'ont pas de validation de schéma. À utiliser seulement pour les cas non couverts par le catalogue.",
+      "selectEventRequired": "Choisissez un événement pour enregistrer le déclencheur.",
+      "customEventNameRequired": "Saisissez le nom de l'événement personnalisé pour enregistrer."
     },
     "label": {
       "configuration": "Configuration de l'étiquette",

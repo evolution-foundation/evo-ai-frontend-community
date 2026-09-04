@@ -122,6 +122,10 @@ jobs:
       #     a legacy string is repaired on edit, and a nameless row is flagged
       #     instead of dropped in silence. The three specs shipped green but
       #     outside this list, so nothing here ran them.
+      #   - trigger filter contract (CRM-519): every key the event trigger offers
+      #     as a filter has a label and help in all locales, a select for ids and
+      #     closed sets, and no timestamp/object. A new catalog key that misses
+      #     one of these only shows up as a raw key in the user's face.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -193,7 +197,9 @@ jobs:
             src/lib/events-manifest/catalog.spec.ts \
             src/components/ai_agents/shared/BodyParamsEditor.spec.tsx \
             src/components/customTools/CustomToolForm.spec.tsx \
-            src/components/customTools/CustomToolWizardModal.spec.tsx
+            src/components/customTools/CustomToolWizardModal.spec.tsx \
+            src/components/journey/shared/EventPropertiesForm/filterFields.spec.ts \
+            src/components/journey/shared/EventPropertiesForm/EventPropertiesForm.spec.tsx
 
   # Lint gate scoped to the files the PR touched.
   eslint:

@@ -1,15 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  Button,
-  Label,
-  Separator,
-} from '@evoapi/design-system';
+import { Button, Label } from '@evoapi/design-system';
 import { VariableInput } from '@/components/journey/environment-manager';
 import { EventSelector } from '@/components/journey/shared/EventSelector';
 import { EventPropertiesForm } from '@/components/journey/shared/EventPropertiesForm';
@@ -18,7 +8,6 @@ import {
   resolveLegacyEventName,
   propertiesToRecord,
   recordToProperties,
-  validateEventProperties,
   preserveCompatibleValues,
   type EventProperty,
 } from '@/lib/events-manifest';
@@ -30,8 +19,8 @@ export interface EventBasicConfigProps {
   onEventNameChange: (name: string) => void;
   onEventPropertiesChange: (properties: EventProperty[]) => void;
   // Optional: only the Flow Builder (JourneyTriggerPanel) gates Save on this.
-  // Campaigns/Wait omit it and rely on the inline required-field indicators
-  // <EventPropertiesForm> renders. See EVO-1275.
+  // A config is savable as soon as an event is chosen — filters are optional
+  // (CRM-519). See EVO-1275.
   onValidityChange?: (valid: boolean) => void;
   // Optional: in contexts without a journey (e.g. trigger-type Campaigns) it is
   // omitted, so useJourneyVariables skips the fetch and the autocomplete degrades
@@ -54,7 +43,8 @@ export function EventBasicConfig({
   onValidityChange,
   journeyId,
 }: EventBasicConfigProps) {
-  const { t } = useLanguage('journey');
+  const { t, currentLanguage } = useLanguage('journey');
+  const { t: tEvents } = useLanguage('events');
 
   // selectorValue tracks which dropdown entry is rendered as selected
   // (canonical event name OR the literal 'custom' placeholder); customName
@@ -91,33 +81,55 @@ export function EventBasicConfig({
   // derive the flat Record the form consumes WITHOUT mutating the source.
   const record = useMemo(() => propertiesToRecord(eventProperties), [eventProperties]);
 
+  // Localized in events.json (`events.<name with _>.description`); the catalog
+  // description is English-only and never shown outside the en locale.
   const canonicalDescription =
-    !isCustomMode && selectorValue ? getEvent(selectorValue)?.description : undefined;
+    !isCustomMode && selectorValue && getEvent(selectorValue)
+      ? tEvents(`events.${selectorValue.replace(/\./g, '_')}.description`, { defaultValue: '' })
+      : undefined;
 
   // Emit validity to opted-in consumers, but only when it actually flips so we
   // don't churn the parent's state on every keystroke.
   const lastValidityRef = useRef<boolean | null>(null);
   useEffect(() => {
-    // An event trigger with no event chosen yet is not a savable config — treat
-    // the empty selection as invalid (formEventName === selectorValue, which is
-    // '' until something is picked; 'custom' once Custom is selected).
-    const valid =
-      formEventName === '' ? false : validateEventProperties(formEventName, record).valid;
+    // A config is savable once an event is chosen — properties are optional
+    // filters, not required inputs (CRM-519). Custom mode needs the typed
+    // name: 'custom' alone is a placeholder, not an event.
+    const valid = isCustomMode ? customName.trim() !== '' : selectorValue !== '';
     if (lastValidityRef.current !== valid) {
       lastValidityRef.current = valid;
       onValidityChange?.(valid);
     }
-  }, [formEventName, record, onValidityChange]);
+  }, [isCustomMode, customName, selectorValue, onValidityChange]);
 
-  // Pending event switch awaiting the user's preserve/clear decision.
-  const [pendingSwitch, setPendingSwitch] = useState<{ from: string; to: string } | null>(null);
+  // CRM-519: switching events keeps the filters the new event also has (same
+  // key and type) and drops the rest, no dialog. A dropped filter is reported
+  // inline with Undo, which restores the previous event and its filters.
+  const [dropped, setDropped] = useState<{
+    count: number;
+    toEventName: string;
+    prevEventName: string;
+    prevSelectorValue: string;
+    prevCustomName: string;
+    prevProperties: EventProperty[];
+  } | null>(null);
+
+  const eventLabel = (name: string) => {
+    const entry = getEvent(name);
+    if (!entry) return name;
+    return currentLanguage.toLowerCase().startsWith('pt') ? entry.labelPt : entry.labelEn;
+  };
 
   const handleSelectorChange = ({ eventName: picked, isCustom }: { eventName: string; isCustom: boolean }) => {
     const prevFormEvent = formEventName;
     const nextFormEvent = isCustom ? 'custom' : picked;
+    const snapshot = {
+      prevEventName: eventName,
+      prevSelectorValue: selectorValue,
+      prevCustomName: customName,
+      prevProperties: eventProperties,
+    };
 
-    // The event NAME (and selector) updates immediately so the schema reflects
-    // the new event; the properties decision is deferred to the confirm dialog.
     if (isCustom) {
       setSelectorValue('custom');
       lastPushedRef.current = customName;
@@ -129,11 +141,25 @@ export function EventBasicConfig({
       onEventNameChange(picked);
     }
 
-    const identityChanged = prevFormEvent !== nextFormEvent;
-    const hasValues = Object.keys(record).length > 0;
-    if (identityChanged && hasValues) {
-      setPendingSwitch({ from: prevFormEvent, to: nextFormEvent });
-    }
+    setDropped(null);
+    if (prevFormEvent === nextFormEvent || Object.keys(record).length === 0) return;
+
+    const kept = preserveCompatibleValues(record, prevFormEvent, nextFormEvent);
+    const droppedCount = Object.keys(record).length - Object.keys(kept).length;
+    if (droppedCount === 0) return;
+
+    onEventPropertiesChange(recordToProperties(kept, eventProperties));
+    setDropped({ count: droppedCount, toEventName: nextFormEvent, ...snapshot });
+  };
+
+  const handleUndoSwitch = () => {
+    if (!dropped) return;
+    setSelectorValue(dropped.prevSelectorValue);
+    setCustomName(dropped.prevCustomName);
+    lastPushedRef.current = dropped.prevEventName;
+    onEventNameChange(dropped.prevEventName);
+    onEventPropertiesChange(dropped.prevProperties);
+    setDropped(null);
   };
 
   const handleCustomNameChange = (next: string) => {
@@ -143,25 +169,13 @@ export function EventBasicConfig({
   };
 
   const handlePropertiesRecordChange = (next: Record<string, unknown>) => {
+    // A manual edit supersedes the switch: Undo would clobber it otherwise.
+    setDropped(null);
     onEventPropertiesChange(recordToProperties(next, eventProperties));
-  };
-
-  const handlePreserveValues = () => {
-    if (pendingSwitch) {
-      const kept = preserveCompatibleValues(record, pendingSwitch.from, pendingSwitch.to);
-      onEventPropertiesChange(recordToProperties(kept, eventProperties));
-    }
-    setPendingSwitch(null);
-  };
-
-  const handleClearValues = () => {
-    onEventPropertiesChange([]);
-    setPendingSwitch(null);
   };
 
   return (
     <>
-      <Separator />
       <div className="space-y-4">
         <Label className="text-sidebar-foreground font-medium">
           {t('triggerComponents.event.configuration')}
@@ -178,13 +192,16 @@ export function EventBasicConfig({
             onChange={handleSelectorChange}
             className="bg-sidebar border-sidebar-border text-sidebar-foreground"
           />
+          {selectorValue === '' && (
+            <p className="text-xs text-destructive">{t('triggerComponents.event.selectEventRequired')}</p>
+          )}
           {canonicalDescription && (
             <p className="text-xs text-muted-foreground">{canonicalDescription}</p>
           )}
           {isCustomMode && (
             <div className="space-y-2 pt-1">
               <Label htmlFor="custom-event-name" className="text-sm font-medium">
-                {t('triggerComponents.event.eventName')}
+                {t('triggerComponents.event.customEventNameLabel')}
               </Label>
               <VariableInput
                 id="custom-event-name"
@@ -194,6 +211,11 @@ export function EventBasicConfig({
                 className="bg-sidebar border-sidebar-border text-sidebar-foreground"
                 journeyId={journeyId}
               />
+              {customName.trim() === '' && (
+                <p className="text-xs text-destructive">
+                  {t('triggerComponents.event.customEventNameRequired')}
+                </p>
+              )}
               <p className="text-xs text-amber-700 dark:text-amber-300">
                 {t('triggerComponents.event.customEventWarning')}
               </p>
@@ -203,13 +225,35 @@ export function EventBasicConfig({
 
         {/* Propriedades do evento */}
         <div className="space-y-3">
-          <Label
-            id="event-trigger-properties-label"
-            className="text-sidebar-foreground font-medium text-sm"
+          {/* The custom editor carries its own title; one heading is enough. */}
+          {!isCustomMode && (
+            <Label
+              id="event-trigger-properties-label"
+              className="text-sidebar-foreground font-medium text-sm"
+            >
+              {t('triggerComponents.event.eventProperties')}
+            </Label>
+          )}
+          {dropped && (
+            <div
+              role="status"
+              className="flex items-center justify-between gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-foreground"
+            >
+              <span>
+                {t('triggerComponents.event.eventSwitch.dropped', {
+                  count: dropped.count,
+                  event: eventLabel(dropped.toEventName),
+                })}
+              </span>
+              <Button type="button" variant="ghost" size="sm" className="h-7" onClick={handleUndoSwitch}>
+                {t('triggerComponents.event.eventSwitch.undo')}
+              </Button>
+            </div>
+          )}
+          <div
+            role={isCustomMode ? undefined : 'group'}
+            aria-labelledby={isCustomMode ? undefined : 'event-trigger-properties-label'}
           >
-            {t('triggerComponents.event.eventProperties')}
-          </Label>
-          <div role="group" aria-labelledby="event-trigger-properties-label">
             <EventPropertiesForm
               eventName={formEventName}
               value={record}
@@ -219,34 +263,6 @@ export function EventBasicConfig({
         </div>
       </div>
 
-      {/* Preserve-compatible-values confirm on event switch */}
-      <AlertDialog
-        open={pendingSwitch !== null}
-        onOpenChange={open => {
-          // Dismissing (Esc) without an explicit choice would otherwise strand
-          // the newly-selected event with the previous event's values (incl.
-          // keys absent from the new schema). Default a dismiss to the safe
-          // Clear. Explicit Preserve/Clear close via state, not onOpenChange.
-          if (!open) handleClearValues();
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('triggerComponents.event.eventSwitch.title')}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('triggerComponents.event.eventSwitch.body')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <Button variant="outline" onClick={handleClearValues}>
-              {t('triggerComponents.event.eventSwitch.clear')}
-            </Button>
-            <Button onClick={handlePreserveValues}>
-              {t('triggerComponents.event.eventSwitch.preserve')}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }

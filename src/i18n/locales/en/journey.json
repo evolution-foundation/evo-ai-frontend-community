@@ -1809,7 +1809,7 @@
     }
   },
   "triggerComponents": {
-    "triggerType": "Trigger Type",
+    "triggerType": "How the journey starts",
     "selectType": "Select the type",
     "types": {
       "manual": "Manual Input",
@@ -1953,11 +1953,13 @@
       "customEventNamePlaceholder": "Type the custom event name (e.g. button_clicked)",
       "customEventWarning": "Custom events have no schema validation. Use only for cases not covered by canonical events.",
       "eventSwitch": {
-        "title": "Preserve compatible values?",
-        "body": "You changed the event. Keep the property values that also exist on the new event (same name and type), or clear them all?",
-        "preserve": "Preserve compatible",
-        "clear": "Clear all"
-      }
+        "dropped_one": "1 filter removed because it does not exist on {{event}}.",
+        "dropped_other": "{{count}} filters removed because they do not exist on {{event}}.",
+        "undo": "Undo"
+      },
+      "customEventNameLabel": "Custom event name",
+      "selectEventRequired": "Choose an event to save the trigger.",
+      "customEventNameRequired": "Type the custom event name to save."
     },
     "label": {
       "configuration": "Label Configuration",

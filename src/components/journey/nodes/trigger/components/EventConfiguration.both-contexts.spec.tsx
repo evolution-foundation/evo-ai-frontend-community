@@ -92,6 +92,18 @@ async function selectContactCreated(user: ReturnType<typeof userEvent.setup>) {
   await user.click(within(listbox).getByText(/contact created|contato criado/i));
 }
 
+async function selectConversationCreated(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('combobox'));
+  const listbox = await screen.findByRole('listbox');
+  await user.click(within(listbox).getByText(/conversation created|conversa criada/i));
+}
+
+async function selectMessageCreated(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('combobox'));
+  const listbox = await screen.findByRole('listbox');
+  await user.click(within(listbox).getByText(/message created|mensagem criada/i));
+}
+
 async function selectCustomEvent(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole('combobox'));
   const listbox = await screen.findByRole('listbox');
@@ -112,9 +124,11 @@ describe('EventConfiguration — shared across Flow Builder + Campaign contexts'
       const user = userEvent.setup();
       // EventSelector (EVO-1271 / 10.6) — the combobox is the primary entry point.
       expect(screen.getByRole('combobox')).toBeTruthy();
-      // After picking a canonical event, the schema-driven form renders its fields.
-      await selectContactCreated(user);
-      expect(screen.getByLabelText(/source/i)).toBeTruthy();
+      // After picking a canonical event, the schema-driven form offers its
+      // keys as optional filters behind the picker (CRM-519).
+      await selectConversationCreated(user);
+      expect(screen.getByText(/add filter|adicionar filtro/i)).toBeTruthy();
+      expect(screen.queryByText('*')).toBeNull();
     },
   );
 
@@ -137,12 +151,14 @@ describe('EventConfiguration — shared across Flow Builder + Campaign contexts'
       const { onEventPropertiesChange } = renderInContext(context);
       const user = userEvent.setup();
 
-      await selectContactCreated(user);
-      await user.type(screen.getByLabelText(/source/i), 'crm');
+      await selectMessageCreated(user);
+      await user.click(screen.getAllByRole('combobox')[1]);
+      await user.click(within(await screen.findByRole('listbox')).getByText('content'));
+      await user.type(screen.getByRole('textbox', { name: /content/i }), 'oi');
 
       // Option A: the persisted shape stays the {path, operator} array.
       const last = onEventPropertiesChange.mock.calls.at(-1)?.[0];
-      expect(last).toEqual([{ path: 'source', operator: { type: 'Equals', value: 'crm' } }]);
+      expect(last).toEqual([{ path: 'content', operator: { type: 'Equals', value: 'oi' } }]);
     },
   );
 
