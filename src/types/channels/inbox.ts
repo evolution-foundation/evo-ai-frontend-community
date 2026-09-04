@@ -7,7 +7,7 @@ import type { PaginatedResponse, PaginationMeta, StandardResponse } from '@/type
 // ============================================
 
 /** Live connection state exposed by /inboxes (EVO-1674). */
-export type InboxConnectionState = 'connected' | 'disconnected' | 'pending' | 'error' | 'unknown';
+export type InboxConnectionState = 'connected' | 'disconnected' | 'pending' | 'connecting' | 'error' | 'unknown';
 
 /**
  * How trustworthy the connection state is: event-fed by the provider,

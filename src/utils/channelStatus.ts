@@ -91,7 +91,7 @@ export function deriveInboxStatus(
 ): Exclude<ChannelHealthStatus, 'available' | 'unmonitored'> {
   const state = resolveInboxConnectionState(inbox, live);
   if (state === 'error' || state === 'disconnected') return 'error';
-  if (state === 'pending') return 'attention';
+  if (state === 'pending' || state === 'connecting') return 'attention';
   if (state === 'unknown' && inbox.health_source && inbox.health_source !== 'none') return 'attention';
   return 'active';
 }

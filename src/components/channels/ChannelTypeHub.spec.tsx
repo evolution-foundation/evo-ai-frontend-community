@@ -375,6 +375,33 @@ describe('ChannelConnectionsPopover', () => {
     expect(screen.getByText('overview.statusMeta.live')).toBeInTheDocument();
   });
 
+  it('gives the QR session establishing its own label and dot color, not the shared pending one (CRM-490)', async () => {
+    const user = userEvent.setup();
+    const connecting = inbox({
+      id: 'w-connecting',
+      name: 'Connecting WA',
+      channel_type: 'whatsapp',
+      connection_state: 'connecting',
+    });
+    render(
+      <ChannelConnectionsPopover
+        typeStatus={statusFor('whatsapp', [connecting])}
+        onAdd={noop}
+        onOpenInbox={noop}
+        onDelete={noop}
+      >
+        <button>open</button>
+      </ChannelConnectionsPopover>,
+    );
+    await user.click(screen.getByRole('button', { name: 'open' }));
+    expect(await screen.findByText(/overview\.inboxState\.connecting/)).toBeInTheDocument();
+    expect(screen.queryByText(/overview\.inboxState\.pending/)).toBeNull();
+    // The popover content portals to document.body, outside the render root — query it directly.
+    const dot = document.body.querySelector('.rounded-full[aria-hidden="true"]');
+    expect(dot).toHaveClass('bg-blue-500');
+    expect(dot).not.toHaveClass('bg-amber-500');
+  });
+
   it('drops the unmonitored label once the probe confirms the inbox', async () => {
     const user = userEvent.setup();
     const target = inbox({

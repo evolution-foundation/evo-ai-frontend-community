@@ -18,6 +18,7 @@ import { Inbox, InboxConnectionState } from '@/types/channels/inbox';
 const stateDotClasses: Record<InboxConnectionState, string> = {
   connected: 'bg-emerald-500',
   pending: 'bg-amber-500',
+  connecting: 'bg-blue-500',
   disconnected: 'bg-red-500',
   error: 'bg-red-500',
   unknown: 'bg-muted-foreground/40',

@@ -1750,6 +1750,7 @@
       "connected": "Connected",
       "disconnected": "Disconnected",
       "pending": "Awaiting confirmation",
+      "connecting": "Connecting...",
       "error": "Error",
       "unknown": "Unknown",
       "unmonitored": "Not monitored",
