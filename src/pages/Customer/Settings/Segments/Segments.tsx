@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
@@ -15,6 +15,7 @@ import { Target } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { segmentsService } from '@/services/segments/segmentsService';
 import { Segment, SegmentsState } from '@/types/analytics';
 
@@ -48,7 +49,7 @@ const INITIAL_STATE: SegmentsState = {
 
 export default function Segments() {
   const { t } = useLanguage('segments');
-  const { can, isReady: permissionsReady } = usePermissions();
+  const { can } = usePermissions();
   const navigate = useNavigate();
   const [state, setState] = useState<SegmentsState>(INITIAL_STATE);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -57,7 +58,6 @@ export default function Segments() {
   const [contactIdsDialogOpen, setContactIdsDialogOpen] = useState(false);
   const [selectedSegmentForIds, setSelectedSegmentForIds] = useState<Segment | null>(null);
   const [contactIds, setContactIds] = useState<string[]>([]);
-  const hasLoaded = useRef(false);
 
   // Load segments
   const loadSegments = useCallback(async () => {
@@ -95,18 +95,11 @@ export default function Segments() {
     }
   }, [can, state.meta.pagination.page, state.meta.pagination.page_size, state.searchQuery, t]);
 
-  // Initial load
-  useEffect(() => {
-    if (!permissionsReady) {
-      return;
-    }
-
-    if (!hasLoaded.current) {
-      hasLoaded.current = true;
-      loadSegments();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permissionsReady]);
+  usePermissionGatedLoad({
+    resource: 'segments',
+    load: loadSegments,
+    onDenied: () => toast.error(t('messages.permissionDenied.read')),
+  });
 
   // Handlers
   const handleSearchChange = (query: string) => {

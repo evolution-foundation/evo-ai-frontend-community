@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -12,6 +12,7 @@ import {
   Button,
 } from '@evoapi/design-system';
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { pipelinesService } from '@/services/pipelines';
 import { pipelineDeleteErrorKey } from '@/utils/pipelineDeleteError';
 import {
@@ -74,8 +75,6 @@ export default function Pipelines() {
     failed: boolean;
   } | null>(null);
 
-  const hasLoaded = useRef(false);
-
   // Load pipelines
   const loadPipelines = useCallback(
     async (params?: Partial<PipelinesListParams>) => {
@@ -125,17 +124,11 @@ export default function Pipelines() {
     [state.meta.pagination.page, state.meta.pagination.page_size, can, t],
   );
 
-  // Initial load
-  useEffect(() => {
-    if (!permissionsReady) {
-      return;
-    }
-
-    if (!hasLoaded.current) {
-      hasLoaded.current = true;
-      loadPipelines();
-    }
-  }, [permissionsReady, loadPipelines]);
+  usePermissionGatedLoad({
+    resource: 'pipelines',
+    load: loadPipelines,
+    onDenied: () => toast.error(t('messages.noPermissionRead')),
+  });
 
   // Handlers
   const handleSearchChange = (query: string) => {

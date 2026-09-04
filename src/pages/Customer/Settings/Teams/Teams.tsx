@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { SettingsTeamsTour } from '@/tours';
 import { toast } from 'sonner';
@@ -8,6 +8,7 @@ import EmptyState from '@/components/base/EmptyState';
 import { useNavigate } from 'react-router-dom';
 
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import TeamsService from '@/services/teams/teamsService';
 import {
   Team,
@@ -53,7 +54,7 @@ const INITIAL_STATE: TeamsState = {
 
 export default function Teams() {
   const { t } = useLanguage('teams');
-  const { can, isReady: permissionsReady } = usePermissions();
+  const { can } = usePermissions();
   const navigate = useNavigate();
   const [state, setState] = useState<TeamsState>(INITIAL_STATE);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
@@ -64,7 +65,6 @@ export default function Teams() {
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsTeam, setDetailsTeam] = useState<Team | null>(null);
-  const hasLoaded = useRef(false);
 
   // Load teams
   const loadTeams = useCallback(
@@ -126,18 +126,11 @@ export default function Teams() {
     [can, t],
   );
 
-  // Initial load
-  useEffect(() => {
-    if (!permissionsReady) {
-      return;
-    }
-
-    if (!hasLoaded.current) {
-      hasLoaded.current = true;
-      loadTeams();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permissionsReady]);
+  usePermissionGatedLoad({
+    resource: 'teams',
+    load: loadTeams,
+    onDenied: () => toast.error(t('messages.permissionDenied.read')),
+  });
 
   // Handlers
   const handleSearchChange = (query: string) => {

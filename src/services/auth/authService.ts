@@ -122,7 +122,10 @@ export const logout = async (): Promise<void> => {
 };
 
 export const validateToken = async (): Promise<UserResponse> => {
-  const currentToken = useAuthStore.getState().accessToken;
+  // Same resolver as the header. Reading the store's own copy here made the
+  // embedded app refresh a session that already had a token: the copy is filled
+  // at module load, which in the shell happens before the host logs in.
+  const currentToken = useAuthStore.getState().getAccessToken();
 
   // 🔒 FIX: Tentar refresh apenas se não houver token, mas tratar erro silenciosamente
   // Se o refresh falhar (401), o validate ainda pode funcionar se houver cookie válido

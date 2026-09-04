@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { SettingsAccessTokensTour } from '@/tours';
 import {
@@ -22,6 +22,7 @@ import {
   regenerateAccessToken,
 } from '@/services/auth/accessTokensService';
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import type { AccessToken, AccessTokensState, AccessTokenFormData } from '@/types/auth';
 
 import {
@@ -58,7 +59,7 @@ const INITIAL_STATE: AccessTokensState = {
 };
 
 export default function AccessTokens() {
-  const { can, isReady: permissionsReady } = usePermissions();
+  const { can } = usePermissions();
   const { t } = useTranslation('accessTokens');
   const [state, setState] = useState<AccessTokensState>(INITIAL_STATE);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -68,7 +69,6 @@ export default function AccessTokens() {
   const [editingToken, setEditingToken] = useState<AccessToken | null>(null);
   const [viewTokenModalOpen, setViewTokenModalOpen] = useState(false);
   const [selectedTokenForView, setSelectedTokenForView] = useState<AccessToken | null>(null);
-  const hasLoaded = useRef(false);
 
   // Load tokens
   const loadTokens = useCallback(
@@ -108,18 +108,11 @@ export default function AccessTokens() {
     [can, t],
   );
 
-  // Initial load
-  useEffect(() => {
-    if (!permissionsReady) {
-      return;
-    }
-
-    if (!hasLoaded.current) {
-      hasLoaded.current = true;
-      loadTokens();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permissionsReady]);
+  usePermissionGatedLoad({
+    resource: 'access_tokens',
+    load: loadTokens,
+    onDenied: () => toast.error(t('messages.permissionDenied', { action: 'visualizar' })),
+  });
 
   // Handlers
   const handleSearchChange = (query: string) => {

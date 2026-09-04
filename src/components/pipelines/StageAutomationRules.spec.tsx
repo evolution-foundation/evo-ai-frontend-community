@@ -3,10 +3,19 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import StageAutomationRules from './StageAutomationRules';
+import type { MessageTemplateOption } from './StageAutomationRules';
 import type { StageAutomationRule } from '@/types/analytics/pipelines';
 
 vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({ t: (key: string) => key, currentLanguage: 'en' }),
+}));
+
+// The pending-templates hint links out to Message Templates; the spec renders
+// without a Router, so useNavigate is stubbed (the rest of the module is real).
+const navigateSpy = vi.fn();
+vi.mock('react-router-dom', async importOriginal => ({
+  ...(await importOriginal<typeof import('react-router-dom')>()),
+  useNavigate: () => navigateSpy,
 }));
 
 const inactivityRule = (minutes: number): StageAutomationRule => ({
@@ -117,5 +126,55 @@ describe('StageAutomationRules — inactivity duration (CRM-467)', () => {
         trigger_value: { minutes: 4320, base: 'no_customer_reply' },
       }),
     ]);
+  });
+});
+
+// The owner's annotated spec (2026-08-31): a template PENDING Meta approval must
+// stay visible (disabled, with the approval note) instead of collapsing into
+// "no templates"; all-pending and truly-empty each get an honest hint that links
+// to Message Templates.
+describe('StageAutomationRules — send_template with pending templates', () => {
+  const templateRule = (value: string): StageAutomationRule => ({
+    ...inactivityRule(60),
+    action: 'send_template',
+    action_value: value,
+  });
+  const renderTemplates = (templates: MessageTemplateOption[], value = '') =>
+    render(
+      <StageAutomationRules
+        rules={[templateRule(value)]}
+        onChange={vi.fn()}
+        messageTemplates={templates}
+      />,
+    );
+
+  it('a selected PENDING template renders with the Meta-approval note', () => {
+    renderTemplates(
+      [
+        { id: 'tpl-1', name: 'Boas-vindas', status: 'APPROVED' },
+        { id: 'tpl-2', name: 'Follow-up', status: 'PENDING' },
+      ],
+      'tpl-2',
+    );
+    expect(screen.getByText(/stageAutomation\.templatePending/)).toBeTruthy();
+  });
+
+  it('only pending templates: the hint says they await approval and links out', async () => {
+    renderTemplates([{ id: 'tpl-2', name: 'Follow-up', status: 'PENDING' }]);
+    expect(screen.getByText('stageAutomation.templatesPendingHint')).toBeTruthy();
+    await userEvent.click(screen.getByRole('button', { name: 'stageAutomation.manageTemplates' }));
+    expect(navigateSpy).toHaveBeenCalledWith('/settings/message-templates');
+  });
+
+  it('truly empty: the hint asks to create one, with the same link', () => {
+    renderTemplates([]);
+    expect(screen.getByText('stageAutomation.noTemplatesHint')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'stageAutomation.manageTemplates' })).toBeTruthy();
+  });
+
+  it('approved templates present: no hint below the select', () => {
+    renderTemplates([{ id: 'tpl-1', name: 'Boas-vindas', status: 'APPROVED' }]);
+    expect(screen.queryByText('stageAutomation.templatesPendingHint')).toBeNull();
+    expect(screen.queryByText('stageAutomation.noTemplatesHint')).toBeNull();
   });
 });

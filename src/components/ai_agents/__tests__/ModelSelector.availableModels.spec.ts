@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { availableModels } from '@/components/ai_agents/ModelSelector';
 
-// Shape checks, not freshness: nothing local can tell that a provider retired a model.
+// Shape checks, not freshness. Freshness needs the provider's own answer: the LISTS_LIVE
+// axes get it the moment a key is chosen, and the bedrock axis gets it from the AWS model
+// cards in ModelSelector.bedrockLifecycle.spec.ts. Vertex and Perplexity have neither, so
+// their pins are still only as fresh as the last person who went looking.
 
 const PROVIDER_PREFIX: Record<string, string> = {
   openai: 'openai/',

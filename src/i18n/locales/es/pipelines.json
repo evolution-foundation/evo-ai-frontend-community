@@ -401,7 +401,11 @@
       "send_direct_message": "Mensaje directo",
       "send_template": "Enviar plantilla",
       "finalize": "Finalizar atención"
-    }
+    },
+    "templatePending": "Esperando la aprobación de Meta",
+    "templatesPendingHint": "Tus plantillas aún esperan la aprobación de Meta.",
+    "noTemplatesHint": "Aún no hay plantillas creadas.",
+    "manageTemplates": "Abrir Plantillas de Mensaje"
   },
   "editStage": {
     "title": "Editar Etapa",
@@ -621,7 +625,8 @@
       "deletePipeline": "Eliminar Pipeline",
       "private": "Privado",
       "noDescription": "Sin descripción",
-      "captureForms": "Formularios de Captura"
+      "captureForms": "Formularios de Captura",
+      "purchaseWebhook": "Webhook de compra"
     },
     "stage": {
       "addStage": "Agregar Etapa",
@@ -834,6 +839,28 @@
       "delete": "Eliminar Pipeline",
       "deleting": "Eliminando..."
     }
+  },
+  "purchaseWebhook": {
+    "title": "Webhook de compra",
+    "subtitle": "Una compra aprobada en una plataforma de pago se convierte en lead en este embudo: {{pipeline}}",
+    "platform": "Plataforma de pago",
+    "platformPlaceholder": "Elige la plataforma",
+    "loadingPlatforms": "Cargando plataformas...",
+    "notConfigured": "sin credencial guardada",
+    "credentialsHint": "Las credenciales de las plataformas están en la pantalla de Integraciones del CRM.",
+    "destinationRequired": "La credencial de esta plataforma es pública — configura el \"Secreto de destino de la URL\" en Integraciones del CRM antes de generar.",
+    "product": "Producto (opcional)",
+    "productPlaceholder": "Etiqueta los leads de esta URL con este producto; vacío = el de la plataforma",
+    "generate": "Generar URL",
+    "urlWhitelabel": "URL en el dominio de tu marca",
+    "urlGlobal": "URL del webhook",
+    "copy": "Copiar",
+    "copiedShort": "Copiado",
+    "copied": "URL copiada",
+    "copyError": "No se pudo copiar — copia la URL manualmente",
+    "regenerateHint": "Pégala en el panel de la plataforma como destino del webhook de compra aprobada. Si cambias la credencial o el secreto de destino, genera y registra de nuevo.",
+    "loadError": "Error al cargar las plataformas",
+    "mintError": "Error al generar la URL"
   },
   "captureForms": {
     "title": "Formularios de Captura",

@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@evoapi/design-system';
 import { useLanguage } from '@/hooks/useLanguage';
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { Grid3X3, List, Wrench } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 
@@ -41,7 +42,7 @@ const INITIAL_STATE: ToolsState = {
 
 export default function Tools() {
   const { t } = useLanguage('tools');
-  const { can, isReady: permissionsReady } = usePermissions();
+  const { can } = usePermissions();
   const [state, setState] = useState<ToolsState>(INITIAL_STATE);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
@@ -49,7 +50,6 @@ export default function Tools() {
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<BaseFilter[]>([]);
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilter[]>([]);
-  const hasLoaded = useRef(false);
 
   // Load tools
   const loadTools = useCallback(
@@ -101,17 +101,11 @@ export default function Tools() {
     [can, t],
   );
 
-  // Initial load
-  useEffect(() => {
-    if (!permissionsReady) {
-      return;
-    }
-
-    if (!hasLoaded.current) {
-      hasLoaded.current = true;
-      loadTools();
-    }
-  }, [permissionsReady, loadTools]);
+  usePermissionGatedLoad({
+    resource: 'ai_tools',
+    load: loadTools,
+    onDenied: () => toast.error(t('errors.permissionDenied')),
+  });
 
   // Handlers
   const handleSearchChange = (query: string) => {

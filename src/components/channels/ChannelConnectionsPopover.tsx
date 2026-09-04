@@ -119,15 +119,14 @@ export default function ChannelConnectionsPopover({
                       <div className="truncate text-sm font-medium text-foreground">
                         {inbox.name}
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                        {providerLabel && <span className="truncate">{providerLabel}</span>}
-                        {providerLabel && (
-                          <span className="shrink-0" aria-hidden="true">
-                            ·
-                          </span>
-                        )}
-                        <span className="shrink-0">
+                      <div className="flex items-start gap-1 text-xs text-muted-foreground">
+                        <Link2 className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
+                        {/* One wrapping text flow, not three flex items. This column is
+                            ~190px wide, and in most locales the state label alone is wider
+                            than that — as three items the label could not shrink and ran
+                            under the row's action buttons, taking the provider name with it. */}
+                        <span className="min-w-0 break-words">
+                          {providerLabel && `${providerLabel} · `}
                           {stateLabel} ·{' '}
                           {isLiveLoading ? (
                             t('overview.inboxState.checking')

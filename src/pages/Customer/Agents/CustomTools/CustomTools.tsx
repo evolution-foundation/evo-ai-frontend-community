@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AgentsCustomToolsTour } from '@/tours';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button } from '@evoapi/design-system';
@@ -36,7 +37,7 @@ import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 const INITIAL_STATE: CustomToolsState = initialCustomToolsState;
 
 export default function CustomTools() {
-  const { can, isReady: permissionsReady } = usePermissions();
+  const { can } = usePermissions();
   const { t } = useLanguage('customTools');
   const location = useLocation();
   const navigate = useNavigate();
@@ -64,7 +65,6 @@ export default function CustomTools() {
   const [testResultTool, setTestResultTool] = useState<CustomTool | null>(null);
   const [testResultData, setTestResultData] =
     useState<CustomToolTestResponse['test_result'] | null>(null);
-  const hasLoaded = useRef(false);
   // EVO-1953: debounce the server-side search so typing fires one request after
   // it settles, not one per keystroke.
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -134,17 +134,10 @@ export default function CustomTools() {
     [can, t, activeFilters],
   );
 
-  // Initial load
-  useEffect(() => {
-    if (!permissionsReady) {
-      return;
-    }
-
-    if (!hasLoaded.current) {
-      hasLoaded.current = true;
-      loadTools();
-    }
-  }, [permissionsReady, loadTools]);
+  usePermissionGatedLoad({
+    resource: 'ai_custom_tools',
+    load: loadTools,
+  });
 
   // Handlers
   const handleSearchChange = (query: string) => {

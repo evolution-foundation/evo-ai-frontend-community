@@ -401,7 +401,11 @@
         "no_customer_reply": "Cliente senza risposta",
         "stage_stagnation": "Fermo nella fase"
       }
-    }
+    },
+    "templatePending": "In attesa di approvazione da Meta",
+    "templatesPendingHint": "I tuoi template sono ancora in attesa di approvazione da Meta.",
+    "noTemplatesHint": "Nessun template creato finora.",
+    "manageTemplates": "Apri Modelli di Messaggio"
   },
   "editStage": {
     "title": "Modifica Fase",
@@ -619,7 +623,8 @@
       "deletePipeline": "Elimina Pipeline",
       "private": "Privato",
       "noDescription": "Nessuna descrizione",
-      "captureForms": "Moduli di acquisizione"
+      "captureForms": "Moduli di acquisizione",
+      "purchaseWebhook": "Webhook di acquisto"
     },
     "stage": {
       "addStage": "Aggiungi Fase",
@@ -832,6 +837,28 @@
       "delete": "Elimina Pipeline",
       "deleting": "Eliminazione..."
     }
+  },
+  "purchaseWebhook": {
+    "title": "Webhook di acquisto",
+    "subtitle": "Un acquisto approvato su una piattaforma di pagamento diventa un lead in questa pipeline: {{pipeline}}",
+    "platform": "Piattaforma di pagamento",
+    "platformPlaceholder": "Scegli la piattaforma",
+    "loadingPlatforms": "Caricamento piattaforme...",
+    "notConfigured": "nessuna credenziale salvata",
+    "credentialsHint": "Le credenziali delle piattaforme si trovano nella schermata Integrazioni del CRM.",
+    "destinationRequired": "La credenziale di questa piattaforma è pubblica — configura prima il \"Segreto di destinazione dell'URL\" nelle Integrazioni del CRM.",
+    "product": "Prodotto (opzionale)",
+    "productPlaceholder": "Etichetta i lead di questo URL con questo prodotto; vuoto = quello della piattaforma",
+    "generate": "Genera URL",
+    "urlWhitelabel": "URL sul dominio del tuo brand",
+    "urlGlobal": "URL del webhook",
+    "copy": "Copia",
+    "copiedShort": "Copiato",
+    "copied": "URL copiata",
+    "copyError": "Copia non riuscita — copia l'URL a mano",
+    "regenerateHint": "Incollala nel pannello della piattaforma come destinazione del webhook di acquisto approvato. Se cambi la credenziale o il segreto di destinazione, genera e registra di nuovo.",
+    "loadError": "Errore nel caricamento delle piattaforme",
+    "mintError": "Errore nella generazione dell'URL"
   },
   "captureForms": {
     "title": "Moduli di acquisizione",

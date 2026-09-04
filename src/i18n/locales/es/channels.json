@@ -1670,7 +1670,7 @@
     "inboxState": {
       "connected": "Conectado",
       "disconnected": "Desconectado",
-      "pending": "En prueba",
+      "pending": "Esperando confirmación",
       "error": "Error",
       "unknown": "Desconocido",
       "unmonitored": "Sin monitoreo",

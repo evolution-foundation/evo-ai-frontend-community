@@ -110,6 +110,11 @@ jobs:
       #   - ConversationsContext reducer (CRM-445): the contact patch keeps
       #     reading an empty field as "keep the current value" and keeps matching
       #     REST-loaded conversations, which carry `contact` and no `meta.sender`.
+      #   - ModelSelector (CRM-482): the pinned model catalogue keeps its shape,
+      #     drops an id on the end-of-service date the provider published, and
+      #     keeps rendering a value the list no longer offers. None of the three
+      #     was gated before — the shape guard shipped with CRM-442 and never ran
+      #     here. The bedrock lifecycle spec stays out: it reaches the network.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -172,7 +177,10 @@ jobs:
             src/pages/Customer/Settings/IntegrationCredentials/IntegrationCredentials.spec.tsx \
             src/hooks/chat/useContactUpdatedReconciler.spec.tsx \
             src/contexts/chat/ChatContext.contactUpdated.spec.tsx \
-            src/contexts/chat/ConversationsContext.spec.tsx
+            src/contexts/chat/ConversationsContext.spec.tsx \
+            src/components/ai_agents/__tests__/ModelSelector.availableModels.spec.ts \
+            src/components/ai_agents/__tests__/ModelSelector.retirement.spec.ts \
+            src/components/ai_agents/__tests__/ModelSelector.retiredValue.spec.tsx
 
   # Lint gate scoped to the files the PR touched.
   eslint:

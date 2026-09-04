@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useNavigate } from 'react-router-dom';
 import { SettingsIntegrationsTour } from '@/tours';
@@ -20,6 +20,7 @@ import { Integration, IntegrationCategory } from '@/types/integrations';
 import { IntegrationCard } from '@/components/integrations/base';
 import { toast } from 'sonner';
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { useGlobalConfig } from '@/contexts/GlobalConfigContext';
 
 // Integration categories for organization - will be translated
@@ -60,7 +61,7 @@ const INTEGRATION_CATEGORY_MAP: Record<string, string> = {
 
 export default function Integrations() {
   const { t } = useLanguage('integrations');
-  const { can, isReady: permissionsReady } = usePermissions();
+  const { can } = usePermissions();
   const { openaiConfigured } = useGlobalConfig();
   const navigate = useNavigate();
   const [integrations, setIntegrations] = useState<Integration[]>([]);
@@ -68,7 +69,6 @@ export default function Integrations() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const hasLoaded = useRef(false);
 
   // Load integrations
   const loadIntegrations = useCallback(async () => {
@@ -89,16 +89,11 @@ export default function Integrations() {
     }
   }, [can, t]);
 
-  useEffect(() => {
-    if (!permissionsReady) {
-      return;
-    }
-
-    if (!hasLoaded.current) {
-      hasLoaded.current = true;
-      loadIntegrations();
-    }
-  }, [permissionsReady, loadIntegrations]);
+  usePermissionGatedLoad({
+    resource: 'integrations',
+    load: loadIntegrations,
+    onDenied: () => toast.error(t('messages.permissionDenied.read')),
+  });
 
   // Handle integration toggle
   const handleToggleIntegration = async (integration: Integration) => {

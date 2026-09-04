@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   Button,
@@ -37,6 +38,9 @@ export interface MessageTemplateOption {
   id: string;
   name: string;
   language?: string;
+  /** Provider approval status (WhatsApp Cloud): 'PENDING' renders disabled with a
+   *  "waiting for Meta approval" note instead of vanishing into "no templates". */
+  status?: string;
 }
 
 export interface PipelineWithStages {
@@ -129,6 +133,7 @@ export default function StageAutomationRules({
   messageTemplates = [],
 }: StageAutomationRulesProps) {
   const { t } = useLanguage('pipelines');
+  const navigate = useNavigate();
 
   const [keys, setKeys] = useState<string[]>(() => rules.map(() => generateKey()));
   const prevLengthRef = useRef(rules.length);
@@ -510,30 +515,54 @@ export default function StageAutomationRules({
     }
 
     if (rule.action === 'send_template') {
+      // A PENDING template must stay VISIBLE (disabled, with the approval note):
+      // hiding it read as "no templates" while the account was just waiting on
+      // Meta. The hint below the select routes to Message Templates for both the
+      // all-pending and the truly-empty case.
+      const pendingOnly =
+        messageTemplates.length > 0 && messageTemplates.every(tpl => tpl.status === 'PENDING');
+      const showHint = messageTemplates.length === 0 || pendingOnly;
       return (
-        <Select
-          value={rule.action_value || ''}
-          onValueChange={v => updateRule(index, { action_value: v })}
-          disabled={disabled}
-        >
-          <SelectTrigger className="flex-1">
-            <SelectValue placeholder={t('stageAutomation.selectTemplate')} />
-          </SelectTrigger>
-          <SelectContent>
-            {messageTemplates.length === 0 ? (
-              <SelectItem value={PLACEHOLDER_SENTINEL} disabled>
-                {t('stageAutomation.noTemplates')}
-              </SelectItem>
-            ) : (
-              messageTemplates.map(tpl => (
-                <SelectItem key={tpl.id} value={tpl.id}>
-                  {tpl.name}
-                  {tpl.language ? ` (${tpl.language})` : ''}
+        <div className="flex-1 min-w-0">
+          <Select
+            value={rule.action_value || ''}
+            onValueChange={v => updateRule(index, { action_value: v })}
+            disabled={disabled}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t('stageAutomation.selectTemplate')} />
+            </SelectTrigger>
+            <SelectContent>
+              {messageTemplates.length === 0 ? (
+                <SelectItem value={PLACEHOLDER_SENTINEL} disabled>
+                  {t('stageAutomation.noTemplates')}
                 </SelectItem>
-              ))
-            )}
-          </SelectContent>
-        </Select>
+              ) : (
+                messageTemplates.map(tpl => (
+                  <SelectItem key={tpl.id} value={tpl.id} disabled={tpl.status === 'PENDING'}>
+                    {tpl.name}
+                    {tpl.language ? ` (${tpl.language})` : ''}
+                    {tpl.status === 'PENDING' ? ` (${t('stageAutomation.templatePending')})` : ''}
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+          {showHint && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              {pendingOnly
+                ? t('stageAutomation.templatesPendingHint')
+                : t('stageAutomation.noTemplatesHint')}{' '}
+              <button
+                type="button"
+                className="underline underline-offset-2 hover:text-foreground"
+                onClick={() => navigate('/settings/message-templates')}
+              >
+                {t('stageAutomation.manageTemplates')}
+              </button>
+            </p>
+          )}
+        </div>
       );
     }
 
