@@ -275,7 +275,10 @@ export default function StageAutomationRules({
           disabled={disabled}
         >
           <SelectTrigger className={GROW_SELECT}>
-            <SelectValue placeholder={t('stageAutomation.anyLabel')} />
+            {/* "any label" is the sentinel item, never ''; '' here means the rule
+                points at a label that no longer exists — say so, or it reads as
+                "any label" while it never fires. */}
+            <SelectValue placeholder={t('stageAutomation.selectLabel')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ANY_VALUE_SENTINEL}>{t('stageAutomation.anyLabel')}</SelectItem>

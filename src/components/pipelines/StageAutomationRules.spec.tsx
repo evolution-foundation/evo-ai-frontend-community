@@ -242,6 +242,18 @@ describe('StageAutomationRules — inactivity duration (CRM-467)', () => {
         expect(placeholderOf(comboboxWithText('stageAutomation.selectLabel'))).toBe(true);
       });
 
+      it('a trigger label that was deleted asks to pick one — not "any label"', () => {
+        renderAll([rule({ trigger: 'label_added', trigger_value: 'Apagada', action: 'move_to_stage', action_value: 's2' }, 'r')]);
+        const c = comboboxWithText('stageAutomation.selectLabel');
+        expect(placeholderOf(c)).toBe(true);
+        expect(c.textContent).not.toContain('stageAutomation.anyLabel');
+      });
+
+      it('"any label" (empty trigger value) is the selected sentinel, not a placeholder', () => {
+        renderAll([rule({ trigger: 'label_added', trigger_value: '', action: 'move_to_stage', action_value: 's2' }, 'r')]);
+        expect(placeholderOf(comboboxWithText('stageAutomation.anyLabel'))).toBe(false);
+      });
+
       it('a known value still renders as selected (no false placeholder)', () => {
         renderAll([rule({ action: 'send_template', action_value: 't1' }, 'r')]);
         expect(placeholderOf(comboboxWithText('Boas-vindas'))).toBe(false);
