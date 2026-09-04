@@ -73,7 +73,7 @@ describe('EventConfiguration — event name UI', () => {
     expect(onEventNameChange).toHaveBeenCalledWith('contact.created');
     // Description from the manifest entry appears under the selector.
     expect(
-      await screen.findByText(/a new contact was created/i),
+      await screen.findByText(/a new contact was created|um contato novo foi criado/i),
     ).toBeTruthy();
   });
 
@@ -116,7 +116,7 @@ describe('EventConfiguration — event name UI', () => {
     ).toBeNull();
     // The canonical description is surfaced.
     expect(
-      screen.getByText(/a new contact was created/i),
+      screen.getByText(/a new contact was created|um contato novo foi criado/i),
     ).toBeTruthy();
   });
 
@@ -139,7 +139,7 @@ describe('EventConfiguration — event name UI', () => {
       screen.queryByPlaceholderText(/custom event name|nome do evento custom/i),
     ).not.toBeNull();
     // The canonical description must NOT be rendered (we're still in custom mode).
-    expect(screen.queryByText(/a new contact was created/i)).toBeNull();
+    expect(screen.queryByText(/a new contact was created|um contato novo foi criado/i)).toBeNull();
     // And the warning is still visible.
     expect(
       screen.getByText(/custom events have no schema validation|não têm validação de schema/i),
@@ -148,16 +148,14 @@ describe('EventConfiguration — event name UI', () => {
 });
 
 describe('EventConfiguration — schema-driven Event Properties form (EVO-1275)', () => {
-  it('AC1: renders required schema fields with a "*" marker under the Required section', async () => {
+  it('AC1 (CRM-519): renders the filters section with no required marker and no event ids', async () => {
     const user = userEvent.setup();
     render(<Harness />);
     await selectEvent(user, /message delivered|mensagem entregue/i);
 
-    expect(screen.getByText(/required fields|campos obrigatórios/i)).toBeTruthy();
-    // message.delivered requires message_id; the schema field renders with a "*".
-    const label = screen.getByText('message_id');
-    expect(label).toBeTruthy();
-    expect(within(label).getByText('*')).toBeTruthy();
+    expect(screen.getByText(/filters \(optional\)|filtros \(opcionais\)/i)).toBeTruthy();
+    expect(screen.queryByText('*')).toBeNull();
+    expect(screen.queryByText('message_id')).toBeNull();
   });
 
   it('AC3: the optional-field autocomplete lists schema optionals and adds a field on select', async () => {
@@ -169,7 +167,7 @@ describe('EventConfiguration — schema-driven Event Properties form (EVO-1275)'
     const comboboxes = screen.getAllByRole('combobox');
     expect(comboboxes.length).toBeGreaterThan(1);
     await user.click(comboboxes[1]);
-    const option = await screen.findByRole('option', { name: 'status' });
+    const option = within(await screen.findByRole('listbox')).getByText('status');
     expect(option).toBeTruthy();
     await user.click(option);
 
@@ -185,20 +183,24 @@ describe('EventConfiguration — schema-driven Event Properties form (EVO-1275)'
 
     expect(screen.getByText(/custom properties|propriedades personalizadas|propiedades personalizadas|propriétés personnalisées|proprietà personalizzate/i)).toBeTruthy();
     expect(screen.getAllByPlaceholderText(/key|chave|clave|clé|key/i).length).toBeGreaterThan(0);
-    // Custom mode is never schema-blocked.
+    // Custom mode needs a typed name before it is savable (CRM-519).
+    expect(onValidityChange).toHaveBeenLastCalledWith(false);
+    await user.type(screen.getByPlaceholderText(/custom event name|nome do evento custom/i), 'button_clicked');
     expect(onValidityChange).toHaveBeenLastCalledWith(true);
   });
 
-  it('AC6: filling a required field persists an Equals filter-condition array', async () => {
+  it('AC6: filling a filter persists an Equals filter-condition array', async () => {
     const onEventPropertiesChange = vi.fn();
     const user = userEvent.setup();
     render(<Harness onEventPropertiesChange={onEventPropertiesChange} />);
-    await selectEvent(user, /contact created|contato criado/i);
+    await selectEvent(user, /message created|mensagem criada/i);
 
-    await user.type(screen.getByLabelText(/^source\s*\*?$/i), 'crm');
+    await user.click(screen.getAllByRole('combobox')[1]);
+    await user.click(within(await screen.findByRole('listbox')).getByText('content'));
+    await user.type(screen.getByRole('textbox', { name: /content/i }), 'oi');
 
     const last = onEventPropertiesChange.mock.calls.at(-1)?.[0];
-    expect(last).toEqual([{ path: 'source', operator: { type: 'Equals', value: 'crm' } }]);
+    expect(last).toEqual([{ path: 'content', operator: { type: 'Equals', value: 'oi' } }]);
   });
 
   it('AC7: editing a legacy non-Equals field collapses it to Equals while untouched rows keep their operator', async () => {
@@ -227,22 +229,17 @@ describe('EventConfiguration — schema-driven Event Properties form (EVO-1275)'
     expect(channelType?.operator.value).toBe('wa');
   });
 
-  it('AC2 (validity): reports invalid while a required field is empty and valid once filled', async () => {
+  it('AC2 (validity, CRM-519): reports valid as soon as an event is chosen — filters are optional', async () => {
     const onValidityChange = vi.fn();
     const user = userEvent.setup();
     render(<Harness onValidityChange={onValidityChange} />);
-    await selectEvent(user, /contact created|contato criado/i);
-
-    // contact.created requires id + source; both empty → invalid.
     expect(onValidityChange).toHaveBeenLastCalledWith(false);
 
-    await user.type(screen.getByLabelText(/^id\s*\*?$/i), 'id-1');
-    await user.type(screen.getByLabelText(/^source\s*\*?$/i), 'crm');
-
+    await selectEvent(user, /contact created|contato criado/i);
     expect(onValidityChange).toHaveBeenLastCalledWith(true);
   });
 
-  it('AC4: switching canonical events prompts preserve/clear; Preserve keeps compatible values and drops the rest', async () => {
+  it('AC4 (CRM-519): switching events keeps compatible filters, drops the rest and says so', async () => {
     const onEventPropertiesChange = vi.fn();
     const user = userEvent.setup();
     render(
@@ -260,22 +257,37 @@ describe('EventConfiguration — schema-driven Event Properties form (EVO-1275)'
 
     await selectEvent(user, /conversation created|conversa criada/i);
 
-    // Confirm dialog appears.
-    expect(
-      await screen.findByText(/preserve compatible values|preservar valores compatíveis/i),
-    ).toBeTruthy();
-
-    await user.click(screen.getByRole('button', { name: /preserve compatible|preservar compatíveis/i }));
-
     const last = onEventPropertiesChange.mock.calls.at(-1)?.[0] as EventProperty[];
     const keys = last.map(p => p.path).sort();
     // conversation.created shares conversation_id (uuid), source (string), channel_type (string);
-    // message_id is absent from its schema → dropped.
+    // message_id is absent from its schema → dropped, and the notice says so.
     expect(keys).toEqual(['channel_type', 'conversation_id', 'source']);
-    expect(keys).not.toContain('message_id');
+    expect(screen.getByRole('status').textContent).toMatch(/1 filtro removido|1 filter removed/i);
+    expect(screen.queryByText(/preserve compatible values|preservar valores compatíveis/i)).toBeNull();
   });
 
-  it('AC4: choosing Clear on an event switch resets properties to an empty array', async () => {
+  it('AC4 (CRM-519): no notice when every filter also exists on the new event', async () => {
+    const onEventPropertiesChange = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <Harness
+        initialEventName="conversation.created"
+        initialEventProperties={[
+          { path: 'inbox_id', operator: { type: 'Equals', value: 'i-1' } },
+        ]}
+        onEventPropertiesChange={onEventPropertiesChange}
+      />,
+    );
+
+    await selectEvent(user, /conversation resolved|conversa resolvida/i);
+
+    expect(screen.queryByRole('status')).toBeNull();
+    expect(onEventPropertiesChange).not.toHaveBeenCalled();
+    expect(screen.getByText('inbox_id')).toBeTruthy();
+  });
+
+  it('M1 (CRM-519): Undo restores the previous event and its filters', async () => {
+    const onEventNameChange = vi.fn();
     const onEventPropertiesChange = vi.fn();
     const user = userEvent.setup();
     render(
@@ -284,38 +296,21 @@ describe('EventConfiguration — schema-driven Event Properties form (EVO-1275)'
         initialEventProperties={[
           { path: 'message_id', operator: { type: 'Equals', value: 'm-1' } },
         ]}
+        onEventNameChange={onEventNameChange}
         onEventPropertiesChange={onEventPropertiesChange}
       />,
     );
 
     await selectEvent(user, /conversation created|conversa criada/i);
-    await user.click(screen.getByRole('button', { name: /clear all|limpar tudo/i }));
-
     expect(onEventPropertiesChange).toHaveBeenLastCalledWith([]);
-  });
 
-  it('M1: dismissing the event-switch dialog (Esc) defaults to Clear, never stranding old values', async () => {
-    const onEventPropertiesChange = vi.fn();
-    const user = userEvent.setup();
-    render(
-      <Harness
-        initialEventName="message.delivered"
-        initialEventProperties={[
-          { path: 'message_id', operator: { type: 'Equals', value: 'm-1' } },
-        ]}
-        onEventPropertiesChange={onEventPropertiesChange}
-      />,
-    );
+    await user.click(within(screen.getByRole('status')).getByRole('button', { name: /desfazer|undo/i }));
 
-    await selectEvent(user, /conversation created|conversa criada/i);
-    expect(
-      await screen.findByText(/preserve compatible values|preservar valores compatíveis/i),
-    ).toBeTruthy();
-
-    await user.keyboard('{Escape}');
-
-    // Dismiss must not leave message.delivered's values under conversation.created.
-    expect(onEventPropertiesChange).toHaveBeenLastCalledWith([]);
+    expect(onEventNameChange).toHaveBeenLastCalledWith('message.delivered');
+    expect(onEventPropertiesChange).toHaveBeenLastCalledWith([
+      { path: 'message_id', operator: { type: 'Equals', value: 'm-1' } },
+    ]);
+    expect(screen.queryByRole('status')).toBeNull();
   });
 
   it('M2: an optional field that already holds a value is shown on open (not hidden behind the picker)', () => {
@@ -342,8 +337,11 @@ describe('EventConfiguration — schema-driven Event Properties form (EVO-1275)'
     // No event chosen yet → invalid (Save must not be enabled by an empty config).
     expect(onValidityChange).toHaveBeenLastCalledWith(false);
 
-    // Custom event has no required fields → valid once selected.
+    // A canonical event is valid as soon as it is chosen (CRM-519); custom
+    // still waits for its name.
     await selectEvent(user, /custom event|evento personalizado/i);
+    expect(onValidityChange).toHaveBeenLastCalledWith(false);
+    await user.type(screen.getByPlaceholderText(/custom event name|nome do evento custom/i), 'x');
     expect(onValidityChange).toHaveBeenLastCalledWith(true);
   });
 });

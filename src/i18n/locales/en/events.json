@@ -15,17 +15,357 @@
     "custom": "Custom"
   },
   "propertiesForm": {
-    "requiredSectionLabel": "Required fields",
-    "optionalSectionLabel": "Optional fields",
-    "addFieldLabel": "+ Add field",
+    "optionalSectionLabel": "Filters (optional)",
+    "addFieldLabel": "+ Add filter",
     "customSectionLabel": "Custom properties",
     "customKeyPlaceholder": "key",
     "customValuePlaceholder": "value",
     "customAddLabel": "+ Add property",
-    "requiredFieldMissing": "Required field",
-    "customWarning": "Custom events are not schema-validated",
     "customRemoveAriaLabel": "Remove property",
-    "addFieldSearchPlaceholder": "Search field...",
-    "noResultsLabel": "No fields found"
+    "addFieldSearchPlaceholder": "Search filter...",
+    "noResultsLabel": "No filters found",
+    "filtersHint": "Without filters, the journey starts on every occurrence of the event.",
+    "removeFilterAriaLabel": "Remove filter",
+    "lookupLoading": "Loading...",
+    "lookupPlaceholder": "Select",
+    "lookupEmpty": "No options available",
+    "lookupError": "Could not load the list",
+    "lookupNeedsPipeline": "Choose the pipeline first",
+    "pairConflict": "The chosen channel is of type {{actual}}. This filter can never match; remove one of the two."
+  },
+  "fields": {
+    "inbox_id": {
+      "label": "Channel",
+      "help": "Only fires when the event comes from this channel."
+    },
+    "inbox_name": {
+      "label": "Channel name"
+    },
+    "channel_type": {
+      "label": "Channel type",
+      "help": "E.g. whatsapp, instagram, email.",
+      "options": {
+        "Channel__Whatsapp": "WhatsApp",
+        "Channel__Instagram": "Instagram",
+        "Channel__FacebookPage": "Facebook Messenger",
+        "Channel__Telegram": "Telegram",
+        "Channel__Email": "Email",
+        "Channel__Sms": "SMS",
+        "Channel__TwilioSms": "SMS (Twilio)",
+        "Channel__WebWidget": "Website chat",
+        "Channel__Api": "API",
+        "Channel__Line": "LINE",
+        "Channel__Sendgrid": "Email (SendGrid)",
+        "Channel__TwitterProfile": "X (Twitter)"
+      }
+    },
+    "pipeline_id": {
+      "label": "Pipeline",
+      "help": "Only fires for cards in this pipeline."
+    },
+    "pipeline_name": {
+      "label": "Pipeline name"
+    },
+    "pipeline_stage_id": {
+      "label": "Pipeline stage",
+      "help": "Choose the pipeline first to list its stages."
+    },
+    "pipeline_stage_name": {
+      "label": "Stage name"
+    },
+    "is_lead": {
+      "label": "Is lead",
+      "help": "Checked: only cards that entered as a lead."
+    },
+    "assigned_by_id": {
+      "label": "Assigned by (user id)",
+      "help": "Only fires when this agent made the assignment."
+    },
+    "labelId": {
+      "label": "Label",
+      "help": "Only fires for this label."
+    },
+    "labelName": {
+      "label": "Label name"
+    },
+    "attributeName": {
+      "label": "Attribute name",
+      "help": "The key of the custom attribute that changed."
+    },
+    "attributeValue": {
+      "label": "New attribute value",
+      "help": "The value the attribute now holds."
+    },
+    "oldValue": {
+      "label": "Previous value",
+      "help": "The value the attribute had before."
+    },
+    "changeType": {
+      "label": "Change type",
+      "help": "How the attribute changed (created, updated or removed)."
+    },
+    "activity_type": {
+      "label": "Activity type",
+      "help": "The type of the activity logged on the conversation."
+    },
+    "content": {
+      "label": "Content",
+      "help": "Exact text of the message or activity."
+    },
+    "content_type": {
+      "label": "Content type",
+      "help": "E.g. text, image, audio, file.",
+      "options": {
+        "text": "Text",
+        "input_text": "Text input",
+        "input_textarea": "Text area",
+        "input_email": "Email input",
+        "input_select": "Select",
+        "cards": "Cards",
+        "form": "Form",
+        "article": "Article",
+        "incoming_email": "Incoming email",
+        "input_csat": "CSAT survey",
+        "integrations": "Integration",
+        "sticker": "Sticker"
+      }
+    },
+    "message_type": {
+      "label": "Message direction",
+      "help": "incoming (from the contact) or outgoing (from the team).",
+      "options": {
+        "incoming": "Incoming (from the contact)",
+        "outgoing": "Outgoing (from the team)"
+      }
+    },
+    "status": {
+      "label": "Delivery status",
+      "options": {
+        "sent": "Sent",
+        "delivered": "Delivered",
+        "read": "Read",
+        "failed": "Failed"
+      },
+      "help": "The current message status."
+    },
+    "previous_status": {
+      "label": "Previous status",
+      "options": {
+        "sent": "Sent",
+        "delivered": "Delivered",
+        "read": "Read",
+        "failed": "Failed"
+      },
+      "help": "The message status before this change."
+    },
+    "external_error": {
+      "label": "Provider error",
+      "help": "The error message the provider returned."
+    },
+    "reason": {
+      "label": "Reason",
+      "help": "The reason given for the deletion or the handoff."
+    },
+    "resolved_by_id": {
+      "label": "Resolved by (id)"
+    },
+    "resolved_by_type": {
+      "label": "Resolved by (type)",
+      "help": "user, bot or system."
+    },
+    "resolution_time_seconds": {
+      "label": "Resolution time (s)",
+      "help": "Seconds between opening and resolution."
+    },
+    "response_time_seconds": {
+      "label": "Response time (s)",
+      "help": "Seconds until the team's first reply."
+    },
+    "reply_time_seconds": {
+      "label": "Reply time (s)",
+      "help": "Seconds until the team replied."
+    },
+    "replied_at": {
+      "label": "Replied at"
+    },
+    "measured_at": {
+      "label": "Measured at"
+    },
+    "handoff_at": {
+      "label": "Handed off at"
+    },
+    "resolved_at": {
+      "label": "Resolved at"
+    },
+    "deleted_at": {
+      "label": "Deleted at"
+    },
+    "opened_at": {
+      "label": "Opened at"
+    },
+    "clicked_at": {
+      "label": "Clicked at"
+    },
+    "campaign_id": {
+      "label": "Campaign (id)",
+      "help": "Only fires for messages of this campaign."
+    },
+    "template_id": {
+      "label": "Template (id)",
+      "help": "Only fires for messages sent with this template."
+    },
+    "url": {
+      "label": "Clicked URL",
+      "help": "The exact URL the contact clicked."
+    },
+    "provider": {
+      "label": "Payment platform",
+      "help": "virtu, hotmart, kiwify or cakto."
+    },
+    "product": {
+      "label": "Product",
+      "help": "The product name as the platform sends it."
+    },
+    "amount": {
+      "label": "Amount",
+      "help": "In the currency unit (e.g. 197.5), never cents."
+    },
+    "currency": {
+      "label": "Currency",
+      "help": "E.g. BRL, USD."
+    },
+    "platform_event": {
+      "label": "Platform event",
+      "help": "The event name as the platform sent it."
+    },
+    "outcome": {
+      "label": "CRM outcome",
+      "help": "created (new card) or already_in_pipeline (purchase appended to the open card)."
+    },
+    "new_contact": {
+      "label": "New contact",
+      "help": "Checked: the purchase created the contact."
+    },
+    "name": {
+      "label": "Name",
+      "help": "The contact's exact name."
+    },
+    "email": {
+      "label": "Email",
+      "help": "The contact's exact email."
+    },
+    "phone_number": {
+      "label": "Phone",
+      "help": "E.164 format, e.g. +5511999999999."
+    },
+    "identifier": {
+      "label": "External identifier",
+      "help": "The contact's identifier in another system."
+    },
+    "middle_name": {
+      "label": "Middle name",
+      "help": "The contact's exact middle name."
+    },
+    "last_name": {
+      "label": "Last name",
+      "help": "The contact's exact last name."
+    },
+    "location": {
+      "label": "Location",
+      "help": "The location stored on the contact."
+    },
+    "country_code": {
+      "label": "Country code",
+      "help": "E.g. BR, US."
+    },
+    "contact_type": {
+      "label": "Contact type",
+      "options": {
+        "visitor": "Visitor",
+        "lead": "Lead",
+        "customer": "Customer"
+      },
+      "help": "Visitor, lead or customer, as classified in the CRM."
+    },
+    "blocked": {
+      "label": "Blocked",
+      "help": "Checked: only blocked contacts."
+    },
+    "created_via": {
+      "label": "Created by",
+      "options": {
+        "agent": "Agent",
+        "system": "System"
+      },
+      "help": "Whether an agent or the system (channel, import, webhook) created the contact."
+    }
+  },
+  "events": {
+    "contact_created": {
+      "description": "A new contact was created in the CRM."
+    },
+    "contact_updated": {
+      "description": "A contact's data was changed."
+    },
+    "contact_deleted": {
+      "description": "A contact was deleted."
+    },
+    "contact_label_added": {
+      "description": "A label was applied to a contact."
+    },
+    "contact_label_removed": {
+      "description": "A label was removed from a contact."
+    },
+    "contact_custom_attribute_changed": {
+      "description": "A custom attribute of the contact changed value."
+    },
+    "conversation_created": {
+      "description": "A new conversation was opened on a channel."
+    },
+    "conversation_resolved": {
+      "description": "A conversation was marked as resolved."
+    },
+    "conversation_activity": {
+      "description": "An activity was logged on a conversation (note, assignment, status change)."
+    },
+    "conversation_first_reply": {
+      "description": "The team replied for the first time on a conversation."
+    },
+    "conversation_reply_time": {
+      "description": "The reply time of a conversation was measured."
+    },
+    "conversation_bot_handoff": {
+      "description": "The bot handed the conversation over to the team."
+    },
+    "conversation_bot_resolved": {
+      "description": "The bot resolved the conversation without the team."
+    },
+    "message_created": {
+      "description": "A message was sent or received on a conversation."
+    },
+    "message_delivered": {
+      "description": "A sent message was delivered to the contact."
+    },
+    "message_read": {
+      "description": "The contact read a sent message."
+    },
+    "message_failed": {
+      "description": "Sending a message failed at the provider."
+    },
+    "campaign_triggered": {
+      "description": "A contact entered a pipeline as a card (by lead, campaign or assignment)."
+    },
+    "campaign_message_sent": {
+      "description": "A campaign message was sent to a contact."
+    },
+    "campaign_message_opened": {
+      "description": "The contact opened a campaign message."
+    },
+    "campaign_message_clicked": {
+      "description": "The contact clicked a link in a campaign message."
+    },
+    "custom": {
+      "description": "An event you define, with free-form properties."
+    }
   }
 }

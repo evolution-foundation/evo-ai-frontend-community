@@ -1788,7 +1788,7 @@
     }
   },
   "triggerComponents": {
-    "triggerType": "Tipo del Trigger",
+    "triggerType": "Come inizia il percorso",
     "selectType": "Seleziona il tipo",
     "types": {
       "manual": "Ingresso Manuale",
@@ -1930,11 +1930,15 @@
       "value": "Valore",
       "captureEventData": "Cattura Dati dell'Evento",
       "eventSwitch": {
-        "title": "Conservare i valori compatibili?",
-        "body": "Hai cambiato l'evento. Mantenere i valori delle proprietà che esistono anche nel nuovo evento (stesso nome e tipo) o cancellarli tutti?",
-        "preserve": "Conserva compatibili",
-        "clear": "Cancella tutto"
-      }
+        "dropped_one": "1 filtro rimosso perché non esiste su {{event}}.",
+        "dropped_other": "{{count}} filtri rimossi perché non esistono su {{event}}.",
+        "undo": "Annulla"
+      },
+      "customEventNameLabel": "Nome dell'evento personalizzato",
+      "customEventNamePlaceholder": "Digita il nome dell'evento custom (es.: button_clicked)",
+      "customEventWarning": "Gli eventi custom non hanno validazione di schema. Usali solo per casi non coperti dal catalogo.",
+      "selectEventRequired": "Scegli un evento per salvare il trigger.",
+      "customEventNameRequired": "Digita il nome dell'evento personalizzato per salvare."
     },
     "label": {
       "configuration": "Configurazione dell'Etichetta",

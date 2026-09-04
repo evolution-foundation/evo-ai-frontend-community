@@ -143,40 +143,58 @@ describe('JourneyTriggerPanel — event trigger tabs (EVO-1276)', () => {
     const user = userEvent.setup();
     const { onUpdate, onClose } = renderPanel();
 
-    await selectEvent(user, /contact created|contato criado/i);
-    await user.type(screen.getByLabelText(/^id\s*\*?$/i), 'id-1');
-    await user.type(screen.getByLabelText(/^source\s*\*?$/i), 'crm');
+    await selectEvent(user, /message created|mensagem criada/i);
+    // CRM-519: filters are optional and live behind the "+ Add filter" picker
+    // (third combobox: trigger type, event selector, picker).
+    await user.click(screen.getAllByRole('combobox')[2]);
+    await user.click(within(await screen.findByRole('listbox')).getByText('content'));
+    await user.type(screen.getByRole('textbox', { name: /content/i }), 'oi');
 
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     expect(onUpdate).toHaveBeenCalledTimes(1);
     const saved = onUpdate.mock.calls[0][1] as JourneyTriggerNodeData;
-    expect(saved.eventProperties).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ path: 'id' }),
-        expect.objectContaining({ path: 'source' }),
-      ]),
-    );
+    expect(saved.eventProperties).toEqual([
+      { path: 'content', operator: { type: 'Equals', value: 'oi' } },
+    ]);
     expect(saved.variableMappings ?? []).toHaveLength(0);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('AC5: clicking Save with a required property empty while on Avançado snaps back to Básico without saving', async () => {
+  it('AC5 (CRM-519): Save from Avançado with an event chosen and no filters persists and closes', async () => {
     const user = userEvent.setup();
     const { onUpdate, onClose } = renderPanel();
 
-    // Select an event with required fields but leave them empty → invalid.
     await selectEvent(user, /contact created|contato criado/i);
-
-    // Move to Avançado, then attempt to save.
     await user.click(screen.getByRole('tab', { name: /Advanced|Avançado|Avanzado|Avanzato|Avancé/ }));
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
-    // Bounced back to Básico; nothing persisted/closed.
-    const basicTab = screen.getByRole('tab', { name: /Basic|Básico|Base|Basique/ });
-    expect(basicTab.getAttribute('aria-selected')).toBe('true');
+    expect(onUpdate).toHaveBeenCalledTimes(1);
+    const saved = onUpdate.mock.calls[0][1] as JourneyTriggerNodeData;
+    expect(saved.eventName).toBe('contact.created');
+    expect(saved.eventProperties ?? []).toHaveLength(0);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('AC5b (CRM-519): Save stays disabled with no event chosen or a custom event without a name, with the reason under the field', async () => {
+    const user = userEvent.setup();
+    const { onUpdate } = renderPanel();
+
+    const save = () => screen.getByRole('button', { name: 'Save' }) as HTMLButtonElement;
+    expect(save().disabled).toBe(true);
+    expect(screen.getByText(/choose an event|escolha um evento/i)).toBeTruthy();
+
+    await selectEvent(user, /custom event|evento personalizado/i);
+    expect(save().disabled).toBe(true);
+    expect(screen.getByText(/type the custom event name to save|digite o nome do evento personalizado para salvar/i)).toBeTruthy();
+    await user.click(save());
     expect(onUpdate).not.toHaveBeenCalled();
-    expect(onClose).not.toHaveBeenCalled();
+
+    await user.type(screen.getByPlaceholderText(/custom event name|nome do evento custom/i), 'button_clicked');
+    expect(save().disabled).toBe(false);
+    await user.click(save());
+    expect(onUpdate).toHaveBeenCalledTimes(1);
+    expect((onUpdate.mock.calls[0][1] as JourneyTriggerNodeData).eventName).toBe('button_clicked');
   });
 
   it('AC6: selecting "Custom event" in Básico reveals the free-text custom-name input', async () => {

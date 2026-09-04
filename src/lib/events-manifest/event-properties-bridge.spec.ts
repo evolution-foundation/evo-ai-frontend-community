@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from 'vitest';
 import {
   propertiesToRecord,
   recordToProperties,
-  validateEventProperties,
   preserveCompatibleValues,
   type EventProperty,
 } from './event-properties-bridge';
@@ -77,32 +76,6 @@ describe('propertiesToRecord / recordToProperties round-trip', () => {
     expect(recordToProperties({ a: '1' })).toEqual([
       { path: 'a', operator: { type: 'Equals', value: '1' } },
     ]);
-  });
-});
-
-describe('validateEventProperties', () => {
-  it('flags missing required fields', () => {
-    expect(validateEventProperties('message.delivered', {})).toEqual({
-      valid: false,
-      missing: ['message_id'],
-    });
-  });
-
-  it('treats empty-string / null / undefined as missing', () => {
-    expect(validateEventProperties('message.delivered', { message_id: '' }).valid).toBe(false);
-    expect(validateEventProperties('message.delivered', { message_id: null }).valid).toBe(false);
-  });
-
-  it('is valid when all required fields are filled', () => {
-    expect(validateEventProperties('message.delivered', { message_id: 'uuid-1' })).toEqual({
-      valid: true,
-      missing: [],
-    });
-  });
-
-  it('is always valid for custom or unknown events', () => {
-    expect(validateEventProperties('custom', {}).valid).toBe(true);
-    expect(validateEventProperties('does.not.exist', {}).valid).toBe(true);
   });
 });
 

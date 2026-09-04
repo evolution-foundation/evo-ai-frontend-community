@@ -1776,7 +1776,7 @@
     }
   },
   "triggerComponents": {
-    "triggerType": "Tipo del Trigger",
+    "triggerType": "Cómo empieza la jornada",
     "selectType": "Seleccione el tipo",
     "types": {
       "manual": "Entrada Manual",
@@ -1918,11 +1918,15 @@
       "value": "Valor",
       "captureEventData": "Capturar Datos del Evento",
       "eventSwitch": {
-        "title": "¿Preservar valores compatibles?",
-        "body": "Cambiaste el evento. ¿Mantener los valores de propiedad que también existen en el nuevo evento (mismo nombre y tipo) o borrarlos todos?",
-        "preserve": "Preservar compatibles",
-        "clear": "Borrar todo"
-      }
+        "dropped_one": "1 filtro eliminado porque no existe en {{event}}.",
+        "dropped_other": "{{count}} filtros eliminados porque no existen en {{event}}.",
+        "undo": "Deshacer"
+      },
+      "customEventNameLabel": "Nombre del evento personalizado",
+      "customEventNamePlaceholder": "Escriba el nombre del evento custom (ej.: button_clicked)",
+      "customEventWarning": "Los eventos custom no tienen validación de schema. Úselos solo para casos que los eventos del catálogo no cubren.",
+      "selectEventRequired": "Elija un evento para guardar el disparador.",
+      "customEventNameRequired": "Escriba el nombre del evento personalizado para guardar."
     },
     "label": {
       "configuration": "Configuración de la Etiqueta",

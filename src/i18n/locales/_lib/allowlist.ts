@@ -86,6 +86,10 @@ export const COMMON_ALLOWED = new Set<string>([
 ]);
 
 export const PER_FILE_ALLOWED: Record<string, Set<string>> = {
+  'events.json': new Set([
+    // CRM-519: channel brand names in the trigger filter option labels.
+    'SMS (Twilio)', 'X (Twitter)',
+  ]),
   'adminSettings.json': new Set([
     'Frontend Runtime', 'Google OAuth', 'Relay (Exim / Postfix / Qmail)',
   ]),
