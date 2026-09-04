@@ -90,7 +90,6 @@
         "labelKv": "Parâmetros do Body",
         "placeholder": "{\"key\": \"value\", \"nested\": {\"field\": \"data\"}}",
         "keyPlaceholder": "Nome do campo",
-        "valuePlaceholder": "Valor",
         "hint": "Campos do corpo enviados em requisições POST/PUT/PATCH",
         "descriptionPlaceholder": "Para que serve este campo",
         "required": "Obrigatório",
