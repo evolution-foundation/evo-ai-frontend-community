@@ -4,7 +4,7 @@ import { availableModels } from '@/components/ai_agents/ModelSelector';
 // Shape checks, not freshness. Freshness needs the provider's own answer: the LISTS_LIVE
 // axes get it the moment a key is chosen, and the bedrock axis gets it from the AWS model
 // cards in ModelSelector.bedrockLifecycle.spec.ts. Vertex and Perplexity have neither, so
-// their pins are still only as fresh as the last person who went looking.
+// any pin they carry is only as fresh as the last person who went looking.
 
 const PROVIDER_PREFIX: Record<string, string> = {
   openai: 'openai/',
@@ -22,6 +22,11 @@ const PROVIDER_PREFIX: Record<string, string> = {
 // Mirrors ProviderSupportsDynamicModels in the core-service
 // (pkg/api_key/service/models_fetcher.go); update both together.
 const LISTS_LIVE = ['openai', 'gemini', 'anthropic', 'openrouter', 'deepseek', 'together_ai', 'fireworks_ai'];
+
+// Perplexity is offered as a key type but has no id worth pinning: Sonar Chat
+// Completions rejects any request carrying tools, and its successor speaks the
+// Responses API, which the runtime cannot reach yet.
+const PINNED_ON_PURPOSE_EMPTY = ['perplexity'];
 
 // One current family. The live list wins the moment a key is chosen, so each extra
 // pinned entry is only more surface to rot.
@@ -64,9 +69,19 @@ describe('availableModels', () => {
     expect(oversized).toEqual([]);
   });
 
+  it('claims an exemption only for a provider that is really empty', () => {
+    const stale = availableModels.filter(m => PINNED_ON_PURPOSE_EMPTY.includes(m.provider));
+    expect(stale).toEqual([]);
+  });
+
+  it('exempts only a provider the picker knows, so a dropped one leaves no dead rule', () => {
+    const unknown = PINNED_ON_PURPOSE_EMPTY.filter(p => !PROVIDER_PREFIX[p]);
+    expect(unknown).toEqual([]);
+  });
+
   it('pins at least one entry per provider, so a failed listing is never an empty picker', () => {
     const empty = Object.keys(PROVIDER_PREFIX).filter(
-      p => !availableModels.some(m => m.provider === p),
+      p => !PINNED_ON_PURPOSE_EMPTY.includes(p) && !availableModels.some(m => m.provider === p),
     );
     expect(empty).toEqual([]);
   });
