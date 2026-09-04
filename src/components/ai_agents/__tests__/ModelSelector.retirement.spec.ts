@@ -11,7 +11,9 @@ import { availableModels } from '@/components/ai_agents/ModelSelector';
  * Serving an id until its date is the posture, not an oversight: pulling it early costs
  * the user a model that still answers. The exception is an id that already fails before
  * its date — there is no working model left to cost anyone, and the perplexity axis was
- * emptied ahead of schedule on exactly that ground.
+ * emptied ahead of schedule on exactly that ground once (its Chat Completions ids). The
+ * axis is pinned again on a different route (Responses API); the same rule applies the
+ * moment any of those ids gets a published end-of-service date.
  */
 
 // End-of-service dates, as the provider published them. A row is added when a pin gains a
