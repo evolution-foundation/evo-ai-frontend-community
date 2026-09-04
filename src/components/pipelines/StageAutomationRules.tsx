@@ -241,7 +241,7 @@ export default function StageAutomationRules({
           </Select>
 
           <Select
-            value={knownOr(iv.base, INACTIVITY_BASES)}
+            value={iv.base}
             onValueChange={v =>
               updateRule(index, { trigger_value: { ...iv, base: v as InactivityBase } })
             }
