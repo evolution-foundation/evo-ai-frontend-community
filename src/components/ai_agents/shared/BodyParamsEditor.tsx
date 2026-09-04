@@ -42,6 +42,14 @@ const objectToRows = (obj: Record<string, unknown>): Row[] =>
     schema: coerceBodyParam(raw),
   }));
 
+/** A row nobody filled in is just an empty slot; one carrying a type, a
+ * description or an optional flag is a param the user meant to keep. Only the
+ * second kind is worth an error when the name is missing. */
+const rowHasContent = (row: Row): boolean =>
+  row.schema.description.trim().length > 0 ||
+  row.schema.type !== 'string' ||
+  !row.schema.required;
+
 const rowsToObject = (rows: Row[]): Record<string, BodyParamSchema> => {
   const out: Record<string, BodyParamSchema> = {};
   for (const row of rows) {
@@ -89,7 +97,12 @@ export default function BodyParamsEditor({
     const keys = new Map<string, number>();
     rows.forEach(row => {
       const trimmed = row.key.trim();
-      if (!trimmed) return;
+      if (!trimmed) {
+        // rowsToObject drops a nameless row: without this the param the user
+        // filled in vanishes on save with nothing on screen to explain it.
+        if (rowHasContent(row)) errs[row.id] = t('keyValueEditor.errors.emptyKey');
+        return;
+      }
       if (keys.has(trimmed)) {
         errs[row.id] = t('keyValueEditor.errors.duplicateKey');
       } else {

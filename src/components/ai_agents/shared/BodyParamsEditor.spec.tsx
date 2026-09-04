@@ -80,6 +80,25 @@ describe('BodyParamsEditor', () => {
     ).toBe('the query');
   });
 
+  it('flags a filled row whose name is blank instead of dropping it silently', () => {
+    const onChange = vi.fn();
+    render(<BodyParamsEditor value={{}} onChange={onChange} label="Body" />);
+    fireEvent.click(screen.getByText('form.fields.bodyParams.addParam'));
+    fireEvent.change(screen.getByLabelText('Body description'), {
+      target: { value: 'the search query' },
+    });
+
+    expect(onChange.mock.calls.at(-1)![0]).toEqual({});
+    expect(screen.getByText('keyValueEditor.errors.emptyKey')).toBeTruthy();
+  });
+
+  it('leaves an untouched new row alone', () => {
+    render(<BodyParamsEditor value={{}} onChange={vi.fn()} label="Body" />);
+    fireEvent.click(screen.getByText('form.fields.bodyParams.addParam'));
+
+    expect(screen.queryByText('keyValueEditor.errors.emptyKey')).toBeNull();
+  });
+
   it('coerces a legacy string value on load', () => {
     render(
       <BodyParamsEditor

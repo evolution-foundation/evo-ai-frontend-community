@@ -90,7 +90,6 @@
         "labelKv": "Body Parameters",
         "placeholder": "{\"key\": \"value\", \"nested\": {\"field\": \"data\"}}",
         "keyPlaceholder": "Field name",
-        "valuePlaceholder": "Value",
         "hint": "Body fields sent with POST/PUT/PATCH requests",
         "descriptionPlaceholder": "What this field is for",
         "required": "Required",

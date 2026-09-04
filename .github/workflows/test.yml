@@ -117,6 +117,11 @@ jobs:
       #     here. The bedrock lifecycle spec stays out: it reaches the network.
       #   - events manifest catalog (CRM-316): mirror of the evo-flow catalog the
       #     journey trigger and segment editor read; a drift only shows in the UI.
+      #   - custom-tool body params (CRM-527): body_params stay the
+      #     {type, required, description} schema the tool-execution engine reads,
+      #     a legacy string is repaired on edit, and a nameless row is flagged
+      #     instead of dropped in silence. The three specs shipped green but
+      #     outside this list, so nothing here ran them.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -185,7 +190,10 @@ jobs:
             src/components/ai_agents/__tests__/ModelSelector.availableModels.spec.ts \
             src/components/ai_agents/__tests__/ModelSelector.retirement.spec.ts \
             src/components/ai_agents/__tests__/ModelSelector.retiredValue.spec.tsx \
-            src/lib/events-manifest/catalog.spec.ts
+            src/lib/events-manifest/catalog.spec.ts \
+            src/components/ai_agents/shared/BodyParamsEditor.spec.tsx \
+            src/components/customTools/CustomToolForm.spec.tsx \
+            src/components/customTools/CustomToolWizardModal.spec.tsx
 
   # Lint gate scoped to the files the PR touched.
   eslint:
