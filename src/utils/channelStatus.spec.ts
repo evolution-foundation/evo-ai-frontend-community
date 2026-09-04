@@ -63,6 +63,10 @@ describe('deriveInboxStatus', () => {
     expect(deriveInboxStatus(inbox({ connection_state: 'error' }))).toBe('error');
   });
 
+  it('rolls a QR session establishing up into attention, same as pending (CRM-490)', () => {
+    expect(deriveInboxStatus(inbox({ connection_state: 'connecting' }))).toBe('attention');
+  });
+
   it('treats unmonitored (unknown) channels as active — explicit degrade, not broken', () => {
     expect(deriveInboxStatus(inbox({ connection_state: 'unknown', health_source: 'none' }))).toBe('active');
   });

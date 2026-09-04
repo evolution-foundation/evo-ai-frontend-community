@@ -1629,6 +1629,7 @@
       "connected": "Connesso",
       "disconnected": "Disconnesso",
       "pending": "In attesa di conferma",
+      "connecting": "Connessione in corso...",
       "error": "Errore",
       "unknown": "Sconosciuto",
       "unmonitored": "Non monitorato",
