@@ -23,10 +23,10 @@ const PROVIDER_PREFIX: Record<string, string> = {
 // (pkg/api_key/service/models_fetcher.go); update both together.
 const LISTS_LIVE = ['openai', 'gemini', 'anthropic', 'openrouter', 'deepseek', 'together_ai', 'fireworks_ai'];
 
-// Perplexity is offered as a key type but has no id worth pinning: Sonar Chat
-// Completions rejects any request carrying tools, and its successor speaks the
-// Responses API, which the runtime cannot reach yet.
-const PINNED_ON_PURPOSE_EMPTY = ['perplexity'];
+// No provider is exempt right now: Perplexity's ids came back once the runtime could
+// route to the Responses API. Kept as a named list, not deleted, so the next axis that
+// goes live-only-listing has somewhere to register the same claim.
+const PINNED_ON_PURPOSE_EMPTY: string[] = [];
 
 // One current family. The live list wins the moment a key is chosen, so each extra
 // pinned entry is only more surface to rot.
