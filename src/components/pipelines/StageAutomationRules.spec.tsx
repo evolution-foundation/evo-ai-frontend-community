@@ -114,12 +114,8 @@ describe('StageAutomationRules — inactivity duration (CRM-467)', () => {
     ).toBeTruthy();
   });
 
-  // CRM-471: the rule rows used to let content dictate width — the inactivity
-  // pair overflowed its card, long labels hard-clipped (the design-system forces
-  // display:flex on the value span, where text-overflow never applies) and a
-  // stale value rendered an empty select. jsdom has no layout, so these pin the
-  // contract: the block+truncate class on EVERY select, the ellipsis span
-  // inside dotted options, and the placeholder Radix only shows for value ''.
+  // CRM-471. jsdom has no layout, so containment is pinned as a class contract:
+  // the block+truncate pair on every select, and the placeholder Radix shows only for ''.
   describe('containment (CRM-471)', () => {
     const BLOCK_VALUE = '[&>span[data-slot=select-value]]:block';
     const LONG = 'Etiqueta com um nome comprido demais para caber';
@@ -157,6 +153,8 @@ describe('StageAutomationRules — inactivity duration (CRM-467)', () => {
     const renderAll = (rules = allRules()) =>
       render(<StageAutomationRules rules={rules} onChange={vi.fn()} {...fixture} />);
 
+    const hasClass = (el: Element, cls: string) => el.className.split(/\s+/).includes(cls);
+
     const comboboxWithText = (text: string) => {
       const found = screen.getAllByRole('combobox').find(c => (c.textContent ?? '').includes(text));
       if (!found) throw new Error(`no combobox showing "${text}"`);
@@ -186,17 +184,21 @@ describe('StageAutomationRules — inactivity duration (CRM-467)', () => {
 
     it('keeps the fixed trigger/action selects at 200px, non-shrinking', () => {
       renderAll();
-      const fixed = screen.getAllByRole('combobox').filter(c => c.className.includes('w-[200px]'));
-      // 6 action selects + 5 trigger selects (custom_attribute_updated grows instead)
+      const fixed = screen.getAllByRole('combobox').filter(c => hasClass(c, 'w-[200px]'));
+      // 6 action selects + 5 trigger selects (custom_attribute_updated sizes to its label)
       expect(fixed).toHaveLength(11);
       fixed.forEach(c => expect(c.className).toContain('shrink-0'));
     });
 
-    it('lets a trigger with no value field (custom_attribute_updated) take the row', () => {
+    it('sizes a trigger with no value field (custom_attribute_updated) to its own label', () => {
       renderAll();
       const c = comboboxWithText('stageAutomation.triggers.custom_attribute_updated');
-      expect(c.className).toContain('flex-1');
-      expect(c.className).not.toContain('w-[200px]');
+      // w-fit past a 200px floor: the label fits whole without the select
+      // swallowing the row the other triggers share with a value field.
+      expect(hasClass(c, 'w-fit')).toBe(true);
+      expect(hasClass(c, 'min-w-[200px]')).toBe(true);
+      expect(hasClass(c, 'max-w-full')).toBe(true);
+      expect(hasClass(c, 'w-[200px]')).toBe(false);
     });
 
     it('renders dotted options with their own ellipsis span so the name never hard-clips', () => {
@@ -215,9 +217,8 @@ describe('StageAutomationRules — inactivity duration (CRM-467)', () => {
       grids.forEach(g => expect(g.className).toContain('min-w-0'));
     });
 
-    // A value the option list no longer has (deleted template, agent, label; a
-    // move_to_pipeline pointing at the CURRENT pipeline) must show the
-    // placeholder, not an empty box: Radix only does that for value === ''.
+    // A value the option list no longer has must show the placeholder, not an
+    // empty box — Radix only renders one for value === ''.
     describe('stale values fall back to the placeholder', () => {
       const placeholderOf = (c: HTMLElement) => c.hasAttribute('data-placeholder');
 
@@ -247,6 +248,18 @@ describe('StageAutomationRules — inactivity duration (CRM-467)', () => {
         const c = comboboxWithText('stageAutomation.selectLabel');
         expect(placeholderOf(c)).toBe(true);
         expect(c.textContent).not.toContain('stageAutomation.anyLabel');
+      });
+
+      it('a status outside the list asks to pick one — not "any value"', () => {
+        renderAll([rule({ trigger: 'conversation_status_changed', trigger_value: 'aguardando_retorno' }, 'r')]);
+        const c = comboboxWithText('stageAutomation.selectStatus');
+        expect(placeholderOf(c)).toBe(true);
+        expect(c.textContent).not.toContain('stageAutomation.anyValue');
+      });
+
+      it('"any value" (empty status trigger) is the selected sentinel, not a placeholder', () => {
+        renderAll([rule({ trigger: 'conversation_status_changed', trigger_value: '' }, 'r')]);
+        expect(placeholderOf(comboboxWithText('stageAutomation.anyValue'))).toBe(false);
       });
 
       it('"any label" (empty trigger value) is the selected sentinel, not a placeholder', () => {

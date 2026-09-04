@@ -87,16 +87,13 @@ const DAY_LABEL_FROM_MINUTES = 7 * MINUTES_PER_DAY;
 const ANY_VALUE_SENTINEL = '__any__';
 const PLACEHOLDER_SENTINEL = '__placeholder__';
 
-// The design-system forces `display: flex` on span[data-slot=select-value]
-// (*:data-[slot=select-value]:flex), and text-overflow: ellipsis never applies
-// to a flex container — a plain `[&>span]:truncate` hard-clips. The attribute
-// selector outranks that rule, so the value box becomes a block and truncates
-// with an ellipsis (CRM-471). Long names inside DotOption need their own
-// `truncate` for the same reason.
+// The design-system forces display:flex on span[data-slot=select-value] and
+// text-overflow never applies to a flex box; the attribute selector outranks it.
 const VALUE_TRUNCATE = '[&>span[data-slot=select-value]]:block [&>span]:truncate';
 const FIXED_SELECT = `w-[200px] shrink-0 ${VALUE_TRUNCATE}`;
 const FILL_SELECT = `w-full min-w-0 ${VALUE_TRUNCATE}`;
 const GROW_SELECT = `flex-1 min-w-0 ${VALUE_TRUNCATE}`;
+const AUTO_SELECT = `w-fit min-w-[200px] max-w-full ${VALUE_TRUNCATE}`;
 
 // Radix only renders the placeholder for value === '' — a stale value (deleted
 // template, pipeline that is now the current one) would render an empty box.
@@ -275,9 +272,8 @@ export default function StageAutomationRules({
           disabled={disabled}
         >
           <SelectTrigger className={GROW_SELECT}>
-            {/* "any label" is the sentinel item, never ''; '' here means the rule
-                points at a label that no longer exists — say so, or it reads as
-                "any label" while it never fires. */}
+            {/* '' means the rule points at a label that no longer exists; the
+                anyLabel placeholder would read as "any label" that never fires. */}
             <SelectValue placeholder={t('stageAutomation.selectLabel')} />
           </SelectTrigger>
           <SelectContent>
@@ -311,7 +307,9 @@ export default function StageAutomationRules({
           disabled={disabled}
         >
           <SelectTrigger className={GROW_SELECT}>
-            <SelectValue placeholder={t('stageAutomation.anyValue')} />
+            {/* Same trap as the label trigger: anyValue is the sentinel's own
+                label, so it would read as "any status" that never fires. */}
+            <SelectValue placeholder={t('stageAutomation.selectStatus')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ANY_VALUE_SENTINEL}>{t('stageAutomation.anyValue')}</SelectItem>
@@ -641,7 +639,7 @@ export default function StageAutomationRules({
                   disabled={disabled}
                 >
                   <SelectTrigger
-                    className={rule.trigger === 'custom_attribute_updated' ? GROW_SELECT : FIXED_SELECT}
+                    className={rule.trigger === 'custom_attribute_updated' ? AUTO_SELECT : FIXED_SELECT}
                   >
                     <SelectValue />
                   </SelectTrigger>

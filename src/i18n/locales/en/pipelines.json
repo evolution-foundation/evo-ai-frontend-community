@@ -400,6 +400,7 @@
     "anyLabel": "Any label",
     "labelNamePlaceholder": "Label name...",
     "selectStage": "Select stage...",
+    "selectStatus": "Select status...",
     "selectAgent": "Select agent...",
     "selectPipeline": "Select pipeline...",
     "selectLabel": "Select label...",

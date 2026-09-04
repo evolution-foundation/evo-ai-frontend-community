@@ -361,6 +361,7 @@
     "anyValue": "Tout",
     "labelNamePlaceholder": "Nom de l'étiquette...",
     "selectStage": "Sélectionner une étape...",
+    "selectStatus": "Sélectionner un statut...",
     "selectAgent": "Sélectionner un agent...",
     "selectPipeline": "Sélectionner un pipeline...",
     "selectLabel": "Sélectionner une étiquette...",
