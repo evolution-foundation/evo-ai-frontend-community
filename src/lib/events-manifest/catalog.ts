@@ -308,6 +308,37 @@ const ENTRIES: EventCatalogEntry[] = [
     description: 'User-defined event with free-form key/value properties.',
     schema: { required: {}, optional: {} },
   },
+  // CRM-316: purchase webhook capture, with the contact the CRM resolved — a
+  // journey trigger filters on product/amount, a segment asks "spent > Y".
+  {
+    eventName: 'purchase.approved',
+    category: 'purchase',
+    dtoType: 'track',
+    labelPt: 'Compra aprovada',
+    labelEn: 'Purchase approved',
+    description: 'A purchase was approved on a payment platform and captured as a lead in the CRM.',
+    schema: {
+      required: {
+        provider: f('string', 'Payment platform key (virtu, hotmart, kiwify, cakto)'),
+        purchase_id: f('string', 'Purchase/order id on the platform'),
+        pipeline_id: f('uuid'),
+        pipeline_item_id: f('uuid', 'Card that holds the purchase'),
+        source: f('string'),
+      },
+      optional: {
+        product: f('string'),
+        amount: f('number', 'Currency major unit (e.g. 197.5 reais), never cents'),
+        currency: f('string'),
+        platform_event: f('string', 'Event name as the platform sent it'),
+        outcome: f('string', 'created | already_in_pipeline'),
+        new_contact: f('boolean', 'Whether the purchase created the contact'),
+        contact_id: f('uuid'),
+        pipeline_name: f('string'),
+        pipeline_stage_id: f('uuid'),
+        pipeline_stage_name: f('string'),
+      },
+    },
+  },
 ];
 
 export const EVENT_CATEGORIES: readonly EventCategory[] = [
@@ -315,6 +346,7 @@ export const EVENT_CATEGORIES: readonly EventCategory[] = [
   'conversation',
   'message',
   'campaign',
+  'purchase',
   'custom',
 ] as const;
 

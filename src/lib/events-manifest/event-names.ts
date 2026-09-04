@@ -20,6 +20,7 @@ export const EVENT_NAMES = [
   'campaign.message.sent',
   'campaign.message.opened',
   'campaign.message.clicked',
+  'purchase.approved',
   'custom',
 ] as const;
 

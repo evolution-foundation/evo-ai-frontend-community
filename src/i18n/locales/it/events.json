@@ -11,6 +11,7 @@
     "conversation": "Eventi di conversazione",
     "message": "Eventi di messaggio",
     "campaign": "Eventi di campagna",
+    "purchase": "Eventi di acquisto",
     "custom": "Personalizzato"
   },
   "propertiesForm": {

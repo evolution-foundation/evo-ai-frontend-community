@@ -6,6 +6,7 @@ import {
   MessageCircle,
   MessageSquare,
   Megaphone,
+  ShoppingCart,
   Sparkles,
   type LucideIcon,
 } from 'lucide-react';
@@ -62,6 +63,7 @@ const CATEGORY_ICON: Record<EventCategory, LucideIcon> = {
   conversation: MessageCircle,
   message: MessageSquare,
   campaign: Megaphone,
+  purchase: ShoppingCart,
   custom: Sparkles,
 };
 
