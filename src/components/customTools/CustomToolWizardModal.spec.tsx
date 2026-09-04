@@ -76,7 +76,7 @@ describe('CustomToolWizardModal', () => {
       headers: { Authorization: 'Bearer abc' },
       path_params: {},
       query_params: {},
-      body_params: { name: 'value' },
+      body_params: { name: { type: 'string', required: true, description: 'a name' } },
       error_handling: { timeout: 45 },
       values: { __modes_meta__: { input: 'doc image', output: 'json data' } },
       tags: ['api'],
@@ -117,7 +117,11 @@ describe('CustomToolWizardModal', () => {
     // Other fields preserved
     expect(payload.name).toBe('My Existing Tool');
     expect(payload.headers).toEqual({ Authorization: 'Bearer abc' });
-    expect(payload.body_params).toEqual({ name: 'value' });
+    // Body params round-trip as {type, required, description} schema objects,
+    // the shape the tool-execution engine reads (a plain string crashed it).
+    expect(payload.body_params).toEqual({
+      name: { type: 'string', required: true, description: 'a name' },
+    });
   });
 
   it('renders without a Dialog wrapper when embedded=true', () => {
@@ -178,6 +182,36 @@ describe('CustomToolWizardModal', () => {
     fireEvent.click(screen.getByRole('button', { name: 'wizard.actions.continue' })); // 5 -> 6
     fireEvent.click(screen.getByRole('button', { name: 'wizard.actions.save' }));
   };
+
+  it('repairs a legacy string body_param into a schema on edit (custom-tool body-params fix)', () => {
+    const legacyTool = {
+      id: 'tool-legacy',
+      name: 'Legacy Tool',
+      description: '',
+      method: 'POST',
+      endpoint: 'https://api.example.com/legacy',
+      headers: {},
+      path_params: {},
+      query_params: {},
+      // The old broken shape: a plain string per body param.
+      body_params: { queryText: '{query}' },
+      error_handling: {},
+      values: {},
+      tags: [],
+      examples: [],
+      input_modes: [],
+      output_modes: [],
+      created_at: '2026-06-24T00:00:00Z',
+      updated_at: '2026-06-24T00:00:00Z',
+    };
+    const onSubmit = vi.fn();
+    render(<CustomToolWizardModal {...makeProps({ tool: legacyTool, onSubmit })} />);
+    walkToFinishAndSave();
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].body_params).toEqual({
+      queryText: { type: 'string', required: true, description: '' },
+    });
+  });
 
   it('preserves error_handling extras across an unmodified edit cycle (AC6)', () => {
     const editTool = {

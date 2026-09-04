@@ -4,7 +4,11 @@ import { X, Code2, LayoutList } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { CustomTool, CustomToolFormData } from '@/types/ai';
 import WizardProgress from '@/pages/Customer/Agents/Agent/wizard/WizardProgress';
-import { AdvancedJsonEditor, TestRequestButton } from '@/components/ai_agents/shared';
+import {
+  AdvancedJsonEditor,
+  TestRequestButton,
+  normalizeBodyParams,
+} from '@/components/ai_agents/shared';
 import type { CustomToolTestPayload } from '@/services/agents/customToolsService';
 import {
   Step1_Identity,
@@ -118,7 +122,7 @@ const toolToWizardData = (tool: CustomTool): WizardData => {
     headers: (tool.headers as Record<string, unknown>) || {},
     query_params: (tool.query_params as Record<string, unknown>) || {},
     path_params: (tool.path_params as Record<string, unknown>) || {},
-    body_params: (tool.body_params as Record<string, unknown>) || {},
+    body_params: normalizeBodyParams(tool.body_params as Record<string, unknown>),
     values: cleanValues,
     error_handling: promoted,
     error_handling_extras: extras,

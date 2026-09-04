@@ -91,7 +91,17 @@
         "placeholder": "{\"key\": \"value\", \"nested\": {\"field\": \"data\"}}",
         "keyPlaceholder": "Nome do campo",
         "valuePlaceholder": "Valor",
-        "hint": "Campos do corpo enviados em requisições POST/PUT/PATCH"
+        "hint": "Campos do corpo enviados em requisições POST/PUT/PATCH",
+        "descriptionPlaceholder": "Para que serve este campo",
+        "required": "Obrigatório",
+        "addParam": "Adicionar parâmetro",
+        "types": {
+          "string": "Texto",
+          "number": "Número",
+          "boolean": "Booleano",
+          "object": "Objeto",
+          "array": "Lista"
+        }
       },
       "queryParams": {
         "label": "Parâmetros de Query (JSON)",

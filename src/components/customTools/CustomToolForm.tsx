@@ -23,10 +23,12 @@ import {
 import { CustomTool, CustomToolFormData } from '@/types/ai';
 import {
   KeyValueEditor,
+  BodyParamsEditor,
   AdvancedJsonCollapse,
   TestRequestButton,
   CredentialRefsEditor,
   mergeRetiredHeaders,
+  normalizeBodyParams,
   splitAuthHeaders,
   useVaultMigrationState,
 } from '@/components/ai_agents/shared';
@@ -112,7 +114,7 @@ export default function CustomToolForm({
         credential_refs: tool.credential_refs || {},
         path_params: (tool.path_params as Record<string, unknown>) || {},
         query_params: (tool.query_params as Record<string, unknown>) || {},
-        body_params: (tool.body_params as Record<string, unknown>) || {},
+        body_params: normalizeBodyParams(tool.body_params as Record<string, unknown>),
         error_handling: (tool.error_handling as Record<string, unknown>) || {},
         values: (tool.values as Record<string, unknown>) || {},
         tags: tool.tags || [],
@@ -453,7 +455,7 @@ export default function CustomToolForm({
           />
 
           {showBodyParams && (
-            <KeyValueEditor
+            <BodyParamsEditor
               id="body_params"
               label={t('form.fields.bodyParams.labelKv')}
               value={formData.body_params}
@@ -461,7 +463,7 @@ export default function CustomToolForm({
               disabled={loading}
               hint={t('form.fields.bodyParams.hint')}
               keyPlaceholder={t('form.fields.bodyParams.keyPlaceholder')}
-              valuePlaceholder={t('form.fields.bodyParams.valuePlaceholder')}
+              descriptionPlaceholder={t('form.fields.bodyParams.descriptionPlaceholder')}
             />
           )}
 
