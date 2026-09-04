@@ -308,9 +308,8 @@ const ENTRIES: EventCatalogEntry[] = [
     description: 'User-defined event with free-form key/value properties.',
     schema: { required: {}, optional: {} },
   },
-  // CRM-316: an approved purchase captured by the purchase webhook, emitted by
-  // the CRM with the contact resolved. First-class so a journey trigger can
-  // filter on product/amount and a segment can ask "bought X" / "spent > Y".
+  // CRM-316: purchase webhook capture, with the contact the CRM resolved — a
+  // journey trigger filters on product/amount, a segment asks "spent > Y".
   {
     eventName: 'purchase.approved',
     category: 'purchase',

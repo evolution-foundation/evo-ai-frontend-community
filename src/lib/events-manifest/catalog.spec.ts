@@ -51,16 +51,18 @@ describe('frontend events manifest mirror', () => {
     expect(grouped.custom).toHaveLength(1);
   });
 
-  // EVO-1263 (AC1): the manifest is a strict replica of the backend SSOT
-  // EvoFlow::EVENT_NAMES (lib/events/evo_flow_event_names.rb), which has 22
-  // canonical names including `custom`. This count is the single guard keeping
-  // the frontend manifest faithful to the backend enum — keep it strict.
-  // 22 + purchase.approved (CRM-316). pipeline.stage_changed exists on the
-  // backend but is deliberately absent here: the journey builder exposes it
-  // as its own trigger type, not as a pickable event.
-  it('mirrors the backend EvoFlow::EVENT_NAMES count exactly (23)', () => {
-    expect(EVENT_NAMES).toHaveLength(23);
-    expect(getEventCatalog()).toHaveLength(23);
+  // EVO-1263 (AC1): this count is the single guard keeping the manifest faithful
+  // to the backend SSOT EvoFlow::EVENT_NAMES (lib/events/evo_flow_event_names.rb)
+  // — keep it strict, and bump BACKEND_COUNT with the backend, not with this file.
+  const BACKEND_COUNT = 24;
+  // Exposed by the journey builder as its own trigger type, never picked as an event.
+  const NOT_MIRRORED = ['pipeline.stage_changed'];
+
+  it('mirrors the backend EvoFlow::EVENT_NAMES, minus what is deliberately absent', () => {
+    const expected = BACKEND_COUNT - NOT_MIRRORED.length;
+    expect(EVENT_NAMES).toHaveLength(expected);
+    expect(getEventCatalog()).toHaveLength(expected);
+    NOT_MIRRORED.forEach((name) => expect(EVENT_NAMES).not.toContain(name));
   });
 
   // EVO-1263 (AC1): the 5 conversation events that previously existed only in
