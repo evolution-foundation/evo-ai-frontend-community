@@ -1,7 +1,7 @@
 import { Button } from '@evoapi/design-system';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { KeyValueEditor } from '@/components/ai_agents/shared';
+import { BodyParamsEditor, KeyValueEditor } from '@/components/ai_agents/shared';
 
 export interface Step3Data {
   method: string;
@@ -48,14 +48,14 @@ export default function Step3_Parameters({ data, onChange, onNext, onBack }: Ste
           />
 
           {showBody && (
-            <KeyValueEditor
+            <BodyParamsEditor
               id="body_params"
               label={t('form.fields.bodyParams.labelKv')}
               value={data.body_params}
               onChange={next => onChange({ ...data, body_params: next })}
               hint={t('form.fields.bodyParams.hint')}
               keyPlaceholder={t('form.fields.bodyParams.keyPlaceholder')}
-              valuePlaceholder={t('form.fields.bodyParams.valuePlaceholder')}
+              descriptionPlaceholder={t('form.fields.bodyParams.descriptionPlaceholder')}
             />
           )}
         </div>

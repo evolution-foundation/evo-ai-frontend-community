@@ -1,5 +1,8 @@
 export { default as KeyValueEditor } from './KeyValueEditor';
 export type { KeyValueEditorProps } from './KeyValueEditor';
+export { default as BodyParamsEditor } from './BodyParamsEditor';
+export type { BodyParamsEditorProps } from './BodyParamsEditor';
+export { coerceBodyParam, normalizeBodyParams } from './bodyParamSchema';
 export { default as AdvancedJsonCollapse } from './AdvancedJsonCollapse';
 export type { AdvancedJsonCollapseProps } from './AdvancedJsonCollapse';
 export { default as AdvancedJsonEditor } from './AdvancedJsonEditor';
