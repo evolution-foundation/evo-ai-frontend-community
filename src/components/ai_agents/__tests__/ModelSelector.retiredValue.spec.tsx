@@ -34,6 +34,18 @@ const openAiKey: ApiKey = {
   updated_at: '2026-01-01T00:00:00Z',
 };
 
+// The other shape of the same row: the provider answers that it does not list at all, so
+// the fallback is the pinned list — which CRM-462 left empty for this axis.
+const UNPINNED = 'perplexity/sonar-pro';
+
+const perplexityKey: ApiKey = {
+  id: 'key-2',
+  name: 'Perplexity',
+  provider: 'perplexity',
+  created_at: '2026-01-01T00:00:00Z',
+  updated_at: '2026-01-01T00:00:00Z',
+};
+
 beforeEach(() => {
   listApiKeyModels.mockReset();
 });
@@ -80,6 +92,24 @@ describe('a value the list no longer offers', () => {
     // assertions below would pass on a picker that never came up.
     expect(await screen.findByText('Custom Model')).toBeInTheDocument();
     expect(screen.getByDisplayValue(RETIRED)).toBeInTheDocument();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('keeps it when the provider lists nothing and the pinned list is empty', async () => {
+    const onChange = vi.fn();
+    listApiKeyModels.mockResolvedValue({ provider: 'perplexity', supported: false, models: [] });
+
+    render(
+      <ModelSelector
+        value={UNPINNED}
+        onChange={onChange}
+        apiKeys={[perplexityKey]}
+        apiKeyId={perplexityKey.id}
+      />,
+    );
+
+    await waitFor(() => expect(listApiKeyModels).toHaveBeenCalledWith(perplexityKey.id));
+    await waitFor(() => expect(screen.getByDisplayValue(UNPINNED)).toBeInTheDocument());
     expect(onChange).not.toHaveBeenCalled();
   });
 

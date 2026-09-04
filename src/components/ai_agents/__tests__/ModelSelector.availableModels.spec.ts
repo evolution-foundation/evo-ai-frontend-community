@@ -4,7 +4,7 @@ import { availableModels } from '@/components/ai_agents/ModelSelector';
 // Shape checks, not freshness. Freshness needs the provider's own answer: the LISTS_LIVE
 // axes get it the moment a key is chosen, and the bedrock axis gets it from the AWS model
 // cards in ModelSelector.bedrockLifecycle.spec.ts. Vertex and Perplexity have neither, so
-// their pins are still only as fresh as the last person who went looking.
+// any pin they carry is only as fresh as the last person who went looking.
 
 const PROVIDER_PREFIX: Record<string, string> = {
   openai: 'openai/',
@@ -72,6 +72,11 @@ describe('availableModels', () => {
   it('claims an exemption only for a provider that is really empty', () => {
     const stale = availableModels.filter(m => PINNED_ON_PURPOSE_EMPTY.includes(m.provider));
     expect(stale).toEqual([]);
+  });
+
+  it('exempts only a provider the picker knows, so a dropped one leaves no dead rule', () => {
+    const unknown = PINNED_ON_PURPOSE_EMPTY.filter(p => !PROVIDER_PREFIX[p]);
+    expect(unknown).toEqual([]);
   });
 
   it('pins at least one entry per provider, so a failed listing is never an empty picker', () => {
