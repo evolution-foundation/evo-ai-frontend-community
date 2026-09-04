@@ -328,7 +328,7 @@ const ENTRIES: EventCatalogEntry[] = [
       },
       optional: {
         product: f('string'),
-        amount: f('number'),
+        amount: f('number', 'Currency major unit (e.g. 197.5 reais), never cents'),
         currency: f('string'),
         platform_event: f('string', 'Event name as the platform sent it'),
         outcome: f('string', 'created | already_in_pipeline'),

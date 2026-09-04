@@ -115,6 +115,9 @@ jobs:
       #     keeps rendering a value the list no longer offers. None of the three
       #     was gated before — the shape guard shipped with CRM-442 and never ran
       #     here. The bedrock lifecycle spec stays out: it reaches the network.
+      #   - events manifest catalog (CRM-316): the mirror of the evo-flow event
+      #     catalog the journey trigger and segment editor read. A drift (name,
+      #     category, field type) only shows as an event the UI cannot pick.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -180,7 +183,8 @@ jobs:
             src/contexts/chat/ConversationsContext.spec.tsx \
             src/components/ai_agents/__tests__/ModelSelector.availableModels.spec.ts \
             src/components/ai_agents/__tests__/ModelSelector.retirement.spec.ts \
-            src/components/ai_agents/__tests__/ModelSelector.retiredValue.spec.tsx
+            src/components/ai_agents/__tests__/ModelSelector.retiredValue.spec.tsx \
+            src/lib/events-manifest/catalog.spec.ts
 
   # Lint gate scoped to the files the PR touched.
   eslint:
