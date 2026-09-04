@@ -114,6 +114,166 @@ describe('StageAutomationRules — inactivity duration (CRM-467)', () => {
     ).toBeTruthy();
   });
 
+  // CRM-471. jsdom has no layout, so containment is pinned as a class contract:
+  // the block+truncate pair on every select, and the placeholder Radix shows only for ''.
+  describe('containment (CRM-471)', () => {
+    const BLOCK_VALUE = '[&>span[data-slot=select-value]]:block';
+    const LONG = 'Etiqueta com um nome comprido demais para caber';
+    const fixture = {
+      currentPipelineId: 'p1',
+      currentStageId: 's1',
+      stages: [
+        { id: 's1', name: 'Entrada', color: '#111' },
+        { id: 's2', name: 'Qualificado', color: '#222' },
+      ],
+      agents: [{ id: 'a1', name: 'Agente' }],
+      labels: [{ id: 'l1', title: LONG, color: '#f00' }],
+      pipelines: [{ id: 'p2', name: 'Outro funil', stages: [{ id: 's9', name: 'Etapa', color: '#333' }] }],
+      agentBots: [{ id: 'b1', name: 'Bot' }],
+      messageTemplates: [{ id: 't1', name: 'Boas-vindas', language: 'pt_BR', status: 'APPROVED' }],
+    } as unknown as Omit<Parameters<typeof StageAutomationRules>[0], 'rules' | 'onChange'>;
+
+    const rule = (over: Partial<StageAutomationRule>, id: string): StageAutomationRule => ({
+      ...inactivityRule(60),
+      id,
+      ...over,
+    });
+
+    // One rule per user-data select: label (trigger + action), stage, agent,
+    // template, bot, pipeline+stage — every branch of the row renders.
+    const allRules = () => [
+      rule({ trigger: 'label_added', trigger_value: LONG, action: 'move_to_stage', action_value: 's2' }, 'r1'),
+      rule({ trigger: 'conversation_status_changed', trigger_value: 'open', action: 'assign_agent', action_value: 'a1' }, 'r2'),
+      rule({ trigger: 'custom_attribute_updated', trigger_value: '', action: 'apply_label', action_value: LONG }, 'r3'),
+      rule({ action: 'send_template', action_value: 't1' }, 'r4'),
+      rule({ trigger: 'label_added', trigger_value: '', action: 'send_ai_message', action_value: 'b1' }, 'r5'),
+      rule({ action: 'move_to_pipeline', action_value: 'p2:s9' }, 'r6'),
+    ];
+
+    const renderAll = (rules = allRules()) =>
+      render(<StageAutomationRules rules={rules} onChange={vi.fn()} {...fixture} />);
+
+    const hasClass = (el: Element, cls: string) => el.className.split(/\s+/).includes(cls);
+
+    const comboboxWithText = (text: string) => {
+      const found = screen.getAllByRole('combobox').find(c => (c.textContent ?? '').includes(text));
+      if (!found) throw new Error(`no combobox showing "${text}"`);
+      return found;
+    };
+
+    it('renders every select of the six rows with the block+ellipsis contract (exact count)', () => {
+      renderAll();
+      const all = screen.getAllByRole('combobox');
+      // r1 4 · r2 4 · r3 3 · r4 5 · r5 4 · r6 6
+      expect(all).toHaveLength(26);
+      all.forEach(c => {
+        expect(c.className).toContain(BLOCK_VALUE);
+        expect(c.className).toContain('[&>span]:truncate');
+      });
+    });
+
+    it('applies the contract to each user-data select, selected value showing', () => {
+      renderAll();
+      ['Qualificado', 'Agente', 'Boas-vindas', 'Bot', 'Outro funil', 'Etapa'].forEach(text => {
+        const c = comboboxWithText(text);
+        expect(c.className).toContain(BLOCK_VALUE);
+        expect(c.className).toMatch(/min-w-0/);
+      });
+      expect(screen.getAllByRole('combobox').filter(c => (c.textContent ?? '').includes(LONG))).toHaveLength(2);
+    });
+
+    it('keeps the fixed trigger/action selects at 200px, non-shrinking', () => {
+      renderAll();
+      const fixed = screen.getAllByRole('combobox').filter(c => hasClass(c, 'w-[200px]'));
+      // 6 action selects + 5 trigger selects (custom_attribute_updated sizes to its label)
+      expect(fixed).toHaveLength(11);
+      fixed.forEach(c => expect(c.className).toContain('shrink-0'));
+    });
+
+    it('sizes a trigger with no value field (custom_attribute_updated) to its own label', () => {
+      renderAll();
+      const c = comboboxWithText('stageAutomation.triggers.custom_attribute_updated');
+      // w-fit past a 200px floor: the label fits whole without the select
+      // swallowing the row the other triggers share with a value field.
+      expect(hasClass(c, 'w-fit')).toBe(true);
+      expect(hasClass(c, 'min-w-[200px]')).toBe(true);
+      expect(hasClass(c, 'max-w-full')).toBe(true);
+      expect(hasClass(c, 'w-[200px]')).toBe(false);
+    });
+
+    it('renders dotted options with their own ellipsis span so the name never hard-clips', () => {
+      renderAll();
+      const labelTrigger = comboboxWithText(LONG);
+      const name = labelTrigger.querySelector('span.truncate');
+      expect(name?.textContent).toBe(LONG);
+      expect(name?.parentElement?.className).toContain('min-w-0');
+    });
+
+    it('lets the inactivity and move_to_pipeline pairs shrink below content (min-w-0 grids)', () => {
+      renderAll();
+      // r4 inactivity · r6 inactivity + move_to_pipeline
+      const grids = document.querySelectorAll('.grid.grid-cols-2');
+      expect(grids).toHaveLength(3);
+      grids.forEach(g => expect(g.className).toContain('min-w-0'));
+    });
+
+    // A value the option list no longer has must show the placeholder, not an
+    // empty box — Radix only renders one for value === ''.
+    describe('stale values fall back to the placeholder', () => {
+      const placeholderOf = (c: HTMLElement) => c.hasAttribute('data-placeholder');
+
+      it('template that no longer exists', () => {
+        renderAll([rule({ action: 'send_template', action_value: 'gone' }, 'r')]);
+        const c = comboboxWithText('stageAutomation.selectTemplate');
+        expect(placeholderOf(c)).toBe(true);
+      });
+
+      it('move_to_pipeline pointing at the current pipeline', () => {
+        renderAll([rule({ action: 'move_to_pipeline', action_value: 'p1:s1' }, 'r')]);
+        expect(placeholderOf(comboboxWithText('stageAutomation.selectPipeline'))).toBe(true);
+        expect(placeholderOf(comboboxWithText('stageAutomation.selectStage'))).toBe(true);
+      });
+
+      it('agent and label that were deleted', () => {
+        renderAll([
+          rule({ action: 'assign_agent', action_value: 'a-gone' }, 'ra'),
+          rule({ action: 'apply_label', action_value: 'Inexistente' }, 'rl'),
+        ]);
+        expect(placeholderOf(comboboxWithText('stageAutomation.selectAgent'))).toBe(true);
+        expect(placeholderOf(comboboxWithText('stageAutomation.selectLabel'))).toBe(true);
+      });
+
+      it('a trigger label that was deleted asks to pick one — not "any label"', () => {
+        renderAll([rule({ trigger: 'label_added', trigger_value: 'Apagada', action: 'move_to_stage', action_value: 's2' }, 'r')]);
+        const c = comboboxWithText('stageAutomation.selectLabel');
+        expect(placeholderOf(c)).toBe(true);
+        expect(c.textContent).not.toContain('stageAutomation.anyLabel');
+      });
+
+      it('a status outside the list asks to pick one — not "any value"', () => {
+        renderAll([rule({ trigger: 'conversation_status_changed', trigger_value: 'aguardando_retorno' }, 'r')]);
+        const c = comboboxWithText('stageAutomation.selectStatus');
+        expect(placeholderOf(c)).toBe(true);
+        expect(c.textContent).not.toContain('stageAutomation.anyValue');
+      });
+
+      it('"any value" (empty status trigger) is the selected sentinel, not a placeholder', () => {
+        renderAll([rule({ trigger: 'conversation_status_changed', trigger_value: '' }, 'r')]);
+        expect(placeholderOf(comboboxWithText('stageAutomation.anyValue'))).toBe(false);
+      });
+
+      it('"any label" (empty trigger value) is the selected sentinel, not a placeholder', () => {
+        renderAll([rule({ trigger: 'label_added', trigger_value: '', action: 'move_to_stage', action_value: 's2' }, 'r')]);
+        expect(placeholderOf(comboboxWithText('stageAutomation.anyLabel'))).toBe(false);
+      });
+
+      it('a known value still renders as selected (no false placeholder)', () => {
+        renderAll([rule({ action: 'send_template', action_value: 't1' }, 'r')]);
+        expect(placeholderOf(comboboxWithText('Boas-vindas'))).toBe(false);
+      });
+    });
+  });
+
   it('emits the picked minutes and keeps the base on change', async () => {
     const user = userEvent.setup();
     const onChange = renderRules(1440);

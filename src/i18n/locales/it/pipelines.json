@@ -360,6 +360,7 @@
     "anyValue": "Qualsiasi",
     "labelNamePlaceholder": "Nome dell'etichetta...",
     "selectStage": "Seleziona fase...",
+    "selectStatus": "Seleziona stato...",
     "selectAgent": "Seleziona agente...",
     "selectPipeline": "Seleziona pipeline...",
     "selectLabel": "Seleziona etichetta...",

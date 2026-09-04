@@ -128,6 +128,7 @@ jobs:
       - name: Vitest
         run: |
           npx vitest run --reporter=basic \
+            src/components/pipelines/StageAutomationRules.spec.tsx \
             src/contexts/PermissionsContext.spec.tsx \
             src/services/permissions.spec.ts \
             src/guards/RouterGuard.spec.tsx \
