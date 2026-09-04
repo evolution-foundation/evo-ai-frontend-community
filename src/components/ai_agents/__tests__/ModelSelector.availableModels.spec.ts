@@ -69,6 +69,11 @@ describe('availableModels', () => {
     expect(oversized).toEqual([]);
   });
 
+  it('claims an exemption only for a provider that is really empty', () => {
+    const stale = availableModels.filter(m => PINNED_ON_PURPOSE_EMPTY.includes(m.provider));
+    expect(stale).toEqual([]);
+  });
+
   it('pins at least one entry per provider, so a failed listing is never an empty picker', () => {
     const empty = Object.keys(PROVIDER_PREFIX).filter(
       p => !PINNED_ON_PURPOSE_EMPTY.includes(p) && !availableModels.some(m => m.provider === p),
