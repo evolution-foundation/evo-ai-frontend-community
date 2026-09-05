@@ -79,7 +79,7 @@ export function WaitTimeConfig({ data, onChange, journeyId }: WaitTimeConfigProp
             console.log('Variable inserted in wait duration:', variable);
           }}
         />
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+        <p className="text-xs text-muted-foreground">
           {t('panels.waitComponents.time.variableHint')}
         </p>
       </div>

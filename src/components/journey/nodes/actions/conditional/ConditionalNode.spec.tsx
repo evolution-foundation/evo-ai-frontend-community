@@ -47,9 +47,9 @@ describe('ConditionalNode — handle connectivity (EVO-1902)', () => {
 
     const handle = container.querySelector('[data-handleid="path-p1"]');
     expect(handle).not.toBeNull();
-    // connected => green; disconnected => neutral-400 (gray).
+    // connected => green; disconnected => muted-foreground (gray).
     expect(handle!.className).toContain('!bg-green-500');
-    expect(handle!.className).not.toContain('!bg-neutral-400');
+    expect(handle!.className).not.toContain('!bg-muted-foreground');
   });
 
   it('renders the branch handle as disconnected (gray) when no edge matches', () => {
@@ -57,7 +57,7 @@ describe('ConditionalNode — handle connectivity (EVO-1902)', () => {
 
     const handle = container.querySelector('[data-handleid="path-p1"]');
     expect(handle).not.toBeNull();
-    expect(handle!.className).toContain('!bg-neutral-400');
+    expect(handle!.className).toContain('!bg-muted-foreground');
     expect(handle!.className).not.toContain('!bg-green-500');
   });
 
@@ -70,6 +70,6 @@ describe('ConditionalNode — handle connectivity (EVO-1902)', () => {
 
     const handle = container.querySelector('[data-handleid="path-p1"]');
     expect(handle).not.toBeNull();
-    expect(handle!.className).toContain('!bg-neutral-400');
+    expect(handle!.className).toContain('!bg-muted-foreground');
   });
 });

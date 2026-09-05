@@ -108,8 +108,8 @@ const colorStyles = {
     handle: "bg-yellow-500 border-yellow-400"
   },
   slate: {
-    border: "border-slate-300 hover:border-slate-500 dark:border-slate-700/70 dark:hover:border-slate-500",
-    gradient: "bg-gradient-to-br from-slate-50 to-card dark:from-slate-800/40 dark:to-neutral-900/90",
+    border: "border-border hover:border-muted-foreground/60",
+    gradient: "bg-gradient-to-br from-muted to-card",
     glow: "shadow-[0_0_15px_rgba(100,116,139,0.15)]",
     selectedGlow: "shadow-[0_0_25px_rgba(100,116,139,0.3)]",
     handle: "bg-yellow-500 border-yellow-400"
@@ -261,7 +261,7 @@ export function BaseFlowNode({
           <Handle
             className={cn(
               "!w-3 !h-3 !rounded-full !border-2 transition-all duration-300 hover:scale-110",
-              isSourceHandleConnected ? "!bg-yellow-500 !border-yellow-400" : "!bg-neutral-400 !border-neutral-500",
+              isSourceHandleConnected ? "!bg-yellow-500 !border-yellow-400" : "!bg-muted-foreground !border-muted-foreground",
               selected && isSourceHandleConnected && "!bg-yellow-400 !border-yellow-300"
             )}
             style={{

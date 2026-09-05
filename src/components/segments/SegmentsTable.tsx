@@ -85,8 +85,8 @@ export default function SegmentsTable({
       sortable: true,
       render: (segment: Segment) => (
         <div>
-          <div className="font-medium text-gray-200">{segment.name}</div>
-          <div className="text-sm text-gray-500">ID: {segment.id}</div>
+          <div className="font-medium text-foreground">{segment.name}</div>
+          <div className="text-sm text-muted-foreground">ID: {segment.id}</div>
         </div>
       ),
     },
@@ -104,7 +104,7 @@ export default function SegmentsTable({
       key: 'lastComputedAt',
       label: t('table.columns.lastComputed'),
       render: (segment: Segment) => (
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-muted-foreground">
           {segment.lastComputedAt ? formatDate(segment.lastComputedAt) : t('table.never')}
         </div>
       ),
@@ -114,7 +114,7 @@ export default function SegmentsTable({
       label: t('table.columns.createdAt'),
       sortable: true,
       render: (segment: Segment) => (
-        <div className="text-sm text-gray-500">{formatDate(segment.created_at)}</div>
+        <div className="text-sm text-muted-foreground">{formatDate(segment.created_at)}</div>
       ),
     },
   ];

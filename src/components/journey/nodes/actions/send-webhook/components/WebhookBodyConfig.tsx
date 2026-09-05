@@ -163,9 +163,9 @@ export function WebhookBodyConfig({ data, onChange, journeyId }: WebhookBodyConf
 
   if (!shouldShowBody()) {
     return (
-      <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-950/20 border border-gray-200 dark:border-gray-800/30 text-center">
-        <Code className="h-6 w-6 text-gray-400 mx-auto mb-2" />
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+      <div className="p-4 rounded-lg bg-muted border border-border text-center">
+        <Code className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+        <p className="text-sm text-muted-foreground">
           {t('panels.sendWebhook.body.methodNotSupported', { method: data.method || 'GET' })}
         </p>
       </div>
@@ -302,7 +302,7 @@ export function WebhookBodyConfig({ data, onChange, journeyId }: WebhookBodyConf
                 journeyId={journeyId}
               />
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
+            <div className="text-xs text-muted-foreground">
               {t('panels.sendWebhook.body.useVariables')}
             </div>
           </div>
