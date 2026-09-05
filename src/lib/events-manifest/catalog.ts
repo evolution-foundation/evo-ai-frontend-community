@@ -1,7 +1,48 @@
 import { EVENT_NAMES } from './event-names';
 import type { EventCatalogEntry, EventCategory, FieldSpec } from './types';
 
-const f = (type: FieldSpec['type'], description?: string): FieldSpec => ({ type, description });
+const f = (
+  type: FieldSpec['type'],
+  description?: string,
+  options?: readonly string[],
+): FieldSpec => (options ? { type, description, options } : { type, description });
+
+// CRM-519: values the CRM actually emits (Inbox#channel_type class names,
+// Message enums, Contact#contact_type, ContactEventsListener#created_via).
+const CHANNEL_TYPES = [
+  'Channel::Whatsapp',
+  'Channel::Instagram',
+  'Channel::FacebookPage',
+  'Channel::Telegram',
+  'Channel::Email',
+  'Channel::Sms',
+  'Channel::TwilioSms',
+  'Channel::WebWidget',
+  'Channel::Api',
+  'Channel::Line',
+  'Channel::Sendgrid',
+  'Channel::TwitterProfile',
+] as const;
+const MESSAGE_TYPES = ['incoming', 'outgoing'] as const;
+const MESSAGE_STATUSES = ['sent', 'delivered', 'read', 'failed'] as const;
+const CONTENT_TYPES = [
+  'text',
+  'input_text',
+  'input_textarea',
+  'input_email',
+  'input_select',
+  'cards',
+  'form',
+  'article',
+  'incoming_email',
+  'input_csat',
+  'integrations',
+  'sticker',
+] as const;
+const CONTACT_TYPES = ['visitor', 'lead', 'customer'] as const;
+const CREATED_VIA = ['agent', 'system'] as const;
+// Webhooks::Purchases::LeadCaptureService outcomes that emit purchase.approved.
+const PURCHASE_OUTCOMES = ['created', 'already_in_pipeline'] as const;
 
 const contactIdentityOptionalFields: Record<string, FieldSpec> = {
   name: f('string'),
@@ -12,25 +53,25 @@ const contactIdentityOptionalFields: Record<string, FieldSpec> = {
   last_name: f('string'),
   location: f('string'),
   country_code: f('string'),
-  contact_type: f('string'),
+  contact_type: f('string', undefined, CONTACT_TYPES),
   blocked: f('boolean'),
   created_at: f('date'),
   updated_at: f('date'),
   customAttributes: f('object'),
   additionalAttributes: f('object'),
-  created_via: f('string'),
+  created_via: f('string', undefined, CREATED_VIA),
 };
 
 const messageCommonRequired: Record<string, FieldSpec> = {
   message_id: f('uuid', 'Message UUID'),
-  channel_type: f('string', 'Channel identifier (e.g., Channel::Whatsapp)'),
+  channel_type: f('string', 'Channel identifier (e.g., Channel::Whatsapp)', CHANNEL_TYPES),
   conversation_id: f('uuid'),
   source: f('string'),
 };
 
 const messageCommonOptional: Record<string, FieldSpec> = {
-  message_type: f('string', 'incoming | outgoing'),
-  content_type: f('string'),
+  message_type: f('string', 'incoming | outgoing', MESSAGE_TYPES),
+  content_type: f('string', undefined, CONTENT_TYPES),
   content: f('string', 'Truncated to 2000 chars; absent when EVO_FLOW_MESSAGE_CONTENT_DISABLED=true'),
 };
 
@@ -113,7 +154,7 @@ const ENTRIES: EventCatalogEntry[] = [
     description: 'A new conversation was opened with a contact.',
     schema: {
       required: { conversation_id: f('uuid'), inbox_id: f('uuid'), source: f('string') },
-      optional: { inbox_name: f('string'), channel_type: f('string') },
+      optional: { inbox_name: f('string'), channel_type: f('string', 'Channel identifier (e.g., Channel::Whatsapp)', CHANNEL_TYPES) },
     },
   },
   {
@@ -127,7 +168,7 @@ const ENTRIES: EventCatalogEntry[] = [
       required: { conversation_id: f('uuid'), inbox_id: f('uuid'), source: f('string') },
       optional: {
         inbox_name: f('string'),
-        channel_type: f('string'),
+        channel_type: f('string', 'Channel identifier (e.g., Channel::Whatsapp)', CHANNEL_TYPES),
         resolved_by_id: f('string'),
         resolved_by_type: f('string'),
         resolution_time_seconds: f('number'),
@@ -202,8 +243,8 @@ const ENTRIES: EventCatalogEntry[] = [
     labelEn: 'Message created',
     description: 'A new incoming or outgoing message was recorded.',
     schema: {
-      required: { ...messageCommonRequired, message_type: f('string') },
-      optional: { content_type: f('string'), content: f('string') },
+      required: { ...messageCommonRequired, message_type: f('string', 'incoming | outgoing', MESSAGE_TYPES) },
+      optional: { content_type: f('string', undefined, CONTENT_TYPES), content: f('string') },
     },
   },
   {
@@ -215,7 +256,7 @@ const ENTRIES: EventCatalogEntry[] = [
     description: 'A message reached the recipient device.',
     schema: {
       required: messageCommonRequired,
-      optional: { ...messageCommonOptional, previous_status: f('string'), status: f('string'), external_error: f('string') },
+      optional: { ...messageCommonOptional, previous_status: f('string', undefined, MESSAGE_STATUSES), status: f('string', undefined, MESSAGE_STATUSES), external_error: f('string') },
     },
   },
   {
@@ -227,7 +268,7 @@ const ENTRIES: EventCatalogEntry[] = [
     description: 'A message was read by the recipient.',
     schema: {
       required: messageCommonRequired,
-      optional: { ...messageCommonOptional, previous_status: f('string'), status: f('string'), external_error: f('string') },
+      optional: { ...messageCommonOptional, previous_status: f('string', undefined, MESSAGE_STATUSES), status: f('string', undefined, MESSAGE_STATUSES), external_error: f('string') },
     },
   },
   {
@@ -239,7 +280,7 @@ const ENTRIES: EventCatalogEntry[] = [
     description: 'A message delivery attempt failed.',
     schema: {
       required: messageCommonRequired,
-      optional: { ...messageCommonOptional, previous_status: f('string'), status: f('string'), external_error: f('string') },
+      optional: { ...messageCommonOptional, previous_status: f('string', undefined, MESSAGE_STATUSES), status: f('string', undefined, MESSAGE_STATUSES), external_error: f('string') },
     },
   },
   {
@@ -272,7 +313,7 @@ const ENTRIES: EventCatalogEntry[] = [
     description: 'A campaign sent a message to a contact.',
     schema: {
       required: { campaign_id: f('uuid'), message_id: f('uuid'), source: f('string') },
-      optional: { contact_id: f('uuid'), channel_type: f('string'), template_id: f('uuid') },
+      optional: { contact_id: f('uuid'), channel_type: f('string', 'Channel identifier (e.g., Channel::Whatsapp)', CHANNEL_TYPES), template_id: f('uuid') },
     },
   },
   {
@@ -330,7 +371,7 @@ const ENTRIES: EventCatalogEntry[] = [
         amount: f('number', 'Currency major unit (e.g. 197.5 reais), never cents'),
         currency: f('string'),
         platform_event: f('string', 'Event name as the platform sent it'),
-        outcome: f('string', 'created | already_in_pipeline'),
+        outcome: f('string', 'created | already_in_pipeline', PURCHASE_OUTCOMES),
         new_contact: f('boolean', 'Whether the purchase created the contact'),
         contact_id: f('uuid'),
         pipeline_name: f('string'),

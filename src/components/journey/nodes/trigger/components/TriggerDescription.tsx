@@ -32,8 +32,6 @@ export function TriggerDescription({ triggerType }: TriggerDescriptionProps) {
   };
 
   return (
-    <div className="p-4 rounded-lg bg-sidebar-accent/20 border border-sidebar-border/50">
-      <p className="text-sm text-sidebar-foreground/70">{getDescription()}</p>
-    </div>
+    <p className="text-sm text-sidebar-foreground/70">{getDescription()}</p>
   );
 }

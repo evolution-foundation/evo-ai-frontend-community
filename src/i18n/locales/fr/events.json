@@ -15,17 +15,364 @@
     "custom": "Personnalisé"
   },
   "propertiesForm": {
-    "requiredSectionLabel": "Champs obligatoires",
-    "optionalSectionLabel": "Champs optionnels",
-    "addFieldLabel": "+ Ajouter un champ",
+    "optionalSectionLabel": "Filtres (optionnels)",
+    "addFieldLabel": "+ Ajouter un filtre",
     "customSectionLabel": "Propriétés personnalisées",
     "customKeyPlaceholder": "clé",
     "customValuePlaceholder": "valeur",
     "customAddLabel": "+ Ajouter une propriété",
-    "requiredFieldMissing": "Champ obligatoire",
-    "customWarning": "Les événements personnalisés ne sont pas validés par schéma",
     "customRemoveAriaLabel": "Supprimer la propriété",
-    "addFieldSearchPlaceholder": "Rechercher un champ...",
-    "noResultsLabel": "Aucun champ trouvé"
+    "addFieldSearchPlaceholder": "Rechercher un filtre...",
+    "noResultsLabel": "Aucun filtre trouvé",
+    "filtersHint": "Sans filtres, le parcours démarre à chaque occurrence de l'événement.",
+    "removeFilterAriaLabel": "Supprimer le filtre",
+    "lookupLoading": "Chargement...",
+    "lookupPlaceholder": "Sélectionnez",
+    "lookupEmpty": "Aucune option disponible",
+    "lookupError": "Impossible de charger la liste",
+    "lookupNeedsPipeline": "Choisissez d'abord le pipeline",
+    "pairConflict": "Le canal choisi est de type {{actual}}. Ce filtre ne pourra jamais correspondre ; supprimez l'un des deux."
+  },
+  "fields": {
+    "inbox_id": {
+      "label": "Canal",
+      "help": "Ne se déclenche que si l'événement vient de ce canal."
+    },
+    "inbox_name": {
+      "label": "Nom du canal"
+    },
+    "channel_type": {
+      "label": "Type de canal",
+      "help": "Ne se déclenche que pour les conversations de ce type de canal.",
+      "options": {
+        "Channel__Whatsapp": "WhatsApp",
+        "Channel__Instagram": "Instagram",
+        "Channel__FacebookPage": "Facebook Messenger",
+        "Channel__Telegram": "Telegram",
+        "Channel__Email": "E-mail",
+        "Channel__Sms": "SMS",
+        "Channel__TwilioSms": "SMS (Twilio)",
+        "Channel__WebWidget": "Chat du site",
+        "Channel__Api": "API",
+        "Channel__Line": "LINE",
+        "Channel__Sendgrid": "E-mail (SendGrid)",
+        "Channel__TwitterProfile": "X (Twitter)"
+      }
+    },
+    "pipeline_id": {
+      "label": "Pipeline",
+      "help": "Ne se déclenche que pour les cartes de ce pipeline."
+    },
+    "pipeline_name": {
+      "label": "Nom du pipeline"
+    },
+    "pipeline_stage_id": {
+      "label": "Étape du pipeline",
+      "help": "Choisissez d'abord le pipeline pour voir ses étapes."
+    },
+    "pipeline_stage_name": {
+      "label": "Nom de l'étape"
+    },
+    "is_lead": {
+      "label": "Est un lead",
+      "help": "Coché : uniquement les cartes entrées comme lead."
+    },
+    "assigned_by_id": {
+      "label": "Attribué par",
+      "help": "Ne se déclenche que si cet agent a fait l'attribution."
+    },
+    "labelId": {
+      "label": "Étiquette",
+      "help": "Ne se déclenche que pour cette étiquette."
+    },
+    "labelName": {
+      "label": "Nom de l'étiquette"
+    },
+    "attributeName": {
+      "label": "Nom de l'attribut",
+      "help": "La clé de l'attribut personnalisé modifié."
+    },
+    "attributeValue": {
+      "label": "Nouvelle valeur de l'attribut",
+      "help": "La valeur que l'attribut a maintenant."
+    },
+    "oldValue": {
+      "label": "Valeur précédente",
+      "help": "La valeur que l'attribut avait avant."
+    },
+    "changeType": {
+      "label": "Type de changement",
+      "help": "Comment l'attribut a changé (créé, modifié ou supprimé)."
+    },
+    "activity_type": {
+      "label": "Type d'activité",
+      "help": "Le type d'activité enregistrée sur la conversation."
+    },
+    "content": {
+      "label": "Contenu",
+      "help": "Texte exact du message ou de l'activité."
+    },
+    "content_type": {
+      "label": "Type de contenu",
+      "help": "Ex. : text, image, audio, file.",
+      "options": {
+        "text": "Texte",
+        "input_text": "Champ texte",
+        "input_textarea": "Zone de texte",
+        "input_email": "Champ e-mail",
+        "input_select": "Sélection",
+        "cards": "Cartes",
+        "form": "Formulaire",
+        "article": "Article",
+        "incoming_email": "E-mail reçu",
+        "input_csat": "Enquête CSAT",
+        "integrations": "Intégration",
+        "sticker": "Sticker"
+      }
+    },
+    "message_type": {
+      "label": "Sens du message",
+      "help": "incoming (du contact) ou outgoing (de l'équipe).",
+      "options": {
+        "incoming": "Reçue (du contact)",
+        "outgoing": "Envoyée (de l'équipe)"
+      }
+    },
+    "status": {
+      "label": "Statut de livraison",
+      "options": {
+        "sent": "Envoyée",
+        "delivered": "Livrée",
+        "read": "Lue",
+        "failed": "Échouée"
+      },
+      "help": "Le statut actuel du message."
+    },
+    "previous_status": {
+      "label": "Statut précédent",
+      "options": {
+        "sent": "Envoyée",
+        "delivered": "Livrée",
+        "read": "Lue",
+        "failed": "Échouée"
+      },
+      "help": "Le statut du message avant ce changement."
+    },
+    "external_error": {
+      "label": "Erreur du fournisseur",
+      "help": "Le message d'erreur renvoyé par le fournisseur."
+    },
+    "reason": {
+      "label": "Motif",
+      "help": "Le motif donné pour la suppression ou le transfert."
+    },
+    "resolved_by_id": {
+      "label": "Résolu par (id)"
+    },
+    "resolved_by_type": {
+      "label": "Résolu par (type)",
+      "help": "user, bot ou system."
+    },
+    "resolution_time_seconds": {
+      "label": "Temps de résolution (s)",
+      "help": "Secondes entre l'ouverture et la résolution."
+    },
+    "response_time_seconds": {
+      "label": "Temps de réponse (s)",
+      "help": "Secondes avant la première réponse de l'équipe."
+    },
+    "reply_time_seconds": {
+      "label": "Délai de réponse (s)",
+      "help": "Secondes avant la réponse de l'équipe."
+    },
+    "replied_at": {
+      "label": "Répondu le"
+    },
+    "measured_at": {
+      "label": "Mesuré le"
+    },
+    "handoff_at": {
+      "label": "Transféré le"
+    },
+    "resolved_at": {
+      "label": "Résolu le"
+    },
+    "deleted_at": {
+      "label": "Supprimé le"
+    },
+    "opened_at": {
+      "label": "Ouvert le"
+    },
+    "clicked_at": {
+      "label": "Cliqué le"
+    },
+    "campaign_id": {
+      "label": "Campagne (id)",
+      "help": "Ne se déclenche que pour les messages de cette campagne."
+    },
+    "template_id": {
+      "label": "Modèle (id)",
+      "help": "Ne se déclenche que pour les messages envoyés avec ce modèle."
+    },
+    "url": {
+      "label": "URL cliquée",
+      "help": "L'URL exacte sur laquelle le contact a cliqué."
+    },
+    "provider": {
+      "label": "Plateforme de paiement",
+      "help": "virtu, hotmart, kiwify ou cakto."
+    },
+    "product": {
+      "label": "Produit",
+      "help": "Le nom du produit tel que la plateforme l'envoie."
+    },
+    "amount": {
+      "label": "Montant",
+      "help": "Dans l'unité de la devise (ex. : 197.5), jamais en centimes."
+    },
+    "currency": {
+      "label": "Devise",
+      "help": "Ex. : BRL, USD."
+    },
+    "platform_event": {
+      "label": "Événement de la plateforme",
+      "help": "Le nom de l'événement tel qu'envoyé par la plateforme."
+    },
+    "outcome": {
+      "label": "Résultat dans le CRM",
+      "help": "created (nouvelle carte) ou already_in_pipeline (achat ajouté à la carte ouverte).",
+      "options": {
+        "created": "Nouvelle carte",
+        "already_in_pipeline": "Achat ajouté à la carte ouverte"
+      }
+    },
+    "new_contact": {
+      "label": "Nouveau contact",
+      "help": "Coché : l'achat a créé le contact."
+    },
+    "name": {
+      "label": "Nom",
+      "help": "Le nom exact du contact."
+    },
+    "email": {
+      "label": "E-mail",
+      "help": "L'e-mail exact du contact."
+    },
+    "phone_number": {
+      "label": "Téléphone",
+      "help": "Format E.164, ex. : +5511999999999."
+    },
+    "identifier": {
+      "label": "Identifiant externe",
+      "help": "L'identifiant du contact dans un autre système."
+    },
+    "middle_name": {
+      "label": "Deuxième prénom",
+      "help": "Le deuxième prénom exact du contact."
+    },
+    "last_name": {
+      "label": "Nom de famille",
+      "help": "Le nom de famille exact du contact."
+    },
+    "location": {
+      "label": "Localisation",
+      "help": "La localisation enregistrée sur le contact."
+    },
+    "country_code": {
+      "label": "Code pays",
+      "help": "Ex. : BR, US."
+    },
+    "contact_type": {
+      "label": "Type de contact",
+      "options": {
+        "visitor": "Visiteur",
+        "lead": "Lead",
+        "customer": "Client"
+      },
+      "help": "Visiteur, lead ou client, tel que classé dans le CRM."
+    },
+    "blocked": {
+      "label": "Bloqué",
+      "help": "Coché : uniquement les contacts bloqués."
+    },
+    "created_via": {
+      "label": "Créé par",
+      "options": {
+        "agent": "Agent",
+        "system": "Système"
+      },
+      "help": "Si le contact a été créé par un agent ou par le système (canal, import, webhook)."
+    }
+  },
+  "events": {
+    "contact_created": {
+      "description": "Un nouveau contact a été créé dans le CRM."
+    },
+    "contact_updated": {
+      "description": "Les données d'un contact ont été modifiées."
+    },
+    "contact_deleted": {
+      "description": "Un contact a été supprimé."
+    },
+    "contact_label_added": {
+      "description": "Une étiquette a été appliquée à un contact."
+    },
+    "contact_label_removed": {
+      "description": "Une étiquette a été retirée d'un contact."
+    },
+    "contact_custom_attribute_changed": {
+      "description": "Un attribut personnalisé du contact a changé de valeur."
+    },
+    "conversation_created": {
+      "description": "Une nouvelle conversation a été ouverte sur un canal."
+    },
+    "conversation_resolved": {
+      "description": "Une conversation a été marquée comme résolue."
+    },
+    "conversation_activity": {
+      "description": "Une activité a été enregistrée sur une conversation (note, attribution, changement de statut)."
+    },
+    "conversation_first_reply": {
+      "description": "L'équipe a répondu pour la première fois sur une conversation."
+    },
+    "conversation_reply_time": {
+      "description": "Le délai de réponse d'une conversation a été mesuré."
+    },
+    "conversation_bot_handoff": {
+      "description": "Le bot a transféré la conversation à l'équipe."
+    },
+    "conversation_bot_resolved": {
+      "description": "Le bot a résolu la conversation sans l'équipe."
+    },
+    "message_created": {
+      "description": "Un message a été envoyé ou reçu sur une conversation."
+    },
+    "message_delivered": {
+      "description": "Un message envoyé a été livré au contact."
+    },
+    "message_read": {
+      "description": "Le contact a lu un message envoyé."
+    },
+    "message_failed": {
+      "description": "L'envoi d'un message a échoué chez le fournisseur."
+    },
+    "campaign_triggered": {
+      "description": "Un contact est entré dans un pipeline comme carte (par lead, campagne ou attribution)."
+    },
+    "campaign_message_sent": {
+      "description": "Un message de campagne a été envoyé à un contact."
+    },
+    "campaign_message_opened": {
+      "description": "Le contact a ouvert un message de campagne."
+    },
+    "campaign_message_clicked": {
+      "description": "Le contact a cliqué sur un lien d'un message de campagne."
+    },
+    "custom": {
+      "description": "Un événement que vous définissez, avec des propriétés libres."
+    },
+    "purchase_approved": {
+      "description": "Un achat a été approuvé sur une plateforme de paiement et capturé comme lead dans le CRM."
+    }
   }
 }
