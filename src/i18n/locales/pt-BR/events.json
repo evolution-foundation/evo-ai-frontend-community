@@ -43,7 +43,7 @@
     },
     "channel_type": {
       "label": "Tipo de canal",
-      "help": "Ex.: whatsapp, instagram, email.",
+      "help": "Só dispara para conversas deste tipo de canal.",
       "options": {
         "Channel__Whatsapp": "WhatsApp",
         "Channel__Instagram": "Instagram",
@@ -78,7 +78,7 @@
       "help": "Marcado: só cards que entraram como lead."
     },
     "assigned_by_id": {
-      "label": "Atribuído por (id do usuário)",
+      "label": "Atribuído por",
       "help": "Só dispara quando este agente fez a atribuição."
     },
     "labelId": {
@@ -240,7 +240,11 @@
     },
     "outcome": {
       "label": "Resultado no CRM",
-      "help": "created (card novo) ou already_in_pipeline (compra anexada ao card aberto)."
+      "help": "created (card novo) ou already_in_pipeline (compra anexada ao card aberto).",
+      "options": {
+        "created": "Card novo",
+        "already_in_pipeline": "Compra anexada ao card aberto"
+      }
     },
     "new_contact": {
       "label": "Contato novo",
@@ -366,6 +370,9 @@
     },
     "custom": {
       "description": "Evento definido por você, com propriedades livres."
+    },
+    "purchase_approved": {
+      "description": "Uma compra foi aprovada numa plataforma de pagamento e virou lead no CRM."
     }
   }
 }

@@ -30,8 +30,9 @@ export interface EventBasicConfigProps {
 
 /**
  * Básico half of the event trigger config (EVO-1276): the event selector, the
- * custom-event free-text input, the schema-driven <EventPropertiesForm>, the
- * preserve/clear switch dialog, and required-field validity reporting. Extracted
+ * custom-event free-text input, the schema-driven <EventPropertiesForm> (optional
+ * filters), the event-switch notice with Undo, and validity reporting (an event
+ * chosen; custom needs its name). Extracted
  * verbatim from EventConfiguration so it can be consumed directly by the Básico
  * tab without duplicating the stateful selector across tab subtrees.
  */
@@ -175,94 +176,91 @@ export function EventBasicConfig({
   };
 
   return (
-    <>
-      <div className="space-y-4">
-        <Label className="text-sidebar-foreground font-medium">
-          {t('triggerComponents.event.configuration')}
+    <div className="space-y-4">
+      <Label className="text-sidebar-foreground font-medium">
+        {t('triggerComponents.event.configuration')}
+      </Label>
+
+      {/* Nome do evento */}
+      <div className="space-y-2">
+        <Label htmlFor="event-trigger-name" className="text-sm font-medium">
+          {t('triggerComponents.event.eventName')}
         </Label>
-
-        {/* Nome do evento */}
-        <div className="space-y-2">
-          <Label htmlFor="event-trigger-name" className="text-sm font-medium">
-            {t('triggerComponents.event.eventName')}
-          </Label>
-          <EventSelector
-            id="event-trigger-name"
-            value={selectorValue || undefined}
-            onChange={handleSelectorChange}
-            className="bg-sidebar border-sidebar-border text-sidebar-foreground"
-          />
-          {selectorValue === '' && (
-            <p className="text-xs text-destructive">{t('triggerComponents.event.selectEventRequired')}</p>
-          )}
-          {canonicalDescription && (
-            <p className="text-xs text-muted-foreground">{canonicalDescription}</p>
-          )}
-          {isCustomMode && (
-            <div className="space-y-2 pt-1">
-              <Label htmlFor="custom-event-name" className="text-sm font-medium">
-                {t('triggerComponents.event.customEventNameLabel')}
-              </Label>
-              <VariableInput
-                id="custom-event-name"
-                value={customName}
-                onChange={e => handleCustomNameChange(e.target.value)}
-                placeholder={t('triggerComponents.event.customEventNamePlaceholder')}
-                className="bg-sidebar border-sidebar-border text-sidebar-foreground"
-                journeyId={journeyId}
-              />
-              {customName.trim() === '' && (
-                <p className="text-xs text-destructive">
-                  {t('triggerComponents.event.customEventNameRequired')}
-                </p>
-              )}
-              <p className="text-xs text-amber-700 dark:text-amber-300">
-                {t('triggerComponents.event.customEventWarning')}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Propriedades do evento */}
-        <div className="space-y-3">
-          {/* The custom editor carries its own title; one heading is enough. */}
-          {!isCustomMode && (
-            <Label
-              id="event-trigger-properties-label"
-              className="text-sidebar-foreground font-medium text-sm"
-            >
-              {t('triggerComponents.event.eventProperties')}
+        <EventSelector
+          id="event-trigger-name"
+          value={selectorValue || undefined}
+          onChange={handleSelectorChange}
+          className="bg-sidebar border-sidebar-border text-sidebar-foreground"
+        />
+        {selectorValue === '' && (
+          <p className="text-xs text-destructive">{t('triggerComponents.event.selectEventRequired')}</p>
+        )}
+        {canonicalDescription && (
+          <p className="text-xs text-muted-foreground">{canonicalDescription}</p>
+        )}
+        {isCustomMode && (
+          <div className="space-y-2 pt-1">
+            <Label htmlFor="custom-event-name" className="text-sm font-medium">
+              {t('triggerComponents.event.customEventNameLabel')}
             </Label>
-          )}
-          {dropped && (
-            <div
-              role="status"
-              className="flex items-center justify-between gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-foreground"
-            >
-              <span>
-                {t('triggerComponents.event.eventSwitch.dropped', {
-                  count: dropped.count,
-                  event: eventLabel(dropped.toEventName),
-                })}
-              </span>
-              <Button type="button" variant="ghost" size="sm" className="h-7" onClick={handleUndoSwitch}>
-                {t('triggerComponents.event.eventSwitch.undo')}
-              </Button>
-            </div>
-          )}
-          <div
-            role={isCustomMode ? undefined : 'group'}
-            aria-labelledby={isCustomMode ? undefined : 'event-trigger-properties-label'}
-          >
-            <EventPropertiesForm
-              eventName={formEventName}
-              value={record}
-              onChange={handlePropertiesRecordChange}
+            <VariableInput
+              id="custom-event-name"
+              value={customName}
+              onChange={e => handleCustomNameChange(e.target.value)}
+              placeholder={t('triggerComponents.event.customEventNamePlaceholder')}
+              className="bg-sidebar border-sidebar-border text-sidebar-foreground"
+              journeyId={journeyId}
             />
+            {customName.trim() === '' && (
+              <p className="text-xs text-destructive">
+                {t('triggerComponents.event.customEventNameRequired')}
+              </p>
+            )}
+            <p className="text-xs text-amber-700 dark:text-amber-300">
+              {t('triggerComponents.event.customEventWarning')}
+            </p>
           </div>
-        </div>
+        )}
       </div>
 
-    </>
+      {/* Propriedades do evento */}
+      <div className="space-y-3">
+        {/* The custom editor carries its own title; one heading is enough. */}
+        {!isCustomMode && (
+          <Label
+            id="event-trigger-properties-label"
+            className="text-sidebar-foreground font-medium text-sm"
+          >
+            {t('triggerComponents.event.eventProperties')}
+          </Label>
+        )}
+        {dropped && (
+          <div
+            role="status"
+            className="flex items-center justify-between gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-foreground"
+          >
+            <span>
+              {t('triggerComponents.event.eventSwitch.dropped', {
+                count: dropped.count,
+                event: eventLabel(dropped.toEventName),
+              })}
+            </span>
+            <Button type="button" variant="ghost" size="sm" className="h-7" onClick={handleUndoSwitch}>
+              {t('triggerComponents.event.eventSwitch.undo')}
+            </Button>
+          </div>
+        )}
+        <div
+          role={isCustomMode ? undefined : 'group'}
+          aria-labelledby={isCustomMode ? undefined : 'event-trigger-properties-label'}
+        >
+          <EventPropertiesForm
+            eventName={formEventName}
+            value={record}
+            onChange={handlePropertiesRecordChange}
+          />
+        </div>
+      </div>
+    </div>
   );
 }

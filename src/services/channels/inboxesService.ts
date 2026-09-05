@@ -34,8 +34,8 @@ const appendFormDataValue = (formData: FormData, key: string, value: unknown): v
 // Inbox service aligned with Evolution API
 // Only endpoints needed for the Channels page are implemented initially.
 const InboxesService = {
-  async list(): Promise<InboxesResponse> {
-    const response = await api.get('/inboxes');
+  async list(params?: { page?: number; per_page?: number }): Promise<InboxesResponse> {
+    const response = await api.get('/inboxes', { params });
     return extractResponse<Inbox>(response) as InboxesResponse;
   },
 

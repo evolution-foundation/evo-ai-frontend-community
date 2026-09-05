@@ -41,6 +41,8 @@ const CONTENT_TYPES = [
 ] as const;
 const CONTACT_TYPES = ['visitor', 'lead', 'customer'] as const;
 const CREATED_VIA = ['agent', 'system'] as const;
+// Webhooks::Purchases::LeadCaptureService outcomes that emit purchase.approved.
+const PURCHASE_OUTCOMES = ['created', 'already_in_pipeline'] as const;
 
 const contactIdentityOptionalFields: Record<string, FieldSpec> = {
   name: f('string'),
@@ -369,7 +371,7 @@ const ENTRIES: EventCatalogEntry[] = [
         amount: f('number', 'Currency major unit (e.g. 197.5 reais), never cents'),
         currency: f('string'),
         platform_event: f('string', 'Event name as the platform sent it'),
-        outcome: f('string', 'created | already_in_pipeline'),
+        outcome: f('string', 'created | already_in_pipeline', PURCHASE_OUTCOMES),
         new_contact: f('boolean', 'Whether the purchase created the contact'),
         contact_id: f('uuid'),
         pipeline_name: f('string'),

@@ -251,6 +251,51 @@ describe('EventPropertiesForm', () => {
     });
   });
 
+  // The event the card names as blocked: purchase.approved (CRM-316).
+  describe('purchase.approved', () => {
+    it('offers the purchase fields as filters and hides the ids of the purchase and the card', async () => {
+      const user = userEvent.setup();
+      render(<Harness eventName="purchase.approved" />);
+
+      expect(screen.queryByText('*')).toBeNull();
+      const listbox = await openPicker(user);
+      for (const key of ['provider', 'product', 'amount', 'currency', 'outcome', 'new_contact', 'pipeline_id']) {
+        expect(within(listbox).getByText(key)).toBeTruthy();
+      }
+      for (const key of ['purchase_id', 'pipeline_item_id', 'contact_id', 'source']) {
+        expect(within(listbox).queryByText(key)).toBeNull();
+      }
+    });
+
+    it('keeps product as free text (the platform string, not a CRM product) and amount numeric', async () => {
+      const user = userEvent.setup();
+      render(<Harness eventName="purchase.approved" />);
+
+      let listbox = await openPicker(user);
+      await user.click(within(listbox).getByText('product'));
+      await user.type(screen.getByRole('textbox', { name: /product/ }), 'Curso X');
+      expect(persisted().product).toBe('Curso X');
+
+      listbox = await openPicker(user);
+      await user.click(within(listbox).getByText('amount'));
+      await user.type(screen.getByRole('spinbutton', { name: /amount/ }), '197.5');
+      expect(persisted().amount).toBe(197.5);
+    });
+
+    it('renders outcome as a select with the two CRM outcomes', async () => {
+      const user = userEvent.setup();
+      render(<Harness eventName="purchase.approved" />);
+
+      const listbox = await openPicker(user);
+      await user.click(within(listbox).getByText('outcome'));
+      await user.click(screen.getByTestId('enum-outcome'));
+      const options = await screen.findByRole('listbox');
+      expect(within(options).getByText(e('fields.outcome.options.created'))).toBeTruthy();
+      await user.click(within(options).getByText(e('fields.outcome.options.already_in_pipeline')));
+      expect(persisted().outcome).toBe('already_in_pipeline');
+    });
+  });
+
   it('still shows a persisted legacy id filter so it can be removed', async () => {
     const user = userEvent.setup();
     render(<Harness eventName="message.delivered" initial={{ message_id: 'm-1' }} />);

@@ -43,7 +43,7 @@
     },
     "channel_type": {
       "label": "Channel type",
-      "help": "E.g. whatsapp, instagram, email.",
+      "help": "Only fires for conversations on this channel type.",
       "options": {
         "Channel__Whatsapp": "WhatsApp",
         "Channel__Instagram": "Instagram",
@@ -78,7 +78,7 @@
       "help": "Checked: only cards that entered as a lead."
     },
     "assigned_by_id": {
-      "label": "Assigned by (user id)",
+      "label": "Assigned by",
       "help": "Only fires when this agent made the assignment."
     },
     "labelId": {
@@ -240,7 +240,11 @@
     },
     "outcome": {
       "label": "CRM outcome",
-      "help": "created (new card) or already_in_pipeline (purchase appended to the open card)."
+      "help": "created (new card) or already_in_pipeline (purchase appended to the open card).",
+      "options": {
+        "created": "New card",
+        "already_in_pipeline": "Purchase appended to the open card"
+      }
     },
     "new_contact": {
       "label": "New contact",
@@ -366,6 +370,9 @@
     },
     "custom": {
       "description": "An event you define, with free-form properties."
+    },
+    "purchase_approved": {
+      "description": "A purchase was approved on a payment platform and captured as a lead in the CRM."
     }
   }
 }
