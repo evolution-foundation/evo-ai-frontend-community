@@ -25,10 +25,7 @@ interface EventConfigurationProps {
  * halves into one stacked block. The Flow Builder's tabbed layout (EVO-1276)
  * consumes <EventBasicConfig> / <EventAdvancedConfig> directly per tab; the
  * Campaigns/Wait (section="all") contexts keep using THIS composed component, so
- * its public signature and visible layout are preserved. (One source-order nuance:
- * the event-switch <AlertDialog> now lives inside EventBasicConfig, so it sits
- * before the Avançado block in the tree — but it is portal-rendered and inert
- * when closed, so the rendered output is unchanged.) The Avançado half renders
+ * its public signature and visible layout are preserved. The Avançado half renders
  * only when `onVariableMappingsChange` is provided.
  */
 export function EventConfiguration({

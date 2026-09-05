@@ -58,7 +58,7 @@ export function EventPropertiesForm({
   const { t } = useLanguage('events');
   const entry = getEvent(eventName);
   // Per-field copy lives in events.json `fields.<key>`; a key without a
-  // translation falls back to the raw name (and the catalog description).
+  // translation shows its raw name.
   const fieldLabel = (field: string) => t(`fields.${field}.label`, { defaultValue: field });
   // No English fallback to the catalog description: a missing help line is a
   // gap the filterFields contract spec reports, not something to paper over.
@@ -345,6 +345,9 @@ interface LookupOption {
   type?: string;
 }
 
+// The list endpoints page at 20 by default; ask for the same page sizes the
+// contact/chat filters use so an account with dozens of labels or agents
+// still sees all of them (pipelines and stages do not paginate).
 async function loadLookup(kind: LookupKind, pipelineId?: string): Promise<LookupOption[]> {
   switch (kind) {
     case 'pipeline': {
@@ -357,15 +360,15 @@ async function loadLookup(kind: LookupKind, pipelineId?: string): Promise<Lookup
       return (response?.data || []).map((s) => ({ id: String(s.id), name: s.name }));
     }
     case 'inbox': {
-      const response = await InboxesService.list();
+      const response = await InboxesService.list({ per_page: 200 });
       return (response?.data || []).map((i) => ({ id: String(i.id), name: i.name, type: i.channel_type }));
     }
     case 'label': {
-      const response = await labelsService.getLabels();
+      const response = await labelsService.getLabels({ per_page: 200 });
       return (response?.data || []).map((l) => ({ id: String(l.id), name: l.title }));
     }
     case 'agent': {
-      const response = await UsersService.getUsers();
+      const response = await UsersService.getUsers({ per_page: 100 });
       return (response?.data || []).map((u) => ({ id: String(u.id), name: u.name }));
     }
     case 'campaign': {
@@ -373,7 +376,7 @@ async function loadLookup(kind: LookupKind, pipelineId?: string): Promise<Lookup
       return (response?.data || []).map((c) => ({ id: String(c.id), name: c.title || c.name }));
     }
     case 'template': {
-      const response = await GlobalMessageTemplateService.getTemplates();
+      const response = await GlobalMessageTemplateService.getTemplates({ per_page: -1 });
       return (response?.data || []).map((m) => ({ id: String(m.id), name: m.name }));
     }
   }
@@ -431,7 +434,7 @@ function LookupSelect({
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- onOptionsLoaded is a stable lifter
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onOptionsLoaded is an inline arrow; depending on it would refetch on every parent render
   }, [kind, pipelineId, needsPipeline]);
 
   const shown = filterType ? options.filter((o) => !o.type || o.type === filterType) : options;

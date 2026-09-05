@@ -10,7 +10,7 @@ import '@/i18n/config';
 // flow is already locked in by EventConfiguration.spec.tsx (which now drives this
 // component through composition); these tests assert the pieces this subcomponent
 // directly owns: validity reporting, the optional-filter picker, and the
-// preserve/clear switch dialog.
+// event-switch notice with Undo.
 
 interface HarnessProps {
   initialEventName?: string;
