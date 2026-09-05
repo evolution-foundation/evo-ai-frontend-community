@@ -47,8 +47,8 @@ export function WebhookBodyBuilder({ fields, bodyType, onChange, journeyId }: We
 
       <div className="space-y-3" role="group" aria-labelledby="send-webhook-body-fields-label">
         {fields.length === 0 ? (
-          <div className="p-4 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 dark:bg-gray-950/20 text-center">
-            <p className="text-sm text-gray-500">{t('panels.sendWebhook.body.builder.noFields')}</p>
+          <div className="p-4 rounded-lg border-2 border-dashed border-border bg-muted text-center">
+            <p className="text-sm text-muted-foreground">{t('panels.sendWebhook.body.builder.noFields')}</p>
           </div>
         ) : (
           fields.map(field => (

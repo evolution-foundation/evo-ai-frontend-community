@@ -42,7 +42,7 @@ export default function TimeWindowSelector({
           type="button"
           onClick={() => onToggleShow(!show)}
           className={`w-4 h-4 rounded border ${
-            show ? 'bg-blue-500 border-blue-500' : 'border-gray-300'
+            show ? 'bg-blue-500 border-blue-500' : 'border-input'
           }`}
         />
       </div>

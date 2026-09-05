@@ -14,9 +14,9 @@ const statusConfig = {
     borderClassName: 'border-emerald-600 dark:border-[#26533D]',
   },
   inactive: {
-    bgClassName: 'bg-gray-500',
-    textClassName: 'text-white',
-    borderClassName: 'border-gray-500',
+    bgClassName: 'bg-muted',
+    textClassName: 'text-foreground',
+    borderClassName: 'border-border',
   },
   blocked: {
     bgClassName: 'bg-red-600 dark:bg-[#6A231D]',

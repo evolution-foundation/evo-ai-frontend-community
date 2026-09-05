@@ -75,7 +75,7 @@ export default function UserPropertyEditor({
             <SelectValue placeholder={t('userPropertyEditor.selectProperty')} />
           </SelectTrigger>
           <SelectContent>
-            <div className="font-medium p-2 text-sm text-gray-500 border-b">
+            <div className="font-medium p-2 text-sm text-muted-foreground border-b">
               {t('userPropertyEditor.categories.basicInfo')}
             </div>
             {userProperties.slice(0, 6).map((prop) => (
@@ -84,7 +84,7 @@ export default function UserPropertyEditor({
               </SelectItem>
             ))}
             
-            <div className="font-medium p-2 text-sm text-gray-500 border-b">
+            <div className="font-medium p-2 text-sm text-muted-foreground border-b">
               {t('userPropertyEditor.categories.metadata')}
             </div>
             {userProperties.slice(6).map((prop) => (

@@ -246,7 +246,7 @@ export function ContactConfiguration({
                           console.log('Variable inserted in contact field value:', variable);
                         }}
                       />
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-muted-foreground">
                         {t('triggerComponents.contact.useVariablesHint')}
                       </p>
                     </div>
@@ -312,7 +312,7 @@ export function ContactConfiguration({
                   onMappingsChange={onVariableMappingsChange}
                   paths={generateContactPaths()}
                   journeyId={journeyId}
-                  className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border"
+                  className="bg-background p-4 rounded-lg border"
                 />
               </div>
             </div>

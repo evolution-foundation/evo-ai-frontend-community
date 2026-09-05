@@ -261,7 +261,7 @@ export function WaitEventConfig({ data, onChange, journeyId }: WaitEventConfigPr
           </Label>
         </div>
 
-        <p className="text-xs text-gray-500 dark:text-gray-400 pl-6">
+        <p className="text-xs text-muted-foreground pl-6">
           {t('panels.waitComponents.event.fallbackDescription')}
         </p>
 

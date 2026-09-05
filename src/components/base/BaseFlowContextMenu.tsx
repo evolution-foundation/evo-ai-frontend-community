@@ -94,7 +94,7 @@ export function BaseFlowContextMenu({
         id: 'edit',
         label: t('base.flow.node.edit'),
         icon: Settings,
-        color: 'text-gray-400',
+        color: 'text-muted-foreground',
         onClick: editNode,
       });
     }

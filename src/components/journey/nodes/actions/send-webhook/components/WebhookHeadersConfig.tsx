@@ -91,9 +91,9 @@ export function WebhookHeadersConfig({ data, onChange, journeyId }: WebhookHeade
           : {})}
       >
         {headers.length === 0 ? (
-          <div className="p-4 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 dark:bg-gray-950/20 text-center">
-            <p className="text-sm text-gray-500">{t('panels.sendWebhook.headers.noHeadersConfigured')}</p>
-            <p className="text-xs text-gray-400 mt-1">
+          <div className="p-4 rounded-lg border-2 border-dashed border-border bg-muted text-center">
+            <p className="text-sm text-muted-foreground">{t('panels.sendWebhook.headers.noHeadersConfigured')}</p>
+            <p className="text-xs text-muted-foreground mt-1">
               {t('panels.sendWebhook.headers.headersOptional')}
             </p>
           </div>

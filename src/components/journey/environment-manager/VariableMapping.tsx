@@ -91,7 +91,7 @@ export function VariableMapping({
       <div className="flex items-center justify-between">
         <div>
           <Label className="text-sm font-medium">{t('environmentManager.title')}</Label>
-          <p className="text-xs text-gray-500 mt-1">{t('environmentManager.description')}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t('environmentManager.description')}</p>
         </div>
         <Button
           type="button"
@@ -139,8 +139,8 @@ export function VariableMapping({
       )}
 
       {mappings.length === 0 ? (
-        <div className="text-center py-8 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
-          <p className="text-sm text-gray-500">
+        <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
+          <p className="text-sm text-muted-foreground">
             {t('environmentManager.customVariables.empty.title')}
           </p>
           <Button
@@ -158,14 +158,14 @@ export function VariableMapping({
           {mappings.map(mapping => (
             <div
               key={mapping.id}
-              className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50"
+              className="p-3 border border-border rounded-lg bg-muted"
             >
               <div className="flex items-end gap-2">
                 {/* Caminho de origem */}
                 <div className="flex-1 space-y-1">
                   <Label
                     htmlFor={`variable-mapping-source-${mapping.id}`}
-                    className="text-xs text-gray-600 font-medium"
+                    className="text-xs text-muted-foreground font-medium"
                   >
                     {t('environmentManager.mapping.sourcePathLabel')}
                   </Label>
@@ -189,16 +189,16 @@ export function VariableMapping({
                     >
                       <SelectTrigger
                         id={`variable-mapping-source-${mapping.id}`}
-                        className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 h-8 w-full"
+                        className="bg-background border-input h-8 w-full"
                       >
                         <SelectValue placeholder={t('environmentManager.searchPlaceholder')} />
                       </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 max-h-[200px]">
+                      <SelectContent className="bg-background border-input max-h-[200px]">
                         {paths.map(path => (
                           <SelectItem
                             key={path}
                             value={path}
-                            className="text-gray-900 dark:text-gray-100"
+                            className="text-foreground"
                           >
                             <span className="font-mono text-xs">{path}</span>
                           </SelectItem>
@@ -219,7 +219,7 @@ export function VariableMapping({
                       placeholder={t('environmentManager.form.fields.name.placeholder')}
                       value={mapping.sourcePath || ''}
                       onChange={e => updateMapping(mapping.id, 'sourcePath', e.target.value)}
-                      className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 font-mono text-xs h-8"
+                      className="bg-background border-input font-mono text-xs h-8"
                     />
                   )}
                 </div>
@@ -229,7 +229,7 @@ export function VariableMapping({
                   <div className="flex-1 space-y-1">
                     <Label
                       htmlFor={`variable-mapping-custom-path-${mapping.id}`}
-                      className="text-xs text-gray-600 font-medium"
+                      className="text-xs text-muted-foreground font-medium"
                     >
                       {t('environmentManager.mapping.customPathLabel')}
                     </Label>
@@ -246,7 +246,7 @@ export function VariableMapping({
                           updateMapping(mapping.id, 'sourcePath', '');
                         }
                       }}
-                      className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 font-mono text-xs h-8"
+                      className="bg-background border-input font-mono text-xs h-8"
                       autoFocus
                     />
                   </div>
@@ -254,14 +254,14 @@ export function VariableMapping({
 
                 {/* Seta visual */}
                 <div className="pb-2">
-                  <ArrowRight className="w-4 h-4 text-gray-400" />
+                  <ArrowRight className="w-4 h-4 text-muted-foreground" />
                 </div>
 
                 {/* Variável destino */}
                 <div className="flex-1 space-y-1">
                   <Label
                     htmlFor={`variable-mapping-variable-${mapping.id}`}
-                    className="text-xs text-gray-600 font-medium"
+                    className="text-xs text-muted-foreground font-medium"
                   >
                     {t('environmentManager.mapping.variableLabel')}
                   </Label>
@@ -273,7 +273,7 @@ export function VariableMapping({
                     placeholder={t('environmentManager.searchPlaceholder')}
                     showCreateOption={true}
                     showSystemVariables={false}
-                    className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 h-8 text-xs w-full"
+                    className="bg-background border-input h-8 text-xs w-full"
                   />
                 </div>
 
@@ -281,7 +281,7 @@ export function VariableMapping({
                 <div className="w-24 space-y-1">
                   <Label
                     htmlFor={`variable-mapping-transform-${mapping.id}`}
-                    className="text-xs text-gray-600 font-medium"
+                    className="text-xs text-muted-foreground font-medium"
                   >
                     {t('environmentManager.mapping.transformLabel')}
                   </Label>
@@ -291,7 +291,7 @@ export function VariableMapping({
                   >
                     <SelectTrigger
                       id={`variable-mapping-transform-${mapping.id}`}
-                      className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 h-8 w-full"
+                      className="bg-background border-input h-8 w-full"
                     >
                       <SelectValue>
                         {mapping.transform && (
@@ -307,7 +307,7 @@ export function VariableMapping({
                         )}
                       </SelectValue>
                     </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600">
+                    <SelectContent className="bg-background border-input">
                       {TRANSFORM_OPTIONS.map(option => (
                         <SelectItem key={option.value} value={option.value} className="text-xs">
                           {option.value === 'none' ? 'None' : option.label}
@@ -337,7 +337,7 @@ export function VariableMapping({
 
       {/* Informação adicional */}
       {mappings.length > 0 && (
-        <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/30 p-3 rounded border border-dashed">
+        <div className="text-xs text-muted-foreground bg-muted p-3 rounded border border-dashed">
           <p>{t('environmentManager.footer.tip')}</p>
         </div>
       )}

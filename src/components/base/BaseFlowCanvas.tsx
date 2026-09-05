@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, useContext, useState, useRef } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -25,6 +25,7 @@ import './BaseFlow.css';
 import { Button } from '@evoapi/design-system';
 import { PanelRightOpen, PanelRightClose } from 'lucide-react';
 import { useDnD } from '@/contexts/DnDContext';
+import { DarkModeContext } from '@/contexts/ThemeContext';
 import { BaseFlowContextMenu } from './BaseFlowContextMenu';
 import { BaseFlowHelperLines } from './BaseFlowHelperLines';
 import BaseDefaultEdge from './BaseDefaultEdge';
@@ -168,6 +169,7 @@ export function BaseFlowCanvas({
   canvasClassName,
   style,
 }: BaseFlowCanvasProps) {
+  const colorMode = useContext(DarkModeContext)?.theme === 'dark' ? 'dark' : 'light';
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
   const { type, setPointerEvents, setType } = useDnD();
@@ -572,8 +574,10 @@ export function BaseFlowCanvas({
       ref={reactFlowWrapper}
       style={style}
     >
-      {/* colorMode="light" keeps the ReactFlow chrome light and stops RF from
-          injecting .dark into .react-flow, which would darken the cards. */}
+      {/* colorMode follows the app theme (CRM-520): a forced "light" left the
+          canvas chrome and the cards as a light island inside the dark page.
+          Read the context directly so a host without DarkModeProvider (tests,
+          previews) falls back to light instead of throwing. */}
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -594,7 +598,7 @@ export function BaseFlowCanvas({
         snapToGrid={snapToGrid}
         snapGrid={snapGrid}
         proOptions={proOptions}
-        colorMode="light"
+        colorMode={colorMode}
         deleteKeyCode={['Backspace', 'Delete']}
         multiSelectionKeyCode={['Meta', 'Ctrl']}
         panOnDrag={true}

@@ -72,7 +72,7 @@ export default function LabelConditionEditor({
           </SelectTrigger>
           <SelectContent>
             {availableLabels.length === 0 && !loadingLabels && (
-              <div className="p-2 text-sm text-gray-500">
+              <div className="p-2 text-sm text-muted-foreground">
                 {t('labelEditor.noLabels')}
               </div>
             )}

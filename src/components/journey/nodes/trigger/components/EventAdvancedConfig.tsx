@@ -46,7 +46,7 @@ export function EventAdvancedConfig({
             onMappingsChange={onVariableMappingsChange}
             paths={paths}
             journeyId={journeyId}
-            className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border"
+            className="bg-background p-4 rounded-lg border"
           />
         </div>
       </div>
