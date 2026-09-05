@@ -10,7 +10,7 @@ import { PluginRoutes, type PluginRoute as PluginRouteType } from '@/plugin-host
 
 import MainLayout from '@/components/layout/MainLayout';
 
-// Páginas públicas
+// PÃƒÂ¡ginas pÃƒÂºblicas
 import Auth from '@/pages/Auth';
 import EmailConfirmation from '@/components/auth/EmailConfirmation';
 import ResetPassword from '@/components/auth/ResetPassword';
@@ -28,8 +28,9 @@ import MicrosoftCallback from '@/pages/MicrosoftCallback';
 import SurveyResponse from '@/pages/Public/Survey/SurveyResponse';
 import PublicChatPage from '@/pages/Public/Chat/ChatPage';
 import FormPage from '@/pages/Public/Form/FormPage';
+import DigitalMenuPage from '@/pages/Public/Menu/DigitalMenuPage';
 
-// Páginas customer
+// PÃƒÂ¡ginas customer
 import Dashboard from '@/pages/Customer/Dashboard';
 import Agents from '@/pages/Customer/Agents';
 import AgentsIndexRedirect from '@/components/agents/AgentsIndexRedirect';
@@ -49,6 +50,7 @@ import AutomationForm from '../pages/Customer/Automation/AutomationForm';
 import Pipelines from '@/pages/Customer/Pipelines/Pipelines';
 import PipelineKanban from '@/pages/Customer/Pipelines/PipelineKanban';
 import PipelineFormPage from '@/pages/Customer/Pipelines/PipelineFormPage';
+import DefaultPipelineRedirect from '@/pages/Customer/Pipelines/DefaultPipelineRedirect';
 import { AccountSettings } from '@/pages/Customer/Settings/Account';
 import Teams from '@/pages/Customer/Settings/Teams/Teams';
 import { AddUsers } from '@/pages/Customer/Settings/Teams';
@@ -67,6 +69,23 @@ import IntegrationCredentials from '@/pages/Customer/Settings/IntegrationCredent
 import MessageTemplates from '@/pages/Customer/Settings/MessageTemplates';
 import { Macros } from '@/pages/Customer/Settings/Macros';
 import Products, { ProductsImport } from '@/pages/Customer/Settings/Products';
+import InventoryPage from '@/pages/Customer/Settings/Inventory/InventoryPage';
+import FinancesPage from '@/pages/Customer/Finances/FinancesPage';
+import HoleritePage from '@/pages/Customer/Finances/HoleritePage';
+import NotaFiscalPage from '@/pages/Customer/Finances/NotaFiscalPage';
+import RecibosPage from '@/pages/Customer/Finances/RecibosPage';
+import GtmPage from '@/pages/Customer/Marketing/GtmPage';
+import GestorPostsPage from '@/pages/Customer/Marketing/GestorPostsPage';
+import OrdersPage from '@/pages/Customer/Orders/OrdersPage';
+import IfoodOrdersPage from '@/pages/Customer/Orders/IfoodOrdersPage';
+import NinetyNineOrdersPage from '@/pages/Customer/Orders/NinetyNineOrdersPage';
+import SiteViewPage from '@/pages/Customer/Sites/SiteViewPage';
+import SiteContentPage from '@/pages/Customer/Sites/SiteContentPage';
+import EditorPage from '@/pages/Customer/Editor/EditorPage';
+import ContentViewPage from '@/pages/Customer/Editor/ContentViewPage';
+import DashboardContentPage from '@/pages/Customer/Dashboard/DashboardContentPage';
+import OrganizationDataPage from '@/pages/Customer/Organization/OrganizationDataPage';
+import DigitalMenuSettingsPage from '@/pages/Customer/Organization/DigitalMenuSettingsPage';
 import CrmForms from '@/pages/Customer/Settings/CrmForms';
 import ChatPages from '@/pages/Customer/Settings/ChatPages';
 import Templates from '@/pages/Customer/Settings/Templates/Templates';
@@ -78,14 +97,21 @@ import DashboardAppsPage from '../pages/Customer/Settings/Integrations/Dashboard
 import AccessTokens from '../pages/Customer/Settings/AccessTokens/AccessTokens';
 import SlackIntegrationPage from '../pages/Customer/Settings/Integrations/SlackIntegrationPage';
 import OpenAIPage from '../pages/Customer/Settings/Integrations/OpenAIPage';
+import GeminiPage from '../pages/Customer/Settings/Integrations/GeminiPage';
+import GoogleWorkspaceCallback from '../pages/Customer/Settings/Integrations/GoogleWorkspaceCallback';
+import GoogleWorkspacePage from '../pages/Customer/Settings/Integrations/GoogleWorkspacePage';
 import BMSPage from '../pages/Customer/Settings/Integrations/BMSPage';
 import LeadSquaredPage from '../pages/Customer/Settings/Integrations/LeadSquaredPage';
 import HubSpotPage from '../pages/Customer/Settings/Integrations/HubSpotPage';
 import ShopifyPage from '../pages/Customer/Settings/Integrations/ShopifyPage';
 import LinearPage from '../pages/Customer/Settings/Integrations/LinearPage';
+import GroqPage from '../pages/Customer/Settings/Integrations/GroqPage';
+import GoogleAdsPage from '../pages/Customer/Settings/Integrations/GoogleAdsPage';
+import ElevenLabsPage from '../pages/Customer/Settings/Integrations/ElevenLabsPage';
+import HuggingFacePage from '../pages/Customer/Settings/Integrations/HuggingFacePage';
 import DashboardAppPage from '../pages/Customer/DashboardApp';
 
-// Páginas admin
+// PÃƒÂ¡ginas admin
 import AdminSettingsLayout from '@/pages/Admin/Settings';
 const RolesList = React.lazy(() => import('@/pages/Admin/Roles/RolesList'));
 const RoleDetail = React.lazy(() => import('@/pages/Admin/Roles/RoleDetail'));
@@ -96,19 +122,19 @@ const OpenAIConfig = React.lazy(() => import('@/pages/Admin/Settings/OpenAIConfi
 const IntegrationsConfig = React.lazy(() => import('@/pages/Admin/Settings/IntegrationsConfig'));
 const EvolutionHubConfig = React.lazy(() => import('@/pages/Admin/Settings/EvolutionHubConfig'));
 
-// Página de tutoriais
+// PÃƒÂ¡gina de tutoriais
 import Tutorials from '@/pages/Customer/Tutorials';
 
-// Páginas compartilhadas
+// PÃƒÂ¡ginas compartilhadas
 import Documentation from '@/pages/Shared/Documentation';
 import Marketplace from '@/pages/Shared/Marketplace';
 import Profile from '@/pages/Shared/Profile';
 
-// Página de setup inicial
+// PÃƒÂ¡gina de setup inicial
 import Setup from '@/pages/Setup/Setup';
 import OnboardingPage from '@/pages/Setup/OnboardingPage';
 
-// Outras páginas
+// Outras pÃƒÂ¡ginas
 import NotFound from '@/pages/NotFound';
 import Unauthorized from '@/pages/Unauthorized';
 import Widget from '@/pages/Widget';
@@ -140,7 +166,7 @@ const AppRouter = () => {
     <BrowserRouter>
       <RouterGuard>
         <Routes>
-          {/* Redirecionamento inteligente da raiz baseado no tipo de usuário */}
+          {/* Redirecionamento inteligente da raiz baseado no tipo de usuÃƒÂ¡rio */}
           <Route
             path="/"
             element={
@@ -150,7 +176,7 @@ const AppRouter = () => {
             }
           />
 
-          {/* Rotas públicas */}
+          {/* Rotas pÃƒÂºblicas */}
           <Route
             path="/login"
             element={
@@ -213,6 +239,33 @@ const AppRouter = () => {
               <PublicRoute>
                 <GoogleCallback />
               </PublicRoute>
+            }
+          />
+
+          {/* Google Workspace OAuth Callback (Drive/GTM read-only login, distinct from the Gmail-inbox flow above) */}
+          <Route
+            path="/settings/integrations/google-workspace/callback"
+            element={
+              <PublicRoute>
+                <GoogleWorkspaceCallback />
+              </PublicRoute>
+            }
+          />
+
+          {/* Google Workspace settings (Client ID/Secret + connect/disconnect) Ã¢â‚¬â€ matched before the generic
+              /settings/integrations/:integrationId placeholder route */}
+          <Route
+            path="/settings/integrations/google_workspace"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="integrations" action="read">
+                      <GoogleWorkspacePage />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
             }
           />
 
@@ -398,6 +451,16 @@ const AppRouter = () => {
             }
           />
 
+          {/* CardÃƒÂ¡pio digital pÃƒÂºblico (catÃƒÂ¡logo de produtos ativos) */}
+          <Route
+            path="/cardapio-digital"
+            element={
+              <PublicRoute>
+                <DigitalMenuPage />
+              </PublicRoute>
+            }
+          />
+
           {/* Rota de Setup Inicial */}
           <Route path="/setup" element={<Setup />} />
           <Route path="/setup/onboarding" element={<OnboardingPage />} />
@@ -448,6 +511,103 @@ const AppRouter = () => {
           />
 
           <Route
+            path="/finances"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <FinancesPage />
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          {/* Holerite / Folha de Pagamento (rota estÃƒÂ¡tica antes de /finances/:escopo) */}
+          <Route
+            path="/finances/holerite"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <HoleritePage />
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          {/* Nota Fiscal / MÃƒÂ³dulo Fiscal (rota estÃƒÂ¡tica antes de /finances/:escopo) */}
+          <Route
+            path="/finances/nota-fiscal"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <NotaFiscalPage />
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          {/* Notas/Recibos: leitor de imagens de notas fiscais/recibos via IA (rota estÃƒÂ¡tica antes de /finances/:escopo) */}
+          <Route
+            path="/finances/recibos"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <RecibosPage />
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          {/* Marketing > GTM: navegador de tags/acionadores/variáveis do Google Tag Manager */}
+          <Route
+            path="/marketing/gtm"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <GtmPage />
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          {/* Marketing > Gestor de Posts: galeria de criativos + criação/agendamento de publicações */}
+          <Route
+            path="/marketing/gestor-posts"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <GestorPostsPage />
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          {/* FinanÃƒÂ§as com escopo prÃƒÂ©-selecionado pelo submenu (loja | pessoal | ambos) */}
+          <Route
+            path="/finances/:escopo"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <FinancesPage />
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
             path="/pipelines"
             element={
               <PrivateRoute>
@@ -455,6 +615,53 @@ const AppRouter = () => {
                   <MainLayout>
                     <PermissionRoute resource="pipelines" action="read">
                       <Pipelines />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          {/* Submenu Empresa/Pessoal (mesma lista, filtrada pelo escopo pelo pathname Ã¢â‚¬â€
+              rotas estÃƒÂ¡ticas, nÃƒÂ£o :param, para nÃƒÂ£o colidir com /pipelines/:pipelineId) */}
+          <Route
+            path="/pipelines/empresa"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="pipelines" action="read">
+                      <Pipelines />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/pipelines/pessoal"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="pipelines" action="read">
+                      <Pipelines />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/pipelines/default"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="pipelines" action="read">
+                      <DefaultPipelineRedirect />
                     </PermissionRoute>
                   </MainLayout>
                 </CustomerRoute>
@@ -694,7 +901,7 @@ const AppRouter = () => {
               <PrivateRoute>
                 <CustomerRoute>
                   <MainLayout>
-                    {/* EVO-1938: users.manage (admin) — agents hold users.read but not manage */}
+                    {/* EVO-1938: users.manage (admin) Ã¢â‚¬â€ agents hold users.read but not manage */}
                     <PermissionRoute resource="users" action="manage">
                       <Users />
                     </PermissionRoute>
@@ -842,6 +1049,151 @@ const AppRouter = () => {
                   </MainLayout>
                 </CustomerRoute>
               </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/inventory"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="products" action="read">
+                      <InventoryPage />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/orders"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="products" action="read">
+                      <OrdersPage />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/orders/ifood"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="products" action="read">
+                      <IfoodOrdersPage />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/orders/99delivery"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="products" action="read">
+                      <NinetyNineOrdersPage />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/sites/:slug"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <SiteViewPage />
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/sites/content/:itemId"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <SiteContentPage />
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/editor/menu"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <EditorPage />
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/editor/content/:nodeId"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <ContentViewPage />
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/organizacao/dados-empresa"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <OrganizationDataPage />
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/organizacao/cardapio-digital"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <DigitalMenuSettingsPage />
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/organizacao"
+            element={
+              <Navigate to="/organizacao/dados-empresa" replace />
             }
           />
 
@@ -1020,6 +1372,20 @@ const AppRouter = () => {
             }
           />
           <Route
+            path="/settings/integrations/gemini"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="integrations" action="read">
+                      <GeminiPage />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/settings/integrations/bms"
             element={
               <PrivateRoute>
@@ -1089,6 +1455,62 @@ const AppRouter = () => {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/settings/integrations/groq"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="integrations" action="read">
+                      <GroqPage />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings/integrations/google_ads"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="integrations" action="read">
+                      <GoogleAdsPage />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings/integrations/elevenlabs"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="integrations" action="read">
+                      <ElevenLabsPage />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings/integrations/huggingface"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="integrations" action="read">
+                      <HuggingFacePage />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
 
           {/* Dynamic Dashboard Apps Routes */}
           <Route
@@ -1131,9 +1553,9 @@ const AppRouter = () => {
                       <div className="p-6">
                         <div className="h-full flex items-center justify-center">
                           <div className="text-center">
-                            <h2 className="text-2xl font-bold mb-2">🔧 Configuração</h2>
+                            <h2 className="text-2xl font-bold mb-2">Ã°Å¸â€Â§ ConfiguraÃƒÂ§ÃƒÂ£o</h2>
                             <p className="text-muted-foreground">
-                              Página de configuração em desenvolvimento
+                              PÃƒÂ¡gina de configuraÃƒÂ§ÃƒÂ£o em desenvolvimento
                             </p>
                           </div>
                         </div>
@@ -1396,9 +1818,22 @@ const AppRouter = () => {
                   <MainLayout>
                     {/* No PermissionRoute: `dashboard.read` is a basic auth read,
                         not a catalog resource, so `can('dashboard','read')` denies
-                        for everyone. Dashboard is the landing page — always visible
+                        for everyone. Dashboard is the landing page Ã¢â‚¬â€ always visible
                         to authenticated users (EVO-2071 AC7). */}
                     <Dashboard />
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/content/:itemId"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <DashboardContentPage />
                   </MainLayout>
                 </CustomerRoute>
               </PrivateRoute>
@@ -1423,8 +1858,8 @@ const AppRouter = () => {
             }
           />
 
-          {/* Rotas específicas de canais foram integradas no fluxo unificado do NewChannel */}
-          {/* Meta e WhatsApp Cloud agora são parte do componente NewChannel */}
+          {/* Rotas especÃƒÂ­ficas de canais foram integradas no fluxo unificado do NewChannel */}
+          {/* Meta e WhatsApp Cloud agora sÃƒÂ£o parte do componente NewChannel */}
 
           {/* Roles & Permissions Routes */}
           <Route
@@ -1559,7 +1994,7 @@ const AppRouter = () => {
             }
           />
 
-          {/* Rota 403 - Sem permissão */}
+          {/* Rota 403 - Sem permissÃƒÂ£o */}
           <Route
             path="/unauthorized"
             element={
@@ -1591,7 +2026,7 @@ const AppRouter = () => {
 
           {PluginRoutes({ namespace: 'public' })}
 
-          {/* Rota 404 - Página não encontrada */}
+          {/* Rota 404 - PÃƒÂ¡gina nÃƒÂ£o encontrada */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </RouterGuard>
@@ -1600,3 +2035,4 @@ const AppRouter = () => {
 };
 
 export default AppRouter;
+

@@ -124,6 +124,10 @@ export interface Pipeline {
   name: string;
   description?: string;
   pipeline_type: 'custom' | 'sales' | 'support' | 'marketing';
+  // Submenu scope (Empresa/Pessoal) — missing/undefined is treated as 'empresa'
+  // everywhere it's read, so pipelines created before this field existed keep
+  // showing under Empresa without a backfill.
+  scope?: 'empresa' | 'pessoal';
   visibility: 'private' | 'public' | 'team';
   is_active: boolean;
   is_default?: boolean;
@@ -209,6 +213,7 @@ export interface CreatePipelineData {
   name: string;
   description?: string;
   pipeline_type?: 'custom' | 'sales' | 'support' | 'marketing';
+  scope?: 'empresa' | 'pessoal';
   visibility?: 'private' | 'public' | 'team';
   is_active?: boolean;
   stages?: PipelineStage[];
@@ -241,7 +246,7 @@ export interface PipelineStats {
 export interface PipelineItem {
   id: string;
   item_id: string; // conversation_id or contact_id
-  type: 'conversation' | 'contact';
+  type: 'conversation' | 'contact' | 'task';
   pipeline_id: string;
   stage_id: string;
   pipeline_stage_id?: string; // Backend alias for stage_id
@@ -279,6 +284,15 @@ export interface PipelineItem {
   completed_at?: number | null;
   days_in_pipeline?: number;
   days_in_current_stage?: number;
+  // type === 'task': card data comes from the root PipelineTask (title,
+  // description, priority, due_date, status, assignee), not from a
+  // conversation/contact — this is a standalone "Asana-like" task card.
+  title?: string;
+  description?: string;
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  due_date?: string;
+  task_status?: 'pending' | 'completed' | 'cancelled' | 'overdue';
+  primary_task_id?: string;
   services_info?: {
     total_value: number;
     currency: string;

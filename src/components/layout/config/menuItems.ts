@@ -29,6 +29,19 @@ import {
   Route,
   ShieldCheck,
   FileText,
+  ScrollText,
+  Receipt,
+  ScanLine,
+  Tag,
+  Wallet,
+  Wrench,
+  Building2,
+  PenTool,
+  UtensilsCrossed,
+  Bike,
+  Image,
+  AudioWaveform,
+  Video,
 } from 'lucide-react';
 
 export interface MenuItem {
@@ -36,6 +49,8 @@ export interface MenuItem {
   name: string;
   href: string;
   icon: LucideIcon;
+  /** Imagem customizada (dataURL) — usada no lugar do ícone lucide quando presente */
+  iconUrl?: string;
   subItems?: SubMenuItem[];
   resource?: string;
   action?: string;
@@ -54,6 +69,10 @@ export interface SubMenuItem {
   name: string;
   href: string;
   icon: LucideIcon;
+  /** Imagem customizada (dataURL) — usada no lugar do ícone lucide quando presente */
+  iconUrl?: string;
+  /** Submenus aninhados (camadas ilimitadas — usados pelos menus do Editor) */
+  children?: SubMenuItem[];
   resource?: string;
   action?: string;
   permissions?: string[];
@@ -78,6 +97,13 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
     name: t('menu.customer.dashboard'),
     href: '/dashboard',
     icon: PieChart,
+    subItems: [
+      {
+        name: 'Atendimentos',
+        href: '/dashboard',
+        icon: PieChart,
+      },
+    ],
   },
   {
     name: t('menu.customer.conversations'),
@@ -112,10 +138,16 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
   },
   {
     name: t('menu.customer.pipelines'),
-    href: '/pipelines',
+    // '#': igual Finanças — clicar no pai só abre/fecha o submenu, quem navega
+    // são os filhos Empresa/Pessoal.
+    href: '#',
     icon: SquareKanban,
     resource: 'pipelines',
     action: 'read',
+    subItems: [
+      { name: 'Empresa', href: '/pipelines/empresa', icon: SquareKanban, resource: 'pipelines', action: 'read' },
+      { name: 'Pessoal', href: '/pipelines/pessoal', icon: SquareKanban, resource: 'pipelines', action: 'read' },
+    ],
   },
   {
     name: t('menu.customer.products'),
@@ -123,6 +155,118 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
     icon: Package,
     resource: 'products',
     action: 'read',
+    subItems: [
+      {
+        name: t('menu.customer.products'),
+        href: '/products',
+        icon: Package,
+        resource: 'products',
+        action: 'read',
+      },
+      {
+        name: 'Estoque',
+        href: '/inventory',
+        icon: Layers,
+        resource: 'products',
+        action: 'read',
+      },
+    ],
+  },
+  {
+    name: 'Cardápio',
+    href: '/orders/ifood?tab=cardapio',
+    icon: UtensilsCrossed,
+    resource: 'products',
+    action: 'read',
+  },
+  {
+    name: 'Finanças',
+    // '#': clicar apenas abre/fecha o painel do submenu; as entradas Loja /
+    // Pessoal / Ambos é que navegam. Com href='/finances', clicar no pai caía
+    // na rota principal exata e a regra de auto-detecção mantinha o painel
+    // fechado (submenu "não aparecia").
+    href: '#',
+    icon: Wallet,
+    subItems: [
+      { name: 'Loja', href: '/finances/loja', icon: Wallet },
+      { name: 'Pessoal', href: '/finances/pessoal', icon: User },
+      { name: 'Ambos', href: '/finances/ambos', icon: Layers },
+      { name: 'Holerite', href: '/finances/holerite', icon: ScrollText },
+      { name: 'Nota Fiscal', href: '/finances/nota-fiscal', icon: Receipt },
+      { name: 'Notas/Recibos', href: '/finances/recibos', icon: ScanLine },
+    ],
+  },
+  {
+    name: 'Marketing',
+    // '#': clicar no pai só abre/fecha o submenu (mesmo padrão de Finanças/
+    // Ordens) — quem navega são os filhos GTM/Gestor de Posts.
+    href: '#',
+    icon: Tag,
+    subItems: [
+      { name: 'GTM', href: '/marketing/gtm', icon: Tag },
+      { name: 'Gestor de Posts', href: '/marketing/gestor-posts', icon: Image },
+      { name: 'Copy de Tráfego (Meta)', href: '/editor/content/mktia-copytrafego', icon: PenTool },
+      { name: 'Gerar Áudio (ElevenLabs)', href: '/editor/content/mktia-audioeleven', icon: AudioWaveform },
+      { name: 'Gerar Imagem e Identidade Visual', href: '/editor/content/mktia-gerarimagem', icon: Wand },
+      { name: 'Roteiro de Vídeo', href: '/editor/content/mktia-roteirovideo', icon: Video },
+      { name: 'Suíte de Mídia', href: '/editor/content/mktia-suitemidia', icon: Layers },
+    ],
+  },
+  {
+    name: 'Ordens',
+    // '#': clicar no pai só abre/fecha o submenu (mesmo padrão de Pipelines/
+    // Finanças) — quem navega são os filhos Ordens/iFood.
+    href: '#',
+    icon: Wrench,
+    resource: 'products',
+    action: 'read',
+    subItems: [
+      { name: 'Ordens', href: '/orders', icon: Wrench, resource: 'products', action: 'read' },
+      { name: 'iFood', href: '/orders/ifood', icon: UtensilsCrossed, resource: 'products', action: 'read' },
+      { name: '99 Delivery', href: '/orders/99delivery', icon: Bike, resource: 'products', action: 'read' },
+      { name: 'Esteira de Pedidos (iFood)', href: '/editor/content/ordens-esteirapedidos', icon: Route },
+    ],
+  },
+  {
+    name: 'Sites',
+    href: '/sites/azuliapp',
+    icon: LayoutTemplate,
+    subItems: [
+      {
+        name: 'azuliapp.com.br',
+        href: '/sites/azuliapp',
+        icon: LayoutTemplate,
+      },
+    ],
+  },
+  {
+    name: 'Editor',
+    href: '/editor/menu',
+    icon: PenTool,
+    subItems: [
+      {
+        name: 'Menu principal',
+        href: '/editor/menu',
+        icon: PenTool,
+      },
+    ],
+  },
+  {
+    name: 'Organização',
+    href: '/organizacao/dados-empresa',
+    icon: Building2,
+    subItems: [
+      {
+        name: 'Dados da Empresa',
+        href: '/organizacao/dados-empresa',
+        icon: Building2,
+      },
+      {
+        name: 'Cardápio Digital',
+        href: '/organizacao/cardapio-digital',
+        icon: UtensilsCrossed,
+      },
+    ],
   },
   {
     name: t('menu.customer.automation'),

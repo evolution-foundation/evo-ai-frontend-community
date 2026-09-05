@@ -67,7 +67,8 @@
     "chooseItemType": "Escolha o tipo de item",
     "itemTypes": {
       "conversation": "Conversa",
-      "contact": "Contato"
+      "contact": "Contato",
+      "task": "Tarefa"
     },
     "searchItems": "Buscar Itens",
     "searchPlaceholder": "Buscar por nome, email, telefone ou ID...",
@@ -83,7 +84,8 @@
     "cancel": "Cancelar",
     "success": "Item adicionado com sucesso ao pipeline",
     "error": "Erro ao adicionar item ao pipeline",
-    "loadError": "Erro ao carregar itens disponíveis"
+    "loadError": "Erro ao carregar itens disponíveis",
+    "taskTitleRequired": "O título da tarefa é obrigatório"
   },
   "createPipeline": {
     "title": "Criar Novo Pipeline",
@@ -699,6 +701,10 @@
       },
       "valueLabel": "Valor Total:",
       "system": "Sistema"
+    },
+    "task": {
+      "untitled": "Tarefa sem título",
+      "noDueDate": "Sem prazo"
     },
     "messages": {
       "conversationMoved": "Conversa movida com sucesso",

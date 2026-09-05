@@ -224,10 +224,10 @@ export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookCha
     try {
       const fbPages = await ChannelsService.fetchFacebookPages(accessToken);
 
-      const pageDetails = fbPages?.data?.page_details || [];
+      const pageDetails = fbPages?.page_details || [];
       const availablePages = pageDetails.filter((p: any) => !p.exists);
 
-      setUserAccessToken(fbPages?.data?.user_access_token || accessToken);
+      setUserAccessToken(fbPages?.user_access_token || accessToken);
       setPages(availablePages);
       setIsLoading(false);
 

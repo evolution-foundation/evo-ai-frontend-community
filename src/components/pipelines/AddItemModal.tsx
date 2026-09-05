@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getContactColor } from '@/utils/avatar';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useAccountUsers } from '@/hooks/useAccountUsers';
 import {
   Dialog,
   DialogContent,
@@ -19,8 +20,9 @@ import {
   SelectValue,
 } from '@evoapi/design-system';
 import { Search, User, Phone, Mail, MessageSquare } from 'lucide-react';
-import { ConversationForModal, PipelineStage } from '@/types/analytics';
+import { ConversationForModal, PipelineStage, PipelineTask } from '@/types/analytics';
 import { pipelinesService } from '@/services/pipelines';
+import { pipelineTasksService } from '@/services/pipelines/pipelineTasksService';
 import { toast } from 'sonner';
 import { Contact } from '@/types/contacts';
 
@@ -71,14 +73,24 @@ export default function AddItemModal({
   onItemAdded,
 }: AddItemModalProps) {
   const { t } = useLanguage('pipelines');
+  const { users } = useAccountUsers();
   const [selectedStage, setSelectedStage] = useState<PipelineStage | null>(null);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
-  const [itemType, setItemType] = useState<'conversation' | 'contact'>('conversation');
+  const [itemType, setItemType] = useState<'conversation' | 'contact' | 'task'>('conversation');
   const [searchQuery, setSearchQuery] = useState('');
   const [notes, setNotes] = useState('');
   const [availableItems, setAvailableItems] = useState<Item[]>([]);
   const [isLoadingItems, setIsLoadingItems] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+
+  // Task-type fields (item_type: 'task' — creates a standalone task card,
+  // reusing the same PipelineTask model/priority/due date/assignee/subtasks
+  // system already used inside the "Tarefas" tab of EditItemModal).
+  const [taskTitle, setTaskTitle] = useState('');
+  const [taskDescription, setTaskDescription] = useState('');
+  const [taskPriority, setTaskPriority] = useState<PipelineTask['priority']>('medium');
+  const [taskDueDate, setTaskDueDate] = useState('');
+  const [taskAssigneeId, setTaskAssigneeId] = useState('');
 
   // Initialize modal
   useEffect(() => {
@@ -88,6 +100,11 @@ export default function AddItemModal({
       setSearchQuery('');
       setNotes('');
       setItemType('conversation');
+      setTaskTitle('');
+      setTaskDescription('');
+      setTaskPriority('medium');
+      setTaskDueDate('');
+      setTaskAssigneeId('');
 
       // Pre-select stage
       if (preselectedStage) {
@@ -100,6 +117,7 @@ export default function AddItemModal({
 
   // Load available items from API
   const loadAvailableItems = useCallback(async () => {
+    if (itemType === 'task') return;
     setIsLoadingItems(true);
     setAvailableItems([]);
     try {
@@ -125,7 +143,7 @@ export default function AddItemModal({
 
   // Debounced search effect
   useEffect(() => {
-    if (!open) return;
+    if (!open || itemType === 'task') return;
 
     const timeoutId = setTimeout(() => {
       loadAvailableItems();
@@ -141,7 +159,9 @@ export default function AddItemModal({
 
   // Handle adding item to pipeline
   const handleAddItem = async () => {
-    if (!selectedStage || !selectedItem) return;
+    if (!selectedStage) return;
+    if (itemType === 'task') return handleAddTask();
+    if (!selectedItem) return;
 
     setIsAdding(true);
     try {
@@ -174,6 +194,51 @@ export default function AddItemModal({
     }
   };
 
+  // Creates a standalone "Tarefa" card: a pipeline_item with no
+  // contact/conversation (custom_fields.item_type = 'task'), then a root
+  // PipelineTask under it carrying title/description/priority/due
+  // date/assignee — that root task is what the "Tarefas" tab of
+  // EditItemModal (and its subtask/checklist UI) already knows how to edit.
+  const handleAddTask = async () => {
+    if (!selectedStage) return;
+    const title = taskTitle.trim();
+    if (!title) {
+      toast.error(t('addItem.taskTitleRequired'));
+      return;
+    }
+
+    setIsAdding(true);
+    try {
+      const pipelineItem = await pipelinesService.addItemToPipeline(pipelineId, {
+        type: 'task',
+        pipeline_stage_id: selectedStage.id,
+        custom_fields: { item_type: 'task' },
+      });
+
+      await pipelineTasksService.createTask(pipelineId, pipelineItem.id, {
+        title,
+        description: taskDescription.trim() || undefined,
+        task_type: 'other',
+        priority: taskPriority,
+        due_date: taskDueDate || undefined,
+        assigned_to_id: taskAssigneeId || undefined,
+      });
+
+      toast.success(t('addItem.success'));
+      onItemAdded();
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error adding task:', error);
+      let errorMessage = t('addItem.error');
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      toast.error(errorMessage);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
   // Get item display name
   const getItemDisplayName = (item: Item) => {
     if (itemType === 'conversation') {
@@ -182,7 +247,9 @@ export default function AddItemModal({
     return item.name || t('addItem.unknownUser');
   };
 
-  const canAddItem = selectedStage && selectedItem;
+  const canAddItem = itemType === 'task'
+    ? Boolean(selectedStage && taskTitle.trim())
+    : Boolean(selectedStage && selectedItem);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -227,7 +294,7 @@ export default function AddItemModal({
             <Label>{t('addItem.itemType')}</Label>
             <Select
               value={itemType}
-              onValueChange={(value: 'conversation' | 'contact') => {
+              onValueChange={(value: 'conversation' | 'contact' | 'task') => {
                 setAvailableItems([]);
                 setItemType(value);
                 setSelectedItem(null);
@@ -241,10 +308,93 @@ export default function AddItemModal({
               <SelectContent>
                 <SelectItem value="conversation">{t('addItem.itemTypes.conversation')}</SelectItem>
                 <SelectItem value="contact">{t('addItem.itemTypes.contact')}</SelectItem>
+                <SelectItem value="task">{t('addItem.itemTypes.task')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
+          {itemType === 'task' ? (
+            <>
+              {/* Task title */}
+              <div className="grid gap-2">
+                <Label htmlFor="task-title">
+                  {t('tasks.form.title')} <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="task-title"
+                  value={taskTitle}
+                  onChange={e => setTaskTitle(e.target.value)}
+                  placeholder={t('tasks.form.titlePlaceholder')}
+                />
+              </div>
+
+              {/* Priority + Due date */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label>{t('tasks.form.priority')}</Label>
+                  <Select
+                    value={taskPriority}
+                    onValueChange={value => setTaskPriority(value as PipelineTask['priority'])}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">{t('tasks.priority.low')}</SelectItem>
+                      <SelectItem value="medium">{t('tasks.priority.medium')}</SelectItem>
+                      <SelectItem value="high">{t('tasks.priority.high')}</SelectItem>
+                      <SelectItem value="urgent">{t('tasks.priority.urgent')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="task-due-date">{t('tasks.form.dueDate')}</Label>
+                  <Input
+                    id="task-due-date"
+                    type="datetime-local"
+                    value={taskDueDate}
+                    onChange={e => setTaskDueDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Assignee */}
+              {users && users.length > 0 && (
+                <div className="grid gap-2">
+                  <Label>{t('tasks.form.assignedTo')}</Label>
+                  <Select
+                    value={taskAssigneeId || 'none'}
+                    onValueChange={value => setTaskAssigneeId(value === 'none' ? '' : value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t('tasks.form.none')}</SelectItem>
+                      {users.map(user => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* Description */}
+              <div className="grid gap-2">
+                <Label htmlFor="task-description">{t('tasks.form.description')}</Label>
+                <Textarea
+                  id="task-description"
+                  value={taskDescription}
+                  onChange={e => setTaskDescription(e.target.value)}
+                  placeholder={t('tasks.form.descriptionPlaceholder')}
+                  rows={3}
+                />
+              </div>
+            </>
+          ) : (
+          <>
           {/* Search */}
           <div className="grid gap-2">
             <Label>{t('addItem.searchItems')}</Label>
@@ -363,6 +513,8 @@ export default function AddItemModal({
               rows={3}
             />
           </div>
+          </>
+          )}
         </div>
 
         <DialogFooter className="flex-shrink-0 mt-4">

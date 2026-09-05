@@ -20,6 +20,9 @@ function resolveAppVersion(): string {
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Cache fora do OneDrive: a sincronização trava/corrompe node_modules/.vite
+  // e coloca o navegador em loop infinito de reload (tela branca).
+  cacheDir: 'C:/Users/jenis/.vite-cache/evo-crm-community',
   define: {
     __APP_VERSION__: JSON.stringify(resolveAppVersion()),
   },
@@ -57,6 +60,9 @@ export default defineConfig({
     strictPort: true,
     allowedHosts: true, // Allow all hosts (like evolution-hub)
     cors: true, // Enable CORS for ngrok
+    watch: {
+      usePolling: true,
+    },
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -82,8 +88,8 @@ export default defineConfig({
       'sonner',
       'zustand',
     ],
-    // Force optimization on start
-    force: true,
+    // Reaproveitar o cache entre sessões; re-forçar só quando preciso:
+    // rm -rf C:/Users/jenis/.vite-cache/evo-crm-community
   },
   // Reduce module transformation in dev
   esbuild: {

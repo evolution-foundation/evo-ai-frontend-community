@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -44,6 +44,16 @@ const getStageTemplates = (
   string,
   Omit<PipelineStage, 'id' | 'pipeline_id' | 'conversations_count' | 'created_at' | 'updated_at'>[]
 > => ({
+  delivery_burger: [
+    { name: '📥 Novos Leads', color: '#3B82F6', description: 'Clientes que acabaram de chamar no WhatsApp', position: 1 },
+    { name: '💬 Em Atendimento', color: '#F59E0B', description: 'IA/Atendente tirando dúvidas ou montando pedido', position: 2 },
+    { name: '📝 Pedido Confirmado', color: '#8B5CF6', description: 'Pedido finalizado e pagamento validado', position: 3 },
+    { name: '🔥 Fila de Produção', color: '#EF4444', description: 'Preparo na cozinha pelos chapeiros', position: 4 },
+    { name: '⏳ Aguardando Entregador', color: '#EC4899', description: 'Pedido embalado aguardando motoboy', position: 5 },
+    { name: '🛵 Em Rota de Entrega', color: '#06B6D4', description: 'Entregador saiu com o pedido', position: 6 },
+    { name: '✅ Entregue / Concluído', color: '#10B981', description: 'Pedido entregue e feedback automático', position: 7 },
+    { name: '❌ Cancelado / Problemas', color: '#6B7280', description: 'Pedidos cancelados ou não finalizados', position: 8 },
+  ],
   sales: [
     { name: t('createPipeline.templates.sales.newLead.name'), color: '#3B82F6', description: t('createPipeline.templates.sales.newLead.description'), position: 1 },
     { name: t('createPipeline.templates.sales.qualification.name'), color: '#F59E0B', description: t('createPipeline.templates.sales.qualification.description'), position: 2 },
@@ -70,6 +80,7 @@ const getStageTemplates = (
 });
 
 const TYPE_CHIPS: Array<CreatePipelineData['pipeline_type']> = [
+  'delivery_burger' as any,
   'custom',
   'sales',
   'support',
@@ -85,11 +96,17 @@ export default function PipelineFormPage() {
   const { t } = useLanguage('pipelines');
   const navigate = useNavigate();
   const { can } = usePermissions();
+  const [searchParams] = useSearchParams();
+
+  // Scope pré-selecionado quando aberto a partir do submenu Empresa/Pessoal
+  // (?scope=empresa|pessoal — ver Pipelines.tsx#handleCreatePipeline).
+  const initialScope = searchParams.get('scope') === 'pessoal' ? 'pessoal' : 'empresa';
 
   const [formData, setFormData] = useState<CreatePipelineData>({
     name: '',
     description: '',
     pipeline_type: 'custom',
+    scope: initialScope,
     visibility: 'private',
     is_active: true,
     stages: [],
@@ -104,7 +121,10 @@ export default function PipelineFormPage() {
 
   const stageTemplates = useMemo(() => getStageTemplates(t), [t]);
 
-  const close = useCallback(() => navigate('/pipelines'), [navigate]);
+  const close = useCallback(
+    () => navigate(`/pipelines/${initialScope}`),
+    [navigate, initialScope],
+  );
 
   // Seed stages from the selected type until the user edits them manually.
   useEffect(() => {
@@ -214,7 +234,7 @@ export default function PipelineFormPage() {
       });
       toast.success(t('messages.createSuccess'));
       if (response.id) navigate(`/pipelines/${response.id}`);
-      else navigate('/pipelines');
+      else navigate(`/pipelines/${initialScope}`);
     } catch (error) {
       console.error('Error creating pipeline:', error);
       toast.error(t('messages.createError'));
@@ -271,6 +291,31 @@ export default function PipelineFormPage() {
                   rows={3}
                   disabled={submitting}
                 />
+              </div>
+
+              {/* Empresa/Pessoal — decide em qual submenu o pipeline aparece */}
+              <div className="space-y-2">
+                <Label>Onde criar</Label>
+                <div className="flex gap-2">
+                  {(['empresa', 'pessoal'] as const).map(scopeOption => {
+                    const active = (formData.scope ?? 'empresa') === scopeOption;
+                    return (
+                      <button
+                        key={scopeOption}
+                        type="button"
+                        disabled={submitting}
+                        onClick={() => setFormData({ ...formData, scope: scopeOption })}
+                        className={`px-4 py-2 rounded-full text-sm font-semibold border transition-colors capitalize ${
+                          active
+                            ? 'bg-primary/10 border-primary text-primary'
+                            : 'bg-background border-border text-muted-foreground hover:border-primary/40'
+                        }`}
+                      >
+                        {scopeOption}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Type as chips (mockup) */}

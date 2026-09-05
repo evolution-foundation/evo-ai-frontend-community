@@ -670,6 +670,10 @@
       "valueLabel": "Valore Totale:",
       "system": "Sistema"
     },
+    "task": {
+      "untitled": "Attività senza titolo",
+      "noDueDate": "Nessuna scadenza"
+    },
     "messages": {
       "conversationMoved": "Conversazione spostata con successo",
       "conversationMoveError": "Errore nello spostamento della conversazione",

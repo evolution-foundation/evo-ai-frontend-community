@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evo ERP - Sistema Fiscal Completo (Delivery, E-commerce, NCM & XML)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- QRCode Gen -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- Header / Navbar estilo Evo CRM -->
+  <header class="bg-slate-800 border-b border-slate-700 px-6 py-3 flex flex-wrap items-center justify-between sticky top-0 z-20 gap-3">
+    <div class="flex items-center gap-3">
+      <div class="bg-emerald-500 text-slate-900 p-2.5 rounded-xl font-bold text-xl flex items-center justify-center w-11 h-11 shadow-lg shadow-emerald-500/20">
+        <i class="fa-solid fa-receipt"></i>
+      </div>
+      <div>
+        <h1 class="font-bold text-base text-white leading-tight flex items-center gap-2">
+          Evo ERP <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-semibold">Módulo Fiscal 360º</span>
+        </h1>
+        <p class="text-xs text-slate-400">NFC-e 65 (Delivery/Balcão) + NF-e 55 (E-commerce) + Assistente de NCM</p>
+      </div>
+    </div>
+
+    <!-- Abas principais -->
+    <nav class="flex flex-wrap gap-1.5 bg-slate-900/60 p-1.5 rounded-xl border border-slate-700">
+      <button onclick="switchTab('pedidos')" id="tab-btn-pedidos" class="px-3.5 py-2 rounded-lg text-xs font-bold transition bg-emerald-600 text-white flex items-center gap-2">
+        <i class="fa-solid fa-cash-register"></i> Pedidos & Emissão
+      </button>
+      <button onclick="switchTab('produtos')" id="tab-btn-produtos" class="px-3.5 py-2 rounded-lg text-xs font-bold transition text-slate-300 hover:bg-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-boxes-stacked"></i> Produtos & Assistente NCM
+      </button>
+      <button onclick="switchTab('xml')" id="tab-btn-xml" class="px-3.5 py-2 rounded-lg text-xs font-bold transition text-slate-300 hover:bg-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-file-code"></i> Ler XML Fornecedor
+      </button>
+      <button onclick="switchTab('config')" id="tab-btn-config" class="px-3.5 py-2 rounded-lg text-xs font-bold transition text-slate-300 hover:bg-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-sliders"></i> Certificado & Configurações
+      </button>
+    </nav>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main class="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
+
+    <!-- ABA 1: PEDIDOS E EMISSÃO DE NOTAS FISCAIS -->
+    <section id="tab-pedidos" class="space-y-6">
+      
+      <!-- Indicadores do Sistema -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex items-center gap-3">
+          <div class="p-3 bg-blue-500/10 text-blue-400 rounded-lg text-lg">
+            <i class="fa-solid fa-certificate"></i>
+          </div>
+          <div>
+            <span class="text-[11px] text-slate-400 font-medium block">Certificado A1</span>
+            <span class="text-xs font-bold text-slate-200 truncate block max-w-[130px]">PIZZARIA BELLA NAPOLI</span>
+            <span class="text-[10px] text-emerald-400 block"><i class="fa-solid fa-check"></i> Ativo até 2027</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex items-center gap-3">
+          <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-lg text-lg">
+            <i class="fa-solid fa-server"></i>
+          </div>
+          <div>
+            <span class="text-[11px] text-slate-400 font-medium block">WebService SEFAZ</span>
+            <span id="label-sefaz-uf" class="text-xs font-bold text-emerald-400 block">SEFAZ-SP (Homologação)</span>
+            <span class="text-[10px] text-slate-400 block">NFC-e 65 / NF-e 55 v4.00</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex items-center gap-3">
+          <div class="p-3 bg-amber-500/10 text-amber-400 rounded-lg text-lg">
+            <i class="fa-solid fa-motorcycle"></i>
+          </div>
+          <div>
+            <span class="text-[11px] text-slate-400 font-medium block">Delivery & Balcão</span>
+            <span class="text-xs font-bold text-amber-300">NFC-e (Cupom Térmico)</span>
+            <span class="text-[10px] text-amber-400/80 block">Tag indPres (1, 2, 4)</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex items-center gap-3">
+          <div class="p-3 bg-purple-500/10 text-purple-400 rounded-lg text-lg">
+            <i class="fa-solid fa-truck-fast"></i>
+          </div>
+          <div>
+            <span class="text-[11px] text-slate-400 font-medium block">E-commerce / Envio</span>
+            <span class="text-xs font-bold text-purple-300">NF-e 55 (Danfe A4)</span>
+            <span class="text-[10px] text-purple-400/80 block">Correios / Transportadora</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros por Canal de Venda -->
+      <div class="flex flex-wrap items-center justify-between bg-slate-800 border border-slate-700 p-3 rounded-xl gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">Canal:</span>
+          <button onclick="filtrarCanal('TODOS')" id="btn-filtro-todos" class="px-3 py-1 bg-emerald-600 text-white rounded-lg text-xs font-semibold">Todos</button>
+          <button onclick="filtrarCanal('DELIVERY')" id="btn-filtro-delivery" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-xs font-semibold">Delivery WhatsApp</button>
+          <button onclick="filtrarCanal('PRESENCIAL')" id="btn-filtro-presencial" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-xs font-semibold">Balcão / Mesa</button>
+          <button onclick="filtrarCanal('ECOMMERCE')" id="btn-filtro-ecommerce" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-xs font-semibold">E-commerce (NF-e 55)</button>
+        </div>
+        
+        <div class="flex gap-2">
+          <button onclick="novoPedidoBalcao()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-plus"></i> Novo Pedido Balcão
+          </button>
+          <button onclick="novoPedidoEcommerce()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-cart-plus"></i> + Venda E-commerce
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabela de Pedidos Multicanal -->
+      <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-xl">
+        <div class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800/80">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-receipt text-emerald-500"></i> Gestão de Pedidos & Autorização SEFAZ
+            </h2>
+            <p class="text-xs text-slate-400">A emissão seleciona automaticamente NFC-e 65 (Térmica) ou NF-e 55 (A4) de acordo com o canal</p>
+          </div>
+          <button onclick="renderizarPedidos()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-semibold text-slate-200 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-arrows-rotate"></i> Atualizar
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-slate-900/60 text-slate-400 border-b border-slate-700 text-xs uppercase font-semibold">
+                <th class="p-4">Pedido / Cliente</th>
+                <th class="p-4">Canal / Modelo SEFAZ</th>
+                <th class="p-4">Itens & Valores</th>
+                <th class="p-4">Pagamento / Destino</th>
+                <th class="p-4">Total</th>
+                <th class="p-4">Status Nota</th>
+                <th class="p-4 text-center">Ações Fiscais</th>
+              </tr>
+            </thead>
+            <tbody id="lista-pedidos" class="divide-y divide-slate-700/50">
+              <!-- Inserido dinamicamente via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 2: PRODUTOS & BUSCADOR INTELIGENTE DE NCM -->
+    <section id="tab-produtos" class="hidden space-y-6">
+      
+      <!-- Assistente de Busca NCM -->
+      <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl space-y-4">
+        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-magnifying-glass-dollar text-indigo-400"></i> Assistente e Buscador Inteligente de NCM & Tributação
+            </h2>
+            <p class="text-xs text-slate-400">Digite o nome do produto ou categoria para consultar a classificação fiscal recomendada pela Receita Federal</p>
+          </div>
+          <span class="text-xs text-indigo-400 bg-indigo-950/60 border border-indigo-800 px-3 py-1 rounded-full w-max flex items-center gap-1.5">
+            <i class="fa-solid fa-bolt"></i> Base de Dados Fiscal Unificada
+          </span>
+        </div>
+
+        <div class="relative">
+          <input type="text" id="input-pesquisa-ncm" oninput="buscarNCM(this.value)" placeholder="Pesquise: Pizza, Hambúrguer, Refrigerante, Suco, Camiseta, Fone, Marmita..." class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 pl-11 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+          <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+        </div>
+
+        <!-- Atalhos Rápidos -->
+        <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+          <span class="font-semibold text-slate-300">Sugestões:</span>
+          <button onclick="setSearchNCM('Pizza')" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200 transition">🍕 Pizzas / Lanches</button>
+          <button onclick="setSearchNCM('Refrigerante')" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200 transition">🥤 Refrigerantes (ST)</button>
+          <button onclick="setSearchNCM('Suco')" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200 transition">🍊 Sucos Naturais</button>
+          <button onclick="setSearchNCM('Camiseta')" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200 transition">👕 Vestuário (E-commerce)</button>
+        </div>
+
+        <!-- Resultado do Buscador -->
+        <div id="container-resultados-ncm" class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+          <!-- Inserido via JS -->
+        </div>
+      </div>
+
+      <!-- Cadastro Rápido de Novo Produto no ERP -->
+      <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl space-y-4">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle text-emerald-400"></i> Cadastrar Novo Produto no ERP com Regra Fiscal
+        </h3>
+
+        <form onsubmit="cadastrarProdutoERP(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+          <div class="md:col-span-2">
+            <label class="block text-xs text-slate-400 mb-1">Nome do Produto</label>
+            <input type="text" id="cad-nome" required placeholder="Ex: Pizza Quatro Queijos Média" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Preço (R$)</label>
+            <input type="number" step="0.01" id="cad-preco" required placeholder="55.00" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">NCM</label>
+            <input type="text" id="cad-ncm" required value="2106.90.90" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-xs text-emerald-400 font-mono font-bold">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">CFOP Venda</label>
+            <select id="cad-cfop" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-2 py-2 text-xs text-white">
+              <option value="5102">5.102 (Venda Normal)</option>
+              <option value="5405">5.405 (Subst. Tributária)</option>
+              <option value="6102">6.102 (Outro Estado)</option>
+            </select>
+          </div>
+          <div class="md:col-span-5 flex justify-end">
+            <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg transition flex items-center gap-1.5">
+              <i class="fa-solid fa-floppy-disk"></i> Salvar Produto no ERP
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tabela dos Produtos Cadastrados no ERP -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+        <div class="p-4 border-b border-slate-700 bg-slate-800/80 flex justify-between items-center">
+          <h3 class="font-bold text-sm text-white flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-indigo-400"></i> Cardápio / Produtos Cadastrados no ERP
+          </h3>
+          <button onclick="exportarRelatorioContador()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold rounded-lg transition flex items-center gap-1.5">
+            <i class="fa-solid fa-file-excel text-emerald-400"></i> Exportar p/ Contador
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-900 text-slate-400 uppercase font-semibold border-b border-slate-700">
+                <th class="p-3">Produto</th>
+                <th class="p-3">Preço</th>
+                <th class="p-3">NCM</th>
+                <th class="p-3">CFOP</th>
+                <th class="p-3">CSOSN</th>
+                <th class="p-3">Validação Contador</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-produtos-erp" class="divide-y divide-slate-700/60 bg-slate-800/40">
+              <!-- Inserido via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 3: LEITOR DE XML DE FORNECEDOR -->
+    <section id="tab-xml" class="hidden space-y-6">
+      <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl space-y-6">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-file-code text-indigo-400"></i> Importador de XML de Compra do Fornecedor
+          </h2>
+          <p class="text-xs text-slate-400">
+            A forma mais rápida de não errar o NCM: carregue a nota de compra que o fabricante ou distribuidora enviou para extrair as classificações oficiais.
+          </p>
+        </div>
+
+        <div class="border-2 border-dashed border-slate-600 hover:border-emerald-500 bg-slate-900/50 rounded-2xl p-8 text-center transition cursor-pointer" onclick="simularImportacaoXML()">
+          <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl border border-emerald-500/20">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </div>
+          <h3 class="font-bold text-white text-sm">Clique para simular o upload da nota do fornecedor (.XML)</h3>
+          <p class="text-xs text-slate-400 mt-1">Lê automaticamente NCM, CEST, descrição e sugere a regra de venda</p>
+          <button type="button" class="mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition">
+            Simular Importação (Distribuidora de Insumos)
+          </button>
+        </div>
+
+        <div id="resultado-xml" class="hidden space-y-4">
+          <div class="flex items-center gap-3 bg-emerald-950/40 border border-emerald-800 p-3 rounded-xl">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+            <div>
+              <span class="text-xs font-bold text-white block">XML de Entrada Importado com Sucesso!</span>
+              <span class="text-[11px] text-slate-400">Fornecedor: DISTRIBUIDORA DE BEBIDAS E ALIMENTOS LTDA</span>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto rounded-xl border border-slate-700">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-slate-900 text-slate-400 uppercase border-b border-slate-700">
+                  <th class="p-3">Item da Nota de Compra</th>
+                  <th class="p-3">NCM Extraído</th>
+                  <th class="p-3">CEST</th>
+                  <th class="p-3">CFOP Sugerido p/ Venda</th>
+                  <th class="p-3 text-center">Ação</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-700/60 bg-slate-800/40">
+                <tr>
+                  <td class="p-3 font-bold text-white">REFRIGERANTE COCA COLA LATA 350ML (CX C/ 12)</td>
+                  <td class="p-3 font-mono text-emerald-400 font-bold">2202.10.00</td>
+                  <td class="p-3 font-mono text-slate-300">03.010.00</td>
+                  <td class="p-3 font-mono text-amber-300 font-bold">5.405 (Subst. Tributária)</td>
+                  <td class="p-3 text-center">
+                    <button onclick="adicionarViaXML('Coca-Cola Lata 350ml', 7.00, '2202.10.00', '5405')" class="px-3 py-1 bg-emerald-600 text-white font-bold rounded hover:bg-emerald-500">Salvar no ERP</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-bold text-white">FARINHA DE TRIGO ESPECIAL PIZZA 25KG</td>
+                  <td class="p-3 font-mono text-emerald-400 font-bold">1101.00.10</td>
+                  <td class="p-3 text-slate-500">Sem CEST</td>
+                  <td class="p-3 font-mono text-blue-300 font-bold">Insumo p/ Pizza (2106.90.90)</td>
+                  <td class="p-3 text-center">
+                    <button onclick="adicionarViaXML('Massa de Pizza Preparada', 45.00, '2106.90.90', '5102')" class="px-3 py-1 bg-emerald-600 text-white font-bold rounded hover:bg-emerald-500">Salvar no ERP</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 4: CONFIGURAÇÕES DO CERTIFICADO E UF -->
+    <section id="tab-config" class="hidden space-y-6">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-6">
+        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-amber-400"></i> Parâmetros Fiscais e Certificado Digital
+        </h2>
+
+        <form onsubmit="salvarConfiguracoes(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-4 bg-slate-900/50 p-4 rounded-xl border border-slate-700 md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">Estado do Restaurante (UF)</label>
+              <select id="select-uf" onchange="atualizarUF(this.value)" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-xs text-white font-semibold">
+                <option value="SP" selected>São Paulo (SP)</option>
+                <option value="RJ">Rio de Janeiro (RJ)</option>
+                <option value="MG">Minas Gerais (MG)</option>
+                <option value="RS">Rio Grande do Sul (RS)</option>
+                <option value="PR">Paraná (PR)</option>
+                <option value="BA">Bahia (BA)</option>
+                <option value="CE">Ceará (CE)</option>
+                <option value="SC">Santa Catarina (SC)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">Ambiente SEFAZ</label>
+              <select id="select-ambiente" onchange="atualizarAmbiente(this.value)" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-xs text-white font-semibold">
+                <option value="2" selected>2 - Homologação (Testes / Sem Valor Fiscal)</option>
+                <option value="1">1 - Produção (Notas Oficiais com Valor Fiscal)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">Regime Tributário (CRT)</label>
+              <select class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-xs text-white font-semibold">
+                <option value="1" selected>1 - Simples Nacional / MEI</option>
+                <option value="3">3 - Regime Normal (Lucro Presumido/Real)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Certificado A1 -->
+          <div class="space-y-3 bg-slate-900/50 p-4 rounded-xl border border-slate-700">
+            <h3 class="font-semibold text-xs text-amber-300 flex items-center gap-2">
+              <i class="fa-solid fa-file-contract"></i> Certificado Digital A1 (.pfx)
+            </h3>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Arquivo do Certificado</label>
+              <input type="text" readonly value="pizzaria_bellanapoli_2027.pfx" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-xs text-slate-300 cursor-not-allowed">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Senha do Certificado</label>
+              <input type="password" value="12345678" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+          </div>
+
+          <!-- CSC da SEFAZ -->
+          <div class="space-y-3 bg-slate-900/50 p-4 rounded-xl border border-slate-700">
+            <h3 class="font-semibold text-xs text-amber-300 flex items-center gap-2">
+              <i class="fa-solid fa-qrcode"></i> Código CSC (QR Code NFC-e)
+            </h3>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">ID CSC</label>
+                <input type="text" value="000001" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-2 py-2 text-xs text-white">
+              </div>
+              <div class="col-span-2">
+                <label class="block text-[11px] text-slate-400 mb-1">Código CSC Alfanumérico</label>
+                <input type="text" value="A892K109-88BC-4821-9BCC-81273CBA" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-2 py-2 text-xs font-mono text-white">
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-2 flex justify-end">
+            <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs transition flex items-center gap-2">
+              <i class="fa-solid fa-floppy-disk"></i> Salvar Parâmetros Fiscais
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL DE EMISSÃO SEFAZ -->
+  <div id="modal-emissao" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+          <i id="status-icon" class="fa-solid fa-spinner animate-spin"></i>
+        </div>
+        <h3 id="status-title" class="text-lg font-bold text-white">Transmitindo Documento Fiscal...</h3>
+        <p id="status-subtitle" class="text-xs text-slate-400 mt-1">WebService <span id="modal-uf-nome" class="font-bold text-emerald-400">SEFAZ-SP</span></p>
+      </div>
+
+      <div class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-700 text-xs font-mono mb-6">
+        <div id="step-1" class="flex items-center justify-between text-slate-500">
+          <span>1. Validando Modelo (<span id="txt-modelo-step">NFC-e 65</span>)</span>
+          <i class="fa-solid fa-circle-notch animate-spin"></i>
+        </div>
+        <div id="step-2" class="flex items-center justify-between text-slate-500">
+          <span>2. Assinando Tag &lt;infNFe&gt; com Certificado A1</span>
+          <i class="fa-regular fa-circle"></i>
+        </div>
+        <div id="step-3" class="flex items-center justify-between text-slate-500">
+          <span>3. Gerando Hash SHA1 + QR Code v2.00</span>
+          <i class="fa-regular fa-circle"></i>
+        </div>
+        <div id="step-4" class="flex items-center justify-between text-slate-500">
+          <span>4. Envio POST SOAP NFeAutorizacao4</span>
+          <i class="fa-regular fa-circle"></i>
+        </div>
+        <div id="step-5" class="flex items-center justify-between text-slate-500">
+          <span>5. Retorno SEFAZ: cStat 100 (Autorizado)</span>
+          <i class="fa-regular fa-circle"></i>
+        </div>
+      </div>
+
+      <div id="modal-actions" class="hidden grid grid-cols-2 gap-3">
+        <button onclick="visualizarDocumento()" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-print"></i> Ver Documento
+        </button>
+        <button id="btn-whats" onclick="enviarWhatsApp()" class="py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
+          <i class="fa-brands fa-whatsapp"></i> WhatsApp
+        </button>
+        <button onclick="fecharModalEmissao()" class="col-span-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-xs font-semibold transition">
+          Fechar Janela
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DANFE NF-e MODELO 55 (A4 - E-COMMERCE) -->
+  <div id="modal-danfe-a4" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative">
+      <div class="flex justify-between items-center pb-4 border-b border-slate-700 mb-4">
+        <h3 class="font-bold text-white text-sm flex items-center gap-2">
+          <i class="fa-solid fa-file-invoice text-purple-400"></i> DANFE NF-e (Modelo 55 - Formato A4 / E-commerce)
+        </h3>
+        <button onclick="document.getElementById('modal-danfe-a4').classList.add('hidden')" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="bg-white text-slate-900 p-6 font-sans text-xs rounded border shadow-lg space-y-4">
+        <div class="border border-slate-900 p-3 flex justify-between items-center">
+          <div>
+            <h4 class="font-bold text-sm">PIZZARIA BELLA NAPOLI & E-COMMERCE LTDA</h4>
+            <p class="text-[11px] text-slate-600">CNPJ: 12.345.678/0001-90 | IE: 111.222.333.444</p>
+            <p class="text-[11px] text-slate-600">Av. Paulista, 1000 - São Paulo/SP - CEP: 01310-100</p>
+          </div>
+          <div class="text-right border-l border-slate-900 pl-4">
+            <span class="font-black text-base block">DANFE NF-e</span>
+            <span class="text-[10px] block">DOCUMENTO AUXILIAR NF-e</span>
+            <span class="font-bold text-xs">Nº <span id="nfe-a4-numero">00004521</span> - SÉRIE 1</span>
+          </div>
+        </div>
+
+        <div class="border border-slate-900 p-2 font-mono text-[10px] break-all">
+          <strong>CHAVE DE ACESSO:</strong> <span id="nfe-a4-chave">35260812345678000190550010000045211009823410</span>
+        </div>
+
+        <div class="border border-slate-900 p-2">
+          <h5 class="font-bold text-[11px] uppercase border-b border-slate-300 pb-1 mb-1">Destinatário</h5>
+          <div class="grid grid-cols-2 gap-2 text-[11px]">
+            <div><strong>NOME:</strong> <span id="nfe-a4-dest-nome">Carlos Eduardo Silva</span></div>
+            <div><strong>CPF/CNPJ:</strong> <span id="nfe-a4-dest-cpf">219.882.109-88</span></div>
+            <div><strong>ENDEREÇO:</strong> <span id="nfe-a4-dest-end">Rua das Flores, 450 - Centro</span></div>
+            <div><strong>CIDADE/UF:</strong> <span id="nfe-a4-dest-cidade">Curitiba/PR</span></div>
+          </div>
+        </div>
+
+        <div class="border border-slate-900 p-2">
+          <h5 class="font-bold text-[11px] uppercase border-b border-slate-300 pb-1 mb-1">Transporte</h5>
+          <div class="grid grid-cols-3 gap-2 text-[11px]">
+            <div><strong>FRETE:</strong> 0 - CIF (Emitente)</div>
+            <div><strong>TRANSPORTA:</strong> <span id="nfe-a4-transp">Correios (Sedex)</span></div>
+            <div><strong>VALOR FRETE:</strong> R$ <span id="nfe-a4-frete">24.50</span></div>
+          </div>
+        </div>
+
+        <table class="w-full text-left text-[11px] border border-slate-900">
+          <thead class="bg-slate-100 border-b border-slate-900">
+            <tr>
+              <th class="p-1">CÓD</th>
+              <th class="p-1">DESCRIÇÃO</th>
+              <th class="p-1">NCM</th>
+              <th class="p-1">CFOP</th>
+              <th class="p-1">QTD</th>
+              <th class="p-1">UNIT</th>
+              <th class="p-1 text-right">TOTAL</th>
+            </tr>
+          </thead>
+          <tbody id="nfe-a4-itens" class="divide-y divide-slate-300"></tbody>
+        </table>
+
+        <div class="flex justify-between items-center bg-slate-100 p-2 border border-slate-900 font-bold text-sm">
+          <span>VALOR TOTAL DA NOTA FISCAL:</span>
+          <span>R$ <span id="nfe-a4-total">0,00</span></span>
+        </div>
+      </div>
+
+      <div class="mt-4 flex justify-between">
+        <button onclick="mostrarXML()" class="px-4 py-2 bg-slate-900 text-emerald-400 font-mono text-xs rounded-lg hover:bg-slate-950">
+          &lt;Ver XML NF-e 55&gt;
+        </button>
+        <button onclick="window.print()" class="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-lg flex items-center gap-2">
+          <i class="fa-solid fa-print"></i> Imprimir DANFE A4
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DANFE NFC-e MODELO 65 (TÉRMICO 80mm - DELIVERY/BALCÃO) -->
+  <div id="modal-danfe-termico" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+      <div class="flex justify-between items-center pb-4 border-b border-slate-700 mb-4">
+        <h3 class="font-bold text-white text-sm flex items-center gap-2">
+          <i class="fa-solid fa-receipt text-emerald-400"></i> Cupom Térmico NFC-e (Modelo 65)
+        </h3>
+        <button onclick="document.getElementById('modal-danfe-termico').classList.add('hidden')" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="danfe-paper" class="bg-amber-50 text-slate-900 p-4 font-mono text-[11px] leading-tight rounded border border-amber-200 shadow-inner select-none mx-auto max-w-[320px]">
+        <div class="text-center font-bold uppercase mb-2">
+          <p class="text-xs">PIZZARIA BELLA NAPOLI LTDA</p>
+          <p class="text-[10px] font-normal">CNPJ: 12.345.678/0001-90</p>
+          <p class="text-[9px] font-bold text-blue-800 bg-blue-100 border border-blue-300 p-0.5 my-1" id="termico-tipo-operacao">DELIVERY LOCAL</p>
+          <p class="text-[10px] border-b border-dashed border-slate-400 pb-2 mb-2">Documento Auxiliar NFC-e</p>
+        </div>
+
+        <table class="w-full text-left mb-2 text-[10px]">
+          <thead>
+            <tr class="border-b border-slate-400">
+              <th>ITEM</th>
+              <th>QTDxUNIT</th>
+              <th class="text-right">TOTAL</th>
+            </tr>
+          </thead>
+          <tbody id="termico-itens"></tbody>
+        </table>
+
+        <div class="border-t border-dashed border-slate-400 pt-2 mb-2 space-y-1 text-[10px]">
+          <div class="flex justify-between font-bold text-xs">
+            <span>TOTAL R$:</span>
+            <span id="termico-total">0,00</span>
+          </div>
+          <div class="flex justify-between">
+            <span>PAGTO:</span>
+            <span id="termico-pagto">PIX</span>
+          </div>
+        </div>
+
+        <div class="text-center border-t border-dashed border-slate-400 pt-2 space-y-1">
+          <p class="font-bold text-[9px]">NFC-e Nº <span id="termico-numero">00001284</span></p>
+          <div class="py-2 flex justify-center">
+            <div id="qrcode-termico" class="p-2 bg-white rounded border border-slate-300"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 flex justify-between">
+        <button onclick="mostrarXML()" class="px-4 py-2 bg-slate-900 text-emerald-400 font-mono text-xs rounded-lg hover:bg-slate-950">
+          &lt;Ver XML&gt;
+        </button>
+        <button onclick="window.print()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg flex items-center gap-2">
+          <i class="fa-solid fa-print"></i> Imprimir Térmica
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL XML -->
+  <div id="modal-xml" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-800 mb-3">
+        <h3 class="font-bold text-white text-sm flex items-center gap-2">
+          <i class="fa-solid fa-code text-amber-400"></i> Estrutura XML Gerada (Layout 4.00)
+        </h3>
+        <button onclick="document.getElementById('modal-xml').classList.add('hidden')" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <pre id="xml-code-content" class="bg-slate-950 p-4 rounded-xl text-xs text-emerald-400 font-mono overflow-x-auto max-h-96 border border-slate-800 leading-relaxed"></pre>
+      <div class="mt-4 flex justify-end">
+        <button onclick="document.getElementById('modal-xml').classList.add('hidden')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Principal do ERP -->
+  <script>
+    const ufCodigos = {
+      SP: { ibge: "35" }, RJ: { ibge: "33" }, MG: { ibge: "31" },
+      RS: { ibge: "43" }, PR: { ibge: "41" }, BA: { ibge: "29" },
+      CE: { ibge: "23" }, SC: { ibge: "42" }
+    };
+
+    let ufSelecionada = "SP";
+    let ambienteSelecionado = "2";
+    let filtroCanalAtual = "TODOS";
+    let pedidoAtual = null;
+
+    // Base de Dados de NCMs Inteligentes
+    const baseNCMs = [
+      { nome: "Pizzas / Hambúrgueres / Lanches Prontos", cat: "Alimentos Preparados", ncm: "2106.90.90", cfop: "5102", csosn: "102", desc: "Universal para comidas preparadas no restaurante" },
+      { nome: "Refrigerantes / Cervejas (Lata ou Pet)", cat: "Bebida Industrializada (ST)", ncm: "2202.10.00", cfop: "5405", csosn: "500", desc: "Imposto ICMS retido antecipadamente na fábrica" },
+      { nome: "Sucos Naturais / Vitaminas da Casa", cat: "Bebida Preparada", ncm: "2009.12.00", cfop: "5102", csosn: "102", desc: "Sucos e bebidas de preparo próprio" },
+      { nome: "Camiseta / Vestuário (E-commerce)", cat: "Moda & Vestuário", ncm: "6109.10.00", cfop: "6102", csosn: "102", desc: "Venda local ou envio nacional para outros estados" }
+    ];
+
+    // Produtos Cadastrados no ERP
+    let produtosERP = [
+      { id: 1, nome: "Pizza Calabresa Gigante", preco: 65.00, ncm: "2106.90.90", cfop: "5102", csosn: "102", aprovado: true },
+      { id: 2, nome: "Guaraná Antarctica 2L", preco: 14.00, ncm: "2202.10.00", cfop: "5405", csosn: "500", aprovado: true },
+      { id: 3, nome: "Hambúrguer Bacon Artesanal", preco: 38.00, ncm: "2106.90.90", cfop: "5102", csosn: "102", aprovado: true },
+      { id: 4, nome: "Camiseta Algodão Egípcio", preco: 89.90, ncm: "6109.10.00", cfop: "6102", csosn: "102", aprovado: false }
+    ];
+
+    // Pedidos Híbridos (Delivery, Balcão & E-commerce)
+    let pedidos = [
+      {
+        id: "PED-8821",
+        canal: "DELIVERY",
+        modeloDoc: "65",
+        cliente: "Lucas Andrade",
+        cpf: "341.982.108-00",
+        whatsapp: "+55 11 98877-6655",
+        cidade: "São Paulo/SP",
+        ufDest: "SP",
+        indPres: "4",
+        indIntermed: "0",
+        itens: [
+          { nome: "Pizza Calabresa Gigante", qtd: 1, valor: 65.00, ncm: "2106.90.90", cfop: "5102" },
+          { nome: "Guaraná Antarctica 2L", qtd: 1, valor: 14.00, ncm: "2202.10.00", cfop: "5405" }
+        ],
+        pagamento: "PIX WhatsApp",
+        total: 79.00,
+        statusNFe: "PENDENTE",
+        numeroNota: "00001284",
+        chaveAcesso: null
+      },
+      {
+        id: "ECOM-4521",
+        canal: "ECOMMERCE",
+        modeloDoc: "55",
+        cliente: "Carlos Eduardo Silva",
+        cpf: "219.882.109-88",
+        whatsapp: "+55 41 99887-1122",
+        cidade: "Curitiba/PR",
+        ufDest: "PR",
+        endereco: "Rua das Flores, 450 - Centro - CEP 80010-000",
+        transportadora: "Correios (Sedex)",
+        frete: 24.50,
+        indPres: "2",
+        indIntermed: "1",
+        itens: [
+          { nome: "Camiseta Algodão Egípcio", qtd: 2, valor: 89.90, ncm: "6109.10.00", cfop: "6102" }
+        ],
+        pagamento: "Cartão Checkout E-commerce",
+        total: 204.30,
+        statusNFe: "PENDENTE",
+        numeroNota: "00004521",
+        chaveAcesso: null
+      },
+      {
+        id: "BALC-9001",
+        canal: "PRESENCIAL",
+        modeloDoc: "65",
+        cliente: "Cliente Balcão Rapido",
+        cpf: "Consumidor Não Identificado",
+        whatsapp: "Venda Presencial",
+        cidade: "São Paulo/SP",
+        ufDest: "SP",
+        indPres: "1",
+        indIntermed: "0",
+        itens: [
+          { nome: "Hambúrguer Bacon Artesanal", qtd: 1, valor: 38.00, ncm: "2106.90.90", cfop: "5102" }
+        ],
+        pagamento: "Cartão de Débito Balcão",
+        total: 38.00,
+        statusNFe: "PENDENTE",
+        numeroNota: "00001285",
+        chaveAcesso: null
+      }
+    ];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderizarPedidos();
+      buscarNCM("");
+      renderizarProdutosERP();
+    });
+
+    function renderizarPedidos() {
+      const tbody = document.getElementById("lista-pedidos");
+      tbody.innerHTML = "";
+
+      const lista = pedidos.filter(p => {
+        if(filtroCanalAtual === "TODOS") return true;
+        return p.canal === filtroCanalAtual;
+      });
+
+      lista.forEach(p => {
+        let badgeDoc = "";
+        if(p.modeloDoc === "55") {
+          badgeDoc = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center gap-1 w-max"><i class="fa-solid fa-truck-fast"></i> E-commerce (NF-e 55)</span>`;
+        } else if(p.canal === "DELIVERY") {
+          badgeDoc = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 flex items-center gap-1 w-max"><i class="fa-solid fa-motorcycle"></i> Delivery (NFC-e 65)</span>`;
+        } else {
+          badgeDoc = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 w-max"><i class="fa-solid fa-store"></i> Balcão (NFC-e 65)</span>`;
+        }
+
+        let statusBadge = p.statusNFe === "AUTORIZADO" 
+          ? `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><i class="fa-solid fa-check mr-1"></i> Autorizada</span>`
+          : `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20"><i class="fa-solid fa-clock mr-1"></i> Pendente</span>`;
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-700/20 transition";
+        tr.innerHTML = `
+          <td class="p-4">
+            <div class="font-bold text-slate-200">${p.id} - ${p.cliente}</div>
+            <div class="text-xs text-slate-400"><i class="fa-brands fa-whatsapp text-emerald-400"></i> ${p.whatsapp}</div>
+            <div class="text-[11px] text-slate-500">CPF: ${p.cpf}</div>
+          </td>
+          <td class="p-4">
+            ${badgeDoc}
+            <div class="text-[10px] text-slate-400 mt-1">${p.ufDest !== 'SP' ? '<span class="text-purple-400 font-bold">Interestadual</span>' : 'Estadual'} | Serie 1</div>
+          </td>
+          <td class="p-4 text-xs text-slate-300">
+            ${p.itens.map(i => `<div>• ${i.qtd}x ${i.nome}</div>`).join('')}
+            ${p.frete ? `<div class="text-[10px] text-emerald-400 font-bold mt-0.5">+ Frete R$ ${p.frete.toFixed(2)}</div>` : ''}
+          </td>
+          <td class="p-4 text-xs text-slate-300">
+            <div><i class="fa-solid fa-credit-card text-slate-400 mr-1"></i> ${p.pagamento}</div>
+            <div class="text-[11px] text-slate-400">${p.cidade}</div>
+          </td>
+          <td class="p-4 font-bold text-slate-100">
+            R$ ${p.total.toFixed(2)}
+          </td>
+          <td class="p-4">
+            ${statusBadge}
+          </td>
+          <td class="p-4 text-center">
+            ${p.statusNFe === 'PENDENTE' ? `
+              <button onclick="iniciarEmissao('${p.id}')" class="px-3 py-1.5 ${p.modeloDoc === '55' ? 'bg-purple-600 hover:bg-purple-500' : 'bg-emerald-600 hover:bg-emerald-500'} text-white text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 mx-auto">
+                <i class="fa-solid fa-bolt"></i> Emitir ${p.modeloDoc === '55' ? 'NF-e 55' : 'NFC-e'}
+              </button>
+            ` : `
+              <button onclick="abrirDocumento('${p.id}')" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition">
+                <i class="fa-solid fa-print"></i> Ver ${p.modeloDoc === '55' ? 'DANFE A4' : 'Cupom'}
+              </button>
+            `}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filtrarCanal(canal) {
+      filtroCanalAtual = canal;
+      ["todos", "delivery", "presencial", "ecommerce"].forEach(c => {
+        const btn = document.getElementById(`btn-filtro-${c}`);
+        if(btn) btn.className = "px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-xs font-semibold";
+      });
+      document.getElementById(`btn-filtro-${canal.toLowerCase()}`).className = "px-3 py-1 bg-emerald-600 text-white rounded-lg text-xs font-semibold";
+      renderizarPedidos();
+    }
+
+    function novoPedidoBalcao() {
+      const num = Math.floor(1000 + Math.random() * 9000);
+      pedidos.unshift({
+        id: `BALC-${num}`,
+        canal: "PRESENCIAL",
+        modeloDoc: "65",
+        cliente: "Cliente Presencial Balcão",
+        cpf: "Consumidor Não Identificado",
+        whatsapp: "Venda Presencial",
+        cidade: "São Paulo/SP",
+        ufDest: "SP",
+        indPres: "1",
+        indIntermed: "0",
+        itens: [
+          { nome: "Pizza Calabresa Gigante", qtd: 1, valor: 65.00, ncm: "2106.90.90", cfop: "5102" }
+        ],
+        pagamento: "Pix QR Balcão",
+        total: 65.00,
+        statusNFe: "PENDENTE",
+        numeroNota: `0000${num}`,
+        chaveAcesso: null
+      });
+      renderizarPedidos();
+    }
+
+    function novoPedidoEcommerce() {
+      const num = Math.floor(1000 + Math.random() * 9000);
+      pedidos.unshift({
+        id: `ECOM-${num}`,
+        canal: "ECOMMERCE",
+        modeloDoc: "55",
+        cliente: "Mariana Alvares",
+        cpf: "119.442.109-77",
+        whatsapp: "+55 31 98822-3344",
+        cidade: "Belo Horizonte/MG",
+        ufDest: "MG",
+        endereco: "Av. Afonso Pena, 1200 - Centro",
+        transportadora: "Melhor Envio / Jadlog",
+        frete: 19.90,
+        indPres: "2",
+        indIntermed: "1",
+        itens: [
+          { nome: "Camiseta Algodão Egípcio", qtd: 1, valor: 89.90, ncm: "6109.10.00", cfop: "6102" }
+        ],
+        pagamento: "Checkout E-commerce",
+        total: 109.80,
+        statusNFe: "PENDENTE",
+        numeroNota: `0000${num}`,
+        chaveAcesso: null
+      });
+      renderizarPedidos();
+    }
+
+    // Função de Busca do NCM
+    function buscarNCM(termo) {
+      const container = document.getElementById("container-resultados-ncm");
+      container.innerHTML = "";
+
+      const termoLower = termo.toLowerCase().trim();
+      const filtrados = baseNCMs.filter(i => i.nome.toLowerCase().includes(termoLower) || i.ncm.includes(termoLower));
+
+      filtrados.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "bg-slate-900/80 border border-slate-700 p-3.5 rounded-xl space-y-2 text-xs";
+        card.innerHTML = `
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-white">${item.nome}</span>
+            <span class="font-mono text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800 px-2 py-0.5 rounded">${item.ncm}</span>
+          </div>
+          <div class="text-[11px] text-slate-400">CFOP: <strong class="text-amber-300">${item.cfop}</strong> | CSOSN: <strong class="text-indigo-300">${item.csosn}</strong></div>
+          <p class="text-[11px] text-slate-500 leading-tight">${item.desc}</p>
+          <button type="button" onclick="selecionarNCMForm('${item.ncm}', '${item.cfop}')" class="w-full py-1 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 hover:text-white border border-indigo-500/30 rounded font-bold transition">
+            Usar no Cadastro
+          </button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function setSearchNCM(valor) {
+      document.getElementById("input-pesquisa-ncm").value = valor;
+      buscarNCM(valor);
+    }
+
+    function selecionarNCMForm(ncm, cfop) {
+      document.getElementById("cad-ncm").value = ncm;
+      document.getElementById("cad-cfop").value = cfop;
+      alert(`NCM ${ncm} e CFOP ${cfop} selecionados para o formulário de cadastro!`);
+    }
+
+    function cadastrarProdutoERP(e) {
+      e.preventDefault();
+      const nome = document.getElementById("cad-nome").value;
+      const preco = parseFloat(document.getElementById("cad-preco").value);
+      const ncm = document.getElementById("cad-ncm").value;
+      const cfop = document.getElementById("cad-cfop").value;
+
+      produtosERP.unshift({
+        id: Date.now(),
+        nome: nome,
+        preco: preco,
+        ncm: ncm,
+        cfop: cfop,
+        csosn: cfop === '5405' ? '500' : '102',
+        aprovado: true
+      });
+
+      renderizarProdutosERP();
+      alert(`Produto "${nome}" cadastrado com sucesso no ERP!`);
+      document.getElementById("cad-nome").value = "";
+      document.getElementById("cad-preco").value = "";
+    }
+
+    function renderizarProdutosERP() {
+      const tbody = document.getElementById("tabela-produtos-erp");
+      tbody.innerHTML = "";
+
+      produtosERP.forEach(p => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-700/20 transition";
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-white">${p.nome}</td>
+          <td class="p-3 text-slate-200">R$ ${p.preco.toFixed(2)}</td>
+          <td class="p-3 font-mono text-emerald-400 font-bold">${p.ncm}</td>
+          <td class="p-3 font-mono text-amber-300">${p.cfop}</td>
+          <td class="p-3 font-mono text-indigo-300">${p.csosn}</td>
+          <td class="p-3">
+            ${p.aprovado ? 
+              `<span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded font-bold"><i class="fa-solid fa-check mr-1"></i> Aprovado</span>` : 
+              `<span class="px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded font-bold"><i class="fa-solid fa-clock mr-1"></i> Pendente</span>`
+            }
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function simularImportacaoXML() {
+      document.getElementById("resultado-xml").classList.remove("hidden");
+    }
+
+    function adicionarViaXML(nome, preco, ncm, cfop) {
+      produtosERP.unshift({
+        id: Date.now(),
+        nome: nome,
+        preco: preco,
+        ncm: ncm,
+        cfop: cfop,
+        csosn: cfop === '5405' ? '500' : '102',
+        aprovado: true
+      });
+      renderizarProdutosERP();
+      alert(`Produto "${nome}" importado do XML e salvo no ERP!`);
+    }
+
+    function exportarRelatorioContador() {
+      alert("[Evo ERP] Gerando arquivo de auditoria fiscal em Excel/PDF para envio à contabilidade do cliente.");
+    }
+
+    function switchTab(tab) {
+      ["pedidos", "produtos", "xml", "config"].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add("hidden");
+        document.getElementById(`tab-btn-${t}`).className = "px-3.5 py-2 rounded-lg text-xs font-bold transition text-slate-300 hover:bg-slate-800 flex items-center gap-2";
+      });
+
+      document.getElementById(`tab-${tab}`).classList.remove("hidden");
+      document.getElementById(`tab-btn-${tab}`).className = "px-3.5 py-2 rounded-lg text-xs font-bold transition bg-emerald-600 text-white flex items-center gap-2";
+    }
+
+    function iniciarEmissao(pedId) {
+      pedidoAtual = pedidos.find(p => p.id === pedId);
+      if(!pedidoAtual) return;
+
+      document.getElementById("modal-uf-nome").innerText = `SEFAZ-${ufSelecionada}`;
+      document.getElementById("txt-modelo-step").innerText = pedidoAtual.modeloDoc === "55" ? "NF-e 55 (A4)" : "NFC-e 65 (Térmica)";
+
+      const modal = document.getElementById("modal-emissao");
+      modal.classList.remove("hidden");
+
+      document.getElementById("status-icon").className = "fa-solid fa-spinner animate-spin";
+      document.getElementById("status-title").innerText = `Transmitindo ${pedidoAtual.modeloDoc === '55' ? 'NF-e 55' : 'NFC-e 65'}...`;
+      document.getElementById("modal-actions").classList.add("hidden");
+
+      for(let i=1; i<=5; i++) {
+        const step = document.getElementById(`step-${i}`);
+        step.className = "flex items-center justify-between text-slate-500";
+        step.children[1].className = "fa-regular fa-circle";
+      }
+
+      setTimeout(() => setStepActive(1), 200);
+      setTimeout(() => setStepSuccess(1), 700);
+
+      setTimeout(() => setStepActive(2), 800);
+      setTimeout(() => setStepSuccess(2), 1400);
+
+      setTimeout(() => setStepActive(3), 1500);
+      setTimeout(() => setStepSuccess(3), 2000);
+
+      setTimeout(() => setStepActive(4), 2100);
+      setTimeout(() => setStepSuccess(4), 2800);
+
+      setTimeout(() => {
+        setStepSuccess(5);
+        document.getElementById("status-icon").className = "fa-solid fa-circle-check text-emerald-400";
+        document.getElementById("status-title").innerText = "Documento Autorizado com Sucesso!";
+        document.getElementById("status-subtitle").innerText = `Protocolo SEFAZ-${ufSelecionada}: 1352600098442 - cStat 100`;
+        document.getElementById("modal-actions").classList.remove("hidden");
+
+        if(pedidoAtual.canal === 'PRESENCIAL') {
+          document.getElementById("btn-whats").classList.add("hidden");
+        } else {
+          document.getElementById("btn-whats").classList.remove("hidden");
+        }
+
+        const codUF = ufCodigos[ufSelecionada] ? ufCodigos[ufSelecionada].ibge : "35";
+        pedidoAtual.statusNFe = "AUTORIZADO";
+        pedidoAtual.chaveAcesso = `${codUF}260812345678000190${pedidoAtual.modeloDoc}00100000${pedidoAtual.numeroNota}1009823410`;
+        renderizarPedidos();
+      }, 2900);
+    }
+
+    function setStepActive(num) {
+      const step = document.getElementById(`step-${num}`);
+      step.className = "flex items-center justify-between text-amber-400 font-bold";
+      step.children[1].className = "fa-solid fa-spinner animate-spin";
+    }
+
+    function setStepSuccess(num) {
+      const step = document.getElementById(`step-${num}`);
+      step.className = "flex items-center justify-between text-emerald-400 font-bold";
+      step.children[1].className = "fa-solid fa-circle-check";
+    }
+
+    function fecharModalEmissao() {
+      document.getElementById("modal-emissao").classList.add("hidden");
+    }
+
+    function visualizarDocumento() {
+      fecharModalEmissao();
+      abrirDocumento(pedidoAtual.id);
+    }
+
+    function abrirDocumento(pedId) {
+      const p = pedidos.find(item => item.id === pedId);
+      if(!p) return;
+      pedidoAtual = p;
+
+      if(p.modeloDoc === "55") {
+        document.getElementById("nfe-a4-numero").innerText = p.numeroNota;
+        document.getElementById("nfe-a4-chave").innerText = p.chaveAcesso || `352608123456780001905500100000${p.numeroNota}1009823410`;
+        document.getElementById("nfe-a4-dest-nome").innerText = p.cliente;
+        document.getElementById("nfe-a4-dest-cpf").innerText = p.cpf;
+        document.getElementById("nfe-a4-dest-end").innerText = p.endereco || "Endereço E-commerce";
+        document.getElementById("nfe-a4-dest-cidade").innerText = p.cidade;
+        document.getElementById("nfe-a4-transp").innerText = p.transportadora || "Correios";
+        document.getElementById("nfe-a4-frete").innerText = p.frete ? p.frete.toFixed(2) : "0.00";
+        document.getElementById("nfe-a4-total").innerText = p.total.toFixed(2);
+
+        const tbody = document.getElementById("nfe-a4-itens");
+        tbody.innerHTML = "";
+        p.itens.forEach((item, idx) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="p-1">${idx+1}</td>
+            <td class="p-1 font-bold">${item.nome}</td>
+            <td class="p-1 font-mono">${item.ncm}</td>
+            <td class="p-1 font-mono">${item.cfop}</td>
+            <td class="p-1">${item.qtd}</td>
+            <td class="p-1">R$ ${item.valor.toFixed(2)}</td>
+            <td class="p-1 text-right font-bold">R$ ${(item.qtd * item.valor).toFixed(2)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        document.getElementById("modal-danfe-a4").classList.remove("hidden");
+      } else {
+        document.getElementById("termico-numero").innerText = p.numeroNota;
+        document.getElementById("termico-total").innerText = p.total.toFixed(2);
+        document.getElementById("termico-pagto").innerText = p.pagamento;
+        document.getElementById("termico-tipo-operacao").innerText = p.canal === 'DELIVERY' ? 'DELIVERY LOCAL' : 'VENDA BALCÃO';
+
+        const tbody = document.getElementById("termico-itens");
+        tbody.innerHTML = "";
+        p.itens.forEach(item => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="py-0.5">${item.nome}</td>
+            <td>${item.qtd}x R$ ${item.valor.toFixed(2)}</td>
+            <td class="text-right font-bold">R$ ${(item.qtd * item.valor).toFixed(2)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        const qrContainer = document.getElementById("qrcode-termico");
+        qrContainer.innerHTML = "";
+        new QRCode(qrContainer, {
+          text: `https://www.sefaz.${ufSelecionada.toLowerCase()}.gov.br/nfce/qrcode?p=${p.chaveAcesso}|${ambienteSelecionado}|1|1|A892K109`,
+          width: 100,
+          height: 100
+        });
+
+        document.getElementById("modal-danfe-termico").classList.remove("hidden");
+      }
+    }
+
+    function mostrarXML() {
+      const p = pedidoAtual;
+      const xmlExemplo = `<?xml version="1.0" encoding="UTF-8"?>
+<NFe xmlns="http://www.portalfiscal.inf.br/nfe">
+  <infNFe Id="NFe${p.chaveAcesso}" versao="4.00">
+    <ide>
+      <cUF>35</cUF>
+      <cNF>00982341</cNF>
+      <natOp>${p.ufDest !== 'SP' ? 'VENDA MERCADORIA FORA DO ESTADO' : 'VENDA DENTRO DO ESTADO'}</natOp>
+      <mod>${p.modeloDoc}</mod> <!-- 55 = NF-e A4 E-commerce | 65 = NFC-e Delivery -->
+      <serie>1</serie>
+      <nNF>${parseInt(p.numeroNota)}</nNF>
+      <dhEmi>2026-08-28T19:42:00-03:00</dhEmi>
+      <tpNF>1</tpNF>
+      <idDest>${p.ufDest !== 'SP' ? '2' : '1'}</idDest>
+      <cMunFG>3550308</cMunFG>
+      <tpImp>${p.modeloDoc === '55' ? '1' : '4'}</tpImp>
+      <tpEmis>1</tpEmis>
+      <tpAmb>${ambienteSelecionado}</tpAmb>
+      <finNFe>1</finNFe>
+      <indFinal>1</indFinal>
+      <indPres>${p.indPres}</indPres> <!-- 1=Balcao, 2=E-commerce, 4=Delivery -->
+    </ide>
+    <emit>
+      <CNPJ>12345678000190</CNPJ>
+      <xNome>PIZZARIA BELLA NAPOLI & E-COMMERCE LTDA</xNome>
+      <enderEmit>
+        <xLgr>AVENIDA PAULISTA</xLgr>
+        <nro>1000</nro>
+        <xBairro>BELA VISTA</xBairro>
+        <cMun>3550308</cMun>
+        <xMun>SAO PAULO</xMun>
+        <UF>SP</UF>
+      </enderEmit>
+      <CRT>1</CRT>
+    </emit>
+    <dest>
+      <CPF>${p.cpf.replace(/\D/g,'')}</CPF>
+      <xNome>${p.cliente}</xNome>
+    </dest>
+    ${p.itens.map((item, idx) => `
+    <det nItem="${idx+1}">
+      <prod>
+        <cProd>PROD-00${idx+1}</cProd>
+        <xProd>${item.nome}</xProd>
+        <NCM>${item.ncm.replace(/\D/g,'')}</NCM>
+        <CFOP>${item.cfop}</CFOP>
+        <uCom>UN</uCom>
+        <qCom>${item.qtd}.0000</qCom>
+        <vUnCom>${item.valor.toFixed(4)}</vUnCom>
+        <vProd>${(item.qtd * item.valor).toFixed(2)}</vProd>
+        <indTot>1</indTot>
+      </prod>
+      <imposto>
+        <ICMS>
+          <ICMSSN102>
+            <orig>0</orig>
+            <CSOSN>102</CSOSN>
+          </ICMSSN102>
+        </ICMS>
+      </imposto>
+    </det>`).join('')}
+    <total>
+      <ICMSTot>
+        <vProd>${p.total.toFixed(2)}</vProd>
+        <vNF>${p.total.toFixed(2)}</vNF>
+      </ICMSTot>
+    </total>
+    <infRespTec>
+      <CNPJ>99999999000199</CNPJ>
+      <xContato>Suporte Evo CRM</xContato>
+      <email>suporte@evocrm.com.br</email>
+      <fone>11999999999</fone>
+    </infRespTec>
+  </infNFe>
+</NFe>`;
+
+      document.getElementById("xml-code-content").innerText = xmlExemplo;
+      document.getElementById("modal-xml").classList.remove("hidden");
+    }
+
+    function enviarWhatsApp() {
+      alert(`[Evolution API] Mensagem enviada para ${pedidoAtual.whatsapp}:\n\n"Olá ${pedidoAtual.cliente}! Sua Nota Fiscal foi gerada com sucesso: https://sefaz.${ufSelecionada.toLowerCase()}.gov.br/consulta?chave=${pedidoAtual.chaveAcesso}"`);
+    }
+
+    function salvarConfiguracoes(e) {
+      e.preventDefault();
+      alert(`Configurações Fiscais salvas para a SEFAZ-${ufSelecionada}!`);
+    }
+
+    function atualizarUF(uf) {
+      ufSelecionada = uf;
+      const ambTexto = ambienteSelecionado === "2" ? "Homologação" : "Produção";
+      document.getElementById("label-sefaz-uf").innerText = `SEFAZ-${uf} (${ambTexto})`;
+    }
+
+    function atualizarAmbiente(amb) {
+      ambienteSelecionado = amb;
+      atualizarUF(ufSelecionada);
+    }
+  </script>
+</body>
+</html>

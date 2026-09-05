@@ -127,7 +127,7 @@ export default function EditItemModal({
       setSelectedStageId(item.stage_id);
       setServices(item.custom_fields?.services || []);
       setCurrency(item.custom_fields?.currency || 'BRL');
-      setActiveTab('details');
+      setActiveTab(item.type === 'task' ? 'tasks' : 'details');
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { services: _services, currency: _currency, ...customAttrs } = item.custom_fields || {};
@@ -212,6 +212,9 @@ export default function EditItemModal({
   if (!item) return null;
 
   const getItemDisplayName = () => {
+    if (item.type === 'task') {
+      return item.title || t('kanban.task.untitled');
+    }
     if (item.type === 'contact' || !item.conversation) {
       return item.contact?.name || t('editItem.unknownUser');
     }

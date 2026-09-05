@@ -202,18 +202,23 @@ class PipelinesService {
   }
 
   // Add item to pipeline
+  // Note: the backend wraps this in { success, data, message } and `data` is
+  // already the flat serialized item — extractData unwraps that one level, so
+  // the resolved value is a PipelineItem, not the StandardResponse wrapper
+  // (PipelineItemResponse was the wrong annotation here; no caller relied on
+  // the return value before, so this only tightens the type to match runtime).
   async addItemToPipeline(
     pipelineId: string,
     data: {
-      item_id: string;
-      type: 'conversation' | 'contact';
+      item_id?: string;
+      type: 'conversation' | 'contact' | 'task';
       pipeline_stage_id: string;
       custom_fields?: Record<string, unknown>;
       notes?: string;
     },
-  ): Promise<PipelineItemResponse> {
+  ): Promise<PipelineItem> {
     const response = await api.post(`/pipelines/${pipelineId}/pipeline_items`, data);
-    return extractData<PipelineItemResponse>(response);
+    return extractData<PipelineItem>(response);
   }
 
   // Update item in pipeline

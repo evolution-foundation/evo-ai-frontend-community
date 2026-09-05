@@ -308,6 +308,17 @@ class IntegrationsService {
     return extractData<IntegrationHookDeleteResponse>(response);
   }
 
+  // Google Workspace (Drive/GTM read-only login) — separate OAuth callback
+  // from the Gmail-inbox flow (/google/callback), stores tokens as a
+  // 'google_workspace' Integrations::Hook instead of creating a channel.
+  async handleGoogleWorkspaceCallback(code: string, state: string): Promise<{ email: string | null }> {
+    // Top-level path (not under /integrations/) on purpose: the production
+    // gateway routes /api/v1/integrations/*/callback to a different backend
+    // service (AI-agent tool OAuth callbacks), which would swallow this request.
+    const response = await api.post('/google_workspace/callback', { code, state });
+    return extractData<{ email: string | null }>(response);
+  }
+
   // OpenAI Hook methods (using generic methods)
   async getOpenAIHook(): Promise<OpenAIHook | null> {
     const hook = await this.getIntegrationHook('openai');
