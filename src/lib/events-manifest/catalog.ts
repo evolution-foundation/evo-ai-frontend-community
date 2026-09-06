@@ -43,6 +43,8 @@ const CONTACT_TYPES = ['visitor', 'lead', 'customer'] as const;
 const CREATED_VIA = ['agent', 'system'] as const;
 // Webhooks::Purchases::LeadCaptureService outcomes that emit purchase.approved.
 const PURCHASE_OUTCOMES = ['created', 'already_in_pipeline'] as const;
+// The adapters registered in config/initializers/purchase_adapters.rb.
+const PURCHASE_PROVIDERS = ['virtu', 'hotmart', 'kiwify', 'cakto'] as const;
 
 const contactIdentityOptionalFields: Record<string, FieldSpec> = {
   name: f('string'),
@@ -360,7 +362,7 @@ const ENTRIES: EventCatalogEntry[] = [
     description: 'A purchase was approved on a payment platform and captured as a lead in the CRM.',
     schema: {
       required: {
-        provider: f('string', 'Payment platform key (virtu, hotmart, kiwify, cakto)'),
+        provider: f('string', 'Payment platform key (virtu, hotmart, kiwify, cakto)', PURCHASE_PROVIDERS),
         purchase_id: f('string', 'Purchase/order id on the platform'),
         pipeline_id: f('uuid'),
         pipeline_item_id: f('uuid', 'Card that holds the purchase'),

@@ -27,6 +27,22 @@ const offered = EVENT_NAMES.map((name) => getEvent(name))
 
 const offeredKeys = [...new Set(offered.map((o) => o.key))].sort();
 
+// The mirrored descriptions spell a closed set two ways: `a | b`, or a
+// parenthesised comma list — `Payment platform key (virtu, hotmart, kiwify,
+// cakto)`. Three items minimum, so `(e.g., Channel::Whatsapp)` is not read as
+// one. A two-value set in parentheses would still slip past; write those with
+// pipes.
+const BARE_TOKEN = /^[\w:.-]+$/;
+
+function spellsClosedSet(description?: string): boolean {
+  if (!description) return false;
+  if (description.includes('|')) return true;
+  return [...description.matchAll(/\(([^)]*)\)/g)].some(([, group]) => {
+    const items = group.split(',').map((item) => item.trim());
+    return items.length >= 3 && items.every((item) => BARE_TOKEN.test(item));
+  });
+}
+
 describe('trigger filter contract (CRM-519)', () => {
   it('offers at least one filter somewhere', () => {
     expect(offeredKeys.length).toBeGreaterThan(0);
@@ -61,7 +77,7 @@ describe('trigger filter contract (CRM-519)', () => {
   });
 
   it('declares options for every key whose description spells a closed set', () => {
-    const bad = offered.filter((o) => o.spec.description?.includes('|') && !o.spec.options?.length);
+    const bad = offered.filter((o) => spellsClosedSet(o.spec.description) && !o.spec.options?.length);
     expect(bad.map((o) => `${o.event}.${o.key}`)).toEqual([]);
   });
 

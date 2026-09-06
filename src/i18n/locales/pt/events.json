@@ -220,7 +220,13 @@
     },
     "provider": {
       "label": "Plataforma de pagamento",
-      "help": "virtu, hotmart, kiwify ou cakto."
+      "help": "Só dispara para compras vindas desta plataforma.",
+      "options": {
+        "virtu": "Virtu",
+        "hotmart": "Hotmart",
+        "kiwify": "Kiwify",
+        "cakto": "Cakto"
+      }
     },
     "product": {
       "label": "Produto",

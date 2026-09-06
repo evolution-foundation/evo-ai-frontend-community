@@ -345,9 +345,9 @@ interface LookupOption {
   type?: string;
 }
 
-// The list endpoints page at 20 by default; ask for the same page sizes the
-// contact/chat filters use so an account with dozens of labels or agents
-// still sees all of them (pipelines and stages do not paginate).
+// Every paged list endpoint gets an explicit page size, or the default (20 in
+// the CRM, 25 in evo-flow) truncates the dropdown in silence. Agents cap at
+// the auth service's MAX_PAGE_SIZE of 100; pipelines and stages do not paginate.
 async function loadLookup(kind: LookupKind, pipelineId?: string): Promise<LookupOption[]> {
   switch (kind) {
     case 'pipeline': {
@@ -372,7 +372,7 @@ async function loadLookup(kind: LookupKind, pipelineId?: string): Promise<Lookup
       return (response?.data || []).map((u) => ({ id: String(u.id), name: u.name }));
     }
     case 'campaign': {
-      const response = await campaignsService.getCampaigns();
+      const response = await campaignsService.getCampaigns({ per_page: 100 });
       return (response?.data || []).map((c) => ({ id: String(c.id), name: c.title || c.name }));
     }
     case 'template': {

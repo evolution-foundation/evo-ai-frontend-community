@@ -26,10 +26,15 @@ vi.mock('@/services/messageTemplates/globalMessageTemplatesService', () => ({
 
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import InboxesService from '@/services/channels/inboxesService';
+import { labelsService } from '@/services/contacts/labelsService';
+import UsersService from '@/services/users/usersService';
+import { campaignsService } from '@/services/campaigns/campaignsService';
+import GlobalMessageTemplateService from '@/services/messageTemplates/globalMessageTemplatesService';
 
-const mockGetPipelines = pipelinesService.getPipelines as unknown as ReturnType<typeof vi.fn>;
-const mockGetStages = pipelinesService.getPipelineStages as unknown as ReturnType<typeof vi.fn>;
-const mockListInboxes = InboxesService.list as unknown as ReturnType<typeof vi.fn>;
+const asMock = (fn: unknown) => fn as unknown as ReturnType<typeof vi.fn>;
+const mockGetPipelines = asMock(pipelinesService.getPipelines);
+const mockGetStages = asMock(pipelinesService.getPipelineStages);
+const mockListInboxes = asMock(InboxesService.list);
 
 const INBOXES = {
   data: [
@@ -380,5 +385,49 @@ describe('EventPropertiesForm — section labels name a group (CRM-141)', () => 
     expect(groups).toHaveLength(2);
     const ids = groups.map((g) => g.getAttribute('aria-labelledby'));
     expect(ids[0]).not.toBe(ids[1]);
+  });
+});
+
+// CRM-519 review: a lookup that asks for the default page silently drops every
+// record past it (20 in the CRM, 25 in evo-flow) — the dropdown looks complete
+// and is not. Pin the page size each lookup sends.
+describe('EventPropertiesForm — lookup page sizes', () => {
+  const cases: Array<[string, string, () => ReturnType<typeof vi.fn>, unknown]> = [
+    ['conversation.created', 'inbox_id', () => asMock(InboxesService.list), { per_page: 200 }],
+    ['contact.label.added', 'labelId', () => asMock(labelsService.getLabels), { per_page: 200 }],
+    // The auth service caps page_size at MAX_PAGE_SIZE = 100.
+    ['campaign.triggered', 'assigned_by_id', () => asMock(UsersService.getUsers), { per_page: 100 }],
+    // evo-flow's CampaignQueryDto rejects anything over 100.
+    ['campaign.message.sent', 'campaign_id', () => asMock(campaignsService.getCampaigns), { per_page: 100 }],
+    // message_templates has an explicit unpaginated branch for -1.
+    [
+      'campaign.message.sent',
+      'template_id',
+      () => asMock(GlobalMessageTemplateService.getTemplates),
+      { per_page: -1 },
+    ],
+  ];
+
+  it.each(cases)('%s → %s asks for a full page', async (eventName, key, getMock, expected) => {
+    const mock = getMock();
+    mock.mockResolvedValue({ data: [] });
+    const user = userEvent.setup();
+    render(<Harness eventName={eventName} />);
+
+    const listbox = await openPicker(user);
+    await user.click(within(listbox).getByText(key));
+
+    await waitFor(() => expect(mock).toHaveBeenCalledWith(expected));
+  });
+
+  it('asks the pipeline endpoints for nothing — they do not paginate', async () => {
+    mockGetPipelines.mockResolvedValue({ data: [] });
+    const user = userEvent.setup();
+    render(<Harness eventName="purchase.approved" />);
+
+    const listbox = await openPicker(user);
+    await user.click(within(listbox).getByText('pipeline_id'));
+
+    await waitFor(() => expect(mockGetPipelines).toHaveBeenCalledWith());
   });
 });

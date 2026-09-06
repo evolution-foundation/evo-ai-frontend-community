@@ -29,12 +29,11 @@ export interface EventBasicConfigProps {
 }
 
 /**
- * Básico half of the event trigger config (EVO-1276): the event selector, the
- * custom-event free-text input, the schema-driven <EventPropertiesForm> (optional
- * filters), the event-switch notice with Undo, and validity reporting (an event
- * chosen; custom needs its name). Extracted
- * verbatim from EventConfiguration so it can be consumed directly by the Básico
- * tab without duplicating the stateful selector across tab subtrees.
+ * Básico half of the event trigger config (EVO-1276): event selector, custom-event
+ * input, the <EventPropertiesForm> filters, the event-switch notice with Undo, and
+ * validity reporting (an event chosen; custom needs its name). Lives apart from
+ * EventConfiguration so the Básico tab can mount it without the stateful selector
+ * being duplicated across tab subtrees.
  */
 export function EventBasicConfig({
   eventName,
