@@ -317,8 +317,9 @@
  * scoped to `.react-flow {}` and dark defaults scoped to
  * `.react-flow.dark {}`. The CRM theme toggle drives that `.dark` class
  * on the React Flow wrapper via the `colorMode` prop on <ReactFlow>
- * (set in BaseFlowCanvas from the `useDarkMode()` hook), so the
- * package's own dark switching now works correctly out of the box.
+ * (BaseFlowCanvas reads `DarkModeContext` directly — not `useDarkMode()`,
+ * which throws without a provider), so the package's own dark switching
+ * works out of the box.
  *
  * We still want the chrome (Controls, MiniMap internals, edges,
  * attribution, handle) to look like the rest of the CRM, so this block
@@ -334,7 +335,10 @@
  *
  * Lives here, next to BaseFlowCanvas, because this file is imported by the
  * component and therefore reaches every host of the canvas — globals.css
- * does not (the shell that embeds the CRM never loads it).
+ * does not (the shell that embeds the CRM never loads it). The host must
+ * therefore define the `--color-flow-*` aliases used below: an undefined
+ * one makes the whole `--xy-*` declaration invalid, and the chrome falls
+ * back to `none`/transparent instead of the package default (CRM-520).
  */
 .react-flow.react-flow,
 .react-flow.react-flow.dark {
