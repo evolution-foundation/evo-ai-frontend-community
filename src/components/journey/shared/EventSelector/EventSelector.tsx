@@ -109,7 +109,9 @@ export function EventSelector({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    // `modal`: inside the node Dialog the wheel dies on the dialog's scroll lock
+    // otherwise (Radix Popover-in-Dialog, CRM-519).
+    <Popover open={open} onOpenChange={setOpen} modal>
       <PopoverTrigger asChild>
         <Button
           id={id}

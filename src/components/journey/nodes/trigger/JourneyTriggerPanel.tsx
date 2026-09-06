@@ -58,8 +58,9 @@ export function JourneyTriggerPanel({
   const [showPipelineStageChangedConfig, setShowPipelineStageChangedConfig] = useState(
     data.triggerType === 'pipelineStageChanged',
   );
-  // Required-field validity reported by EventBasicConfig. True (non-blocking)
-  // whenever the event config isn't shown, so other trigger types can always Save.
+  // Event-config validity reported by EventBasicConfig: an event is chosen, and
+  // a custom one has its name. True (non-blocking) whenever the event config
+  // isn't shown, so other trigger types can always Save.
   const [eventPropsValid, setEventPropsValid] = useState(true);
   // Active tab for the event trigger's Básico/Avançado layout (EVO-1276).
   const [activeTab, setActiveTab] = useState<'basico' | 'avancado'>('basico');
@@ -80,9 +81,9 @@ export function JourneyTriggerPanel({
   }, [data]);
 
   const handleSave = () => {
-    // Event-tabs path uses an enabled Save + this guard (instead of saveDisabled)
-    // so an invalid save snaps the user back to Básico where the inline
-    // required-field error lives, rather than silently doing nothing. See EVO-1276.
+    // Save is disabled while the event config is invalid (CRM-519, same
+    // dirty && isValid pattern as the action panels); this guard only keeps a
+    // programmatic call from persisting a half-configured trigger.
     if (showEventConfig && !eventPropsValid) {
       setActiveTab('basico');
       return;
@@ -216,15 +217,16 @@ export function JourneyTriggerPanel({
     onCancel: onClose,
     onSave: handleSave,
     dirty,
+    // Event trigger: no event chosen (or custom without a name) keeps Save off;
+    // the inline message under the field says what is missing (CRM-519).
+    saveDisabled: showEventConfig && !eventPropsValid,
     saveLabel: t('panels.actions.save'),
     cancelLabel: t('panels.actions.cancel'),
     savingAriaLabel: t('modal.actions.saving'),
     contentClassName: 'max-w-[800px]',
   };
 
-  // Event trigger type: Básico/Avançado tabs (EVO-1276). Save is enabled and the
-  // empty-required-field case is handled by handleSave's guard, so the user is
-  // bounced to Básico where the inline error is visible.
+  // Event trigger type: Básico/Avançado tabs (EVO-1276).
   if (showEventConfig) {
     const advancedBadge =
       variableMappingsCount > 0 ? (
