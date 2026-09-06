@@ -102,7 +102,7 @@ export default function CustomAttributeEditor({
           </SelectTrigger>
           <SelectContent>
             {availableCustomAttributes.length === 0 && !loadingCustomAttributes && (
-              <div className="p-2 text-sm text-gray-500">
+              <div className="p-2 text-sm text-muted-foreground">
                 {t('customAttributeEditor.noAttributes')}
               </div>
             )}

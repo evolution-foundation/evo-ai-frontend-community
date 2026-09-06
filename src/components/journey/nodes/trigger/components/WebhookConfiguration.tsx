@@ -266,11 +266,11 @@ export function WebhookConfiguration({
               </span>
             )}
           </p>
-          <div className="mt-3 p-3 bg-gray-100 dark:bg-gray-800 rounded-md">
-            <Label className="text-xs font-medium text-gray-700 dark:text-gray-300 block mb-2">
+          <div className="mt-3 p-3 bg-muted rounded-md">
+            <Label className="text-xs font-medium text-foreground block mb-2">
               {t('triggerComponents.webhook.curlExample')}:
             </Label>
-            <pre className="text-xs text-gray-600 dark:text-gray-400 overflow-x-auto">
+            <pre className="text-xs text-muted-foreground overflow-x-auto">
               {`curl --location '${
                 import.meta.env.VITE_CAMPAIGN_API_URL || 'http://localhost:3000'
               }/api/v1/journeys/trigger/5286fd5c-7ed9-4c0c-ae3e-479e35047fb8' \\
@@ -314,7 +314,7 @@ export function WebhookConfiguration({
                   onMappingsChange={onVariableMappingsChange}
                   paths={webhookPaths}
                   journeyId={journeyId}
-                  className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border"
+                  className="bg-background p-4 rounded-lg border"
                 />
               </div>
             </div>
