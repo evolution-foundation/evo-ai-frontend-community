@@ -628,6 +628,29 @@
       "loadError": "Failed to load configuration",
       "testError": "Connection test failed",
       "testUnknown": "Unknown response from Hub"
+    },
+    "preview": {
+      "title": "Configuration detected in Evo Hub",
+      "refresh": "Refresh",
+      "plan": "Current plan",
+      "sharedMetaApp": "Shared Meta App:",
+      "ownMetaApp": "· Your own Meta App (BYO):",
+      "channelLimit": "· Total channels:",
+      "yes": "yes",
+      "no": "no",
+      "unlimited": "unlimited",
+      "loading": "Loading…",
+      "noData": "No data.",
+      "availableApps": "Available Meta Apps",
+      "cloudApp": "Evolution Meta App (Cloud)",
+      "shared": "shared",
+      "own": "your own (BYO) ·",
+      "noApps": "No Meta Apps available. Register one in Evo Hub to start creating channels.",
+      "channels": "Channels already created in Hub",
+      "noChannels": "No channels created yet.",
+      "loadError": "Could not load Evo Hub configuration",
+      "partialError": "Some information could not be loaded ({{failed}} of {{total}}). Check the API URL and token.",
+      "moreChannels": "+ {{count}} channels"
     }
   }
 }

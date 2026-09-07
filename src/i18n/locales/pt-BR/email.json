@@ -57,5 +57,21 @@
   },
   "success": {
     "created": "Canal de email criado com sucesso!"
+  },
+  "callback": {
+    "processing": "Processando autorização...",
+    "processingProvider": "Processando autorização do {{provider}}...",
+    "authorizationError": "Erro de autorização: {{error}}",
+    "missingParameters": "Código de autorização ou state não encontrado",
+    "connected": "{{provider}} conectado com sucesso!",
+    "connectionError": "Erro ao conectar {{provider}}",
+    "processingError": "Erro ao processar autorização do {{provider}}",
+    "unknownError": "Erro desconhecido ao conectar {{provider}}",
+    "processingTitle": "Processando...",
+    "successTitle": "Sucesso!",
+    "errorTitle": "Erro",
+    "redirecting": "Redirecionando...",
+    "closeWindow": "Você pode fechar esta janela.",
+    "integration": "Integração com {{provider}}"
   }
 }
