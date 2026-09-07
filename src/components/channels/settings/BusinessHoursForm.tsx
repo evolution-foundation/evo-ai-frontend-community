@@ -46,11 +46,13 @@ interface BusinessHoursFormProps {
   }) => Promise<void>;
 }
 
+const EMPTY_WORKING_HOURS: unknown[] = [];
+
 export default function BusinessHoursForm({
   workingHoursEnabled = false,
   outOfOfficeMessage = '',
   outOfOfficeMessageTemplateId = null,
-  workingHours = [],
+  workingHours = EMPTY_WORKING_HOURS,
   timezone,
   registerSave,
   onUpdate,
