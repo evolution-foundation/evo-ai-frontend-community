@@ -34,6 +34,7 @@ const EvolutionService = {
         admin_token: params.adminToken,
         instance_name: params.instanceName,
         phone_number: params.phoneNumber,
+        mode: params.mode,
         proxy_settings: params.proxySettings,
         instance_settings: params.instanceSettings,
       },
