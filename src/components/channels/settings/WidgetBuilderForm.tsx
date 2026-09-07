@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import {
   Card,
@@ -66,6 +67,7 @@ export default function WidgetBuilderForm({
   onUpdate,
   registerSave,
 }: WidgetBuilderFormProps) {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('channels');
   const [config, setConfig] = useState<WidgetConfig>(getDefaultWidgetConfig());
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -258,7 +260,7 @@ export default function WidgetBuilderForm({
                       <div className="relative">
                         <img
                           src={config.avatarUrl}
-                          alt="Avatar"
+                          alt={tUi("interface:widgetbuilderform.avatar")}
                           className="w-16 h-16 rounded-full object-cover border-2 border-border"
                         />
                         <Button
@@ -488,15 +490,15 @@ export default function WidgetBuilderForm({
                         size="sm"
                         onClick={async () => {
                           if (!widgetScript) {
-                            toast.error(t('settings.widgetBuilder.widgetCode.noScriptError') || 'No script available to copy');
+                            toast.error(t('settings.widgetBuilder.widgetCode.noScriptError'));
                             return;
                           }
                           try {
                             await navigator.clipboard.writeText(widgetScript);
-                            toast.success(t('settings.widgetBuilder.widgetCode.copySuccess') || 'Code copied to clipboard!');
+                            toast.success(t('settings.widgetBuilder.widgetCode.copySuccess'));
                           } catch (error) {
                             console.error('Failed to copy code:', error);
-                            toast.error(t('settings.widgetBuilder.widgetCode.copyError') || 'Failed to copy code');
+                            toast.error(t('settings.widgetBuilder.widgetCode.copyError'));
                           }
                         }}
                         disabled={!widgetScript}
@@ -510,22 +512,22 @@ export default function WidgetBuilderForm({
                       </pre>
                     </div>
                     <div className="flex items-center justify-between pt-2">
-                      <span className="text-xs font-medium text-muted-foreground">Iframe Embed</span>
+                      <span className="text-xs font-medium text-muted-foreground">{tUi("interface:widgetbuilderform.iframeEmbed")}</span>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         onClick={async () => {
                           if (!widgetIframeEmbed) {
-                            toast.error('No iframe embed available to copy');
+                            toast.error(tUi("interface:widgetbuilderform.noIframeEmbedAvailableToCopy"));
                             return;
                           }
                           try {
                             await navigator.clipboard.writeText(widgetIframeEmbed);
-                            toast.success('Iframe code copied to clipboard!');
+                            toast.success(tUi("interface:widgetbuilderform.iframeCodeCopiedToClipboard"));
                           } catch (error) {
                             console.error('Failed to copy iframe code:', error);
-                            toast.error('Failed to copy iframe code');
+                            toast.error(tUi("interface:widgetbuilderform.couldNotCopyIframeCode"));
                           }
                         }}
                         disabled={!widgetIframeEmbed}

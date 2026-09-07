@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { useState, useEffect, useCallback } from 'react';
 import {
   Input,
@@ -70,24 +71,24 @@ const getAgentTypes = (t: (key: string) => string) => [
   },
   {
     value: 'loop',
-    label: 'Loop',
-    description: 'Loop',
+    label: i18n.t("interface:basicinfoform.loop"),
+    description: i18n.t("interface:basicinfoform.loop"),
     icon: RefreshCw,
     badge: 'Loop',
     badgeVariant: 'outline' as const,
   },
   {
     value: 'sequential',
-    label: 'Sequential',
-    description: 'Sequential',
+    label: i18n.t("aiAgents:planner.types.sequential"),
+    description: i18n.t("aiAgents:planner.types.sequential"),
     icon: ArrowRight,
     badge: 'Sequential',
     badgeVariant: 'outline' as const,
   },
   {
     value: 'parallel',
-    label: 'Parallel',
-    description: 'Parallel',
+    label: i18n.t("aiAgents:planner.types.parallel"),
+    description: i18n.t("aiAgents:planner.types.parallel"),
     icon: GitBranch,
     badge: 'Parallel',
     badgeVariant: 'outline' as const,

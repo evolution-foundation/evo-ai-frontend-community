@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState, useEffect } from 'react';
 import {
   Card,
@@ -337,7 +338,7 @@ export default function ModerationDashboard({ conversationId }: ModerationDashbo
                         </div>
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {new Date(moderation.created_at).toLocaleString()}
+                        {new Date(moderation.created_at).toLocaleString(getFormattingLocale())}
                       </div>
                     </div>
 
@@ -449,11 +450,11 @@ export default function ModerationDashboard({ conversationId }: ModerationDashbo
                         {moderation.status === 'approved'
                           ? t('settings.moderation.approvedBy', {
                               name: moderation.moderated_by.name,
-                              date: new Date(moderation.moderated_at).toLocaleString(),
+                              date: new Date(moderation.moderated_at).toLocaleString(getFormattingLocale()),
                             })
                           : t('settings.moderation.rejectedBy', {
                               name: moderation.moderated_by.name,
-                              date: new Date(moderation.moderated_at).toLocaleString(),
+                              date: new Date(moderation.moderated_at).toLocaleString(getFormattingLocale()),
                             })}
                       </div>
                     )}

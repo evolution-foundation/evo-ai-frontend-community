@@ -70,5 +70,14 @@
   },
   "messages": {
     "loadError": "Error loading tools"
+  },
+  "errors": {
+    "permissionDenied": "You do not have permission to view tools",
+    "loadError": "Could not load tools",
+    "applyFiltersError": "Could not apply filters"
+  },
+  "emptyState": {
+    "title": "No tools found",
+    "description": "Try changing your search or filters."
   }
 }

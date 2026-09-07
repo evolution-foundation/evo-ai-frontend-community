@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Edit, X, Clock, AlertCircle } from 'lucide-react';
 import { ScheduledAction } from '@/types/automation';
@@ -106,7 +107,7 @@ export default function ScheduledActionsTable({
       render: action => (
         <div className="space-y-1">
           <div className="text-sm">
-            {new Date(action.scheduled_for).toLocaleString('pt-BR')}
+            {new Date(action.scheduled_for).toLocaleString(getFormattingLocale())}
           </div>
           {action.status === 'scheduled' && !action.overdue && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -129,7 +130,7 @@ export default function ScheduledActionsTable({
       sortable: true,
       render: action => (
         <div className="text-sm text-muted-foreground">
-          {new Date(action.created_at).toLocaleString('pt-BR')}
+          {new Date(action.created_at).toLocaleString(getFormattingLocale())}
         </div>
       ),
     },

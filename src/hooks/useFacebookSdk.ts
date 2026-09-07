@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useCallback, useRef } from 'react';
 
 const SDK_SRC = 'https://connect.facebook.net/en_US/sdk.js';
@@ -23,6 +24,7 @@ export interface FacebookSdkInit {
  * (it comes from the Hub, per channel), so init stays with the consumer.
  */
 export function useFacebookSdk() {
+  const { t: tUi } = useUiTranslation();
   const loading = useRef<Promise<void> | null>(null);
 
   const loadSdk = useCallback((): Promise<void> => {
@@ -50,7 +52,7 @@ export function useFacebookSdk() {
 
       timer = setInterval(() => {
         if (window.FB) return settle();
-        if (Date.now() - started >= SDK_LOAD_TIMEOUT_MS) settle(new Error('Facebook SDK failed to load'));
+        if (Date.now() - started >= SDK_LOAD_TIMEOUT_MS) settle(new Error(tUi("channels:settings.authorizationBanners.success.sdkNotLoaded")));
       }, 100);
 
       const previousInit = window.fbAsyncInit;
@@ -70,12 +72,12 @@ export function useFacebookSdk() {
       script.async = true;
       script.defer = true;
       script.src = SDK_SRC;
-      script.onerror = () => settle(new Error('Facebook SDK failed to load'));
+      script.onerror = () => settle(new Error(tUi("channels:settings.authorizationBanners.success.sdkNotLoaded")));
       document.head.appendChild(script);
     });
 
     return loading.current;
-  }, []);
+  }, [tUi]);
 
   const initSdk = useCallback(({ appId, version }: FacebookSdkInit) => {
     window.FB?.init({

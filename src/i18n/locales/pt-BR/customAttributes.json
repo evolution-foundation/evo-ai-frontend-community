@@ -89,7 +89,8 @@
         "hint": "A chave será usada para identificar este atributo na API. Use apenas letras minúsculas, números e sublinhados.",
         "errors": {
           "required": "Chave do atributo é obrigatória",
-          "invalid": "Chave deve conter apenas letras minúsculas, números e sublinhados"
+          "invalid": "Chave deve conter apenas letras minúsculas, números e sublinhados",
+          "duplicate": "A chave do atributo já existe"
         }
       },
       "description": {
@@ -203,7 +204,8 @@
         "pipeline": "Este atributo será preenchido diretamente no card.",
         "stage": "Este atributo será preenchido diretamente no card.",
         "descriptionStages": "O valor será definido pelos estágios",
-        "descriptionCards": "O valor será definido pelos cards"
+        "descriptionCards": "O valor será definido pelos cards",
+        "item": "Este atributo é compartilhado com os itens deste pipeline."
       },
       "attributeOrigin": {
         "pipeline": "Atributo do Pipeline",
@@ -254,7 +256,13 @@
     "deleteSuccess": "Atributo personalizado deletado com sucesso",
     "deleteError": "Erro ao deletar atributo personalizado",
     "bulkDeleteSuccess": "{{count}} atributo(s) personalizado(s) deletado(s) com sucesso",
-    "bulkDeleteError": "Erro ao deletar atributos personalizados"
+    "bulkDeleteError": "Erro ao deletar atributos personalizados",
+    "permissionDenied": {
+      "read": "Você não tem permissão para visualizar atributos personalizados",
+      "create": "Você não tem permissão para criar atributos personalizados",
+      "update": "Você não tem permissão para editar atributos personalizados",
+      "delete": "Você não tem permissão para excluir atributos personalizados"
+    }
   },
   "dialog": {
     "delete": {

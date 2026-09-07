@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState } from 'react';
 import { Button, Card, CardContent } from '@evoapi/design-system';
 import { Edit, Lock } from 'lucide-react';
@@ -32,7 +33,7 @@ function formatDate(dateValue?: string | number): string | null {
   if (!iso) return null;
   const date = new Date(iso);
   if (isNaN(date.getTime())) return null;
-  return date.toLocaleDateString('pt-BR', {
+  return date.toLocaleDateString(getFormattingLocale(), {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',

@@ -245,7 +245,8 @@
     "paused": "(paused)",
     "send": "Send",
     "preparingConverter": "Preparing audio converter...",
-    "maxDurationReached": "Maximum recording duration reached (5 min). Audio stopped automatically."
+    "maxDurationReached": "Maximum recording duration reached (5 min). Audio stopped automatically.",
+    "cancel": "Cancel"
   },
   "cannedResponses": {
     "loading": "Loading canned responses...",
@@ -268,7 +269,8 @@
       "whatsappMessage": "You can only reply to this conversation using a message template due to",
       "cannotReply": "You cannot reply because",
       "linkText": "24-hour messaging window restrictions",
-      "zapiDisconnected": "WhatsApp disconnected. Connect the number to send messages."
+      "zapiDisconnected": "WhatsApp disconnected. Connect the number to send messages.",
+      "whatsappDisconnected": "WhatsApp is disconnected. Connect the number to send messages."
     },
     "noteBanner": {
       "title": "Attendance note",
@@ -303,14 +305,18 @@
       "bulkStatusSuccess": "{{count}} conversation(s) updated",
       "bulkStatusPartialSuccess": "{{success}} updated, {{failed}} failed",
       "bulkStatusError": "Error updating conversations",
-      "bulkStatusNoPermission": "You do not have permission to update conversations"
+      "bulkStatusNoPermission": "You do not have permission to update conversations",
+      "priorityLabel": "Priority"
     },
     "contactNoName": "Contact without name",
     "status": "Status:",
     "statusButton": {
       "open": "Open",
       "complete": "Complete",
-      "reopen": "Reopen"
+      "reopen": "Reopen",
+      "openFull": "Open conversation",
+      "pause": "Pause conversation",
+      "changeStatus": "Change conversation status"
     },
     "statusPill": {
       "open": "Open Conversation",
@@ -706,7 +712,8 @@
       "helper": "Save important notes on the conversation so other users can see them later.",
       "placeholder": "Add a note to this conversation...",
       "save": "Save",
-      "saving": "Saving..."
+      "saving": "Saving...",
+      "cancel": "Cancel"
     },
     "emojiPicker": {
       "searchPlaceholder": "Search emojis..."
@@ -801,6 +808,9 @@
         "dateTimeFuture": "Date and time must be in the future",
         "messageRequired": "Type a message before scheduling"
       }
+    },
+    "cannedResponses": {
+      "tooltip": "Canned responses (or type /)"
     }
   },
   "conversationsFilter": {
@@ -1066,5 +1076,22 @@
   "unreadBadge": {
     "ariaLabel_one": "{{count}} unread message",
     "ariaLabel_other": "{{count}} unread messages"
+  },
+  "messageBubble": {
+    "openInNewTab": "Open in new tab"
+  },
+  "scheduledActions": {
+    "channelWhatsapp": "WhatsApp",
+    "channelSms": "SMS",
+    "channelEmail": "Email",
+    "channelTelegram": "Telegram"
+  },
+  "post": {
+    "likes_one": "{{count}} like",
+    "likes_other": "{{count}} likes",
+    "comments_one": "{{count}} comment",
+    "comments_other": "{{count}} comments",
+    "shares_one": "{{count}} share",
+    "shares_other": "{{count}} shares"
   }
 }

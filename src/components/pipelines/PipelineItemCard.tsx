@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Button, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@evoapi/design-system';
 import { Edit, Trash2, MoreVertical, Phone, Mail, MessageSquare, User, Clock, AlertCircle, ListTodo, CheckCircle2, GripVertical, GitBranch } from 'lucide-react';
@@ -100,7 +101,7 @@ export default function PipelineItemCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2 mb-1">
             <h4 className="text-sm font-semibold text-foreground truncate">
-              {item.contact?.name || t('kanban.item.unknownUser', 'Usuário Desconhecido')}
+              {item.contact?.name || t('kanban.item.unknownUser')}
             </h4>
             {item.conversation?.display_id && (
               <span className="text-xs text-muted-foreground font-medium">
@@ -170,7 +171,7 @@ export default function PipelineItemCard({
               <div className="flex items-center space-x-2 mb-1">
                 <span className="text-xs font-medium text-foreground">
                   {item.conversation.last_non_activity_message.sender?.name ||
-                    t('kanban.item.system', 'Sistema')}
+                    t('kanban.item.system')}
                 </span>
               </div>
               <p className="text-sm text-foreground line-clamp-2 leading-relaxed">
@@ -183,7 +184,7 @@ export default function PipelineItemCard({
                     typeof item.conversation.last_non_activity_message.created_at === 'number'
                       ? item.conversation.last_non_activity_message.created_at * 1000
                       : item.conversation.last_non_activity_message.created_at,
-                  ).toLocaleString('pt-BR', {
+                  ).toLocaleString(getFormattingLocale(), {
                     day: '2-digit',
                     month: '2-digit',
                     hour: '2-digit',
@@ -193,9 +194,9 @@ export default function PipelineItemCard({
                 {item.conversation.last_non_activity_message?.message_type !== undefined && (
                   <span className="text-xs text-muted-foreground">
                     {item.conversation.last_non_activity_message.message_type === 0
-                      ? t('kanban.conversation.incoming', 'Entrada')
+                      ? t('kanban.conversation.incoming')
                       : item.conversation.last_non_activity_message.message_type === 1
-                        ? t('kanban.conversation.outgoing', 'Saída')
+                        ? t('kanban.conversation.outgoing')
                         : ''}
                   </span>
                 )}
@@ -220,7 +221,7 @@ export default function PipelineItemCard({
                 </svg>
               </div>
               <span className="text-foreground font-medium truncate max-w-16">
-                {item.conversation?.inbox?.name || t('kanban.item.noInbox', 'Sem Inbox')}
+                {item.conversation?.inbox?.name || t('kanban.item.noInbox')}
               </span>
             </div>
           </div>
@@ -236,10 +237,10 @@ export default function PipelineItemCard({
               }`}
             >
               {item.conversation?.status === 'open'
-                ? t('kanban.item.status.open', 'Aberto')
+                ? t('kanban.item.status.open')
                 : item.conversation?.status === 'resolved'
-                ? t('kanban.item.status.resolved', 'Resolvido')
-                : item.conversation?.status || t('kanban.item.status.unknown', 'Desconhecido')}
+                ? t('kanban.item.status.resolved')
+                : item.conversation?.status || t('kanban.item.status.unknown')}
             </span>
           </div>
         </div>
@@ -261,7 +262,7 @@ export default function PipelineItemCard({
                     />
                   </svg>
                 </div>
-                <span className="font-medium">{t('kanban.item.valueLabel', 'Valor Total:')}</span>
+                <span className="font-medium">{t('kanban.item.valueLabel')}</span>
               </div>
               <div className="text-xs font-semibold text-green-600 dark:text-green-400">
                 {item.services_info.formatted_total}
@@ -327,8 +328,8 @@ export default function PipelineItemCard({
           </div>
           <span>
             {item.conversation?.last_activity_at
-              ? new Date(item.conversation.last_activity_at * 1000).toLocaleDateString('pt-BR')
-              : new Date((item.entered_at || 0) * 1000).toLocaleDateString('pt-BR')}
+              ? new Date(item.conversation.last_activity_at * 1000).toLocaleDateString(getFormattingLocale())
+              : new Date((item.entered_at || 0) * 1000).toLocaleDateString(getFormattingLocale())}
           </span>
         </div>
 

@@ -29,10 +29,10 @@ export function WaitConditionConfig({ data, onChange, journeyId }: WaitCondition
   const [conditionType, setConditionType] = useState(data.conditionType || 'contactCreated');
 
   const CONDITION_TYPES = [
-    { value: 'contactCreated', label: t('panels.waitComponents.condition.types.contactCreated') },
-    { value: 'contactUpdated', label: t('panels.waitComponents.condition.types.contactUpdated') },
-    { value: 'label', label: t('panels.waitComponents.condition.types.label') },
-    { value: 'customAttribute', label: t('panels.waitComponents.condition.types.customAttribute') },
+    { value: 'contactCreated', label: t("triggerComponents.types.contactCreated") },
+    { value: 'contactUpdated', label: t("triggerComponents.types.contactUpdated") },
+    { value: 'label', label: t("triggerComponents.types.label") },
+    { value: 'customAttribute', label: t("triggerComponents.types.customAttribute") },
   ];
 
   const TIME_UNIT_OPTIONS = [

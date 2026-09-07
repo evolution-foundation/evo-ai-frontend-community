@@ -43,7 +43,7 @@ export function AgentChatArea({ agent }: AgentChatAreaProps) {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
             <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">{t('chat.loading') || 'Carregando conversa...'}</p>
+            <p className="text-muted-foreground">{t('chat.loading')}</p>
           </div>
         ) : !selectedSessionId ? (
           <div className="flex flex-col h-full min-h-[400px] items-center justify-center text-center p-6">
@@ -51,11 +51,10 @@ export function AgentChatArea({ agent }: AgentChatAreaProps) {
               <MessageSquare className="h-6 w-6 text-primary" />
             </div>
             <h3 className="text-lg font-medium mb-2">
-              {t('chat.selectOrCreateSession') || 'Selecione uma conversa ou crie uma nova'}
+              {t('chat.selectOrCreateSession')}
             </h3>
             <p className="text-muted-foreground text-sm max-w-md">
-              {t('chat.selectSessionMessage') ||
-                'Escolha uma conversa existente na lista ao lado ou clique em "Nova Conversa" para começar.'}
+              {t('chat.selectSessionMessage')}
             </p>
           </div>
         ) : messages.length === 0 ? (
@@ -64,10 +63,10 @@ export function AgentChatArea({ agent }: AgentChatAreaProps) {
               <MessageSquare className="h-6 w-6 text-primary" />
             </div>
             <h3 className="text-lg font-medium mb-2">
-              {t('chat.chatWithAgent', { name: agent.name }) || `Chat com ${agent.name}`}
+              {t('chat.chatWithAgent', { name: agent.name })}
             </h3>
             <p className="text-muted-foreground text-sm max-w-md">
-              {t('chat.startConversation') || 'Digite sua mensagem abaixo para começar a conversa.'}
+              {t('chat.startConversation')}
             </p>
           </div>
         ) : (

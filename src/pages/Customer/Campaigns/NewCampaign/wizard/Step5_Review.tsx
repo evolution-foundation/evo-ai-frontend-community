@@ -1,3 +1,6 @@
+import i18n from '@/i18n/config';
+import { getFormattingLocale } from '@/lib/formattingLocale';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Button, Label } from '@evoapi/design-system';
 import { ArrowLeft, Check, CheckCircle2, Megaphone, Users, MessageSquare, Settings2, Calendar, Zap, Clock } from 'lucide-react';
@@ -57,6 +60,7 @@ const Step5_Review = ({
   onCreate,
   isEditMode = false,
 }: Step5Props) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('campaigns');
   const navigate = useNavigate();
   const [isCreating, setIsCreating] = useState(false);
@@ -88,39 +92,38 @@ const Step5_Review = ({
 
           <div className="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <h1 className="text-3xl font-bold text-foreground">
-              {isEditMode ? 'Campanha Atualizada!' : 'Campanha Criada!'}
+              {isEditMode ? tUi("interface:step5Review.campaignUpdated") : tUi("interface:step5Review.campaignCreated")}
             </h1>
             <p className="text-muted-foreground">
               {isEditMode
-                ? 'Sua campanha foi atualizada com sucesso.'
-                : 'Sua campanha foi criada com sucesso e está pronta'}
+                ? tUi("interface:step5Review.yourCampaignWasUpdatedSuccessfully")
+                : tUi("interface:step5Review.yourCampaignWasCreatedSuccessfullyAndIsReady")}
             </p>
           </div>
 
           <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-6 space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-            <h3 className="font-semibold text-green-900 dark:text-green-100">Próximos Passos</h3>
+            <h3 className="font-semibold text-green-900 dark:text-green-100">{tUi("interface:step5Review.nextSteps")}</h3>
             <div className="space-y-2 text-sm text-green-800 dark:text-green-200">
               <div className="flex items-start gap-2">
                 <Check className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                <span>Acompanhe o progresso da campanha no painel</span>
+                <span>{tUi("interface:step5Review.trackCampaignProgressOnTheDashboard")}</span>
               </div>
               <div className="flex items-start gap-2">
                 <Check className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                <span>Monitorize as estatísticas de envio e envolvimento</span>
+                <span>{tUi("interface:step5Review.monitorSendingAndEngagementStatistics")}</span>
               </div>
               <div className="flex items-start gap-2">
                 <Check className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                <span>Pode pausar ou editar a campanha a qualquer momento</span>
+                <span>{tUi("interface:step5Review.youCanPauseOrEditTheCampaignAtAnyTime")}</span>
               </div>
             </div>
           </div>
 
           <div className="flex gap-3 pt-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
             <Button variant="outline" className="flex-1" onClick={() => navigate('/campaigns')}>
-              Ver Campanhas
-            </Button>
+              {tUi("interface:step5Review.viewCampaigns")}</Button>
             <Button className="flex-1" onClick={() => window.location.reload()}>
-              {isEditMode ? 'Continuar editando' : 'Nova Campanha'}
+              {isEditMode ? tUi("interface:step5Review.continueEditing") : tUi("campaigns:empty.action")}
             </Button>
           </div>
         </div>
@@ -139,23 +142,23 @@ const Step5_Review = ({
               <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
                 <Megaphone className="h-5 w-5 text-purple-600" />
               </div>
-              <Label className="text-lg font-bold">Informações Gerais</Label>
+              <Label className="text-lg font-bold">{tUi("interface:step5Review.generalInformation")}</Label>
             </div>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Nome:</span>
+                <span className="text-muted-foreground">{tUi("interface:step5Review.name")}</span>
                 <span className="font-bold">{data.name}</span>
               </div>
               {data.description && (
                 <div className="flex flex-col gap-1">
-                  <span className="text-muted-foreground text-xs font-bold uppercase tracking-widest">Descrição</span>
+                  <span className="text-muted-foreground text-xs font-bold uppercase tracking-widest">{tUi("campaigns:dialog.details.fields.description")}</span>
                   <p className="text-sm p-3 bg-muted/30 rounded-lg border border-border italic text-muted-foreground">
                     {data.description}
                   </p>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Canal e Tipo:</span>
+                <span className="text-muted-foreground">{tUi("interface:step5Review.channelAndType")}</span>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded uppercase">{data.channel_type}</span>
                   <span className="px-2 py-0.5 bg-muted text-muted-foreground text-[10px] font-bold rounded uppercase">{data.type}</span>
@@ -170,17 +173,17 @@ const Step5_Review = ({
               <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
                 <Users className="h-5 w-5 text-blue-600" />
               </div>
-              <Label className="text-lg font-bold">Audiência</Label>
+              <Label className="text-lg font-bold">{tUi("campaigns:wizard.step2.title")}</Label>
             </div>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Seleção:</span>
+                <span className="text-muted-foreground">{tUi("interface:step5Review.selection")}</span>
                 <span className="font-bold capitalize">{data.contact_selection}</span>
               </div>
               {data.estimated_contacts && (
                 <div className="flex justify-between items-center p-3 bg-blue-500/5 rounded-lg border border-blue-500/10">
-                  <span className="text-muted-foreground font-medium">Contatos estimados</span>
-                  <span className="text-lg font-bold text-blue-600">{data.estimated_contacts.toLocaleString('pt-BR')}</span>
+                  <span className="text-muted-foreground font-medium">{tUi("interface:step5Review.estimatedContacts")}</span>
+                  <span className="text-lg font-bold text-blue-600">{data.estimated_contacts.toLocaleString(getFormattingLocale())}</span>
                 </div>
               )}
             </div>
@@ -192,16 +195,16 @@ const Step5_Review = ({
               <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
                 <MessageSquare className="h-5 w-5 text-green-600" />
               </div>
-              <Label className="text-lg font-bold">Conteúdo</Label>
+              <Label className="text-lg font-bold">{tUi("campaigns:wizard.step3.title")}</Label>
             </div>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Inbox:</span>
-                <span className="font-bold">{data.inbox_id ? 'Inbox selecionado' : 'Nenhum selecionado'}</span>
+                <span className="text-muted-foreground">{tUi("journey:panels.assignBot.inboxLabel")}</span>
+                <span className="font-bold">{data.inbox_id ? tUi("interface:step5Review.selectedInbox") : tUi("interface:step5Review.noneSelected")}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Templates:</span>
-                <span className="font-bold text-primary">{data.template_ids.length} selecionado(s)</span>
+                <span className="text-muted-foreground">{tUi("interface:step5Review.templates")}</span>
+                <span className="font-bold text-primary">{data.template_ids.length} {tUi("interface:step5Review.selected")}</span>
               </div>
             </div>
           </div>
@@ -212,7 +215,7 @@ const Step5_Review = ({
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Settings2 className="h-5 w-5 text-primary" />
               </div>
-              <Label className="text-xl font-bold">Configurações</Label>
+              <Label className="text-xl font-bold">{tUi("campaigns:wizard.step4.title")}</Label>
             </div>
 
             <div className="space-y-4 text-sm">
@@ -221,29 +224,29 @@ const Step5_Review = ({
                   <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg border border-border">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Calendar className="h-4 w-4" />
-                      <span>Agendamento</span>
+                      <span>{tUi("campaigns:wizard.step4.scheduling")}</span>
                     </div>
                     <span className="font-bold">
                       {data.schedule_option === 'now'
-                        ? 'Envio Imediato'
-                        : data.scheduled_date ? new Date(data.scheduled_date).toLocaleString('pt-BR') : 'N/A'}
+                        ? tUi("interface:step5Review.sendImmediately")
+                        : data.scheduled_date ? new Date(data.scheduled_date).toLocaleString(getFormattingLocale()) : 'N/A'}
                     </span>
                   </div>
 
                   {data.template_strategy && (
                     <div className="flex flex-col gap-3">
                       <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg border border-border">
-                        <span className="text-muted-foreground">Estratégia de Distribuição</span>
+                        <span className="text-muted-foreground">{tUi("interface:step5Review.distributionStrategy")}</span>
                         <span className="font-bold uppercase text-primary">
-                          {data.template_strategy === 'round_robin' ? 'sequencial' :
-                            data.template_strategy === 'weighted' ? 'Split' :
-                              data.template_strategy === 'random' ? 'Aleatorio' : 'Teste A/B'}
+                          {data.template_strategy === 'round_robin' ? tUi("interface:step5Review.sequential") :
+                            data.template_strategy === 'weighted' ? i18n.t('interface:fallbacks.split') :
+                              data.template_strategy === 'random' ? i18n.t('interface:fallbacks.random') : tUi("campaigns:status.sending_testab")}
                         </span>
                       </div>
 
                       {data.template_strategy === 'weighted' && data.template_ids && (
                         <div className="bg-muted/10 rounded-xl p-4 border border-dashed border-border space-y-2">
-                          <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1 block">Pesos por Template</Label>
+                          <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1 block">{tUi("interface:step5Review.weightsByTemplate")}</Label>
                           {data.template_ids.map(id => {
                             const templateName = availableTemplates.find(t => t.id === id)?.name || `Template ${id}`;
                             return (
@@ -269,27 +272,27 @@ const Step5_Review = ({
               ) : (
                 <div className="grid grid-cols-1 gap-3">
                   <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg border border-border">
-                    <span className="text-muted-foreground">Critério de vencedor</span>
+                    <span className="text-muted-foreground">{tUi("interface:step5Review.winnerCriterion")}</span>
                     <span className="font-bold text-primary">
-                      {data.ab_test_winner_criteria === 'open_rate' ? 'Taxa de Abertura' : 'Taxa de Clique'}
+                      {data.ab_test_winner_criteria === 'open_rate' ? tUi("interface:step5Review.openRate") : tUi("interface:step5Review.clickRate")}
                     </span>
                   </div>
 
                   <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg border border-border">
-                    <span className="text-muted-foreground">Tamanho da amostra</span>
-                    <span className="font-bold">{data.ab_test_percentage}% dos contatos</span>
+                    <span className="text-muted-foreground">{tUi("interface:step5Review.sampleSize")}</span>
+                    <span className="font-bold">{data.ab_test_percentage}{tUi("interface:step5Review.ofContacts")}</span>
                   </div>
 
                   <div className="p-4 bg-primary/5 rounded-xl border border-primary/20 space-y-3">
                     <div className="flex justify-between items-center text-xs">
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="h-4 w-4" />
-                        <span>Fase de Teste</span>
+                        <span>{tUi("campaigns:wizard.step4.testPhase")}</span>
                       </div>
                       <span className="font-bold">
                         {data.ab_test_schedule_option === 'now'
-                          ? 'Imediato'
-                          : data.ab_test_scheduled_date ? new Date(data.ab_test_scheduled_date).toLocaleString('pt-BR') : 'N/A'}
+                          ? i18n.t('interface:fallbacks.immediate')
+                          : data.ab_test_scheduled_date ? new Date(data.ab_test_scheduled_date).toLocaleString(getFormattingLocale()) : 'N/A'}
                       </span>
                     </div>
 
@@ -297,11 +300,11 @@ const Step5_Review = ({
                       <div className="flex justify-between items-center text-xs">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <CheckCircle2 className="h-4 w-4 text-primary" />
-                          <span>Envio do Vencedor</span>
+                          <span>{tUi("interface:step5Review.winnerDelivery")}</span>
                         </div>
                         <span className="font-bold">
                           {data.ab_test_winner_scheduled_date
-                            ? new Date(data.ab_test_winner_scheduled_date).toLocaleString('pt-BR') : 'Manual'}
+                            ? new Date(data.ab_test_winner_scheduled_date).toLocaleString(getFormattingLocale()) : 'Manual'}
                         </span>
                       </div>
                     )}
@@ -309,7 +312,7 @@ const Step5_Review = ({
                     {data.ab_test_skip_winner && (
                       <div className="flex items-center gap-2 text-orange-600 text-xs font-medium">
                         <Settings2 className="h-3 w-3" />
-                        <span>Vencedor não será enviado automaticamente</span>
+                        <span>{tUi("interface:step5Review.theWinnerWillNotBeSentAutomatically")}</span>
                       </div>
                     )}
                   </div>
@@ -320,7 +323,7 @@ const Step5_Review = ({
                 {data.spread_sending_hours !== undefined && data.spread_sending_hours > 0 && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Zap className="h-4 w-4 text-primary" />
-                    <span>Intervalo de Envio: <b>{data.spread_sending_hours}h</b></span>
+                    <span>{tUi("interface:step5Review.sendingInterval")} <b>{data.spread_sending_hours}h</b></span>
                   </div>
                 )}
 
@@ -329,20 +332,20 @@ const Step5_Review = ({
                     <div className="flex items-center justify-between text-[10px] font-bold text-green-600 uppercase tracking-widest">
                       <div className="flex items-center gap-1.5">
                         <Clock className="h-3 w-3" />
-                        <span>Horário Permitido</span>
+                        <span>{tUi("interface:step5Review.allowedHours")}</span>
                       </div>
                       <span>{data.business_hours_start} - {data.business_hours_end}</span>
                     </div>
                     {data.allowed_weekdays && (
                       <div className="flex gap-1">
                         {[
-                          { id: 1, label: 'S' },
-                          { id: 2, label: 'T' },
-                          { id: 3, label: 'Q' },
-                          { id: 4, label: 'Q' },
-                          { id: 5, label: 'S' },
-                          { id: 6, label: 'S' },
-                          { id: 0, label: 'D' },
+                          { id: 1, label: new Intl.DateTimeFormat(getFormattingLocale(), { weekday: 'narrow', timeZone: 'UTC' }).format(new Date(Date.UTC(2024, 0, 7 + 1))) },
+                          { id: 2, label: new Intl.DateTimeFormat(getFormattingLocale(), { weekday: 'narrow', timeZone: 'UTC' }).format(new Date(Date.UTC(2024, 0, 7 + 2))) },
+                          { id: 3, label: new Intl.DateTimeFormat(getFormattingLocale(), { weekday: 'narrow', timeZone: 'UTC' }).format(new Date(Date.UTC(2024, 0, 7 + 3))) },
+                          { id: 4, label: new Intl.DateTimeFormat(getFormattingLocale(), { weekday: 'narrow', timeZone: 'UTC' }).format(new Date(Date.UTC(2024, 0, 7 + 4))) },
+                          { id: 5, label: new Intl.DateTimeFormat(getFormattingLocale(), { weekday: 'narrow', timeZone: 'UTC' }).format(new Date(Date.UTC(2024, 0, 7 + 5))) },
+                          { id: 6, label: new Intl.DateTimeFormat(getFormattingLocale(), { weekday: 'narrow', timeZone: 'UTC' }).format(new Date(Date.UTC(2024, 0, 7 + 6))) },
+                          { id: 0, label: new Intl.DateTimeFormat(getFormattingLocale(), { weekday: 'narrow', timeZone: 'UTC' }).format(new Date(Date.UTC(2024, 0, 7 + 0))) },
                         ].map(day => (
                           <span
                             key={day.id}
@@ -360,20 +363,18 @@ const Step5_Review = ({
                 ) : (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="h-4 w-4" />
-                    <span>Sem restrição de horário</span>
+                    <span>{tUi("interface:step5Review.noTimeRestrictions")}</span>
                   </div>
                 )}
 
                 <div className="flex flex-wrap gap-2 pt-2">
                   {data.enable_rate_limit && (
                     <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold rounded uppercase tracking-wider">
-                      Limite de Taxa
-                    </span>
+                      {tUi("interface:step5Review.rateLimit")}</span>
                   )}
                   {data.enable_retry && (
                     <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-[10px] font-bold rounded uppercase tracking-wider">
-                      Retentativas Ativas
-                    </span>
+                      {tUi("interface:step5Review.retriesEnabled")}</span>
                   )}
                 </div>
               </div>
@@ -388,7 +389,7 @@ const Step5_Review = ({
           {t('wizard.actions.back')}
         </Button>
         <Button className="px-6 gap-2" onClick={handleCreate} disabled={isCreating}>
-          {isCreating ? 'Salvando...' : isEditMode ? t('wizard.actions.save') : t('wizard.actions.create')}
+          {isCreating ? tUi("common:base.form.saving") : isEditMode ? t('wizard.actions.save') : t('wizard.actions.create')}
           {!isCreating && <Check className="h-4 w-4" />}
         </Button>
       </div>

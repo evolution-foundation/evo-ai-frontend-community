@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { EVENT_NAMES } from './event-names';
 import type { EventCatalogEntry, EventCategory, FieldSpec } from './types';
 
@@ -84,7 +85,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'identify',
     labelPt: 'Contato criado',
     labelEn: 'Contact created',
-    description: 'A new contact was created in the CRM.',
+    get description() { return i18n.t("interface:catalog.aNewContactWasCreatedInTheCrm"); },
     schema: { required: { id: f('uuid'), source: f('string') }, optional: contactIdentityOptionalFields },
   },
   {
@@ -93,7 +94,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'identify',
     labelPt: 'Contato atualizado',
     labelEn: 'Contact updated',
-    description: 'An existing contact had one or more fields modified.',
+    get description() { return i18n.t("interface:catalog.anExistingContactHadOneOrMoreFieldsModified"); },
     schema: {
       required: { id: f('uuid'), source: f('string') },
       optional: { ...contactIdentityOptionalFields, changes: f('object') },
@@ -105,7 +106,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'identify',
     labelPt: 'Contato deletado',
     labelEn: 'Contact deleted',
-    description: 'A contact record was deleted.',
+    get description() { return i18n.t("interface:catalog.aContactRecordWasDeleted"); },
     schema: {
       required: { source: f('string'), deleted_at: f('date') },
       optional: { reason: f('string') },
@@ -117,7 +118,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'identify',
     labelPt: 'Etiqueta adicionada ao contato',
     labelEn: 'Label added to contact',
-    description: 'A label was applied to a contact.',
+    get description() { return i18n.t("interface:catalog.aLabelWasAppliedToAContact"); },
     schema: {
       required: { labelName: f('string'), labelId: f('string'), source: f('string') },
       optional: {},
@@ -129,7 +130,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'identify',
     labelPt: 'Etiqueta removida do contato',
     labelEn: 'Label removed from contact',
-    description: 'A label was removed from a contact.',
+    get description() { return i18n.t("interface:catalog.aLabelWasRemovedFromAContact"); },
     schema: {
       required: { labelName: f('string'), labelId: f('string'), source: f('string') },
       optional: {},
@@ -141,7 +142,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'identify',
     labelPt: 'Atributo customizado alterado',
     labelEn: 'Custom attribute changed',
-    description: 'A custom attribute on a contact was set or changed.',
+    get description() { return i18n.t("interface:catalog.aCustomAttributeOnAContactWasSetOrChanged"); },
     schema: {
       required: { attributeName: f('string'), source: f('string') },
       optional: { attributeValue: f('string'), changeType: f('string'), oldValue: f('string') },
@@ -153,7 +154,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Conversa criada',
     labelEn: 'Conversation created',
-    description: 'A new conversation was opened with a contact.',
+    get description() { return i18n.t("interface:catalog.aNewConversationWasOpenedWithAContact"); },
     schema: {
       required: { conversation_id: f('uuid'), inbox_id: f('uuid'), source: f('string') },
       optional: { inbox_name: f('string'), channel_type: f('string', 'Channel identifier (e.g., Channel::Whatsapp)', CHANNEL_TYPES) },
@@ -165,7 +166,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Conversa resolvida',
     labelEn: 'Conversation resolved',
-    description: 'An open conversation was closed/resolved.',
+    get description() { return i18n.t("interface:catalog.anOpenConversationWasClosedResolved"); },
     schema: {
       required: { conversation_id: f('uuid'), inbox_id: f('uuid'), source: f('string') },
       optional: {
@@ -183,7 +184,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Atividade na conversa',
     labelEn: 'Conversation activity',
-    description: 'An activity (note, status change, etc.) occurred on a conversation.',
+    get description() { return i18n.t("interface:catalog.anActivityNoteStatusChangeEtcOccurredOnAConversation"); },
     schema: {
       required: { conversation_id: f('uuid'), source: f('string') },
       optional: { inbox_id: f('uuid'), content: f('string'), activity_type: f('string') },
@@ -195,7 +196,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Primeira resposta da conversa',
     labelEn: 'Conversation first reply',
-    description: 'The first agent reply was sent on a conversation.',
+    get description() { return i18n.t("interface:catalog.theFirstAgentReplyWasSentOnAConversation"); },
     schema: {
       required: { conversation_id: f('uuid'), source: f('string') },
       optional: { inbox_id: f('uuid'), replied_at: f('date'), response_time_seconds: f('number') },
@@ -207,7 +208,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Tempo de resposta da conversa',
     labelEn: 'Conversation reply time',
-    description: 'A reply-time measurement was recorded for a conversation.',
+    get description() { return i18n.t("interface:catalog.aReplyTimeMeasurementWasRecordedForAConversation"); },
     schema: {
       required: { conversation_id: f('uuid'), source: f('string') },
       optional: { inbox_id: f('uuid'), reply_time_seconds: f('number'), measured_at: f('date') },
@@ -219,7 +220,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Conversa transferida do bot',
     labelEn: 'Conversation bot handoff',
-    description: 'A conversation was handed off from the bot to a human agent.',
+    get description() { return i18n.t("interface:catalog.aConversationWasHandedOffFromTheBotToA"); },
     schema: {
       required: { conversation_id: f('uuid'), source: f('string') },
       optional: { inbox_id: f('uuid'), handoff_at: f('date'), reason: f('string') },
@@ -231,7 +232,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Conversa resolvida pelo bot',
     labelEn: 'Conversation bot resolved',
-    description: 'A conversation was resolved by the bot without human handoff.',
+    get description() { return i18n.t("interface:catalog.aConversationWasResolvedByTheBotWithoutHumanHandoff"); },
     schema: {
       required: { conversation_id: f('uuid'), source: f('string') },
       optional: { inbox_id: f('uuid'), resolved_at: f('date') },
@@ -243,7 +244,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Mensagem criada',
     labelEn: 'Message created',
-    description: 'A new incoming or outgoing message was recorded.',
+    get description() { return i18n.t("interface:catalog.aNewIncomingOrOutgoingMessageWasRecorded"); },
     schema: {
       required: { ...messageCommonRequired, message_type: f('string', 'incoming | outgoing', MESSAGE_TYPES) },
       optional: { content_type: f('string', undefined, CONTENT_TYPES), content: f('string') },
@@ -255,7 +256,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Mensagem entregue',
     labelEn: 'Message delivered',
-    description: 'A message reached the recipient device.',
+    get description() { return i18n.t("interface:catalog.aMessageReachedTheRecipientDevice"); },
     schema: {
       required: messageCommonRequired,
       optional: { ...messageCommonOptional, previous_status: f('string', undefined, MESSAGE_STATUSES), status: f('string', undefined, MESSAGE_STATUSES), external_error: f('string') },
@@ -267,7 +268,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Mensagem lida',
     labelEn: 'Message read',
-    description: 'A message was read by the recipient.',
+    get description() { return i18n.t("interface:catalog.aMessageWasReadByTheRecipient"); },
     schema: {
       required: messageCommonRequired,
       optional: { ...messageCommonOptional, previous_status: f('string', undefined, MESSAGE_STATUSES), status: f('string', undefined, MESSAGE_STATUSES), external_error: f('string') },
@@ -279,7 +280,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Mensagem falhou',
     labelEn: 'Message failed',
-    description: 'A message delivery attempt failed.',
+    get description() { return i18n.t("interface:catalog.aMessageDeliveryAttemptFailed"); },
     schema: {
       required: messageCommonRequired,
       optional: { ...messageCommonOptional, previous_status: f('string', undefined, MESSAGE_STATUSES), status: f('string', undefined, MESSAGE_STATUSES), external_error: f('string') },
@@ -291,7 +292,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Campanha disparada',
     labelEn: 'Campaign triggered',
-    description: 'A pipeline-driven campaign entered execution for a contact.',
+    get description() { return i18n.t("interface:catalog.aPipelineDrivenCampaignEnteredExecutionForAContact"); },
     schema: {
       required: { pipeline_item_id: f('uuid'), pipeline_id: f('uuid'), source: f('string') },
       optional: {
@@ -312,7 +313,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Mensagem da campanha enviada',
     labelEn: 'Campaign message sent',
-    description: 'A campaign sent a message to a contact.',
+    get description() { return i18n.t("interface:catalog.aCampaignSentAMessageToAContact"); },
     schema: {
       required: { campaign_id: f('uuid'), message_id: f('uuid'), source: f('string') },
       optional: { contact_id: f('uuid'), channel_type: f('string', 'Channel identifier (e.g., Channel::Whatsapp)', CHANNEL_TYPES), template_id: f('uuid') },
@@ -324,7 +325,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Mensagem da campanha aberta',
     labelEn: 'Campaign message opened',
-    description: 'A contact opened a campaign message.',
+    get description() { return i18n.t("interface:catalog.aContactOpenedACampaignMessage"); },
     schema: {
       required: { campaign_id: f('uuid'), message_id: f('uuid'), source: f('string') },
       optional: { contact_id: f('uuid'), opened_at: f('date') },
@@ -336,7 +337,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Link da campanha clicado',
     labelEn: 'Campaign link clicked',
-    description: 'A contact clicked a link in a campaign message.',
+    get description() { return i18n.t("interface:catalog.aContactClickedALinkInACampaignMessage"); },
     schema: {
       required: { campaign_id: f('uuid'), message_id: f('uuid'), source: f('string') },
       optional: { contact_id: f('uuid'), url: f('string'), clicked_at: f('date') },
@@ -348,7 +349,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Evento personalizado',
     labelEn: 'Custom event',
-    description: 'User-defined event with free-form key/value properties.',
+    get description() { return i18n.t("interface:catalog.userDefinedEventWithFreeFormKeyValueProperties"); },
     schema: { required: {}, optional: {} },
   },
   // CRM-316: purchase webhook capture, with the contact the CRM resolved — a
@@ -359,7 +360,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Compra aprovada',
     labelEn: 'Purchase approved',
-    description: 'A purchase was approved on a payment platform and captured as a lead in the CRM.',
+    get description() { return i18n.t('interface:catalog.purchaseApprovedDescription'); },
     schema: {
       required: {
         provider: f('string', 'Payment platform key (virtu, hotmart, kiwify, cakto)', PURCHASE_PROVIDERS),

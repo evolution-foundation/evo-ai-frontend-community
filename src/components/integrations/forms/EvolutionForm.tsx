@@ -14,18 +14,18 @@ export function EvolutionForm({ config, onConfigChange }: IntegrationFormProps) 
     <div className="space-y-4">
       <FormField
         id="EVOLUTION_API_URL"
-        label={t('integrations.evolution.apiUrl')}
+        label={t("evolution.apiUrl")}
         value={getValue('evolutionApiUrl')}
         onChange={(value) => onConfigChange('evolutionApiUrl', value)}
-        placeholder={t('integrations.evolution.placeholders.apiUrl')}
+        placeholder={t("evolution.placeholders.apiUrl")}
         type="url"
       />
       <FormField
         id="EVOLUTION_ADMIN_TOKEN"
-        label={t('integrations.evolution.adminToken')}
+        label={t("evolution.adminToken")}
         value={getValue('evolutionAdminToken')}
         onChange={(value) => onConfigChange('evolutionAdminToken', value)}
-        placeholder={t('integrations.evolution.placeholders.adminToken')}
+        placeholder={t("evolution.placeholders.adminToken")}
         type="password"
       />
     </div>

@@ -143,7 +143,9 @@
       "customAttributeModels": {
         "conversation_attribute": "Conversa",
         "contact_attribute": "Contato",
-        "pipeline_item_attribute": "Item de pipeline"
+        "pipeline_item_attribute": "Item de pipeline",
+        "pipeline_attribute": "Pipeline",
+        "pipeline_stage_attribute": "Estágio do pipeline"
       },
       "operators": {
         "equal_to": "Igual a",

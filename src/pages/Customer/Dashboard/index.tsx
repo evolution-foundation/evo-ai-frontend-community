@@ -107,7 +107,7 @@ const CustomerDashboardPage = () => {
       setData(response);
     } catch (err) {
       console.error('Error loading customer dashboard:', err);
-      setError(t('dashboard.error') || 'Falha ao carregar dashboard');
+      setError(t('dashboard.error'));
     } finally {
       setLoading(false);
     }
@@ -171,7 +171,7 @@ const CustomerDashboardPage = () => {
 
     if (pipeline) {
       filters.push({
-        label: t('dashboard.filters.pipeline') || 'Pipeline',
+        label: t('dashboard.filters.pipeline'),
         value: pipeline.name,
         onRemove: () => setAppliedFilters(prev => ({ ...prev, pipelineId: ALL_FILTER_VALUE })),
       });
@@ -179,7 +179,7 @@ const CustomerDashboardPage = () => {
 
     if (team) {
       filters.push({
-        label: t('dashboard.filters.team') || 'Equipe',
+        label: t('dashboard.filters.team'),
         value: team.name,
         onRemove: () => setAppliedFilters(prev => ({ ...prev, teamId: ALL_FILTER_VALUE })),
       });
@@ -187,7 +187,7 @@ const CustomerDashboardPage = () => {
 
     if (inbox) {
       filters.push({
-        label: t('dashboard.filters.channel') || 'Canal',
+        label: t('dashboard.filters.channel'),
         value: inbox.name,
         onRemove: () => setAppliedFilters(prev => ({ ...prev, inboxId: ALL_FILTER_VALUE })),
       });
@@ -195,7 +195,7 @@ const CustomerDashboardPage = () => {
 
     if (user) {
       filters.push({
-        label: t('dashboard.filters.user') || 'Usuário',
+        label: t('dashboard.filters.user'),
         value: user.name,
         onRemove: () => setAppliedFilters(prev => ({ ...prev, userId: ALL_FILTER_VALUE })),
       });
@@ -203,7 +203,7 @@ const CustomerDashboardPage = () => {
 
     if (hasCustomPeriod) {
       filters.push({
-        label: t('dashboard.filters.period') || 'Período',
+        label: t('dashboard.filters.period'),
         value: `${formatDateLabel(appliedFilters.since)} - ${formatDateLabel(appliedFilters.until)}`,
         onRemove: () => setAppliedFilters(prev => ({ ...prev, since: defaultFilters.since, until: defaultFilters.until })),
       });
@@ -251,7 +251,7 @@ const CustomerDashboardPage = () => {
   }, [data]);
 
   if (loading) {
-    return <div className="p-4">{t('dashboard.loading') || 'Carregando dashboard...'}</div>;
+    return <div className="p-4">{t('dashboard.loading')}</div>;
   }
 
   if (error || !data) {
@@ -261,7 +261,7 @@ const CustomerDashboardPage = () => {
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-red-600 font-medium">
               <AlertTriangle className="h-4 w-4" />
-              {error || (t('dashboard.error') || 'Falha ao carregar dashboard')}
+              {error || (t('dashboard.error'))}
             </div>
           </CardContent>
         </Card>
@@ -285,7 +285,7 @@ const CustomerDashboardPage = () => {
 
       <div className="-mt-3 flex justify-end" data-tour="dashboard-period-badge">
         <Badge variant="secondary">
-          {currentPeriodLabel} ({data.period.days} dias)
+          {t('periodDays', { period: currentPeriodLabel, count: data.period.days })}
         </Badge>
       </div>
 

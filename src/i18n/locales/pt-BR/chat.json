@@ -245,7 +245,8 @@
     "paused": "(pausado)",
     "send": "Enviar",
     "preparingConverter": "Preparando conversor de áudio...",
-    "maxDurationReached": "Duração máxima de gravação atingida (5 min). Áudio parado automaticamente."
+    "maxDurationReached": "Duração máxima de gravação atingida (5 min). Áudio parado automaticamente.",
+    "cancel": "Cancelar"
   },
   "cannedResponses": {
     "loading": "Carregando respostas prontas...",
@@ -268,7 +269,8 @@
       "whatsappMessage": "Você só pode responder a esta conversa usando um modelo de mensagem devido a",
       "cannotReply": "Você não pode responder porque",
       "linkText": "Restrições de janela de mensagem de 24 horas",
-      "zapiDisconnected": "WhatsApp desconectado. Conecte o número para enviar mensagens."
+      "zapiDisconnected": "WhatsApp desconectado. Conecte o número para enviar mensagens.",
+      "whatsappDisconnected": "WhatsApp desconectado. Conecte o número para enviar mensagens."
     },
     "noteBanner": {
       "title": "Nota do atendimento",
@@ -303,14 +305,18 @@
       "bulkStatusSuccess": "{{count}} conversa(s) atualizada(s)",
       "bulkStatusPartialSuccess": "{{success}} atualizada(s), {{failed}} falhada(s)",
       "bulkStatusError": "Erro ao atualizar conversas em lote",
-      "bulkStatusNoPermission": "Você não tem permissão para atualizar conversas"
+      "bulkStatusNoPermission": "Você não tem permissão para atualizar conversas",
+      "priorityLabel": "Prioridade"
     },
     "contactNoName": "Contato sem nome",
     "status": "Status:",
     "statusButton": {
       "open": "Abrir",
       "complete": "Concluir",
-      "reopen": "Reabrir"
+      "reopen": "Reabrir",
+      "openFull": "Abrir atendimento",
+      "pause": "Pausar conversa",
+      "changeStatus": "Alterar status da conversa"
     },
     "statusPill": {
       "open": "Atendimento em Aberto",
@@ -706,7 +712,8 @@
       "helper": "Salve notas importantes na conversa para que outros usuários possam ver no futuro.",
       "placeholder": "Adicionar nota ao atendimento...",
       "save": "Salvar",
-      "saving": "Salvando..."
+      "saving": "Salvando...",
+      "cancel": "Cancelar"
     },
     "emojiPicker": {
       "searchPlaceholder": "Buscar emojis..."
@@ -1069,5 +1076,22 @@
   "unreadBadge": {
     "ariaLabel_one": "{{count}} mensagem não lida",
     "ariaLabel_other": "{{count}} mensagens não lidas"
+  },
+  "messageBubble": {
+    "openInNewTab": "Abrir em nova aba"
+  },
+  "scheduledActions": {
+    "channelWhatsapp": "WhatsApp",
+    "channelSms": "SMS",
+    "channelEmail": "E-mail",
+    "channelTelegram": "Telegram"
+  },
+  "post": {
+    "likes_one": "{{count}} curtida",
+    "likes_other": "{{count}} curtidas",
+    "comments_one": "{{count}} comentário",
+    "comments_other": "{{count}} comentários",
+    "shares_one": "{{count}} compartilhamento",
+    "shares_other": "{{count}} compartilhamentos"
   }
 }

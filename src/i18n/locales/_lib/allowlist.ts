@@ -81,8 +81,6 @@ export const COMMON_ALLOWED = new Set<string>([
   'v{{version}}',
   // --- language autonyms (shown in their own language regardless of UI locale) ---
   'English', 'Español', 'Français', 'Italiano', 'Português', 'Português (BR)',
-  // --- EN file authored with Portuguese values (out-of-scope to fix EN) ---
-  'Nome', 'Valor', 'ou', 'Ver IDs',
 ]);
 
 export const PER_FILE_ALLOWED: Record<string, Set<string>> = {
@@ -92,6 +90,8 @@ export const PER_FILE_ALLOWED: Record<string, Set<string>> = {
     'SMS (Twilio)', 'X (Twitter)',
     'Virtu', 'Hotmart', 'Kiwify', 'Cakto',
   ]),
+  // Both are ordinary words with the same spelling in English and Portuguese.
+  'interface.json': new Set(['Menu', 'Local', 'Global']),
   'adminSettings.json': new Set([
     'Frontend Runtime', 'Google OAuth', 'Relay (Exim / Postfix / Qmail)',
   ]),
@@ -170,8 +170,6 @@ export const PER_FILE_ALLOWED: Record<string, Set<string>> = {
     'WhatsApp Cloud', 'Evolution API', 'Evolution API V2', 'Evolution Go',
     'Evolution Go API', 'WhatsApp via Notificame', 'WhatsApp via Z-API',
     'WhatsApp via Twilio', 'Account SID', 'Auth Token',
-    // EN value authored in pt-BR at this key (out-of-scope to fix EN)
-    'Use o Facebook Embedded Signup para configurar automaticamente seu canal WhatsApp.',
   ]),
   // Unit suffix, same in pt-BR. Scoped here rather than shared: the value only
   // occurs in this file, and a global entry would excuse it catalog-wide.

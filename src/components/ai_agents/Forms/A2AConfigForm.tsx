@@ -78,7 +78,7 @@ const A2AConfigForm = ({ mode, data, onChange, onValidationChange }: A2AConfigFo
         try {
           const callbackUrl = new URL(externalSharing.callback_url);
           if (callbackUrl.protocol !== 'https:') {
-            newErrors.callback_url = t('validation.httpsRequired') || 'Callback URL must use HTTPS';
+            newErrors.callback_url = t('validation.httpsRequired');
           }
         } catch {
           newErrors.callback_url = t('validation.invalidUrl');
@@ -87,7 +87,7 @@ const A2AConfigForm = ({ mode, data, onChange, onValidationChange }: A2AConfigFo
 
       // Validar allowlist se habilitado
       if (externalSharing.allowlist && externalSharing.allowlist.length === 0) {
-        newErrors.allowlist = t('validation.allowlistRequired') || 'At least one allowlist entry is required for external sharing';
+        newErrors.allowlist = t('validation.allowlistRequired');
       }
     }
 
@@ -228,9 +228,9 @@ const A2AConfigForm = ({ mode, data, onChange, onValidationChange }: A2AConfigFo
               <Share2 className="h-5 w-5 text-purple-500" />
             </div>
             <div className="flex-1">
-              <CardTitle>{t('a2aConfig.externalSharingTitle') || 'Compartilhamento Externo'}</CardTitle>
+              <CardTitle>{t('a2aConfig.externalSharingTitle')}</CardTitle>
               <CardDescription>
-                {t('a2aConfig.externalSharingDescription') || 'Configure o compartilhamento externo do agente A2A'}
+                {t('a2aConfig.externalSharingDescription')}
               </CardDescription>
             </div>
             <Switch
@@ -245,7 +245,7 @@ const A2AConfigForm = ({ mode, data, onChange, onValidationChange }: A2AConfigFo
             {/* Estado de Publicação */}
             <div className="space-y-2">
               <Label htmlFor="publish-state" className="text-sm font-medium">
-                {t('a2aConfig.publishState') || 'Estado de Publicação'}
+                {t('a2aConfig.publishStateLabel')}
               </Label>
               <div className="flex gap-2">
                 {(['draft', 'published', 'archived'] as const).map((state) => (
@@ -257,25 +257,25 @@ const A2AConfigForm = ({ mode, data, onChange, onValidationChange }: A2AConfigFo
                     onClick={() => !isReadOnly && handleExternalSharingChange({ publish_state: state })}
                     disabled={isReadOnly}
                   >
-                    {t(`a2aConfig.publishState.${state}`) || state}
+                    {t(`a2aConfig.publishState.${state}`)}
                   </Button>
                 ))}
               </div>
               <p className="text-xs text-muted-foreground">
-                {t('a2aConfig.publishStateDescription') || 'O estado de publicação controla a disponibilidade do agente para acesso externo'}
+                {t('a2aConfig.publishStateDescription')}
               </p>
             </div>
 
             {/* Callback URL */}
             <div className="space-y-2">
               <Label htmlFor="callback-url" className="text-sm font-medium">
-                {t('a2aConfig.callbackUrl') || 'Callback URL'} <span className="text-red-500">*</span>
+                {t('a2aConfig.callbackUrl')} <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="callback-url"
                 value={externalSharing.callback_url || ''}
                 onChange={e => handleExternalSharingChange({ callback_url: e.target.value })}
-                placeholder={t('a2aConfig.callbackUrlPlaceholder') || 'https://exemplo.com/callback'}
+                placeholder={t('a2aConfig.callbackUrlPlaceholder')}
                 disabled={isReadOnly}
                 className={errors.callback_url ? 'border-red-500 focus:border-red-500' : ''}
               />
@@ -283,21 +283,21 @@ const A2AConfigForm = ({ mode, data, onChange, onValidationChange }: A2AConfigFo
                 <p className="text-xs text-red-600">{errors.callback_url}</p>
               )}
               <p className="text-xs text-muted-foreground">
-                {t('a2aConfig.callbackUrlDescription') || 'URL HTTPS para receber notificações de eventos do agente'}
+                {t('a2aConfig.callbackUrlDescription')}
               </p>
             </div>
 
             {/* Allowlist */}
             <div className="space-y-2">
               <Label htmlFor="allowlist" className="text-sm font-medium">
-                {t('a2aConfig.allowlist') || 'Allowlist'} <span className="text-red-500">*</span>
+                {t('a2aConfig.allowlist')} <span className="text-red-500">*</span>
               </Label>
               <div className="flex gap-2">
                 <Input
                   id="allowlist"
                   value={newAllowlistEntry}
                   onChange={e => setNewAllowlistEntry(e.target.value)}
-                  placeholder={t('a2aConfig.allowlistPlaceholder') || 'exemplo.com ou 192.168.1.1'}
+                  placeholder={t('a2aConfig.allowlistPlaceholder')}
                   disabled={isReadOnly}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !isReadOnly) {
@@ -339,7 +339,7 @@ const A2AConfigForm = ({ mode, data, onChange, onValidationChange }: A2AConfigFo
                 </div>
               )}
               <p className="text-xs text-muted-foreground">
-                {t('a2aConfig.allowlistDescription') || 'Domínios ou IPs permitidos para acessar o agente externamente'}
+                {t('a2aConfig.allowlistDescription')}
               </p>
             </div>
           </CardContent>

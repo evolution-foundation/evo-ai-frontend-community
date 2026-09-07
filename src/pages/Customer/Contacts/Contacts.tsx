@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -69,6 +70,7 @@ const INITIAL_STATE: ContactsState = {
 };
 
 export default function Contacts() {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('contacts');
   const { contactId: contactIdFromRoute } = useParams<{ contactId?: string }>();
   const navigate = useNavigate();
@@ -510,7 +512,7 @@ export default function Contacts() {
 
   const handleCreateContact = () => {
     if (!can('contacts', 'create')) {
-      toast.error('Você não tem permissão para criar contatos');
+      toast.error(tUi("interface:contacts.youDoNotHavePermissionToCreateContacts"));
       return;
     }
     navigate('/contacts/new');
@@ -585,11 +587,11 @@ export default function Contacts() {
 
   const handleMergeContacts = () => {
     if (state.selectedContactIds.length < 2) {
-      toast.error('Selecione pelo menos 2 contatos para mesclar');
+      toast.error(tUi("interface:contacts.selectAtLeast2ContactsToMerge"));
       return;
     }
     if (!can('contacts', 'update')) {
-      toast.error('Você não tem permissão para mesclar contatos');
+      toast.error(tUi("interface:contacts.youDoNotHavePermissionToMergeContacts"));
       return;
     }
     const selectedContacts = state.contacts.filter(c => state.selectedContactIds.includes(c.id));
@@ -610,7 +612,7 @@ export default function Contacts() {
 
   const handleImportModalSubmit = async (file: File) => {
     if (!can('contacts', 'read')) {
-      toast.error('Você não tem permissão para visualizar contatos');
+      toast.error(tUi("interface:contacts.youDoNotHavePermissionToViewContacts"));
       return;
     }
 

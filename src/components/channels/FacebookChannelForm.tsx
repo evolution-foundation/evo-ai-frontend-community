@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useMemo, useState } from 'react';
 import { Button, Input } from '@evoapi/design-system';
 import { useGlobalConfig } from '@/contexts/GlobalConfigContext';
@@ -22,6 +23,7 @@ interface FacebookChannelFormProps {
 }
 
 export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookChannelFormProps) {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('messenger');
   const config = useGlobalConfig();
   const hubEnabled = config.evolutionHubEnabled === true;
@@ -43,7 +45,7 @@ export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookCha
   async function loadFBsdk() {
     if (!config.fbAppId) {
       console.error('[Facebook Messenger SDK] fbAppId is missing from config!');
-      throw new Error('Facebook App ID not configured');
+      throw new Error(tUi("interface:facebookchannelform.facebookAppIdIsNotConfigured"));
     }
 
     // Check if SDK is already loaded
@@ -109,7 +111,7 @@ export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookCha
         setTimeout(() => {
           clearInterval(checkInterval);
           if (!window.FB) {
-            reject(new Error('Facebook SDK failed to load'));
+            reject(new Error(tUi("channels:settings.authorizationBanners.success.sdkNotLoaded")));
           }
         }, 10000);
         return;
@@ -299,7 +301,7 @@ export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookCha
         <FormActionBar>
           <div className="flex justify-end">
             <Button variant="outline" onClick={onCancel} className="min-w-24">
-              {t('cancel')}
+              {t("buttons.cancel")}
             </Button>
           </div>
         </FormActionBar>

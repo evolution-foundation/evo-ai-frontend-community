@@ -32,7 +32,7 @@ const AgentEditHeader = ({
         className="h-auto gap-2 px-2 py-0 text-sm font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground"
       >
         <ArrowLeft className="h-[18px] w-[18px]" strokeWidth={2.2} />
-        {t('actions.back') || 'Voltar'}
+        {t('actions.back')}
       </Button>
 
       {agentName && (
@@ -61,7 +61,7 @@ const AgentEditHeader = ({
             className="h-auto gap-2 rounded-[9px] border-border bg-card px-4 py-[9px] text-sm font-semibold text-foreground"
           >
             <MessageSquare className="h-4 w-4" />
-            {t('actions.testAgent') || 'Teste seu agente'}
+            {t('actions.testAgent')}
           </Button>
         )}
         <Button
@@ -72,12 +72,12 @@ const AgentEditHeader = ({
           {isSaving ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              {t('messages.saving') || 'Salvando...'}
+              {t('messages.saving')}
             </>
           ) : (
             <>
               <Save className="h-4 w-4" />
-              {t('actions.save') || 'Salvar'}
+              {t('actions.save')}
             </>
           )}
         </Button>

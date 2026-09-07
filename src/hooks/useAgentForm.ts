@@ -1,8 +1,10 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useAgentForm as useAgentFormContext } from '@/contexts/AgentFormContext';
 import { AgentCreate } from '@/types/agents';
 
 // Hook principal que combina o contexto com funcionalidades adicionais
 export const useAgentForm = () => {
+  const { t: tUi } = useUiTranslation();
   const context = useAgentFormContext();
 
   if (!context) {
@@ -29,19 +31,19 @@ export const useAgentForm = () => {
     switch (currentStep) {
       case 0: // BasicInfo
         if (!data.name?.trim()) {
-          context.setError('name', 'Nome é obrigatório');
+          context.setError('name', tUi("api:validation.nameRequired"));
           return false;
         }
         if (!data.description?.trim()) {
-          context.setError('description', 'Descrição é obrigatória');
+          context.setError('description', tUi("aiAgents:validation.descriptionRequired"));
           return false;
         }
         if (!data.type) {
-          context.setError('type', 'Tipo do agente é obrigatório');
+          context.setError('type', tUi("interface:useagentform.agentTypeIsRequired"));
           return false;
         }
         if (data.type === 'llm' && !data.model?.trim()) {
-          context.setError('model', 'Modelo é obrigatório para agentes LLM');
+          context.setError('model', tUi("interface:useagentform.aModelIsRequiredForLlmAgents"));
           return false;
         }
         break;
@@ -49,7 +51,7 @@ export const useAgentForm = () => {
       case 1: // Configuration
         // Validações específicas de configuração
         if (data.type === 'llm' && !data.model?.trim()) {
-          context.setError('model', 'Modelo é obrigatório para agentes LLM');
+          context.setError('model', tUi("interface:useagentform.aModelIsRequiredForLlmAgents"));
           return false;
         }
         break;

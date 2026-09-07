@@ -1,3 +1,5 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { Edit, Trash2, Eye, Key, Copy } from 'lucide-react';
 import { Badge } from '@evoapi/design-system';
 import BaseTable from '@/components/base/BaseTable';
@@ -35,12 +37,13 @@ export default function AccessTokensTable({
   sortBy,
   sortOrder,
 }: AccessTokensTableProps) {
+  const { t: tUi } = useUiTranslation();
   const { can } = usePermissions();
 
   const columns = [
     {
       key: 'name',
-      label: 'Name',
+      label: tUi("accessTokens:table.columns.name"),
       sortable: true,
       render: (token: AccessToken) => (
         <div>
@@ -53,7 +56,7 @@ export default function AccessTokensTable({
     },
     {
       key: 'scopes',
-      label: 'Scopes',
+      label: tUi("accessTokens:table.columns.scopes"),
       render: (token: AccessToken) => {
         const scopes = parseScopesFromAPI(token.scopes);
         return (
@@ -74,7 +77,7 @@ export default function AccessTokensTable({
     },
     {
       key: 'owner',
-      label: 'Owner',
+      label: tUi("accessTokens:table.columns.owner"),
       render: (token: AccessToken) => (
         <div className="flex flex-col gap-1">
           <Badge variant="default" className="text-xs">
@@ -90,11 +93,11 @@ export default function AccessTokensTable({
     },
     {
       key: 'created_at',
-      label: 'Created At',
+      label: tUi("accessTokens:table.columns.createdAt"),
       sortable: true,
       render: (token: AccessToken) => (
         <div className="text-sm text-muted-foreground">
-          {new Date(token.created_at).toLocaleDateString()}
+          {new Date(token.created_at).toLocaleDateString(getFormattingLocale())}
         </div>
       ),
     },
@@ -102,27 +105,27 @@ export default function AccessTokensTable({
 
   const actions = [
     {
-      label: 'View Token',
+      label: tUi("accessTokens:actions.view"),
       icon: <Eye className="h-4 w-4" />,
       onClick: onViewToken,
     },
     {
-      label: 'Copy Token',
+      label: tUi("accessTokens:actions.copy"),
       icon: <Copy className="h-4 w-4" />,
       onClick: (token: AccessToken) => onCopy(token.token, 'Token'),
     },
     ...(can('access_tokens', 'update') ? [{
-      label: 'Edit',
+      label: tUi("accessTokens:actions.edit"),
       icon: <Edit className="h-4 w-4" />,
       onClick: onEditToken,
     }] : []),
     ...(can('access_tokens', 'update_token') ? [{
-      label: 'Regenerate Token',
+      label: tUi("accessTokens:actions.regenerate"),
       icon: <Key className="h-4 w-4" />,
       onClick: onRegenerateToken,
     }] : []),
     ...(can('access_tokens', 'delete') ? [{
-      label: 'Delete',
+      label: tUi("accessTokens:actions.delete"),
       icon: <Trash2 className="h-4 w-4" />,
       onClick: onDeleteToken,
       variant: 'destructive' as const,

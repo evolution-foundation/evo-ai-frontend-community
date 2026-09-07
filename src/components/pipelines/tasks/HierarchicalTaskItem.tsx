@@ -1,3 +1,4 @@
+import { getFormattingDateFnsLocale } from '@/lib/formattingLocale';
 import { useState } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -31,7 +32,6 @@ import {
 import { cn } from '@/lib/utils';
 import type { PipelineTask } from '@/types/analytics';
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 
 interface HierarchicalTaskItemProps {
   task: PipelineTask;
@@ -247,7 +247,7 @@ export default function HierarchicalTaskItem({
   const formatDueDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      return format(date, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+      return format(date, 'Pp', { locale: getFormattingDateFnsLocale() });
     } catch {
       return dateString;
     }

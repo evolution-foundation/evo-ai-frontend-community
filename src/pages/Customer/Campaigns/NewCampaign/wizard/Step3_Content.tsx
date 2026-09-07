@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Button, Label, Checkbox, RadioGroup, RadioGroupItem } from '@evoapi/design-system';
 import { ArrowRight, ArrowLeft, MessageSquare, FileText, Mail, MessageCircle, Smartphone, CheckCircle2 } from 'lucide-react';
@@ -20,6 +22,7 @@ interface Step3Props {
 }
 
 const Step3_Content = ({ data, onChange, onNext, onBack }: Step3Props) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('campaigns');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [inboxes, setInboxes] = useState<Inbox[]>([]);
@@ -134,7 +137,7 @@ const Step3_Content = ({ data, onChange, onNext, onBack }: Step3Props) => {
       case CampaignChannelType.SMS:
         return 'SMS';
       default:
-        return 'Desconhecido';
+        return tUi("messageTemplates:status.unknown");
     }
   };
 
@@ -214,10 +217,10 @@ const Step3_Content = ({ data, onChange, onNext, onBack }: Step3Props) => {
                   {t('wizard.step3.inboxDescription')}
                 </p>
                 {loadingInboxes ? (
-                  <div className="text-center py-4 text-muted-foreground">Loading inboxes...</div>
+                  <div className="text-center py-4 text-muted-foreground">{tUi("interface:step3Content.loadingInboxes")}</div>
                 ) : filteredInboxes.length === 0 ? (
                   <div className="text-center py-4 text-muted-foreground">
-                    {t('wizard.step3.noInboxes', 'No inboxes available for this channel')}
+                    {t('wizard.step3.noInboxes')}
                   </div>
                 ) : (
                   <RadioGroup value={data.inbox_id} onValueChange={handleSelectInbox}>
@@ -280,13 +283,13 @@ const Step3_Content = ({ data, onChange, onNext, onBack }: Step3Props) => {
             <div className="space-y-3">
               {!data.inbox_id ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  {t('wizard.step3.selectInboxFirst', 'Please select an inbox first')}
+                  {t('wizard.step3.selectInboxFirst')}
                 </div>
               ) : loadingTemplates ? (
-                <div className="text-center py-8 text-muted-foreground">Loading templates...</div>
+                <div className="text-center py-8 text-muted-foreground">{tUi("journey:panels.sendMessage.loadingTemplates")}</div>
               ) : templates.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  {t('wizard.step3.noTemplates', 'No templates available for this inbox')}
+                  {t('wizard.step3.noTemplates')}
                 </div>
               ) : (
                 templates.map((template) => {
@@ -320,7 +323,7 @@ const Step3_Content = ({ data, onChange, onNext, onBack }: Step3Props) => {
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{template.content || 'No content preview'}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{template.content || i18n.t('interface:fallbacks.noPreview')}</p>
                       </div>
                     </div>
                   );

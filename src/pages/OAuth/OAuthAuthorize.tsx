@@ -37,7 +37,7 @@ export const OAuthAuthorize: React.FC = () => {
     const codeChallengeMethod = searchParams.get('code_challenge_method');
 
     if (!clientId || !responseType || !redirectUri) {
-      setError(t('authorize.errors.missingParams'));
+      setError(t("oauth.authorize.errors.missingParams"));
       return;
     }
 
@@ -53,15 +53,15 @@ export const OAuthAuthorize: React.FC = () => {
 
     // Buscar informações da aplicação
     setAppInfo({
-      name: t('authorize.appInfo.name'),
-      description: t('authorize.appInfo.description'),
+      name: t("oauth.authorize.appInfo.name"),
+      description: t("oauth.authorize.appInfo.description"),
       redirect_uri: redirectUri
     });
   }, [searchParams, t]);
 
   const handleAuthorize = async () => {
     if (!oauthParams || !isAuthenticated) {
-      setError(t('authorize.errors.missingParamsOrAuth'));
+      setError(t("oauth.authorize.errors.missingParamsOrAuth"));
       return;
     }
 
@@ -89,7 +89,7 @@ export const OAuthAuthorize: React.FC = () => {
 
     } catch (err: any) {
       console.error('❌ OAuth Authorization Error:', err);
-      setError(`${t('authorize.errors.authorizationFailed')} ${err.message || err}`);
+      setError(`${t("oauth.authorize.errors.authorizationFailed")} ${err.message || err}`);
       setIsLoading(false);
     }
   };
@@ -100,7 +100,7 @@ export const OAuthAuthorize: React.FC = () => {
     // Redirecionar com erro
     const callbackUrl = new URL(oauthParams.redirect_uri);
     callbackUrl.searchParams.set('error', 'access_denied');
-    callbackUrl.searchParams.set('error_description', t('authorize.errors.userDenied'));
+    callbackUrl.searchParams.set('error_description', t("oauth.authorize.errors.userDenied"));
     if (oauthParams.state) {
       callbackUrl.searchParams.set('state', oauthParams.state);
     }
@@ -113,10 +113,10 @@ export const OAuthAuthorize: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-t from-primary/20 via-background/95 to-background">
         <div className="w-full max-w-md space-y-6">
           <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-6 shadow-lg text-center">
-            <h1 className="text-2xl font-bold mb-4">{t('authorize.titles.loginRequired')}</h1>
-            <p className="text-muted-foreground mb-6">{t('authorize.descriptions.needLogin')}</p>
+            <h1 className="text-2xl font-bold mb-4">{t("oauth.authorize.titles.loginRequired")}</h1>
+            <p className="text-muted-foreground mb-6">{t("oauth.authorize.descriptions.needLogin")}</p>
             <Button onClick={() => window.location.href = '/auth'} className="w-full">
-              {t('authorize.buttons.goToLogin')}
+              {t("oauth.authorize.buttons.goToLogin")}
             </Button>
           </div>
         </div>
@@ -131,9 +131,9 @@ export const OAuthAuthorize: React.FC = () => {
           <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-6 shadow-lg text-center">
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>{t('authorize.titles.invalidRequest')}</AlertTitle>
+              <AlertTitle>{t("oauth.authorize.titles.invalidRequest")}</AlertTitle>
               <AlertDescription>
-                {error || t('authorize.descriptions.invalidParams')}
+                {error || t("oauth.authorize.descriptions.invalidParams")}
               </AlertDescription>
             </Alert>
           </div>
@@ -147,16 +147,16 @@ export const OAuthAuthorize: React.FC = () => {
       <div className="w-full max-w-md space-y-6">
         <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-6 shadow-lg">
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold mb-2">{t('authorize.titles.authorizeApp')}</h1>
+            <h1 className="text-2xl font-bold mb-2">{t("oauth.authorize.titles.authorizeApp")}</h1>
             <p className="text-muted-foreground">
-              {t('authorize.descriptions.requestingAccess')}
+              {t("oauth.authorize.descriptions.requestingAccess")}
             </p>
           </div>
 
           {error && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>{t('common.error')}</AlertTitle>
+              <AlertTitle>{t("oauth.common.error")}</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -167,9 +167,9 @@ export const OAuthAuthorize: React.FC = () => {
               <p className="text-sm text-muted-foreground mb-3">{appInfo.description}</p>
 
               <div className="text-xs text-muted-foreground space-y-1">
-                <p><strong>{t('authorize.appInfo.redirectUri')}</strong> {new URL(appInfo.redirect_uri).origin}</p>
-                <p><strong>{t('authorize.appInfo.requestedScope')}</strong> {oauthParams.scope}</p>
-                <p><strong>{t('authorize.appInfo.user')}</strong> {user?.email}</p>
+                <p><strong>{t("oauth.authorize.appInfo.redirectUri")}</strong> {new URL(appInfo.redirect_uri).origin}</p>
+                <p><strong>{t("oauth.authorize.appInfo.requestedScope")}</strong> {oauthParams.scope}</p>
+                <p><strong>{t("oauth.authorize.appInfo.user")}</strong> {user?.email}</p>
               </div>
             </div>
           )}
@@ -183,10 +183,10 @@ export const OAuthAuthorize: React.FC = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('authorize.buttons.authorizing')}
+                  {t("oauth.authorize.buttons.authorizing")}
                 </>
               ) : (
-                t('authorize.buttons.authorize')
+                t("oauth.authorize.buttons.authorize")
               )}
             </Button>
 
@@ -196,13 +196,13 @@ export const OAuthAuthorize: React.FC = () => {
               className="w-full"
               disabled={isLoading}
             >
-              {t('authorize.buttons.deny')}
+              {t("oauth.authorize.buttons.deny")}
             </Button>
           </div>
 
           <div className="mt-6 text-xs text-muted-foreground text-center">
-            <p>{t('authorize.footer.disclaimer')}</p>
-            <p className="mt-2">{t('authorize.footer.revoke')}</p>
+            <p>{t("oauth.authorize.footer.disclaimer")}</p>
+            <p className="mt-2">{t("oauth.authorize.footer.revoke")}</p>
           </div>
         </div>
       </div>

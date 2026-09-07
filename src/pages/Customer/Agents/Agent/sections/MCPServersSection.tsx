@@ -123,11 +123,10 @@ const MCPServersSection = ({
             </span>
             <div className="min-w-0">
               <h3 className="text-sm font-bold text-foreground">
-                {t('customMCPServers.title') || 'MCPs Personalizados'}
+                {t('customMCPServers.title')}
               </h3>
               <p className="mt-[3px] text-[13px] leading-[1.5] text-muted-foreground">
-                {t('customMCPServers.subtitle') ||
-                  'Adicione servidores MCP personalizados criados por você'}
+                {t('customMCPServers.subtitle')}
               </p>
             </div>
           </div>
@@ -138,7 +137,7 @@ const MCPServersSection = ({
             onClick={() => setShowCustomMcpPicker(true)}
           >
             <Plus className="h-4 w-4" />
-            {t('customMCPServers.add') || 'Adicionar Custom MCP'}
+            {t('customMCPServers.add')}
           </Button>
         </div>
 
@@ -159,11 +158,10 @@ const MCPServersSection = ({
           </span>
           <div className="min-w-0">
             <h3 className="text-sm font-bold text-foreground">
-              {t('edit.menu.mcpServers') || 'Servidores MCP'}
+              {t('edit.menu.mcpServers')}
             </h3>
             <p className="mt-[3px] text-[13px] leading-[1.5] text-muted-foreground">
-              {t('mcpServers.subtitle') ||
-                'Conecte o agente a serviços externos através do Model Context Protocol'}
+              {t('mcpServers.subtitle')}
             </p>
           </div>
         </div>
@@ -173,7 +171,7 @@ const MCPServersSection = ({
             <div className="flex flex-col gap-3 items-center py-12 h-32 text-muted-foreground">
               <Loader2 className="h-7 w-7 animate-spin" />
               <div className="text-sm">
-                {t('mcpServers.checkingIntegrations') || 'Verificando integrações disponíveis...'}
+                {t('mcpServers.checkingIntegrations')}
               </div>
             </div>
           ) : (

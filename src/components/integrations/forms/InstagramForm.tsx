@@ -22,50 +22,50 @@ export function InstagramForm({ config, onConfigChange }: IntegrationFormProps) 
     <div className="space-y-4">
       <FormField
         id="INSTAGRAM_APP_ID"
-        label={t('integrations.instagram.appId')}
+        label={t("instagram.appId")}
         value={getValue('igAppId')}
         onChange={(value) => onConfigChange('igAppId', value)}
-        placeholder={t('integrations.instagram.placeholders.appId')}
+        placeholder={t("instagram.placeholders.appId")}
       />
       <FormField
         id="INSTAGRAM_APP_SECRET"
-        label={t('integrations.instagram.appSecret')}
+        label={t("instagram.appSecret")}
         value={getValue('igAppSecret')}
         onChange={(value) => onConfigChange('igAppSecret', value)}
-        placeholder={t('integrations.instagram.placeholders.appSecret')}
+        placeholder={t("instagram.placeholders.appSecret")}
         type="password"
       />
       <FormField
         id="INSTAGRAM_VERIFY_TOKEN"
-        label={t('integrations.instagram.verifyToken')}
+        label={t("instagram.verifyToken")}
         value={getValue('igVerifyToken')}
         onChange={(value) => onConfigChange('igVerifyToken', value)}
-        placeholder={t('integrations.instagram.placeholders.verifyToken')}
+        placeholder={t("instagram.placeholders.verifyToken")}
         type="password"
       />
       <FormField
         id="INSTAGRAM_API_VERSION"
-        label={t('integrations.instagram.apiVersion')}
+        label={t("instagram.apiVersion")}
         value={getValue('igApiVersion', 'v23.0')}
         onChange={(value) => onConfigChange('igApiVersion', value)}
-        placeholder={t('integrations.instagram.placeholders.apiVersion')}
+        placeholder={t("instagram.placeholders.apiVersion")}
       />
       <FormField
         id="INSTAGRAM_REDIRECT_URI"
-        label={t('integrations.instagram.redirectUri')}
+        label={t("instagram.redirectUri")}
         value={redirectUri}
         onChange={() => {}}
         placeholder={redirectUri}
         type="url"
         readOnly={true}
-        description={t('integrations.instagram.redirectUriDescription')}
+        description={t("instagram.redirectUriDescription")}
       />
       <FormSwitch
         id="ENABLE_INSTAGRAM_CHANNEL_HUMAN_AGENT"
-        label={t('integrations.instagram.enableHumanAgent')}
+        label={t("instagram.enableHumanAgent")}
         checked={getBoolean('igEnableHumanAgent', false)}
         onCheckedChange={(checked) => onConfigChange('igEnableHumanAgent', checked)}
-        description={t('integrations.instagram.enableHumanAgentDescription')}
+        description={t("instagram.enableHumanAgentDescription")}
       />
     </div>
   );

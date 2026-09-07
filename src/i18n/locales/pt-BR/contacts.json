@@ -77,7 +77,9 @@
         "title": "Contato não encontrado",
         "description": "Não foi possível encontrar este contato. Ele pode ter sido excluído."
       }
-    }
+    },
+    "conversationLabel_one": "conversa",
+    "conversationLabel_other": "conversas"
   },
   "export": {
     "title": "Exportar Contatos",
@@ -262,7 +264,8 @@
       "phoneInvalid": "Telefone inválido",
       "taxIdInvalidPerson": "CPF inválido (máximo 11 dígitos)",
       "taxIdInvalidCompany": "CNPJ inválido (máximo 14 dígitos)",
-      "websiteInvalid": "URL inválida. Use http:// ou https://"
+      "websiteInvalid": "URL inválida. Use http:// ou https://",
+      "taxIdInvalid": "Documento fiscal inválido"
     },
     "actions": {
       "cancel": "Cancelar",
@@ -557,7 +560,9 @@
     "emptyDescription": "Crie uma nova ação agendada para começar",
     "pagination": "Página {{page}} de {{totalPages}} ({{total}} total)",
     "messages": {
-      "noChannelsConfigured": "Nenhum canal de mensagens configurado. Por favor, configure primeiro um canal de WhatsApp, SMS, Email ou Telegram nas configurações de Canais."
+      "noChannelsConfigured": "Nenhum canal de mensagens configurado. Por favor, configure primeiro um canal de WhatsApp, SMS, Email ou Telegram nas configurações de Canais.",
+      "cancelled": "Ação agendada cancelada",
+      "bulkCancelled": "Ações agendadas canceladas"
     },
     "errors": {
       "loadFailed": "Erro ao carregar ações agendadas",
@@ -768,5 +773,9 @@
       "deleteSuccess": "Nota excluída",
       "deleteError": "Erro ao excluir nota"
     }
+  },
+  "pipelines": {
+    "morePipelines_one": "Mais {{count}} pipeline",
+    "morePipelines_other": "Mais {{count}} pipelines"
   }
 }

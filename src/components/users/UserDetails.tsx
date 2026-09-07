@@ -1,3 +1,4 @@
+import { getFormattingDateFnsLocale } from '@/lib/formattingLocale';
 import {
   Dialog,
   DialogContent,
@@ -24,7 +25,6 @@ import {
 } from 'lucide-react';
 import { User } from '@/types/users';
 import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface UserDetailsProps {
@@ -222,7 +222,7 @@ export default function UserDetails({
                       <span className="font-mono">
                         {formatDistanceToNow(new Date(user.created_at), {
                           addSuffix: true,
-                          locale: ptBR,
+                          locale: getFormattingDateFnsLocale(),
                         })}
                       </span>
                     </div>
@@ -233,7 +233,7 @@ export default function UserDetails({
                       <span className="font-mono">
                         {formatDistanceToNow(new Date(user.updated_at), {
                           addSuffix: true,
-                          locale: ptBR,
+                          locale: getFormattingDateFnsLocale(),
                         })}
                       </span>
                     </div>

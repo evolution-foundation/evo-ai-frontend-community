@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { ScheduledActionsTour } from '@/tours';
@@ -48,6 +49,7 @@ const INITIAL_STATE: ScheduledActionsState = {
 };
 
 export default function ScheduledActions() {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('contacts');
   const navigate = useNavigate();
   const { can } = usePermissions();
@@ -106,7 +108,7 @@ export default function ScheduledActions() {
   usePermissionGatedLoad({
     resource: 'contacts',
     load: loadActions,
-    onDenied: () => toast.error('Você não tem permissão para visualizar ações agendadas'),
+    onDenied: () => toast.error(tUi("interface:scheduledactions.youDoNotHavePermissionToViewScheduledActions")),
   });
 
   // Set up interval to update countdown every second

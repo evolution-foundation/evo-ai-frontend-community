@@ -220,7 +220,13 @@
       "selectProvider": "Select a provider to continue",
       "selectEmailProvider": "Select an email provider to continue",
       "selectSmsProvider": "Select an SMS provider to continue",
-      "testConnectionFirst": "You must test the connection before saving"
+      "testConnectionFirst": "You must test the connection before saving",
+      "apiUrlRequired": "API URL is required",
+      "evolutionHealthFailed": "Connection check failed. Verify that the Evolution API URL is correct and reachable.",
+      "connectionVerified": "Connection verified successfully",
+      "connectionTestFailed": "Connection test failed",
+      "channelCreated": "Channel created successfully",
+      "channelCreateFailed": "Failed to create channel"
     },
     "success": {
       "channelCreated": "Channel created successfully!",
@@ -285,6 +291,29 @@
         "loginCancelled": "Login cancelled",
         "pageNotFound": "Page not found",
         "emailRequired": "Email is required for reconnection"
+      },
+      "facebook": {
+        "title": "Authorize Facebook",
+        "description": "Connect your Facebook account to finish setting up this channel",
+        "button": "Connect Facebook"
+      },
+      "google": {
+        "title": "Authorize Google",
+        "description": "Connect your Google account to finish setting up this channel",
+        "button": "Connect Google"
+      },
+      "microsoft": {
+        "title": "Authorize Microsoft",
+        "description": "Connect your Microsoft account to finish setting up this channel",
+        "button": "Connect Microsoft"
+      },
+      "instagram": {
+        "duplicate": {
+          "title": "Instagram account already connected",
+          "description": "This Instagram account is connected to another inbox. Resolve the existing connection to continue.",
+          "resolveButton": "Resolve connection",
+          "detailsButton": "View details"
+        }
       }
     },
     "breadcrumb": {
@@ -510,6 +539,9 @@
       "disabled": {
         "title": "Business Hours Disabled",
         "description": "Business hours are disabled. All messages will be processed normally."
+      },
+      "errors": {
+        "updateError": "Could not update business hours"
       }
     },
     "businessDay": {
@@ -517,14 +549,17 @@
       "twentyFourHours": "24 hours",
       "enableDay": "Enable {{day}}",
       "open24Hours": "Open 24 hours",
-      "startPlaceholder": "Start"
+      "startPlaceholder": "Start",
+      "endPlaceholder": "End time",
+      "timeError": "End time must be after start time"
     },
     "csat": {
       "title": "Customer Satisfaction (CSAT) Survey",
       "description": "Configure satisfaction surveys to collect customer feedback",
       "displayType": {
         "label": "Display Type",
-        "help": "How the survey will be presented to the customer"
+        "help": "How the survey will be presented to the customer",
+        "starLabel": "Stars"
       },
       "message": {
         "label": "Survey Message",
@@ -678,7 +713,8 @@
           "text": "Text",
           "image": "Image",
           "video": "Video",
-          "document": "Document"
+          "document": "Document",
+          "none": "None"
         },
         "headerText": "Header Text",
         "headerTextPlaceholder": "Enter header text",
@@ -711,7 +747,8 @@
         "create": "Create Template",
         "save": "Save Changes",
         "cancel": "Cancel",
-        "requiredFields": "Please fill in all required fields"
+        "requiredFields": "Please fill in all required fields",
+        "categoryReset": "Category reset for the selected template type"
       },
       "tinymce": {
         "insertTemplate": "Insert Template",
@@ -963,7 +1000,8 @@
             "errors": {
               "apiUrlRequired": "Base URL is required",
               "updateError": "Error updating connection settings"
-            }
+            },
+            "adminTokenSet": "A key is already configured. Leave blank to keep it."
           },
           "actions": {
             "title": "Instance Actions",
@@ -1161,7 +1199,13 @@
       "saving": "Saving...",
       "save": "Save Settings",
       "success": "Pre-chat form settings updated successfully",
-      "error": "Error updating pre-chat form settings"
+      "error": "Error updating pre-chat form settings",
+      "examples": {
+        "department": "Department",
+        "sales": "Sales",
+        "support": "Support",
+        "finance": "Finance"
+      }
     },
     "greeting": {
       "title": "Greeting Message",
@@ -1228,6 +1272,13 @@
           "title": "AI Agent Avatar",
           "description": "Display AI agent avatar in automatic messages"
         }
+      },
+      "language": {
+        "label": "Widget language",
+        "options": {
+          "accountDefault": "Use account default"
+        },
+        "helpText": "Sets the language for this embed only."
       }
     },
     "senderSettings": {
@@ -1252,6 +1303,10 @@
         "label": "Business Name",
         "placeholder": "Enter your business name",
         "save": "Save"
+      },
+      "errors": {
+        "updateSenderTypeError": "Could not update sender type",
+        "saveBusinessNameError": "Could not save business name"
       }
     },
     "widgetHelpers": {
@@ -1455,10 +1510,16 @@
       },
       "footer": {
         "teamOnline": "Team Online",
-        "startConversation": "Start Conversation"
+        "startConversation": "Start Conversation",
+        "teamOffline": "Our team is currently offline",
+        "messagePlaceholder": "Type your message…"
       },
       "container": {
         "poweredBy": "Powered by"
+      },
+      "body": {
+        "userMessage": "Hi! I would like to speak with support.",
+        "agentMessage": "Hello! How can we help you?"
       }
     },
     "timestamp": {

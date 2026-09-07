@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -64,7 +65,7 @@ const PublicChatPage = () => {
         style={accent ? { backgroundColor: accent } : undefined}
       >
         {config.appearance?.logo_url && (
-          <img src={config.appearance.logo_url} alt={config.title || 'logo'} className="h-8 object-contain" />
+          <img src={config.appearance.logo_url} alt={config.title || i18n.t('interface:fallbacks.logo')} className="h-8 object-contain" />
         )}
         {config.title && (
           <h1 className={`text-base font-semibold ${accent ? 'text-white' : 'text-foreground'}`}>
@@ -82,7 +83,7 @@ const PublicChatPage = () => {
       <main className="flex-1 min-h-0">
         <iframe
           src={widgetUrl}
-          title={config.title || 'chat'}
+          title={config.title || i18n.t('interface:fallbacks.chat')}
           className="w-full h-full border-0"
           allow="microphone; camera; clipboard-write"
         />

@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import Header from '@/components/widget/Header';
@@ -18,6 +19,7 @@ import StartNewConversationButton from '@/components/widget/StartNewConversation
 import Toast from '@/components/widget/Toast';
 
 export default function Widget() {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('widget');
   const rootRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<MessageItem[]>([]);
@@ -139,7 +141,7 @@ export default function Widget() {
             file_size: att.file_size,
             fallback_title:
               att.fallback_title ||
-              `Arquivo (${att.file_size ? Math.round(att.file_size / 1024) : 0} KB)`,
+              t("interface:dynamic.fileSize", { size: att.file_size ? Math.round(att.file_size / 1024) : 0 }),
           }))
         : undefined,
       // Email HTML support
@@ -511,9 +513,7 @@ export default function Widget() {
                             file_size: att.file_size,
                             fallback_title:
                               att.fallback_title ||
-                              `Arquivo (${
-                                att.file_size ? Math.round(att.file_size / 1024) : 0
-                              } KB)`,
+                              t("interface:dynamic.fileSize", { size: att.file_size ? Math.round(att.file_size / 1024) : 0 }),
                           }))
                         : undefined,
                     };
@@ -649,7 +649,7 @@ export default function Widget() {
                                   fallback_title:
                                     att.fallback_title ||
                                     att.file_name ||
-                                    `Arquivo (${att.file_size ? Math.round(att.file_size / 1024) : 0} KB)`,
+                                    t("interface:dynamic.fileSize", { size: att.file_size ? Math.round(att.file_size / 1024) : 0 }),
                                 }))
                               : m.attachments,
                           };
@@ -738,9 +738,7 @@ export default function Widget() {
                               fallback_title:
                                 att.fallback_title ||
                                 att.file_name ||
-                                `Arquivo (${
-                                  att.file_size ? Math.round(att.file_size / 1024) : 0
-                                } KB)`,
+                                t("interface:dynamic.fileSize", { size: att.file_size ? Math.round(att.file_size / 1024) : 0 }),
                             };
                           });
                         }
@@ -800,7 +798,7 @@ export default function Widget() {
                                       fallback_title:
                                         att.fallback_title ||
                                         att.file_name ||
-                                        `Arquivo (${att.file_size ? Math.round(att.file_size / 1024) : 0} KB)`,
+                                        t("interface:dynamic.fileSize", { size: att.file_size ? Math.round(att.file_size / 1024) : 0 }),
                                     }))
                                   : m.attachments,
                               };
@@ -847,9 +845,7 @@ export default function Widget() {
                             fallback_title:
                               att.fallback_title ||
                               att.file_name ||
-                              `Arquivo (${
-                                att.file_size ? Math.round(att.file_size / 1024) : 0
-                              } KB)`,
+                              t("interface:dynamic.fileSize", { size: att.file_size ? Math.round(att.file_size / 1024) : 0 }),
                           };
                         });
                       }
@@ -878,7 +874,7 @@ export default function Widget() {
                               fallback_title:
                                 att.fallback_title ||
                                 att.file_name ||
-                                `Arquivo (${att.file_size ? Math.round(att.file_size / 1024) : 0} KB)`,
+                                t("interface:dynamic.fileSize", { size: att.file_size ? Math.round(att.file_size / 1024) : 0 }),
                             }))
                           : undefined,
                       };
@@ -947,9 +943,7 @@ export default function Widget() {
                                       file_size: att.file_size,
                                       fallback_title:
                                         att.fallback_title ||
-                                        `Arquivo (${
-                                          att.file_size ? Math.round(att.file_size / 1024) : 0
-                                        } KB)`,
+                                        t("interface:dynamic.fileSize", { size: att.file_size ? Math.round(att.file_size / 1024) : 0 }),
                                     }))
                                   : undefined,
                               };
@@ -1387,8 +1381,8 @@ export default function Widget() {
                   text: originalMessage.content || '',
                   sender:
                     originalMessage.message_type === 0
-                      ? originalMessage.sender?.name || 'Usuário'
-                      : 'Atendente',
+                      ? originalMessage.sender?.name || tUi("widget:chat.user")
+                      : tUi("widget:chat.agent"),
                   type: originalMessage.message_type === 0 ? ('out' as const) : ('in' as const),
                 };
               }
@@ -1424,7 +1418,7 @@ export default function Widget() {
                     file_size: att.file_size,
                     fallback_title:
                       att.fallback_title ||
-                      `Arquivo (${att.file_size ? Math.round(att.file_size / 1024) : 0} KB)`,
+                      t("interface:dynamic.fileSize", { size: att.file_size ? Math.round(att.file_size / 1024) : 0 }),
                   }))
                 : undefined,
             };
@@ -1571,7 +1565,7 @@ export default function Widget() {
               sender:
                 originalMessage.message_type === 0
                   ? originalMessage.sender?.name || 'User'
-                  : 'Atendente',
+                  : tUi("widget:chat.agent"),
               type: originalMessage.message_type === 0 ? ('out' as const) : ('in' as const),
             };
           }

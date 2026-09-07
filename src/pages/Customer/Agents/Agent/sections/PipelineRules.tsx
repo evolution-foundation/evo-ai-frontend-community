@@ -113,8 +113,7 @@ const PipelineRules = ({ rules = [], onChange, availablePipelines = [] }: Pipeli
       <div className="flex items-start gap-3 rounded-[10px] border border-primary/30 bg-primary/10 p-3">
         <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
         <p className="text-sm leading-[1.5] text-primary">
-          {t('edit.configuration.pipelineRules.description') ||
-            'Configure instruções para o agente manipular pipelines e atribuir conversas a estágios específicos.'}
+          {t('edit.configuration.pipelineRules.description')}
         </p>
       </div>
 
@@ -147,8 +146,7 @@ const PipelineRules = ({ rules = [], onChange, availablePipelines = [] }: Pipeli
                         <SelectTrigger className="w-full rounded-[9px] border-border bg-card">
                           <SelectValue
                             placeholder={
-                              t('edit.configuration.pipelineRules.selectPipeline') ||
-                              'Selecione o pipeline'
+                              t('edit.configuration.pipelineRules.selectPipeline')
                             }
                           />
                         </SelectTrigger>
@@ -187,8 +185,7 @@ const PipelineRules = ({ rules = [], onChange, availablePipelines = [] }: Pipeli
                             htmlFor={`allow-tasks-${rule.id}`}
                             className="cursor-pointer text-[13.5px] text-foreground"
                           >
-                            {t('edit.configuration.pipelineRules.allowTasks') ||
-                              'Criar/gerenciar tarefas'}
+                            {t('edit.configuration.pipelineRules.allowTasks')}
                           </Label>
                         </div>
 
@@ -204,8 +201,7 @@ const PipelineRules = ({ rules = [], onChange, availablePipelines = [] }: Pipeli
                             htmlFor={`allow-services-${rule.id}`}
                             className="cursor-pointer text-[13.5px] text-foreground"
                           >
-                            {t('edit.configuration.pipelineRules.allowServices') ||
-                              'Criar/gerenciar serviços'}
+                            {t('edit.configuration.pipelineRules.allowServices')}
                           </Label>
                         </div>
                       </div>
@@ -213,8 +209,7 @@ const PipelineRules = ({ rules = [], onChange, availablePipelines = [] }: Pipeli
                       <div className="space-y-2">
                         <div className="flex items-center justify-between gap-4">
                           <Label className="text-[13.5px] font-bold text-foreground">
-                            {t('edit.configuration.pipelineRules.generalInstructions') ||
-                              'Instruções gerais (quando e o que fazer):'}
+                            {t('edit.configuration.pipelineRules.generalInstructions')}
                           </Label>
                           <span className="flex-shrink-0 text-xs text-muted-foreground">
                             {(rule.generalInstructions?.length || 0)}/500
@@ -228,8 +223,7 @@ const PipelineRules = ({ rules = [], onChange, availablePipelines = [] }: Pipeli
                             })
                           }
                           placeholder={
-                            t('edit.configuration.pipelineRules.generalInstructionsPlaceholder') ||
-                            'Defina quando o agente deve criar tarefas, adicionar serviços, ou realizar outras ações neste pipeline...'
+                            t('edit.configuration.pipelineRules.generalInstructionsPlaceholder')
                           }
                           maxLength={500}
                           className="min-h-[90px] rounded-[9px] border-border bg-card text-sm placeholder:text-muted-foreground/70"
@@ -262,8 +256,7 @@ const PipelineRules = ({ rules = [], onChange, availablePipelines = [] }: Pipeli
                                 <SelectTrigger className="w-full rounded-[9px] border-border bg-card">
                                   <SelectValue
                                     placeholder={
-                                      t('edit.configuration.pipelineRules.selectStage') ||
-                                      'Selecione o estágio'
+                                      t('edit.configuration.pipelineRules.selectStage')
                                     }
                                   />
                                 </SelectTrigger>
@@ -289,8 +282,7 @@ const PipelineRules = ({ rules = [], onChange, availablePipelines = [] }: Pipeli
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               <label className="text-sm font-medium">
-                                {t('edit.configuration.pipelineRules.instructions') ||
-                                  'Regras de atribuição:'}
+                                {t('edit.configuration.pipelineRules.instructions')}
                               </label>
                               <span className="text-xs text-muted-foreground">
                                 {(stage.instructions?.length || 0)}/255
@@ -304,8 +296,7 @@ const PipelineRules = ({ rules = [], onChange, availablePipelines = [] }: Pipeli
                                 })
                               }
                               placeholder={
-                                t('edit.configuration.pipelineRules.instructionsPlaceholder') ||
-                                'Quando o cliente mencionar interesse em produto X, mova para este estágio...'
+                                t('edit.configuration.pipelineRules.instructionsPlaceholder')
                               }
                               maxLength={255}
                               className="min-h-[70px] rounded-[9px] border-border bg-card text-sm placeholder:text-muted-foreground/70"
@@ -321,16 +312,14 @@ const PipelineRules = ({ rules = [], onChange, availablePipelines = [] }: Pipeli
                         className="h-auto w-full rounded-[10px] border-border bg-card py-[10px] text-[13px] font-semibold text-foreground"
                       >
                         <Plus className="mr-2 h-4 w-4" />
-                        {t('edit.configuration.pipelineRules.addStage') ||
-                          'Adicionar estágio'}
+                        {t('edit.configuration.pipelineRules.addStage')}
                       </Button>
                     </div>
                   )}
 
                   {!rule.pipelineId && (
                     <div className="p-4 text-center text-sm text-muted-foreground">
-                      {t('edit.configuration.pipelineRules.selectPipelineFirst') ||
-                        'Selecione um pipeline para adicionar estágios'}
+                      {t('edit.configuration.pipelineRules.selectPipelineFirst')}
                     </div>
                   )}
                 </div>
@@ -347,7 +336,7 @@ const PipelineRules = ({ rules = [], onChange, availablePipelines = [] }: Pipeli
         className="h-auto w-full rounded-[12px] border-border bg-card py-[14px] text-sm font-semibold text-foreground"
       >
         <Plus className="mr-2 h-4 w-4" />
-        {t('edit.configuration.pipelineRules.addPipeline') || 'Adicionar pipeline'}
+        {t('edit.configuration.pipelineRules.addPipeline')}
       </Button>
     </div>
   );

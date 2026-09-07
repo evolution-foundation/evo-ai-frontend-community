@@ -267,7 +267,16 @@
     },
     "cancel": "Cancel",
     "deleting": "Deleting...",
-    "delete": "Delete Stage"
+    "delete": "Delete Stage",
+    "importantLabel": "Important",
+    "deletionWillLabel": "Deleting this stage will:",
+    "deletionWill": {
+      "removeStage": "Remove this stage from the pipeline",
+      "removeConversations": "Remove conversations from this stage",
+      "reorderStages": "Reorder the remaining stages"
+    },
+    "warningMessage_one": "This stage contains {{count}} conversation. Deleting the stage removes it from the pipeline.",
+    "warningMessage_other": "This stage contains {{count}} conversations. Deleting the stage removes them from the pipeline."
   },
   "duplicatePipeline": {
     "title": "Duplicate Pipeline",
@@ -285,7 +294,16 @@
     "noConversations": "The conversations will not be copied. The new pipeline will start empty.",
     "cancel": "Cancel",
     "duplicating": "Duplicating...",
-    "duplicate": "Duplicate Pipeline"
+    "duplicate": "Duplicate Pipeline",
+    "copySuffix": "Copy",
+    "whatWillBeCopied": "What will be copied",
+    "copied": {
+      "settings": "Pipeline settings",
+      "stages": "Stages and their settings",
+      "structure": "Pipeline structure and order"
+    },
+    "noteLabel": "Note",
+    "noteMessage": "Conversations and items will not be copied."
   },
   "editItem": {
     "title": "Edit Item in Pipeline",
@@ -528,7 +546,7 @@
   "pipelinesTable": {
     "loading": "Loading pipelines...",
     "columns": {
-      "name": "Nome",
+      "name": "Name",
       "type": "Type",
       "status": "Status",
       "conversations": "Conversations",
@@ -588,7 +606,8 @@
     "note": "The item will only be removed from the pipeline, but will continue to exist in the system.",
     "cancel": "Cancel",
     "removing": "Removing...",
-    "remove": "Remove from Pipeline"
+    "remove": "Remove from Pipeline",
+    "confirmDetails": "Remove {{name}} (#{{id}}) from this pipeline?"
   },
   "removeConversation": {
     "title": "Remove Conversation from Pipeline",
@@ -711,7 +730,10 @@
         "snoozed": "Snoozed"
       },
       "valueLabel": "Total Value:",
-      "system": "System"
+      "system": "System",
+      "incoming": "Incoming",
+      "outgoing": "Outgoing",
+      "editItem": "Edit item"
     },
     "messages": {
       "itemMoved": "Item moved successfully",
@@ -738,7 +760,8 @@
       "conversationUpdated": "Item updated successfully",
       "conversationUpdateError": "Error updating item",
       "itemHiddenByFilter": "Card moved — it may be hidden by the active filters",
-      "newItemMayBeHidden": "Card added — it may be hidden by the active filters"
+      "newItemMayBeHidden": "Card added — it may be hidden by the active filters",
+      "notInPipeline": "This contact is not in any pipeline"
     },
     "tasks": {
       "pending": "pending",
@@ -778,7 +801,8 @@
       "pending": "Pending",
       "completed": "Completed",
       "cancelled": "Cancelled",
-      "overdue": "Overdue"
+      "overdue": "Overdue",
+      "dueSoon": "Due soon"
     },
     "dueDates": {
       "today": "Today",
@@ -852,29 +876,41 @@
       "moveSuccess": "Task moved successfully",
       "moveError": "Error moving task",
       "addSubtaskSuccess": "Subtask added successfully",
-      "addSubtaskError": "Error adding subtask"
+      "addSubtaskError": "Error adding subtask",
+      "deleteWithSubtasksConfirm_one": "This task has {{count}} subtask. Delete both?",
+      "deleteWithSubtasksConfirm_other": "This task has {{count}} subtasks. Delete all of them?"
+    },
+    "edit": "Edit task",
+    "delete": "Delete task",
+    "badge": {
+      "overdue_one": "{{count}} overdue task",
+      "overdue_other": "{{count}} overdue tasks",
+      "dueSoon_one": "{{count}} task due soon",
+      "dueSoon_other": "{{count}} tasks due soon",
+      "pending_one": "{{count}} pending task",
+      "pending_other": "{{count}} pending tasks"
     }
   },
   "dialog": {
-      "deactivatePipeline": {
+    "deactivatePipeline": {
       "lookupFailed": "We could not check what depends on this pipeline. Deactivate anyway?",
       "draft": "draft",
       "viaRoutingRule": "via routing rule",
       "namesRedacted": "{{count}} form in total — you do not have permission to see their names.",
       "namesRedacted_plural": "{{count}} forms in total — you do not have permission to see their names.",
-          "title": "Deactivate pipeline",
-          "description": "\"{{name}}\" will be hidden from every pipeline picker. Anything already inside it stays where it is.",
-          "checking": "Checking what depends on this pipeline…",
-          "formsHeading": "{{count}} capture form sends leads here:",
-          "formsHeading_plural": "{{count}} capture forms send leads here:",
-          "noForms": "No capture form feeds this pipeline.",
-          "draftsHeading": "{{count}} draft form targets this pipeline (not capturing yet):",
-          "draftsHeading_plural": "{{count}} draft forms target this pipeline (not capturing yet):",
-          "published": "published",
-          "partialWarning": "Only capture forms were checked. Automations and journeys were not inspected.",
-          "cancel": "Cancel",
-          "confirm": "Deactivate"
-      },
+      "title": "Deactivate pipeline",
+      "description": "\"{{name}}\" will be hidden from every pipeline picker. Anything already inside it stays where it is.",
+      "checking": "Checking what depends on this pipeline…",
+      "formsHeading": "{{count}} capture form sends leads here:",
+      "formsHeading_plural": "{{count}} capture forms send leads here:",
+      "noForms": "No capture form feeds this pipeline.",
+      "draftsHeading": "{{count}} draft form targets this pipeline (not capturing yet):",
+      "draftsHeading_plural": "{{count}} draft forms target this pipeline (not capturing yet):",
+      "published": "published",
+      "partialWarning": "Only capture forms were checked. Automations and journeys were not inspected.",
+      "cancel": "Cancel",
+      "confirm": "Deactivate"
+    },
     "deletePipeline": {
       "title": "Delete Pipeline",
       "description": "Are you sure you want to delete this pipeline? This action cannot be undone and will affect all related data.",

@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -122,6 +123,7 @@ const LANGUAGES: { value: Locale; labelKey: string }[] = [
 ];
 
 export default function OnboardingPage() {
+  const { t: tUi } = useUiTranslation();
   const navigate = useNavigate();
   const { t, currentLanguage, changeLanguage } = useLanguage('onboarding');
   const { isAuthenticated, refreshUser } = useAuth();
@@ -349,7 +351,7 @@ export default function OnboardingPage() {
           {langOpen && (
             <div
               role="listbox"
-              aria-label="Select language"
+              aria-label={tUi("interface:onboardingpage.selectLanguage")}
               style={{
                 position: 'absolute',
                 top: 'calc(100% + 6px)',

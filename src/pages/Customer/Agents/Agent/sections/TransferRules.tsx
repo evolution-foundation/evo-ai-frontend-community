@@ -59,8 +59,7 @@ const TransferRules = ({ rules, onChange, availableUsers = [], availableTeams = 
       <div className="flex items-start gap-3 rounded-[10px] border border-primary/30 bg-primary/10 p-4">
         <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
         <p className="text-sm text-primary">
-          {t('edit.configuration.transferRules.description') ||
-            'Configure instruções para o agente fazer transferência do atendimento.'}
+          {t('edit.configuration.transferRules.description')}
         </p>
       </div>
 
@@ -76,7 +75,7 @@ const TransferRules = ({ rules, onChange, availableUsers = [], availableTeams = 
                 <div className="flex items-center gap-4">
                   <div className="flex-1 space-y-2">
                     <label className="text-[13.5px] font-bold text-foreground">
-                      {t('edit.configuration.transferRules.transferTo') || 'Transferir para:'}
+                      {t('edit.configuration.transferRules.transferTo')}
                     </label>
                     <Select
                       value={rule.transferTo}
@@ -89,10 +88,10 @@ const TransferRules = ({ rules, onChange, availableUsers = [], availableTeams = 
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="human">
-                          {t('edit.configuration.transferRules.aHuman') || 'Humano'}
+                          {t('edit.configuration.transferRules.aHuman')}
                         </SelectItem>
                         <SelectItem value="team">
-                          {t('edit.configuration.transferRules.aTeam') || 'Time'}
+                          {t('edit.configuration.transferRules.aTeam')}
                         </SelectItem>
                       </SelectContent>
                     </Select>
@@ -101,7 +100,7 @@ const TransferRules = ({ rules, onChange, availableUsers = [], availableTeams = 
                   {rule.transferTo === 'human' && (
                     <div className="flex-1 space-y-2">
                       <label className="text-[13.5px] font-bold text-foreground">
-                        {t('edit.configuration.transferRules.selectUser') || 'Selecione o usuário:'}
+                        {t('edit.configuration.transferRules.selectUser')}
                       </label>
                       <Select
                         value={rule.userId || ''}
@@ -114,7 +113,7 @@ const TransferRules = ({ rules, onChange, availableUsers = [], availableTeams = 
                         }}
                       >
                         <SelectTrigger className="w-full rounded-[9px] border-border bg-card">
-                          <SelectValue placeholder={t('edit.configuration.transferRules.selectUserPlaceholder') || 'Selecione um usuário'} />
+                          <SelectValue placeholder={t('edit.configuration.transferRules.selectUserPlaceholder')} />
                         </SelectTrigger>
                         <SelectContent>
                           {availableUsers.map(user => (
@@ -135,7 +134,7 @@ const TransferRules = ({ rules, onChange, availableUsers = [], availableTeams = 
                   {rule.transferTo === 'team' && (
                     <div className="flex-1 space-y-2">
                       <label className="text-[13.5px] font-bold text-foreground">
-                        {t('edit.configuration.transferRules.selectTeam') || 'Selecione o time:'}
+                        {t('edit.configuration.transferRules.selectTeam')}
                       </label>
                       <Select
                         value={rule.teamId || ''}
@@ -148,7 +147,7 @@ const TransferRules = ({ rules, onChange, availableUsers = [], availableTeams = 
                         }}
                       >
                         <SelectTrigger className="w-full rounded-[9px] border-border bg-card">
-                          <SelectValue placeholder={t('edit.configuration.transferRules.selectTeamPlaceholder') || 'Selecione um time'} />
+                          <SelectValue placeholder={t('edit.configuration.transferRules.selectTeamPlaceholder')} />
                         </SelectTrigger>
                         <SelectContent>
                           {availableTeams.map(team => (
@@ -179,14 +178,14 @@ const TransferRules = ({ rules, onChange, availableUsers = [], availableTeams = 
                     htmlFor={`return-${rule.id}`}
                     className="text-sm font-medium cursor-pointer"
                   >
-                    {t('edit.configuration.transferRules.returnOnFinish') || 'Devolver ao finalizar'}
+                    {t('edit.configuration.transferRules.returnOnFinish')}
                   </label>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-[13.5px] font-bold text-foreground">
-                      {t('edit.configuration.transferRules.instructions') || 'Instruções:'}
+                      {t('edit.configuration.transferRules.instructions')}
                     </label>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground">
@@ -197,7 +196,7 @@ const TransferRules = ({ rules, onChange, availableUsers = [], availableTeams = 
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRemoveRule(rule.id)}
-                        aria-label={t('actions.remove') || 'Remover'}
+                        aria-label={t('actions.remove')}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
@@ -208,7 +207,7 @@ const TransferRules = ({ rules, onChange, availableUsers = [], availableTeams = 
                     onChange={e =>
                       handleUpdateRule(rule.id, { instructions: e.target.value })
                     }
-                    placeholder={t('edit.configuration.transferRules.instructionsPlaceholder') || 'Quando o cliente quiser falar sobre tal assunto...'}
+                    placeholder={t('edit.configuration.transferRules.instructionsPlaceholder')}
                     maxLength={255}
                     className="min-h-[130px] rounded-[9px] border-border bg-card text-sm placeholder:text-muted-foreground/70"
                   />
@@ -226,7 +225,7 @@ const TransferRules = ({ rules, onChange, availableUsers = [], availableTeams = 
         className="h-auto w-full rounded-[12px] border-border bg-card py-[14px] text-sm font-semibold text-foreground"
       >
         <Plus className="mr-2 h-4 w-4" />
-        {t('edit.configuration.transferRules.addRule') || 'Adicionar regra de transferência'}
+        {t('edit.configuration.transferRules.addRule')}
       </Button>
     </div>
   );

@@ -21,8 +21,8 @@ export function AgentChatPanelHeader({ agent, onClose }: AgentChatPanelHeaderPro
   );
 
   const title = selectedSessionId
-    ? `${t('chat.session') || 'Sessão'} ${selectedSessionId.substring(0, 8)}`
-    : t('chat.newConversation') || 'Nova Conversa';
+    ? `${t('chat.session')} ${selectedSessionId.substring(0, 8)}`
+    : t('chat.newConversation');
 
   return (
     <div className="flex flex-shrink-0 items-center gap-3 border-b border-border bg-background px-4 py-3">
@@ -42,7 +42,7 @@ export function AgentChatPanelHeader({ agent, onClose }: AgentChatPanelHeaderPro
               variant="ghost"
               size="sm"
               className="relative"
-              aria-label={t('chat.conversations') || 'Conversas'}
+              aria-label={t('chat.conversations')}
             >
               <MessageSquare className="h-4 w-4" />
               {/* Neutral counter, not a notification badge: it counts saved sessions. */}
@@ -56,7 +56,7 @@ export function AgentChatPanelHeader({ agent, onClose }: AgentChatPanelHeaderPro
 
           <PopoverContent align="end" className="w-[280px] p-2">
             <p className="px-2 pb-2 pt-1 text-[11.5px] font-semibold uppercase tracking-[0.5px] text-muted-foreground">
-              {t('chat.conversations') || 'Conversas'}
+              {t('chat.conversations')}
             </p>
 
             {sortedSessions.length > 0 ? (
@@ -97,7 +97,7 @@ export function AgentChatPanelHeader({ agent, onClose }: AgentChatPanelHeaderPro
                           event.stopPropagation();
                           deleteSession(session.id);
                         }}
-                        aria-label={t('actions.delete') || 'Excluir'}
+                        aria-label={t('actions.delete')}
                         className="rounded p-1 opacity-0 transition-opacity hover:bg-destructive/10 group-hover:opacity-100"
                       >
                         <Trash2 className="h-3.5 w-3.5 text-destructive" />
@@ -108,7 +108,7 @@ export function AgentChatPanelHeader({ agent, onClose }: AgentChatPanelHeaderPro
               </div>
             ) : (
               <p className="px-3 py-4 text-center text-[13px] text-muted-foreground">
-                {t('chat.noConversations') || 'Nenhuma conversa'}
+                {t('chat.noConversations')}
               </p>
             )}
           </PopoverContent>
@@ -118,7 +118,7 @@ export function AgentChatPanelHeader({ agent, onClose }: AgentChatPanelHeaderPro
           variant="ghost"
           size="sm"
           onClick={createNewSession}
-          aria-label={t('chat.newConversation') || 'Nova Conversa'}
+          aria-label={t('chat.newConversation')}
         >
           <Plus className="h-4 w-4" />
         </Button>
@@ -127,7 +127,7 @@ export function AgentChatPanelHeader({ agent, onClose }: AgentChatPanelHeaderPro
           variant="ghost"
           size="sm"
           onClick={onClose}
-          aria-label={t('actions.close') || 'Fechar'}
+          aria-label={t('actions.close')}
         >
           <X className="h-4 w-4" />
         </Button>

@@ -14,12 +14,12 @@ export function SupabaseForm({ config, onConfigChange }: IntegrationFormProps) {
     <div className="space-y-4">
       <FormField
         id="SUPABASE_OAUTH_REDIRECT_URI"
-        label={t('integrations.supabase.redirectUri')}
+        label={t("supabase.redirectUri")}
         value={getValue('supabaseRedirectUri')}
         onChange={(value) => onConfigChange('supabaseRedirectUri', value)}
-        placeholder={t('integrations.supabase.placeholders.redirectUri')}
+        placeholder={t("supabase.placeholders.redirectUri")}
         type="url"
-        description={t('integrations.supabase.redirectUriDescription')}
+        description={t("supabase.redirectUriDescription")}
       />
     </div>
   );

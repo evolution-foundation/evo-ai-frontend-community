@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@evoapi/design-system';
 import { Bot, Layers, TrendingUp, Users } from 'lucide-react';
 import { OperationHeatmapCard } from '@/components/charts';
@@ -12,11 +13,8 @@ interface DashboardPerformanceSectionProps {
 }
 
 const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t: tTours } = useTranslation('tours');
-  const tx = (key: string, fallback: string) => {
-    const value = t(key);
-    return value === key ? fallback : value;
-  };
 
   const pipelineConversionRate = data.stats.total_conversations > 0
     ? ((data.pipeline.total / data.stats.total_conversations) * 100)
@@ -27,28 +25,28 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">{tx('dashboard.sections.optimization', 'Diagnóstico e otimização')}</h2>
+        <h2 className="text-lg font-semibold">{t('dashboard.sections.optimization')}</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          {tx('dashboard.sections.optimizationSubtitle', 'Onde estão os gargalos e oportunidades de ganho na operação')}
+          {t('dashboard.sections.optimizationSubtitle')}
         </p>
       </div>
 
       <OperationHeatmapCard
-        title={t('dashboard.charts.heatmapTitle') || 'Mapa de calor da operação'}
-        description={t('dashboard.charts.heatmapDescription') || 'Volume de conversas por dia da semana e hora'}
+        title={t('dashboard.charts.heatmapTitle')}
+        description={t('dashboard.charts.heatmapDescription')}
         data={data.trends.operation_heatmap}
         peakDayInPeriod={data.trends.peak_day_in_period}
         tooltip={{ title: tTours('dashboard.step13.title'), content: tTours('dashboard.step13.content') }}
         labels={{
-          peakSlot: t('dashboard.charts.heatmapPeakSlot') || 'Pico',
-          peakWeekday: t('dashboard.charts.heatmapPeakWeekday') || 'Dia mais forte',
-          peakHour: t('dashboard.charts.heatmapPeakHour') || 'Hora de pico',
-          peakPeriodDay: t('dashboard.charts.heatmapPeakPeriodDay') || 'Dia de pico no período',
-          conversations: t('dashboard.channels.conversations') || 'conversas',
-          timezone: t('dashboard.charts.timezone') || 'Timezone',
-          expand: t('dashboard.charts.heatmapExpand') || 'Expandir período completo',
-          collapse: t('dashboard.charts.heatmapCollapse') || 'Mostrar últimos 15 dias',
-          showing: t('dashboard.charts.heatmapShowing') || 'Mostrando {shown} de {total} dias',
+          peakSlot: t('dashboard.charts.heatmapPeakSlot'),
+          peakWeekday: t('dashboard.charts.heatmapPeakWeekday'),
+          peakHour: t('dashboard.charts.heatmapPeakHour'),
+          peakPeriodDay: t('dashboard.charts.heatmapPeakPeriodDay'),
+          conversations: t('dashboard.channels.conversations'),
+          timezone: t('dashboard.charts.timezone'),
+          expand: t('dashboard.charts.heatmapExpand'),
+          collapse: t('dashboard.charts.heatmapCollapse'),
+          showing: t('dashboard.charts.heatmapShowing'),
         }}
       />
 
@@ -56,14 +54,14 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
         <Card data-tour="dashboard-csat-distribution">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              {t('dashboard.csat.breakdown') || 'Distribuição de notas'}
+              {t('dashboard.csat.breakdown')}
               <TooltipInfo title={tTours('dashboard.step14.title')} content={tTours('dashboard.step14.content')} />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {data.csat.total_responses < 5 && (
               <div className="rounded-md border border-dashed border-muted-foreground/30 bg-muted/10 p-3 text-sm text-muted-foreground">
-                {tx('dashboard.csat.lowSampleHint', 'Ainda sem avaliações suficientes para uma leitura estatística confiável.')}
+                {t('dashboard.csat.lowSampleHint')}
               </div>
             )}
             {data.csat.rating_breakdown.map(item => (
@@ -101,7 +99,7 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
           <CardContent>
           {data.pipeline.stages.length === 0 ? (
             <div className="text-sm text-muted-foreground">
-              {tx('dashboard.empty.pipelineInactive', 'Funil inativo no período selecionado.')}
+              {t('dashboard.empty.pipelineInactive')}
             </div>
           ) : (
               <div className="space-y-6">
@@ -138,21 +136,21 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
         <Card data-tour="dashboard-funnel-summary">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              {tx('dashboard.pipeline.insights', 'Resumo do funil')}
+              {t('dashboard.pipeline.insights')}
               <TooltipInfo title={tTours('dashboard.step16.title')} content={tTours('dashboard.step16.content')} />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="rounded-md border p-3 bg-muted/10">
-              <div className="text-sm text-muted-foreground">{tx('dashboard.pipeline.conversionRate', 'Conversas no funil')}</div>
+              <div className="text-sm text-muted-foreground">{t('dashboard.pipeline.conversionRate')}</div>
               <div className="text-xl font-semibold">{pipelineConversionRate.toFixed(2)}%</div>
             </div>
             <div className="rounded-md border p-3 bg-muted/10">
-              <div className="text-sm text-muted-foreground">{tx('dashboard.pipeline.avgTicket', 'Ticket médio no funil')}</div>
+              <div className="text-sm text-muted-foreground">{t('dashboard.pipeline.avgTicket')}</div>
               <div className="text-xl font-semibold">{formatCurrency(avgTicketValue)}</div>
             </div>
             <div className="rounded-md border p-3 bg-muted/10">
-              <div className="text-sm text-muted-foreground">{tx('dashboard.pipeline.totalValue', 'Valor total do funil')}</div>
+              <div className="text-sm text-muted-foreground">{t('dashboard.pipeline.totalValue')}</div>
               <div className="text-xl font-semibold">{formatCurrency(data.pipeline.total_value)}</div>
             </div>
           </CardContent>
@@ -172,7 +170,7 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
           <CardContent>
             {data.channels.length === 0 ? (
               <div className="text-sm text-muted-foreground">
-                {tx('dashboard.empty.channels', 'Sem dados de canal no período selecionado.')}
+                {t('dashboard.empty.channels')}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -199,7 +197,7 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
         <Card data-tour="dashboard-channels-value">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              {tx('dashboard.channels.valueLeaders', 'Canais com maior valor')}
+              {t('dashboard.channels.valueLeaders')}
               <TooltipInfo title={tTours('dashboard.step18.title')} content={tTours('dashboard.step18.content')} />
             </CardTitle>
           </CardHeader>
@@ -211,7 +209,7 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
                 <div key={`value-${channel.id || channel.name}`} className="flex items-center justify-between rounded-md border p-3 bg-muted/10">
                   <div>
                     <div className="font-medium">{channel.name}</div>
-                    <div className="text-xs text-muted-foreground">{channel.percentage}% do volume</div>
+                    <div className="text-xs text-muted-foreground">{channel.percentage}{tUi("interface:dashboardperformancesection.ofVolume")}</div>
                   </div>
                   <div className="font-semibold">{formatCurrency(channel.value)}</div>
                 </div>
@@ -227,17 +225,17 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
                 <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center">
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </div>
-                {tx('dashboard.agents.humanTitle', 'Desempenho dos Atendentes')}
+                {t('dashboard.agents.humanTitle')}
                 <TooltipInfo title={tTours('dashboard.step19.title')} content={tTours('dashboard.step19.content')} />
               </CardTitle>
               <CardDescription className="mt-1">
-                {tx('dashboard.agents.humanSubtitle', 'Performance do time humano no período filtrado')}
+                {t('dashboard.agents.humanSubtitle')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {data.agents.length === 0 ? (
                 <div className="text-sm text-muted-foreground">
-                  {tx('dashboard.empty.agents', 'Sem dados de atendentes para o período selecionado.')}
+                  {t('dashboard.empty.agents')}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -251,7 +249,7 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
                       </div>
                       <div className="text-right min-w-[120px]">
                         <Badge variant="secondary" className="mb-1">{agent.availability_status}</Badge>
-                        <div className="text-sm text-muted-foreground">1ª resp: {formatSeconds(agent.avg_first_response_time_seconds)}</div>
+                        <div className="text-sm text-muted-foreground">{tUi("interface:dashboardperformancesection.firstReply")} {formatSeconds(agent.avg_first_response_time_seconds)}</div>
                       </div>
                     </div>
                   ))}
@@ -266,17 +264,17 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
                 <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center">
                   <Bot className="h-4 w-4 text-muted-foreground" />
                 </div>
-                {tx('dashboard.agents.aiTitle', 'Desempenho dos Agentes de IA')}
+                {t('dashboard.agents.aiTitle')}
                 <TooltipInfo title={tTours('dashboard.step20.title')} content={tTours('dashboard.step20.content')} />
               </CardTitle>
               <CardDescription className="mt-1">
-                {tx('dashboard.agents.aiSubtitle', 'Volume e participação dos agentes IA nas respostas')}
+                {t('dashboard.agents.aiSubtitle')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {data.ai_agents.length === 0 ? (
                 <div className="text-sm text-muted-foreground">
-                  {tx('dashboard.agents.aiEmpty', 'Sem mensagens de IA no período selecionado.')}
+                  {t('dashboard.agents.aiEmpty')}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -285,7 +283,7 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
                       <div>
                         <div className="font-semibold">{agent.name}</div>
                         <div className="text-sm text-muted-foreground">
-                          {agent.messages} {tx('dashboard.agents.aiMessages', 'mensagens IA')} ({agent.percentage}%)
+                          {agent.messages} {t('dashboard.agents.aiMessages')} ({agent.percentage}%)
                         </div>
                       </div>
                       <div className="text-right min-w-[120px]">

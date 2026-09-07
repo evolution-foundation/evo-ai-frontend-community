@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback } from 'react';
 import { Role } from '@/types/auth';
 import { fetchRoles, fetchRolesFull } from '@/services/rbac';
@@ -9,6 +10,7 @@ interface UseRolesOptions {
 }
 
 export default function useRoles(options: UseRolesOptions = {}) {
+  const { t: tUi } = useUiTranslation();
   const { autoLoad = true, loadFull = false, type } = options;
 
   const [roles, setRoles] = useState<Role[]>([]);
@@ -27,11 +29,11 @@ export default function useRoles(options: UseRolesOptions = {}) {
       setRoles(roles);
     } catch (error) {
       console.error('Erro ao buscar roles:', error);
-      setError(error instanceof Error ? error.message : 'Erro desconhecido');
+      setError(error instanceof Error ? error.message : tUi("customMcpServers:test.unknownError"));
     } finally {
       setLoading(false);
     }
-  }, [loadFull, type]);
+  }, [loadFull, type, tUi]);
 
   useEffect(() => {
     if (autoLoad) {

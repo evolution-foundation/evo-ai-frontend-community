@@ -39,7 +39,7 @@ export function MCPCard({
           disabled
         >
           <AlertCircle className="h-4 w-4" />
-          {t('edit.integrations.notAvailable') || 'Em breve'}
+          {t('edit.integrations.notAvailable')}
         </Button>
       );
     }
@@ -51,10 +51,10 @@ export function MCPCard({
           className="w-full gap-2 border-primary/40 text-primary hover:bg-primary/10 md:w-auto"
           onClick={onConfigure}
           disabled={!onConfigure}
-          title={t('edit.integrations.configure') || 'Configurar'}
+          title={t('edit.integrations.configure')}
         >
           <Check className="h-4 w-4" />
-          {t('edit.integrations.active') || 'Ativado'}
+          {t('edit.integrations.active')}
         </Button>
       );
     }
@@ -63,7 +63,7 @@ export function MCPCard({
       return (
         <Button variant="outline" className="w-full gap-2 md:w-auto" onClick={onConfigure}>
           <Plus className="h-4 w-4" />
-          {t('edit.integrations.activate') || 'Ativar'}
+          {t('edit.integrations.activate')}
         </Button>
       );
     }
@@ -78,12 +78,12 @@ export function MCPCard({
           {isEnabled ? (
             <>
               <Check className="h-4 w-4" />
-              {t('edit.integrations.active') || 'Ativado'}
+              {t('edit.integrations.active')}
             </>
           ) : (
             <>
               <Plus className="h-4 w-4" />
-              {t('edit.integrations.activate') || 'Ativar'}
+              {t('edit.integrations.activate')}
             </>
           )}
         </Button>

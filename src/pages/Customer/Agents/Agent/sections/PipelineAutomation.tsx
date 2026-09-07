@@ -1,3 +1,5 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
+import i18n from '@/i18n/config';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   Select,
@@ -48,22 +50,23 @@ interface PipelineAutomationProps {
 }
 
 const TASK_TYPES = [
-  { value: 'call', label: 'Ligação' },
-  { value: 'email', label: 'Email' },
-  { value: 'meeting', label: 'Reunião' },
-  { value: 'follow_up', label: 'Follow-up' },
-  { value: 'note', label: 'Anotação' },
-  { value: 'other', label: 'Outro' },
+  { value: 'call', get label() { return i18n.t("pipelines:tasks.types.call"); } },
+  { value: 'email', get label() { return i18n.t("pipelines:tasks.types.email"); } },
+  { value: 'meeting', get label() { return i18n.t("pipelines:tasks.types.meeting"); } },
+  { value: 'follow_up', get label() { return i18n.t("interface:pipelineautomation.followUp"); } },
+  { value: 'note', get label() { return i18n.t("journey:panels.createPipelineTask.taskTypes.note"); } },
+  { value: 'other', get label() { return i18n.t("pipelines:tasks.types.other"); } },
 ];
 
 const PRIORITIES = [
-  { value: 'low', label: 'Baixa', color: 'text-gray-500' },
-  { value: 'medium', label: 'Média', color: 'text-yellow-500' },
-  { value: 'high', label: 'Alta', color: 'text-orange-500' },
-  { value: 'urgent', label: 'Urgente', color: 'text-red-500' },
+  { value: 'low', get label() { return i18n.t("pipelines:tasks.priority.low"); }, color: 'text-gray-500' },
+  { value: 'medium', get label() { return i18n.t("pipelines:tasks.priority.medium"); }, color: 'text-yellow-500' },
+  { value: 'high', get label() { return i18n.t("pipelines:tasks.priority.high"); }, color: 'text-orange-500' },
+  { value: 'urgent', get label() { return i18n.t("pipelines:tasks.priority.urgent"); }, color: 'text-red-500' },
 ];
 
 const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: PipelineAutomationProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
   const [expandedRule, setExpandedRule] = useState<string | null>(null);
   const [expandedStage, setExpandedStage] = useState<string | null>(null);
@@ -192,8 +195,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
       <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg border">
         <Info className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
         <p className="text-sm text-muted-foreground">
-          {t('edit.configuration.pipelineAutomation.description') ||
-            'Configure automações para movimentação de conversas em pipelines e criação automática de tarefas ao mover para cada estágio.'}
+          {t('edit.configuration.pipelineAutomation.description')}
         </p>
       </div>
 
@@ -223,8 +225,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
                         <SelectTrigger className="w-full max-w-md">
                           <SelectValue
                             placeholder={
-                              t('edit.configuration.pipelineAutomation.selectPipeline') ||
-                              'Selecione um pipeline'
+                              t('edit.configuration.pipelineAutomation.selectPipeline')
                             }
                           />
                         </SelectTrigger>
@@ -244,7 +245,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
                         size="sm"
                         onClick={() => setExpandedRule(isExpanded ? null : rule.id || null)}
                       >
-                        {isExpanded ? 'Recolher' : 'Expandir'}
+                        {isExpanded ? tUi("pipelines:tasks.actions.collapse") : tUi("pipelines:tasks.actions.expand")}
                       </Button>
                       <Button
                         type="button"
@@ -262,8 +263,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
                     <div className="space-y-4 pl-4 border-l-2 border-muted">
                       <div className="flex items-center justify-between">
                         <Label className="text-sm font-medium">
-                          {t('edit.configuration.pipelineAutomation.stageAutomations') ||
-                            'Automações por Estágio'}
+                          {t('edit.configuration.pipelineAutomation.stageAutomations')}
                         </Label>
                         <Button
                           type="button"
@@ -273,7 +273,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
                           disabled={!rule.id}
                         >
                           <Plus className="h-4 w-4 mr-2" />
-                          {t('edit.configuration.pipelineAutomation.addStage') || 'Adicionar Estágio'}
+                          {t('edit.configuration.pipelineAutomation.addStage')}
                         </Button>
                       </div>
 
@@ -300,8 +300,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
                                   <SelectTrigger className="flex-1">
                                     <SelectValue
                                       placeholder={
-                                        t('edit.configuration.pipelineAutomation.selectStage') ||
-                                        'Selecione um estágio'
+                                        t('edit.configuration.pipelineAutomation.selectStage')
                                       }
                                     />
                                   </SelectTrigger>
@@ -321,7 +320,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
                                     setExpandedStage(isStageExpanded ? null : stageAuto.id)
                                   }
                                 >
-                                  {isStageExpanded ? 'Recolher' : 'Configurar'}
+                                  {isStageExpanded ? tUi("pipelines:tasks.actions.collapse") : tUi("integrations:configure")}
                                 </Button>
                                 <Button
                                   type="button"
@@ -340,8 +339,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
                                   {/* Instructions */}
                                   <div className="space-y-2">
                                     <Label className="text-sm">
-                                      {t('edit.configuration.pipelineAutomation.whenToMove') ||
-                                        'Quando mover para este estágio?'}
+                                      {t('edit.configuration.pipelineAutomation.whenToMove')}
                                     </Label>
                                     <Textarea
                                       value={stageAuto.instructions || ''}
@@ -354,8 +352,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
                                       placeholder={
                                         t(
                                           'edit.configuration.pipelineAutomation.instructionsPlaceholder'
-                                        ) ||
-                                        'Ex: Mover para este estágio quando o cliente demonstrar interesse em comprar...'
+                                        )
                                       }
                                       maxLength={300}
                                       className="min-h-[80px]"
@@ -378,8 +375,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
                                       htmlFor={`notify-${stageAuto.id}`}
                                       className="text-sm cursor-pointer"
                                     >
-                                      {t('edit.configuration.pipelineAutomation.notifyTeam') ||
-                                        'Notificar equipe ao mover'}
+                                      {t('edit.configuration.pipelineAutomation.notifyTeam')}
                                     </label>
                                   </div>
 
@@ -388,8 +384,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
                                     <div className="flex items-center justify-between">
                                       <Label className="text-sm flex items-center gap-2">
                                         <CheckSquare className="h-4 w-4" />
-                                        {t('edit.configuration.pipelineAutomation.autoTasks') ||
-                                          'Tarefas Automáticas'}
+                                        {t('edit.configuration.pipelineAutomation.autoTasks')}
                                       </Label>
                                       <Button
                                         type="button"
@@ -399,15 +394,13 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
                                         disabled={!rule.id}
                                       >
                                         <Plus className="h-3 w-3 mr-1" />
-                                        {t('edit.configuration.pipelineAutomation.addTask') ||
-                                          'Adicionar'}
+                                        {t('edit.configuration.pipelineAutomation.addTask')}
                                       </Button>
                                     </div>
 
                                     {stageAuto.createTasks.length === 0 ? (
                                       <p className="text-xs text-muted-foreground italic">
-                                        {t('edit.configuration.pipelineAutomation.noTasks') ||
-                                          'Nenhuma tarefa configurada'}
+                                        {t('edit.configuration.pipelineAutomation.noTasks')}
                                       </p>
                                     ) : (
                                       <div className="space-y-2">
@@ -426,7 +419,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
                                                   placeholder={
                                                     t(
                                                       'edit.configuration.pipelineAutomation.taskTitle'
-                                                    ) || 'Título da tarefa'
+                                                    )
                                                   }
                                                   className="flex-1"
                                                 />
@@ -502,7 +495,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
                                                         dueDays: parseInt(e.target.value) || undefined,
                                                       })
                                                     }
-                                                    placeholder="Dias"
+                                                    placeholder={tUi("segments:conditionEditor.timeUnits.days")}
                                                     className="text-xs"
                                                     min="0"
                                                   />
@@ -523,8 +516,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
 
                       {rule.stageAutomations.length === 0 && (
                         <p className="text-sm text-muted-foreground italic text-center py-4">
-                          {t('edit.configuration.pipelineAutomation.noStagesConfigured') ||
-                            'Nenhum estágio configurado. Adicione estágios para criar automações.'}
+                          {t('edit.configuration.pipelineAutomation.noStagesConfigured')}
                         </p>
                       )}
                     </div>
@@ -544,7 +536,7 @@ const PipelineAutomation = ({ rules, onChange, availablePipelines = [] }: Pipeli
         className="w-full"
       >
         <Plus className="h-4 w-4 mr-2" />
-        {t('edit.configuration.pipelineAutomation.addPipeline') || '+ Adicionar pipeline'}
+        {t('edit.configuration.pipelineAutomation.addPipeline')}
       </Button>
     </div>
   );

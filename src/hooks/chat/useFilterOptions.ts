@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import InboxesService from '@/services/channels/inboxesService';
 import chatService from '@/services/chat/chatService';
@@ -36,6 +37,7 @@ interface UseFilterOptionsParams {
 }
 
 export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOptions => {
+  const { t: tUi } = useUiTranslation();
   const { enabled = true } = params;
 
   const [options, setOptions] = useState<FilterOptions>({
@@ -202,13 +204,13 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
         setOptions(prev => ({
           ...prev,
           loading: false,
-          error: 'Erro ao carregar opções de filtro',
+          error: tUi("interface:usefilteroptions.couldNotLoadFilterOptions"),
         }));
       }
     };
 
     loadOptions();
-  }, [enabled]);
+  }, [enabled, tUi]);
 
   return options;
 };

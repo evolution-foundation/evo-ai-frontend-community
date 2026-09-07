@@ -127,7 +127,7 @@ export default function ConversationPipelineItem({
     return (
       <div className="text-center py-6">
         <p className="text-sm text-muted-foreground mb-4">
-          {t('kanban.messages.notInPipeline', 'Esta conversa não está em nenhum pipeline')}
+          {t('kanban.messages.notInPipeline')}
         </p>
       </div>
     );

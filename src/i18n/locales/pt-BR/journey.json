@@ -164,7 +164,9 @@
           "daysWeekPlural": "{{count}} dias/sem",
           "daysWeekAt": "{{count}} dia/sem às {{time}}",
           "daysWeekPluralAt": "{{count}} dias/sem às {{time}}",
-          "anyStageTransition": "Disparado em qualquer mudança de stage"
+          "anyStageTransition": "Disparado em qualquer mudança de stage",
+          "segmentEntered": "Quando um contato entra no segmento “{{segment}}”",
+          "segmentExited": "Quando um contato sai do segmento “{{segment}}”"
         }
       },
       "wait": {
@@ -754,7 +756,8 @@
         }
       },
       "templatesLoadError": "Erro ao carregar os templates",
-      "templateConfigured": "Template configurado"
+      "templateConfigured": "Template configurado",
+      "removeAttachmentLabel": "Remover anexo"
     },
     "sendWebhook": {
       "title": "Configurar Webhook",
@@ -1677,7 +1680,10 @@
           "customAttribute": "Atributo Personalizado"
         },
         "withFilters": "com filtros",
-        "usingVariable": "usando a variável"
+        "usingVariable": "usando a variável",
+        "selectTypePlaceholder": "Selecione o tipo de condição",
+        "fallbackTimePlaceholder": "Tempo máximo de espera",
+        "fallbackSummary": "Continuar após {{time}} {{unit}} se a condição não for atendida."
       },
       "event": {
         "typeLabel": "Tipo de Evento a Aguardar",
@@ -1700,7 +1706,10 @@
           "label": "Etiqueta",
           "customAttribute": "Atributo Personalizado",
           "webhook": "Webhook"
-        }
+        },
+        "selectTypePlaceholder": "Selecione o tipo de evento",
+        "fallbackTimePlaceholder": "Tempo máximo de espera",
+        "fallbackSummary": "Continuar após {{time}} {{unit}} se o evento não ocorrer."
       },
       "hybrid": {
         "maxWaitLabel": "Tempo Máximo de Espera (obrigatório)",
@@ -1714,7 +1723,7 @@
         "summaryMiddle": "OU até que",
         "summarySuffix": "aconteça (o que ocorrer primeiro).",
         "summaryLabel": "Resumo",
-        "summaryText": "A jornada aguardará no máximo {{duration}} {{unit}} OU até que {{condition}} aconteça (o que ocorrer primeiro).",
+        "summaryText": "A jornada aguarda até {{time}} ou até que {{trigger}} ocorra, o que acontecer primeiro.",
         "conditionMetPath": "Se a condição for atendida primeiro → siga o caminho \"Condição atendida\"",
         "timeoutPath": "Se o tempo acabar primeiro → siga o caminho \"Tempo Limite\"",
         "configureEvent": "Configure o evento",
@@ -1729,7 +1738,15 @@
           "customAttribute": "Atributo Personalizado",
           "webhook": "Webhook"
         },
-        "condition": "Condição"
+        "condition": "Condição",
+        "conditionSummary": "Condição em {{field}}",
+        "maxWaitTimeLabel": "Tempo máximo de espera",
+        "tabs": {
+          "event": "Evento",
+          "condition": "Condição"
+        },
+        "pathDescription1": "O caminho do gatilho é executado quando o evento ocorre ou a condição é atendida.",
+        "pathDescription2": "O caminho de tempo limite é executado quando o tempo máximo de espera é atingido."
       },
       "time": {
         "durationLabel": "Duração",
@@ -1740,7 +1757,8 @@
         "summaryPrefix": "A jornada ficará pausada por",
         "summarySuffix": "antes de continuar para a próxima etapa.",
         "summaryLabel": "Resumo",
-        "summaryText": "A jornada ficará pausada por {{duration}} {{unit}} antes de continuar para a próxima etapa."
+        "summaryText": "A jornada ficará pausada por {{duration}} {{unit}} antes de continuar para a próxima etapa.",
+        "timeUnitPlaceholder": "Selecione a unidade de tempo"
       },
       "shared": {
         "selectType": "Selecione o tipo",
@@ -1752,7 +1770,10 @@
         "timeUnitsSingular": {
           "minutes": "minuto",
           "hours": "hora",
-          "days": "dia"
+          "days": "dia",
+          "minute": "minuto",
+          "hour": "hora",
+          "day": "dia"
         },
         "timeUnitsPlural": {
           "minutes": "minutos",
@@ -1925,7 +1946,8 @@
         "string": "Texto",
         "number": "Número",
         "boolean": "Verdadeiro/Falso",
-        "date": "Data"
+        "date": "Data",
+        "datetime": "Data e hora"
       }
     },
     "event": {

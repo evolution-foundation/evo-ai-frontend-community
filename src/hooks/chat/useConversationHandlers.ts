@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { useChatContext } from '@/contexts/chat/ChatContext';
@@ -8,6 +9,7 @@ import { isActionNotSupported } from '@/utils/chat/actionSupport';
 import { doesConversationMatchFilters } from '@/utils/chat/conversationMatch';
 
 export const useConversationHandlers = () => {
+  const { t: tUi } = useUiTranslation();
   const { can } = usePermissions();
   const { conversations, filters } = useChatContext();
   const { user: currentUser } = useAuth();
@@ -177,12 +179,12 @@ export const useConversationHandlers = () => {
   const handleDeleteConversation = useCallback(
     (conversation: Conversation) => {
       if (!can('conversations', 'delete')) {
-        toast.error('Você não tem permissão para deletar conversas');
+        toast.error(tUi("interface:useconversationhandlers.youDoNotHavePermissionToDeleteConversations"));
         return;
       }
       return conversation; // Retorna para o componente pai gerenciar o modal
     },
-    [can],
+    [can, tUi],
   );
 
   return {

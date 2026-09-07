@@ -31,13 +31,13 @@ export function WaitEventConfig({ data, onChange, journeyId }: WaitEventConfigPr
   const [eventType, setEventType] = useState(data.eventType || 'event');
 
   const EVENT_TYPE_OPTIONS = [
-    { value: 'event', label: t('panels.waitComponents.event.types.event') },
-    { value: 'segment', label: t('panels.waitComponents.event.types.segment') },
-    { value: 'contactCreated', label: t('panels.waitComponents.event.types.contactCreated') },
-    { value: 'contactUpdated', label: t('panels.waitComponents.event.types.contactUpdated') },
-    { value: 'label', label: t('panels.waitComponents.event.types.label') },
-    { value: 'customAttribute', label: t('panels.waitComponents.event.types.customAttribute') },
-    { value: 'webhook', label: t('panels.waitComponents.event.types.webhook') },
+    { value: 'event', label: t("triggerComponents.types.event") },
+    { value: 'segment', label: t("triggerComponents.types.segment") },
+    { value: 'contactCreated', label: t("triggerComponents.types.contactCreated") },
+    { value: 'contactUpdated', label: t("triggerComponents.types.contactUpdated") },
+    { value: 'label', label: t("triggerComponents.types.label") },
+    { value: 'customAttribute', label: t("triggerComponents.types.customAttribute") },
+    { value: 'webhook', label: t("triggerComponents.types.webhook") },
   ];
 
   const TIME_UNIT_OPTIONS = [

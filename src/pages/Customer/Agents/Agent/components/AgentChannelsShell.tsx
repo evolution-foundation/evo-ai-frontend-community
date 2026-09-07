@@ -7,13 +7,13 @@ const AgentChannelsShell = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="mb-2 text-2xl font-bold">{t('edit.channels.title') || 'Canais'}</h2>
+        <h2 className="mb-2 text-2xl font-bold">{t('edit.channels.title')}</h2>
         <p className="text-sm text-muted-foreground">
-          {t('edit.channels.subtitle') || 'Configure os canais de comunicação do agente'}
+          {t('edit.channels.subtitle')}
         </p>
       </div>
       <div className="py-12 text-center text-muted-foreground">
-        {t('edit.channels.comingSoon') || 'Em breve...'}
+        {t('edit.channels.comingSoon')}
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -85,6 +86,7 @@ const INITIAL_DATA: WizardData = {
 };
 
 export default function NewCampaign() {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('campaigns');
   const navigate = useNavigate();
   const { id: campaignId } = useParams<{ id: string }>();
@@ -97,11 +99,11 @@ export default function NewCampaign() {
   const [existingSteps, setExistingSteps] = useState<Record<string, any>>({});
 
   const steps = [
-    { id: 1, label: 'Geral' },
-    { id: 2, label: 'Audiência' },
-    { id: 3, label: 'Conteúdo' },
-    { id: 4, label: 'Configurações' },
-    { id: 5, label: 'Revisão' },
+    { id: 1, label: tUi("products:modal.tabs.general") },
+    { id: 2, label: tUi("campaigns:wizard.step2.title") },
+    { id: 3, label: tUi("campaigns:wizard.step3.title") },
+    { id: 4, label: tUi("campaigns:wizard.step4.title") },
+    { id: 5, label: tUi("interface:newcampaign.review") },
   ];
 
   const totalSteps = steps.length;

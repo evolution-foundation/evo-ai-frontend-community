@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback } from 'react';
 import { Integration } from '@/types/integrations';
 import { integrationsService } from '@/services/integrations';
@@ -24,6 +25,7 @@ interface UseIntegrationDetailsReturn {
 export function useIntegrationDetails(
   options: UseIntegrationDetailsOptions,
 ): UseIntegrationDetailsReturn {
+  const { t: tUi } = useUiTranslation();
   const { integrationId, autoLoad = true } = options;
   const [integration, setIntegration] = useState<Integration | null>(null);
   const [configuration, setConfiguration] = useState<any>(null);
@@ -101,14 +103,14 @@ export function useIntegrationDetails(
 
       setConfiguration(configData);
     } catch (err) {
-      const errorMessage = 'Erro ao carregar detalhes da integração';
+      const errorMessage = tUi("interface:useintegrationdetails.couldNotLoadIntegrationDetails");
       setError(errorMessage);
       console.error('Error loading integration details:', err);
       toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, [integrationId]);
+  }, [integrationId, tUi]);
 
   const updateConfiguration = useCallback(
     async (config: any) => {
@@ -146,17 +148,17 @@ export function useIntegrationDetails(
             await integrationsService.updateIntegrationConfiguration(integrationId, config);
         }
 
-        toast.success('Configuração atualizada com sucesso');
+        toast.success(tUi("channels:settings.success.configUpdateSuccess"));
         await loadDetails(); // Reload to get updated data
       } catch (err) {
         console.error('Error updating configuration:', err);
-        toast.error('Erro ao atualizar configuração');
+        toast.error(tUi("channels:settings.errors.configUpdateError"));
         throw err;
       } finally {
         setSaving(false);
       }
     },
-    [integrationId, loadDetails],
+    [integrationId, loadDetails, tUi],
   );
 
   const disconnect = useCallback(async () => {
@@ -170,14 +172,14 @@ export function useIntegrationDetails(
         await integrationsService.toggleIntegration(integrationId, false);
       }
 
-      toast.success('Integração desconectada com sucesso');
+      toast.success(tUi("interface:useintegrationdetails.integrationDisconnectedSuccessfully"));
       await loadDetails();
     } catch (err) {
       console.error('Error disconnecting integration:', err);
-      toast.error('Erro ao desconectar integração');
+      toast.error(tUi("interface:useintegrationdetails.couldNotDisconnectIntegration"));
       throw err;
     }
-  }, [integrationId, loadDetails]);
+  }, [integrationId, loadDetails, tUi]);
 
   const reconnect = useCallback(async () => {
     if (!integrationId || !integration) return;
@@ -188,28 +190,28 @@ export function useIntegrationDetails(
         window.location.href = integration.action;
       } else {
         await integrationsService.toggleIntegration(integrationId, true);
-        toast.success('Integração reconectada com sucesso');
+        toast.success(tUi("interface:useintegrationdetails.integrationReconnectedSuccessfully"));
         await loadDetails();
       }
     } catch (err) {
       console.error('Error reconnecting integration:', err);
-      toast.error('Erro ao reconectar integração');
+      toast.error(tUi("interface:useintegrationdetails.couldNotReconnectIntegration"));
       throw err;
     }
-  }, [integrationId, integration, loadDetails]);
+  }, [integrationId, integration, loadDetails, tUi]);
 
   const testConnection = useCallback(async () => {
     if (!integrationId) return;
 
     try {
       await integrationsService.testIntegration(integrationId);
-      toast.success('Teste de conexão realizado com sucesso');
+      toast.success(tUi("interface:useintegrationdetails.connectionTestSuccessful"));
     } catch (err) {
       console.error('Error testing integration:', err);
-      toast.error('Erro ao testar conexão');
+      toast.error(tUi("whatsapp:errors.testError"));
       throw err;
     }
-  }, [integrationId]);
+  }, [integrationId, tUi]);
 
   useEffect(() => {
     if (autoLoad) {

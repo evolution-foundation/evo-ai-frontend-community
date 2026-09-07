@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 export const CUSTOM_OPENAI_PROVIDER = 'custom_openai_compatible';
 
 export interface AiProvider {
@@ -20,7 +21,7 @@ export const AI_PROVIDERS: AiProvider[] = [
   { value: 'perplexity', label: 'Perplexity' },
   { value: 'bedrock', label: 'AWS Bedrock' },
   { value: 'vertex_ai', label: 'Google Vertex AI' },
-  { value: CUSTOM_OPENAI_PROVIDER, label: 'Custom (OpenAI-compatible)' },
+  { value: CUSTOM_OPENAI_PROVIDER, get label() { return i18n.t("interface:aiproviders.customOpenaiCompatible"); } },
 ];
 
 // Providers speaking the OpenAI wire protocol serve every AI feature. The rest

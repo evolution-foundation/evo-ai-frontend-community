@@ -143,12 +143,10 @@ export const ModelApiPanel = ({
               </div>
               <div>
                 <h3 className="text-lg font-semibold">
-                  {t('edit.configuration.sections.externalIntegration.title') ||
-                    'Integração Externa'}
+                  {t('edit.configuration.sections.externalIntegration.title')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.configuration.sections.externalIntegration.subtitle') ||
-                    'Configure a integração com o provider externo'}
+                  {t('edit.configuration.sections.externalIntegration.subtitle')}
                 </p>
               </div>
             </div>

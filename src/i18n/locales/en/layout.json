@@ -77,7 +77,8 @@
       "copyright": "© {{year}} Evolution Foundation. All rights reserved.",
       "documentation": "Documentation",
       "support": "I need support"
-    }
+    },
+    "supportMessage": "Hello! I need support."
   },
   "menu": {
     "customer": {

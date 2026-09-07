@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { api } from '@/services/core';
 import type { ProcessEventOptions, ProcessEventResponse } from '@/types/integrations';
 import { extractData } from '@/utils/apiHelpers';
@@ -79,7 +80,7 @@ class OpenAIService {
       const message = responseData?.message || response.data?.message;
 
       if (!message) {
-        throw new Error('Resposta da IA sem conteúdo');
+        throw new Error(i18n.t("interface:openaiservice.aiResponseHasNoContent"));
       }
 
       return message;
@@ -90,7 +91,7 @@ class OpenAIService {
       const axiosError = error as { response?: { data?: { error?: string | { message?: string } } } };
       const errorData = axiosError.response?.data?.error;
 
-      let errorMessage = 'Erro ao processar ação de IA';
+      let errorMessage = i18n.t("chat:aiAssistance.errors.processError");
 
       if (typeof errorData === 'string') {
         errorMessage = errorData;

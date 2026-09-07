@@ -123,7 +123,8 @@
       "heatmapShowing": "Mostrando {shown} de {total} dias",
       "timezone": "Fuso",
       "channelsLabel": "Canais",
-      "shareLabel": "Participação"
+      "shareLabel": "Participação",
+      "emptyState": "Sem dados no período selecionado"
     },
     "sections": {
       "statusNow": "Status da operação agora",
@@ -152,5 +153,7 @@
       "channels": "Sem dados de canal no período selecionado.",
       "pipelineInactive": "Funil inativo no período selecionado."
     }
-  }
+  },
+  "periodDays_one": "{{period}} ({{count}} dia)",
+  "periodDays_other": "{{period}} ({{count}} dias)"
 }

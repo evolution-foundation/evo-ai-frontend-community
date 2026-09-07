@@ -26,7 +26,7 @@ const SharedImageBubble: React.FC<SharedImageBubbleProps> = ({
   onToast,
   onOpenFullscreen
 }) => {
-  const { t } = useLanguage();
+  const { t } = useLanguage('attachments');
   const [selectedImage, setSelectedImage] = useState<SharedAttachment | null>(null);
   const [imageZoom, setImageZoom] = useState(1);
   const isExternalViewerMode = typeof onOpenFullscreen === 'function';
@@ -39,7 +39,7 @@ const SharedImageBubble: React.FC<SharedImageBubbleProps> = ({
         filename: attachment.fallback_title || 'image',
       });
 
-      onToast?.(t('attachments.image.downloadStarted', { filename: attachment.fallback_title || t('attachments.image.title') }), 'success');
+      onToast?.(t('image.downloadStarted', { filename: attachment.fallback_title || t('image.title') }), 'success');
     }
   };
 
@@ -49,7 +49,7 @@ const SharedImageBubble: React.FC<SharedImageBubbleProps> = ({
       if (!fullscreenUrl) return;
       onOpenFullscreen({
         url: fullscreenUrl,
-        title: attachment.fallback_title || t('attachments.image.title'),
+        title: attachment.fallback_title || t('image.title'),
       });
       return;
     }
@@ -116,7 +116,7 @@ const SharedImageBubble: React.FC<SharedImageBubbleProps> = ({
                 {imageSrc ? (
                   <img
                     src={imageSrc}
-                    alt={attachment.fallback_title || t('attachments.image.title')}
+                    alt={attachment.fallback_title || t('image.title')}
                     className={`absolute inset-0 w-full h-full object-cover hover:opacity-90 transition-opacity ${isExternalViewerMode ? '' : 'cursor-pointer'}`}
                     onClick={() => {
                       if (!isExternalViewerMode) {
@@ -139,7 +139,7 @@ const SharedImageBubble: React.FC<SharedImageBubbleProps> = ({
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-500 px-3 text-center">
-                    {attachment.fallback_title || t('attachments.image.title')}
+                    {attachment.fallback_title || t('image.title')}
                   </div>
                 )}
 
@@ -153,7 +153,7 @@ const SharedImageBubble: React.FC<SharedImageBubbleProps> = ({
                         openImageModal(attachment);
                       }}
                       className="p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 transition-all duration-200"
-                      title={t('attachments.image.view')}
+                      title={t('image.view')}
                     >
                       <ZoomIn className="w-4 h-4 text-gray-700" />
                     </button>
@@ -164,7 +164,7 @@ const SharedImageBubble: React.FC<SharedImageBubbleProps> = ({
                         downloadFile(attachment);
                       }}
                       className="p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 transition-all duration-200"
-                      title={t('attachments.image.download')}
+                      title={t('image.download')}
                     >
                       <Download className="w-4 h-4 text-gray-700" />
                     </button>
@@ -196,7 +196,7 @@ const SharedImageBubble: React.FC<SharedImageBubbleProps> = ({
             <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
               {/* Title */}
               <div className="text-white text-sm bg-black bg-opacity-50 rounded px-3 py-1">
-                {selectedImage.fallback_title || t('attachments.image.title')}
+                {selectedImage.fallback_title || t('image.title')}
                 {selectedImage.file_size && ` • ${Math.round(selectedImage.file_size / 1024)} KB`}
               </div>
 
@@ -208,7 +208,7 @@ const SharedImageBubble: React.FC<SharedImageBubbleProps> = ({
                     handleZoomOut();
                   }}
                   className="p-2 bg-white bg-opacity-20 rounded-full hover:bg-opacity-30 transition-all duration-200"
-                  title={t('attachments.image.zoomOut')}
+                  title={t('image.zoomOut')}
                   disabled={imageZoom <= 0.5}
                 >
                   <ZoomOut className="w-5 h-5 text-white" />
@@ -220,7 +220,7 @@ const SharedImageBubble: React.FC<SharedImageBubbleProps> = ({
                     handleZoomIn();
                   }}
                   className="p-2 bg-white bg-opacity-20 rounded-full hover:bg-opacity-30 transition-all duration-200"
-                  title={t('attachments.image.zoomIn')}
+                  title={t('image.zoomIn')}
                   disabled={imageZoom >= 3}
                 >
                   <ZoomIn className="w-5 h-5 text-white" />
@@ -232,7 +232,7 @@ const SharedImageBubble: React.FC<SharedImageBubbleProps> = ({
                     downloadFile(selectedImage);
                   }}
                   className="p-2 bg-white bg-opacity-20 rounded-full hover:bg-opacity-30 transition-all duration-200"
-                  title={t('attachments.image.download')}
+                  title={t('image.download')}
                 >
                   <Download className="w-5 h-5 text-white" />
                 </button>
@@ -243,7 +243,7 @@ const SharedImageBubble: React.FC<SharedImageBubbleProps> = ({
                     closeImageModal();
                   }}
                   className="p-2 bg-white bg-opacity-20 rounded-full hover:bg-opacity-30 transition-all duration-200"
-                  title={t('attachments.image.close')}
+                  title={t('image.close')}
                 >
                   <X className="w-5 h-5 text-white" />
                 </button>
@@ -258,7 +258,7 @@ const SharedImageBubble: React.FC<SharedImageBubbleProps> = ({
               {(selectedImage.data_url || selectedImage.file_url || selectedImage.thumb_url) && (
                 <img
                   src={selectedImage.data_url || selectedImage.file_url || selectedImage.thumb_url}
-                  alt={selectedImage.fallback_title || t('attachments.image.title')}
+                  alt={selectedImage.fallback_title || t('image.title')}
                   className="max-w-[min(92vw,1200px)] max-h-[calc(100vh-140px)] object-contain transition-transform duration-200 rounded"
                   onError={(event) => {
                     const nextSrc = resolveNextModalImageSrc(event.currentTarget.src, selectedImage);

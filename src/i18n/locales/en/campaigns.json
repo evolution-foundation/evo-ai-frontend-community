@@ -246,7 +246,10 @@
       "inboxDescription": "Select only 1 inbox for this campaign",
       "health": "health",
       "templatesLabel": "Templates",
-      "templatesSelected": "{{count}} selected"
+      "templatesSelected": "{{count}} selected",
+      "noInboxes": "No inboxes available for this channel",
+      "selectInboxFirst": "Select an inbox first",
+      "noTemplates": "No templates available for this inbox"
     },
     "step4": {
       "title": "Settings",

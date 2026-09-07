@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Badge, Card, CardContent, Button } from '@evoapi/design-system';
 import { TestTube, Edit, Trash2, ExternalLink, Loader2 } from 'lucide-react';
@@ -92,7 +93,7 @@ export default function CustomMCPServerCard({
 
           {/* Created Date */}
           <div className="text-xs text-muted-foreground mb-3">
-            {t('card.createdAt', { date: new Date(server.created_at).toLocaleDateString('pt-BR') })}
+            {t('card.createdAt', { date: new Date(server.created_at).toLocaleDateString(getFormattingLocale()) })}
           </div>
         </div>
 

@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import CustomAttributesForm from '@/components/customAttributes/CustomAttributesForm';
 import { contactsService } from '@/services/contacts/contactsService';
 import { Contact } from '@/types/chat/api';
@@ -15,9 +16,10 @@ export default function EditableContactCustomAttributes({
   contact,
   onContactUpdate,
 }: EditableContactCustomAttributesProps) {
+  const { t: tUi } = useUiTranslation();
   const handleUpdateAttributes = async (updatedAttributes: Record<string, unknown>) => {
     if (!contact) {
-      throw new Error('Contact is required');
+      throw new Error(tUi("contacts:scheduledActions.validationRequired.contact"));
     }
     await contactsService.updateContact(contact.id, {
       custom_attributes: updatedAttributes,

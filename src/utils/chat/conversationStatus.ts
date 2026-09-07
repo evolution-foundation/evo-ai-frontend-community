@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 /**
  * Utilitário para traduzir e formatar status de conversas
  */
@@ -17,25 +18,11 @@ export interface StatusConfig {
 // estruturalmente com uma assinatura estrita de 2 string args / retorno string.
 type Translate = (...args: any[]) => any;
 
-// Fallback PT-BR hardcoded para chamadores que não têm acesso ao hook de i18n
-// (ex.: fora de componentes React). Passar `t` do useLanguage('chat') sempre
-// que possível para respeitar o idioma ativo do usuário.
-const FALLBACK_LABELS: Record<string, string> = {
-  open: 'Aberta',
-  resolved: 'Concluída',
-  pending: 'Pendente',
-  snoozed: 'Pausada',
-};
-
-/**
- * Traduz o status da conversa
- */
-export const getStatusLabel = (status: string, t?: Translate): string => {
-  if (t) {
-    return t(`contexts.conversations.statusNames.${status}`, FALLBACK_LABELS[status] || 'Desconhecido');
-  }
-
-  return FALLBACK_LABELS[status] || 'Desconhecido';
+/** Resolve labels at call time, including callers outside React. */
+export const getStatusLabel = (status: string, t: Translate = i18n.getFixedT(null, 'chat')): string => {
+  return ['open', 'resolved', 'pending', 'snoozed'].includes(status)
+    ? t(`contexts.conversations.statusNames.${status}`)
+    : t('conversationStatusIcon.unknown.label');
 };
 
 /**
@@ -45,37 +32,29 @@ export const getStatusLabel = (status: string, t?: Translate): string => {
  * open=azul (em atendimento) → resolved=verde (concluído) e
  * snoozed=cinza (pausado, neutro).
  */
-export const getStatusConfig = (status: string, t?: Translate): StatusConfig => {
+export const getStatusConfig = (status: string, t: Translate = i18n.getFixedT(null, 'chat')): StatusConfig => {
   const configs: Record<string, StatusConfig> = {
     open: {
       label: getStatusLabel('open', t),
-      description: t
-        ? t('conversationStatusIcon.open.description', 'Conversa ativa e em andamento')
-        : 'Conversa ativa e em andamento',
+      description: t('conversationStatusIcon.open.description'),
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
     },
     pending: {
       label: getStatusLabel('pending', t),
-      description: t
-        ? t('conversationStatusIcon.pending.description', 'Aguardando resposta do cliente')
-        : 'Aguardando resposta do cliente',
+      description: t('conversationStatusIcon.pending.description'),
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-100',
     },
     resolved: {
       label: getStatusLabel('resolved', t),
-      description: t
-        ? t('conversationStatusIcon.resolved.description', 'Conversa finalizada com sucesso')
-        : 'Conversa finalizada com sucesso',
+      description: t('conversationStatusIcon.resolved.description'),
       color: 'text-green-600',
       bgColor: 'bg-green-100',
     },
     snoozed: {
       label: getStatusLabel('snoozed', t),
-      description: t
-        ? t('conversationStatusIcon.snoozed.description', 'Conversa temporariamente pausada')
-        : 'Conversa temporariamente pausada',
+      description: t('conversationStatusIcon.snoozed.description'),
       color: 'text-gray-600',
       bgColor: 'bg-gray-100',
     },
@@ -83,10 +62,8 @@ export const getStatusConfig = (status: string, t?: Translate): StatusConfig => 
 
   return (
     configs[status] || {
-      label: t ? t('conversationStatusIcon.unknown.label', 'Desconhecido') : 'Desconhecido',
-      description: t
-        ? t('conversationStatusIcon.unknown.description', 'Status não identificado')
-        : 'Status não identificado',
+      label: t('conversationStatusIcon.unknown.label'),
+      description: t('conversationStatusIcon.unknown.description'),
       color: 'text-gray-600',
       bgColor: 'bg-gray-100',
     }

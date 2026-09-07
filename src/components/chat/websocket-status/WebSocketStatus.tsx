@@ -25,7 +25,7 @@ const WebSocketStatus: React.FC<WebSocketStatusProps> = ({
       return {
         variant: 'default' as const,
         icon: <Wifi className="h-3 w-3" />,
-        text: t('webSocketStatus.connected'),
+        text: t("contactSidebar.webSocketStatus.connected"),
         bgColor: 'bg-green-500/10',
         textColor: 'text-green-600',
         borderColor: 'border-green-500/20',
@@ -34,7 +34,7 @@ const WebSocketStatus: React.FC<WebSocketStatusProps> = ({
       return {
         variant: 'destructive' as const,
         icon: <WifiOff className="h-3 w-3" />,
-        text: t('webSocketStatus.reconnecting'),
+        text: t("contactSidebar.webSocketStatus.reconnecting"),
         bgColor: 'bg-yellow-500/10',
         textColor: 'text-yellow-600',
         borderColor: 'border-yellow-500/20',

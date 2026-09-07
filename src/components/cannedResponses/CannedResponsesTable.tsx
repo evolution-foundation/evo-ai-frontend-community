@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import { usePermissions } from '@/contexts/PermissionsContext';
 import { Edit, Paperclip, Trash2 } from 'lucide-react';
@@ -64,7 +65,7 @@ export default function CannedResponsesTable({
       sortable: true,
       render: (cannedResponse: CannedResponse) => (
         <div className="text-sm text-muted-foreground">
-          {new Date(cannedResponse.created_at).toLocaleDateString('pt-BR')}
+          {new Date(cannedResponse.created_at).toLocaleDateString(getFormattingLocale())}
         </div>
       ),
     },

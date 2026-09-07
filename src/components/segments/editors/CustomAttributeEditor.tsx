@@ -103,7 +103,7 @@ export default function CustomAttributeEditor({
           <SelectContent>
             {availableCustomAttributes.length === 0 && !loadingCustomAttributes && (
               <div className="p-2 text-sm text-muted-foreground">
-                {t('customAttributeEditor.noAttributes')}
+                {t("customAttributeEditor.noAttributesFound")}
               </div>
             )}
             {availableCustomAttributes.map((attr) => (

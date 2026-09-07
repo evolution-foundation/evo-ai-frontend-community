@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState, useEffect } from 'react';
 import {
   Button,
@@ -50,8 +51,8 @@ const McpServers = () => {
         setServers(data);
       } catch (error) {
         console.error('Erro ao carregar servidores MCP:', error);
-        setError(t('mcpServers.messages.loadError'));
-        toast.error(t('mcpServers.messages.loadError'));
+        setError(t("messages.loadError"));
+        toast.error(t("messages.loadError"));
       } finally {
         setIsLoading(false);
       }
@@ -293,7 +294,7 @@ const McpServers = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {new Date(server.created_at).toLocaleDateString('pt-BR')}
+                        {new Date(server.created_at).toLocaleDateString(getFormattingLocale())}
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>

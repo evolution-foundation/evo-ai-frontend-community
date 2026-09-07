@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Badge, Card, CardContent, Button } from '@evoapi/design-system';
 import { Wand, Edit, Trash2, Globe, Loader2 } from 'lucide-react';
@@ -96,7 +97,7 @@ export default function CustomToolCard({
           {/* Examples Count */}
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
             <span>{t('card.examples', { count: tool.examples?.length || 0 })}</span>
-            <span>{t('card.createdAt')} {new Date(tool.created_at).toLocaleDateString('pt-BR')}</span>
+            <span>{t('card.createdAt')} {new Date(tool.created_at).toLocaleDateString(getFormattingLocale())}</span>
           </div>
         </div>
 

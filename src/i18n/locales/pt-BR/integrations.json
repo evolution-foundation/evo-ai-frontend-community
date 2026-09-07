@@ -322,7 +322,8 @@
           "automation": "Automação",
           "agents": "Agentes",
           "channels": "Canais",
-          "settings": "Configurações"
+          "settings": "Configurações",
+          "campaigns": "Campanhas"
         },
         "sidebarPosition": {
           "label": "Posição na Sidebar",

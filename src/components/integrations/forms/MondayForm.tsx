@@ -14,12 +14,12 @@ export function MondayForm({ config, onConfigChange }: IntegrationFormProps) {
     <div className="space-y-4">
       <FormField
         id="MONDAY_OAUTH_REDIRECT_URI"
-        label={t('integrations.monday.redirectUri')}
+        label={t("monday.redirectUri")}
         value={getValue('mondayRedirectUri')}
         onChange={(value) => onConfigChange('mondayRedirectUri', value)}
-        placeholder={t('integrations.monday.placeholders.redirectUri')}
+        placeholder={t("monday.placeholders.redirectUri")}
         type="url"
-        description={t('integrations.monday.redirectUriDescription')}
+        description={t("monday.redirectUriDescription")}
       />
     </div>
   );

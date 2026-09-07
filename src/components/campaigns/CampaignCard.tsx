@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Button, Card, CardContent } from '@evoapi/design-system';
 import { Edit, Trash2, Eye, Play, Pause, Copy, BarChart3, Calendar, Square } from 'lucide-react';
@@ -98,7 +99,7 @@ export default function CampaignCard({
         <div className="px-4 py-3 text-xs text-sidebar-foreground/70 space-y-2">
           <div className="flex items-center justify-between">
             <span>{t('card.contacts')}</span>
-            <span className="font-mono">{campaign.contacts_count?.toLocaleString() || 0}</span>
+            <span className="font-mono">{campaign.contacts_count?.toLocaleString(getFormattingLocale()) || 0}</span>
           </div>
 
           {campaign.schedule_to && (
@@ -117,7 +118,7 @@ export default function CampaignCard({
             <>
               <div className="flex items-center justify-between">
                 <span>{t('card.sent')}</span>
-                <span className="font-mono">{campaign.stats.total_sent.toLocaleString()}</span>
+                <span className="font-mono">{campaign.stats.total_sent.toLocaleString(getFormattingLocale())}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>{t('card.deliveryRate')}</span>

@@ -48,7 +48,7 @@ const IntegrationsSection = ({
     config: Record<string, unknown>
   ): Promise<boolean> => {
     if (!agentId) {
-      toast.error(t('messages.saveError') || 'Agent must be saved first');
+      toast.error(t('messages.saveError'));
       return false;
     }
     try {
@@ -60,11 +60,11 @@ const IntegrationsSection = ({
         onIntegrationsChange({ ...integrations, [provider]: { ...config, connected: true } });
       }
       await reloadConfigs();
-      toast.success(t('edit.integrations.activated') || 'Integration activated');
+      toast.success(t('edit.integrations.activated'));
       return true;
     } catch (error) {
       console.error(`Error upserting integration ${provider}:`, error);
-      toast.error(t('edit.integrations.activationError') || 'Failed to activate integration');
+      toast.error(t('edit.integrations.activationError'));
       return false;
     }
   };
@@ -79,11 +79,11 @@ const IntegrationsSection = ({
         onIntegrationsChange(next);
       }
       await reloadConfigs();
-      toast.success(t('edit.integrations.deactivated') || 'Integration deactivated');
+      toast.success(t('edit.integrations.deactivated'));
       return true;
     } catch (error) {
       console.error(`Error deleting integration ${provider}:`, error);
-      toast.error(t('edit.integrations.deactivationError') || 'Failed to deactivate integration');
+      toast.error(t('edit.integrations.deactivationError'));
       return false;
     }
   };
@@ -97,29 +97,25 @@ const IntegrationsSection = ({
       id: 'elevenlabs',
       name: 'ElevenLabs',
       description:
-        t('edit.integrations.elevenlabs.description') ||
-        'Com ElevenLabs você da a capacidade do seu agente responder seus clientes em áudio, tornando ainda mais humanizado.',
+        t('edit.integrations.elevenlabs.description'),
     },
     {
       id: 'google-calendar',
       name: 'Google Calendar',
       description:
-        t('edit.integrations.googleCalendar.description') ||
-        'Permite agendar eventos, verificar disponibilidade e gerenciar calendários.',
+        t('edit.integrations.googleCalendar.description'),
     },
     {
       id: 'google-sheets',
       name: 'Google Sheets',
       description:
-        t('edit.integrations.googleSheets.description') ||
-        'Permite criar, ler, atualizar e gerenciar planilhas do Google Sheets.',
+        t('edit.integrations.googleSheets.description'),
     },
     {
       id: 'knowledge-nexus',
       name: 'Knowledge Nexus',
       description:
-        t('edit.integrations.knowledgeNexus.description') ||
-        'Permite que o agente consulte a base de conhecimento do EvoNexus (busca híbrida) antes de responder.',
+        t('edit.integrations.knowledgeNexus.description'),
     },
     // {
     //   id: 'gmail',
@@ -138,8 +134,7 @@ const IntegrationsSection = ({
       <div className="space-y-4">
         {/* The block title comes from the accordion header; only the description here. */}
         <p className="pb-[18px] pt-[18px] text-[13px] leading-[1.5] text-muted-foreground">
-          {t('edit.integrations.subtitle') ||
-            'Conecte o seu agente a outros aplicativos, isso permite que ele obtenha informações mais precisas ou agende reuniões para você.'}
+          {t('edit.integrations.subtitle')}
         </p>
 
         <div>
@@ -147,7 +142,7 @@ const IntegrationsSection = ({
             <div className="flex flex-col gap-3 items-center py-12 h-32 text-muted-foreground">
               <Loader2 className="h-7 w-7 animate-spin" />
               <div className="text-sm">
-                {t('integrations.checking') || 'Verificando integrações...'}
+                {t('integrations.checking')}
               </div>
             </div>
           ) : (
@@ -177,10 +172,10 @@ const IntegrationsSection = ({
                     variant="outline"
                     className="w-full gap-2 border-primary/40 text-primary hover:bg-primary/10 md:w-auto"
                     onClick={openConfigDialog}
-                    title={t('edit.integrations.configure') || 'Configurar'}
+                    title={t('edit.integrations.configure')}
                   >
                     <Check className="h-4 w-4" />
-                    {t('edit.integrations.active') || 'Ativado'}
+                    {t('edit.integrations.active')}
                   </Button>
                 ) : hasCredentials ? (
                   <Button
@@ -189,7 +184,7 @@ const IntegrationsSection = ({
                     onClick={openConfigDialog}
                   >
                     <Plus className="h-4 w-4" />
-                    {t('edit.integrations.activate') || 'Ativar'}
+                    {t('edit.integrations.activate')}
                   </Button>
                 ) : (
                   <Button
@@ -198,7 +193,7 @@ const IntegrationsSection = ({
                     disabled
                   >
                     <AlertCircle className="h-4 w-4" />
-                    {t('edit.integrations.notAvailable') || 'Em breve'}
+                    {t('edit.integrations.notAvailable')}
                   </Button>
                 );
 

@@ -1,3 +1,5 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -35,6 +37,7 @@ export default function ContactMergeModal({
   onConfirm,
   loading,
 }: ContactMergeModalProps) {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('contacts');
   const [selectedParentId, setSelectedParentId] = useState<string>(contacts[0]?.id || '');
 
@@ -52,7 +55,7 @@ export default function ContactMergeModal({
 
   const formatDate = (date?: string) => {
     if (!date) return '-';
-    return new Date(date).toLocaleDateString('pt-BR', {
+    return new Date(date).toLocaleDateString(getFormattingLocale(), {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -128,20 +131,20 @@ export default function ContactMergeModal({
 
                           <div className="flex items-center gap-2">
                             <Calendar className="h-3 w-3" />
-                            <span>Criado em {formatDate(contact.created_at)}</span>
+                            <span>{tUi("contacts:details.fields.createdAt")} {formatDate(contact.created_at)}</span>
                           </div>
 
                           {contact.conversations_count !== undefined && (
                             <div className="text-xs">
                               <span className="font-medium">{contact.conversations_count}</span>{' '}
-                              {contact.conversations_count === 1 ? 'conversa' : 'conversas'}
+                              {contact.conversations_count === 1 ? tUi("chat:chatSidebar.conversation") : tUi("contacts:details.conversations")}
                             </div>
                           )}
                         </div>
 
                         {contact.additional_attributes?.company_name && (
                           <div className="mt-2 text-sm">
-                            <span className="text-muted-foreground">Empresa: </span>
+                            <span className="text-muted-foreground">{tUi("interface:contactmergemodal.company")} </span>
                             <span className="font-medium">
                               {contact.additional_attributes.company_name}
                             </span>
@@ -160,8 +163,7 @@ export default function ContactMergeModal({
                             ))}
                             {contact.labels.length > 3 && (
                               <span className="text-xs text-muted-foreground">
-                                +{contact.labels.length - 3} mais
-                              </span>
+                                +{contact.labels.length - 3} {tUi("aiAgents:dialogs.customMcp.more")}</span>
                             )}
                           </div>
                         )}

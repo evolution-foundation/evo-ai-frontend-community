@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@evoapi/design-system';
@@ -22,6 +23,7 @@ interface OAuthParams {
 }
 
 export const OAuthLogin: React.FC = () => {
+  const { t: tUi } = useUiTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -73,7 +75,7 @@ export const OAuthLogin: React.FC = () => {
           const codeChallengeMethod = url.searchParams.get('code_challenge_method');
 
           if (!clientId || !redirectUri) {
-            throw new Error(t('login.errors.missingParameters'));
+            throw new Error(t("oauth.login.errors.missingParameters"));
           }
 
           // Salvar os parâmetros OAuth para usar depois
@@ -94,11 +96,11 @@ export const OAuthLogin: React.FC = () => {
             setAccounts(accounts);
             setIsLoading(false);
           } else {
-            setError(t('login.errors.noAccounts'));
+            setError(t("oauth.login.errors.noAccounts"));
             setIsLoading(false);
           }
         } catch (err: any) {
-          setError(`${t('login.errors.failedToLoadAccounts')} ${err.message || err}`);
+          setError(`${t("oauth.login.errors.failedToLoadAccounts")} ${err.message || err}`);
           setIsLoading(false);
         }
         return;
@@ -118,7 +120,7 @@ export const OAuthLogin: React.FC = () => {
 
       // Se não tem returnTo nem oauthUrl, mostrar erro
       if (!returnTo && !oauthUrl) {
-        setError(t('login.errors.missingOAuthUrl'));
+        setError(t("oauth.login.errors.missingOAuthUrl"));
         return;
       }
     };
@@ -129,7 +131,7 @@ export const OAuthLogin: React.FC = () => {
   const handleLogin = () => {
     const targetUrl = oauthUrl || returnTo;
     if (!targetUrl) {
-      setError(t('login.errors.missingUrlForAuth'));
+      setError(t("oauth.login.errors.missingUrlForAuth"));
       return;
     }
 
@@ -140,14 +142,14 @@ export const OAuthLogin: React.FC = () => {
       navigate(loginUrl);
     } catch (err) {
       console.error('❌ OAuth: Failed to redirect to login:', err);
-      setError(t('login.errors.failedToRedirect'));
+      setError(t("oauth.login.errors.failedToRedirect"));
     }
   };
 
   const handleDirectOAuth = () => {
     const targetUrl = oauthUrl || returnTo;
     if (!targetUrl) {
-      setError(t('login.errors.missingOAuthUrlDirect'));
+      setError(t("oauth.login.errors.missingOAuthUrlDirect"));
       return;
     }
 
@@ -157,7 +159,7 @@ export const OAuthLogin: React.FC = () => {
 
   const handleAccountSelect = async (account: OAuthAccount) => {
     if (!oauthParams) {
-      setError(t('login.errors.missingOAuthParams'));
+      setError(t("oauth.login.errors.missingOAuthParams"));
       return;
     }
 
@@ -189,7 +191,7 @@ export const OAuthLogin: React.FC = () => {
       // Redirect to frontend OAuth authorize page
       window.location.href = oauthUrl;
     } catch (err: any) {
-      setError(`${t('login.errors.failedToCreateApp')} ${err.message || err}`);
+      setError(`${t("oauth.login.errors.failedToCreateApp")} ${err.message || err}`);
       setIsLoading(false);
     }
   };
@@ -201,31 +203,31 @@ export const OAuthLogin: React.FC = () => {
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold mb-2">
               {accounts.length > 0
-                ? t('login.titles.selectAccount')
+                ? t("oauth.login.titles.selectAccount")
                 : isAuthenticated
-                ? t('login.titles.redirecting')
-                : t('login.titles.loginRequired')}
+                ? t("oauth.login.titles.redirecting")
+                : t("oauth.login.titles.loginRequired")}
             </h1>
             <p className="text-muted-foreground">
               {accounts.length > 0
-                ? t('login.descriptions.selectAccount')
+                ? t("oauth.login.descriptions.selectAccount")
                 : isAuthenticated
-                ? t('login.descriptions.redirecting')
-                : t('login.descriptions.loginRequired')}
+                ? t("oauth.login.descriptions.redirecting")
+                : t("oauth.login.descriptions.loginRequired")}
             </p>
           </div>
 
           {error && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
+              <AlertTitle>{tUi("oauth:oauth.common.error")}</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
           {accounts.length > 0 && (
             <div className="mb-6">
-              <p className="text-sm font-medium mb-3">{t('login.accounts.available')}</p>
+              <p className="text-sm font-medium mb-3">{t("oauth.login.accounts.available")}</p>
               <div className="space-y-2">
                 {accounts.map(account => (
                   <button
@@ -248,27 +250,27 @@ export const OAuthLogin: React.FC = () => {
 
           {(returnTo || oauthParams || oauthUrl) && (
             <div className="mb-6 p-3 bg-muted rounded-lg">
-              <p className="text-sm font-medium mb-2">{t('login.applicationDetails.title')}</p>
+              <p className="text-sm font-medium mb-2">{t("oauth.login.applicationDetails.title")}</p>
               <div className="text-xs text-muted-foreground break-all">
                 {oauthParams ? (
                   <>
                     <p>
-                      <strong>{t('login.applicationDetails.clientId')}</strong> {oauthParams.client_id.substring(0, 8)}...
+                      <strong>{t("oauth.login.applicationDetails.clientId")}</strong> {oauthParams.client_id.substring(0, 8)}...
                     </p>
                     <p>
-                      <strong>{t('login.applicationDetails.redirectUri')}</strong> {new URL(oauthParams.redirect_uri).origin}
+                      <strong>{t("oauth.login.applicationDetails.redirectUri")}</strong> {new URL(oauthParams.redirect_uri).origin}
                     </p>
                     <p>
-                      <strong>{t('login.applicationDetails.scope')}</strong> {oauthParams.scope}
+                      <strong>{t("oauth.login.applicationDetails.scope")}</strong> {oauthParams.scope}
                     </p>
                   </>
                 ) : oauthUrl ? (
                   <>
                     <p>
-                      <strong>OAuth URL:</strong> {new URL(oauthUrl).origin}
+                      <strong>{tUi("oauth:oauth.login.applicationDetails.oauthUrl")}</strong> {new URL(oauthUrl).origin}
                     </p>
                     <p>
-                      <strong>Client ID:</strong>{' '}
+                      <strong>{tUi("oauth:oauth.login.applicationDetails.clientId")}</strong>{' '}
                       {new URLSearchParams(new URL(oauthUrl).search)
                         .get('client_id')
                         ?.substring(0, 8)}
@@ -278,10 +280,10 @@ export const OAuthLogin: React.FC = () => {
                 ) : returnTo ? (
                   <>
                     <p>
-                      <strong>Return URL:</strong> {new URL(returnTo).origin}
+                      <strong>{tUi("oauth:oauth.login.applicationDetails.returnUrl")}</strong> {new URL(returnTo).origin}
                     </p>
                     <p>
-                      <strong>Client ID:</strong>{' '}
+                      <strong>{tUi("oauth:oauth.login.applicationDetails.clientId")}</strong>{' '}
                       {new URLSearchParams(new URL(returnTo).search)
                         .get('client_id')
                         ?.substring(0, 8)}
@@ -299,10 +301,10 @@ export const OAuthLogin: React.FC = () => {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t('login.buttons.redirecting')}
+                    {t("oauth.login.buttons.redirecting")}
                   </>
                 ) : (
-                  t('login.buttons.loginToAuthorize')
+                  t("oauth.login.buttons.loginToAuthorize")
                 )}
               </Button>
 
@@ -313,7 +315,7 @@ export const OAuthLogin: React.FC = () => {
                 disabled={isLoading}
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
-                {t('login.buttons.continueToAuthorization')}
+                {t("oauth.login.buttons.continueToAuthorization")}
               </Button>
             </div>
           )}
@@ -323,15 +325,15 @@ export const OAuthLogin: React.FC = () => {
               <Loader2 className="h-6 w-6 animate-spin mx-auto" />
               <p className="text-sm text-muted-foreground mt-2">
                 {accounts.length > 0
-                  ? t('login.loading.processingAuthorization')
-                  : t('login.loading.redirectingToAuthorization')}
+                  ? t("oauth.login.loading.processingAuthorization")
+                  : t("oauth.login.loading.redirectingToAuthorization")}
               </p>
             </div>
           )}
 
           <div className="mt-6 text-xs text-muted-foreground text-center">
-            <p>{t('login.footer.disclaimer')}</p>
-            <p className="mt-2">{t('login.footer.revoke')}</p>
+            <p>{t("oauth.login.footer.disclaimer")}</p>
+            <p className="mt-2">{t("oauth.login.footer.revoke")}</p>
           </div>
         </div>
       </div>

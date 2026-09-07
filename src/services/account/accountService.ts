@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import authApi from '@/services/core/apiAuth';
 import api from '@/services/core/api';
 import { extractData } from '@/utils/apiHelpers';
@@ -12,7 +13,7 @@ class AccountService {
       return extractData<Account>(response);
     } catch (error: any) {
       console.error('Erro ao buscar conta:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao buscar conta');
+      throw new Error(error?.response?.data?.message || i18n.t("interface:accountservice.couldNotFetchAccount"));
     }
   }
 
@@ -23,7 +24,7 @@ class AccountService {
     } catch (error: any) {
       console.error('Erro ao atualizar conta:', error);
       const errorInfo = extractError(error);
-      throw new Error(errorInfo.message || 'Erro ao atualizar conta');
+      throw new Error(errorInfo.message || i18n.t("interface:accountservice.couldNotUpdateAccount"));
     }
   }
 

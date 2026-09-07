@@ -242,7 +242,7 @@ export default function Tools() {
       <div className="flex-1 overflow-auto">
         {state.loading.list ? (
           <div className="flex items-center justify-center py-16">
-            <div className="text-muted-foreground">{t('loading.tools')}</div>
+            <div className="text-muted-foreground">{t('loading')}</div>
           </div>
         ) : state.tools.length === 0 ? (
           <EmptyState

@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { chatService } from '@/services/chat/chatService';
@@ -19,6 +20,7 @@ interface MessageHistoryState {
 }
 
 export const useMessageHistory = ({ conversationId, enabled = true }: UseMessageHistoryProps) => {
+  const { t: tUi } = useUiTranslation();
   const [state, setState] = useState<MessageHistoryState>({
     messages: [],
     hasMoreMessages: true,
@@ -100,7 +102,7 @@ export const useMessageHistory = ({ conversationId, enabled = true }: UseMessage
       // }
     } catch (error) {
       console.error('Error loading initial messages:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Erro ao carregar mensagens';
+      const errorMessage = error instanceof Error ? error.message : tUi("widget:errors.loadMessages");
 
       setState(prev => ({
         ...prev,
@@ -108,17 +110,17 @@ export const useMessageHistory = ({ conversationId, enabled = true }: UseMessage
         isInitialLoading: false,
       }));
 
-      toast.error('Erro ao carregar mensagens', {
+      toast.error(tUi("widget:errors.loadMessages"), {
         description: errorMessage,
         action: {
-          label: 'Tentar novamente',
+          label: tUi("common:base.errorBoundary.retry"),
           onClick: () => loadInitialMessages(),
         },
       });
     } finally {
       loadingRef.current = false;
     }
-  }, [conversationId, enabled]);
+  }, [conversationId, enabled, tUi]);
 
   // Carregar mensagens mais antigas (com botão)
   const loadMoreMessages = useCallback(async () => {
@@ -182,13 +184,13 @@ export const useMessageHistory = ({ conversationId, enabled = true }: UseMessage
       console.error('Error loading more messages:', error);
       setState(prev => ({ ...prev, isLoadingMore: false }));
 
-      toast.error('Erro ao carregar mensagens anteriores', {
-        description: error instanceof Error ? error.message : 'Tente novamente',
+      toast.error(tUi("interface:usemessagehistory.couldNotLoadPreviousMessages"), {
+        description: error instanceof Error ? error.message : tUi("chat:contexts.conversations.tryAgainDescription"),
       });
     } finally {
       loadingRef.current = false;
     }
-  }, [conversationId, state.hasMoreMessages, state.isLoadingMore, state.oldestMessageId]);
+  }, [conversationId, state.hasMoreMessages, state.isLoadingMore, state.oldestMessageId, tUi]);
 
   // Função recursiva para carregar múltiplas páginas automaticamente
   const loadMoreMessagesRecursive = useCallback(

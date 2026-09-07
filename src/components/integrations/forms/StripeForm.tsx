@@ -14,38 +14,38 @@ export function StripeForm({ config, onConfigChange }: IntegrationFormProps) {
     <div className="space-y-4">
       <FormField
         id="STRIPE_OAUTH_CLIENT_ID"
-        label={t('integrations.stripe.clientId')}
+        label={t("stripe.clientId")}
         value={getValue('stripeClientId')}
         onChange={(value) => onConfigChange('stripeClientId', value)}
-        placeholder={t('integrations.stripe.placeholders.clientId')}
-        description={t('integrations.stripe.clientIdDescription')}
+        placeholder={t("stripe.placeholders.clientId")}
+        description={t("stripe.clientIdDescription")}
       />
       <FormField
         id="STRIPE_OAUTH_CLIENT_SECRET"
-        label={t('integrations.stripe.clientSecret')}
+        label={t("stripe.clientSecret")}
         value={getValue('stripeClientSecret')}
         onChange={(value) => onConfigChange('stripeClientSecret', value)}
-        placeholder={t('integrations.stripe.placeholders.clientSecret')}
+        placeholder={t("stripe.placeholders.clientSecret")}
         type="password"
-        description={t('integrations.stripe.clientSecretDescription')}
+        description={t("stripe.clientSecretDescription")}
       />
       <FormField
         id="STRIPE_OAUTH_REDIRECT_URI"
-        label={t('integrations.stripe.redirectUri')}
+        label={t("stripe.redirectUri")}
         value={getValue('stripeRedirectUri')}
         onChange={(value) => onConfigChange('stripeRedirectUri', value)}
-        placeholder={t('integrations.stripe.placeholders.redirectUri')}
+        placeholder={t("stripe.placeholders.redirectUri")}
         type="url"
-        description={t('integrations.stripe.redirectUriDescription')}
+        description={t("stripe.redirectUriDescription")}
       />
       <FormField
         id="STRIPE_OAUTH_AUTHORIZATION_URL"
-        label={t('integrations.stripe.authorizationUrl')}
+        label={t("stripe.authorizationUrl")}
         value={getValue('stripeAuthorizationUrl')}
         onChange={(value) => onConfigChange('stripeAuthorizationUrl', value)}
-        placeholder={t('integrations.stripe.placeholders.authorizationUrl')}
+        placeholder={t("stripe.placeholders.authorizationUrl")}
         type="url"
-        description={t('integrations.stripe.authorizationUrlDescription')}
+        description={t("stripe.authorizationUrlDescription")}
       />
     </div>
   );

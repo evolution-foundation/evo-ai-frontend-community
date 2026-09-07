@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import FacebookModerationService from '@/services/channels/facebookModerationService';
 import { FacebookCommentModeration } from '@/types/channels/inbox';
@@ -11,6 +12,7 @@ export function useConversationModerations({
   conversationId,
   enabled = true,
 }: UseConversationModerationsProps) {
+  const { t: tUi } = useUiTranslation();
   const LAST_LOAD_WINDOW_MS = 15_000;
   const [moderations, setModerations] = useState<FacebookCommentModeration[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -59,12 +61,12 @@ export function useConversationModerations({
       lastLoadedRef.current = { conversationId, loadedAt: Date.now() };
     } catch (err) {
       console.error('Error loading conversation moderations:', err);
-      setError(err instanceof Error ? err : new Error('Failed to load moderations'));
+      setError(err instanceof Error ? err : new Error(tUi("interface:useconversationmoderations.couldNotLoadModerations")));
       setModerations([]);
     } finally {
       setIsLoading(false);
     }
-  }, [conversationId, enabled]);
+  }, [conversationId, enabled, tUi]);
 
   useEffect(() => {
     if (enabled && conversationId) {

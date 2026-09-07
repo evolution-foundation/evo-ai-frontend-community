@@ -176,5 +176,19 @@
       "description": "Isso não significa que não existem — a carga das definições falhou. Tente novamente.",
       "retry": "Tentar novamente"
     }
+  },
+  "dateTime": {
+    "now": "Agora",
+    "yesterday": "Ontem",
+    "invalid": "Data inválida",
+    "dateAtTime": "{{date}} às {{time}}"
+  },
+  "filterFields": {
+    "url": "URL",
+    "timeout": "Tempo limite",
+    "tags": "Etiquetas",
+    "endpoint": "Endpoint",
+    "email": "E-mail",
+    "availability": "Disponibilidade"
   }
 }

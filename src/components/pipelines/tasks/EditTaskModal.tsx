@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -232,7 +233,7 @@ export default function EditTaskModal({
             />
             {task?.parent_task?.due_date && (
               <p className="text-xs text-muted-foreground">
-                {t('tasks.form.exactDueDate')}: {new Date(task.parent_task.due_date).toLocaleString('pt-BR')}
+                {t('tasks.form.exactDueDate')}: {new Date(task.parent_task.due_date).toLocaleString(getFormattingLocale())}
               </p>
             )}
             {errors.due_date && (
@@ -250,10 +251,10 @@ export default function EditTaskModal({
                 disabled={loading}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={t('tasks.form.assignedToPlaceholder') || 'Nenhum'} />
+                  <SelectValue placeholder={t('tasks.form.assignedToPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">{t('tasks.form.none') || 'Nenhum'}</SelectItem>
+                  <SelectItem value="none">{t('tasks.form.none')}</SelectItem>
                   {availableUsers.map(user => (
                     <SelectItem key={user.id} value={user.id}>
                       {user.name}

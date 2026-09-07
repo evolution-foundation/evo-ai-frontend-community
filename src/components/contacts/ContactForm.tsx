@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -119,6 +120,7 @@ export default function ContactForm({
   onSubmit,
   onCancel,
 }: ContactFormProps) {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('contacts');
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -450,7 +452,7 @@ export default function ContactForm({
       <div className="flex items-center gap-4">
         <Avatar className="h-16 w-16">
           {avatarPreview ? (
-            <img src={avatarPreview} alt="Avatar" className="h-16 w-16 rounded-full object-cover" />
+            <img src={avatarPreview} alt={tUi("interface:contactform.avatar")} className="h-16 w-16 rounded-full object-cover" />
           ) : (
             <AvatarFallback className="bg-primary/10 text-primary text-lg">
               {getUserInitials()}

@@ -167,9 +167,7 @@ export default function ContactMergeSelectorModal({
                     {contact.conversations_count !== undefined && (
                       <div className="text-xs text-muted-foreground mt-2">
                         <span className="font-medium">{contact.conversations_count}</span>{' '}
-                        {contact.conversations_count === 1
-                          ? t('details.conversations').replace('s', '')
-                          : t('details.conversations')}
+                        {t('details.conversationLabel', { count: contact.conversations_count })}
                       </div>
                     )}
                   </div>

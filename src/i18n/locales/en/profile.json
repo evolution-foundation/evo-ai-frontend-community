@@ -248,6 +248,7 @@
         }
       },
       "backupCodes": {
+        "regenerateDescription": "Generate new backup codes. Your previous codes will stop working.",
         "title": "Backup Codes",
         "description": "Save these codes in a secure location. Each code can be used only once to login if you lose access to your device.",
         "warning": "These codes will not be shown again. Make sure to save them now!",

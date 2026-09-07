@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { useRef, useEffect, useMemo } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { enUS, es, fr, it, pt, ptBR } from 'date-fns/locale';
@@ -83,6 +84,7 @@ const MessageList: React.FC<MessageListProps> = ({
   hasMore = true,
   onEmailSubmitted,
 }) => {
+  const { t: tUi } = useUiTranslation();
   const { t, currentLanguage } = useLanguage('widget');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const shouldScrollToBottom = useRef(true);
@@ -219,7 +221,7 @@ const MessageList: React.FC<MessageListProps> = ({
               <div className="mr-2">
                 <img
                   src={m.avatarUrl || inboundAvatarUrl}
-                  alt="avatar"
+                  alt={tUi("interface:messagelist.avatar")}
                   className="w-6 h-6 rounded-full object-cover border border-white shadow"
                 />
               </div>

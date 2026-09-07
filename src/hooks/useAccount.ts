@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useTranslation as useUiTranslation } from 'react-i18next';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { accountService } from '../services/account/accountService';
 import type { Account, AccountFeatures } from '@/types/settings';
 import { useAuthStore } from '@/store/authStore';
@@ -21,6 +22,7 @@ interface UseAccountReturn {
 }
 
 export function useAccount(): UseAccountReturn {
+  const { t: tUi } = useUiTranslation();
   const currentUser = useAuthStore(state => state.currentUser);
 
   const [account, setAccount] = useState<Account | null>(null);
@@ -55,20 +57,20 @@ export function useAccount(): UseAccountReturn {
       .map(([feature, _]) => feature);
   }, [account?.features]);
 
-  const fetchAccount = async () => {
+  const fetchAccount = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await accountService.getAccount();
       setAccount(response);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar conta';
+      const errorMessage = err instanceof Error ? err.message : tUi("interface:useaccount.couldNotLoadAccount");
       setError(errorMessage);
       console.error('Erro ao carregar conta:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [tUi]);
 
   const updateAccount = async (data: Partial<Account>) => {
     try {
@@ -77,7 +79,7 @@ export function useAccount(): UseAccountReturn {
       const updatedAccount = await accountService.updateAccount(data);
       setAccount(updatedAccount);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao atualizar conta';
+      const errorMessage = err instanceof Error ? err.message : tUi("interface:useaccount.couldNotUpdateAccount");
       setError(errorMessage);
       throw err;
     } finally {
@@ -93,7 +95,7 @@ export function useAccount(): UseAccountReturn {
     if (currentUser?.id) {
       fetchAccount();
     }
-  }, [currentUser?.id]);
+  }, [currentUser?.id, fetchAccount]);
 
   return {
     account,

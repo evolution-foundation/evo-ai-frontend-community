@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -591,25 +592,25 @@ export default function Campaigns() {
               <div className="rounded-md border border-sidebar-border p-3">
                 <div className="text-xs text-muted-foreground">{t('dialog.stats.totalSent')}</div>
                 <div className="mt-1 text-lg font-semibold">
-                  {statsData?.total_sent?.toLocaleString() || 0}
+                  {statsData?.total_sent?.toLocaleString(getFormattingLocale()) || 0}
                 </div>
               </div>
               <div className="rounded-md border border-sidebar-border p-3">
                 <div className="text-xs text-muted-foreground">{t('dialog.stats.totalDelivered')}</div>
                 <div className="mt-1 text-lg font-semibold">
-                  {statsData?.total_delivered?.toLocaleString() || 0}
+                  {statsData?.total_delivered?.toLocaleString(getFormattingLocale()) || 0}
                 </div>
               </div>
               <div className="rounded-md border border-sidebar-border p-3">
                 <div className="text-xs text-muted-foreground">{t('dialog.stats.totalRead')}</div>
                 <div className="mt-1 text-lg font-semibold">
-                  {statsData?.total_read?.toLocaleString() || 0}
+                  {statsData?.total_read?.toLocaleString(getFormattingLocale()) || 0}
                 </div>
               </div>
               <div className="rounded-md border border-sidebar-border p-3">
                 <div className="text-xs text-muted-foreground">{t('dialog.stats.totalErrors')}</div>
                 <div className="mt-1 text-lg font-semibold">
-                  {statsData?.total_errors?.toLocaleString() || 0}
+                  {statsData?.total_errors?.toLocaleString(getFormattingLocale()) || 0}
                 </div>
               </div>
               <div className="rounded-md border border-sidebar-border p-3">
@@ -638,7 +639,7 @@ export default function Campaigns() {
                   onClick={() => handleStartCampaign(statsCampaign)}
                 >
                   {statsCampaign.status === 3 || statsCampaign.status === 4
-                    ? t('dialog.stats.actions.resume')
+                    ? t("card.actions.resume")
                     : t('dialog.stats.actions.start')}
                 </Button>
               )}

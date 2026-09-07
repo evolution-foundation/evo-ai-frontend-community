@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Input, Label, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@evoapi/design-system';
 import { ArrowRight } from 'lucide-react';
@@ -17,6 +18,7 @@ interface Step1Props {
 }
 
 const Step1_BasicInfo = ({ data, onChange, onNext }: Step1Props) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('campaigns');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -24,19 +26,19 @@ const Step1_BasicInfo = ({ data, onChange, onNext }: Step1Props) => {
     const newErrors: Record<string, string> = {};
 
     if (data.name && data.name.trim().length < 3) {
-      newErrors.name = 'Nome deve ter no mínimo 3 caracteres';
+      newErrors.name = tUi("campaigns:wizard.validation.nameMinLength");
     }
 
     setErrors(newErrors);
-  }, [data.name]);
+  }, [data.name, tUi]);
 
   const handleNext = () => {
     const newErrors: Record<string, string> = {};
 
     if (!data.name || !data.name.trim()) {
-      newErrors.name = 'Nome é obrigatório';
+      newErrors.name = tUi("campaigns:wizard.validation.nameRequired");
     } else if (data.name.trim().length < 3) {
-      newErrors.name = 'Nome deve ter no mínimo 3 caracteres';
+      newErrors.name = tUi("campaigns:wizard.validation.nameMinLength");
     }
 
     if (!data.type) {
@@ -45,17 +47,17 @@ const Step1_BasicInfo = ({ data, onChange, onNext }: Step1Props) => {
 
     if (data.type === CampaignType.TRIGGER) {
       if (!data.triggerConfig || !data.triggerConfig.triggerType) {
-        newErrors.triggerConfig = 'Configuração de trigger é obrigatória para campanhas com gatilho';
+        newErrors.triggerConfig = tUi("interface:step1Basicinfo.triggerConfigurationIsRequiredForTriggeredCampaigns");
       } else if (data.triggerConfig.triggerType === 'event' && (!data.triggerConfig.eventName || !data.triggerConfig.eventName.trim())) {
-        newErrors.triggerConfig = 'Nome do evento é obrigatório para triggers do tipo evento';
+        newErrors.triggerConfig = tUi("interface:step1Basicinfo.anEventNameIsRequiredForEventTriggers");
       } else if (data.triggerConfig.triggerType === 'segment' && !data.triggerConfig.segmentId) {
-        newErrors.triggerConfig = 'Segmento é obrigatório para triggers do tipo segmento';
+        newErrors.triggerConfig = tUi("interface:step1Basicinfo.aSegmentIsRequiredForSegmentTriggers");
       } else if (data.triggerConfig.triggerType === 'label' && !data.triggerConfig.labelId) {
-        newErrors.triggerConfig = 'Etiqueta é obrigatória para triggers do tipo etiqueta';
+        newErrors.triggerConfig = tUi("interface:step1Basicinfo.aLabelIsRequiredForLabelTriggers");
       } else if (data.triggerConfig.triggerType === 'customAttribute' && !data.triggerConfig.customAttributeName) {
-        newErrors.triggerConfig = 'Atributo personalizado é obrigatório para triggers do tipo atributo';
+        newErrors.triggerConfig = tUi("interface:step1Basicinfo.aCustomAttributeIsRequiredForAttributeTriggers");
       } else if (data.triggerConfig.triggerType === 'webhook' && (!data.triggerConfig.webhookUrl || !data.triggerConfig.webhookUrl.trim())) {
-        newErrors.triggerConfig = 'URL do webhook é obrigatória para triggers do tipo webhook';
+        newErrors.triggerConfig = tUi("interface:step1Basicinfo.aWebhookUrlIsRequiredForWebhookTriggers");
       }
     }
 
@@ -79,10 +81,10 @@ const Step1_BasicInfo = ({ data, onChange, onNext }: Step1Props) => {
           {/* Name */}
           <div>
             <Label className="text-base mb-2 block font-semibold">
-              Nome <span className="text-red-500">*</span>
+              {tUi("roles:table.name")} <span className="text-red-500">*</span>
             </Label>
             <Input
-              placeholder="Ex: Campanha Black Friday 2025"
+              placeholder={tUi("interface:step1Basicinfo.eGBlackFridayCampaign")}
               value={data.name}
               onChange={(e) => onChange({ name: e.target.value })}
               className={`h-12 text-base ${errors.name ? 'border-red-500 focus:border-red-500' : ''}`}
@@ -94,16 +96,15 @@ const Step1_BasicInfo = ({ data, onChange, onNext }: Step1Props) => {
           {/* Description */}
           <div>
             <Label className="text-base mb-2 block font-semibold">
-              Descrição
-            </Label>
+              {tUi("campaigns:dialog.details.fields.description")}</Label>
             <Textarea
-              placeholder="Descreva brevemente o objetivo desta campanha..."
+              placeholder={tUi("interface:step1Basicinfo.brieflyDescribeThePurposeOfThisCampaign")}
               value={data.description}
               onChange={(e) => onChange({ description: e.target.value })}
               className="min-h-[100px] text-base resize-none"
               rows={4}
             />
-            <p className="text-xs text-muted-foreground mt-1">Opcional</p>
+            <p className="text-xs text-muted-foreground mt-1">{tUi("interface:step1Basicinfo.optional")}</p>
           </div>
 
           {/* Type */}

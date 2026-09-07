@@ -1,3 +1,6 @@
+import i18n from '@/i18n/config';
+import { getFormattingLocale } from '@/lib/formattingLocale';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React from 'react';
 import { MessageSquare, Mail, Send, ExternalLink, Phone } from 'lucide-react';
 import { usesStructuredComponents } from '@/services/channels/messageTemplatesService';
@@ -14,6 +17,7 @@ const BubblePreview: React.FC<{
   template: Partial<TemplateFormData>;
   t: (key: string) => string;
 }> = ({ template, t }) => {
+  const { t: tUi } = useUiTranslation();
   return (
     <div className="template-preview-container">
       <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
@@ -72,7 +76,7 @@ const BubblePreview: React.FC<{
 
             {/* Template body */}
             <div className="preview-body-text text-sm mb-2 text-slate-900 dark:text-slate-100 whitespace-pre-wrap">
-              {template.bodyText || 'Template message body...'}
+              {template.bodyText || i18n.t('interface:fallbacks.templateBody')}
             </div>
 
             {/* Template footer (if exists) */}
@@ -98,7 +102,7 @@ const BubblePreview: React.FC<{
                       {button.type === 'URL' && <ExternalLink className="w-3 h-3" />}
                       {button.type === 'PHONE_NUMBER' && <Phone className="w-3 h-3" />}
                       {button.type === 'QUICK_REPLY' && <MessageSquare className="w-3 h-3" />}
-                      <span>{button.text || 'Button Text'}</span>
+                      <span>{button.text || i18n.t('interface:fallbacks.buttonText')}</span>
                     </div>
                   </div>
                 ))}
@@ -108,13 +112,13 @@ const BubblePreview: React.FC<{
             {/* Delivery time */}
             <div className="text-right">
               <span className="text-xs text-gray-500 dark:text-slate-400">
-                {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                {new Date().toLocaleTimeString(getFormattingLocale(), { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
           </div>
 
           {/* Timestamp */}
-          <div className="text-center text-xs text-gray-500 dark:text-slate-400 mt-1">Today</div>
+          <div className="text-center text-xs text-gray-500 dark:text-slate-400 mt-1">{tUi("channels:settings.messageTemplates.preview.today")}</div>
         </div>
       </div>
 
@@ -131,6 +135,7 @@ const EmailPreview: React.FC<{
   template: Partial<TemplateFormData>;
   t: (key: string) => string;
 }> = ({ template, t }) => {
+  const { t: tUi } = useUiTranslation();
   return (
     <div className="template-preview-container">
       <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
@@ -142,16 +147,15 @@ const EmailPreview: React.FC<{
         {/* Email header */}
         <div className="email-header bg-gray-50 dark:bg-slate-700 p-4 border-b border-gray-200 dark:border-gray-600">
           <div className="mb-2">
-            <span className="text-xs text-gray-500 dark:text-gray-400">Subject:</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{tUi("journey:panels.sendTranscript.node.subjectLabel")}</span>
             <div className="text-sm font-medium text-slate-900 dark:text-slate-100 mt-1">
-              {template.subject || 'Email Subject'}
+              {template.subject || i18n.t('interface:fallbacks.emailSubject')}
             </div>
           </div>
           <div>
-            <span className="text-xs text-gray-500 dark:text-gray-400">From:</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{tUi("interface:templatepreview.from")}</span>
             <div className="text-sm text-slate-700 dark:text-slate-300 mt-1">
-              noreply@example.com
-            </div>
+              {tUi("adminSettings:email.placeholders.senderEmail")}</div>
           </div>
         </div>
 
@@ -165,7 +169,7 @@ const EmailPreview: React.FC<{
               />
             ) : (
               <pre className="whitespace-pre-wrap text-sm text-slate-900 dark:text-slate-100 font-sans">
-                {'Email template content...\n\nUse {{variable}} syntax for dynamic values.'}
+                {i18n.t('interface:fallbacks.emailTemplateContent', { syntax: '{{variable}}' })}
               </pre>
             )}
           </div>
@@ -185,6 +189,7 @@ const TextPreview: React.FC<{
   channelType: string;
   t: (key: string) => string;
 }> = ({ template, channelType, t }) => {
+  const { t: tUi } = useUiTranslation();
   const getIcon = () => {
     if (channelType.includes('Sms')) return <Send className="w-4 h-4 text-purple-600" />;
     if (channelType.includes('Telegram')) return <Send className="w-4 h-4 text-blue-600" />;
@@ -212,10 +217,9 @@ const TextPreview: React.FC<{
         <div className="preview-header bg-gray-50 dark:bg-slate-700 p-3 border-b border-gray-200 dark:border-gray-600">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-              {getChannelName()} Message Preview
-            </span>
+              {getChannelName()} {tUi("interface:templatepreview.messagePreview")}</span>
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+              {new Date().toLocaleTimeString(getFormattingLocale(), { hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
         </div>
@@ -224,7 +228,7 @@ const TextPreview: React.FC<{
         <div className="message-content p-4 bg-white dark:bg-slate-800 max-h-[400px] overflow-y-auto">
           <div className="text-sm text-slate-900 dark:text-slate-100 whitespace-pre-wrap font-sans">
             {template.content ||
-              'Template message content...\n\nUse {{variable}} syntax for dynamic values.'}
+              i18n.t('interface:fallbacks.messageTemplateContent', { syntax: '{{variable}}' })}
           </div>
         </div>
 
@@ -232,7 +236,7 @@ const TextPreview: React.FC<{
         {channelType.includes('Sms') && (
           <div className="preview-footer bg-gray-50 dark:bg-slate-700 p-2 border-t border-gray-200 dark:border-gray-600">
             <span className="text-xs text-gray-600 dark:text-gray-400">
-              Characters: {template.content?.length || 0} / 160
+              {tUi("interface:templatepreview.characters")} {template.content?.length || 0} / 160
               {(template.content?.length || 0) > 160 &&
                 ` (${Math.ceil((template.content?.length || 0) / 160)} SMS messages)`}
             </span>

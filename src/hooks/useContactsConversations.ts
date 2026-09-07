@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useMemo } from 'react';
 import { contactsService } from '@/services/contacts';
 import type { Contact } from '@/types/contacts';
@@ -16,6 +17,7 @@ export function useContactsConversations({
   contacts,
   enabled = true,
 }: UseContactsConversationsOptions) {
+  const { t: tUi } = useUiTranslation();
   const [conversationsMap, setConversationsMap] = useState<Map<string, string[]>>(new Map());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -81,7 +83,7 @@ export function useContactsConversations({
 
         setConversationsMap(newMap);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to load contacts conversations'));
+        setError(err instanceof Error ? err : new Error(tUi("interface:usecontactsconversations.couldNotLoadContactConversations")));
         console.error('Error loading contacts conversations:', err);
       } finally {
         setIsLoading(false);
@@ -90,7 +92,7 @@ export function useContactsConversations({
 
     loadConversations();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contactsKey, enabled]);
+  }, [contactsKey, enabled, tUi]);
 
   // Função helper para obter conversas de um contato específico
   const getContactConversationIds = useMemo(() => {

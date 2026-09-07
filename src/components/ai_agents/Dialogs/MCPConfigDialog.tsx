@@ -387,8 +387,7 @@ const MCPConfigDialog = ({
                           {t('dialogs.mcpConfig.availableTools')}
                         </h3>
                         <Badge variant="secondary" className="text-xs">
-                          {toolIds[selectedServer.id]?.length || 0} {t('dialogs.mcpConfig.of')}{' '}
-                          {selectedServer.tools.length} {t('tools.systemTools.selected')}
+                          {t('dialogs.mcpConfig.selectedCount', { selected: toolIds[selectedServer.id]?.length || 0, total: selectedServer.tools.length })}
                         </Badge>
                       </div>
                       <div className="flex gap-2">

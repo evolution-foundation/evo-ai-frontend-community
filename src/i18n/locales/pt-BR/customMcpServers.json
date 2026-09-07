@@ -94,7 +94,8 @@
       "outputModes": "Modos de Saída:",
       "tags": "Tags:",
       "noTools": "Nenhuma ferramenta descoberta",
-      "noToolsDescription": "Execute um teste para descobrir as ferramentas disponíveis"
+      "noToolsDescription": "Execute um teste para descobrir as ferramentas disponíveis",
+      "testPrompt": "Selecione uma ferramenta para testá-la"
     },
     "headers": {
       "title": "Headers HTTP",
@@ -102,6 +103,10 @@
     },
     "tags": {
       "title": "Tags"
+    },
+    "sections": {
+      "headers": "Cabeçalhos",
+      "tags": "Etiquetas"
     }
   },
   "form": {
@@ -237,7 +242,8 @@
       "tools": "Ferramentas",
       "timeout": "Timeout",
       "createdAt": "Criado em",
-      "actions": "Teste"
+      "actions": "Teste",
+      "test": "Testar"
     },
     "custom": "Personalizado",
     "noDescription": "Sem descrição",
@@ -248,6 +254,12 @@
     "emptyMessage": "Nenhum servidor MCP personalizado encontrado",
     "emptyTitle": "Nenhum servidor MCP personalizado criado",
     "emptyDescription": "Crie servidores MCP personalizados para expandir as capacidades dos agentes.",
-    "emptyAction": "Criar servidor MCP personalizado"
+    "emptyAction": "Criar servidor MCP personalizado",
+    "empty": {
+      "message": "Nenhum servidor MCP encontrado",
+      "title": "Nenhum servidor MCP encontrado",
+      "description": "Adicione um servidor MCP para conectar suas ferramentas",
+      "action": "Adicionar servidor MCP"
+    }
   }
 }

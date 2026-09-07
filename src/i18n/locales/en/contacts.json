@@ -77,7 +77,9 @@
         "title": "Contact not found",
         "description": "We couldn't find this contact. It may have been deleted."
       }
-    }
+    },
+    "conversationLabel_one": "conversation",
+    "conversationLabel_other": "conversations"
   },
   "export": {
     "title": "Export Contacts",
@@ -262,7 +264,8 @@
       "phoneInvalid": "Invalid phone",
       "taxIdInvalidPerson": "Invalid Tax ID (maximum 11 digits)",
       "taxIdInvalidCompany": "Invalid Tax ID (maximum 14 digits)",
-      "websiteInvalid": "Invalid URL. Use http:// or https://"
+      "websiteInvalid": "Invalid URL. Use http:// or https://",
+      "taxIdInvalid": "Invalid tax ID"
     },
     "actions": {
       "cancel": "Cancel",
@@ -557,7 +560,9 @@
     "emptyDescription": "Create a new scheduled action to get started",
     "pagination": "Page {{page}} of {{totalPages}} ({{total}} total)",
     "messages": {
-      "noChannelsConfigured": "No messaging channels configured. Please configure a WhatsApp, SMS, Email, or Telegram channel first in the Channels settings."
+      "noChannelsConfigured": "No messaging channels configured. Please configure a WhatsApp, SMS, Email, or Telegram channel first in the Channels settings.",
+      "cancelled": "Scheduled action cancelled",
+      "bulkCancelled": "Scheduled actions cancelled"
     },
     "errors": {
       "loadFailed": "Failed to load scheduled actions",
@@ -768,5 +773,9 @@
       "deleteSuccess": "Note deleted",
       "deleteError": "Error deleting note"
     }
+  },
+  "pipelines": {
+    "morePipelines_one": "{{count}} more pipeline",
+    "morePipelines_other": "{{count}} more pipelines"
   }
 }

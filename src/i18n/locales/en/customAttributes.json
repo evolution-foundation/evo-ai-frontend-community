@@ -89,7 +89,8 @@
         "hint": "The key will be used to identify this attribute in the API. Use only lowercase letters, numbers and underscores.",
         "errors": {
           "required": "Attribute Key is required",
-          "invalid": "Attribute Key must contain only lowercase letters, numbers and underscores"
+          "invalid": "Attribute Key must contain only lowercase letters, numbers and underscores",
+          "duplicate": "Attribute key already exists"
         }
       },
       "description": {
@@ -203,7 +204,8 @@
         "pipeline": "This attribute will be filled directly in the card.",
         "stage": "This attribute will be filled directly in the card.",
         "descriptionStages": "The value will be defined by the stages",
-        "descriptionCards": "The value will be defined by the cards"
+        "descriptionCards": "The value will be defined by the cards",
+        "item": "This attribute is shared with items in this pipeline."
       },
       "attributeOrigin": {
         "pipeline": "Pipeline Attribute",
@@ -254,7 +256,13 @@
     "deleteSuccess": "Custom attribute deleted successfully",
     "deleteError": "Error deleting custom attribute",
     "bulkDeleteSuccess": "{{count}} custom attribute(s) deleted successfully",
-    "bulkDeleteError": "Error deleting custom attributes"
+    "bulkDeleteError": "Error deleting custom attributes",
+    "permissionDenied": {
+      "read": "You do not have permission to view custom attributes",
+      "create": "You do not have permission to create custom attributes",
+      "update": "You do not have permission to edit custom attributes",
+      "delete": "You do not have permission to delete custom attributes"
+    }
   },
   "dialog": {
     "delete": {

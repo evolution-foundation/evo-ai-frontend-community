@@ -1,8 +1,10 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { listTools } from '@/services/agents';
 import { Tool, ToolsResponse } from '@/types';
 
 export const useTools = (params?: { category?: string; tags?: string; search?: string }) => {
+  const { t: tUi } = useUiTranslation();
   const [tools, setTools] = useState<Tool[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +22,7 @@ export const useTools = (params?: { category?: string; tags?: string; search?: s
       setTools(response.tools);
       setTotal(response.metadata.total_tools);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar ferramentas');
+      setError(err instanceof Error ? err.message : tUi("tools:messages.loadError"));
     } finally {
       setIsLoading(false);
     }

@@ -51,13 +51,13 @@ const InactivityActions = ({ actions, onChange }: InactivityActionsProps) => {
   // (the stored value stays in minutes, only the label changes).
   const formatMinuteLabel = (min: number): string => {
     if (min < 60 || min % 60 !== 0) {
-      return `${min} ${t('edit.configuration.inactivityActions.minutes') || 'minutos'}`;
+      return `${min} ${t('edit.configuration.inactivityActions.minutes')}`;
     }
     const h = min / 60;
     return `${h} ${
       h === 1
-        ? t('edit.configuration.inactivityActions.hour') || 'hora'
-        : t('edit.configuration.inactivityActions.hours') || 'horas'
+        ? t('edit.configuration.inactivityActions.hour')
+        : t('edit.configuration.inactivityActions.hours')
     }`;
   };
 
@@ -67,8 +67,7 @@ const InactivityActions = ({ actions, onChange }: InactivityActionsProps) => {
       <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg border">
         <Info className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
         <p className="text-sm text-muted-foreground">
-          {t('edit.configuration.inactivityActions.description') ||
-            'Configure ações que o agente deve executar quando o cliente parar de responder.'}
+          {t('edit.configuration.inactivityActions.description')}
         </p>
       </div>
 
@@ -84,8 +83,7 @@ const InactivityActions = ({ actions, onChange }: InactivityActionsProps) => {
                     <Clock className="h-5 w-5 text-muted-foreground" />
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-muted-foreground">
-                        {t('edit.configuration.inactivityActions.ifNotRespondIn') ||
-                          'Se não responder em'}
+                        {t('edit.configuration.inactivityActions.ifNotRespondIn')}
                       </span>
                       <Select
                         value={action.minutes.toString()}
@@ -105,8 +103,7 @@ const InactivityActions = ({ actions, onChange }: InactivityActionsProps) => {
                         </SelectContent>
                       </Select>
                       <span className="text-sm text-muted-foreground">
-                        {t('edit.configuration.inactivityActions.theAgentShould') ||
-                          'o agente deve'}
+                        {t('edit.configuration.inactivityActions.theAgentShould')}
                       </span>
                       <Select
                         value={action.action}
@@ -121,12 +118,10 @@ const InactivityActions = ({ actions, onChange }: InactivityActionsProps) => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="interact">
-                            {t('edit.configuration.inactivityActions.interactWithClient') ||
-                              'Interagir com cliente'}
+                            {t('edit.configuration.inactivityActions.interactWithClient')}
                           </SelectItem>
                           <SelectItem value="finalize">
-                            {t('edit.configuration.inactivityActions.finalizeService') ||
-                              'Finalizar atendimento'}
+                            {t('edit.configuration.inactivityActions.finalizeService')}
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -148,15 +143,13 @@ const InactivityActions = ({ actions, onChange }: InactivityActionsProps) => {
                 {action.action === 'interact' && (
                   <div className="space-y-2 pl-8">
                     <label className="text-sm font-medium">
-                      {t('edit.configuration.inactivityActions.whatShouldAgentSay') ||
-                        'O que o agente deve falar?'}
+                      {t('edit.configuration.inactivityActions.whatShouldAgentSay')}
                     </label>
                     <Textarea
                       value={action.message || ''}
                       onChange={e => handleUpdateAction(action.id, { message: e.target.value })}
                       placeholder={
-                        t('edit.configuration.inactivityActions.messagePlaceholder') ||
-                        'Perguntar se o cliente ainda está interessado'
+                        t('edit.configuration.inactivityActions.messagePlaceholder')
                       }
                       maxLength={512}
                       className="min-h-[80px]"
@@ -177,7 +170,7 @@ const InactivityActions = ({ actions, onChange }: InactivityActionsProps) => {
       {/* Add Action Button */}
       <Button type="button" variant="outline" onClick={handleAddAction} className="w-full">
         <Plus className="h-4 w-4 mr-2" />
-        {t('edit.configuration.inactivityActions.addAction') || '+ Adicionar ação anterior'}
+        {t('edit.configuration.inactivityActions.addAction')}
       </Button>
     </div>
   );

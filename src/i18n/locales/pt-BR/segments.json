@@ -31,7 +31,9 @@
     "status": {
       "active": "Ativo",
       "inactive": "Inativo",
-      "processing": "Processando"
+      "processing": "Processando",
+      "paused": "Pausado",
+      "completed": "Concluído"
     }
   },
   "actions": {
@@ -52,7 +54,8 @@
     "preview": "Pré-visualizar",
     "previewing": "Pré-visualizando…",
     "form": "Formulário",
-    "canvas": "Canvas"
+    "canvas": "Canvas",
+    "activate": "Ativar"
   },
   "preview": {
     "result_one": "{{count}} contato corresponde a este segmento.",
@@ -67,19 +70,52 @@
     "combineWith": "Combinar com",
     "selectNode": "Selecione um nó no canvas para editar, ou arraste uma nova condição do painel.",
     "categories": {
-      "identity": { "label": "Identidade", "description": "Quem é o contato" },
-      "behavior": { "label": "Comportamento", "description": "O que o contato fez" },
-      "messages": { "label": "Mensagens", "description": "Interações por canal" }
+      "identity": {
+        "label": "Identidade",
+        "description": "Quem é o contato"
+      },
+      "behavior": {
+        "label": "Comportamento",
+        "description": "O que o contato fez"
+      },
+      "messages": {
+        "label": "Mensagens",
+        "description": "Interações por canal"
+      }
     },
     "nodes": {
-      "Everyone": { "label": "Todos", "description": "Todos os contatos da conta" },
-      "UserProperty": { "label": "Propriedade do usuário", "description": "Filtrar por uma propriedade do contato" },
-      "CustomAttribute": { "label": "Atributo personalizado", "description": "Filtrar por um atributo personalizado" },
-      "Label": { "label": "Etiqueta", "description": "Possui / não possui uma etiqueta" },
-      "Performed": { "label": "Evento realizado", "description": "Realizou um evento rastreado" },
-      "RandomBucket": { "label": "Amostra aleatória", "description": "Uma % aleatória de contatos" },
-      "Email": { "label": "E-mail", "description": "Interação por e-mail" },
-      "WhatsApp": { "label": "Canal", "description": "Alcançado em um canal (WhatsApp/Web/SMS)" }
+      "Everyone": {
+        "label": "Todos",
+        "description": "Todos os contatos da conta"
+      },
+      "UserProperty": {
+        "label": "Propriedade do usuário",
+        "description": "Filtrar por uma propriedade do contato"
+      },
+      "CustomAttribute": {
+        "label": "Atributo personalizado",
+        "description": "Filtrar por um atributo personalizado"
+      },
+      "Label": {
+        "label": "Etiqueta",
+        "description": "Possui / não possui uma etiqueta"
+      },
+      "Performed": {
+        "label": "Evento realizado",
+        "description": "Realizou um evento rastreado"
+      },
+      "RandomBucket": {
+        "label": "Amostra aleatória",
+        "description": "Uma % aleatória de contatos"
+      },
+      "Email": {
+        "label": "E-mail",
+        "description": "Interação por e-mail"
+      },
+      "WhatsApp": {
+        "label": "Canal",
+        "description": "Alcançado em um canal (WhatsApp/Web/SMS)"
+      }
     }
   },
   "messages": {
@@ -240,7 +276,7 @@
   "customAttributeEditor": {
     "attribute": "Atributo",
     "selectAttribute": "Selecione um atributo",
-    "operator": "Operador", 
+    "operator": "Operador",
     "value": "Valor",
     "valuePlaceholder": "Digite um valor",
     "loading": "Carregando atributos...",
@@ -358,5 +394,19 @@
       "uploadButton": "📁 Upload CSV",
       "format": "Formato: Uma coluna com user_id"
     }
+  },
+  "modal": {
+    "validation": {
+      "nameMinLength": "O nome deve ter pelo menos 3 caracteres"
+    },
+    "createDescription": "Crie um segmento para agrupar contatos por suas propriedades e comportamento",
+    "editDescription": "Atualize o nome e as condições deste segmento",
+    "creating": "Criando…",
+    "createButton": "Criar segmento"
+  },
+  "categories": {
+    "userData": "Dados do usuário",
+    "messages": "Mensagens",
+    "manual": "Seleção manual"
   }
 }

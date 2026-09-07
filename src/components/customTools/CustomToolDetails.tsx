@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   Dialog,
@@ -124,7 +125,7 @@ export default function CustomToolDetails({
                   <label className="text-sm font-medium text-muted-foreground">{t('details.fields.createdAt')}</label>
                   <p className="text-sm mt-1 flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    {new Date(tool.created_at).toLocaleDateString('pt-BR')}
+                    {new Date(tool.created_at).toLocaleDateString(getFormattingLocale())}
                   </p>
                 </div>
               </div>

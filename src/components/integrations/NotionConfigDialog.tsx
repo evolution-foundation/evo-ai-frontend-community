@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -32,6 +33,7 @@ const NotionConfigDialog = ({
   initialConfig,
   agentId,
 }: NotionConfigDialogProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
 
   const [isConnecting, setIsConnecting] = useState(false);
@@ -102,7 +104,7 @@ const NotionConfigDialog = ({
       setAvailableTools(response.tools || []);
     } catch (error) {
       console.error('Error loading Notion tools:', error);
-      toast.error('Erro ao carregar ferramentas disponíveis');
+      toast.error(tUi("interface:notionconfigdialog.couldNotLoadAvailableTools"));
     } finally {
       setIsLoadingTools(false);
     }
@@ -119,7 +121,7 @@ const NotionConfigDialog = ({
       }
     } catch (error) {
       console.error('Error connecting to Notion:', error);
-      toast.error('Erro ao conectar com Notion');
+      toast.error(tUi("interface:notionconfigdialog.couldNotConnectToNotion"));
     } finally {
       setIsConnecting(false);
     }
@@ -157,11 +159,11 @@ const NotionConfigDialog = ({
 
       // Then update local state
       onSave(updatedConfig);
-      toast.success('Configurações salvas com sucesso!');
+      toast.success(tUi("integrations:messages.saveSuccess"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error saving Notion configuration:', error);
-      toast.error('Erro ao salvar configurações');
+      toast.error(tUi("integrations:messages.saveError"));
     }
   };
 
@@ -171,11 +173,11 @@ const NotionConfigDialog = ({
       if (onDisconnect) {
         onDisconnect();
       }
-      toast.success('Notion desconectado com sucesso!');
+      toast.success(tUi("interface:notionconfigdialog.notionDisconnectedSuccessfully"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error disconnecting Notion:', error);
-      toast.error('Erro ao desconectar Notion');
+      toast.error(tUi("interface:notionconfigdialog.couldNotDisconnectNotion"));
     }
   };
 
@@ -197,7 +199,7 @@ const NotionConfigDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BrandIcon id="notion" size={20} className="h-5 w-5" />
-            {t('edit.integrations.notion.configTitle') || 'Configurar Notion'}
+            {t('edit.integrations.notion.configTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -212,11 +214,10 @@ const NotionConfigDialog = ({
               </div>
               <div>
                 <h3 className="text-lg font-semibold">
-                  {t('edit.integrations.notion.connectTitle') || 'Conectar com Notion'}
+                  {t('edit.integrations.notion.connectTitle')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.notion.connectDescription') ||
-                    'Permita que o agente acesse páginas, bancos de dados e conteúdo do Notion'}
+                  {t('edit.integrations.notion.connectDescription')}
                 </p>
               </div>
             </div>
@@ -230,12 +231,12 @@ const NotionConfigDialog = ({
               {isConnecting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('edit.integrations.notion.connecting') || 'Conectando...'}
+                  {t('edit.integrations.notion.connecting')}
                 </>
               ) : (
                 <>
                   <BrandIcon id="notion" size={16} className="mr-2 h-4 w-4" />
-                  {t('edit.integrations.notion.connectButton') || 'Conectar com Notion'}
+                  {t('edit.integrations.notion.connectButton')}
                 </>
               )}
             </Button>
@@ -248,12 +249,12 @@ const NotionConfigDialog = ({
                 <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
                   <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
                   <span className="font-medium">
-                    {t('edit.integrations.notion.connected') || 'Conectado'}
+                    {t('edit.integrations.notion.connected')}
                   </span>
                 </div>
                 {config.username && (
                   <p className="text-sm text-green-700 dark:text-green-300 mt-2">
-                    {t('edit.integrations.notion.connectedAs') || 'Conectado como'}:{' '}
+                    {t('edit.integrations.notion.connectedAs')}:{' '}
                     <strong>{config.username}</strong>
                   </p>
                 )}
@@ -264,8 +265,7 @@ const NotionConfigDialog = ({
 
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.notion.connectedDescription') ||
-                    'O agente agora pode acessar páginas, bancos de dados e outras informações do Notion.'}
+                  {t('edit.integrations.notion.connectedDescription')}
                 </p>
               </div>
             </div>
@@ -275,7 +275,7 @@ const NotionConfigDialog = ({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium">
-                    {t('edit.integrations.notion.toolsTitle') || 'Ferramentas Disponíveis'}
+                    {t('edit.integrations.notion.toolsTitle')}
                   </h4>
                   {availableTools.length > 0 && (
                     <div className="flex items-center space-x-2">
@@ -288,14 +288,13 @@ const NotionConfigDialog = ({
                         onCheckedChange={handleSelectAll}
                       />
                       <Label htmlFor="select-all" className="text-xs font-medium cursor-pointer">
-                        {t('edit.integrations.notion.selectAll') || 'Selecionar todas'}
+                        {t('edit.integrations.notion.selectAll')}
                       </Label>
                     </div>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mb-3">
-                  {t('edit.integrations.notion.toolsDescription') ||
-                    'Selecione quais ferramentas do Notion o agente poderá usar'}
+                  {t('edit.integrations.notion.toolsDescription')}
                 </p>
               </div>
 
@@ -328,14 +327,14 @@ const NotionConfigDialog = ({
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center p-4">
-                  {t('edit.integrations.notion.noTools') || 'Nenhuma ferramenta disponível'}
+                  {t('edit.integrations.notion.noTools')}
                 </p>
               )}
             </div>
 
             <div className="flex flex-col gap-3 pt-4 border-t">
               <Button onClick={handleSave} className="w-full">
-                {t('edit.integrations.notion.saveConfig') || 'SALVAR CONFIGURAÇÕES'}
+                {t('edit.integrations.notion.saveConfig')}
               </Button>
 
               {onDisconnect && (
@@ -344,7 +343,7 @@ const NotionConfigDialog = ({
                   onClick={handleDisconnect}
                   className="w-full text-destructive hover:text-destructive/80"
                 >
-                  {t('edit.integrations.notion.disconnect') || 'Desconectar'}
+                  {t('edit.integrations.notion.disconnect')}
                 </Button>
               )}
             </div>

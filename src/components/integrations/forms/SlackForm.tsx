@@ -14,17 +14,17 @@ export function SlackForm({ config, onConfigChange }: IntegrationFormProps) {
     <div className="space-y-4">
       <FormField
         id="SLACK_CLIENT_ID"
-        label={t('integrations.slack.clientId')}
+        label={t("slack.clientId")}
         value={getValue('slackClientId')}
         onChange={(value) => onConfigChange('slackClientId', value)}
-        placeholder={t('integrations.slack.placeholders.clientId')}
+        placeholder={t("slack.placeholders.clientId")}
       />
       <FormField
         id="SLACK_CLIENT_SECRET"
-        label={t('integrations.slack.clientSecret')}
+        label={t("slack.clientSecret")}
         value={getValue('slackClientSecret')}
         onChange={(value) => onConfigChange('slackClientSecret', value)}
-        placeholder={t('integrations.slack.placeholders.clientSecret')}
+        placeholder={t("slack.placeholders.clientSecret")}
         type="password"
       />
     </div>

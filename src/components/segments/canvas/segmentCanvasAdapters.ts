@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import type { Edge, Node } from '@xyflow/react';
 import type { SegmentNodeUnion } from '@/types/analytics/segments';
 import { minimalSegmentNode } from './segmentCanvasMeta';
@@ -34,7 +35,7 @@ export function flowFromDefinition(
           id: 'everyone',
           type: 'Everyone',
           position: { x: NODE_X, y: NODE_Y_START },
-          data: { label: 'All contacts' },
+          data: { label: i18n.t("segments:createEdit.definition.everyone.label") },
         },
       ],
       edges: [],

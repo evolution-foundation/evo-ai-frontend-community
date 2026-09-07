@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
@@ -254,7 +255,7 @@ export default function SegmentCreateEdit() {
   const formatDate = (dateString?: string) => {
     if (!dateString) return t('createEdit.lastComputedNever');
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('pt-BR', {
+    return new Intl.DateTimeFormat(getFormattingLocale(), {
       dateStyle: 'short',
       timeStyle: 'short',
     }).format(date);

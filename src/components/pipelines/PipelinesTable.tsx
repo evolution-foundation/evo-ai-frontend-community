@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   Eye,
@@ -57,7 +58,7 @@ function wonSummary(pipeline: Pipeline): { count: number; value: number } {
 }
 
 const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
+  new Intl.NumberFormat(getFormattingLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
     value,
   );
 

@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import { Button, Card, CardContent, Badge } from '@evoapi/design-system';
 import {
@@ -210,6 +211,7 @@ const AuthorizationSuccessBanner: React.FC<{
   inbox: any;
   onReauthorize: (provider: string) => void;
 }> = ({ provider, lastConnected, inbox, onReauthorize }) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('channels');
   const config = useGlobalConfig();
   const [isReconnecting, setIsReconnecting] = useState(false);
@@ -315,7 +317,7 @@ const AuthorizationSuccessBanner: React.FC<{
         }, 100);
         setTimeout(() => {
           clearInterval(checkInterval);
-          if (!window.FB) reject(new Error('Facebook SDK failed to load'));
+          if (!window.FB) reject(new Error(tUi("channels:settings.authorizationBanners.success.sdkNotLoaded")));
         }, 10000);
         return;
       }

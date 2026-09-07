@@ -14,12 +14,12 @@ export function AtlassianForm({ config, onConfigChange }: IntegrationFormProps) 
     <div className="space-y-4">
       <FormField
         id="ATLASSIAN_OAUTH_REDIRECT_URI"
-        label={t('integrations.atlassian.redirectUri')}
+        label={t("atlassian.redirectUri")}
         value={getValue('atlassianRedirectUri')}
         onChange={(value) => onConfigChange('atlassianRedirectUri', value)}
-        placeholder={t('integrations.atlassian.placeholders.redirectUri')}
+        placeholder={t("atlassian.placeholders.redirectUri")}
         type="url"
-        description={t('integrations.atlassian.redirectUriDescription')}
+        description={t("atlassian.redirectUriDescription")}
       />
     </div>
   );

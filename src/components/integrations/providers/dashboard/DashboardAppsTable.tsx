@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Monitor, Edit, Trash2, ExternalLink } from 'lucide-react';
 import { DashboardApp } from '@/types/integrations';
@@ -57,7 +58,7 @@ export default function DashboardAppsTable({
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return 'N/A';
 
-      return new Intl.DateTimeFormat('pt-BR', {
+      return new Intl.DateTimeFormat(getFormattingLocale(), {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',

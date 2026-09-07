@@ -1,0 +1,724 @@
+[
+  {
+    "reason": "Developer invariant or low-level exception; the calling UI supplies its localized error message.",
+    "files": {
+      "src/components/channels/FacebookChannelForm.tsx": [
+        "ScriptLoaderError"
+      ],
+      "src/components/channels/settings/AuthorizationBanners.tsx": [
+        "ScriptLoaderError"
+      ],
+      "src/components/chat/messages/MessageImage.tsx": [
+        "fetch failed"
+      ],
+      "src/components/pipelines/PipelineCustomAttributes.tsx": [
+        "pipelineId is required for PipelineCustomAttributes"
+      ],
+      "src/components/pipelines/PipelineItemCustomAttributes.tsx": [
+        "pipelineId, stageId, and itemId are required for PipelineItemCustomAttributes"
+      ],
+      "src/components/pipelines/PipelineStageCustomAttributes.tsx": [
+        "pipelineId and stageId are required for PipelineStageCustomAttributes"
+      ],
+      "src/contexts/AgentFormContext.tsx": [
+        "useAgentForm deve ser usado dentro de um AgentFormProvider"
+      ],
+      "src/contexts/AuthContext.tsx": [
+        "useAuth must be used within an AuthProvider"
+      ],
+      "src/contexts/NotificationsContext.tsx": [
+        "useNotifications must be used within a NotificationsProvider"
+      ],
+      "src/contexts/PermissionsContext.tsx": [
+        "usePermissions must be used within a PermissionsProvider"
+      ],
+      "src/contexts/agents/AgentChatContext.tsx": [
+        "useAgentChat must be used within AgentChatProvider"
+      ],
+      "src/contexts/chat/ChatContext.tsx": [
+        "useChatContext must be used within a ChatProvider"
+      ],
+      "src/contexts/chat/FiltersContext.tsx": [
+        "useFilters must be used within a FiltersProvider"
+      ],
+      "src/contexts/chat/MessagesContext.tsx": [
+        "useMessages must be used within a MessagesProvider"
+      ],
+      "src/contexts/chat/UIContext.tsx": [
+        "useUI must be used within a UIProvider"
+      ],
+      "src/contexts/chat/WebSocketContext.tsx": [
+        "useWebSocketContext must be used within a WebSocketProvider"
+      ],
+      "src/hooks/chat/useConversations.ts": [
+        "useConversations must be used within a ConversationsProvider"
+      ],
+      "src/hooks/useAgentForm.ts": [
+        "useAgentForm deve ser usado dentro de um AgentFormProvider"
+      ],
+      "src/hooks/useDarkMode.ts": [
+        "useDarkMode deve ser usado dentro de um DarkModeProvider"
+      ],
+      "src/hooks/useFacebookSdk.ts": [
+        "SDK requires a browser"
+      ],
+      "src/pages/Customer/Chat/Chat.tsx": [
+        "Invalid label payload returned from API"
+      ],
+      "src/plugin-host/registry.ts": [
+        "[plugin-host] registerPlugin requires a manifest with a non-empty id"
+      ],
+      "src/services/auth/authService.ts": [
+        "Invalid user data received from token validation"
+      ],
+      "src/utils/cropImage.ts": [
+        "Canvas context unavailable",
+        "Failed to create blob"
+      ]
+    }
+  },
+  {
+    "reason": "Explicit Portuguese side of the bilingual event catalog; getEventLabel selects the requested locale.",
+    "files": {
+      "src/lib/events-manifest/catalog.ts": [
+        "Atividade na conversa",
+        "Atributo customizado alterado",
+        "Campanha disparada",
+        "Compra aprovada",
+        "Contato atualizado",
+        "Contato criado",
+        "Contato deletado",
+        "Conversa criada",
+        "Conversa resolvida",
+        "Conversa resolvida pelo bot",
+        "Conversa transferida do bot",
+        "Etiqueta adicionada ao contato",
+        "Etiqueta removida do contato",
+        "Evento personalizado",
+        "Link da campanha clicado",
+        "Mensagem criada",
+        "Mensagem da campanha aberta",
+        "Mensagem da campanha enviada",
+        "Mensagem entregue",
+        "Mensagem falhou",
+        "Mensagem lida",
+        "Primeira resposta da conversa",
+        "Tempo de resposta da conversa"
+      ]
+    }
+  },
+  {
+    "reason": "Fixed protocol token, developer identifier, or technical label.",
+    "files": {
+      "src/components/AccessTokens/ViewTokenModal.tsx": [
+        "Authorization: Bearer"
+      ],
+      "src/components/agents/AgentsTable.tsx": [
+        "flex-[1.6] min-w-0"
+      ],
+      "src/components/agents/providerConfigs/OpenAIConfigForm.tsx": [
+        "gpt-4"
+      ],
+      "src/components/channels/forms/whatsapp/EvolutionForm.tsx": [
+        "HTTP",
+        "HTTPS",
+        "SOCKS4",
+        "SOCKS5"
+      ],
+      "src/components/channels/settings/ConfigurationForm.tsx": [
+        "QR Code",
+        "ALL"
+      ],
+      "src/components/channels/settings/WidgetBuilderForm.tsx": [
+        "SDK Bubble"
+      ],
+      "src/components/journey/environment-manager/EnvironmentManager.tsx": [
+        "ENV"
+      ],
+      "src/components/journey/nodes/actions/scheduled-action/ScheduledActionPanel.tsx": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "src/components/journey/nodes/trigger/components/WebhookConfiguration.tsx": [
+        "POST",
+        ": POST"
+      ],
+      "src/components/scheduledActions/ScheduleActionModal.tsx": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "src/hooks/useAgentTypes.ts": [
+        "LLM",
+        "A2A"
+      ],
+      "src/pages/Admin/Settings/SmtpConfig.tsx": [
+        "plain",
+        "login",
+        "cram_md5",
+        "none",
+        "peer"
+      ],
+      "src/pages/Customer/Automation/registries/actionRegistry.ts": [
+        "invalid_id"
+      ],
+      "src/pages/Customer/Automation/registries/index.ts": [
+        "attribute_changed_requires_from_to",
+        "values_must_be_array_for_this_operator"
+      ],
+      "src/types/core/filters.ts": [
+        "SSE",
+        "OAuth",
+        "Webhook",
+        "Basic Auth",
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH",
+        "HEAD",
+        "OPTIONS"
+      ],
+      "src/utils/products/bulkImport.ts": [
+        "invalid_number",
+        "required",
+        "too_long",
+        "invalid_kind",
+        "invalid_status",
+        "invalid_currency",
+        "must_be_non_negative",
+        "must_be_integer",
+        "invalid_url",
+        "duplicated_within_batch",
+        "name",
+        "description"
+      ]
+    }
+  },
+  {
+    "reason": "Internal IDs, stored values, or multilingual search tokens; changing them would change behavior.",
+    "files": {
+      "src/components/agents/chat/AgentChatMessageList.tsx": [
+        "teste"
+      ],
+      "src/components/base/BaseFlowEditor.tsx": [
+        "todos"
+      ],
+      "src/components/base/BaseNodePanel.tsx": [
+        "todos"
+      ],
+      "src/components/chat/message-input/ComposerPlusMenu.tsx": [
+        "notas",
+        "agendar"
+      ],
+      "src/pages/ChangePassword/ChangePassword.tsx": [
+        "teste1"
+      ],
+      "src/pages/Customer/Journey/JourneyFlowEditor.tsx": [
+        "etiqueta",
+        "todo"
+      ],
+      "src/pages/Shared/Profile/Profile.tsx": [
+        "dados",
+        "senha-atual",
+        "nova-senha",
+        "confirmar-senha"
+      ]
+    }
+  },
+  {
+    "reason": "Language autonyms are intentionally displayed in their own language.",
+    "files": {
+      "src/components/channels/settings/TemplateFormModal.tsx": [
+        "Português (BR)",
+        "English (US)",
+        "Español"
+      ],
+      "src/components/channels/settings/WebWidgetAdvancedForm.tsx": [
+        "English",
+        "Português (Brasil)",
+        "Português",
+        "Español",
+        "Français",
+        "Italiano"
+      ],
+      "src/pages/Customer/Settings/Account/AccountSettings.tsx": [
+        "Français (fr)",
+        "Português (pt)",
+        "Português Brasileiro (pt-BR)"
+      ],
+      "src/pages/Customer/Settings/EmailTemplateEditor/EmailTemplateEditor.tsx": [
+        "Português (BR)",
+        "English (US)",
+        "Español"
+      ]
+    }
+  },
+  {
+    "reason": "Legacy message matching tokens, not display text.",
+    "files": {
+      "src/components/chat/messages/SystemMessage.tsx": [
+        "resolvida",
+        "pendente",
+        "atribuída",
+        "etiqueta",
+        "avaliação",
+        "configuração",
+        "automação",
+        "agendada",
+        "nota",
+        "permissão"
+      ],
+      "src/contexts/chat/MessagesContext.tsx": [
+        "arquivo"
+      ]
+    }
+  },
+  {
+    "reason": "Literal URL, color, template syntax, or credential-format example.",
+    "files": {
+      "src/components/agents/providerConfigs/DifyConfigForm.tsx": [
+        "https://api.dify.ai/v1",
+        "app-..."
+      ],
+      "src/components/agents/providerConfigs/FlowiseConfigForm.tsx": [
+        "https://flowise.example.com/api/v1/prediction/{chatflowId}",
+        "sk-..."
+      ],
+      "src/components/agents/providerConfigs/N8NConfigForm.tsx": [
+        "https://n8n.example.com/webhook/..."
+      ],
+      "src/components/agents/providerConfigs/OpenAIConfigForm.tsx": [
+        "sk-...",
+        "asst_..."
+      ],
+      "src/components/agents/providerConfigs/TypebotConfigForm.tsx": [
+        "https://typebot.example.com"
+      ],
+      "src/components/cannedResponses/CannedResponseModal.tsx": [
+        "{{contact.name}}",
+        "{{agent.name}}",
+        "{{conversation.id}}",
+        "{{account.name}}"
+      ],
+      "src/components/channels/TelegramForm.tsx": [
+        "/api/v1/webhooks/telegram"
+      ],
+      "src/components/channels/settings/BasicSettingsForm.tsx": [
+        "#009CE0"
+      ],
+      "src/components/chatPages/ChatPageModal.tsx": [
+        "#1f93ff",
+        "https://…"
+      ],
+      "src/components/crmForms/CrmFormModal.tsx": [
+        "#1E40AF",
+        "https://…"
+      ],
+      "src/components/integrations/KnowledgeNexusConfigDialog.tsx": [
+        "https://nexus.suaempresa.com"
+      ],
+      "src/components/integrations/forms/GoogleCalendarForm.tsx": [
+        "xxx.apps.googleusercontent.com",
+        "GOCSPX-xxx",
+        "https://your-domain.com/google-calendar/callback"
+      ],
+      "src/components/integrations/forms/GoogleOAuthForm.tsx": [
+        "xxx.apps.googleusercontent.com",
+        "GOCSPX-xxx",
+        "gmail-topic"
+      ],
+      "src/components/integrations/forms/GoogleSheetsForm.tsx": [
+        "xxx.apps.googleusercontent.com",
+        "GOCSPX-xxx",
+        "https://your-domain.com/google-sheets/callback"
+      ],
+      "src/components/shared/TaxIdInput.tsx": [
+        "AAAA000000AAA",
+        "AAA000000AAA"
+      ],
+      "src/pages/Customer/Settings/AiCredentials/AiCredentials.tsx": [
+        "https://api.example.com/v1"
+      ],
+      "src/pages/Customer/Settings/ChatPages/ChatPages.tsx": [
+        "/chat/"
+      ],
+      "src/pages/Customer/Settings/CrmForms/CrmForms.tsx": [
+        "/f/"
+      ]
+    }
+  },
+  {
+    "reason": "Provider, product, or model name.",
+    "files": {
+      "src/components/agents/ProviderSelector.tsx": [
+        "Flowise",
+        "N8N",
+        "Typebot",
+        "Dify",
+        "OpenAI"
+      ],
+      "src/components/ai_agents/ModelSelector.tsx": [
+        "GPT-5.6",
+        "GPT-5.6 Terra",
+        "GPT-5.6 Luna",
+        "Gemini Flash (latest)",
+        "Gemini Flash-Lite (latest)",
+        "Gemini Pro (latest)",
+        "Claude Opus 5",
+        "Claude Sonnet 5",
+        "Claude Haiku 4.5",
+        "Claude Opus 5 (OpenRouter)",
+        "GPT-5.6 Sol (OpenRouter)",
+        "Gemini 3.7 Flash (OpenRouter)",
+        "DeepSeek V4 Pro",
+        "DeepSeek V4 Flash",
+        "DeepSeek V4 Pro (Fireworks)",
+        "GPT-OSS 120B (Fireworks)",
+        "Kimi K3 (Fireworks)",
+        "DeepSeek V4 Flash (Together)",
+        "Llama 3.3 70B Instruct Turbo",
+        "Qwen 3.5 9B",
+        "Sonar Pro",
+        "Sonar",
+        "Sonar Reasoning Pro",
+        "Sonar Deep Research",
+        "Claude Opus 5 (Bedrock)",
+        "Claude Sonnet 5 (Bedrock)",
+        "Claude Sonnet 4.5 (Bedrock)",
+        "Llama 3.1 70B (Bedrock)",
+        "DeepSeek R1 (Bedrock)",
+        "Mistral 7B (Bedrock)",
+        "bedrock/amazon.nova-micro-v1:0",
+        "Amazon Nova Micro (Bedrock)",
+        "Gemini 3.7 Flash (Vertex)",
+        "Gemini 3.1 Flash-Lite (Vertex)",
+        "Gemini 2.5 Pro (Vertex)"
+      ],
+      "src/components/integrations/CanvaConfigDialog.tsx": [
+        "Canva"
+      ],
+      "src/components/integrations/MondayConfigDialog.tsx": [
+        "Monday"
+      ],
+      "src/constants/aiProviders.ts": [
+        "OpenAI",
+        "Anthropic",
+        "Google Gemini",
+        "Azure OpenAI",
+        "Groq",
+        "Mistral AI",
+        "Cohere",
+        "OpenRouter",
+        "DeepSeek",
+        "Together AI",
+        "Fireworks AI",
+        "Perplexity",
+        "AWS Bedrock",
+        "Google Vertex AI"
+      ],
+      "src/pages/GoogleCallback.tsx": [
+        "Gmail"
+      ],
+      "src/pages/InstagramCallback.tsx": [
+        "Instagram"
+      ],
+      "src/pages/MicrosoftCallback.tsx": [
+        "Outlook"
+      ],
+      "src/pages/Setup/OnboardingPage.tsx": [
+        "Evo CRM"
+      ]
+    }
+  },
+  {
+    "reason": "Shared unit, symbol, keyboard key, acronym, or term spelled identically in English and Portuguese.",
+    "files": {
+      "src/components/AccessTokens/AccessTokensTable.tsx": [
+        "ID:"
+      ],
+      "src/components/ai_agents/Dialogs/CustomMCPDialog.tsx": [
+        "s"
+      ],
+      "src/components/ai_agents/Dialogs/ToolsDialog.tsx": [
+        "×"
+      ],
+      "src/components/ai_agents/shared/TestRequestButton.tsx": [
+        "ms"
+      ],
+      "src/components/channels/FacebookChannelForm.tsx": [
+        "ID:"
+      ],
+      "src/components/channels/settings/BusinessDay.tsx": [
+        "h"
+      ],
+      "src/components/channels/settings/widget/WidgetFooter.tsx": [
+        "C"
+      ],
+      "src/components/chat/canned-responses/CannedResponsesList.tsx": [
+        "Enter",
+        "Esc"
+      ],
+      "src/components/chat/messages/MessageLocation.tsx": [
+        "E"
+      ],
+      "src/components/chat/messages/MessageVideo.tsx": [
+        "KB"
+      ],
+      "src/components/customMcpServers/CustomMCPServerDetails.tsx": [
+        "s"
+      ],
+      "src/components/customMcpServers/CustomMCPServersTable.tsx": [
+        "s"
+      ],
+      "src/components/journey/nodes/actions/send-webhook/SendWebhookPanel.tsx": [
+        "ms"
+      ],
+      "src/components/journey/nodes/trigger/components/WebhookConfiguration.tsx": [
+        "×"
+      ],
+      "src/components/pipelines/PipelineItemProductsPanel.tsx": [
+        "×"
+      ],
+      "src/components/pipelines/PipelinesTable.tsx": [
+        "R$",
+        "R$ 0,00"
+      ],
+      "src/components/scheduledActions/ScheduleActionModal.tsx": [
+        "×"
+      ],
+      "src/components/segments/SegmentsTable.tsx": [
+        "ID:"
+      ],
+      "src/components/shared/attachments/SharedAudioBubble.tsx": [
+        "KB"
+      ],
+      "src/components/shared/attachments/SharedImageBubble.tsx": [
+        "KB"
+      ],
+      "src/components/widget/Header.tsx": [
+        "E"
+      ],
+      "src/hooks/useUserAvailability.ts": [
+        "Online",
+        "Offline"
+      ],
+      "src/pages/Customer/Agents/Agent/sections/ContactEditRules.tsx": [
+        "CPF/CNPJ"
+      ],
+      "src/pages/Customer/Campaigns/NewCampaign/wizard/Step4_Settings.tsx": [
+        "Total"
+      ],
+      "src/pages/Customer/Campaigns/NewCampaign/wizard/Step5_Review.tsx": [
+        "h"
+      ],
+      "src/pages/Customer/Dashboard/components/DashboardPerformanceSection.tsx": [
+        "total"
+      ],
+      "src/pages/Customer/Pipelines/PipelineKanban.tsx": [
+        "R$"
+      ],
+      "src/pages/Customer/Settings/Account/AccountSettings.tsx": [
+        "v"
+      ],
+      "src/pages/OAuth/OAuthLogin.tsx": [
+        "ID:"
+      ],
+      "src/pages/Shared/Marketplace/Marketplace.tsx": [
+        "v"
+      ],
+      "src/pages/Shared/Profile/Profile.tsx": [
+        "Enter",
+        "+ Enter ("
+      ],
+      "src/tours/JoyrideTooltip.tsx": [
+        "×"
+      ],
+      "src/types/settings/customAttributes.ts": [
+        "Pipeline"
+      ],
+      "src/types/users/users-filters.ts": [
+        "Online",
+        "Offline"
+      ],
+      "src/utils/validation.ts": [
+        "CPF",
+        "CNPJ"
+      ]
+    }
+  },
+  {
+    "reason": "Time zone identifier or city name.",
+    "files": {
+      "src/components/agents/configuration/BehaviorPanel.tsx": [
+        "America/Sao_Paulo (GMT-3)",
+        "America/New_York (GMT-5)",
+        "Europe/London (GMT+0)",
+        "Europe/Paris (GMT+1)",
+        "Asia/Tokyo (GMT+9)",
+        "UTC (GMT+0)"
+      ],
+      "src/components/channels/settings/helpers/businessHours.ts": [
+        "America/Rio_Branco"
+      ],
+      "src/components/integrations/providers/leadsquared/LeadSquaredModal.tsx": [
+        "São Paulo (GMT-3)",
+        "New York (GMT-5)",
+        "Dubai (GMT+4)",
+        "Mumbai (GMT+5:30)"
+      ]
+    }
+  },
+  {
+    "reason": "Translation key consumed by the filter renderer, not literal display text.",
+    "files": {
+      "src/types/core/filters.ts": [
+        "filter.operators.equal_to",
+        "filter.operators.not_equal_to",
+        "filter.operators.contains",
+        "filter.operators.does_not_contain",
+        "filter.operators.is_present",
+        "filter.operators.is_not_present",
+        "filter.options.blocked.true",
+        "filter.options.blocked.false",
+        "conversationsFilter.operators.equal_to",
+        "conversationsFilter.options.status.all",
+        "conversationsFilter.options.status.open",
+        "conversationsFilter.options.status.resolved",
+        "conversationsFilter.options.status.pending",
+        "conversationsFilter.options.status.snoozed",
+        "conversationsFilter.options.assignee_type.me",
+        "conversationsFilter.options.assignee_type.assigned",
+        "conversationsFilter.options.assignee_type.unassigned",
+        "conversationsFilter.options.assignee_type.all",
+        "conversationsFilter.options.channel_type.whatsapp",
+        "conversationsFilter.options.channel_type.email",
+        "conversationsFilter.options.channel_type.web_widget",
+        "conversationsFilter.options.channel_type.facebook",
+        "conversationsFilter.options.channel_type.instagram",
+        "conversationsFilter.options.channel_type.telegram",
+        "conversationsFilter.options.channel_type.line",
+        "conversationsFilter.options.channel_type.api",
+        "conversationsFilter.options.channel_type.sms",
+        "conversationsFilter.options.channel_type.twilio",
+        "conversationsFilter.options.channel_type.twitter",
+        "conversationsFilter.operators.contains",
+        "conversationsFilter.operators.not_equal_to",
+        "conversationsFilter.operators.is_present",
+        "conversationsFilter.operators.is_not_present",
+        "conversationsFilter.operators.is_greater_than",
+        "conversationsFilter.operators.is_less_than",
+        "conversationsFilter.operators.days_before",
+        "conversationsFilter.options.priority.low",
+        "conversationsFilter.options.priority.medium",
+        "conversationsFilter.options.priority.high",
+        "conversationsFilter.options.priority.urgent"
+      ]
+    }
+  },
+  {
+    "reason": "Reviewed literal template syntax, protocol identifiers, initials, physical key names, and technical terms shared by English and Portuguese.",
+    "files": {
+      "src/components/agents/AgentCard.tsx": [
+        "N/A"
+      ],
+      "src/components/ai_agents/ModelSelector.tsx": [
+        "model",
+        "provider/model"
+      ],
+      "src/components/channels/EmailForm.tsx": [
+        "Gmail",
+        "Outlook",
+        "Email IMAP"
+      ],
+      "src/components/channels/settings/WidgetBuilderForm.tsx": [
+        "<iframe ...></iframe>"
+      ],
+      "src/components/channels/settings/widget/WidgetHead.tsx": [
+        "W"
+      ],
+      "src/components/channels/settings/widget/WidgetPreview.tsx": [
+        "Chat"
+      ],
+      "src/components/chat/messages/MessageList.tsx": [
+        "U"
+      ],
+      "src/components/chat/messages/PostPreview.tsx": [
+        "F"
+      ],
+      "src/components/integrations/KnowledgeNexusConfigDialog.tsx": [
+        "evo_k_..."
+      ],
+      "src/components/integrations/providers/dashboard/DashboardAppsTable.tsx": [
+        "N/A"
+      ],
+      "src/components/journey/nodes/actions/assign-bot/AssignBotPanel.tsx": [
+        "webhook"
+      ],
+      "src/components/journey/nodes/actions/send-webhook/SendWebhookNode.tsx": [
+        "POST"
+      ],
+      "src/components/journey/nodes/actions/send-webhook/components/WebhookBodyConfig.tsx": [
+        "{{contact.id}}",
+        "{{contact.name}}",
+        "{{contact.email}}",
+        "{{contact.phone}}",
+        "{{journey.id}}",
+        "{{journey.name}}",
+        "{{now}}",
+        "{{timestamp}}"
+      ],
+      "src/components/journey/nodes/trigger/components/WebhookConfiguration.tsx": [
+        "http://localhost:3000"
+      ],
+      "src/components/mcpServers/MCPServerCard.tsx": [
+        "N/A"
+      ],
+      "src/components/mcpServers/MCPServerDetails.tsx": [
+        "N/A"
+      ],
+      "src/components/mcpServers/MCPServersTable.tsx": [
+        "N/A"
+      ],
+      "src/components/pipelines/AddItemModal.tsx": [
+        "U"
+      ],
+      "src/components/pipelines/EditItemModal.tsx": [
+        "U"
+      ],
+      "src/components/pipelines/PipelineItemCard.tsx": [
+        "U"
+      ],
+      "src/pages/Admin/McpServers/McpServers.tsx": [
+        "N/A"
+      ],
+      "src/pages/Admin/Settings/EvolutionHubConfig.tsx": [
+        "evh_pk_..."
+      ],
+      "src/pages/Customer/Campaigns/NewCampaign/wizard/Step5_Review.tsx": [
+        "N/A",
+        "Manual"
+      ],
+      "src/pages/Customer/Pipelines/PipelineKanban.tsx": [
+        "U"
+      ],
+      "src/pages/Shared/Profile/Profile.tsx": [
+        "Ctrl"
+      ]
+    }
+  },
+  {
+    "reason": "Provider preset names from the model catalog remain recognizable as advertised.",
+    "files": {
+      "src/components/ai_agents/ModelSelector.tsx": [
+        "Pro Search",
+        "Deep Research",
+        "Advanced Deep Research",
+        "Fast Search"
+      ]
+    }
+  }
+]

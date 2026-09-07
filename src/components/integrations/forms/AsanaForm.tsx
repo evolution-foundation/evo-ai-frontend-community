@@ -14,12 +14,12 @@ export function AsanaForm({ config, onConfigChange }: IntegrationFormProps) {
     <div className="space-y-4">
       <FormField
         id="ASANA_OAUTH_REDIRECT_URI"
-        label={t('integrations.asana.redirectUri')}
+        label={t("asana.redirectUri")}
         value={getValue('asanaRedirectUri')}
         onChange={(value) => onConfigChange('asanaRedirectUri', value)}
-        placeholder={t('integrations.asana.placeholders.redirectUri')}
+        placeholder={t("asana.placeholders.redirectUri")}
         type="url"
-        description={t('integrations.asana.redirectUriDescription')}
+        description={t("asana.redirectUriDescription")}
       />
     </div>
   );

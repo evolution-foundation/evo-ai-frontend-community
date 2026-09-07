@@ -21,18 +21,18 @@ const AssigneeFilter: React.FC<AssigneeFilterProps> = ({
   const ASSIGNEE_OPTIONS = [
     {
       value: 'all',
-      label: t('filters.assignee.options.all.label'),
-      description: t('filters.assignee.options.all.description'),
+      label: t("contactSidebar.filters.assignee.options.all.label"),
+      description: t("contactSidebar.filters.assignee.options.all.description"),
     },
     {
       value: 'me',
-      label: t('filters.assignee.options.me.label'),
-      description: t('filters.assignee.options.me.description'),
+      label: t("contactSidebar.filters.assignee.options.me.label"),
+      description: t("contactSidebar.filters.assignee.options.me.description"),
     },
     {
       value: 'unassigned',
-      label: t('filters.assignee.options.unassigned.label'),
-      description: t('filters.assignee.options.unassigned.description'),
+      label: t("contactSidebar.filters.assignee.options.unassigned.label"),
+      description: t("contactSidebar.filters.assignee.options.unassigned.description"),
     },
   ];
 
@@ -80,7 +80,7 @@ const AssigneeFilter: React.FC<AssigneeFilterProps> = ({
       <PopoverContent className="w-56 p-2" align="start">
         <div className="space-y-1">
           <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-            {t('filters.assignee.title')}
+            {t("contactSidebar.filters.assignee.title")}
           </div>
           {ASSIGNEE_OPTIONS.map(option => (
             <button
@@ -105,7 +105,7 @@ const AssigneeFilter: React.FC<AssigneeFilterProps> = ({
               onClick={() => handleAssigneeChange('all')}
               className="w-full text-xs text-muted-foreground hover:text-foreground px-2 py-1 text-left cursor-pointer"
             >
-              {t('filters.assignee.showAll')}
+              {t("contactSidebar.filters.assignee.showAll")}
             </button>
           </div>
         )}

@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { getContactColor } from '@/utils/avatar';
 import { pipelineDeleteErrorKey } from '@/utils/pipelineDeleteError';
@@ -506,7 +507,7 @@ export default function PipelineKanban() {
 
   // Format currency
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
+    return new Intl.NumberFormat(getFormattingLocale(), {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(value);
@@ -1400,7 +1401,7 @@ export default function PipelineKanban() {
                                     typeof item.conversation.last_non_activity_message.created_at === 'number'
                                       ? item.conversation.last_non_activity_message.created_at * 1000
                                       : item.conversation.last_non_activity_message.created_at,
-                                  ).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                  ).toLocaleString(getFormattingLocale(), { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                 </span>
                               </div>
                               <p
@@ -1454,8 +1455,8 @@ export default function PipelineKanban() {
                             <span className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               {item.conversation?.last_activity_at
-                                ? new Date(item.conversation.last_activity_at * 1000).toLocaleDateString('pt-BR')
-                                : new Date((item.entered_at || 0) * 1000).toLocaleDateString('pt-BR')}
+                                ? new Date(item.conversation.last_activity_at * 1000).toLocaleDateString(getFormattingLocale())
+                                : new Date((item.entered_at || 0) * 1000).toLocaleDateString(getFormattingLocale())}
                             </span>
                             {item.conversation?.assignee && (
                               <span className="flex items-center gap-1 min-w-0">

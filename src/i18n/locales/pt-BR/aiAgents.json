@@ -98,7 +98,8 @@
     "maxTokens": "Tokens Máximos",
     "topP": "Top P",
     "frequencyPenalty": "Penalidade de Frequência",
-    "presencePenalty": "Penalidade de Presença"
+    "presencePenalty": "Penalidade de Presença",
+    "loadingModels": "Carregando modelos…"
   },
   "a2aConfig": {
     "title": "Configuração Agent-to-Agent",
@@ -114,7 +115,22 @@
     "timeout": "Timeout (segundos)",
     "retries": "Tentativas",
     "headers": "Cabeçalhos HTTP",
-    "addHeader": "Adicionar Cabeçalho"
+    "addHeader": "Adicionar Cabeçalho",
+    "externalSharingTitle": "Compartilhamento externo",
+    "externalSharingDescription": "Configure o compartilhamento externo do agente A2A",
+    "publishState": {
+      "draft": "Rascunho",
+      "published": "Publicado",
+      "archived": "Arquivado"
+    },
+    "publishStateDescription": "O estado de publicação controla a disponibilidade externa do agente",
+    "callbackUrl": "URL de callback",
+    "callbackUrlPlaceholder": "https://exemplo.com/callback",
+    "callbackUrlDescription": "URL HTTPS para receber notificações de eventos do agente",
+    "allowlist": "Lista de permissões",
+    "allowlistPlaceholder": "exemplo.com ou 192.168.1.1",
+    "allowlistDescription": "Domínios ou IPs permitidos para acessar o agente externamente",
+    "publishStateLabel": "Estado de publicação"
   },
   "advancedBot": {
     "title": "Configurações Avançadas",
@@ -235,7 +251,8 @@
       "subtitle": "Outros agentes que podem ser invocados como ferramentas",
       "selectAgents": "Selecionar Agentes",
       "noAgents": "Nenhum agente selecionado",
-      "addAgent": "Adicionar Agente"
+      "addAgent": "Adicionar Agente",
+      "description": "Escolha as ferramentas que este agente pode usar"
     },
     "mcpServers": {
       "title": "Servidores MCP",
@@ -402,7 +419,8 @@
       "variables": "variáveis",
       "enterValue": "Insira o valor para {{key}}",
       "availableTools": "Ferramentas disponíveis",
-      "skip": "Pular"
+      "skip": "Pular",
+      "selectedCount": "{{selected}} de {{total}} ferramentas selecionadas"
     },
     "customMcp": {
       "title": "Selecionar MCPs Personalizados",
@@ -502,7 +520,10 @@
     "minValue": "Valor mínimo é {{min}}",
     "maxValue": "Valor máximo é {{max}}",
     "required": "Este campo é obrigatório",
-    "invalidApiKey": "Chave API inválida"
+    "invalidApiKey": "Chave API inválida",
+    "httpsRequired": "A URL de callback deve usar HTTPS",
+    "allowlistRequired": "Adicione pelo menos uma entrada à lista de permissões para compartilhar externamente",
+    "instructionMinLength": "As instruções devem ter pelo menos {{min}} caracteres"
   },
   "messages": {
     "saveSuccess": "Agente salvo com sucesso",
@@ -524,7 +545,9 @@
     "createError": "Erro ao criar agente",
     "providerRequired": "Provider é obrigatório para agentes external",
     "providerConfigError": "Erro ao salvar configuração do provider. Você pode configurar depois na página de edição.",
-    "loadAgentTypesError": "Erro ao carregar tipos de agente"
+    "loadAgentTypesError": "Erro ao carregar tipos de agente",
+    "apiKeysError": "Não foi possível carregar as chaves de API",
+    "createSuccess": "Agente criado com sucesso"
   },
   "edit": {
     "menu": {
@@ -1606,5 +1629,8 @@
     "title": "MCPs Personalizados",
     "subtitle": "Adicione servidores MCP personalizados criados por você",
     "add": "Adicionar Custom MCP"
+  },
+  "loading": {
+    "creating": "Criando agente…"
   }
 }

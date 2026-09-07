@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import { usePermissions } from '@/contexts/PermissionsContext';
 import { Edit, Trash2 } from 'lucide-react';
@@ -124,7 +125,7 @@ export default function CustomAttributesTable({
       sortable: true,
       render: (attribute: CustomAttributeDefinition) => (
         <div className="text-sm text-muted-foreground">
-          {new Date(attribute.created_at).toLocaleDateString('pt-BR')}
+          {new Date(attribute.created_at).toLocaleDateString(getFormattingLocale())}
         </div>
       ),
     },

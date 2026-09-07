@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Audit translation references and UI strings
+        run: npm run i18n:audit
+
       - name: Typecheck
         run: npx tsc -b
 
@@ -187,7 +190,11 @@ jobs:
             src/components/layout/config/menuItems.spec.ts \
             src/components/macros/MacroActionRow.spec.tsx \
             src/pages/Setup/Setup.spec.tsx \
+            src/pages/EmailCallbacks.spec.tsx \
+            src/pages/Admin/Settings/EvolutionHubConfig.spec.tsx \
+            src/i18n/locales/customer-dashboard-english.spec.ts \
             src/i18n/locales/_lib/parity.spec.ts \
+            src/i18n/english-ui.spec.tsx \
             src/i18n/locales/i18n-parity.spec.ts \
             src/i18n/locales/macros-parity.spec.ts \
             src/services/contacts/contactsService.createContact.spec.ts \

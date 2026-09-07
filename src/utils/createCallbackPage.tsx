@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import CallbackPage from '@/components/integrations/CallbackPage';
 
 interface IntegrationService {
@@ -24,13 +25,14 @@ interface CallbackConfig {
  */
 export function createCallbackPage({ integrationName, service, iconPath, iconPathDark, integrationId, onSuccess, redirectPath }: CallbackConfig) {
   function CallbackComponent() {
+  const { t: tUi } = useUiTranslation();
     return (
       <CallbackPage
         integrationName={integrationName}
         onCallback={async (code, state, agentId) => {
           // MCP integrations require agentId
           if (!agentId) {
-            throw new Error('Agent ID is required for MCP integrations');
+            throw new Error(tUi("interface:createcallbackpage.agentIdIsRequiredForMcpIntegrations"));
           }
           return await service.completeAuthorization(agentId, code, state);
         }}

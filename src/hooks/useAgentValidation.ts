@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { AgentCreate } from '@/types/agents';
 
@@ -8,36 +9,37 @@ interface ValidationRule {
 }
 
 export const useAgentValidation = (data: Partial<AgentCreate>) => {
+  const { t: tUi } = useUiTranslation();
   // Regras de validação
   const validationRules: ValidationRule[] = useMemo(
     () => [
       {
         field: 'name',
-        message: 'Nome é obrigatório',
+        message: tUi("api:validation.nameRequired"),
         validate: data => !!data.name?.trim(),
       },
       {
         field: 'description',
-        message: 'Descrição é obrigatória',
+        message: tUi("aiAgents:validation.descriptionRequired"),
         validate: data => !!data.description?.trim(),
       },
       {
         field: 'type',
-        message: 'Tipo do agente é obrigatório',
+        message: tUi("interface:useagentvalidation.agentTypeIsRequired"),
         validate: data => !!data.type,
       },
       {
         field: 'model',
-        message: 'Modelo é obrigatório para agentes LLM',
+        message: tUi("interface:useagentvalidation.aModelIsRequiredForLlmAgents"),
         validate: data => data.type !== 'llm' || !!data.model?.trim(),
       },
       {
         field: 'client_id',
-        message: 'Client ID é obrigatório',
+        message: tUi("interface:useagentvalidation.clientIdIsRequired"),
         validate: data => !!data.client_id,
       },
     ],
-    [],
+    [tUi],
   );
 
   // Validação específica por tipo de agente
@@ -46,61 +48,61 @@ export const useAgentValidation = (data: Partial<AgentCreate>) => {
       llm: [
         {
           field: 'model',
-          message: 'Modelo é obrigatório para agentes LLM',
+          message: tUi("interface:useagentvalidation.aModelIsRequiredForLlmAgents"),
           validate: data => !!data.model?.trim(),
         },
       ],
       a2a: [
         {
           field: 'instruction',
-          message: 'Instrução é recomendada para agentes A2A',
+          message: tUi("interface:useagentvalidation.instructionsAreRecommendedForA2aAgents"),
           validate: data => !!data.instruction?.trim(),
         },
       ],
       sequential: [
         {
           field: 'config.sub_agents',
-          message: 'Pelo menos um sub-agente é necessário',
+          message: tUi("interface:useagentvalidation.atLeastOneSubAgentIsRequired"),
           validate: data => !!data.config?.sub_agents && data.config.sub_agents.length > 0,
         },
       ],
       parallel: [
         {
           field: 'config.sub_agents',
-          message: 'Pelo menos um sub-agente é necessário',
+          message: tUi("interface:useagentvalidation.atLeastOneSubAgentIsRequired"),
           validate: data => !!data.config?.sub_agents && data.config.sub_agents.length > 0,
         },
       ],
       loop: [
         {
           field: 'config.sub_agents',
-          message: 'Pelo menos um sub-agente é necessário',
+          message: tUi("interface:useagentvalidation.atLeastOneSubAgentIsRequired"),
           validate: data => !!data.config?.sub_agents && data.config.sub_agents.length > 0,
         },
         {
           field: 'config.max_iterations',
-          message: 'Número máximo de iterações deve ser maior que 0',
+          message: tUi("interface:useagentvalidation.maximumIterationsMustBeGreaterThan0"),
           validate: data => !data.config?.max_iterations || data.config.max_iterations > 0,
         },
       ],
       workflow: [
         {
           field: 'config.workflow',
-          message: 'Configuração de workflow é necessária',
+          message: tUi("interface:useagentvalidation.workflowConfigurationIsRequired"),
           validate: data => !!data.config?.workflow,
         },
       ],
       task: [
         {
           field: 'config.tasks',
-          message: 'Pelo menos uma tarefa deve ser configurada',
+          message: tUi("interface:useagentvalidation.atLeastOneTaskMustBeConfigured"),
           validate: data => !!data.config?.tasks && data.config.tasks.length > 0,
         },
       ],
     };
 
     return data.type ? rules[data.type] || [] : [];
-  }, [data.type]);
+  }, [data.type, tUi]);
 
   // Executar validações
   const errors = useMemo(() => {

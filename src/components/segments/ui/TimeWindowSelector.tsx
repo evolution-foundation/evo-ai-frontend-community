@@ -36,7 +36,7 @@ export default function TimeWindowSelector({
       <div className="flex items-center justify-between">
         <Label className="text-sm font-medium flex items-center gap-2">
           <Clock className="w-4 h-4" />
-          {t('timeWindow.title')}
+          {t("conditionEditor.timeWindow")}
         </Label>
         <button
           type="button"
@@ -66,11 +66,11 @@ export default function TimeWindowSelector({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="minutes">{t('timeWindow.units.minutes')}</SelectItem>
-              <SelectItem value="hours">{t('timeWindow.units.hours')}</SelectItem>
-              <SelectItem value="days">{t('timeWindow.units.days')}</SelectItem>
-              <SelectItem value="weeks">{t('timeWindow.units.weeks')}</SelectItem>
-              <SelectItem value="months">{t('timeWindow.units.months')}</SelectItem>
+              <SelectItem value="minutes">{t("conditionEditor.timeUnits.minutes")}</SelectItem>
+              <SelectItem value="hours">{t("conditionEditor.timeUnits.hours")}</SelectItem>
+              <SelectItem value="days">{t("conditionEditor.timeUnits.days")}</SelectItem>
+              <SelectItem value="weeks">{t("conditionEditor.timeUnits.weeks")}</SelectItem>
+              <SelectItem value="months">{t("conditionEditor.timeUnits.months")}</SelectItem>
             </SelectContent>
           </Select>
         </div>

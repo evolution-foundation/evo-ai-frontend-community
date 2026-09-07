@@ -104,7 +104,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   // Se não há usuário, não renderizar o layout
   if (!user) {
-    return <div className="flex h-screen items-center justify-center">{t('common.loading')}</div>;
+    return <div className="flex h-screen items-center justify-center">{t("common:loading")}</div>;
   }
 
   return (

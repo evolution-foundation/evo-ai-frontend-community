@@ -111,7 +111,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
         onClick={handleCancel}
         disabled={disabled}
         className="flex-shrink-0 text-muted-foreground hover:text-destructive disabled:opacity-50 transition-colors"
-        title={t('audioRecorder.cancel', 'Cancelar')}
+        title={t('audioRecorder.cancel')}
       >
         <Trash2 className="h-5 w-5" />
       </button>
@@ -141,7 +141,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
         type="button"
         onClick={stopRecording}
         disabled={disabled}
-        title={t('audioRecorder.send', 'Enviar')}
+        title={t('audioRecorder.send')}
         className="flex-shrink-0 w-9 h-9 rounded-full bg-primary hover:bg-primary/85 text-primary-foreground flex items-center justify-center disabled:opacity-50 transition-colors"
       >
         <Send className="h-4 w-4" />

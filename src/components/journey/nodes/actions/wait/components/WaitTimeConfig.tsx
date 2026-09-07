@@ -116,7 +116,7 @@ export function WaitTimeConfig({ data, onChange, journeyId }: WaitTimeConfigProp
           <strong>{t('panels.waitComponents.time.summaryLabel')}:</strong>{' '}
           {t('panels.waitComponents.time.summaryText', {
             duration: data.duration || 1,
-            timeUnit: getTimeUnitLabel(data.timeUnit || 'minutes', data.duration || 1),
+            unit: getTimeUnitLabel(data.timeUnit || 'minutes', data.duration || 1),
           })}
         </p>
       </div>

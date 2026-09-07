@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { createContext, useContext, useEffect, useCallback, useMemo, useRef } from 'react';
 import { toast } from 'sonner';
 import { usePersistence } from '@/hooks/chat/usePersistence';
@@ -50,6 +52,7 @@ const ChatContext = createContext<ChatContextValue | undefined>(undefined);
 
 // Hook para integrar todas as funcionalidades
 function useChatIntegration() {
+  const { t: tUi } = useUiTranslation();
   const messages = useMessagesOriginal();
   const conversations = useConversationsOriginal();
   const filters = useFiltersOriginal();
@@ -335,9 +338,9 @@ function useChatIntegration() {
 
             const cleanContent = message.content
               ? stripHtml(message.content).substring(0, 100)
-              : 'Mensagem recebida';
+              : tUi("interface:chatcontext.messageReceived");
 
-            toast.info(`Nova mensagem de ${message.sender?.name || 'Contato'}`, {
+            toast.info(i18n.t("interface:dynamic.newMessageFrom", { name: message.sender?.name || tUi("crmForms:leads.contact") }), {
               description: cleanContent,
             });
 
@@ -591,6 +594,7 @@ function useChatIntegration() {
     currentUser,
     shouldReloadMessageForMissingImageData,
     reconcileContactUpdated,
+    tUi,
   ]);
 
   // Integrated actions

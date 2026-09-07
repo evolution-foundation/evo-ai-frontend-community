@@ -7,7 +7,7 @@ import { stripHtml } from '@/utils/stripHtml';
 type RawMessage = any;
 
 type TransformOptions = {
-  t: (key: string) => string;
+  t: (key: string, options?: Record<string, unknown>) => string;
   avatarUrl?: string;
 };
 
@@ -81,7 +81,7 @@ export function transformMessage(
         file_size: att.file_size,
         fallback_title:
           att.fallback_title ||
-          `Arquivo (${att.file_size ? Math.round(att.file_size / 1024) : 0} KB)`,
+          t("interface:dynamic.fileSize", { size: att.file_size ? Math.round(att.file_size / 1024) : 0 }),
       }))
       : undefined,
     contentType: m.content_type,

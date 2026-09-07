@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { Label, Input } from '@evoapi/design-system';
 import { useLanguage } from '@/hooks/useLanguage';
 
@@ -20,6 +21,7 @@ export const TypebotConfigForm = ({
   errors = {},
   disabled = false,
 }: TypebotConfigFormProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
   
   return (
@@ -43,7 +45,7 @@ export const TypebotConfigForm = ({
           id="typebot_typebot"
           value={config.typebot || ''}
           onChange={(e) => onChange({ ...config, typebot: e.target.value })}
-          placeholder="public-id-do-typebot"
+          placeholder={tUi("interface:typebotconfigform.typebotPublicId")}
           disabled={disabled}
         />
         {errors.typebot && (

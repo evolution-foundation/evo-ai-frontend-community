@@ -267,7 +267,16 @@
     },
     "cancel": "Cancelar",
     "deleting": "Deletando...",
-    "delete": "Deletar Etapa"
+    "delete": "Deletar Etapa",
+    "importantLabel": "Importante",
+    "deletionWillLabel": "A exclusão deste estágio irá:",
+    "deletionWill": {
+      "removeStage": "Remover este estágio do pipeline",
+      "removeConversations": "Remover as conversas deste estágio",
+      "reorderStages": "Reordenar os estágios restantes"
+    },
+    "warningMessage_one": "Este estágio contém {{count}} conversa. Excluir o estágio remove a conversa do pipeline.",
+    "warningMessage_other": "Este estágio contém {{count}} conversas. Excluir o estágio remove as conversas do pipeline."
   },
   "duplicatePipeline": {
     "title": "Duplicar Pipeline",
@@ -285,7 +294,16 @@
     "noConversations": "As conversas não serão copiadas. O novo pipeline iniciará vazio.",
     "cancel": "Cancelar",
     "duplicating": "Duplicando...",
-    "duplicate": "Duplicar Pipeline"
+    "duplicate": "Duplicar Pipeline",
+    "copySuffix": "Cópia",
+    "whatWillBeCopied": "O que será copiado",
+    "copied": {
+      "settings": "Configurações do pipeline",
+      "stages": "Estágios e suas configurações",
+      "structure": "Estrutura e ordem do pipeline"
+    },
+    "noteLabel": "Observação",
+    "noteMessage": "As conversas e os itens não serão copiados."
   },
   "editItem": {
     "title": "Editar Item no Pipeline",
@@ -588,7 +606,8 @@
     "note": "O item será apenas removido do pipeline, mas continuará existindo no sistema.",
     "cancel": "Cancelar",
     "removing": "Removendo...",
-    "remove": "Remover do Pipeline"
+    "remove": "Remover do Pipeline",
+    "confirmDetails": "Remover {{name}} (#{{id}}) deste pipeline?"
   },
   "removeConversation": {
     "title": "Remover Item do Pipeline",
@@ -712,7 +731,9 @@
         "snoozed": "Adiado"
       },
       "valueLabel": "Valor Total:",
-      "system": "Sistema"
+      "system": "Sistema",
+      "incoming": "Entrada",
+      "outgoing": "Saída"
     },
     "messages": {
       "itemMoved": "Item movido com sucesso",
@@ -739,7 +760,8 @@
       "conversationUpdated": "Item atualizado com sucesso",
       "conversationUpdateError": "Erro ao atualizar item",
       "itemHiddenByFilter": "Card movido — pode estar oculto pelos filtros ativos",
-      "newItemMayBeHidden": "Card adicionado — pode estar oculto pelos filtros ativos"
+      "newItemMayBeHidden": "Card adicionado — pode estar oculto pelos filtros ativos",
+      "notInPipeline": "Este contato não está em nenhum pipeline"
     },
     "tasks": {
       "pending": "pendentes",
@@ -779,7 +801,8 @@
       "pending": "Pendente",
       "completed": "Concluída",
       "cancelled": "Cancelada",
-      "overdue": "Atrasada"
+      "overdue": "Atrasada",
+      "dueSoon": "Vence em breve"
     },
     "dueDates": {
       "today": "Hoje",
@@ -853,29 +876,41 @@
       "moveSuccess": "Tarefa movida com sucesso",
       "moveError": "Erro ao mover tarefa",
       "addSubtaskSuccess": "Subtarefa adicionada com sucesso",
-      "addSubtaskError": "Erro ao adicionar subtarefa"
+      "addSubtaskError": "Erro ao adicionar subtarefa",
+      "deleteWithSubtasksConfirm_one": "Esta tarefa tem {{count}} subtarefa. Excluir ambas?",
+      "deleteWithSubtasksConfirm_other": "Esta tarefa tem {{count}} subtarefas. Excluir todas?"
+    },
+    "edit": "Editar tarefa",
+    "delete": "Excluir tarefa",
+    "badge": {
+      "overdue_one": "{{count}} tarefa vencida",
+      "overdue_other": "{{count}} tarefas vencidas",
+      "dueSoon_one": "{{count}} tarefa com vencimento próximo",
+      "dueSoon_other": "{{count}} tarefas com vencimento próximo",
+      "pending_one": "{{count}} tarefa pendente",
+      "pending_other": "{{count}} tarefas pendentes"
     }
   },
   "dialog": {
-      "deactivatePipeline": {
+    "deactivatePipeline": {
       "lookupFailed": "Não foi possível verificar o que depende deste pipeline. Desativar mesmo assim?",
       "draft": "rascunho",
       "viaRoutingRule": "por regra de roteamento",
       "namesRedacted": "{{count}} formulário no total — você não tem permissão para ver os nomes.",
       "namesRedacted_plural": "{{count}} formulários no total — você não tem permissão para ver os nomes.",
-          "title": "Desativar pipeline",
-          "description": "\"{{name}}\" vai sumir de todos os seletores de pipeline. O que já está dentro dele permanece onde está.",
-          "checking": "Verificando o que depende deste pipeline…",
-          "formsHeading": "{{count}} formulário de captura envia leads para cá:",
-          "formsHeading_plural": "{{count}} formulários de captura enviam leads para cá:",
-          "noForms": "Nenhum formulário de captura alimenta este pipeline.",
-          "draftsHeading": "{{count}} formulário em rascunho aponta para este pipeline (ainda não capta):",
-          "draftsHeading_plural": "{{count}} formulários em rascunho apontam para este pipeline (ainda não captam):",
-          "published": "publicado",
-          "partialWarning": "Apenas formulários de captura foram verificados. Automações e jornadas não foram consultadas.",
-          "cancel": "Cancelar",
-          "confirm": "Desativar"
-      },
+      "title": "Desativar pipeline",
+      "description": "\"{{name}}\" vai sumir de todos os seletores de pipeline. O que já está dentro dele permanece onde está.",
+      "checking": "Verificando o que depende deste pipeline…",
+      "formsHeading": "{{count}} formulário de captura envia leads para cá:",
+      "formsHeading_plural": "{{count}} formulários de captura enviam leads para cá:",
+      "noForms": "Nenhum formulário de captura alimenta este pipeline.",
+      "draftsHeading": "{{count}} formulário em rascunho aponta para este pipeline (ainda não capta):",
+      "draftsHeading_plural": "{{count}} formulários em rascunho apontam para este pipeline (ainda não captam):",
+      "published": "publicado",
+      "partialWarning": "Apenas formulários de captura foram verificados. Automações e jornadas não foram consultadas.",
+      "cancel": "Cancelar",
+      "confirm": "Desativar"
+    },
     "deletePipeline": {
       "title": "Deletar Pipeline",
       "description": "Tem certeza de que deseja deletar este pipeline? Esta ação não pode ser desfeita e afetará todos os dados relacionados.",

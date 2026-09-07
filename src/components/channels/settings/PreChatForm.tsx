@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import {
   Card,
@@ -40,16 +41,16 @@ const mockCustomAttributes: CustomAttribute[] = [
   {
     id: '1',
     attribute_key: 'company',
-    attribute_display_name: 'Empresa',
+    get attribute_display_name() { return i18n.t("contacts:type.company"); },
     attribute_display_type: 'text',
     attribute_model: 'contact_attribute',
   },
   {
     id: '2',
     attribute_key: 'department',
-    attribute_display_name: 'Departamento',
+    get attribute_display_name() { return i18n.t('channels:settings.preChatForm.examples.department'); },
     attribute_display_type: 'select',
-    attribute_values: ['Vendas', 'Suporte', 'Financeiro'],
+    get attribute_values() { return [i18n.t('channels:settings.preChatForm.examples.sales'), i18n.t('channels:settings.preChatForm.examples.support'), i18n.t('channels:settings.preChatForm.examples.finance')]; },
     attribute_model: 'contact_attribute',
   },
 ];

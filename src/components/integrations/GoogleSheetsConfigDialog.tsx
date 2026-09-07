@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -43,6 +44,7 @@ const GoogleSheetsConfigDialog = ({
   initialConfig,
   agentId,
 }: GoogleSheetsConfigDialogProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
 
   const [isConnecting, setIsConnecting] = useState(false);
@@ -97,7 +99,7 @@ const GoogleSheetsConfigDialog = ({
       setConfig((prev: GoogleSheetsConfig) => ({ ...prev, spreadsheets }));
     } catch (error) {
       console.error('Error loading spreadsheets:', error);
-      toast.error('Erro ao carregar planilhas');
+      toast.error(tUi("interface:googlesheetsconfigdialog.couldNotLoadSpreadsheets"));
     } finally {
       setIsLoadingSpreadsheets(false);
     }
@@ -105,7 +107,7 @@ const GoogleSheetsConfigDialog = ({
 
   const handleConnectGoogle = async () => {
     if (!config.email) {
-      toast.error('Por favor, insira um e-mail');
+      toast.error(tUi("interface:googlesheetsconfigdialog.pleaseEnterAnEmailAddress"));
       return;
     }
 
@@ -119,7 +121,7 @@ const GoogleSheetsConfigDialog = ({
       }
     } catch (error) {
       console.error('Error connecting to Google Sheets:', error);
-      toast.error('Erro ao conectar com Google Sheets');
+      toast.error(tUi("interface:googlesheetsconfigdialog.couldNotConnectToGoogleSheets"));
     } finally {
       setIsConnecting(false);
     }
@@ -127,7 +129,7 @@ const GoogleSheetsConfigDialog = ({
 
   const handleSave = async () => {
     if (!config.settings?.selectedSpreadsheetId) {
-      toast.error('Por favor, selecione uma planilha');
+      toast.error(tUi("interface:googlesheetsconfigdialog.pleaseSelectASpreadsheet"));
       return;
     }
 
@@ -137,11 +139,11 @@ const GoogleSheetsConfigDialog = ({
 
       // Then update local state
       onSave(config);
-      toast.success('Configurações salvas com sucesso!');
+      toast.success(tUi("integrations:messages.saveSuccess"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error saving Google Sheets configuration:', error);
-      toast.error('Erro ao salvar configurações');
+      toast.error(tUi("integrations:messages.saveError"));
     }
   };
 
@@ -155,11 +157,11 @@ const GoogleSheetsConfigDialog = ({
         onDisconnect();
       }
 
-      toast.success('Google Sheets desconectado com sucesso!');
+      toast.success(tUi("interface:googlesheetsconfigdialog.googleSheetsDisconnectedSuccessfully"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error disconnecting Google Sheets:', error);
-      toast.error('Erro ao desconectar Google Sheets');
+      toast.error(tUi("interface:googlesheetsconfigdialog.couldNotDisconnectGoogleSheets"));
     }
   };
 
@@ -169,7 +171,7 @@ const GoogleSheetsConfigDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BrandIcon id="google-sheets" size={20} className="h-5 w-5" />
-            {t('edit.integrations.googleSheets.configTitle') || 'Configurar Google Sheets'}
+            {t('edit.integrations.googleSheets.configTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -184,11 +186,10 @@ const GoogleSheetsConfigDialog = ({
               </div>
               <div>
                 <h3 className="text-lg font-semibold">
-                  {t('edit.integrations.googleSheets.connectTitle') || 'Conectar com Google Sheets'}
+                  {t('edit.integrations.googleSheets.connectTitle')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.googleSheets.connectDescription') ||
-                    'Permita que o agente acesse, crie e gerencie planilhas do Google Sheets'}
+                  {t('edit.integrations.googleSheets.connectDescription')}
                 </p>
               </div>
             </div>
@@ -196,12 +197,12 @@ const GoogleSheetsConfigDialog = ({
             <div className="space-y-4">
               <div>
                 <Label htmlFor="email">
-                  {t('edit.integrations.googleSheets.email') || 'E-mail do Google'}
+                  {t('edit.integrations.googleSheets.email')}
                 </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="seuemail@gmail.com"
+                  placeholder={tUi("aiAgents:edit.integrations.googleCalendar.emailPlaceholder")}
                   value={config.email}
                   onChange={e => setConfig({ ...config, email: e.target.value })}
                 />
@@ -216,12 +217,12 @@ const GoogleSheetsConfigDialog = ({
                 {isConnecting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t('edit.integrations.googleSheets.connecting') || 'Conectando...'}
+                    {t('edit.integrations.googleSheets.connecting')}
                   </>
                 ) : (
                   <>
                     <Sheet className="mr-2 h-4 w-4" />
-                    {t('edit.integrations.googleSheets.connectButton') || 'Conectar com Google'}
+                    {t('edit.integrations.googleSheets.connectButton')}
                   </>
                 )}
               </Button>
@@ -232,7 +233,7 @@ const GoogleSheetsConfigDialog = ({
           <div className="space-y-6 py-4">
             {/* Spreadsheet Selection */}
             <div className="space-y-3">
-              <Label>{t('edit.integrations.googleSheets.selectSpreadsheet') || 'Planilha'}</Label>
+              <Label>{t('edit.integrations.googleSheets.selectSpreadsheet')}</Label>
               <Select
                 value={config.settings?.selectedSpreadsheetId}
                 onValueChange={value =>
@@ -247,10 +248,9 @@ const GoogleSheetsConfigDialog = ({
                   {isLoadingSpreadsheets ? (
                     <span className="flex items-center gap-2">
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Carregando planilhas...
-                    </span>
+                      {tUi("interface:googlesheetsconfigdialog.loadingSpreadsheets")}</span>
                   ) : (
-                    <SelectValue placeholder="Selecione uma planilha" />
+                    <SelectValue placeholder={tUi("interface:googlesheetsconfigdialog.selectASpreadsheet")} />
                   )}
                 </SelectTrigger>
                 <SelectContent>
@@ -262,26 +262,23 @@ const GoogleSheetsConfigDialog = ({
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                Escolha qual planilha o agente terá acesso
-              </p>
+                {tUi("interface:googlesheetsconfigdialog.chooseWhichSpreadsheetTheAgentCanAccess")}</p>
             </div>
 
             {/* Permissions */}
             <div className="space-y-4">
               <Label className="flex items-center gap-2">
                 <Settings className="h-4 w-4 text-muted-foreground" />
-                Permissões
-              </Label>
+                {tUi("roles:table.permissions")}</Label>
 
               {/* Allow Read */}
               <div className="flex items-center justify-between p-3 border rounded-lg">
                 <div className="flex items-center gap-3">
                   <CheckSquare className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Permitir Leitura</p>
+                    <p className="text-sm font-medium">{tUi("interface:googlesheetsconfigdialog.allowReading")}</p>
                     <p className="text-xs text-muted-foreground">
-                      Agente pode consultar dados da planilha
-                    </p>
+                      {tUi("interface:googlesheetsconfigdialog.theAgentCanReadSpreadsheetData")}</p>
                   </div>
                 </div>
                 <Switch
@@ -300,10 +297,9 @@ const GoogleSheetsConfigDialog = ({
                 <div className="flex items-center gap-3">
                   <Edit3 className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Permitir Escrita</p>
+                    <p className="text-sm font-medium">{tUi("interface:googlesheetsconfigdialog.allowWriting")}</p>
                     <p className="text-xs text-muted-foreground">
-                      Agente pode atualizar células da planilha
-                    </p>
+                      {tUi("interface:googlesheetsconfigdialog.theAgentCanUpdateSpreadsheetCells")}</p>
                   </div>
                 </div>
                 <Switch
@@ -322,10 +318,9 @@ const GoogleSheetsConfigDialog = ({
                 <div className="flex items-center gap-3">
                   <FilePlus className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Permitir Criação</p>
+                    <p className="text-sm font-medium">{tUi("interface:googlesheetsconfigdialog.allowCreation")}</p>
                     <p className="text-xs text-muted-foreground">
-                      Agente pode criar novas linhas na planilha
-                    </p>
+                      {tUi("interface:googlesheetsconfigdialog.theAgentCanCreateSpreadsheetRows")}</p>
                   </div>
                 </div>
                 <Switch
@@ -346,7 +341,7 @@ const GoogleSheetsConfigDialog = ({
         <div className="flex flex-col gap-3 pt-4 border-t">
           {config.connected && (
             <Button onClick={handleSave} className="w-full">
-              {t('edit.integrations.googleSheets.saveConfig') || 'APLICAR CONFIGURAÇÕES'}
+              {t('edit.integrations.googleSheets.saveConfig')}
             </Button>
           )}
 
@@ -356,7 +351,7 @@ const GoogleSheetsConfigDialog = ({
               onClick={handleDisconnect}
               className="w-full text-destructive hover:text-destructive/80"
             >
-              {t('edit.integrations.googleSheets.disconnect') || 'Desconectar'}
+              {t('edit.integrations.googleSheets.disconnect')}
             </Button>
           )}
         </div>

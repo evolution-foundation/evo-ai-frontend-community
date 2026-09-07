@@ -531,7 +531,7 @@ const AgentEditPage = () => {
         }
       } catch (error) {
         console.error('Error loading agent:', error);
-        toast.error(t('messages.loadError') || 'Error loading agent');
+        toast.error(t('messages.loadError'));
         navigate('/agents/list');
       } finally {
         setLoading(false);
@@ -564,7 +564,7 @@ const AgentEditPage = () => {
 
     try {
       setIsSaving(true);
-      const toastId = toast.loading(t('messages.saving') || 'Saving...');
+      const toastId = toast.loading(t('messages.saving'));
 
       const agentUpdateData: Partial<AgentCreate> = {
         name: formData.name,
@@ -751,13 +751,13 @@ const AgentEditPage = () => {
 
       await updateAgent(id, agentUpdateData);
 
-      toast.success(t('messages.saveSuccess') || 'Agent saved successfully!', { id: toastId });
+      toast.success(t('messages.saveSuccess'), { id: toastId });
       setIsDirty(false);
       return true;
     } catch (error) {
       console.error('Error saving agent:', error);
       const errorMessage = extractBackendErrorMessage(error);
-      toast.error(t('messages.saveError') || 'Error saving agent', {
+      toast.error(t('messages.saveError'), {
         description: errorMessage,
       });
       return false;

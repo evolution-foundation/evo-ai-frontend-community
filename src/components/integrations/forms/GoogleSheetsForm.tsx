@@ -14,14 +14,14 @@ export function GoogleSheetsForm({ config, onConfigChange }: IntegrationFormProp
     <div className="space-y-4">
       <FormField
         id="GOOGLE_SHEETS_CLIENT_ID"
-        label={t('integrations.googleSheets.clientId') || 'Google Sheets Client ID'}
+        label={t("googleSheets.clientId")}
         value={getValue('googleSheetsClientId')}
         onChange={(value) => onConfigChange('googleSheetsClientId', value)}
         placeholder="xxx.apps.googleusercontent.com"
       />
       <FormField
         id="GOOGLE_SHEETS_CLIENT_SECRET"
-        label={t('integrations.googleSheets.clientSecret') || 'Google Sheets Client Secret'}
+        label={t("googleSheets.clientSecret")}
         value={getValue('googleSheetsClientSecret')}
         onChange={(value) => onConfigChange('googleSheetsClientSecret', value)}
         placeholder="GOCSPX-xxx"
@@ -29,12 +29,12 @@ export function GoogleSheetsForm({ config, onConfigChange }: IntegrationFormProp
       />
       <FormField
         id="GOOGLE_SHEETS_REDIRECT_URI"
-        label={t('integrations.googleSheets.redirectUri') || 'Google Sheets Redirect URI'}
+        label={t("googleSheets.redirectUri")}
         value={getValue('googleSheetsRedirectUri')}
         onChange={(value) => onConfigChange('googleSheetsRedirectUri', value)}
         placeholder="https://your-domain.com/google-sheets/callback"
         type="url"
-        description={t('integrations.googleSheets.redirectUriDescription') || 'Redirect URI for Google Sheets OAuth. Configure this URL in Google Cloud Console for Sheets API access.'}
+        description={t("googleSheets.redirectUriDescription")}
       />
     </div>
   );

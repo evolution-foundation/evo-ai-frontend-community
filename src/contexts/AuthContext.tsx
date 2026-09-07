@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { UserResponse } from '@/types/auth';
 import { useAuthStore } from '@/store/authStore';
@@ -39,6 +40,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const { t: tUi } = useUiTranslation();
   const {
     currentUser: user,
     isLoading,
@@ -132,7 +134,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const verifyMfaCode = async (code: string) => {
     if (!mfaState) {
-      throw new Error('No MFA session active');
+      throw new Error(tUi("interface:authcontext.noActiveMfaSession"));
     }
 
     try {

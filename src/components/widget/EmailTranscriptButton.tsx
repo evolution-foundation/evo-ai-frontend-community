@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import { widgetService } from '@/services/widget/widgetService';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -17,6 +18,7 @@ const EmailTranscriptButton: React.FC<EmailTranscriptButtonProps> = ({
   disabled = false,
   widgetColor = '#00d4aa',
 }) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('widget');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,7 +31,7 @@ const EmailTranscriptButton: React.FC<EmailTranscriptButtonProps> = ({
       await widgetService.sendEmailTranscript(websiteToken);
       onSuccess?.();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      const errorMessage = error instanceof Error ? error.message : tUi("customMcpServers:test.unknownError");
       onError?.(errorMessage);
     } finally {
       setIsLoading(false);

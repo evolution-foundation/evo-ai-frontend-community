@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useEffect, useLayoutEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { usePermissions } from '@/contexts/PermissionsContext';
@@ -295,6 +296,7 @@ interface ChannelSettingsProps {
 }
 
 export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: ChannelSettingsProps = {}) {
+  const { t: tUi } = useUiTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
   const { t } = useLanguage('channels');
@@ -439,7 +441,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
       const response = await InboxesService.getById(inboxId);
       const data = response.data;
       if (!data) {
-        throw new Error('Inbox data not found');
+        throw new Error(tUi("interface:channelsettings.inboxDataNotFound"));
       }
       setInbox(data);
       setEmailSignature((data as any).email_signature || '');
@@ -477,7 +479,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
     } finally {
       setIsLoading(false);
     }
-  }, [inboxId, t]);
+  }, [inboxId, t, tUi]);
 
   useEffect(() => {
     loadChannelData();
@@ -624,7 +626,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
           {formData.avatar_url && (
             <img
               src={formData.avatar_url}
-              alt="Inbox avatar"
+              alt={tUi("interface:channelsettings.inboxAvatar")}
               className="w-10 h-10 rounded-full object-cover border border-border"
             />
           )}

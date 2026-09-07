@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 declare global {
   interface Window {
     grecaptcha: {
@@ -63,7 +64,7 @@ export class RecaptchaService {
       script.defer = true;
 
       script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load reCAPTCHA script'));
+      script.onerror = () => reject(new Error(i18n.t("interface:recaptcha.couldNotLoadRecaptcha")));
 
       document.head.appendChild(script);
     });

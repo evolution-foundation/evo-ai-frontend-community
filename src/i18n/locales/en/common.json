@@ -176,5 +176,19 @@
       "description": "This does not mean there are none — loading the definitions failed. Try again.",
       "retry": "Try again"
     }
+  },
+  "dateTime": {
+    "now": "Now",
+    "yesterday": "Yesterday",
+    "invalid": "Invalid date",
+    "dateAtTime": "{{date}} at {{time}}"
+  },
+  "filterFields": {
+    "url": "URL",
+    "timeout": "Timeout",
+    "tags": "Tags",
+    "endpoint": "Endpoint",
+    "email": "Email",
+    "availability": "Availability"
   }
 }

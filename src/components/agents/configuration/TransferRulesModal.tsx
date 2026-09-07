@@ -49,11 +49,10 @@ export const TransferRulesModal = ({
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[640px]">
         <DialogHeader className="sm:text-center">
           <DialogTitle className="text-xl font-bold text-foreground">
-            {t('edit.configuration.transferRules.modalTitle') || 'Regras de Transferência'}
+            {t('edit.configuration.transferRules.modalTitle')}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            {t('edit.configuration.transferRules.modalDescription') ||
-              'Configure quando e como o agente deve transferir conversas para humanos ou times.'}
+            {t('edit.configuration.transferRules.modalDescription')}
           </DialogDescription>
         </DialogHeader>
         <div className="py-2">

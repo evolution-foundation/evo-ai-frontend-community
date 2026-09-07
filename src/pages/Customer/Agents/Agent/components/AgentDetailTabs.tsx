@@ -22,11 +22,11 @@ const AgentDetailTabs = ({ agentType, value, onValueChange, children }: AgentDet
   const visibleTabs = getVisibleAgentTabs(agentType);
 
   const tabConfig: Record<AgentDetailTab, { label: string; icon: typeof User }> = {
-    profile: { label: t('edit.menu.profile') || 'Perfil', icon: User },
-    tools: { label: t('edit.menu.tools') || 'Ferramentas', icon: Wrench },
-    products: { label: t('edit.menu.products') || 'Produtos', icon: Package },
-    configuration: { label: t('edit.menu.configuration') || 'Configuração', icon: Settings },
-    channels: { label: t('edit.menu.channels') || 'Canais', icon: Radio },
+    profile: { label: t('edit.menu.profile'), icon: User },
+    tools: { label: t('edit.menu.tools'), icon: Wrench },
+    products: { label: t('edit.menu.products'), icon: Package },
+    configuration: { label: t('edit.menu.configuration'), icon: Settings },
+    channels: { label: t('edit.menu.channels'), icon: Radio },
   };
 
   return (

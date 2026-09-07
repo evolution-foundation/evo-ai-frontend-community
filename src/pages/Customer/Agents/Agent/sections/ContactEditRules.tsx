@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   Textarea,
@@ -21,18 +22,18 @@ interface ContactEditRulesProps {
 }
 
 const CONTACT_FIELDS = [
-  { id: 'name', label: 'Nome', category: 'basic' },
-  { id: 'email', label: 'Email', category: 'basic' },
-  { id: 'phone_number', label: 'Telefone', category: 'basic' },
-  { id: 'location', label: 'Localização', category: 'basic' },
-  { id: 'country_code', label: 'País', category: 'basic' },
-  { id: 'website', label: 'Website', category: 'basic' },
-  { id: 'industry', label: 'Indústria', category: 'basic' },
+  { id: 'name', get label() { return i18n.t("contacts:export.fields.name"); }, category: 'basic' },
+  { id: 'email', get label() { return i18n.t("contacts:export.fields.email"); }, category: 'basic' },
+  { id: 'phone_number', get label() { return i18n.t("contacts:card.phone"); }, category: 'basic' },
+  { id: 'location', get label() { return i18n.t("contacts:form.sections.location"); }, category: 'basic' },
+  { id: 'country_code', get label() { return i18n.t("contacts:details.fields.country"); }, category: 'basic' },
+  { id: 'website', get label() { return i18n.t("journey:panels.assignBot.website"); }, category: 'basic' },
+  { id: 'industry', get label() { return i18n.t("interface:contacteditrules.industry"); }, category: 'basic' },
   { id: 'tax_id', label: 'CPF/CNPJ', category: 'basic' },
-  { id: 'company_name', label: 'Nome da Empresa', category: 'additional' },
-  { id: 'city', label: 'Cidade', category: 'additional' },
-  { id: 'description', label: 'Descrição', category: 'additional' },
-  { id: 'social_profiles', label: 'Redes Sociais', category: 'additional' },
+  { id: 'company_name', get label() { return i18n.t("contacts:form.fields.company.label"); }, category: 'additional' },
+  { id: 'city', get label() { return i18n.t("contacts:details.fields.city"); }, category: 'additional' },
+  { id: 'description', get label() { return i18n.t("aiAgents:basicInfo.description"); }, category: 'additional' },
+  { id: 'social_profiles', get label() { return i18n.t("contacts:form.sections.socialProfiles"); }, category: 'additional' },
 ];
 
 // `py-0` cancels the Card base `py-6`, which would stack with the CardContent.
@@ -94,8 +95,7 @@ const ContactEditRules = ({ config, onChange }: ContactEditRulesProps) => {
         <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
         <div className="flex-1">
           <p className="text-sm leading-[1.5] text-primary">
-            {t('edit.configuration.contactEditRules.description') ||
-              'Permite que o agente edite informações do contato durante a conversa. Configure quais campos podem ser alterados e quando isso deve acontecer.'}
+            {t('edit.configuration.contactEditRules.description')}
           </p>
         </div>
       </div>
@@ -105,11 +105,10 @@ const ContactEditRules = ({ config, onChange }: ContactEditRulesProps) => {
           <div className="flex items-center justify-between gap-4">
             <div>
               <Label className="text-sm font-bold text-foreground">
-                {t('edit.configuration.contactEditRules.enableEditing') || 'Permitir edição de contatos'}
+                {t('edit.configuration.contactEditRules.enableEditing')}
               </Label>
               <p className="mt-[3px] text-[13px] text-muted-foreground">
-                {t('edit.configuration.contactEditRules.enableEditingDescription') ||
-                  'Habilita o agente a modificar informações de contato'}
+                {t('edit.configuration.contactEditRules.enableEditingDescription')}
               </p>
             </div>
             <AgentToggle checked={config.enabled} onCheckedChange={handleToggle} />
@@ -123,22 +122,22 @@ const ContactEditRules = ({ config, onChange }: ContactEditRulesProps) => {
             <CardContent className="space-y-2 p-4">
               <div className="flex items-center justify-between gap-4">
                 <Label className="text-sm font-bold text-foreground">
-                  {t('edit.configuration.contactEditRules.editableFields') || 'Campos editáveis'}
+                  {t('edit.configuration.contactEditRules.editableFields')}
                 </Label>
                 <div className="flex items-center gap-2">
                   <button type="button" onClick={handleSelectAll} className={LINK_CLASS}>
-                    {t('edit.configuration.contactEditRules.selectAll') || 'Selecionar todos'}
+                    {t('edit.configuration.contactEditRules.selectAll')}
                   </button>
                   <span className="text-[13px] text-muted-foreground/70">|</span>
                   <button type="button" onClick={handleDeselectAll} className={LINK_CLASS}>
-                    {t('edit.configuration.contactEditRules.deselectAll') || 'Desmarcar todos'}
+                    {t('edit.configuration.contactEditRules.deselectAll')}
                   </button>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <p className={SECTION_LABEL_CLASS}>
-                  {t('edit.configuration.contactEditRules.basicFields') || 'Campos Básicos'}
+                  {t('edit.configuration.contactEditRules.basicFields')}
                 </p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
                   {basicFields.map(field => (
@@ -158,7 +157,7 @@ const ContactEditRules = ({ config, onChange }: ContactEditRulesProps) => {
 
               <div className="space-y-2 pt-1">
                 <p className={SECTION_LABEL_CLASS}>
-                  {t('edit.configuration.contactEditRules.additionalFields') || 'Campos Adicionais'}
+                  {t('edit.configuration.contactEditRules.additionalFields')}
                 </p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
                   {additionalFields.map(field => (
@@ -178,7 +177,7 @@ const ContactEditRules = ({ config, onChange }: ContactEditRulesProps) => {
 
               <p className="text-xs text-muted-foreground">
                 {config.editableFields.length}{' '}
-                {t('edit.configuration.contactEditRules.fieldsSelected') || 'campos selecionados'}
+                {t('edit.configuration.contactEditRules.fieldsSelected')}
               </p>
             </CardContent>
           </Card>
@@ -186,27 +185,24 @@ const ContactEditRules = ({ config, onChange }: ContactEditRulesProps) => {
           <Card className={CARD_CLASS}>
             <CardContent className="space-y-2 p-4">
               <Label className="text-sm font-bold text-foreground">
-                {t('edit.configuration.contactEditRules.instructions') || 'Instruções'}
+                {t('edit.configuration.contactEditRules.instructions')}
               </Label>
               <p className="text-[13px] text-muted-foreground">
-                {t('edit.configuration.contactEditRules.instructionsDescription') ||
-                  'Defina quando e como o agente deve editar as informações do contato'}
+                {t('edit.configuration.contactEditRules.instructionsDescription')}
               </p>
               <Textarea
                 value={config.instructions || ''}
                 onChange={e => handleInstructionsChange(e.target.value)}
                 placeholder={
-                  t('edit.configuration.contactEditRules.instructionsPlaceholder') ||
-                  'Ex: Atualize o nome do contato quando ele se apresentar. Adicione o email quando o cliente fornecer. Atualize a cidade quando o cliente mencionar sua localização...'
+                  t('edit.configuration.contactEditRules.instructionsPlaceholder')
                 }
                 maxLength={500}
                 className="min-h-[80px] rounded-[9px] border-border bg-card text-sm placeholder:text-muted-foreground/70"
               />
               <div className="flex items-center justify-between gap-4 text-xs text-muted-foreground">
                 <span>
-                  {t('edit.configuration.contactEditRules.tip') || 'Dica:'}{' '}
-                  {t('edit.configuration.contactEditRules.tipContent') ||
-                    'Seja específico sobre quando cada campo deve ser editado'}
+                  {t('edit.configuration.contactEditRules.tip')}{' '}
+                  {t('edit.configuration.contactEditRules.tipContent')}
                 </span>
                 <span className="flex-shrink-0">{(config.instructions?.length || 0)}/500</span>
               </div>

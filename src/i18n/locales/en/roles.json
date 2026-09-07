@@ -108,5 +108,13 @@
     "systemRoleCannotDelete": "System roles cannot be deleted",
     "roleHasUsers": "Cannot delete a role that has assigned users"
   },
-  "saveChanges": "Save Changes"
+  "saveChanges": "Save Changes",
+  "permissions": {
+    "categories": {
+      "core": "Core features",
+      "agents": "Agents",
+      "settings": "Settings",
+      "other": "Other"
+    }
+  }
 }

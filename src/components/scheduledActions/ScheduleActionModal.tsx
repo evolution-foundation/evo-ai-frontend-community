@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Dialog,
@@ -43,6 +45,7 @@ export function ScheduleActionModal({
   contactId: initialContactId,
   action,
 }: ScheduleActionModalProps) {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('contacts');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -510,13 +513,12 @@ export function ScheduleActionModal({
                   disabled={loadingInboxes || channelOptions.length === 0}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={loadingInboxes ? 'Loading channels...' : 'Select a channel'} />
+                    <SelectValue placeholder={loadingInboxes ? i18n.t('interface:fallbacks.loadingChannels') : i18n.t('interface:fallbacks.selectChannel')} />
                   </SelectTrigger>
                   <SelectContent>
                     {channelOptions.length === 0 && !loadingInboxes && (
                       <div className="px-2 py-1.5 text-sm text-gray-500">
-                        No channels configured
-                      </div>
+                        {tUi("journey:panels.scheduledAction.messages.noChannelsConfiguredInline")}</div>
                     )}
                     {channelOptions.map(option => (
                       <SelectItem key={option.value} value={option.value}>
@@ -568,7 +570,7 @@ export function ScheduleActionModal({
                       setErrors({ ...errors, webhook_url: '' });
                     }
                   }}
-                  placeholder="https://example.com/webhook"
+                  placeholder={tUi("journey:panels.scheduledAction.placeholders.webhookUrl")}
                   required
                   className={errors.webhook_url ? 'border-red-500' : ''}
                 />

@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -32,6 +33,7 @@ const HubSpotConfigDialog = ({
   initialConfig,
   agentId,
 }: HubSpotConfigDialogProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
 
   const [isConnecting, setIsConnecting] = useState(false);
@@ -102,7 +104,7 @@ const HubSpotConfigDialog = ({
       setAvailableTools(response.tools || []);
     } catch (error) {
       console.error('Error loading HubSpot tools:', error);
-      toast.error('Erro ao carregar ferramentas disponíveis');
+      toast.error(tUi("interface:hubspotconfigdialog.couldNotLoadAvailableTools"));
     } finally {
       setIsLoadingTools(false);
     }
@@ -119,7 +121,7 @@ const HubSpotConfigDialog = ({
       }
     } catch (error) {
       console.error('Error connecting to HubSpot:', error);
-      toast.error('Erro ao conectar com HubSpot');
+      toast.error(tUi("interface:hubspotconfigdialog.couldNotConnectToHubspot"));
     } finally {
       setIsConnecting(false);
     }
@@ -157,11 +159,11 @@ const HubSpotConfigDialog = ({
 
       // Then update local state
       onSave(updatedConfig);
-      toast.success('Configurações salvas com sucesso!');
+      toast.success(tUi("integrations:messages.saveSuccess"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error saving HubSpot configuration:', error);
-      toast.error('Erro ao salvar configurações');
+      toast.error(tUi("integrations:messages.saveError"));
     }
   };
 
@@ -171,11 +173,11 @@ const HubSpotConfigDialog = ({
       if (onDisconnect) {
         onDisconnect();
       }
-      toast.success('HubSpot desconectado com sucesso!');
+      toast.success(tUi("interface:hubspotconfigdialog.hubspotDisconnectedSuccessfully"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error disconnecting HubSpot:', error);
-      toast.error('Erro ao desconectar HubSpot');
+      toast.error(tUi("interface:hubspotconfigdialog.couldNotDisconnectHubspot"));
     }
   };
 
@@ -197,7 +199,7 @@ const HubSpotConfigDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BrandIcon id="hubspot" size={20} className="h-5 w-5" />
-            {t('edit.integrations.hubspot.configTitle') || 'Configurar HubSpot'}
+            {t('edit.integrations.hubspot.configTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -212,11 +214,10 @@ const HubSpotConfigDialog = ({
               </div>
               <div>
                 <h3 className="text-lg font-semibold">
-                  {t('edit.integrations.hubspot.connectTitle') || 'Conectar com HubSpot'}
+                  {t('edit.integrations.hubspot.connectTitle')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.hubspot.connectDescription') ||
-                    'Permita que o agente acesse contatos, empresas e outras informações do HubSpot'}
+                  {t('edit.integrations.hubspot.connectDescription')}
                 </p>
               </div>
             </div>
@@ -230,10 +231,10 @@ const HubSpotConfigDialog = ({
               {isConnecting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('edit.integrations.hubspot.connecting') || 'Conectando...'}
+                  {t('edit.integrations.hubspot.connecting')}
                 </>
               ) : (
-                <>{t('edit.integrations.hubspot.connectButton') || 'Conectar com HubSpot'}</>
+                <>{t('edit.integrations.hubspot.connectButton')}</>
               )}
             </Button>
           </div>
@@ -245,12 +246,12 @@ const HubSpotConfigDialog = ({
                 <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
                   <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
                   <span className="font-medium">
-                    {t('edit.integrations.hubspot.connected') || 'Conectado'}
+                    {t('edit.integrations.hubspot.connected')}
                   </span>
                 </div>
                 {config.username && (
                   <p className="text-sm text-green-700 dark:text-green-300 mt-2">
-                    {t('edit.integrations.hubspot.connectedAs') || 'Conectado como'}:{' '}
+                    {t('edit.integrations.hubspot.connectedAs')}:{' '}
                     <strong>{config.username}</strong>
                   </p>
                 )}
@@ -261,8 +262,7 @@ const HubSpotConfigDialog = ({
 
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.hubspot.connectedDescription') ||
-                    'O agente agora pode acessar contatos, empresas e outras informações do HubSpot.'}
+                  {t('edit.integrations.hubspot.connectedDescription')}
                 </p>
               </div>
             </div>
@@ -272,7 +272,7 @@ const HubSpotConfigDialog = ({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium">
-                    {t('edit.integrations.hubspot.toolsTitle') || 'Ferramentas Disponíveis'}
+                    {t('edit.integrations.hubspot.toolsTitle')}
                   </h4>
                   {availableTools.length > 0 && (
                     <div className="flex items-center space-x-2">
@@ -285,14 +285,13 @@ const HubSpotConfigDialog = ({
                         onCheckedChange={handleSelectAll}
                       />
                       <Label htmlFor="select-all" className="text-xs font-medium cursor-pointer">
-                        {t('edit.integrations.hubspot.selectAll') || 'Selecionar todas'}
+                        {t('edit.integrations.hubspot.selectAll')}
                       </Label>
                     </div>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mb-3">
-                  {t('edit.integrations.hubspot.toolsDescription') ||
-                    'Selecione quais ferramentas do HubSpot o agente poderá usar'}
+                  {t('edit.integrations.hubspot.toolsDescription')}
                 </p>
               </div>
 
@@ -325,14 +324,14 @@ const HubSpotConfigDialog = ({
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center p-4">
-                  {t('edit.integrations.hubspot.noTools') || 'Nenhuma ferramenta disponível'}
+                  {t('edit.integrations.hubspot.noTools')}
                 </p>
               )}
             </div>
 
             <div className="flex flex-col gap-3 pt-4 border-t">
               <Button onClick={handleSave} className="w-full">
-                {t('edit.integrations.hubspot.saveConfig') || 'SALVAR CONFIGURAÇÕES'}
+                {t('edit.integrations.hubspot.saveConfig')}
               </Button>
 
               {onDisconnect && (
@@ -341,7 +340,7 @@ const HubSpotConfigDialog = ({
                   onClick={handleDisconnect}
                   className="w-full text-destructive hover:text-destructive/80"
                 >
-                  {t('edit.integrations.hubspot.disconnect') || 'Desconectar'}
+                  {t('edit.integrations.hubspot.disconnect')}
                 </Button>
               )}
             </div>

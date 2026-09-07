@@ -1,3 +1,4 @@
+import { getFormattingDateFnsLocale } from '@/lib/formattingLocale';
 import {
   Dialog,
   DialogContent,
@@ -23,7 +24,6 @@ import {
 } from 'lucide-react';
 import { Team } from '@/types/users';
 import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface TeamDetailsProps {
@@ -163,7 +163,7 @@ export default function TeamDetails({
                       <span className="font-mono">
                         {formatDistanceToNow(new Date(team.created_at), {
                           addSuffix: true,
-                          locale: ptBR,
+                          locale: getFormattingDateFnsLocale(),
                         })}
                       </span>
                     </div>
@@ -174,7 +174,7 @@ export default function TeamDetails({
                       <span className="font-mono">
                         {formatDistanceToNow(new Date(team.updated_at), {
                           addSuffix: true,
-                          locale: ptBR,
+                          locale: getFormattingDateFnsLocale(),
                         })}
                       </span>
                     </div>

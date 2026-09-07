@@ -19,10 +19,10 @@ export const OAuthCallback: React.FC = () => {
     const timer = setTimeout(() => {
       if (error) {
         setStatus('error');
-        setMessage(`${t('callback.errors.oauthError')} ${error}`);
+        setMessage(`${t("oauth.callback.errors.oauthError")} ${error}`);
       } else if (code) {
         setStatus('success');
-        setMessage(t('callback.success.message'));
+        setMessage(t("oauth.callback.success.message"));
 
         // Enviar mensagem para a janela pai (para casos de popup)
         if (window.opener) {
@@ -34,7 +34,7 @@ export const OAuthCallback: React.FC = () => {
         }
       } else {
         setStatus('error');
-        setMessage(t('callback.errors.invalidCallback'));
+        setMessage(t("oauth.callback.errors.invalidCallback"));
       }
     }, 1000);
 
@@ -45,19 +45,19 @@ export const OAuthCallback: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-t from-primary/20 via-background/95 to-background">
       <div className="w-full max-w-md space-y-6">
         <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-6 shadow-lg text-center">
-          <h1 className="text-2xl font-bold mb-4">{t('callback.title')}</h1>
+          <h1 className="text-2xl font-bold mb-4">{t("oauth.callback.title")}</h1>
 
           {status === 'loading' && (
             <div className="space-y-4">
               <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-              <p className="text-muted-foreground">{t('callback.loading.processing')}</p>
+              <p className="text-muted-foreground">{t("oauth.callback.loading.processing")}</p>
             </div>
           )}
 
           {status === 'success' && (
             <Alert>
               <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertTitle className="text-green-800">{t('callback.success.title')}</AlertTitle>
+              <AlertTitle className="text-green-800">{t("oauth.callback.success.title")}</AlertTitle>
               <AlertDescription className="text-green-700">
                 {message}
               </AlertDescription>
@@ -67,13 +67,13 @@ export const OAuthCallback: React.FC = () => {
           {status === 'error' && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>{t('callback.errors.title')}</AlertTitle>
+              <AlertTitle>{t("oauth.callback.errors.title")}</AlertTitle>
               <AlertDescription>{message}</AlertDescription>
             </Alert>
           )}
 
           <div className="mt-6 text-xs text-muted-foreground">
-            <p>{t('callback.footer.canClose')}</p>
+            <p>{t("oauth.callback.footer.canClose")}</p>
           </div>
         </div>
       </div>

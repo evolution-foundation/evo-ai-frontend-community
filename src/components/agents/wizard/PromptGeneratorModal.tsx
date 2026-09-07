@@ -110,40 +110,10 @@ const PromptGeneratorModal = ({
   ];
 
   const buildPromptContent = (): string => {
-    const parts: string[] = [];
-
-    if (formData.contexto) {
-      parts.push(`CONTEXTO:\n${formData.contexto}`);
-    }
-    if (formData.objetivo) {
-      parts.push(`OBJETIVO:\n${formData.objetivo}`);
-    }
-    if (formData.estilo) {
-      parts.push(`ESTILO:\n${formData.estilo}`);
-    }
-    if (formData.tom) {
-      parts.push(`TOM:\n${formData.tom}`);
-    }
-    if (formData.audiencia) {
-      parts.push(`AUDIÊNCIA:\n${formData.audiencia}`);
-    }
-    if (formData.formato) {
-      parts.push(`FORMATO:\n${formData.formato}`);
-    }
-    if (formData.exemplo) {
-      parts.push(`EXEMPLO DE REFERÊNCIA:\n${formData.exemplo}`);
-    }
-    if (formData.regras) {
-      parts.push(`REGRAS ESPECÍFICAS:\n${formData.regras}`);
-    }
-    if (formData.pontosCriticos) {
-      parts.push(`PONTOS CRÍTICOS:\n${formData.pontosCriticos}`);
-    }
-    if (formData.instrucoesExtras) {
-      parts.push(`INSTRUÇÕES EXTRAS:\n${formData.instrucoesExtras}`);
-    }
-
-    return parts.join('\n\n');
+    return questions
+      .filter(question => formData[question.key])
+      .map(question => `${question.label}:\n${formData[question.key]}`)
+      .join('\n\n');
   };
 
   const handleGenerate = async () => {

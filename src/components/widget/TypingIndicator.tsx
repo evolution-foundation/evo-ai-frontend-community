@@ -1,3 +1,5 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
+import i18n from '@/i18n/config';
 import React from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 
@@ -10,8 +12,9 @@ interface TypingIndicatorProps {
 const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   isVisible,
   avatarUrl,
-  agentName = 'Atendente',
+  agentName = i18n.t("widget:chat.agent"),
 }) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('widget');
   if (!isVisible) return null;
 
@@ -20,7 +23,7 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
       <div className="mr-2">
         <img
           src={avatarUrl || '/default-avatar.png'}
-          alt="avatar"
+          alt={tUi("interface:typingindicator.avatar")}
           className="w-6 h-6 rounded-full object-cover border border-white shadow"
         />
       </div>

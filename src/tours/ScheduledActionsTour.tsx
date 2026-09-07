@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useEffect, useMemo, useRef } from 'react';
 import type { Step } from 'react-joyride';
 import { useJoyride } from '@/hooks/useJoyride';
@@ -6,44 +7,45 @@ import { tourRegistry } from './tourRegistry';
 const ROUTE = '/contacts/scheduled-actions';
 
 export function ScheduledActionsTour() {
+  const { t: tUi } = useUiTranslation();
   const { Tour, controls } = useJoyride({
     tourKey: 'scheduled-actions',
     steps: useMemo<Step[]>(
       () => [
         {
           target: '[data-tour="scheduled-actions-page"]',
-          title: 'Ações Agendadas',
-          content: 'Aqui você visualiza e gerencia todas as ações programadas para serem executadas automaticamente em contatos — como envio de mensagens em datas específicas.',
+          title: tUi("contacts:scheduledActions.label"),
+          content: tUi("interface:scheduledactionstour.viewAndManageActionsScheduledToRunAutomaticallyForContacts"),
           placement: 'auto',
           disableBeacon: true,
           disableScrolling: true,
         },
         {
           target: '[data-tour="scheduled-actions-search"]',
-          title: 'Buscar Ações',
-          content: 'Pesquise ações agendadas pelo nome do contato, tipo de ação ou qualquer outro campo para encontrar rapidamente o que precisa.',
+          title: tUi("interface:scheduledactionstour.searchActions"),
+          content: tUi("interface:scheduledactionstour.searchScheduledActionsByContactNameActionTypeOrAnother"),
           placement: 'auto',
           disableBeacon: true,
           disableScrolling: true,
         },
         {
           target: '[data-tour="scheduled-actions-new-button"]',
-          title: 'Nova Ação Agendada',
-          content: 'Clique aqui para criar uma nova ação agendada. Você poderá escolher o contato, definir o tipo de ação e configurar a data e hora de execução.',
+          title: tUi("contacts:scheduledActions.title"),
+          content: tUi("interface:scheduledactionstour.createAScheduledActionChooseAContactActionTypeAnd"),
           placement: 'auto',
           disableBeacon: true,
           disableScrolling: true,
         },
         {
           target: '[data-tour="scheduled-actions-content"]',
-          title: 'Lista de Ações',
-          content: 'Todas as ações agendadas aparecem aqui com status (agendada, executada, cancelada) e contagem regressiva. Use as ações da linha para editar ou cancelar uma ação antes da execução.',
+          title: tUi("interface:scheduledactionstour.actionsList"),
+          content: tUi("interface:scheduledactionstour.viewEachActionSStatusScheduledCompletedOrCancelledAnd"),
           placement: 'auto',
           disableBeacon: true,
           disableScrolling: true,
         },
       ],
-      [],
+      [tUi],
     ),
   });
   const controlsRef = useRef(controls);

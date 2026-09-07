@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback } from 'react';
 import { journeyService } from '../services/journeys/journeyService';
 
@@ -21,6 +22,7 @@ interface UseJourneyVariablesReturn {
 }
 
 export function useJourneyVariables(journeyId?: string): UseJourneyVariablesReturn {
+  const { t: tUi } = useUiTranslation();
   const [variables, setVariables] = useState<JourneyVariable[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,13 +39,13 @@ export function useJourneyVariables(journeyId?: string): UseJourneyVariablesRetu
       const response = await journeyService.getJourneyVariables(journeyId);
       setVariables(response.data || []);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      const errorMessage = err instanceof Error ? err.message : tUi("customMcpServers:test.unknownError");
       setError(errorMessage);
       console.error('❌ Erro ao buscar variáveis:', err);
     } finally {
       setLoading(false);
     }
-  }, [journeyId]);
+  }, [journeyId, tUi]);
 
   const updateVariables = useCallback(
     async (newVariables: JourneyVariable[]) => {
@@ -59,7 +61,7 @@ export function useJourneyVariables(journeyId?: string): UseJourneyVariablesRetu
         const response = await journeyService.updateJourneyVariables(journeyId, newVariables);
         setVariables(response.data);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+        const errorMessage = err instanceof Error ? err.message : tUi("customMcpServers:test.unknownError");
         setError(errorMessage);
         console.error('❌ Erro ao salvar variáveis:', err);
         throw err;
@@ -67,7 +69,7 @@ export function useJourneyVariables(journeyId?: string): UseJourneyVariablesRetu
         setLoading(false);
       }
     },
-    [journeyId],
+    [journeyId, tUi],
   );
 
   const addVariable = useCallback(

@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -62,7 +63,8 @@ async function emitirMeta(event: string) {
 }
 
 describe('HubConnectButton — estado real da conexão', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('pt-BR');
     vi.clearAllMocks();
     vi.spyOn(window, 'open').mockImplementation(() => null);
   });
@@ -133,7 +135,8 @@ describe('HubConnectButton — estado real da conexão', () => {
 // attempt ending in cancel or error has to take the inbox down with it: the
 // orphan burns plan quota and shows up as a connection that never happened.
 describe('HubConnectButton — descarte da conexão que não concluiu', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('pt-BR');
     vi.clearAllMocks();
     vi.spyOn(window, 'open').mockImplementation(() => null);
     vi.mocked(hubApi.delete).mockResolvedValue({} as never);

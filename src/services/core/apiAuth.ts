@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/store/authStore';
 import { requestMonitor } from '@/utils/requestMonitor';
@@ -155,7 +156,7 @@ authApi.interceptors.response.use(
           isRefreshing = false;
           return authApi(originalRequest);
         } else {
-          throw new Error('New token not received');
+          throw new Error(i18n.t("interface:apiauth.noNewTokenReceived"));
         }
       } catch (refreshError) {
         processQueue(refreshError as Error, null);

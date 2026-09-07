@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
@@ -89,6 +91,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   channelType,
   channelProvider,
 }) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('chat');
   const { user } = useAuth();
 
@@ -582,11 +585,11 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
     if (messageKey === 'cmd_enter') {
       const modifier = getModifierSymbol();
-      return `Enviar (${modifier} + Enter)`;
+      return i18n.t("interface:messages.sendShortcut", { modifier });
     }
 
-    return 'Enviar (Enter)';
-  }, [user?.ui_settings?.editor_message_key]);
+    return tUi("interface:messageinput.sendEnter");
+  }, [user?.ui_settings?.editor_message_key, tUi]);
 
   // Componente de preview da resposta
   const ReplyPreview = ({ message, onCancel }: { message: Message; onCancel: () => void }) => (

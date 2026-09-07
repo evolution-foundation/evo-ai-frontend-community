@@ -1,8 +1,10 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback } from 'react';
 import { usersService } from '@/services/users';
 import type { User } from '@/types/users';
 
 export function useAccountUsers() {
+  const { t: tUi } = useUiTranslation();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,12 +24,12 @@ export function useAccountUsers() {
       }
     } catch (err) {
       console.error('Error loading account users:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao carregar usuários');
+      setError(err instanceof Error ? err.message : tUi("interface:useaccountusers.couldNotLoadUsers"));
       setUsers([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tUi]);
 
   useEffect(() => {
     loadUsers();

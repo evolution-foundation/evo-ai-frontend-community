@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import axios, { AxiosRequestConfig, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/store/authStore';
 import { requestMonitor } from '@/utils/requestMonitor';
@@ -127,7 +128,7 @@ api.interceptors.response.use(
         const newAccessToken = refreshData?.access_token || refreshData?.token?.access_token;
 
         if (!newAccessToken) {
-          throw new Error('New token not received');
+          throw new Error(i18n.t("interface:api.noNewTokenReceived"));
         }
 
         useAuthStore.getState().setAccessToken(newAccessToken);

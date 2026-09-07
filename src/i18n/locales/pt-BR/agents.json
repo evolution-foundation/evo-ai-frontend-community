@@ -90,7 +90,8 @@
     "viewDenied": "Você não tem permissão para visualizar agentes de IA",
     "createDenied": "Você não tem permissão para criar agentes de IA",
     "editDenied": "Você não tem permissão para editar agentes de IA",
-    "deleteDenied": "Você não tem permissão para excluir agentes de IA"
+    "deleteDenied": "Você não tem permissão para excluir agentes de IA",
+    "updateDenied": "Você não tem permissão para editar agentes"
   },
   "loadError": "Erro ao carregar agentes de IA",
   "createAgent": "Novo Agente de IA",

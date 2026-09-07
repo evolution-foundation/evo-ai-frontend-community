@@ -51,11 +51,10 @@ export const PipelineRulesModal = ({
       <DialogContent className="max-h-[90vh] gap-3 overflow-y-auto p-5 sm:max-w-[820px]">
         <DialogHeader className="sm:text-center">
           <DialogTitle className="text-xl font-bold text-foreground">
-            {t('edit.configuration.pipelineRules.modalTitle') || 'Regras de Pipeline'}
+            {t('edit.configuration.pipelineRules.modalTitle')}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            {t('edit.configuration.pipelineRules.modalDescription') ||
-              'Configure quando e como o agente deve mover conversas entre pipelines e estágios.'}
+            {t('edit.configuration.pipelineRules.modalDescription')}
           </DialogDescription>
         </DialogHeader>
         <div className="py-1">

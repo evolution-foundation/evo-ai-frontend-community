@@ -14,42 +14,42 @@ export function WhatsAppForm({ config, onConfigChange }: IntegrationFormProps) {
     <div className="space-y-4">
       <FormField
         id="WP_APP_ID"
-        label={t('integrations.whatsapp.appId')}
+        label={t("whatsapp.appId")}
         value={getValue('wpAppId')}
         onChange={(value) => onConfigChange('wpAppId', value)}
-        placeholder={t('integrations.whatsapp.placeholders.appId')}
+        placeholder={t("whatsapp.placeholders.appId")}
         required
       />
       <FormField
         id="WP_APP_SECRET"
-        label={t('integrations.whatsapp.appSecret')}
+        label={t("whatsapp.appSecret")}
         value={getValue('wpAppSecret')}
         onChange={(value) => onConfigChange('wpAppSecret', value)}
-        placeholder={t('integrations.whatsapp.placeholders.appSecret')}
+        placeholder={t("whatsapp.placeholders.appSecret")}
         type="password"
       />
       <FormField
         id="WP_WHATSAPP_CONFIG_ID"
-        label={t('integrations.whatsapp.configId')}
+        label={t("whatsapp.configId")}
         value={getValue('wpWhatsappConfigId')}
         onChange={(value) => onConfigChange('wpWhatsappConfigId', value)}
-        placeholder={t('integrations.whatsapp.placeholders.configId')}
+        placeholder={t("whatsapp.placeholders.configId")}
         required
       />
       <FormField
         id="WP_VERIFY_TOKEN"
-        label={t('integrations.whatsapp.verifyToken')}
+        label={t("whatsapp.verifyToken")}
         value={getValue('wpVerifyToken')}
         onChange={(value) => onConfigChange('wpVerifyToken', value)}
-        placeholder={t('integrations.whatsapp.placeholders.verifyToken')}
+        placeholder={t("whatsapp.placeholders.verifyToken")}
         type="password"
       />
       <FormField
         id="WP_API_VERSION"
-        label={t('integrations.whatsapp.apiVersion')}
+        label={t("whatsapp.apiVersion")}
         value={getValue('wpApiVersion', 'v23.0')}
         onChange={(value) => onConfigChange('wpApiVersion', value)}
-        placeholder={t('integrations.whatsapp.placeholders.apiVersion')}
+        placeholder={t("whatsapp.placeholders.apiVersion")}
       />
     </div>
   );

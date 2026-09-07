@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback } from 'react';
 import { contactsService } from '@/services/contacts';
 
@@ -42,6 +43,7 @@ function isCacheValid(cacheKey: string): boolean {
 }
 
 export function useContactPipelinesCache(contactId: string) {
+  const { t: tUi } = useUiTranslation();
   const [pipelines, setPipelines] = useState<ContactPipelineInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -86,7 +88,7 @@ export function useContactPipelinesCache(contactId: string) {
           return data as ContactPipelineInfo[];
         } catch (err) {
           console.error('Error loading contact pipelines:', err);
-          setError(err instanceof Error ? err : new Error('Failed to load pipelines'));
+          setError(err instanceof Error ? err : new Error(tUi("interface:usecontactpipelinescache.couldNotLoadPipelines")));
           setPipelines([]);
           return [];
         } finally {
@@ -105,7 +107,7 @@ export function useContactPipelinesCache(contactId: string) {
         setError(null);
       } catch (err) {
         console.error('Error loading contact pipelines:', err);
-        setError(err instanceof Error ? err : new Error('Failed to load pipelines'));
+        setError(err instanceof Error ? err : new Error(tUi("interface:usecontactpipelinescache.couldNotLoadPipelines")));
         setPipelines([]);
       } finally {
         setIsLoading(false);
@@ -113,7 +115,7 @@ export function useContactPipelinesCache(contactId: string) {
     };
 
     loadPipelines();
-  }, [contactId, cacheKey]);
+  }, [contactId, cacheKey, tUi]);
 
   // Função para invalidar o cache
   const invalidateCache = useCallback(() => {

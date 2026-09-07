@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -32,6 +33,7 @@ const LinearConfigDialog = ({
   initialConfig,
   agentId,
 }: LinearConfigDialogProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
 
   const [isConnecting, setIsConnecting] = useState(false);
@@ -102,7 +104,7 @@ const LinearConfigDialog = ({
       setAvailableTools(response.tools || []);
     } catch (error) {
       console.error('Error loading Linear tools:', error);
-      toast.error('Erro ao carregar ferramentas disponíveis');
+      toast.error(tUi("interface:linearconfigdialog.couldNotLoadAvailableTools"));
     } finally {
       setIsLoadingTools(false);
     }
@@ -119,7 +121,7 @@ const LinearConfigDialog = ({
       }
     } catch (error) {
       console.error('Error connecting to Linear:', error);
-      toast.error('Erro ao conectar com Linear');
+      toast.error(tUi("interface:linearconfigdialog.couldNotConnectToLinear"));
     } finally {
       setIsConnecting(false);
     }
@@ -157,11 +159,11 @@ const LinearConfigDialog = ({
 
       // Then update local state
       onSave(updatedConfig);
-      toast.success('Configurações salvas com sucesso!');
+      toast.success(tUi("integrations:messages.saveSuccess"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error saving Linear configuration:', error);
-      toast.error('Erro ao salvar configurações');
+      toast.error(tUi("integrations:messages.saveError"));
     }
   };
 
@@ -171,11 +173,11 @@ const LinearConfigDialog = ({
       if (onDisconnect) {
         onDisconnect();
       }
-      toast.success('Linear desconectado com sucesso!');
+      toast.success(tUi("interface:linearconfigdialog.linearDisconnectedSuccessfully"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error disconnecting Linear:', error);
-      toast.error('Erro ao desconectar Linear');
+      toast.error(tUi("interface:linearconfigdialog.couldNotDisconnectLinear"));
     }
   };
 
@@ -197,7 +199,7 @@ const LinearConfigDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BrandIcon id="linear" size={20} className="h-5 w-5" />
-            {t('edit.integrations.linear.configTitle') || 'Configurar Linear'}
+            {t('edit.integrations.linear.configTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -212,11 +214,10 @@ const LinearConfigDialog = ({
               </div>
               <div>
                 <h3 className="text-lg font-semibold">
-                  {t('edit.integrations.linear.connectTitle') || 'Conectar com Linear'}
+                  {t('edit.integrations.linear.connectTitle')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.linear.connectDescription') ||
-                    'Conecte sua conta Linear para permitir que o agente acesse issues, projetos e roadmaps'}
+                  {t('edit.integrations.linear.connectDescription')}
                 </p>
               </div>
             </div>
@@ -230,12 +231,12 @@ const LinearConfigDialog = ({
               {isConnecting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('edit.integrations.linear.connecting') || 'Conectando...'}
+                  {t('edit.integrations.linear.connecting')}
                 </>
               ) : (
                 <>
                   <BrandIcon id="linear" size={16} className="mr-2 h-4 w-4" />
-                  {t('edit.integrations.linear.connectButton') || 'Conectar com Linear'}
+                  {t('edit.integrations.linear.connectButton')}
                 </>
               )}
             </Button>
@@ -248,12 +249,12 @@ const LinearConfigDialog = ({
                 <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
                   <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
                   <span className="font-medium">
-                    {t('edit.integrations.linear.connected') || 'Conectado'}
+                    {t('edit.integrations.linear.connected')}
                   </span>
                 </div>
                 {config.username && (
                   <p className="text-sm text-green-700 dark:text-green-300 mt-2">
-                    {t('edit.integrations.linear.connectedAs') || 'Conectado como'}:{' '}
+                    {t('edit.integrations.linear.connectedAs')}:{' '}
                     <strong>{config.username}</strong>
                   </p>
                 )}
@@ -264,8 +265,7 @@ const LinearConfigDialog = ({
 
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.linear.connectedDescription') ||
-                    'O agente agora pode acessar issues, projetos e roadmaps do Linear.'}
+                  {t('edit.integrations.linear.connectedDescription')}
                 </p>
               </div>
             </div>
@@ -275,7 +275,7 @@ const LinearConfigDialog = ({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium">
-                    {t('edit.integrations.linear.toolsTitle') || 'Ferramentas Disponíveis'}
+                    {t('edit.integrations.linear.toolsTitle')}
                   </h4>
                   {availableTools.length > 0 && (
                     <div className="flex items-center space-x-2">
@@ -288,14 +288,13 @@ const LinearConfigDialog = ({
                         onCheckedChange={handleSelectAll}
                       />
                       <Label htmlFor="select-all" className="text-xs font-medium cursor-pointer">
-                        {t('edit.integrations.linear.selectAll') || 'Selecionar todas'}
+                        {t('edit.integrations.linear.selectAll')}
                       </Label>
                     </div>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mb-3">
-                  {t('edit.integrations.linear.toolsDescription') ||
-                    'Selecione quais ferramentas do Linear o agente poderá usar'}
+                  {t('edit.integrations.linear.toolsDescription')}
                 </p>
               </div>
 
@@ -328,14 +327,14 @@ const LinearConfigDialog = ({
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center p-4">
-                  {t('edit.integrations.linear.noTools') || 'Nenhuma ferramenta disponível'}
+                  {t('edit.integrations.linear.noTools')}
                 </p>
               )}
             </div>
 
             <div className="flex flex-col gap-3 pt-4 border-t">
               <Button onClick={handleSave} className="w-full">
-                {t('edit.integrations.linear.saveConfig') || 'SALVAR CONFIGURAÇÕES'}
+                {t('edit.integrations.linear.saveConfig')}
               </Button>
 
               {onDisconnect && (
@@ -344,7 +343,7 @@ const LinearConfigDialog = ({
                   onClick={handleDisconnect}
                   className="w-full text-destructive hover:text-destructive/80"
                 >
-                  {t('edit.integrations.linear.disconnect') || 'Desconectar'}
+                  {t('edit.integrations.linear.disconnect')}
                 </Button>
               )}
             </div>

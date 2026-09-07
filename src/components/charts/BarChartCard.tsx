@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@evoapi/design-system';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { LucideIcon } from 'lucide-react';
@@ -35,7 +36,7 @@ const BarChartCard = ({
   color = '#3b82f6',
   gradientFrom = '#3b82f6',
   gradientTo = '#8b5cf6',
-  valueFormatter = (value) => value.toLocaleString(),
+  valueFormatter = (value) => value.toLocaleString(getFormattingLocale()),
   highlightMax = true,
   tooltip,
 }: BarChartCardProps) => {

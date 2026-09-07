@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -46,7 +47,8 @@ const perplexityKey: ApiKey = {
   updated_at: '2026-01-01T00:00:00Z',
 };
 
-beforeEach(() => {
+beforeEach(async () => {
+  await i18n.changeLanguage('en');
   listApiKeyModels.mockReset();
 });
 

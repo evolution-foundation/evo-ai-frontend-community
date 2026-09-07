@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { BaseFilter, FilterType, OPERATOR_TYPES_1, OPERATOR_TYPES_3, OPERATOR_TYPES_5 } from '@/types/core';
 
 
@@ -5,7 +6,7 @@ import { BaseFilter, FilterType, OPERATOR_TYPES_1, OPERATOR_TYPES_3, OPERATOR_TY
 export const USER_FILTER_TYPES: FilterType[] = [
   {
     attributeKey: 'name',
-    attributeI18nKey: 'Nome',
+    attributeI18nKey: "roles:table.name",
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -13,7 +14,7 @@ export const USER_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'email',
-    attributeI18nKey: 'Email',
+    attributeI18nKey: 'common:filterFields.email',
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -21,44 +22,44 @@ export const USER_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'role',
-    attributeI18nKey: 'Função',
+    attributeI18nKey: "users:card.role",
     inputType: 'search_select',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_1,
     attribute_type: 'standard',
     options: [
-      { label: 'Administrador', value: 'administrator' },
-      { label: 'Agente', value: 'agent' },
+      { get label() { return i18n.t("integrations:oauth.modal.presets.admin"); }, value: 'administrator' },
+      { get label() { return i18n.t("aiAgents:wizard.step3.taskConfig.agentLabel"); }, value: 'agent' },
     ],
   },
   {
     attributeKey: 'availability_status',
-    attributeI18nKey: 'Disponibilidade',
+    attributeI18nKey: 'common:filterFields.availability',
     inputType: 'search_select',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_1,
     attribute_type: 'standard',
     options: [
       { label: 'Online', value: 'online' },
-      { label: 'Ocupado', value: 'busy' },
+      { get label() { return i18n.t("users:details.status.busy"); }, value: 'busy' },
       { label: 'Offline', value: 'offline' },
     ],
   },
   {
     attributeKey: 'confirmed',
-    attributeI18nKey: 'Status de Confirmação',
+    attributeI18nKey: "interface:usersFilters.confirmationStatus",
     inputType: 'search_select',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_1,
     attribute_type: 'standard',
     options: [
-      { label: 'Confirmado', value: 'true' },
-      { label: 'Pendente', value: 'false' },
+      { get label() { return i18n.t("users:table.columns.confirmed"); }, value: 'true' },
+      { get label() { return i18n.t("common:base.status.pending"); }, value: 'false' },
     ],
   },
   {
     attributeKey: 'created_at',
-    attributeI18nKey: 'Data de Criação',
+    attributeI18nKey: "contacts:export.fields.createdAt",
     inputType: 'date',
     dataType: 'date',
     filterOperators: OPERATOR_TYPES_5,

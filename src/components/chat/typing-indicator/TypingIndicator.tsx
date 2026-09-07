@@ -27,14 +27,14 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({ typingUsers, classNam
     }
 
     if (typingUsers.length === 1) {
-      return t('typingIndicator.single', { name: typingUsers[0].name });
+      return t("contactSidebar.typingIndicator.single", { name: typingUsers[0].name });
     } else if (typingUsers.length === 2) {
-      return t('typingIndicator.two', {
+      return t("contactSidebar.typingIndicator.two", {
         name1: typingUsers[0].name,
         name2: typingUsers[1].name,
       });
     } else {
-      return t('typingIndicator.multiple', {
+      return t("contactSidebar.typingIndicator.multiple", {
         name: typingUsers[0].name,
         count: typingUsers.length - 1,
       });

@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback } from 'react';
 import { integrationsService } from '@/services/integrations';
 import { toast } from 'sonner';
@@ -17,6 +19,7 @@ interface UseOAuthFlowReturn {
 }
 
 export function useOAuthFlow(options: UseOAuthFlowOptions): UseOAuthFlowReturn {
+  const { t: tUi } = useUiTranslation();
   const { integrationId, redirectUri, onSuccess, onError } = options;
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,12 +58,12 @@ export function useOAuthFlow(options: UseOAuthFlowOptions): UseOAuthFlowReturn {
       };
 
       if (!baseUrls[integrationId] && integrationId !== 'shopify') {
-        throw new Error(`OAuth não suportado para ${integrationId}`);
+        throw new Error(i18n.t("interface:messages.unsupportedOAuth", { integration: integrationId }));
       }
 
       const clientId = clientIds[integrationId];
       if (!clientId) {
-        throw new Error(`Client ID não configurado para ${integrationId}`);
+        throw new Error(i18n.t("interface:messages.missingClientId", { integration: integrationId }));
       }
 
       const scope = scopes[integrationId]?.join(' ') || '';
@@ -81,10 +84,10 @@ export function useOAuthFlow(options: UseOAuthFlowOptions): UseOAuthFlowReturn {
         // For Shopify, we need the shop domain which should be provided separately
         // This is a simplified example - in practice you'd get the shop domain from user input
         const shopDomain = prompt(
-          'Digite o domínio da sua loja Shopify (exemplo: minhaloja.myshopify.com):',
+          tUi("interface:useoauthflow.enterYourShopifyStoreDomainForExampleMystoreMyshopifyCom"),
         );
         if (!shopDomain) {
-          throw new Error('Domínio da loja é obrigatório para Shopify');
+          throw new Error(tUi("interface:useoauthflow.aStoreDomainIsRequiredForShopify"));
         }
         authUrl = `https://${shopDomain}/admin/oauth/authorize?${params.toString()}`;
       } else {
@@ -94,13 +97,13 @@ export function useOAuthFlow(options: UseOAuthFlowOptions): UseOAuthFlowReturn {
       // Redirect to OAuth provider
       window.location.href = authUrl;
     } catch (err: any) {
-      const errorMsg = err.message || 'Erro ao iniciar fluxo OAuth';
+      const errorMsg = err.message || tUi("interface:useoauthflow.couldNotStartOauthFlow");
       setError(errorMsg);
       console.error('Error initiating OAuth flow:', err);
       toast.error(errorMsg);
       onError?.(err);
     }
-  }, [integrationId, redirectUri, onError]);
+  }, [integrationId, redirectUri, onError, tUi]);
 
   const exchangeCode = useCallback(
     async (code: string) => {
@@ -115,10 +118,10 @@ export function useOAuthFlow(options: UseOAuthFlowOptions): UseOAuthFlowReturn {
             redirectUri || `${window.location.origin}/integrations/${integrationId}/callback`,
         });
 
-        toast.success(`${integrationId} conectado com sucesso!`);
+        toast.success(i18n.t("interface:dynamic.integrationConnected", { integration: integrationId }));
         onSuccess?.(tokenData);
       } catch (err: any) {
-        const errorMsg = err.message || 'Erro ao conectar integração';
+        const errorMsg = err.message || tUi("interface:useoauthflow.couldNotConnectIntegration");
         setError(errorMsg);
         console.error('Error exchanging OAuth code:', err);
         toast.error(errorMsg);
@@ -127,7 +130,7 @@ export function useOAuthFlow(options: UseOAuthFlowOptions): UseOAuthFlowReturn {
         setIsProcessing(false);
       }
     },
-    [integrationId, redirectUri, onSuccess, onError],
+    [integrationId, redirectUri, onSuccess, onError, tUi],
   );
 
   // Handle OAuth callback if code is present in URL
@@ -138,7 +141,7 @@ export function useOAuthFlow(options: UseOAuthFlowOptions): UseOAuthFlowReturn {
     const error = urlParams.get('error');
 
     if (error) {
-      const errorMsg = `OAuth error: ${error}`;
+      const errorMsg = i18n.t("interface:messages.oauthError", { error });
       setError(errorMsg);
       toast.error(errorMsg);
       onError?.(error);

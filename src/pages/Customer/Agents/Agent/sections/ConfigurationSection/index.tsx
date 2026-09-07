@@ -112,10 +112,9 @@ const ConfigurationSection = ({
     <div className="space-y-4">
       {showModelCard && (
         <CollapsibleCard
-          title={t('edit.configuration.sections.modelAndApi.title') || 'Modelo e API'}
+          title={t('edit.configuration.sections.modelAndApi.title')}
           subtitle={
-            t('edit.configuration.sections.modelAndApi.subtitle') ||
-            'Configure o modelo de linguagem e a chave de API'
+            t('edit.configuration.sections.modelAndApi.subtitle')
           }
           icon={<Key className="h-5 w-5" />}
         >
@@ -136,10 +135,9 @@ const ConfigurationSection = ({
 
       {showBehaviorCard && (
         <CollapsibleCard
-          title={t('edit.configuration.sections.behavior.title') || 'Comportamento na Conversa'}
+          title={t('edit.configuration.sections.behavior.title')}
           subtitle={
-            t('edit.configuration.sections.behavior.subtitle') ||
-            'Configure como o agente interage com os usuários'
+            t('edit.configuration.sections.behavior.subtitle')
           }
           icon={<MessageSquare className="h-5 w-5" />}
         >
@@ -156,11 +154,10 @@ const ConfigurationSection = ({
       {showMessageCard && (
         <CollapsibleCard
           title={
-            t('edit.configuration.sections.messageHandling.title') || 'Tratamento de Mensagens'
+            t('edit.configuration.sections.messageHandling.title')
           }
           subtitle={
-            t('edit.configuration.sections.messageHandling.subtitle') ||
-            'Configure como as mensagens são processadas e enviadas'
+            t('edit.configuration.sections.messageHandling.subtitle')
           }
           icon={<Clock className="h-5 w-5" />}
         >
@@ -185,11 +182,11 @@ const ConfigurationSection = ({
           <TabsList className="mb-4 grid h-auto w-full grid-cols-2 gap-2 rounded-[12px] border border-border bg-card p-[6px] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
             <TabsTrigger value="general" className={SEGMENT_CLASS}>
               <Settings className="size-[18px]" />
-              {t('edit.configuration.tabs.general') || 'Geral'}
+              {t('edit.configuration.tabs.general')}
             </TabsTrigger>
             <TabsTrigger value="inactivity" className={SEGMENT_CLASS}>
               <Clock className="size-[18px]" />
-              {t('edit.configuration.tabs.inactivityActions') || 'Ações de inatividade'}
+              {t('edit.configuration.tabs.inactivityActions')}
             </TabsTrigger>
           </TabsList>
 

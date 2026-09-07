@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 interface WizardProgressProps {
   currentStep: number;
   totalSteps: number;
@@ -8,6 +9,7 @@ interface WizardProgressProps {
 }
 
 const WizardProgress = ({ currentStep, totalSteps, steps }: WizardProgressProps) => {
+  const { t: tUi } = useUiTranslation();
   const progressPercentage = Math.round(((currentStep - 1) / (totalSteps - 1)) * 100);
 
   return (
@@ -63,8 +65,7 @@ const WizardProgress = ({ currentStep, totalSteps, steps }: WizardProgressProps)
       <div className="flex items-end justify-between pt-4 border-t border-border mt-4">
         <div className="flex flex-col">
           <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">
-            Visualizando Passo
-          </p>
+            {tUi("interface:wizardprogress.viewingStep")}</p>
           <h3 className="text-xl font-bold tracking-tight text-foreground uppercase">
             {currentStep}. {steps[currentStep - 1]?.label}
           </h3>
@@ -74,8 +75,7 @@ const WizardProgress = ({ currentStep, totalSteps, steps }: WizardProgressProps)
             {progressPercentage}%
           </div>
           <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
-            Completo
-          </p>
+            {tUi("interface:wizardprogress.complete")}</p>
         </div>
       </div>
     </div>

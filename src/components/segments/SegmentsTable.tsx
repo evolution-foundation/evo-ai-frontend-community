@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState } from 'react';
 import { Edit, Trash2, Play, Pause, RefreshCw, List } from 'lucide-react';
 import { Badge } from '@evoapi/design-system';
@@ -69,7 +70,7 @@ export default function SegmentsTable({
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
+    return new Date(dateString).toLocaleDateString(getFormattingLocale(), {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -98,14 +99,14 @@ export default function SegmentsTable({
     {
       key: 'contactsCount',
       label: t('table.columns.contacts'),
-      render: (segment: Segment) => getStatusBadge(segment.contactsCount.toLocaleString()),
+      render: (segment: Segment) => getStatusBadge(segment.contactsCount.toLocaleString(getFormattingLocale())),
     },
     {
       key: 'lastComputedAt',
       label: t('table.columns.lastComputed'),
       render: (segment: Segment) => (
         <div className="text-sm text-muted-foreground">
-          {segment.lastComputedAt ? formatDate(segment.lastComputedAt) : t('table.never')}
+          {segment.lastComputedAt ? formatDate(segment.lastComputedAt) : t("createEdit.lastComputedNever")}
         </div>
       ),
     },

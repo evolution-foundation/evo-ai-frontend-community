@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { 
@@ -45,6 +47,7 @@ interface UsePermissionsReturn {
 }
 
 export const usePermissions = (): UsePermissionsReturn => {
+  const { t: tUi } = useUiTranslation();
   const [permissions, setPermissions] = useState<RolePermission[]>([]);
   const [selectedPermissions, setSelectedPermissions] = useState<RolePermission[]>([]);
   const [meta, setMeta] = useState({
@@ -92,11 +95,11 @@ export const usePermissions = (): UsePermissionsReturn => {
       setStats({ total, system, custom, with_permissions });
     } catch (error) {
       console.error('Error loading role permissions:', error);
-      toast.error('Erro ao carregar permissões de função');
+      toast.error(tUi("interface:usepermissions.couldNotLoadRolePermissions"));
     } finally {
       updateLoading('list', false);
     }
-  }, [updateLoading]);
+  }, [updateLoading, tUi]);
 
   const selectPermissions = useCallback((newSelectedPermissions: RolePermission[]) => {
     setSelectedPermissions(newSelectedPermissions);
@@ -113,16 +116,16 @@ export const usePermissions = (): UsePermissionsReturn => {
       // Delete all permissions for this role
       await deleteRolePermission(permission.role_id);
       
-      toast.success(`Permissões da função "${permission.role.name}" removidas com sucesso`);
+      toast.success(i18n.t("interface:messages.rolePermissionsRemoved", { role: permission.role.name }));
       
     } catch (error) {
       console.error('Error deleting role permissions:', error);
-      toast.error('Erro ao remover permissões da função');
+      toast.error(tUi("interface:usepermissions.couldNotRemovePermissionsFromRole"));
       throw error;
     } finally {
       updateLoading('delete', false);
     }
-  }, [updateLoading]);
+  }, [updateLoading, tUi]);
 
   const deleteBulkPermissions = useCallback(async (permissionsToDelete: RolePermission[]) => {
     updateLoading('bulk', true);
@@ -135,19 +138,19 @@ export const usePermissions = (): UsePermissionsReturn => {
         )
       );
       
-      toast.success(`${permissionsToDelete.length} permissões de função excluídas com sucesso`);
+      toast.success(i18n.t("interface:messages.rolePermissionsDeleted", { count: permissionsToDelete.length }));
       
       // Clear selection after successful deletion
       clearSelection();
       
     } catch (error) {
       console.error('Error bulk deleting role permissions:', error);
-      toast.error('Erro ao excluir permissões de função');
+      toast.error(tUi("interface:usepermissions.couldNotDeleteRolePermissions"));
       throw error;
     } finally {
       updateLoading('bulk', false);
     }
-  }, [updateLoading, clearSelection]);
+  }, [updateLoading, clearSelection, tUi]);
   
   const [stats, setStats] = useState({
     total: 0,

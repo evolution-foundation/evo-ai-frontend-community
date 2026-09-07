@@ -46,7 +46,7 @@ export const BehaviorPanel = ({
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <Label htmlFor="transfer-to-human" className="font-medium cursor-pointer">
-                {t('edit.configuration.behavior.transferToHuman') || 'Transferir para humano'}
+                {t('edit.configuration.behavior.transferToHuman')}
               </Label>
               {behaviorSettings.transferToHuman && (
                 <Button
@@ -57,13 +57,12 @@ export const BehaviorPanel = ({
                   className="h-7 px-2 text-xs"
                 >
                   <Settings className="h-3 w-3 mr-1" />
-                  {t('edit.configuration.behavior.configureRules') || 'Configurar regras'}
+                  {t('edit.configuration.behavior.configureRules')}
                 </Button>
               )}
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              {t('edit.configuration.behavior.transferToHumanDescription') ||
-                'Permite que o agente transfira a conversa para um atendente humano quando necessário'}
+              {t('edit.configuration.behavior.transferToHumanDescription')}
             </p>
           </div>
         </div>
@@ -81,11 +80,10 @@ export const BehaviorPanel = ({
           <Bell className="h-5 w-5 text-orange-500 mt-0.5" />
           <div className="flex-1">
             <Label htmlFor="allow-reminders" className="font-medium cursor-pointer">
-              {t('edit.configuration.behavior.allowReminders') || 'Permitir registrar lembretes'}
+              {t('edit.configuration.behavior.allowReminders')}
             </Label>
             <p className="text-sm text-muted-foreground mt-1">
-              {t('edit.configuration.behavior.allowRemindersDescription') ||
-                'Permite que o agente registre lembretes e tarefas para o usuário'}
+              {t('edit.configuration.behavior.allowRemindersDescription')}
             </p>
           </div>
         </div>
@@ -104,7 +102,7 @@ export const BehaviorPanel = ({
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <Label htmlFor="allow-contact-edit" className="font-medium cursor-pointer">
-                {t('edit.configuration.behavior.allowContactEdit') || 'Permitir editar contatos'}
+                {t('edit.configuration.behavior.allowContactEdit')}
               </Label>
               {behaviorSettings.allowContactEdit && (
                 <Button
@@ -115,13 +113,12 @@ export const BehaviorPanel = ({
                   className="h-7 px-2 text-xs"
                 >
                   <Settings className="h-3 w-3 mr-1" />
-                  {t('edit.configuration.behavior.configureRules') || 'Configurar regras'}
+                  {t('edit.configuration.behavior.configureRules')}
                 </Button>
               )}
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              {t('edit.configuration.behavior.allowContactEditDescription') ||
-                'Permite que o agente edite informações de contato durante a conversa'}
+              {t('edit.configuration.behavior.allowContactEditDescription')}
             </p>
           </div>
         </div>
@@ -140,8 +137,7 @@ export const BehaviorPanel = ({
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <Label htmlFor="allow-pipeline-manipulation" className="font-medium cursor-pointer">
-                {t('edit.configuration.behavior.allowPipelineManipulation') ||
-                  'Permitir manipular pipelines'}
+                {t('edit.configuration.behavior.allowPipelineManipulation')}
               </Label>
               {behaviorSettings.allowPipelineManipulation && (
                 <Button
@@ -152,13 +148,12 @@ export const BehaviorPanel = ({
                   className="h-7 px-2 text-xs"
                 >
                   <Settings className="h-3 w-3 mr-1" />
-                  {t('edit.configuration.behavior.configureRules') || 'Configurar'}
+                  {t('edit.configuration.behavior.configureRules')}
                 </Button>
               )}
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              {t('edit.configuration.behavior.allowPipelineManipulationDescription') ||
-                'Permite que o agente mova conversas entre pipelines e estágios conforme regras definidas'}
+              {t('edit.configuration.behavior.allowPipelineManipulationDescription')}
             </p>
           </div>
         </div>
@@ -179,11 +174,10 @@ export const BehaviorPanel = ({
           <Tag className="h-5 w-5 text-amber-500 mt-0.5" />
           <div className="flex-1">
             <Label htmlFor="allow-manage-labels" className="font-medium cursor-pointer">
-              {t('edit.configuration.behavior.allowManageLabels') || 'Permitir gerenciar labels'}
+              {t('edit.configuration.behavior.allowManageLabels')}
             </Label>
             <p className="text-sm text-muted-foreground mt-1">
-              {t('edit.configuration.behavior.allowManageLabelsDescription') ||
-                'Permite que o agente adicione e remova labels da conversa atual'}
+              {t('edit.configuration.behavior.allowManageLabelsDescription')}
             </p>
           </div>
         </div>
@@ -204,12 +198,10 @@ export const BehaviorPanel = ({
           <ShoppingCart className="h-5 w-5 text-emerald-500 mt-0.5" />
           <div className="flex-1">
             <Label htmlFor="allow-product-sales" className="font-medium cursor-pointer">
-              {t('edit.configuration.behavior.allowProductSales') ||
-                'Permitir registrar venda no pipeline'}
+              {t('edit.configuration.behavior.allowProductSales')}
             </Label>
             <p className="text-sm text-muted-foreground mt-1">
-              {t('edit.configuration.behavior.allowProductSalesDescription') ||
-                'Permite que o agente registre produtos vendidos no card do pipeline durante a conversa'}
+              {t('edit.configuration.behavior.allowProductSalesDescription')}
             </p>
           </div>
         </div>
@@ -230,7 +222,7 @@ export const BehaviorPanel = ({
           <Globe className="h-5 w-5 text-green-500 mt-0.5" />
           <div className="flex-1 space-y-2">
             <Label htmlFor="timezone" className="font-medium">
-              {t('edit.configuration.behavior.timezone') || 'Timezone do agente'}
+              {t('edit.configuration.behavior.timezone')}
             </Label>
             <Select
               value={behaviorSettings.timezone}
@@ -251,8 +243,7 @@ export const BehaviorPanel = ({
               </SelectContent>
             </Select>
             <p className="text-sm text-muted-foreground">
-              {t('edit.configuration.behavior.timezoneDescription') ||
-                'Define o fuso horário usado pelo agente para agendamentos e lembretes'}
+              {t('edit.configuration.behavior.timezoneDescription')}
             </p>
           </div>
         </div>

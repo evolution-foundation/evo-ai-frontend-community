@@ -164,7 +164,9 @@
           "daysWeekPlural": "{{count}} days/week",
           "daysWeekAt": "{{count}} day/week at {{time}}",
           "daysWeekPluralAt": "{{count}} days/week at {{time}}",
-          "anyStageTransition": "Triggered on any stage transition"
+          "anyStageTransition": "Triggered on any stage transition",
+          "segmentEntered": "When a contact enters segment “{{segment}}”",
+          "segmentExited": "When a contact leaves segment “{{segment}}”"
         }
       },
       "wait": {
@@ -754,7 +756,8 @@
         }
       },
       "templatesLoadError": "Failed to load templates",
-      "templateConfigured": "Template configured"
+      "templateConfigured": "Template configured",
+      "removeAttachmentLabel": "Remove attachment"
     },
     "sendWebhook": {
       "title": "Configure Webhook",
@@ -1589,7 +1592,7 @@
         "identifier": "Identifier"
       },
       "placeholders": {
-        "name": "Ex: João Silva",
+        "name": "e.g. John Smith",
         "email": "Ex: joao@example.com",
         "phone_number": "Ex: +1234567890",
         "identifier": "Ex: ID-12345"
@@ -1677,7 +1680,10 @@
           "customAttribute": "Custom Attribute"
         },
         "withFilters": "with filters",
-        "usingVariable": "using variable"
+        "usingVariable": "using variable",
+        "selectTypePlaceholder": "Select condition type",
+        "fallbackTimePlaceholder": "Maximum wait time",
+        "fallbackSummary": "Continue after {{time}} {{unit}} if the condition is not met."
       },
       "event": {
         "typeLabel": "Type of Event to Wait",
@@ -1700,7 +1706,10 @@
           "label": "Label",
           "customAttribute": "Custom Attribute",
           "webhook": "Webhook"
-        }
+        },
+        "selectTypePlaceholder": "Select event type",
+        "fallbackTimePlaceholder": "Maximum wait time",
+        "fallbackSummary": "Continue after {{time}} {{unit}} if the event does not occur."
       },
       "hybrid": {
         "maxWaitLabel": "Maximum Wait Time (required)",
@@ -1714,7 +1723,7 @@
         "summaryMiddle": "OR until",
         "summarySuffix": "happen (the first one to occur).",
         "summaryLabel": "Summary",
-        "summaryText": "The journey will wait for a maximum of {{duration}} {{unit}} OR until {{condition}} happens (the first one to occur).",
+        "summaryText": "The journey waits up to {{time}} or until {{trigger}} occurs, whichever happens first.",
         "conditionMetPath": "If the condition is met first → follow the \"Condition met\" path",
         "timeoutPath": "If the time runs out first → follow the \"Timeout\" path",
         "configureEvent": "Configure the event",
@@ -1729,7 +1738,15 @@
           "customAttribute": "Custom Attribute",
           "webhook": "Webhook"
         },
-        "condition": "Condition"
+        "condition": "Condition",
+        "conditionSummary": "Condition on {{field}}",
+        "maxWaitTimeLabel": "Maximum wait time",
+        "tabs": {
+          "event": "Event",
+          "condition": "Condition"
+        },
+        "pathDescription1": "The trigger path runs when the event occurs or the condition is met.",
+        "pathDescription2": "The timeout path runs when the maximum wait time is reached."
       },
       "time": {
         "durationLabel": "Duration",
@@ -1740,7 +1757,8 @@
         "summaryPrefix": "The journey will be paused for",
         "summarySuffix": "before continuing to the next step.",
         "summaryLabel": "Summary",
-        "summaryText": "The journey will be paused for {{duration}} {{unit}} before continuing to the next step."
+        "summaryText": "The journey will be paused for {{duration}} {{unit}} before continuing to the next step.",
+        "timeUnitPlaceholder": "Select time unit"
       },
       "shared": {
         "selectType": "Select the type",
@@ -1752,7 +1770,10 @@
         "timeUnitsSingular": {
           "minutes": "minute",
           "hours": "hour",
-          "days": "day"
+          "days": "day",
+          "minute": "minute",
+          "hour": "hour",
+          "day": "day"
         },
         "timeUnitsPlural": {
           "minutes": "minutes",
@@ -1911,7 +1932,7 @@
       "model": "Model",
       "condition": "Condition",
       "selectCondition": "Select the condition",
-      "value": "Valor",
+      "value": "Value",
       "enterValue": "Enter the value",
       "useVariablesHint": "Use variables clicking on the (x) button.",
       "selectedAttribute": "Selected Attribute",
@@ -1925,7 +1946,8 @@
         "string": "Text",
         "number": "Number",
         "boolean": "True/False",
-        "date": "Date"
+        "date": "Date",
+        "datetime": "Date and time"
       }
     },
     "event": {

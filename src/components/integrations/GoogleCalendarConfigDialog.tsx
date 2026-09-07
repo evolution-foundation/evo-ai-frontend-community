@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -60,6 +61,7 @@ const GoogleCalendarConfigDialog = ({
   initialConfig,
   agentId,
 }: GoogleCalendarConfigDialogProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
 
   const [isConnecting, setIsConnecting] = useState(false);
@@ -109,12 +111,12 @@ const GoogleCalendarConfigDialog = ({
       },
       distributionMode: initialConfig?.settings?.distributionMode || 'sequential',
       bookingFields: initialConfig?.settings?.bookingFields || [
-        { id: '1', name: 'name', label: 'Nome', enabled: false, required: false },
-        { id: '2', name: 'company', label: 'Empresa', enabled: true, required: false },
-        { id: '3', name: 'subject', label: 'Assunto', enabled: true, required: false },
-        { id: '4', name: 'duration', label: 'Duração', enabled: false, required: false },
-        { id: '5', name: 'email', label: 'E-mail', enabled: true, required: false },
-        { id: '6', name: 'summary', label: 'Resumo', enabled: false, required: false },
+        { id: '1', name: 'name', label: tUi("aiAgents:subagents.name"), enabled: false, required: false },
+        { id: '2', name: 'company', label: tUi("aiAgents:edit.integrations.googleCalendar.bookingFields.company"), enabled: true, required: false },
+        { id: '3', name: 'subject', label: tUi("aiAgents:edit.integrations.googleCalendar.bookingFields.subject"), enabled: true, required: false },
+        { id: '4', name: 'duration', label: tUi("aiAgents:edit.integrations.googleCalendar.bookingFields.duration"), enabled: false, required: false },
+        { id: '5', name: 'email', label: tUi("teams:addUsers.table.email"), enabled: true, required: false },
+        { id: '6', name: 'summary', label: tUi("aiAgents:memory.types.summary"), enabled: false, required: false },
       ],
     },
   });
@@ -165,17 +167,17 @@ const GoogleCalendarConfigDialog = ({
           },
           distributionMode: initialConfig?.settings?.distributionMode || 'sequential',
           bookingFields: initialConfig?.settings?.bookingFields || [
-            { id: '1', name: 'name', label: 'Nome', enabled: false, required: false },
-            { id: '2', name: 'company', label: 'Empresa', enabled: true, required: false },
-            { id: '3', name: 'subject', label: 'Assunto', enabled: true, required: false },
-            { id: '4', name: 'duration', label: 'Duração', enabled: false, required: false },
-            { id: '5', name: 'email', label: 'E-mail', enabled: true, required: false },
-            { id: '6', name: 'summary', label: 'Resumo', enabled: false, required: false },
+            { id: '1', name: 'name', label: tUi("aiAgents:subagents.name"), enabled: false, required: false },
+            { id: '2', name: 'company', label: tUi("aiAgents:edit.integrations.googleCalendar.bookingFields.company"), enabled: true, required: false },
+            { id: '3', name: 'subject', label: tUi("aiAgents:edit.integrations.googleCalendar.bookingFields.subject"), enabled: true, required: false },
+            { id: '4', name: 'duration', label: tUi("aiAgents:edit.integrations.googleCalendar.bookingFields.duration"), enabled: false, required: false },
+            { id: '5', name: 'email', label: tUi("teams:addUsers.table.email"), enabled: true, required: false },
+            { id: '6', name: 'summary', label: tUi("aiAgents:memory.types.summary"), enabled: false, required: false },
           ],
         },
       });
     }
-  }, [initialConfig]);
+  }, [initialConfig, tUi]);
 
   // Load calendars when connected
   useEffect(() => {
@@ -192,7 +194,7 @@ const GoogleCalendarConfigDialog = ({
       setConfig((prev) => ({ ...prev, calendars }));
     } catch (error) {
       console.error('Error loading calendars:', error);
-      toast.error('Erro ao carregar agendas');
+      toast.error(tUi("interface:googlecalendarconfigdialog.couldNotLoadCalendars"));
     } finally {
       setIsLoadingCalendars(false);
     }
@@ -200,7 +202,7 @@ const GoogleCalendarConfigDialog = ({
 
   const handleConnectGoogle = async () => {
     if (!config.email) {
-      toast.error('Por favor, insira um e-mail');
+      toast.error(tUi("interface:googlecalendarconfigdialog.pleaseEnterAnEmailAddress"));
       return;
     }
 
@@ -217,7 +219,7 @@ const GoogleCalendarConfigDialog = ({
       }
     } catch (error) {
       console.error('Error connecting to Google Calendar:', error);
-      toast.error('Erro ao conectar com Google Calendar');
+      toast.error(tUi("interface:googlecalendarconfigdialog.couldNotConnectToGoogleCalendar"));
     } finally {
       setIsConnecting(false);
     }
@@ -225,7 +227,7 @@ const GoogleCalendarConfigDialog = ({
 
   const handleSave = async () => {
     if (!config.settings?.selectedCalendarId) {
-      toast.error('Por favor, selecione uma agenda');
+      toast.error(tUi("interface:googlecalendarconfigdialog.pleaseSelectACalendar"));
       return;
     }
 
@@ -235,11 +237,11 @@ const GoogleCalendarConfigDialog = ({
 
       // Then update local state
       onSave(config);
-      toast.success('Configurações salvas com sucesso!');
+      toast.success(tUi("integrations:messages.saveSuccess"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error saving Google Calendar configuration:', error);
-      toast.error('Erro ao salvar configurações');
+      toast.error(tUi("integrations:messages.saveError"));
     }
   };
 
@@ -253,11 +255,11 @@ const GoogleCalendarConfigDialog = ({
         onDisconnect();
       }
 
-      toast.success('Google Calendar desconectado com sucesso!');
+      toast.success(tUi("interface:googlecalendarconfigdialog.googleCalendarDisconnectedSuccessfully"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error disconnecting Google Calendar:', error);
-      toast.error('Erro ao desconectar Google Calendar');
+      toast.error(tUi("interface:googlecalendarconfigdialog.couldNotDisconnectGoogleCalendar"));
     }
   };
 
@@ -318,7 +320,7 @@ const GoogleCalendarConfigDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BrandIcon id="google-calendar" size={20} className="h-5 w-5" />
-            {t('edit.integrations.googleCalendar.configTitle') || 'Configurar Google Calendar'}
+            {t('edit.integrations.googleCalendar.configTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -333,11 +335,10 @@ const GoogleCalendarConfigDialog = ({
               </div>
               <div>
                 <h3 className="text-lg font-semibold">
-                  {t('edit.integrations.googleCalendar.connectTitle') || 'Conectar com Google Calendar'}
+                  {t('edit.integrations.googleCalendar.connectTitle')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.googleCalendar.connectDescription') ||
-                    'Permita que o agente acesse e gerencie agendamentos na sua agenda do Google'}
+                  {t('edit.integrations.googleCalendar.connectDescription')}
                 </p>
               </div>
             </div>
@@ -345,12 +346,12 @@ const GoogleCalendarConfigDialog = ({
             <div className="space-y-4">
               <div>
                 <Label htmlFor="email">
-                  {t('edit.integrations.googleCalendar.email') || 'E-mail do Google'}
+                  {t('edit.integrations.googleCalendar.email')}
                 </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="seuemail@gmail.com"
+                  placeholder={tUi("aiAgents:edit.integrations.googleCalendar.emailPlaceholder")}
                   value={config.email}
                   onChange={(e) => setConfig({ ...config, email: e.target.value })}
                 />
@@ -360,12 +361,12 @@ const GoogleCalendarConfigDialog = ({
                 {isConnecting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t('edit.integrations.googleCalendar.connecting') || 'Conectando...'}
+                    {t('edit.integrations.googleCalendar.connecting')}
                   </>
                 ) : (
                   <>
                     <Calendar className="mr-2 h-4 w-4" />
-                    {t('edit.integrations.googleCalendar.connectButton') || 'Conectar com Google'}
+                    {t('edit.integrations.googleCalendar.connectButton')}
                   </>
                 )}
               </Button>
@@ -377,16 +378,13 @@ const GoogleCalendarConfigDialog = ({
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="general">
                 <Settings className="h-4 w-4 mr-2" />
-                Geral
-              </TabsTrigger>
+                {tUi("aiAgents:edit.configuration.tabs.general")}</TabsTrigger>
               <TabsTrigger value="schedule">
                 <CalendarClock className="h-4 w-4 mr-2" />
-                Horários
-              </TabsTrigger>
+                {tUi("aiAgents:edit.integrations.googleCalendar.tabs.schedule")}</TabsTrigger>
               <TabsTrigger value="settings">
                 <Zap className="h-4 w-4 mr-2" />
-                Configurações
-              </TabsTrigger>
+                {tUi("aiAgents:edit.menu.settings")}</TabsTrigger>
             </TabsList>
 
             {/* General Tab */}
@@ -394,7 +392,7 @@ const GoogleCalendarConfigDialog = ({
               {/* Calendar Selection */}
               <div className="space-y-3">
                 <Label>
-                  {t('edit.integrations.googleCalendar.calendar.selectCalendar') || 'Agenda'}
+                  {t('edit.integrations.googleCalendar.calendar.selectCalendar')}
                 </Label>
                 <Select
                   value={config.settings?.selectedCalendarId}
@@ -410,16 +408,15 @@ const GoogleCalendarConfigDialog = ({
                     {isLoadingCalendars ? (
                       <span className="flex items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Carregando agendas...
-                      </span>
+                        {tUi("interface:googlecalendarconfigdialog.loadingCalendars")}</span>
                     ) : (
-                      <SelectValue placeholder="Selecione uma agenda" />
+                      <SelectValue placeholder={tUi("interface:googlecalendarconfigdialog.selectACalendar")} />
                     )}
                   </SelectTrigger>
                   <SelectContent>
                     {availableCalendars.map((calendar) => (
                       <SelectItem key={calendar.id} value={calendar.id}>
-                        {calendar.name} {calendar.primary && '(Principal)'}
+                        {calendar.name} {calendar.primary && tUi("interface:googlecalendarconfigdialog.primary")}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -432,7 +429,7 @@ const GoogleCalendarConfigDialog = ({
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-muted-foreground" />
                     <Label>
-                      {t('edit.integrations.googleCalendar.minAdvanceTime.title') || 'Tempo mínimo de antecedência'}
+                      {t('edit.integrations.googleCalendar.minAdvanceTime.title')}
                     </Label>
                   </div>
                   <Switch
@@ -489,16 +486,15 @@ const GoogleCalendarConfigDialog = ({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="hours">Horas</SelectItem>
-                        <SelectItem value="days">Dias</SelectItem>
-                        <SelectItem value="weeks">Semanas</SelectItem>
+                        <SelectItem value="hours">{tUi("aiAgents:edit.integrations.googleCalendar.units.hours")}</SelectItem>
+                        <SelectItem value="days">{tUi("aiAgents:edit.integrations.googleCalendar.units.days")}</SelectItem>
+                        <SelectItem value="weeks">{tUi("aiAgents:edit.integrations.googleCalendar.units.weeks")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  Não permita agendamentos em cima da hora
-                </p>
+                  {tUi("interface:googlecalendarconfigdialog.preventLastMinuteBookings")}</p>
               </div>
 
               {/* Max Distance */}
@@ -507,7 +503,7 @@ const GoogleCalendarConfigDialog = ({
                   <div className="flex items-center gap-2">
                     <CalendarCheck className="h-4 w-4 text-muted-foreground" />
                     <Label>
-                      {t('edit.integrations.googleCalendar.maxDistance.title') || 'Distância máxima permitida'}
+                      {t('edit.integrations.googleCalendar.maxDistance.title')}
                     </Label>
                   </div>
                   <Switch
@@ -564,16 +560,15 @@ const GoogleCalendarConfigDialog = ({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="days">Dias</SelectItem>
-                        <SelectItem value="weeks">Semanas</SelectItem>
-                        <SelectItem value="months">Meses</SelectItem>
+                        <SelectItem value="days">{tUi("aiAgents:edit.integrations.googleCalendar.units.days")}</SelectItem>
+                        <SelectItem value="weeks">{tUi("aiAgents:edit.integrations.googleCalendar.units.weeks")}</SelectItem>
+                        <SelectItem value="months">{tUi("aiAgents:edit.integrations.googleCalendar.units.months")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  Limite máximo de dias permitido
-                </p>
+                  {tUi("interface:googlecalendarconfigdialog.maximumNumberOfDaysAllowed")}</p>
               </div>
 
               {/* Max Duration */}
@@ -581,7 +576,7 @@ const GoogleCalendarConfigDialog = ({
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <Label>
-                    {t('edit.integrations.googleCalendar.maxDuration.title') || 'Duração máxima da agenda'}
+                    {t('edit.integrations.googleCalendar.maxDuration.title')}
                   </Label>
                 </div>
                 <div className="flex gap-2">
@@ -622,14 +617,13 @@ const GoogleCalendarConfigDialog = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="minutes">Minutos</SelectItem>
-                      <SelectItem value="hours">Horas</SelectItem>
+                      <SelectItem value="minutes">{tUi("aiAgents:edit.integrations.googleCalendar.units.minutes")}</SelectItem>
+                      <SelectItem value="hours">{tUi("aiAgents:edit.integrations.googleCalendar.units.hours")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Limite tempo para cada agendamento
-                </p>
+                  {tUi("interface:googlecalendarconfigdialog.limitTheDurationOfEachBooking")}</p>
               </div>
             </TabsContent>
 
@@ -640,7 +634,7 @@ const GoogleCalendarConfigDialog = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Repeat className="h-4 w-4 text-muted-foreground" />
-                    <Label>Agendamentos simultâneos</Label>
+                    <Label>{tUi("interface:googlecalendarconfigdialog.simultaneousBookings")}</Label>
                   </div>
                   <Switch
                     checked={config.settings?.simultaneousBookings?.enabled}
@@ -660,7 +654,7 @@ const GoogleCalendarConfigDialog = ({
                 </div>
                 {config.settings?.simultaneousBookings?.enabled && (
                   <div>
-                    <Label>Limite de agendamento no mesmo horário</Label>
+                    <Label>{tUi("interface:googlecalendarconfigdialog.limitBookingsAtTheSameTime")}</Label>
                     <Input
                       type="number"
                       min="1"
@@ -688,11 +682,10 @@ const GoogleCalendarConfigDialog = ({
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <Repeat className="h-4 w-4 text-muted-foreground" />
-                    <Label>Sempre aberto</Label>
+                    <Label>{tUi("interface:googlecalendarconfigdialog.alwaysOpen")}</Label>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Permite agendamento em qualquer horário
-                  </p>
+                    {tUi("interface:googlecalendarconfigdialog.allowBookingsAtAnyTime")}</p>
                 </div>
                 <Switch
                   checked={config.settings?.alwaysOpen}
@@ -708,7 +701,7 @@ const GoogleCalendarConfigDialog = ({
               {/* Business Hours */}
               {!config.settings?.alwaysOpen && (
                 <div className="space-y-4">
-                  <Label>Horários de atendimento</Label>
+                  <Label>{tUi("interface:googlecalendarconfigdialog.businessHours")}</Label>
                   <div className="space-y-3">
                     {DAYS_OF_WEEK.map((day) => {
                       const dayData = config.settings?.businessHours?.[day];
@@ -755,11 +748,10 @@ const GoogleCalendarConfigDialog = ({
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <Video className="h-4 w-4 text-muted-foreground" />
-                    <Label>Integração com Google Meet</Label>
+                    <Label>{tUi("interface:googlecalendarconfigdialog.googleMeetIntegration")}</Label>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Gerar link do meet ao fazer o agendamento
-                  </p>
+                    {tUi("interface:googlecalendarconfigdialog.generateAMeetLinkWhenBooking")}</p>
                 </div>
                 <Switch
                   checked={config.settings?.meetIntegration}
@@ -777,11 +769,10 @@ const GoogleCalendarConfigDialog = ({
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <CalendarCheck className="h-4 w-4 text-muted-foreground" />
-                    <Label>Consulta de horários</Label>
+                    <Label>{tUi("interface:googlecalendarconfigdialog.availabilityLookup")}</Label>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Agente pode consultar horários disponíveis
-                  </p>
+                    {tUi("interface:googlecalendarconfigdialog.theAgentCanCheckAvailableTimes")}</p>
                 </div>
                 <Switch
                   checked={config.settings?.allowAvailabilityCheck}
@@ -796,10 +787,9 @@ const GoogleCalendarConfigDialog = ({
 
               {/* Distribution Mode */}
               <div className="space-y-3">
-                <Label>Modo de distribuição</Label>
+                <Label>{tUi("interface:googlecalendarconfigdialog.distributionMode")}</Label>
                 <p className="text-xs text-muted-foreground">
-                  Como os agendamentos serão divididos
-                </p>
+                  {tUi("interface:googlecalendarconfigdialog.howBookingsWillBeDistributed")}</p>
                 <div className="grid grid-cols-2 gap-4">
                   <div
                     className={`p-4 border rounded-lg cursor-pointer transition-all ${
@@ -814,10 +804,9 @@ const GoogleCalendarConfigDialog = ({
                       })
                     }
                   >
-                    <h4 className="font-semibold mb-1">Distribuir sequencial</h4>
+                    <h4 className="font-semibold mb-1">{tUi("interface:googlecalendarconfigdialog.sequentialDistribution")}</h4>
                     <p className="text-xs text-muted-foreground">
-                      Os agendamentos são distribuídos entre as agendas alternando entre elas de maneira sequencial.
-                    </p>
+                      {tUi("interface:googlecalendarconfigdialog.bookingsAlternateBetweenCalendarsInSequence")}</p>
                   </div>
                   <div
                     className={`p-4 border rounded-lg cursor-pointer transition-all ${
@@ -832,17 +821,16 @@ const GoogleCalendarConfigDialog = ({
                       })
                     }
                   >
-                    <h4 className="font-semibold mb-1">Distribuição Inteligente</h4>
+                    <h4 className="font-semibold mb-1">{tUi("interface:googlecalendarconfigdialog.smartDistribution")}</h4>
                     <p className="text-xs text-muted-foreground">
-                      Seleciona automaticamente a agenda mais apropriada de acordo com a conversa com o cliente.
-                    </p>
+                      {tUi("interface:googlecalendarconfigdialog.automaticallySelectTheMostSuitableCalendarBasedOnTheCustomer")}</p>
                   </div>
                 </div>
               </div>
 
               {/* Booking Fields */}
               <div className="space-y-3">
-                <Label>Campos para agendamento</Label>
+                <Label>{tUi("interface:googlecalendarconfigdialog.bookingFields")}</Label>
                 <div className="space-y-2">
                   {config.settings?.bookingFields?.map((field) => (
                     <div key={field.id} className="flex items-center justify-between p-3 border rounded-lg">
@@ -851,12 +839,12 @@ const GoogleCalendarConfigDialog = ({
                         <div>
                           <p className="text-sm font-medium">{field.label}</p>
                           <p className="text-xs text-muted-foreground">
-                            {field.name === 'name' && 'Solicitar nome do usuário'}
-                            {field.name === 'company' && 'Solicitar nome da empresa'}
-                            {field.name === 'subject' && 'Solicitar assunto'}
-                            {field.name === 'duration' && 'Quanto tempo vai durar'}
-                            {field.name === 'email' && 'Solicitar e-mail para enviar convite na agenda'}
-                            {field.name === 'summary' && 'Anexar um resumo da conversa no agendamento'}
+                            {field.name === 'name' && tUi("interface:googlecalendarconfigdialog.requestUserName")}
+                            {field.name === 'company' && tUi("interface:googlecalendarconfigdialog.requestCompanyName")}
+                            {field.name === 'subject' && tUi("interface:googlecalendarconfigdialog.requestSubject")}
+                            {field.name === 'duration' && tUi("interface:googlecalendarconfigdialog.howLongItWillLast")}
+                            {field.name === 'email' && tUi("interface:googlecalendarconfigdialog.requestAnEmailAddressToSendTheCalendarInvitation")}
+                            {field.name === 'summary' && tUi("interface:googlecalendarconfigdialog.attachAConversationSummaryToTheBooking")}
                           </p>
                         </div>
                       </div>
@@ -876,7 +864,7 @@ const GoogleCalendarConfigDialog = ({
         <div className="flex flex-col gap-3 pt-4 border-t">
           {config.connected && (
             <Button onClick={handleSave} className="w-full">
-              {t('edit.integrations.googleCalendar.saveConfig') || 'APLICAR CONFIGURAÇÕES'}
+              {t('edit.integrations.googleCalendar.saveConfig')}
             </Button>
           )}
 
@@ -886,7 +874,7 @@ const GoogleCalendarConfigDialog = ({
               onClick={handleDisconnect}
               className="w-full text-destructive hover:text-destructive/80"
             >
-              {t('edit.integrations.googleCalendar.disconnect') || 'Desconectar'}
+              {t('edit.integrations.googleCalendar.disconnect')}
             </Button>
           )}
         </div>

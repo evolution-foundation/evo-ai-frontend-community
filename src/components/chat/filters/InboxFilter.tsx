@@ -22,35 +22,35 @@ const InboxFilter: React.FC<InboxFilterProps> = ({
   const INBOX_OPTIONS = [
     {
       value: 'all',
-      label: t('filters.inbox.options.all'),
+      label: t("contactSidebar.filters.inbox.options.all"),
       type: 'all',
       icon: Hash,
       count: null,
     },
     {
       value: 'whatsapp',
-      label: t('filters.inbox.options.whatsapp'),
+      label: t("contactSidebar.filters.inbox.options.whatsapp"),
       type: 'whatsapp',
       icon: MessageSquare,
       count: 45,
     },
     {
       value: 'email',
-      label: t('filters.inbox.options.email'),
+      label: t("contactSidebar.filters.inbox.options.email"),
       type: 'email',
       icon: Mail,
       count: 12,
     },
     {
       value: 'website',
-      label: t('filters.inbox.options.website'),
+      label: t("contactSidebar.filters.inbox.options.website"),
       type: 'website',
       icon: MessageSquare,
       count: 8,
     },
     {
       value: 'telegram',
-      label: t('filters.inbox.options.telegram'),
+      label: t("contactSidebar.filters.inbox.options.telegram"),
       type: 'telegram',
       icon: MessageSquare,
       count: 3,
@@ -129,7 +129,7 @@ const InboxFilter: React.FC<InboxFilterProps> = ({
       <PopoverContent className="w-56 p-2" align="start">
         <div className="space-y-1">
           <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-            {t('filters.inbox.title')}
+            {t("contactSidebar.filters.inbox.title")}
           </div>
           {INBOX_OPTIONS.map(option => {
             const IconComponent = option.icon;
@@ -158,7 +158,7 @@ const InboxFilter: React.FC<InboxFilterProps> = ({
               onClick={() => onInboxChange(['all'])}
               className="w-full text-xs text-muted-foreground hover:text-foreground px-2 py-1 text-left cursor-pointer"
             >
-              {t('filters.inbox.showAll')}
+              {t("contactSidebar.filters.inbox.showAll")}
             </button>
           </div>
         )}

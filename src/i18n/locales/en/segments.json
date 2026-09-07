@@ -31,7 +31,9 @@
     "status": {
       "active": "Active",
       "inactive": "Inactive",
-      "processing": "Processing"
+      "processing": "Processing",
+      "paused": "Paused",
+      "completed": "Completed"
     }
   },
   "actions": {
@@ -47,12 +49,13 @@
     "addFirstCondition": "Add First Condition",
     "copyJson": "Copy JSON",
     "close": "Close",
-    "viewIds": "Ver IDs",
+    "viewIds": "View IDs",
     "pause": "Pause",
     "preview": "Preview",
     "previewing": "Previewing…",
     "form": "Form",
-    "canvas": "Canvas"
+    "canvas": "Canvas",
+    "activate": "Activate"
   },
   "preview": {
     "result_one": "{{count}} contact matches this segment.",
@@ -67,19 +70,52 @@
     "combineWith": "Combine with",
     "selectNode": "Select a node on the canvas to edit it, or drag a new condition from the panel.",
     "categories": {
-      "identity": { "label": "Identity", "description": "Who the contact is" },
-      "behavior": { "label": "Behavior", "description": "What the contact did" },
-      "messages": { "label": "Messages", "description": "Channel interactions" }
+      "identity": {
+        "label": "Identity",
+        "description": "Who the contact is"
+      },
+      "behavior": {
+        "label": "Behavior",
+        "description": "What the contact did"
+      },
+      "messages": {
+        "label": "Messages",
+        "description": "Channel interactions"
+      }
     },
     "nodes": {
-      "Everyone": { "label": "Everyone", "description": "All contacts in the account" },
-      "UserProperty": { "label": "User property", "description": "Filter by a contact property" },
-      "CustomAttribute": { "label": "Custom attribute", "description": "Filter by a custom attribute" },
-      "Label": { "label": "Label", "description": "Has / lacks a label" },
-      "Performed": { "label": "Performed event", "description": "Did a tracked event" },
-      "RandomBucket": { "label": "Random bucket", "description": "A random % of contacts" },
-      "Email": { "label": "Email", "description": "Email interaction" },
-      "WhatsApp": { "label": "Channel", "description": "Reached on a channel (WhatsApp/Web/SMS)" }
+      "Everyone": {
+        "label": "Everyone",
+        "description": "All contacts in the account"
+      },
+      "UserProperty": {
+        "label": "User property",
+        "description": "Filter by a contact property"
+      },
+      "CustomAttribute": {
+        "label": "Custom attribute",
+        "description": "Filter by a custom attribute"
+      },
+      "Label": {
+        "label": "Label",
+        "description": "Has / lacks a label"
+      },
+      "Performed": {
+        "label": "Performed event",
+        "description": "Did a tracked event"
+      },
+      "RandomBucket": {
+        "label": "Random bucket",
+        "description": "A random % of contacts"
+      },
+      "Email": {
+        "label": "Email",
+        "description": "Email interaction"
+      },
+      "WhatsApp": {
+        "label": "Channel",
+        "description": "Reached on a channel (WhatsApp/Web/SMS)"
+      }
     }
   },
   "messages": {
@@ -358,5 +394,19 @@
       "uploadButton": "Upload CSV",
       "format": "Format: One column with user_id"
     }
+  },
+  "modal": {
+    "validation": {
+      "nameMinLength": "Name must contain at least 3 characters"
+    },
+    "createDescription": "Create a segment to group contacts by their properties and behavior",
+    "editDescription": "Update the name and conditions for this segment",
+    "creating": "Creating…",
+    "createButton": "Create segment"
+  },
+  "categories": {
+    "userData": "User data",
+    "messages": "Messages",
+    "manual": "Manual selection"
   }
 }

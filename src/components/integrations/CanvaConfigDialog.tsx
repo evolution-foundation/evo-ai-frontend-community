@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -31,6 +32,7 @@ const CanvaConfigDialog = ({
   initialConfig,
   agentId,
 }: CanvaConfigDialogProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
 
   const [isConnecting, setIsConnecting] = useState(false);
@@ -101,7 +103,7 @@ const CanvaConfigDialog = ({
       setAvailableTools(response.tools || []);
     } catch (error) {
       console.error('Error loading Canva tools:', error);
-      toast.error('Erro ao carregar ferramentas disponíveis');
+      toast.error(tUi("interface:canvaconfigdialog.couldNotLoadAvailableTools"));
     } finally {
       setIsLoadingTools(false);
     }
@@ -118,7 +120,7 @@ const CanvaConfigDialog = ({
       }
     } catch (error) {
       console.error('Error connecting to Canva:', error);
-      toast.error('Erro ao conectar com Canva');
+      toast.error(tUi("interface:canvaconfigdialog.couldNotConnectToCanva"));
     } finally {
       setIsConnecting(false);
     }
@@ -156,11 +158,11 @@ const CanvaConfigDialog = ({
 
       // Then update local state
       onSave(updatedConfig);
-      toast.success('Configurações salvas com sucesso!');
+      toast.success(tUi("integrations:messages.saveSuccess"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error saving Canva configuration:', error);
-      toast.error('Erro ao salvar configurações');
+      toast.error(tUi("integrations:messages.saveError"));
     }
   };
 
@@ -170,11 +172,11 @@ const CanvaConfigDialog = ({
       if (onDisconnect) {
         onDisconnect();
       }
-      toast.success('Canva desconectado com sucesso!');
+      toast.success(tUi("interface:canvaconfigdialog.canvaDisconnectedSuccessfully"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error disconnecting Canva:', error);
-      toast.error('Erro ao desconectar Canva');
+      toast.error(tUi("interface:canvaconfigdialog.couldNotDisconnectCanva"));
     }
   };
 
@@ -196,7 +198,7 @@ const CanvaConfigDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <img src="/integrations/canva.png" alt="Canva" className="h-5 w-5" />
-            {t('edit.integrations.canva.configTitle') || 'Configurar Canva'}
+            {t('edit.integrations.canva.configTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -211,11 +213,10 @@ const CanvaConfigDialog = ({
               </div>
               <div>
                 <h3 className="text-lg font-semibold">
-                  {t('edit.integrations.canva.connectTitle') || 'Conectar com Canva'}
+                  {t('edit.integrations.canva.connectTitle')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.canva.connectDescription') ||
-                    'Permita que o agente acesse informações de pagamentos, assinaturas e transações do Canva'}
+                  {t('edit.integrations.canva.connectDescription')}
                 </p>
               </div>
             </div>
@@ -229,12 +230,12 @@ const CanvaConfigDialog = ({
               {isConnecting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('edit.integrations.canva.connecting') || 'Conectando...'}
+                  {t('edit.integrations.canva.connecting')}
                 </>
               ) : (
                 <>
                   <img src="/integrations/canva.png" alt="Canva" className="mr-2 h-4 w-4" />
-                  {t('edit.integrations.canva.connectButton') || 'Conectar com Canva'}
+                  {t('edit.integrations.canva.connectButton')}
                 </>
               )}
             </Button>
@@ -247,12 +248,12 @@ const CanvaConfigDialog = ({
                 <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
                   <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
                   <span className="font-medium">
-                    {t('edit.integrations.canva.connected') || 'Conectado'}
+                    {t('edit.integrations.canva.connected')}
                   </span>
                 </div>
                 {config.username && (
                   <p className="text-sm text-green-700 dark:text-green-300 mt-2">
-                    {t('edit.integrations.canva.connectedAs') || 'Conectado como'}:{' '}
+                    {t('edit.integrations.canva.connectedAs')}:{' '}
                     <strong>{config.username}</strong>
                   </p>
                 )}
@@ -263,8 +264,7 @@ const CanvaConfigDialog = ({
 
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.canva.connectedDescription') ||
-                    'O agente agora pode acessar informações de pagamentos, assinaturas e transações do Canva.'}
+                  {t('edit.integrations.canva.connectedDescription')}
                 </p>
               </div>
             </div>
@@ -274,7 +274,7 @@ const CanvaConfigDialog = ({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium">
-                    {t('edit.integrations.canva.toolsTitle') || 'Ferramentas Disponíveis'}
+                    {t('edit.integrations.canva.toolsTitle')}
                   </h4>
                   {availableTools.length > 0 && (
                     <div className="flex items-center space-x-2">
@@ -287,14 +287,13 @@ const CanvaConfigDialog = ({
                         onCheckedChange={handleSelectAll}
                       />
                       <Label htmlFor="select-all" className="text-xs font-medium cursor-pointer">
-                        {t('edit.integrations.canva.selectAll') || 'Selecionar todas'}
+                        {t('edit.integrations.canva.selectAll')}
                       </Label>
                     </div>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mb-3">
-                  {t('edit.integrations.canva.toolsDescription') ||
-                    'Selecione quais ferramentas do Canva o agente poderá usar'}
+                  {t('edit.integrations.canva.toolsDescription')}
                 </p>
               </div>
 
@@ -327,14 +326,14 @@ const CanvaConfigDialog = ({
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center p-4">
-                  {t('edit.integrations.canva.noTools') || 'Nenhuma ferramenta disponível'}
+                  {t('edit.integrations.canva.noTools')}
                 </p>
               )}
             </div>
 
             <div className="flex flex-col gap-3 pt-4 border-t">
               <Button onClick={handleSave} className="w-full">
-                {t('edit.integrations.canva.saveConfig') || 'SALVAR CONFIGURAÇÕES'}
+                {t('edit.integrations.canva.saveConfig')}
               </Button>
 
               {onDisconnect && (
@@ -343,7 +342,7 @@ const CanvaConfigDialog = ({
                   onClick={handleDisconnect}
                   className="w-full text-destructive hover:text-destructive/80"
                 >
-                  {t('edit.integrations.canva.disconnect') || 'Desconectar'}
+                  {t('edit.integrations.canva.disconnect')}
                 </Button>
               )}
             </div>

@@ -53,7 +53,7 @@ export default function ConditionTypeSelector({
       </Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger>
-          <SelectValue placeholder={t('conditionTypeSelector.placeholder')} />
+          <SelectValue placeholder={t("conditionTypeSelector.groupCondition")} />
         </SelectTrigger>
         <SelectContent>
           {categories.map((category) => (

@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 import { useAuthStore } from '@/store/authStore';
@@ -44,6 +45,7 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
   children,
   blockOnLoadFailure = true,
 }) => {
+  const { t: tUi } = useUiTranslation();
   const { user } = useAuth();
   // CRM-494 turned the trusted-empty stamps into `pending`; this closes the
   // OTHER half of the F5 race: the legs read isLoggedIn through a NON-reactive
@@ -55,7 +57,12 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
   const [accountPermissions, setAccountPermissions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<
+    | 'interface:permissionscontext.couldNotLoadUserPermissions'
+    | 'interface:permissionscontext.couldNotLoadAccountPermissions'
+    | 'interface:permissionscontext.couldNotReloadPermissions'
+    | null
+  >(null);
 
   // Outcome of each permission fetch. Only `loaded` means the list can be
   // trusted, including a legitimately empty one: `pending` covers the render
@@ -153,7 +160,7 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
       } catch (error) {
         if (cancelled) return;
         console.error('Erro ao carregar permissões do usuário:', error);
-        setError('Erro ao carregar permissões do usuário');
+        setError("interface:permissionscontext.couldNotLoadUserPermissions");
         setUserPermissions([]);
         setUserPermsStatus('failed');
       } finally {
@@ -200,7 +207,7 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
       } catch (error) {
         if (cancelled) return;
         console.error('Erro ao carregar permissões do account:', error);
-        setError('Erro ao carregar permissões do account');
+        setError("interface:permissionscontext.couldNotLoadAccountPermissions");
         setAccountPermissions([]);
         setAccountPermsStatus('failed');
       } finally {
@@ -329,7 +336,7 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
     }
 
     if (userResult.status === 'rejected' || accountResult.status === 'rejected') {
-      setError('Erro ao recarregar permissões');
+      setError("interface:permissionscontext.couldNotReloadPermissions");
     }
 
     setLoading(false);
@@ -365,7 +372,7 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
     loading: loading || configLoading,
     isReady,
     loadFailed,
-    error,
+    error: error ? tUi(error) : null,
     refreshPermissions,
     createPermission,
     isValidPermission,

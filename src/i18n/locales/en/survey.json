@@ -1,0 +1,24 @@
+{
+  "survey": {
+    "rating": {
+      "veryDissatisfied": "Very dissatisfied",
+      "dissatisfied": "Dissatisfied",
+      "neutral": "Neither satisfied nor dissatisfied",
+      "satisfied": "Satisfied",
+      "verySatisfied": "Very satisfied",
+      "successMessage": "Thank you for your rating!",
+      "label": "How satisfied are you with the support you received?"
+    },
+    "api": {
+      "errorMessage": "Could not submit your feedback. Please try again.",
+      "successMessage": "Thank you for your feedback!",
+      "submitting": "Submitting…"
+    },
+    "description": "Tell us about your experience with our support",
+    "feedback": {
+      "label": "Additional feedback",
+      "placeholder": "Tell us what went well or what we can improve…",
+      "buttonText": "Submit feedback"
+    }
+  }
+}

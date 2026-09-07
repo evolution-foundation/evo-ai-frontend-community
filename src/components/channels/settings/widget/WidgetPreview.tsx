@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useEffect, useMemo, useRef } from 'react';
 import { WidgetConfig } from '../helpers/widgetHelpers';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -10,6 +11,7 @@ interface WidgetPreviewProps {
 }
 
 export default function WidgetPreview({ config, websiteToken }: WidgetPreviewProps) {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('channels');
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
@@ -52,7 +54,7 @@ export default function WidgetPreview({ config, websiteToken }: WidgetPreviewPro
           <div className="w-[360px] max-w-full space-y-3">
             <iframe
               ref={iframeRef}
-              title="Widget Preview"
+              title={tUi("interface:widgetpreview.widgetPreview")}
               src={src}
               className="h-[560px] w-full rounded-lg border border-slate-200 bg-white shadow-sm"
               allow="camera; microphone; clipboard-write"
@@ -83,21 +85,21 @@ export default function WidgetPreview({ config, websiteToken }: WidgetPreviewPro
 
             <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
               <div className="mb-2 text-xs text-muted-foreground">
-                {t('settings.widget.preview.sentMessageExample') || 'Exemplo de mensagem enviada'}
+                {t('settings.widget.preview.sentMessageExample')}
               </div>
               <div className="flex justify-end">
                 <div
                   className="max-w-[85%] rounded-2xl px-3 py-2 text-sm text-white"
                   style={{ backgroundColor: config.widgetColor }}
                 >
-                  {t('settings.widget.preview.sampleSentMessage') || 'Olá! Gostaria de falar com o suporte.'}
+                  {t('settings.widget.preview.sampleSentMessage')}
                 </div>
               </div>
             </div>
           </div>
         ) : (
           <div className="h-[560px] w-[360px] max-w-full rounded-lg border border-dashed border-slate-300 bg-white/70 p-4 text-center text-sm text-muted-foreground">
-            {t('settings.widgetBuilder.widgetCode.noScriptError') || 'Website token not found for preview.'}
+            {t('settings.widgetBuilder.widgetCode.noScriptError')}
           </div>
         )}
       </div>

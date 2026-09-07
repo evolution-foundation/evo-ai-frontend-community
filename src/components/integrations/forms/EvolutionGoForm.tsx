@@ -14,18 +14,18 @@ export function EvolutionGoForm({ config, onConfigChange }: IntegrationFormProps
     <div className="space-y-4">
       <FormField
         id="EVOLUTION_GO_API_URL"
-        label={t('integrations.evolutionGo.apiUrl')}
+        label={t("evolutionGo.apiUrl")}
         value={getValue('evolutionGoApiUrl')}
         onChange={(value) => onConfigChange('evolutionGoApiUrl', value)}
-        placeholder={t('integrations.evolutionGo.placeholders.apiUrl')}
+        placeholder={t("evolutionGo.placeholders.apiUrl")}
         type="url"
       />
       <FormField
         id="EVOLUTION_GO_ADMIN_TOKEN"
-        label={t('integrations.evolutionGo.adminToken')}
+        label={t("evolutionGo.adminToken")}
         value={getValue('evolutionGoAdminToken')}
         onChange={(value) => onConfigChange('evolutionGoAdminToken', value)}
-        placeholder={t('integrations.evolutionGo.placeholders.adminToken')}
+        placeholder={t("evolutionGo.placeholders.adminToken")}
         type="password"
       />
     </div>

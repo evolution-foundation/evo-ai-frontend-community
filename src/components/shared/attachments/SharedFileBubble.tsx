@@ -14,7 +14,7 @@ const SharedFileBubble: React.FC<SharedFileBubbleProps> = ({
   messageType = 'in',
   onToast
 }) => {
-  const { t } = useLanguage();
+  const { t } = useLanguage('attachments');
 
   const getFileIcon = (fileType: string) => {
     const type = fileType.toLowerCase();
@@ -29,14 +29,14 @@ const SharedFileBubble: React.FC<SharedFileBubbleProps> = ({
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return `0 ${t('attachments.file.size.bytes')}`;
+    if (bytes === 0) return `0 ${t('file.size.bytes')}`;
 
     const k = 1024;
     const sizes = [
-      t('attachments.file.size.bytes'),
-      t('attachments.file.size.kilobytes'),
-      t('attachments.file.size.megabytes'),
-      t('attachments.file.size.gigabytes')
+      t('file.size.bytes'),
+      t('file.size.kilobytes'),
+      t('file.size.megabytes'),
+      t('file.size.gigabytes')
     ];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
 
@@ -54,7 +54,7 @@ const SharedFileBubble: React.FC<SharedFileBubbleProps> = ({
       link.click();
       document.body.removeChild(link);
 
-      onToast?.(t('attachments.file.downloadStarted', { filename: attachment.fallback_title || t('attachments.file.title') }), 'success');
+      onToast?.(t('file.downloadStarted', { filename: attachment.fallback_title || t('file.title') }), 'success');
     }
   };
 
@@ -91,7 +91,7 @@ const SharedFileBubble: React.FC<SharedFileBubbleProps> = ({
                     text-sm font-medium truncate
                     ${messageType === 'out' ? 'text-white/90' : 'text-slate-700'}
                   `}>
-                    {attachment.fallback_title || t('attachments.file.title')}
+                    {attachment.fallback_title || t('file.title')}
                   </h4>
                   <p className={`
                     text-xs mt-1
@@ -111,7 +111,7 @@ const SharedFileBubble: React.FC<SharedFileBubbleProps> = ({
                       : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
                     }
                   `}
-                  title={t('attachments.file.download')}
+                  title={t('file.download')}
                 >
                   <Download className="w-4 h-4" />
                 </button>

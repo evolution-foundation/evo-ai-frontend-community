@@ -53,15 +53,15 @@ const ConversationStatusButton = ({
   const meta = STATUS_META[status] || STATUS_META.snoozed;
   const mainLabel =
     status === 'open'
-      ? t('chatHeader.statusButton.complete', 'Concluir')
-      : t('chatHeader.statusButton.open', 'Abrir');
+      ? t('chatHeader.statusButton.complete')
+      : t('chatHeader.statusButton.open');
   const mainAction = status === 'open' ? onMarkAsResolved : onMarkAsOpen;
 
   const options = [
-    { key: 'open', label: t('chatHeader.statusButton.openFull', 'Abrir atendimento'), onClick: onMarkAsOpen },
-    { key: 'pending', label: t('contexts.conversations.statusNames.pending', 'Pendente'), onClick: onMarkAsPending },
-    { key: 'snoozed', label: t('chatHeader.statusButton.pause', 'Pausar Conversa'), onClick: onMarkAsSnoozed },
-    { key: 'resolved', label: t('chatHeader.statusButton.complete', 'Concluir'), onClick: onMarkAsResolved },
+    { key: 'open', label: t('chatHeader.statusButton.openFull'), onClick: onMarkAsOpen },
+    { key: 'pending', label: t('contexts.conversations.statusNames.pending'), onClick: onMarkAsPending },
+    { key: 'snoozed', label: t('chatHeader.statusButton.pause'), onClick: onMarkAsSnoozed },
+    { key: 'resolved', label: t('chatHeader.statusButton.complete'), onClick: onMarkAsResolved },
   ];
 
   return (
@@ -76,7 +76,8 @@ const ConversationStatusButton = ({
           boxShadow: '0 1px 3px rgba(20,30,45,.18)',
         }}
       >
-        <span
+        <button
+          type="button"
           onClick={mainAction}
           style={{
             display: 'inline-flex',
@@ -90,8 +91,12 @@ const ConversationStatusButton = ({
           }}
         >
           {mainLabel}
-        </span>
-        <span
+        </button>
+        <button
+          type="button"
+          aria-label={t('chatHeader.statusButton.changeStatus')}
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
           onClick={() => setMenuOpen(prev => !prev)}
           style={{
             display: 'inline-flex',
@@ -103,11 +108,12 @@ const ConversationStatusButton = ({
           }}
         >
           <ChevronDown className="h-4 w-4" />
-        </span>
+        </button>
       </div>
 
       {menuOpen && (
         <div
+          role="menu"
           style={{
             position: 'absolute',
             top: 46,
@@ -125,7 +131,10 @@ const ConversationStatusButton = ({
             const optMeta = STATUS_META[o.key];
             const selected = o.key === status;
             return (
-              <div
+              <button
+                type="button"
+                role="menuitemradio"
+                aria-checked={selected}
                 key={o.key}
                 onClick={() => {
                   setMenuOpen(false);
@@ -133,6 +142,8 @@ const ConversationStatusButton = ({
                 }}
                 style={{
                   display: 'flex',
+                  width: '100%',
+                  textAlign: 'left',
                   alignItems: 'center',
                   gap: 10,
                   padding: '9px 11px',
@@ -153,7 +164,7 @@ const ConversationStatusButton = ({
                   }}
                 />
                 <span style={{ fontSize: 14, color: '#2b3240', fontWeight: 600 }}>{o.label}</span>
-              </div>
+              </button>
             );
           })}
         </div>

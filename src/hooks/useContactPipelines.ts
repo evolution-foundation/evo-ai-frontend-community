@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useMemo } from 'react';
 import { pipelinesService } from '@/services/pipelines';
 import type { Pipeline, PipelineStage, PipelineItem } from '@/types/analytics';
@@ -20,6 +21,7 @@ interface ContactPipelineInfo {
 }
 
 export function useContactPipelines({ pipelineIds, enabled = true }: UseContactPipelinesOptions) {
+  const { t: tUi } = useUiTranslation();
   const [pipelinesData, setPipelinesData] = useState<Map<string, PipelineData>>(new Map());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -72,7 +74,7 @@ export function useContactPipelines({ pipelineIds, enabled = true }: UseContactP
 
         setPipelinesData(dataMap);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to load pipelines data'));
+        setError(err instanceof Error ? err : new Error(tUi("interface:usecontactpipelines.couldNotLoadPipelineData")));
         console.error('Error loading pipelines data:', err);
       } finally {
         setIsLoading(false);
@@ -81,7 +83,7 @@ export function useContactPipelines({ pipelineIds, enabled = true }: UseContactP
 
     loadPipelinesData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pipelineIdsKey, enabled]);
+  }, [pipelineIdsKey, enabled, tUi]);
 
   // Função helper para obter pipelines de um contato específico
   const getContactPipelines = useMemo(() => {

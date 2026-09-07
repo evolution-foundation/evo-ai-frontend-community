@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { useChatContext } from '@/contexts/chat/ChatContext';
@@ -7,6 +8,7 @@ import { Conversation } from '@/types/chat/api';
 import type { AssignmentType } from '@/components/chat/assignment';
 
 export const useAssignmentHandlers = () => {
+  const { t: tUi } = useUiTranslation();
   const { can } = usePermissions();
   const { conversations } = useChatContext();
   const {
@@ -51,40 +53,40 @@ export const useAssignmentHandlers = () => {
   const handleAssignAgent = useCallback(
     async (conversation: Conversation) => {
       if (!can('conversations', 'update')) {
-        toast.error('Você não tem permissão para atribuir conversas');
+        toast.error(tUi("interface:useassignmenthandlers.youDoNotHavePermissionToAssignConversations"));
         return;
       }
 
       await loadAssignmentData('agent');
       return { conversation, type: 'agent' as AssignmentType };
     },
-    [can, loadAssignmentData],
+    [can, loadAssignmentData, tUi],
   );
 
   const handleAssignTeam = useCallback(
     async (conversation: Conversation) => {
       if (!can('conversations', 'update')) {
-        toast.error('Você não tem permissão para atribuir conversas');
+        toast.error(tUi("interface:useassignmenthandlers.youDoNotHavePermissionToAssignConversations"));
         return;
       }
 
       await loadAssignmentData('team');
       return { conversation, type: 'team' as AssignmentType };
     },
-    [can, loadAssignmentData],
+    [can, loadAssignmentData, tUi],
   );
 
   const handleAssignTag = useCallback(
     async (conversation: Conversation) => {
       if (!can('conversations', 'update')) {
-        toast.error('Você não tem permissão para adicionar etiquetas');
+        toast.error(tUi("interface:useassignmenthandlers.youDoNotHavePermissionToAddLabels"));
         return;
       }
 
       await loadAssignmentData('label');
       return { conversation, type: 'label' as AssignmentType };
     },
-    [can, loadAssignmentData],
+    [can, loadAssignmentData, tUi],
   );
 
   const handleAssignmentConfirm = useCallback(

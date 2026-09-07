@@ -94,10 +94,10 @@ const ProfileSection = ({
       <div>
         <div>
           <h2 className="text-[22px] font-extrabold tracking-[-0.3px] text-foreground">
-            {t('edit.profile.title') || 'Informações pessoais'}
+            {t('edit.profile.title')}
           </h2>
           <p className="mb-[26px] mt-1 text-sm font-normal text-muted-foreground">
-            {t('edit.profile.subtitle') || 'Configure as informações básicas do seu agente'}
+            {t('edit.profile.subtitle')}
           </p>
         </div>
 
@@ -105,46 +105,46 @@ const ProfileSection = ({
           <div className="flex flex-col gap-[22px]">
           <div>
             <Label className={labelClass}>
-              {t('edit.profile.name') || 'Nome do agente'} <span className="text-destructive">*</span>
+              {t('edit.profile.name')} <span className="text-destructive">*</span>
             </Label>
             <Input
               value={formData.name}
               onChange={e => onFormDataChange('name', e.target.value)}
-              placeholder={t('edit.profile.namePlaceholder') || 'Digite o nome do agente'}
+              placeholder={t('edit.profile.namePlaceholder')}
               className={inputClass}
             />
           </div>
 
           {!isOrchestratorType && (
             <div>
-              <Label className={labelClass}>{t('edit.profile.role') || 'Papel'}</Label>
+              <Label className={labelClass}>{t('edit.profile.role')}</Label>
               <Input
                 value={formData.role}
                 onChange={e => onFormDataChange('role', e.target.value)}
                 placeholder={
-                  t('edit.profile.rolePlaceholder') || 'Ex: Especialista em suporte técnico'
+                  t('edit.profile.rolePlaceholder')
                 }
                 className={inputClass}
               />
               <p className={hintClass}>
-                {t('edit.profile.roleHelp') || 'O papel que o agente desempenha na conversa'}
+                {t('edit.profile.roleHelp')}
               </p>
             </div>
           )}
 
           {!isOrchestratorType && (
             <div>
-              <Label className={labelClass}>{t('edit.profile.goal') || 'Objetivo'}</Label>
+              <Label className={labelClass}>{t('edit.profile.goal')}</Label>
               <Input
                 value={formData.goal}
                 onChange={e => onFormDataChange('goal', e.target.value)}
                 placeholder={
-                  t('edit.profile.goalPlaceholder') || 'Ex: Ajudar usuários com dúvidas técnicas'
+                  t('edit.profile.goalPlaceholder')
                 }
                 className={inputClass}
               />
               <p className={hintClass}>
-                {t('edit.profile.goalHelp') || 'O objetivo principal do agente'}
+                {t('edit.profile.goalHelp')}
               </p>
             </div>
           )}
@@ -153,7 +153,7 @@ const ProfileSection = ({
             <div>
               <div className="flex items-center justify-between">
                 <Label className={labelClass}>
-                  {t('edit.profile.instructions') || 'Comportamento'}
+                  {t('edit.profile.instructions')}
                 </Label>
                 {showAIActions && (
                   <div className="flex gap-2">
@@ -196,15 +196,13 @@ const ProfileSection = ({
                 value={formData.instruction}
                 onChange={e => onFormDataChange('instruction', e.target.value)}
                 placeholder={
-                  t('edit.profile.instructionsPlaceholder') ||
-                  'Descreva como o agente deve se comportar durante a conversa...'
+                  t('edit.profile.instructionsPlaceholder')
                 }
                 className={`${inputClass} min-h-[220px] resize-y leading-[1.6]`}
               />
               <div className={`flex justify-between gap-4 ${hintClass}`}>
                 <span>
-                  {t('edit.profile.instructionsHelp') ||
-                    'Ex. Seja extrovertido, na primeira interação procure saber o nome do usuário.'}
+                  {t('edit.profile.instructionsHelp')}
                 </span>
                 <span className="flex-shrink-0">{formData.instruction.length}/3000</span>
               </div>

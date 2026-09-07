@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Separator } from '@evoapi/design-system';
 import {
@@ -64,6 +65,7 @@ interface CampaignTriggerConfigProps {
 }
 
 export function CampaignTriggerConfig({ config, onChange }: CampaignTriggerConfigProps) {
+  const { t: tUi } = useUiTranslation();
   const [formData, setFormData] = useState<CampaignTriggerConfig>(config);
   const [eventProperties, setEventProperties] = useState(config.eventProperties || []);
   const [contactFields, setContactFields] = useState(config.contactFields || []);
@@ -180,10 +182,9 @@ export function CampaignTriggerConfig({ config, onChange }: CampaignTriggerConfi
       <Separator className="my-4" />
       <div className="space-y-4">
         <div className="space-y-2">
-          <h3 className="text-base font-semibold">Configuração de Trigger</h3>
+          <h3 className="text-base font-semibold">{tUi("interface:campaigntriggerconfig.triggerConfiguration")}</h3>
           <p className="text-sm text-muted-foreground">
-            Configure como a campanha será disparada automaticamente
-          </p>
+            {tUi("interface:campaigntriggerconfig.configureHowTheCampaignWillBeTriggeredAutomatically")}</p>
         </div>
 
         {/* Tipo do Trigger */}

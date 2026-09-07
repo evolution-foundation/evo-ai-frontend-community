@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { MessageSquare, Settings, Paperclip } from 'lucide-react';
 import { BaseFlowNode } from '@/components/base';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -70,6 +71,7 @@ interface SendMessageNodeProps {
 }
 
 export function SendMessageNode({ selected, data, id }: SendMessageNodeProps) {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('journey');
 
   const isTemplateMode = data.messageMode === 'template';
@@ -199,8 +201,7 @@ export function SendMessageNode({ selected, data, id }: SendMessageNodeProps) {
                     ))}
                     {data.attachment_names.length > 2 && (
                       <div className="text-blue-600 dark:text-blue-400 text-xs">
-                        +{data.attachment_names.length - 2} mais anexos...
-                      </div>
+                        +{data.attachment_names.length - 2} {tUi("interface:sendmessagenode.moreAttachments")}</div>
                     )}
                   </div>
                 </div>

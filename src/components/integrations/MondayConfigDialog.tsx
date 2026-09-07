@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -31,6 +32,7 @@ const MondayConfigDialog = ({
   initialConfig,
   agentId,
 }: MondayConfigDialogProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
 
   const [isConnecting, setIsConnecting] = useState(false);
@@ -101,7 +103,7 @@ const MondayConfigDialog = ({
       setAvailableTools(response.tools || []);
     } catch (error) {
       console.error('Error loading Monday tools:', error);
-      toast.error('Erro ao carregar ferramentas disponíveis');
+      toast.error(tUi("interface:mondayconfigdialog.couldNotLoadAvailableTools"));
     } finally {
       setIsLoadingTools(false);
     }
@@ -118,7 +120,7 @@ const MondayConfigDialog = ({
       }
     } catch (error) {
       console.error('Error connecting to Monday:', error);
-      toast.error('Erro ao conectar com Monday');
+      toast.error(tUi("interface:mondayconfigdialog.couldNotConnectToMonday"));
     } finally {
       setIsConnecting(false);
     }
@@ -156,11 +158,11 @@ const MondayConfigDialog = ({
 
       // Then update local state
       onSave(updatedConfig);
-      toast.success('Configurações salvas com sucesso!');
+      toast.success(tUi("integrations:messages.saveSuccess"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error saving Monday configuration:', error);
-      toast.error('Erro ao salvar configurações');
+      toast.error(tUi("integrations:messages.saveError"));
     }
   };
 
@@ -170,11 +172,11 @@ const MondayConfigDialog = ({
       if (onDisconnect) {
         onDisconnect();
       }
-      toast.success('Monday desconectado com sucesso!');
+      toast.success(tUi("interface:mondayconfigdialog.mondayDisconnectedSuccessfully"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error disconnecting Monday:', error);
-      toast.error('Erro ao desconectar Monday');
+      toast.error(tUi("interface:mondayconfigdialog.couldNotDisconnectMonday"));
     }
   };
 
@@ -196,7 +198,7 @@ const MondayConfigDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <img src="/integrations/monday.png" alt="Monday" className="h-5 w-5" />
-            {t('edit.integrations.monday.configTitle') || 'Configurar Monday.com'}
+            {t('edit.integrations.monday.configTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -211,11 +213,10 @@ const MondayConfigDialog = ({
               </div>
               <div>
                 <h3 className="text-lg font-semibold">
-                  {t('edit.integrations.monday.connectTitle') || 'Conectar com Monday.com'}
+                  {t('edit.integrations.monday.connectTitle')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.monday.connectDescription') ||
-                    'Conecte sua conta Monday.com para permitir que o agente acesse boards, itens e automações'}
+                  {t('edit.integrations.monday.connectDescription')}
                 </p>
               </div>
             </div>
@@ -229,12 +230,12 @@ const MondayConfigDialog = ({
               {isConnecting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('edit.integrations.monday.connecting') || 'Conectando...'}
+                  {t('edit.integrations.monday.connecting')}
                 </>
               ) : (
                 <>
                   <img src="/integrations/monday.png" alt="Monday" className="mr-2 h-4 w-4" />
-                  {t('edit.integrations.monday.connectButton') || 'Conectar com Monday.com'}
+                  {t('edit.integrations.monday.connectButton')}
                 </>
               )}
             </Button>
@@ -247,12 +248,12 @@ const MondayConfigDialog = ({
                 <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
                   <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
                   <span className="font-medium">
-                    {t('edit.integrations.monday.connected') || 'Conectado'}
+                    {t('edit.integrations.monday.connected')}
                   </span>
                 </div>
                 {config.username && (
                   <p className="text-sm text-green-700 dark:text-green-300 mt-2">
-                    {t('edit.integrations.monday.connectedAs') || 'Conectado como'}:{' '}
+                    {t('edit.integrations.monday.connectedAs')}:{' '}
                     <strong>{config.username}</strong>
                   </p>
                 )}
@@ -263,8 +264,7 @@ const MondayConfigDialog = ({
 
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.monday.connectedDescription') ||
-                    'O agente agora pode acessar boards, itens e outras informações do Monday.'}
+                  {t('edit.integrations.monday.connectedDescription')}
                 </p>
               </div>
             </div>
@@ -274,7 +274,7 @@ const MondayConfigDialog = ({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium">
-                    {t('edit.integrations.monday.toolsTitle') || 'Ferramentas Disponíveis'}
+                    {t('edit.integrations.monday.toolsTitle')}
                   </h4>
                   {availableTools.length > 0 && (
                     <div className="flex items-center space-x-2">
@@ -287,14 +287,13 @@ const MondayConfigDialog = ({
                         onCheckedChange={handleSelectAll}
                       />
                       <Label htmlFor="select-all" className="text-xs font-medium cursor-pointer">
-                        {t('edit.integrations.monday.selectAll') || 'Selecionar todas'}
+                        {t('edit.integrations.monday.selectAll')}
                       </Label>
                     </div>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mb-3">
-                  {t('edit.integrations.monday.toolsDescription') ||
-                    'Selecione quais ferramentas do Monday o agente poderá usar'}
+                  {t('edit.integrations.monday.toolsDescription')}
                 </p>
               </div>
 
@@ -327,14 +326,14 @@ const MondayConfigDialog = ({
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center p-4">
-                  {t('edit.integrations.monday.noTools') || 'Nenhuma ferramenta disponível'}
+                  {t('edit.integrations.monday.noTools')}
                 </p>
               )}
             </div>
 
             <div className="flex flex-col gap-3 pt-4 border-t">
               <Button onClick={handleSave} className="w-full">
-                {t('edit.integrations.monday.saveConfig') || 'SALVAR CONFIGURAÇÕES'}
+                {t('edit.integrations.monday.saveConfig')}
               </Button>
 
               {onDisconnect && (
@@ -343,7 +342,7 @@ const MondayConfigDialog = ({
                   onClick={handleDisconnect}
                   className="w-full text-destructive hover:text-destructive/80"
                 >
-                  {t('edit.integrations.monday.disconnect') || 'Desconectar'}
+                  {t('edit.integrations.monday.disconnect')}
                 </Button>
               )}
             </div>

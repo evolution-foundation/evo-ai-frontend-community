@@ -6,12 +6,14 @@
     "displayName": {
       "label": "Display Name",
       "placeholder": "API Support",
-      "required": true
+      "required": true,
+      "helpText": "A friendly name for identification"
     },
     "name": {
       "label": "Channel Name",
       "placeholder": "api-support",
-      "required": true
+      "required": true,
+      "helpText": "Automatically generated from the display name"
     },
     "webhookUrl": {
       "label": "Webhook URL",

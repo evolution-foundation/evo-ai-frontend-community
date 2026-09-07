@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Button, Card, CardContent, Badge, Input } from '@evoapi/design-system';
@@ -139,7 +140,7 @@ const Marketplace = () => {
 
   const formatPrice = (price: number, currency: string) => {
     if (price === 0) return t('product.free');
-    return new Intl.NumberFormat('pt-BR', {
+    return new Intl.NumberFormat(getFormattingLocale(), {
       style: 'currency',
       currency: currency === 'USD' ? 'USD' : 'BRL',
     }).format(price);
