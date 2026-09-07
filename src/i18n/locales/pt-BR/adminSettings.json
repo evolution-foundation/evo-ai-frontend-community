@@ -628,6 +628,29 @@
       "loadError": "Falha ao carregar configuração",
       "testError": "Falha no teste de conexão",
       "testUnknown": "Resposta desconhecida do Hub"
+    },
+    "preview": {
+      "title": "Configuração detectada no Evo Hub",
+      "refresh": "Atualizar",
+      "plan": "Plano atual",
+      "sharedMetaApp": "Meta App compartilhada:",
+      "ownMetaApp": "· Meta App própria (BYO):",
+      "channelLimit": "· Total de canais:",
+      "yes": "sim",
+      "no": "não",
+      "unlimited": "ilimitado",
+      "loading": "Carregando…",
+      "noData": "Sem dados.",
+      "availableApps": "Meta Apps disponíveis",
+      "cloudApp": "Meta App da Evolution (Cloud)",
+      "shared": "compartilhada",
+      "own": "própria (BYO) ·",
+      "noApps": "Nenhuma Meta App disponível. Cadastre uma no Evo Hub para começar a criar canais.",
+      "channels": "Canais já criados no Hub",
+      "noChannels": "Nenhum canal criado ainda.",
+      "loadError": "Falha ao consultar Evo Hub",
+      "partialError": "Algumas informações não puderam ser carregadas ({{failed}} de {{total}}). Verifique a API URL e o token.",
+      "moreChannels": "+ {{count}} canais"
     }
   }
 }

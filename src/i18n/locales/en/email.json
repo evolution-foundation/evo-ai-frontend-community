@@ -57,5 +57,21 @@
   },
   "success": {
     "created": "Email channel created successfully!"
+  },
+  "callback": {
+    "processing": "Processing authorization...",
+    "processingProvider": "Processing {{provider}} authorization...",
+    "authorizationError": "Authorization error: {{error}}",
+    "missingParameters": "Authorization code or state is missing",
+    "connected": "{{provider}} connected successfully!",
+    "connectionError": "Could not connect {{provider}}",
+    "processingError": "Could not process {{provider}} authorization",
+    "unknownError": "An unknown error occurred while connecting {{provider}}",
+    "processingTitle": "Processing...",
+    "successTitle": "Success!",
+    "errorTitle": "Error",
+    "redirecting": "Redirecting...",
+    "closeWindow": "You can close this window.",
+    "integration": "{{provider}} Integration"
   }
 }

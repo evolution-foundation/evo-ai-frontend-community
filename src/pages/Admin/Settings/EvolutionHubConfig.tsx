@@ -178,11 +178,11 @@ export default function EvolutionHubConfig() {
       const fails = [planRes, optionsRes, channelsRes].filter((r) => r.status === 'rejected');
       if (fails.length === 3) {
         setPreviewError(
-          errorMessage((fails[0] as PromiseRejectedResult).reason, 'Falha ao consultar Evo Hub'),
+          errorMessage((fails[0] as PromiseRejectedResult).reason, t('evolutionHub.preview.loadError')),
         );
       } else if (fails.length > 0) {
         setPreviewError(
-          `Algumas informações não puderam ser carregadas (${fails.length} de 3). Verifique a API URL e o token.`,
+          t('evolutionHub.preview.partialError', { failed: fails.length, total: 3 }),
         );
       }
     } finally {
@@ -338,7 +338,7 @@ export default function EvolutionHubConfig() {
       {enabledBool && apiKeyConfigured && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle>Configuração detectada no Evo Hub</CardTitle>
+            <CardTitle>{t('evolutionHub.preview.title')}</CardTitle>
             <Button
               type="button"
               variant="outline"
@@ -351,7 +351,7 @@ export default function EvolutionHubConfig() {
               ) : (
                 <RefreshCw className="h-4 w-4" />
               )}
-              <span className="ml-2">Atualizar</span>
+              <span className="ml-2">{t('evolutionHub.preview.refresh')}</span>
             </Button>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -364,7 +364,7 @@ export default function EvolutionHubConfig() {
 
             {/* Plano */}
             <section>
-              <h3 className="text-sm font-semibold mb-2">Plano atual</h3>
+              <h3 className="text-sm font-semibold mb-2">{t('evolutionHub.preview.plan')}</h3>
               {hubPreview?.plan ? (
                 <div className="rounded-md border p-3 text-sm space-y-1">
                   <div>
@@ -375,44 +375,44 @@ export default function EvolutionHubConfig() {
                     <p className="text-xs text-muted-foreground">{hubPreview.plan.description}</p>
                   )}
                   <div className="text-xs text-muted-foreground pt-2">
-                    Meta App compartilhada: <strong>{hubPreview.plan.allow_shared_meta_app ? 'sim' : 'não'}</strong>{' '}
-                    · Meta App própria (BYO): <strong>{hubPreview.plan.allow_own_meta_app ? 'sim' : 'não'}</strong>{' '}
-                    · Total de canais: <strong>{hubPreview.plan.max_channels_total ?? 'ilimitado'}</strong>
+                    {t('evolutionHub.preview.sharedMetaApp')} <strong>{hubPreview.plan.allow_shared_meta_app ? t('evolutionHub.preview.yes') : t('evolutionHub.preview.no')}</strong>{' '}
+                    {t('evolutionHub.preview.ownMetaApp')} <strong>{hubPreview.plan.allow_own_meta_app ? t('evolutionHub.preview.yes') : t('evolutionHub.preview.no')}</strong>{' '}
+                    {t('evolutionHub.preview.channelLimit')} <strong>{hubPreview.plan.max_channels_total ?? t('evolutionHub.preview.unlimited')}</strong>
                   </div>
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  {previewLoading ? 'Carregando…' : 'Sem dados.'}
+                  {previewLoading ? t('evolutionHub.preview.loading') : t('evolutionHub.preview.noData')}
                 </p>
               )}
             </section>
 
             {/* Meta Apps disponíveis */}
             <section>
-              <h3 className="text-sm font-semibold mb-2">Meta Apps disponíveis</h3>
+              <h3 className="text-sm font-semibold mb-2">{t('evolutionHub.preview.availableApps')}</h3>
               {hubPreview?.options ? (
                 <ul className="space-y-2">
                   {hubPreview.options.allowed_modes.includes('shared') && (
                     <li className="rounded-md border p-3 text-sm">
-                      <span className="font-medium">Meta App da Evolution (Cloud)</span>
-                      <span className="ml-2 text-xs text-muted-foreground">compartilhada</span>
+                      <span className="font-medium">{t('evolutionHub.preview.cloudApp')}</span>
+                      <span className="ml-2 text-xs text-muted-foreground">{t('evolutionHub.preview.shared')}</span>
                     </li>
                   )}
                   {hubPreview.options.byo_credentials.map((c) => (
                     <li key={c.id} className="rounded-md border p-3 text-sm">
                       <span className="font-medium">{c.name}</span>
-                      <span className="ml-2 text-xs text-muted-foreground">própria (BYO) · {c.app_id}</span>
+                      <span className="ml-2 text-xs text-muted-foreground">{t('evolutionHub.preview.own')} {c.app_id}</span>
                     </li>
                   ))}
                   {hubPreview.options.allowed_modes.length === 0 && (
                     <li className="text-sm text-muted-foreground">
-                      Nenhuma Meta App disponível. Cadastre uma no Evo Hub para começar a criar canais.
+                      {t('evolutionHub.preview.noApps')}
                     </li>
                   )}
                 </ul>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  {previewLoading ? 'Carregando…' : 'Sem dados.'}
+                  {previewLoading ? t('evolutionHub.preview.loading') : t('evolutionHub.preview.noData')}
                 </p>
               )}
             </section>
@@ -420,7 +420,7 @@ export default function EvolutionHubConfig() {
             {/* Canais já existentes */}
             <section>
               <h3 className="text-sm font-semibold mb-2">
-                Canais já criados no Hub{' '}
+                {t('evolutionHub.preview.channels')}{' '}
                 {hubPreview && (
                   <span className="text-xs text-muted-foreground font-normal">
                     ({hubPreview.channels.length})
@@ -440,13 +440,13 @@ export default function EvolutionHubConfig() {
                   ))}
                   {hubPreview.channels.length > 10 && (
                     <li className="text-xs text-muted-foreground text-center">
-                      + {hubPreview.channels.length - 10} canais
+                      {t('evolutionHub.preview.moreChannels', { count: hubPreview.channels.length - 10 })}
                     </li>
                   )}
                 </ul>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  {previewLoading ? 'Carregando…' : 'Nenhum canal criado ainda.'}
+                  {previewLoading ? t('evolutionHub.preview.loading') : t('evolutionHub.preview.noChannels')}
                 </p>
               )}
             </section>

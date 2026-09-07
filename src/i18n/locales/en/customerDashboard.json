@@ -95,7 +95,13 @@
       "subtitle": "Individual team member performance metrics",
       "conversations": "conversations",
       "avgTime": "Avg. Time",
-      "satisfaction": "Satisfaction"
+      "satisfaction": "Satisfaction",
+      "humanTitle": "Team Member Performance",
+      "humanSubtitle": "Human team performance during the selected period",
+      "aiTitle": "AI Agent Performance",
+      "aiSubtitle": "AI agent message volume and share of replies",
+      "aiMessages": "AI messages",
+      "aiEmpty": "No AI messages in the selected period."
     },
     "charts": {
       "visitorsTrend": "Conversations per day",
@@ -117,7 +123,8 @@
       "heatmapShowing": "Showing {shown} of {total} days",
       "timezone": "Timezone",
       "channelsLabel": "Channels",
-      "shareLabel": "Share"
+      "shareLabel": "Share",
+      "emptyState": "No data in the selected period"
     },
     "sections": {
       "statusNow": "Operational status now",

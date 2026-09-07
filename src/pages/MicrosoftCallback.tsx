@@ -3,15 +3,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, CheckCircle, AlertTriangle, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import oauthCallbackService from '@/services/channels/oauthCallbackService';
-// import { useLanguage } from '@/hooks/useLanguage';
+import { useLanguage } from '@/hooks/useLanguage';
 import { AppLogo } from '@/components/AppLogo';
 
 export default function MicrosoftCallback() {
-  // const { t } = useLanguage('email');
+  const { t } = useLanguage('email');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
-  const [message, setMessage] = useState('Processando autorização...');
+  const [message, setMessage] = useState(t('callback.processing'));
   const [hasProcessed, setHasProcessed] = useState(false);
 
   const handleMicrosoftCallback = async () => {
@@ -27,19 +27,19 @@ export default function MicrosoftCallback() {
 
       if (error) {
         setStatus('error');
-        setMessage(errorDescription || `Erro de autorização: ${error}`);
+        setMessage(errorDescription || t('callback.authorizationError', { error }));
         toast.error(errorDescription || error);
         return;
       }
 
       if (!code || !state) {
         setStatus('error');
-        setMessage('Código de autorização ou state não encontrado');
-        toast.error('Código de autorização ou state não encontrado');
+        setMessage(t('callback.missingParameters'));
+        toast.error(t('callback.missingParameters'));
         return;
       }
 
-      setMessage('Processando autorização do Microsoft...');
+      setMessage(t('callback.processingProvider', { provider: 'Microsoft' }));
 
       // Call backend Microsoft callback endpoint
       const response = await oauthCallbackService.handleMicrosoftCallback(
@@ -49,15 +49,15 @@ export default function MicrosoftCallback() {
 
       if (response?.success) {
         setStatus('success');
-        setMessage('Outlook conectado com sucesso!');
-        toast.success('Outlook conectado com sucesso!');
+        setMessage(t('callback.connected', { provider: 'Outlook' }));
+        toast.success(t('callback.connected', { provider: 'Outlook' }));
 
         // Redirect to channels list after success (same as Google/Instagram)
         setTimeout(() => {
           navigate('/channels');
         }, 2000);
       } else {
-        throw new Error(response?.error || 'Erro ao conectar Outlook');
+        throw new Error(response?.error || t('callback.connectionError', { provider: 'Outlook' }));
       }
     } catch (error) {
       console.error('Microsoft callback error:', error);
@@ -66,7 +66,7 @@ export default function MicrosoftCallback() {
         (error as { response?: { data?: { error?: string } }; message?: string })?.response?.data
           ?.error ||
         (error as { message?: string })?.message ||
-        'Erro ao processar autorização do Microsoft';
+        t('callback.processingError', { provider: 'Microsoft' });
 
       setMessage(errorMessage);
 
@@ -74,7 +74,7 @@ export default function MicrosoftCallback() {
         (error as { response?: { data?: { error?: string } }; message?: string })?.response?.data
           ?.error ||
         (error as { message?: string })?.message ||
-        'Erro desconhecido ao conectar Outlook'
+        t('callback.unknownError', { provider: 'Outlook' })
       );
     }
   };
@@ -132,9 +132,9 @@ export default function MicrosoftCallback() {
               {getStatusIcon()}
               <div className="space-y-2">
                 <p className={`text-lg font-semibold ${getStatusColor()}`}>
-                  {status === 'processing' && 'Processando...'}
-                  {status === 'success' && 'Sucesso!'}
-                  {status === 'error' && 'Erro'}
+                  {status === 'processing' && t('callback.processingTitle')}
+                  {status === 'success' && t('callback.successTitle')}
+                  {status === 'error' && t('callback.errorTitle')}
                 </p>
                 <p className="text-sm text-muted-foreground max-w-sm">{message}</p>
               </div>
@@ -142,13 +142,13 @@ export default function MicrosoftCallback() {
 
             {status === 'success' && (
               <div className="text-xs text-muted-foreground animate-pulse">
-                Redirecionando...
+                {t('callback.redirecting')}
               </div>
             )}
 
             {status === 'error' && (
               <div className="text-xs text-muted-foreground pt-4 border-t">
-                <p>Você pode fechar esta janela.</p>
+                <p>{t('callback.closeWindow')}</p>
               </div>
             )}
           </div>
@@ -156,7 +156,7 @@ export default function MicrosoftCallback() {
 
         {/* Footer */}
         <div className="text-center text-xs text-muted-foreground">
-          <p>Outlook Integration</p>
+          <p>{t('callback.integration', { provider: 'Outlook' })}</p>
         </div>
       </div>
     </div>
