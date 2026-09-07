@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 // Message types based on Vue widget implementation
 export enum MessageType {
   INCOMING = 0, // User/Contact messages
@@ -134,7 +135,7 @@ export const mapApiMessageToUI = (apiMessage: ApiMessage): UIMessage => {
           file_size: att.file_size,
           fallback_title:
             att.fallback_title ||
-            `Arquivo (${att.file_size ? Math.round(att.file_size / 1024) : 0} KB)`,
+            i18n.t("interface:dynamic.fileSize", { size: att.file_size ? Math.round(att.file_size / 1024) : 0 }),
         }))
       : undefined,
   };

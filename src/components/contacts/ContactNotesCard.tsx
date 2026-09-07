@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import {
@@ -20,7 +21,7 @@ interface ContactNotesCardProps {
 function formatDateTime(dateString: string): string {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return dateString;
-  return date.toLocaleDateString('pt-BR', {
+  return date.toLocaleDateString(getFormattingLocale(), {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',

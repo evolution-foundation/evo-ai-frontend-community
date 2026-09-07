@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { Badge } from '@evoapi/design-system';
 import { CheckCircle2, Clock, AlertCircle, ListTodo } from 'lucide-react';
@@ -10,6 +11,7 @@ interface PipelineItemTasksBadgeProps {
 }
 
 export default function PipelineItemTasksBadge({ tasks, compact = false }: PipelineItemTasksBadgeProps) {
+  const { t: tUi } = useUiTranslation();
   const sortedTasks = useMemo(() => {
     return [...tasks].sort((a, b) => {
       if (!a.due_date && !b.due_date) return 0;
@@ -75,7 +77,7 @@ export default function PipelineItemTasksBadge({ tasks, compact = false }: Pipel
       {counters.overdue > 0 && (
         <Badge variant="destructive" className="h-6 px-2 text-xs">
           <AlertCircle className="w-3 h-3 mr-1" />
-          {counters.overdue} vencida{counters.overdue > 1 ? 's' : ''}
+          {tUi("pipelines:tasks.badge.overdue", { count: counters.overdue })}
         </Badge>
       )}
 
@@ -83,7 +85,7 @@ export default function PipelineItemTasksBadge({ tasks, compact = false }: Pipel
       {counters.dueSoon > 0 && (
         <Badge className="h-6 px-2 text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400">
           <Clock className="w-3 h-3 mr-1" />
-          {counters.dueSoon} próxima{counters.dueSoon > 1 ? 's' : ''}
+          {tUi("pipelines:tasks.badge.dueSoon", { count: counters.dueSoon })}
         </Badge>
       )}
 
@@ -91,7 +93,7 @@ export default function PipelineItemTasksBadge({ tasks, compact = false }: Pipel
       {counters.pending > 0 && (
         <Badge variant="secondary" className="h-6 px-2 text-xs">
           <ListTodo className="w-3 h-3 mr-1" />
-          {counters.pending} pendente{counters.pending > 1 ? 's' : ''}
+          {tUi("pipelines:tasks.badge.pending", { count: counters.pending })}
         </Badge>
       )}
 

@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -32,6 +33,7 @@ const StripeConfigDialog = ({
   initialConfig,
   agentId,
 }: StripeConfigDialogProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
 
   const [isConnecting, setIsConnecting] = useState(false);
@@ -102,7 +104,7 @@ const StripeConfigDialog = ({
       setAvailableTools(response.tools || []);
     } catch (error) {
       console.error('Error loading Stripe tools:', error);
-      toast.error('Erro ao carregar ferramentas disponíveis');
+      toast.error(tUi("interface:stripeconfigdialog.couldNotLoadAvailableTools"));
     } finally {
       setIsLoadingTools(false);
     }
@@ -119,7 +121,7 @@ const StripeConfigDialog = ({
       }
     } catch (error) {
       console.error('Error connecting to Stripe:', error);
-      toast.error('Erro ao conectar com Stripe');
+      toast.error(tUi("interface:stripeconfigdialog.couldNotConnectToStripe"));
     } finally {
       setIsConnecting(false);
     }
@@ -157,11 +159,11 @@ const StripeConfigDialog = ({
 
       // Then update local state
       onSave(updatedConfig);
-      toast.success('Configurações salvas com sucesso!');
+      toast.success(tUi("integrations:messages.saveSuccess"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error saving Stripe configuration:', error);
-      toast.error('Erro ao salvar configurações');
+      toast.error(tUi("integrations:messages.saveError"));
     }
   };
 
@@ -171,11 +173,11 @@ const StripeConfigDialog = ({
       if (onDisconnect) {
         onDisconnect();
       }
-      toast.success('Stripe desconectado com sucesso!');
+      toast.success(tUi("interface:stripeconfigdialog.stripeDisconnectedSuccessfully"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error disconnecting Stripe:', error);
-      toast.error('Erro ao desconectar Stripe');
+      toast.error(tUi("interface:stripeconfigdialog.couldNotDisconnectStripe"));
     }
   };
 
@@ -197,7 +199,7 @@ const StripeConfigDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BrandIcon id="stripe" size={20} className="h-5 w-5" />
-            {t('edit.integrations.stripe.configTitle') || 'Configurar Stripe'}
+            {t('edit.integrations.stripe.configTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -212,11 +214,10 @@ const StripeConfigDialog = ({
               </div>
               <div>
                 <h3 className="text-lg font-semibold">
-                  {t('edit.integrations.stripe.connectTitle') || 'Conectar com Stripe'}
+                  {t('edit.integrations.stripe.connectTitle')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.stripe.connectDescription') ||
-                    'Permita que o agente acesse pagamentos, assinaturas e informações de clientes do Stripe'}
+                  {t('edit.integrations.stripe.connectDescription')}
                 </p>
               </div>
             </div>
@@ -230,12 +231,12 @@ const StripeConfigDialog = ({
               {isConnecting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('edit.integrations.stripe.connecting') || 'Conectando...'}
+                  {t('edit.integrations.stripe.connecting')}
                 </>
               ) : (
                 <>
                   <BrandIcon id="stripe" size={16} className="mr-2 h-4 w-4" />
-                  {t('edit.integrations.stripe.connectButton') || 'Conectar com Stripe'}
+                  {t('edit.integrations.stripe.connectButton')}
                 </>
               )}
             </Button>
@@ -248,12 +249,12 @@ const StripeConfigDialog = ({
                 <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
                   <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
                   <span className="font-medium">
-                    {t('edit.integrations.stripe.connected') || 'Conectado'}
+                    {t('edit.integrations.stripe.connected')}
                   </span>
                 </div>
                 {config.username && (
                   <p className="text-sm text-green-700 dark:text-green-300 mt-2">
-                    {t('edit.integrations.stripe.connectedAs') || 'Conectado como'}:{' '}
+                    {t('edit.integrations.stripe.connectedAs')}:{' '}
                     <strong>{config.username}</strong>
                   </p>
                 )}
@@ -264,8 +265,7 @@ const StripeConfigDialog = ({
 
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.stripe.connectedDescription') ||
-                    'O agente agora pode acessar pagamentos, assinaturas e outras informações do Stripe.'}
+                  {t('edit.integrations.stripe.connectedDescription')}
                 </p>
               </div>
             </div>
@@ -275,7 +275,7 @@ const StripeConfigDialog = ({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium">
-                    {t('edit.integrations.stripe.toolsTitle') || 'Ferramentas Disponíveis'}
+                    {t('edit.integrations.stripe.toolsTitle')}
                   </h4>
                   {availableTools.length > 0 && (
                     <div className="flex items-center space-x-2">
@@ -288,14 +288,13 @@ const StripeConfigDialog = ({
                         onCheckedChange={handleSelectAll}
                       />
                       <Label htmlFor="select-all" className="text-xs font-medium cursor-pointer">
-                        {t('edit.integrations.stripe.selectAll') || 'Selecionar todas'}
+                        {t('edit.integrations.stripe.selectAll')}
                       </Label>
                     </div>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mb-3">
-                  {t('edit.integrations.stripe.toolsDescription') ||
-                    'Selecione quais ferramentas do Stripe o agente poderá usar'}
+                  {t('edit.integrations.stripe.toolsDescription')}
                 </p>
               </div>
 
@@ -328,14 +327,14 @@ const StripeConfigDialog = ({
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center p-4">
-                  {t('edit.integrations.stripe.noTools') || 'Nenhuma ferramenta disponível'}
+                  {t('edit.integrations.stripe.noTools')}
                 </p>
               )}
             </div>
 
             <div className="flex flex-col gap-3 pt-4 border-t">
               <Button onClick={handleSave} className="w-full">
-                {t('edit.integrations.stripe.saveConfig') || 'SALVAR CONFIGURAÇÕES'}
+                {t('edit.integrations.stripe.saveConfig')}
               </Button>
 
               {onDisconnect && (
@@ -344,7 +343,7 @@ const StripeConfigDialog = ({
                   onClick={handleDisconnect}
                   className="w-full text-destructive hover:text-destructive/80"
                 >
-                  {t('edit.integrations.stripe.disconnect') || 'Desconectar'}
+                  {t('edit.integrations.stripe.disconnect')}
                 </Button>
               )}
             </div>

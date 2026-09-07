@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Input, Label } from '@evoapi/design-system';
 import { Plus, X } from 'lucide-react';
@@ -152,7 +153,7 @@ export default function KeyValueEditor({
                     onChange={e => updateRow(row.id, { key: e.target.value })}
                     placeholder={keyPlaceholder || t('keyValueEditor.keyPlaceholder')}
                     disabled={disabled}
-                    aria-label={`${label} key`}
+                    aria-label={i18n.t("interface:dynamic.fieldKey", { label })}
                     aria-invalid={!!err}
                     aria-describedby={err ? `${row.id}-err` : undefined}
                     className={err ? 'border-destructive' : ''}
@@ -173,7 +174,7 @@ export default function KeyValueEditor({
                       onChange={e => updateRow(row.id, { value: e.target.value })}
                       placeholder={valuePlaceholder || t('keyValueEditor.valuePlaceholder')}
                       disabled={disabled}
-                      aria-label={`${label} value`}
+                      aria-label={i18n.t("interface:dynamic.fieldValue", { label })}
                       aria-invalid={!!err}
                       aria-describedby={err ? `${row.id}-err` : undefined}
                       className={err ? 'border-destructive' : ''}

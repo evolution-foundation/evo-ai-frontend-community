@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { AgentCreate } from '@/types/agents';
 
 /**
@@ -45,11 +46,11 @@ export const extractBackendErrorMessage = (error: any): string => {
 
         // Personalizar mensagens conhecidas
         if (message.includes('Agent name cannot contain spaces or special characters')) {
-          return 'Nome do agente não pode conter espaços ou caracteres especiais. Use apenas letras, números, _ ou -';
+          return i18n.t("interface:agentutils.agentNamesCannotContainSpacesOrSpecialCharactersUseOnly");
         }
 
         if (message.includes('Input should be a valid UUID')) {
-          return 'ID da API key deve ser um UUID válido';
+          return i18n.t("interface:agentutils.apiKeyIdMustBeAValidUuid");
         }
 
         // Se não encontrar personalização, retornar a mensagem original limpa
@@ -75,7 +76,7 @@ export const extractBackendErrorMessage = (error: any): string => {
     return error.message;
   }
 
-  return 'Erro desconhecido ao salvar agente';
+  return i18n.t("interface:agentutils.unknownErrorSavingAgent");
 };
 
 /**

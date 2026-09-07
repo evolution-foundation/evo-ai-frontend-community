@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { permissionsService } from '@/services/permissions';
 import type { ResourceActionsResponse, PermissionDetail } from '@/types/auth';
@@ -39,6 +40,7 @@ interface UsePermissionsConfigReturn {
  * Este hook ainda existe para compatibilidade com código legado
  */
 export const usePermissionsConfig = (): UsePermissionsConfigReturn => {
+  const { t: tUi } = useUiTranslation();
   const [data, setData] = useState<ResourceActionsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,12 +57,12 @@ export const usePermissionsConfig = (): UsePermissionsConfigReturn => {
       const response = await permissionsService.getResourceActions(forceRefresh);
       setData(response);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar permissões';
+      const errorMessage = err instanceof Error ? err.message : tUi("interface:usepermissionsconfig.couldNotLoadPermissions");
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tUi]);
 
   useEffect(() => {
     // ⚡ Proteção: carregar apenas uma vez por instância

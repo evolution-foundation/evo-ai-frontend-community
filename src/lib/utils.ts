@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { Node, NodePositionChange, XYPosition } from "@xyflow/react";
@@ -214,14 +215,14 @@ export function validateFlowStart(
   if (startNodes.length === 0) {
     return {
       isValid: false,
-      error: 'O flow deve ter pelo menos um node de início'
+      error: i18n.t("interface:utils.theFlowMustHaveAtLeastOneStartNode")
     };
   }
 
   if (startNodes.length > 1) {
     return {
       isValid: false,
-      error: 'O flow deve ter apenas um node de início'
+      error: i18n.t("interface:utils.theFlowMustHaveOnlyOneStartNode")
     };
   }
 
@@ -317,13 +318,13 @@ export function validateFlowExtended(nodes: Node[], edges: any[]): FlowValidatio
 
   // Verificar se há pelo menos um node
   if (nodes.length === 0) {
-    errors.push('O flow deve ter pelo menos um node');
+    errors.push(i18n.t("interface:utils.theFlowMustHaveAtLeastOneNode"));
   }
 
   // Verificar se há um node trigger
   const triggerNodes = nodes.filter(node => node.type === 'trigger-node');
   if (triggerNodes.length === 0) {
-    errors.push('O flow deve ter pelo menos um node trigger');
+    errors.push(i18n.t("interface:utils.theFlowMustHaveAtLeastOneTriggerNode"));
   }
 
   // Verificar nodes órfãos (sem conexões)
@@ -338,13 +339,13 @@ export function validateFlowExtended(nodes: Node[], edges: any[]): FlowValidatio
   );
 
   if (orphanNodes.length > 0) {
-    warnings.push(`${orphanNodes.length} node(s) não conectado(s)`);
+    warnings.push(i18n.t("interface:messages.unconnectedNodes", { count: orphanNodes.length }));
   }
 
   // Verificar dados obrigatórios nos nodes
   nodes.forEach(node => {
     if (!node.data?.label) {
-      warnings.push(`Node ${node.id} não tem label definido`);
+      warnings.push(i18n.t("interface:messages.nodeWithoutLabel", { id: node.id }));
     }
   });
 

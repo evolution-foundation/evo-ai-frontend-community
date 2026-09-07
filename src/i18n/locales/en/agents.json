@@ -90,7 +90,8 @@
     "viewDenied": "You don't have permission to view AI agents",
     "createDenied": "You don't have permission to create AI agents",
     "editDenied": "You don't have permission to edit AI agents",
-    "deleteDenied": "You don't have permission to delete AI agents"
+    "deleteDenied": "You don't have permission to delete AI agents",
+    "updateDenied": "You do not have permission to edit agents"
   },
   "loadError": "Error loading AI agents",
   "createAgent": "New AI Agent",

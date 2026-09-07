@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React from 'react';
 import { List } from 'lucide-react';
 
@@ -15,6 +16,7 @@ const MessageInputSelect: React.FC<MessageInputSelectProps> = ({
   content,
   contentAttributes,
 }) => {
+  const { t: tUi } = useUiTranslation();
   const items: SelectItem[] = Array.isArray(contentAttributes?.items)
     ? (contentAttributes.items as SelectItem[]).filter(
         (item) => item && typeof item.title === 'string',
@@ -51,7 +53,7 @@ const MessageInputSelect: React.FC<MessageInputSelectProps> = ({
         >
           <div className="flex items-center gap-2 px-3 py-2 bg-white/10 border-b border-white/20">
             <List className="h-3.5 w-3.5 opacity-70" />
-            <span className="text-xs font-medium opacity-70">Menu</span>
+            <span className="text-xs font-medium opacity-70">{tUi("interface:messageinputselect.menu")}</span>
           </div>
           <div className="divide-y divide-white/10">
             {items.map((item, index) => (

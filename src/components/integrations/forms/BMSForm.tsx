@@ -14,28 +14,28 @@ export function BMSForm({ config, onConfigChange }: IntegrationFormProps) {
     <div className="space-y-4">
       <FormField
         id="BMS_API_KEY"
-        label={t('integrations.bms.apiKey')}
+        label={t("bms.apiKey")}
         value={getValue('bmsApiKey')}
         onChange={(value) => onConfigChange('bmsApiKey', value)}
-        placeholder={t('integrations.bms.placeholders.apiKey')}
+        placeholder={t("bms.placeholders.apiKey")}
         type="password"
       />
       <FormField
         id="BMS_IPPOOL"
-        label={t('integrations.bms.ipPool')}
+        label={t("bms.ipPool")}
         value={getValue('bmsIpPool', 'evoapicloud')}
         onChange={(value) => onConfigChange('bmsIpPool', value)}
-        placeholder={t('integrations.bms.placeholders.ipPool')}
-        description={t('integrations.bms.ipPoolDescription')}
+        placeholder={t("bms.placeholders.ipPool")}
+        description={t("bms.ipPoolDescription")}
       />
       <FormField
         id="MAILER_SENDER_EMAIL"
-        label={t('integrations.bms.senderEmail')}
+        label={t("bms.senderEmail")}
         value={getValue('mailerSenderEmail')}
         onChange={(value) => onConfigChange('mailerSenderEmail', value)}
-        placeholder={t('integrations.bms.placeholders.senderEmail')}
+        placeholder={t("bms.placeholders.senderEmail")}
         type="email"
-        description={t('integrations.bms.senderEmailDescription')}
+        description={t("bms.senderEmailDescription")}
       />
     </div>
   );

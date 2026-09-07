@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { useEffect, useMemo, useState } from 'react';
 import { Label, Textarea, Checkbox } from '@evoapi/design-system';
 import { Mail } from 'lucide-react';
@@ -189,7 +190,7 @@ export function SendEmailTeamPanel({ nodeId, data, onUpdate, onClose }: SendEmai
               {selectedTeams.slice(0, 3).map(teamId => {
                 const team = formDataOptions.teams.find(team => team.id.toString() === teamId);
                 return (
-                  <div key={teamId}>📧 {team?.name || `Equipe #${teamId}`}</div>
+                  <div key={teamId}>📧 {team?.name || i18n.t("interface:dynamic.teamId", { id: teamId })}</div>
                 );
               })}
               {selectedTeams.length > 3 && (

@@ -14,12 +14,12 @@ export function CanvaForm({ config, onConfigChange }: IntegrationFormProps) {
     <div className="space-y-4">
       <FormField
         id="CANVA_OAUTH_REDIRECT_URI"
-        label={t('integrations.canva.redirectUri')}
+        label={t("canva.redirectUri")}
         value={getValue('canvaRedirectUri')}
         onChange={(value) => onConfigChange('canvaRedirectUri', value)}
-        placeholder={t('integrations.canva.placeholders.redirectUri')}
+        placeholder={t("canva.placeholders.redirectUri")}
         type="url"
-        description={t('integrations.canva.redirectUriDescription')}
+        description={t("canva.redirectUriDescription")}
       />
     </div>
   );

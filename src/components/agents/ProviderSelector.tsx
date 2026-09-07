@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import {
   Label,
   Select,
@@ -26,27 +27,27 @@ const PROVIDERS: ProviderOption[] = [
   {
     value: 'flowise',
     label: 'Flowise',
-    description: 'Integração com agentes do Flowise',
+    get description() { return i18n.t("aiAgents:edit.configuration.sections.externalIntegration.providerSelector.providers.flowise.description"); },
   },
   {
     value: 'n8n',
     label: 'N8N',
-    description: 'Integração com workflows do N8N',
+    get description() { return i18n.t("aiAgents:edit.configuration.sections.externalIntegration.providerSelector.providers.n8n.description"); },
   },
   {
     value: 'typebot',
     label: 'Typebot',
-    description: 'Integração com bots do Typebot',
+    get description() { return i18n.t("aiAgents:edit.configuration.sections.externalIntegration.providerSelector.providers.typebot.description"); },
   },
   {
     value: 'dify',
     label: 'Dify',
-    description: 'Conectar com agentes do Dify',
+    get description() { return i18n.t("aiAgents:edit.configuration.sections.externalIntegration.providerSelector.providers.dify.description"); },
   },
   {
     value: 'openai',
     label: 'OpenAI',
-    description: 'Integração direta com assistentes da OpenAI',
+    get description() { return i18n.t("aiAgents:edit.configuration.sections.externalIntegration.providerSelector.providers.openai.description"); },
   },
 ];
 

@@ -28,10 +28,10 @@ export default function InstagramForm({ onCancel }: InstagramFormProps) {
       <div className="space-y-6">
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground">
-            {t('channelName') || 'Channel Name'}
+            {t('channelName')}
           </label>
           <Input
-            placeholder={t('channelNamePlaceholder') || 'Instagram Channel'}
+            placeholder={t('channelNamePlaceholder')}
             value={inboxName}
             onChange={(e) => setInboxName(e.target.value)}
           />
@@ -41,7 +41,7 @@ export default function InstagramForm({ onCancel }: InstagramFormProps) {
           <FormActionBar>
             <div className="flex justify-end">
               <Button variant="outline" onClick={onCancel} className="min-w-24">
-                {t('cancel') || 'Cancel'}
+                {t('cancel')}
               </Button>
             </div>
           </FormActionBar>

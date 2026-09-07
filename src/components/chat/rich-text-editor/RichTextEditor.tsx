@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { useRef, useEffect, useState, useImperativeHandle, forwardRef } from 'react';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
@@ -58,7 +59,7 @@ interface RichTextEditorProps {
 export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
   (
     {
-      placeholder = 'Digite sua nota privada...',
+      placeholder = i18n.t("interface:richtexteditor.typeYourPrivateNote"),
       value = '',
       onChange,
       onKeyDown,

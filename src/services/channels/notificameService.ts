@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import api from '@/services/core/api';
 import type {
   NotificameVerifyPayload,
@@ -32,7 +33,7 @@ class NotificameService {
     const inner = body.data ?? {};
     return {
       success: body.success ?? true,
-      message: body.message || 'Conexão verificada com sucesso',
+      message: body.message || i18n.t("channels:newChannel.messages.connectionVerified"),
       channels: inner.channels ?? [],
     };
   }

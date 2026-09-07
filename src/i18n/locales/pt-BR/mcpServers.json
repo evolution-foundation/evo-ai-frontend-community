@@ -123,7 +123,8 @@
     "actions": {
       "viewDetails": "Ver detalhes",
       "edit": "Editar",
-      "delete": "Excluir"
+      "delete": "Excluir",
+      "openMenu": "Abrir menu de ações"
     },
     "empty": {
       "title": "Nenhum servidor MCP criado",

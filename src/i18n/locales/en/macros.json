@@ -85,7 +85,9 @@
       "visibility": "Visibility",
       "createdAt": "Created at",
       "updatedAt": "Updated at",
-      "id": "ID"
+      "id": "ID",
+      "createdBy": "Created by",
+      "updatedBy": "Updated by"
     },
     "actionCount": "{{count}} action",
     "actionCount_plural": "{{count}} actions",
@@ -117,7 +119,13 @@
     "deleteSuccess": "Macro deleted successfully",
     "deleteError": "Error deleting macro",
     "bulkDeleteSuccess": "{{count}} macro(s) deleted successfully",
-    "bulkDeleteError": "Error deleting macros"
+    "bulkDeleteError": "Error deleting macros",
+    "permissionDenied": {
+      "read": "You do not have permission to view macros",
+      "create": "You do not have permission to create macros",
+      "update": "You do not have permission to edit macros",
+      "delete": "You do not have permission to delete macros"
+    }
   },
   "dialog": {
     "delete": {

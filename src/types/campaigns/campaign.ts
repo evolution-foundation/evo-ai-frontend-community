@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import type { PaginationMeta, StandardResponse, PaginatedResponse } from '@/types/core';
 
 // Enums
@@ -24,13 +25,13 @@ export enum CampaignChannelType {
 }
 
 export const CampaignStatusLabels: Record<CampaignStatus, string> = {
-  [CampaignStatus.DRAFT]: 'Rascunho',
-  [CampaignStatus.SCHEDULED]: 'Agendada',
-  [CampaignStatus.SENDING]: 'Enviando',
-  [CampaignStatus.PAUSED]: 'Pausada',
-  [CampaignStatus.STOPPED]: 'Parada',
-  [CampaignStatus.COMPLETED]: 'Concluída',
-  [CampaignStatus.SENDING_TESTAB]: 'Teste A/B',
+  get [CampaignStatus.DRAFT]() { return i18n.t("campaigns:status.draft"); },
+  get [CampaignStatus.SCHEDULED]() { return i18n.t("campaigns:status.scheduled"); },
+  get [CampaignStatus.SENDING]() { return i18n.t("interface:campaign.sending"); },
+  get [CampaignStatus.PAUSED]() { return i18n.t("campaigns:status.paused"); },
+  get [CampaignStatus.STOPPED]() { return i18n.t("campaigns:status.stopped"); },
+  get [CampaignStatus.COMPLETED]() { return i18n.t("campaigns:status.completed"); },
+  get [CampaignStatus.SENDING_TESTAB]() { return i18n.t("campaigns:status.sending_testab"); },
 };
 
 // Campaign Interfaces

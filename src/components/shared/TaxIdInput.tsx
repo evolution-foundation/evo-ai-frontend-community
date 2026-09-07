@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import React, { useMemo } from 'react';
 import { IMaskInput } from 'react-imask';
 import { Input } from '@evoapi/design-system';
@@ -65,10 +66,10 @@ const TAX_ID_CONFIG: Record<string, {
   // Default: no mask (free text)
   DEFAULT: {
     person: {
-      placeholder: 'Tax ID / SSN',
+      get placeholder() { return i18n.t("contacts:form.fields.taxId.labelPerson"); },
     },
     company: {
-      placeholder: 'Tax ID / EIN',
+      get placeholder() { return i18n.t("contacts:form.fields.taxId.labelCompany"); },
     },
   },
 };

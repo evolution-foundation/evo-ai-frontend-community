@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -495,6 +497,7 @@ const EvolutionWhatsAppConfig: React.FC<{
   inbox: any;
   onUpdate: (data: any) => void;
 }> = ({ inbox, onUpdate }) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('channels');
   const globalConfig = useGlobalConfig();
   const isEvolutionGo = inbox?.provider === 'evolution_go';
@@ -510,7 +513,7 @@ const EvolutionWhatsAppConfig: React.FC<{
   const [loadError, setLoadError] = useState<string | null>(null);
   const [instanceSettings, setInstanceSettings] = useState({
     rejectCall: true,
-    msgCall: 'Não aceito chamadas',
+    msgCall: tUi("interface:configurationform.iDoNotAcceptCalls"),
     groupsIgnore: false,
     alwaysOnline: true,
     readMessages: false,
@@ -593,7 +596,7 @@ const EvolutionWhatsAppConfig: React.FC<{
 
       if (!identifier) {
         if (!cancelled) {
-          setLoadError(t('settings.configuration.whatsapp.instance.errors.nameNotFound', 'Could not resolve instance identifier from channel config.'));
+          setLoadError(t('settings.configuration.whatsapp.instance.errors.nameNotFound'));
           setIsLoadingSettings(false);
         }
         return;
@@ -611,7 +614,7 @@ const EvolutionWhatsAppConfig: React.FC<{
             const ignoreStatus = settings.ignoreStatus ?? settings.ignore_status ?? true;
             setInstanceSettings({
               rejectCall: settings.rejectCall ?? settings.reject_call ?? true,
-              msgCall: settings.msgCall || settings.msg_call || 'Não aceito chamadas',
+              msgCall: settings.msgCall || settings.msg_call || tUi("interface:configurationform.iDoNotAcceptCalls"),
               groupsIgnore: settings.ignoreGroups ?? settings.ignore_groups ?? false,
               alwaysOnline: settings.alwaysOnline ?? settings.always_online ?? true,
               readMessages: settings.readMessages ?? settings.read_messages ?? true,
@@ -621,7 +624,7 @@ const EvolutionWhatsAppConfig: React.FC<{
           } else {
             setInstanceSettings({
               rejectCall: settings.rejectCall ?? true,
-              msgCall: settings.msgCall || 'Não aceito chamadas',
+              msgCall: settings.msgCall || tUi("interface:configurationform.iDoNotAcceptCalls"),
               groupsIgnore: settings.groupsIgnore ?? false,
               alwaysOnline: settings.alwaysOnline ?? true,
               readMessages: settings.readMessages ?? false,
@@ -660,7 +663,7 @@ const EvolutionWhatsAppConfig: React.FC<{
 
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inbox.provider, inbox.name]);
+  }, [inbox.provider, inbox.name, tUi]);
 
   // Load instance status on mount and poll
   useEffect(() => {
@@ -673,7 +676,7 @@ const EvolutionWhatsAppConfig: React.FC<{
 
         if (!identifier) {
           if (!cancelled) {
-            setLoadError(t('settings.configuration.whatsapp.instance.errors.nameNotFound', 'Could not resolve instance identifier from channel config.'));
+            setLoadError(t('settings.configuration.whatsapp.instance.errors.nameNotFound'));
             setIsLoadingSettings(false);
           }
           return;
@@ -697,7 +700,7 @@ const EvolutionWhatsAppConfig: React.FC<{
       } catch (error) {
         if (!cancelled) {
           console.error('Error loading instance status:', error);
-          setLoadError(t('settings.configuration.whatsapp.instance.errors.loadFailed', 'Failed to load instance status. Check your connection settings.'));
+          setLoadError(t('settings.configuration.whatsapp.instance.errors.loadFailed'));
         }
       } finally {
         if (!cancelled) {
@@ -990,7 +993,7 @@ const EvolutionWhatsAppConfig: React.FC<{
               <Skeleton className="h-8 w-3/4" />
               <Skeleton className="h-8 w-1/2" />
             </div>
-            <span className="sr-only">{t('settings.configuration.whatsapp.instance.loading', 'Loading instance settings...')}</span>
+            <span className="sr-only">{t('settings.configuration.whatsapp.instance.loading')}</span>
           </CardContent>
         </Card>
       </div>
@@ -1005,7 +1008,7 @@ const EvolutionWhatsAppConfig: React.FC<{
             <div className="flex items-start gap-3">
               <Info className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
               <div>
-                <h3 className="font-semibold text-destructive">{t('settings.configuration.whatsapp.instance.errors.title', 'Configuration Error')}</h3>
+                <h3 className="font-semibold text-destructive">{t('settings.configuration.whatsapp.instance.errors.title')}</h3>
                 <p className="text-sm text-muted-foreground mt-1">{loadError}</p>
               </div>
             </div>
@@ -1376,10 +1379,10 @@ const EvolutionWhatsAppConfig: React.FC<{
                     <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
                     <div>
                       <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
-                        {t('settings.configuration.whatsapp.instance.connection.usingGlobalConfig', 'Using Admin Settings defaults')}
+                        {t('settings.configuration.whatsapp.instance.connection.usingGlobalConfig')}
                       </p>
                       <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
-                        {t('settings.configuration.whatsapp.instance.connection.usingGlobalConfigHint', 'The API URL and Token are configured globally in Admin Settings. Fill the fields below only to override the global values for this channel.')}
+                        {t('settings.configuration.whatsapp.instance.connection.usingGlobalConfigHint')}
                       </p>
                     </div>
                   </div>
@@ -1396,7 +1399,7 @@ const EvolutionWhatsAppConfig: React.FC<{
                     setConnectionSettings(prev => ({ ...prev, apiUrl: e.target.value }))
                   }
                   placeholder={usingGlobalFallback
-                    ? t('settings.configuration.whatsapp.instance.connection.apiUrlGlobalPlaceholder', 'Using global config — fill to override')
+                    ? t('settings.configuration.whatsapp.instance.connection.apiUrlGlobalPlaceholder')
                     : t('settings.configuration.whatsapp.instance.connection.apiUrlPlaceholder')}
                 />
               </div>
@@ -1412,12 +1415,12 @@ const EvolutionWhatsAppConfig: React.FC<{
                     setConnectionSettings(prev => ({ ...prev, adminToken: e.target.value }))
                   }
                   placeholder={usingGlobalFallback
-                    ? t('settings.configuration.whatsapp.instance.connection.adminTokenGlobalPlaceholder', 'Using global config — fill to override')
+                    ? t('settings.configuration.whatsapp.instance.connection.adminTokenGlobalPlaceholder')
                     : t('settings.configuration.whatsapp.instance.connection.adminTokenPlaceholder')}
                 />
                 {inbox?.provider_config?.admin_token && (
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {t('settings.configuration.whatsapp.instance.connection.adminTokenSet', 'A key is already configured. Leave blank to keep it.')}
+                    {t('settings.configuration.whatsapp.instance.connection.adminTokenSet')}
                   </p>
                 )}
               </div>
@@ -1454,6 +1457,7 @@ const EvolutionWhatsAppConfig: React.FC<{
 const PrivacySettings: React.FC<{
   instanceId: string;
 }> = ({ instanceId }) => {
+  const { t: tUi } = useUiTranslation();
   const [privacySettings, setPrivacySettings] = useState({
     lastSeen: 'ALL',
     photoVisualization: 'ALL',
@@ -1472,37 +1476,37 @@ const PrivacySettings: React.FC<{
         case 'lastSeen':
           await ZapiService.setLastSeen(instanceId, value);
           setPrivacySettings(prev => ({ ...prev, lastSeen: value }));
-          toast.success('Configuração de "Visto por último" atualizada');
+          toast.success(tUi("channels:settings.configuration.whatsapp.zapi.privacy.success.lastSeenUpdated"));
           break;
         case 'photoVisualization':
           await ZapiService.setPhotoVisualization(instanceId, value);
           setPrivacySettings(prev => ({ ...prev, photoVisualization: value }));
-          toast.success('Configuração de visualização de foto atualizada');
+          toast.success(tUi("channels:settings.configuration.whatsapp.zapi.privacy.success.photoVisualizationUpdated"));
           break;
         case 'description':
           await ZapiService.setDescription(instanceId, value);
           setPrivacySettings(prev => ({ ...prev, description: value }));
-          toast.success('Configuração de descrição atualizada');
+          toast.success(tUi("channels:settings.configuration.whatsapp.zapi.privacy.success.descriptionUpdated"));
           break;
         case 'groupAdd':
           await ZapiService.setGroupAddPermission(instanceId, value);
           setPrivacySettings(prev => ({ ...prev, groupAdd: value }));
-          toast.success('Configuração de permissão de grupo atualizada');
+          toast.success(tUi("channels:settings.configuration.whatsapp.zapi.privacy.success.groupAddUpdated"));
           break;
         case 'online':
           await ZapiService.setOnline(instanceId, value);
           setPrivacySettings(prev => ({ ...prev, online: value }));
-          toast.success('Configuração de online atualizada');
+          toast.success(tUi("channels:settings.configuration.whatsapp.zapi.privacy.success.onlineUpdated"));
           break;
         case 'readReceipts':
           await ZapiService.setReadReceipts(instanceId, value);
           setPrivacySettings(prev => ({ ...prev, readReceipts: value }));
-          toast.success('Configuração de confirmações de leitura atualizada');
+          toast.success(tUi("channels:settings.configuration.whatsapp.zapi.privacy.success.readReceiptsUpdated"));
           break;
       }
     } catch (error: any) {
       console.error(`Erro ao atualizar ${setting}:`, error);
-      toast.error(error?.response?.data?.error || `Erro ao atualizar ${setting}`);
+      toast.error(error?.response?.data?.error || i18n.t("interface:messages.settingUpdateError"));
     } finally {
       setIsLoading(false);
     }
@@ -1510,33 +1514,33 @@ const PrivacySettings: React.FC<{
 
   const handleMessagesDurationUpdate = async () => {
     if (privacySettings.messagesDuration < 0) {
-      toast.error('Duração deve ser maior ou igual a 0');
+      toast.error(tUi("channels:settings.configuration.whatsapp.zapi.privacy.errors.durationMustBePositive"));
       return;
     }
     setIsLoading(true);
     try {
       await ZapiService.setMessagesDuration(instanceId, privacySettings.messagesDuration);
-      toast.success('Duração das mensagens atualizada');
+      toast.success(tUi("channels:settings.configuration.whatsapp.zapi.privacy.success.messagesDurationUpdated"));
     } catch (error: any) {
       console.error('Error updating messages duration:', error);
-      toast.error(error?.response?.data?.error || 'Erro ao atualizar duração das mensagens');
+      toast.error(error?.response?.data?.error || tUi("channels:settings.configuration.whatsapp.zapi.privacy.errors.messagesDurationError"));
     } finally {
       setIsLoading(false);
     }
   };
 
   const privacyOptions = [
-    { value: 'ALL', label: 'Todos' },
-    { value: 'CONTACTS', label: 'Contatos' },
-    { value: 'CONTACT_BLACKLIST', label: 'Lista de bloqueio' },
-    { value: 'NOBODY', label: 'Ninguém' },
+    { value: 'ALL', label: tUi("channels:filters.all") },
+    { value: 'CONTACTS', label: tUi("channels:settings.configuration.whatsapp.zapi.privacy.options.contacts") },
+    { value: 'CONTACT_BLACKLIST', label: tUi("channels:settings.configuration.whatsapp.zapi.privacy.options.contactBlacklist") },
+    { value: 'NOBODY', label: tUi("channels:settings.configuration.whatsapp.zapi.privacy.options.nobody") },
   ];
 
   return (
     <div className="space-y-6">
       {/* Last Seen */}
       <div>
-        <label className="block text-sm font-medium mb-2">Visto por último</label>
+        <label className="block text-sm font-medium mb-2">{tUi("channels:settings.configuration.whatsapp.zapi.privacy.lastSeen")}</label>
         <Select
           value={privacySettings.lastSeen}
           onValueChange={value => handlePrivacyUpdate('lastSeen', value)}
@@ -1557,7 +1561,7 @@ const PrivacySettings: React.FC<{
 
       {/* Photo Visualization */}
       <div>
-        <label className="block text-sm font-medium mb-2">Visualização da foto do perfil</label>
+        <label className="block text-sm font-medium mb-2">{tUi("channels:settings.configuration.whatsapp.zapi.privacy.profilePicture")}</label>
         <Select
           value={privacySettings.photoVisualization}
           onValueChange={value => handlePrivacyUpdate('photoVisualization', value)}
@@ -1578,7 +1582,7 @@ const PrivacySettings: React.FC<{
 
       {/* Description */}
       <div>
-        <label className="block text-sm font-medium mb-2">Visualização do recado</label>
+        <label className="block text-sm font-medium mb-2">{tUi("channels:settings.configuration.whatsapp.zapi.privacy.status")}</label>
         <Select
           value={privacySettings.description}
           onValueChange={value => handlePrivacyUpdate('description', value)}
@@ -1599,7 +1603,7 @@ const PrivacySettings: React.FC<{
 
       {/* Group Add Permission */}
       <div>
-        <label className="block text-sm font-medium mb-2">Permissão para adicionar em grupos</label>
+        <label className="block text-sm font-medium mb-2">{tUi("channels:settings.configuration.whatsapp.zapi.privacy.groupAdd")}</label>
         <Select
           value={privacySettings.groupAdd}
           onValueChange={value => handlePrivacyUpdate('groupAdd', value)}
@@ -1620,7 +1624,7 @@ const PrivacySettings: React.FC<{
 
       {/* Online */}
       <div>
-        <label className="block text-sm font-medium mb-2">Visualização de online</label>
+        <label className="block text-sm font-medium mb-2">{tUi("channels:settings.configuration.whatsapp.zapi.privacy.online")}</label>
         <Select
           value={privacySettings.online}
           onValueChange={value => handlePrivacyUpdate('online', value)}
@@ -1641,7 +1645,7 @@ const PrivacySettings: React.FC<{
 
       {/* Read Receipts */}
       <div>
-        <label className="block text-sm font-medium mb-2">Confirmações de leitura</label>
+        <label className="block text-sm font-medium mb-2">{tUi("channels:settings.configuration.whatsapp.zapi.privacy.readReceipts")}</label>
         <Select
           value={privacySettings.readReceipts}
           onValueChange={value => handlePrivacyUpdate('readReceipts', value)}
@@ -1662,7 +1666,7 @@ const PrivacySettings: React.FC<{
 
       {/* Messages Duration */}
       <div>
-        <label className="block text-sm font-medium mb-2">Duração das mensagens (segundos)</label>
+        <label className="block text-sm font-medium mb-2">{tUi("channels:settings.configuration.whatsapp.zapi.privacy.messagesDuration")}</label>
         <div className="flex gap-2">
           <Input
             type="number"
@@ -1674,16 +1678,14 @@ const PrivacySettings: React.FC<{
                 messagesDuration: parseInt(e.target.value) || 0,
               }))
             }
-            placeholder="0 = desabilitado"
+            placeholder={tUi("channels:settings.configuration.whatsapp.zapi.privacy.messagesDurationPlaceholder")}
             className="flex-1"
           />
           <Button onClick={handleMessagesDurationUpdate} disabled={isLoading}>
-            Atualizar
-          </Button>
+            {tUi("channels:settings.configuration.api.keys.update")}</Button>
         </div>
         <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-          Configure quanto tempo as mensagens ficam visíveis (0 = desabilitado)
-        </p>
+          {tUi("channels:settings.configuration.whatsapp.zapi.privacy.messagesDurationHelp")}</p>
       </div>
     </div>
   );
@@ -1694,6 +1696,7 @@ const ZapiWhatsAppConfig: React.FC<{
   inbox: any;
   onUpdate: (data: any) => void;
 }> = ({ inbox }) => {
+  const { t: tUi } = useUiTranslation();
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [instanceStatus, setInstanceStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -1702,7 +1705,7 @@ const ZapiWhatsAppConfig: React.FC<{
     profileName: '',
     profileDescription: '',
     callReject: false,
-    callRejectMessage: 'Não aceito chamadas',
+    callRejectMessage: tUi("interface:configurationform.iDoNotAcceptCalls"),
   });
 
   const instanceId = inbox.provider_config?.instance_id;
@@ -1835,7 +1838,7 @@ const ZapiWhatsAppConfig: React.FC<{
           setQrCode(null);
           setInstanceStatus('connected');
           lastStatusRef.current = 'connected';
-          toast.success('Instância conectada com sucesso!');
+          toast.success(tUi("channels:settings.configuration.whatsapp.zapi.qrCode.success.connected"));
           // Reload instance data
           const data = await ZapiService.getInstanceData(instanceId);
           // Update profile settings from device data (primary) or instance data (fallback)
@@ -1886,7 +1889,7 @@ const ZapiWhatsAppConfig: React.FC<{
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [showQrModal, instanceId]);
+  }, [showQrModal, instanceId, tUi]);
 
   // Poll instance status and data periodically to keep UI updated
   useEffect(() => {
@@ -1925,7 +1928,7 @@ const ZapiWhatsAppConfig: React.FC<{
             if (currentStatus === 'connected' && previousStatus === 'disconnected') {
               setShowQrModal(false);
               setQrCode(null);
-              toast.success('Instância conectada com sucesso!');
+              toast.success(tUi("channels:settings.configuration.whatsapp.zapi.qrCode.success.connected"));
             }
           }
 
@@ -1985,7 +1988,7 @@ const ZapiWhatsAppConfig: React.FC<{
       shouldContinue = false;
       clearInterval(interval);
     };
-  }, [instanceId]);
+  }, [instanceId, tUi]);
 
   const handleGetQRCode = async () => {
     if (!instanceId) return;
@@ -2005,11 +2008,11 @@ const ZapiWhatsAppConfig: React.FC<{
         setQrCode(qrData);
         setShowQrModal(true);
       } else {
-        toast.error('QR Code não encontrado');
+        toast.error(tUi("channels:settings.configuration.whatsapp.zapi.qrCode.errors.qrCodeNotFound"));
       }
     } catch (error: any) {
       console.error('Erro ao obter QR code:', error);
-      toast.error(error?.response?.data?.error || 'Erro ao obter QR code');
+      toast.error(error?.response?.data?.error || tUi("channels:settings.configuration.whatsapp.zapi.qrCode.errors.getError"));
     } finally {
       setIsLoading(false);
     }
@@ -2034,13 +2037,13 @@ const ZapiWhatsAppConfig: React.FC<{
         if (!showQrModal) {
           setShowQrModal(true);
         }
-        toast.success('QR Code atualizado com sucesso!');
+        toast.success(tUi("channels:settings.configuration.whatsapp.zapi.qrCode.success.qrCodeRefreshed"));
       } else {
-        toast.error('QR Code não encontrado');
+        toast.error(tUi("channels:settings.configuration.whatsapp.zapi.qrCode.errors.qrCodeNotFound"));
       }
     } catch (error: any) {
       console.error('Erro ao atualizar QR code:', error);
-      toast.error(error?.response?.data?.error || 'Erro ao atualizar QR code');
+      toast.error(error?.response?.data?.error || tUi("channels:settings.configuration.whatsapp.zapi.qrCode.errors.refreshError"));
     } finally {
       setIsLoading(false);
     }
@@ -2061,10 +2064,10 @@ const ZapiWhatsAppConfig: React.FC<{
       // Sync inbox name with Z-API instance name
       await syncInboxWithZapi(profileSettings.profileName);
 
-      toast.success('Nome do perfil atualizado com sucesso!');
+      toast.success(tUi("channels:settings.configuration.whatsapp.zapi.profile.success.nameUpdated"));
     } catch (error: any) {
       console.error('Erro ao atualizar nome do perfil:', error);
-      toast.error(error?.response?.data?.error || 'Erro ao atualizar nome do perfil');
+      toast.error(error?.response?.data?.error || tUi("channels:settings.configuration.whatsapp.zapi.profile.errors.nameUpdateError"));
     } finally {
       setIsLoading(false);
     }
@@ -2076,10 +2079,10 @@ const ZapiWhatsAppConfig: React.FC<{
     try {
       setIsLoading(true);
       await ZapiService.updateProfileDescription(instanceId, profileSettings.profileDescription);
-      toast.success('Descrição do perfil atualizada com sucesso!');
+      toast.success(tUi("channels:settings.configuration.whatsapp.zapi.profile.success.descriptionUpdated"));
     } catch (error: any) {
       console.error('Error updating profile description:', error);
-      toast.error(error?.response?.data?.error || 'Erro ao atualizar descrição do perfil');
+      toast.error(error?.response?.data?.error || tUi("channels:settings.configuration.whatsapp.zapi.profile.errors.descriptionUpdateError"));
     } finally {
       setIsLoading(false);
     }
@@ -2091,10 +2094,10 @@ const ZapiWhatsAppConfig: React.FC<{
     try {
       setIsLoading(true);
       await ZapiService.updateCallReject(instanceId, profileSettings.callReject);
-      toast.success('Configuração de rejeição de chamadas atualizada!');
+      toast.success(tUi("channels:settings.configuration.whatsapp.zapi.calls.success.rejectUpdated"));
     } catch (error: any) {
       console.error('Error updating call rejection setting:', error);
-      toast.error(error?.response?.data?.error || 'Erro ao atualizar configuração');
+      toast.error(error?.response?.data?.error || tUi("channels:settings.errors.configUpdateError"));
     } finally {
       setIsLoading(false);
     }
@@ -2106,10 +2109,10 @@ const ZapiWhatsAppConfig: React.FC<{
     try {
       setIsLoading(true);
       await ZapiService.updateCallRejectMessage(instanceId, profileSettings.callRejectMessage);
-      toast.success('Mensagem de rejeição atualizada!');
+      toast.success(tUi("channels:settings.configuration.whatsapp.zapi.calls.success.messageUpdated"));
     } catch (error: any) {
       console.error('Error updating call rejection message:', error);
-      toast.error(error?.response?.data?.error || 'Erro ao atualizar mensagem');
+      toast.error(error?.response?.data?.error || tUi("channels:settings.configuration.whatsapp.zapi.calls.errors.messageUpdateError"));
     } finally {
       setIsLoading(false);
     }
@@ -2118,15 +2121,15 @@ const ZapiWhatsAppConfig: React.FC<{
   const handleRestart = async () => {
     if (!instanceId) return;
 
-    if (!confirm('Tem certeza que deseja reiniciar a instância?')) return;
+    if (!confirm(tUi("channels:settings.configuration.whatsapp.zapi.actions.confirmRestart"))) return;
 
     try {
       setIsLoading(true);
       await ZapiService.restartInstance(instanceId);
-      toast.success('Instância reiniciada com sucesso!');
+      toast.success(tUi("channels:settings.configuration.whatsapp.zapi.actions.success.restarted"));
     } catch (error: any) {
       console.error('Error restarting instance:', error);
-      toast.error(error?.response?.data?.error || 'Erro ao reiniciar instância');
+      toast.error(error?.response?.data?.error || tUi("channels:settings.configuration.whatsapp.zapi.actions.errors.restartError"));
     } finally {
       setIsLoading(false);
     }
@@ -2135,31 +2138,31 @@ const ZapiWhatsAppConfig: React.FC<{
   const handleDisconnect = async () => {
     if (!instanceId) return;
 
-    if (!confirm('Tem certeza que deseja desconectar a instância?')) return;
+    if (!confirm(tUi("channels:settings.configuration.whatsapp.zapi.actions.confirmDisconnect"))) return;
 
     try {
       setIsLoading(true);
       await ZapiService.disconnectInstance(instanceId);
-      toast.success('Instância desconectada com sucesso!');
+      toast.success(tUi("channels:settings.configuration.whatsapp.zapi.actions.success.disconnected"));
       setInstanceStatus('disconnected');
     } catch (error: any) {
       console.error('Error disconnecting instance:', error);
-      toast.error(error?.response?.data?.error || 'Erro ao desconectar instância');
+      toast.error(error?.response?.data?.error || tUi("channels:settings.configuration.whatsapp.zapi.actions.errors.disconnectError"));
     } finally {
       setIsLoading(false);
     }
   };
 
   const getStatusBadge = (status: string | null) => {
-    if (!status) return <Badge variant="secondary">Unknown</Badge>;
+    if (!status) return <Badge variant="secondary">{tUi("channels:overview.inboxState.unknown")}</Badge>;
 
     const statusLower = status.toLowerCase();
     if (statusLower === 'connected' || statusLower === 'open') {
-      return <Badge className="bg-green-600 dark:bg-green-500 text-white">Connected</Badge>;
+      return <Badge className="bg-green-600 dark:bg-green-500 text-white">{tUi("channels:status.connected")}</Badge>;
     } else if (statusLower === 'disconnected' || statusLower === 'close') {
-      return <Badge className="bg-red-600 dark:bg-red-500 text-white">Disconnected</Badge>;
+      return <Badge className="bg-red-600 dark:bg-red-500 text-white">{tUi("channels:status.disconnected")}</Badge>;
     } else if (statusLower === 'connecting') {
-      return <Badge className="bg-yellow-600 dark:bg-yellow-500 text-white">Connecting</Badge>;
+      return <Badge className="bg-yellow-600 dark:bg-yellow-500 text-white">{tUi("channels:settings.configuration.whatsapp.instance.statusConnecting")}</Badge>;
     }
     return <Badge variant="secondary">{status}</Badge>;
   };
@@ -2169,7 +2172,7 @@ const ZapiWhatsAppConfig: React.FC<{
       <div className="space-y-6">
         <Card>
           <CardContent className="p-6">
-            <p className="text-slate-600 dark:text-slate-400">Instance ID não encontrado</p>
+            <p className="text-slate-600 dark:text-slate-400">{tUi("interface:configurationform.instanceIdNotFound")}</p>
           </CardContent>
         </Card>
       </div>
@@ -2185,22 +2188,18 @@ const ZapiWhatsAppConfig: React.FC<{
             <QrCode className="w-8 h-8 text-primary" />
             <div className="flex-1">
               <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                QR Code para Conexão
-              </h3>
+                {tUi("channels:settings.configuration.whatsapp.zapi.qrCode.title")}</h3>
               <p className="text-sm text-slate-600 dark:text-slate-400">
-                Escaneie o QR code com seu WhatsApp para conectar a instância
-              </p>
+                {tUi("channels:settings.configuration.whatsapp.zapi.qrCode.description")}</p>
             </div>
             {getStatusBadge(instanceStatus)}
           </div>
           <div className="flex gap-2">
             <Button onClick={handleGetQRCode} disabled={isLoading} variant="outline">
               <QrCode className="w-4 h-4 mr-2" />
-              Obter QR Code
-            </Button>
+              {tUi("channels:settings.configuration.whatsapp.zapi.qrCode.getQRCode")}</Button>
             <Button onClick={handleRefreshQRCode} disabled={isLoading} variant="outline">
-              Atualizar QR Code
-            </Button>
+              {tUi("channels:settings.configuration.whatsapp.zapi.qrCode.refreshQRCode")}</Button>
           </div>
         </CardContent>
       </Card>
@@ -2210,42 +2209,39 @@ const ZapiWhatsAppConfig: React.FC<{
         <Card>
           <CardContent className="p-6">
             <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-4">
-              Configurações de Perfil
-            </h3>
+              {tUi("channels:settings.configuration.whatsapp.zapi.profile.title")}</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Nome do Perfil</label>
+                <label className="block text-sm font-medium mb-2">{tUi("channels:settings.configuration.whatsapp.zapi.profile.name")}</label>
                 <div className="flex gap-2">
                   <Input
                     value={profileSettings.profileName}
                     onChange={e =>
                       setProfileSettings(prev => ({ ...prev, profileName: e.target.value }))
                     }
-                    placeholder="Nome do perfil"
+                    placeholder={tUi("channels:settings.configuration.whatsapp.zapi.profile.namePlaceholder")}
                     className="flex-1"
                   />
                   <Button
                     onClick={handleUpdateProfileName}
                     disabled={isLoading || !profileSettings.profileName}
                   >
-                    Atualizar
-                  </Button>
+                    {tUi("channels:settings.configuration.api.keys.update")}</Button>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Descrição do Perfil</label>
+                <label className="block text-sm font-medium mb-2">{tUi("channels:settings.configuration.whatsapp.zapi.profile.description")}</label>
                 <div className="flex gap-2">
                   <Input
                     value={profileSettings.profileDescription}
                     onChange={e =>
                       setProfileSettings(prev => ({ ...prev, profileDescription: e.target.value }))
                     }
-                    placeholder="Descrição do perfil"
+                    placeholder={tUi("channels:settings.configuration.whatsapp.zapi.profile.descriptionPlaceholder")}
                     className="flex-1"
                   />
                   <Button onClick={handleUpdateProfileDescription} disabled={isLoading}>
-                    Atualizar
-                  </Button>
+                    {tUi("channels:settings.configuration.api.keys.update")}</Button>
                 </div>
               </div>
             </div>
@@ -2258,17 +2254,14 @@ const ZapiWhatsAppConfig: React.FC<{
         <Card>
           <CardContent className="p-6">
             <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-4">
-              Configurações de Chamadas
-            </h3>
+              {tUi("channels:settings.configuration.whatsapp.zapi.calls.title")}</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <label className="block text-sm font-medium">
-                    Rejeitar Chamadas Automaticamente
-                  </label>
+                    {tUi("channels:settings.configuration.whatsapp.zapi.calls.rejectAuto")}</label>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
-                    Rejeita automaticamente todas as chamadas recebidas
-                  </p>
+                    {tUi("channels:settings.configuration.whatsapp.zapi.calls.rejectAutoDescription")}</p>
                 </div>
                 <Switch
                   checked={profileSettings.callReject}
@@ -2281,22 +2274,21 @@ const ZapiWhatsAppConfig: React.FC<{
               </div>
               {profileSettings.callReject && (
                 <div>
-                  <label className="block text-sm font-medium mb-2">Mensagem de Rejeição</label>
+                  <label className="block text-sm font-medium mb-2">{tUi("channels:settings.configuration.whatsapp.zapi.calls.rejectMessage")}</label>
                   <div className="flex gap-2">
                     <Input
                       value={profileSettings.callRejectMessage}
                       onChange={e =>
                         setProfileSettings(prev => ({ ...prev, callRejectMessage: e.target.value }))
                       }
-                      placeholder="Mensagem enviada ao rejeitar chamadas"
+                      placeholder={tUi("channels:settings.configuration.whatsapp.zapi.calls.rejectMessagePlaceholder")}
                       className="flex-1"
                     />
                     <Button
                       onClick={handleUpdateCallRejectMessage}
                       disabled={isLoading || !profileSettings.callRejectMessage}
                     >
-                      Atualizar
-                    </Button>
+                      {tUi("channels:settings.configuration.api.keys.update")}</Button>
                   </div>
                 </div>
               )}
@@ -2313,11 +2305,9 @@ const ZapiWhatsAppConfig: React.FC<{
               <Shield className="w-8 h-8 text-primary" />
               <div className="flex-1">
                 <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                  Configurações de Privacidade
-                </h3>
+                  {tUi("channels:settings.configuration.whatsapp.zapi.privacyTitle")}</h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Configure as configurações de privacidade do WhatsApp
-                </p>
+                  {tUi("channels:settings.configuration.whatsapp.zapi.privacyDescription")}</p>
               </div>
             </div>
             <PrivacySettings instanceId={instanceId} />
@@ -2329,15 +2319,12 @@ const ZapiWhatsAppConfig: React.FC<{
       <Card>
         <CardContent className="p-6">
           <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-4">
-            Ações da Instância
-          </h3>
+            {tUi("channels:settings.configuration.whatsapp.zapi.actions.title")}</h3>
           <div className="flex gap-2">
             <Button onClick={handleRestart} disabled={isLoading} variant="outline">
-              Reiniciar Instância
-            </Button>
+              {tUi("channels:settings.configuration.whatsapp.zapi.actions.restart")}</Button>
             <Button onClick={handleDisconnect} disabled={isLoading} variant="destructive">
-              Desconectar Instância
-            </Button>
+              {tUi("channels:settings.configuration.whatsapp.zapi.actions.disconnect")}</Button>
           </div>
         </CardContent>
       </Card>
@@ -2346,15 +2333,14 @@ const ZapiWhatsAppConfig: React.FC<{
       <Dialog open={showQrModal} onOpenChange={setShowQrModal}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>QR Code para Conexão</DialogTitle>
+            <DialogTitle>{tUi("channels:settings.configuration.whatsapp.zapi.qrCode.title")}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center gap-4 p-4">
             {isLoading ? (
               <div className="flex flex-col items-center gap-2">
                 <div className="animate-spin h-8 w-8 border-2 border-blue-500 border-t-transparent rounded-full"></div>
                 <span className="text-sm text-slate-600 dark:text-slate-400">
-                  Gerando QR Code...
-                </span>
+                  {tUi("channels:settings.configuration.whatsapp.zapi.qrCode.generating")}</span>
               </div>
             ) : qrCode ? (
               <>
@@ -2364,27 +2350,23 @@ const ZapiWhatsAppConfig: React.FC<{
                   className="w-64 h-64 border border-slate-200 dark:border-slate-700 rounded-lg bg-white p-2"
                   onError={e => {
                     console.error('Erro ao carregar QR code:', e);
-                    toast.error('Erro ao exibir QR code');
+                    toast.error(tUi("interface:configurationform.couldNotDisplayQrCode"));
                   }}
                 />
                 <p className="text-sm text-center text-slate-600 dark:text-slate-400">
-                  Escaneie este QR code com seu WhatsApp para conectar a instância
-                </p>
+                  {tUi("channels:settings.configuration.whatsapp.zapi.qrCode.instructions")}</p>
               </>
             ) : (
               <div className="flex flex-col items-center gap-2">
                 <p className="text-sm text-center text-slate-600 dark:text-slate-400">
-                  QR Code não disponível. Clique em "Atualizar QR Code" para gerar um novo.
-                </p>
+                  {tUi("channels:settings.configuration.whatsapp.zapi.qrCode.notAvailable")}</p>
               </div>
             )}
             <div className="flex gap-2">
               <Button onClick={() => setShowQrModal(false)} variant="outline">
-                Fechar
-              </Button>
+                {tUi("channels:settings.configuration.whatsapp.zapi.qrCode.close")}</Button>
               <Button onClick={handleRefreshQRCode} disabled={isLoading}>
-                Atualizar QR Code
-              </Button>
+                {tUi("channels:settings.configuration.whatsapp.zapi.qrCode.refreshQRCode")}</Button>
             </div>
           </div>
         </DialogContent>

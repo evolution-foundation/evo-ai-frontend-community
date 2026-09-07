@@ -70,5 +70,14 @@
   },
   "messages": {
     "loadError": "Erro ao carregar ferramentas"
+  },
+  "errors": {
+    "permissionDenied": "Você não tem permissão para visualizar ferramentas",
+    "loadError": "Não foi possível carregar as ferramentas",
+    "applyFiltersError": "Não foi possível aplicar os filtros"
+  },
+  "emptyState": {
+    "title": "Nenhuma ferramenta encontrada",
+    "description": "Tente alterar a busca ou os filtros."
   }
 }

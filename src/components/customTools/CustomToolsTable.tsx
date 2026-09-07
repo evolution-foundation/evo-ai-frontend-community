@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Badge, Button } from '@evoapi/design-system';
 import { Edit, Trash2, Wand, Loader2, Globe } from 'lucide-react';
@@ -131,7 +132,7 @@ export default function CustomToolsTable({
       sortable: true,
       render: tool => (
         <span className="text-sm text-muted-foreground">
-          {new Date(tool.created_at).toLocaleDateString('pt-BR')}
+          {new Date(tool.created_at).toLocaleDateString(getFormattingLocale())}
         </span>
       ),
     },

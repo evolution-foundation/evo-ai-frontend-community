@@ -285,6 +285,29 @@
         "loginCancelled": "Login cancelado",
         "pageNotFound": "Página não encontrada",
         "emailRequired": "Email é obrigatório para reconexão"
+      },
+      "facebook": {
+        "title": "Autorizar Facebook",
+        "description": "Conecte sua conta Facebook para concluir a configuração deste canal",
+        "button": "Conectar Facebook"
+      },
+      "google": {
+        "title": "Autorizar Google",
+        "description": "Conecte sua conta Google para concluir a configuração deste canal",
+        "button": "Conectar Google"
+      },
+      "microsoft": {
+        "title": "Autorizar Microsoft",
+        "description": "Conecte sua conta Microsoft para concluir a configuração deste canal",
+        "button": "Conectar Microsoft"
+      },
+      "instagram": {
+        "duplicate": {
+          "title": "Conta do Instagram já conectada",
+          "description": "Esta conta do Instagram está conectada a outra caixa de entrada. Resolva a conexão existente para continuar.",
+          "resolveButton": "Resolver conexão",
+          "detailsButton": "Ver detalhes"
+        }
       }
     },
     "breadcrumb": {
@@ -510,6 +533,9 @@
       "disabled": {
         "title": "Horário de Funcionamento Desabilitado",
         "description": "O horário de funcionamento está desabilitado. Todas as mensagens serão processadas normalmente."
+      },
+      "errors": {
+        "updateError": "Não foi possível atualizar o horário de atendimento"
       }
     },
     "businessDay": {
@@ -517,14 +543,17 @@
       "twentyFourHours": "24 horas",
       "enableDay": "Habilitar {{day}}",
       "open24Hours": "Aberto 24 horas",
-      "startPlaceholder": "Início"
+      "startPlaceholder": "Início",
+      "endPlaceholder": "Horário de término",
+      "timeError": "O horário de término deve ser posterior ao horário de início"
     },
     "csat": {
       "title": "Pesquisa de Satisfação (CSAT)",
       "description": "Configure pesquisas de satisfação para coletar feedback dos clientes",
       "displayType": {
         "label": "Tipo de Exibição",
-        "help": "Como a pesquisa será apresentada ao cliente"
+        "help": "Como a pesquisa será apresentada ao cliente",
+        "starLabel": "Estrelas"
       },
       "message": {
         "label": "Mensagem da Pesquisa",
@@ -678,7 +707,8 @@
           "text": "Texto",
           "image": "Imagem",
           "video": "Vídeo",
-          "document": "Documento"
+          "document": "Documento",
+          "none": "Nenhum"
         },
         "headerText": "Texto do Cabeçalho",
         "headerTextPlaceholder": "Digite o texto do cabeçalho",
@@ -686,7 +716,7 @@
         "bodyTextPlaceholder": "Digite o texto do corpo da mensagem",
         "footerText": "Texto do Rodapé",
         "footerTextPlaceholder": "Digite o texto do rodapé (opcional)",
-        "variablesHelp": "Use a sintaxe {{variavel}} para valores dinâmicos",
+        "variablesHelp": "Use a sintaxe {{variable}} para valores dinâmicos",
         "buttons": "Botões",
         "addButton": "Adicionar Botão",
         "buttonTypes": {
@@ -711,7 +741,8 @@
         "create": "Criar Template",
         "save": "Salvar Alterações",
         "cancel": "Cancelar",
-        "requiredFields": "Preencha todos os campos obrigatórios"
+        "requiredFields": "Preencha todos os campos obrigatórios",
+        "categoryReset": "Categoria redefinida para o tipo de template selecionado"
       },
       "tinymce": {
         "insertTemplate": "Inserir Template",
@@ -963,7 +994,8 @@
             "errors": {
               "apiUrlRequired": "URL Base é obrigatória",
               "updateError": "Erro ao atualizar configurações de conexão"
-            }
+            },
+            "adminTokenSet": "Uma chave já está configurada. Deixe em branco para mantê-la."
           },
           "actions": {
             "title": "Ações da Instância",
@@ -1161,7 +1193,13 @@
       "saving": "Salvando...",
       "save": "Salvar Configurações",
       "success": "Configurações do formulário pré-chat atualizadas com sucesso",
-      "error": "Erro ao atualizar configurações do formulário pré-chat"
+      "error": "Erro ao atualizar configurações do formulário pré-chat",
+      "examples": {
+        "department": "Departamento",
+        "sales": "Vendas",
+        "support": "Suporte",
+        "finance": "Financeiro"
+      }
     },
     "greeting": {
       "title": "Mensagem de Saudação",
@@ -1228,6 +1266,13 @@
           "title": "Avatar do Agente de IA",
           "description": "Exibir avatar do agente de IA nas mensagens automáticas"
         }
+      },
+      "language": {
+        "label": "Idioma do widget",
+        "options": {
+          "accountDefault": "Usar padrão da conta"
+        },
+        "helpText": "Define o idioma apenas para esta incorporação."
       }
     },
     "senderSettings": {
@@ -1252,6 +1297,10 @@
         "label": "Nome da Empresa",
         "placeholder": "Digite o nome da sua empresa",
         "save": "Salvar"
+      },
+      "errors": {
+        "updateSenderTypeError": "Não foi possível atualizar o tipo de remetente",
+        "saveBusinessNameError": "Não foi possível salvar o nome da empresa"
       }
     },
     "widgetHelpers": {
@@ -1455,10 +1504,16 @@
       },
       "footer": {
         "teamOnline": "Equipe Online",
-        "startConversation": "Iniciar Conversa"
+        "startConversation": "Iniciar Conversa",
+        "teamOffline": "Nossa equipe está offline no momento",
+        "messagePlaceholder": "Digite sua mensagem…"
       },
       "container": {
         "poweredBy": "Desenvolvido por"
+      },
+      "body": {
+        "userMessage": "Olá! Gostaria de falar com o suporte.",
+        "agentMessage": "Olá! Como podemos ajudar?"
       }
     },
     "timestamp": {

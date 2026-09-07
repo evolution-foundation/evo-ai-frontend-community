@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useMemo, useEffect } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -103,6 +105,7 @@ const ModelSelector = ({
   description,
   id = 'model',
 }: ModelSelectorProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
   const [open, setOpen] = useState(false);
 
@@ -212,11 +215,11 @@ const ModelSelector = ({
         <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/50">
           <div className="flex items-center gap-3">
             <div>
-              <p className="font-medium">{selectedModel?.label || 'Custom Model'}</p>
+              <p className="font-medium">{selectedModel?.label || i18n.t('interface:fallbacks.customModel')}</p>
               <p className="text-sm text-muted-foreground">{value}</p>
             </div>
           </div>
-          <Badge variant="outline">{selectedModel?.provider || 'custom'}</Badge>
+          <Badge variant="outline">{selectedModel?.provider || i18n.t('interface:fallbacks.custom')}</Badge>
         </div>
       ) : isReadOnly ? (
         <div className="p-3 border rounded-lg bg-muted/50 text-sm text-muted-foreground">
@@ -273,7 +276,7 @@ const ModelSelector = ({
                           isCustomMode ? 'opacity-100' : 'opacity-0'
                         }`}
                       />
-                      <span className="font-medium">Custom Model</span>
+                      <span className="font-medium">{tUi("interface:modelselector.customModel")}</span>
                     </CommandItem>
                   </CommandGroup>
                 </Command>

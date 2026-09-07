@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@evoapi/design-system';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { LucideIcon } from 'lucide-react';
@@ -34,7 +35,7 @@ const AreaChartCard = ({
   color = '#3b82f6',
   gradientFrom = '#3b82f6',
   gradientTo = '#8b5cf6',
-  valueFormatter = (value) => value.toLocaleString(),
+  valueFormatter = (value) => value.toLocaleString(getFormattingLocale()),
   tooltip,
 }: AreaChartCardProps) => {
   const chartId = toChartId(title);

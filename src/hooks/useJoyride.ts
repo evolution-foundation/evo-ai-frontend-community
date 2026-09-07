@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { useJoyride as useJoyrideLib, EVENTS, STATUS } from 'react-joyride';
 import type { Step } from 'react-joyride';
@@ -11,6 +12,7 @@ interface UseJoyrideOptions {
 }
 
 export function useJoyride({ tourKey, steps, autoStart = true }: UseJoyrideOptions) {
+  const { t: tUi } = useUiTranslation();
   const tours = useAuthStore(state => state.tours);
   const markTourCompleted = useAuthStore(state => state.markTourCompleted);
   const markTourSkipped = useAuthStore(state => state.markTourSkipped);
@@ -42,12 +44,12 @@ export function useJoyride({ tourKey, steps, autoStart = true }: UseJoyrideOptio
       skipScroll: false,
     },
     locale: {
-      back: 'Voltar',
-      close: 'Fechar',
-      last: 'Concluir',
-      next: 'Próximo',
-      open: 'Abrir tour',
-      skip: 'Pular',
+      back: tUi("tours:back"),
+      close: tUi("tours:close"),
+      last: tUi("tours:finish"),
+      next: tUi("tours:next"),
+      open: tUi("interface:usejoyride.openTour"),
+      skip: tUi("aiAgents:actions.skip"),
     },
   });
 

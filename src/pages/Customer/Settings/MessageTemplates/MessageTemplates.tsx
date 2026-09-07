@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -336,7 +337,7 @@ export default function MessageTemplates() {
       key: 'created_at',
       label: t('table.createdAt'),
       render: template =>
-        template.created_at ? new Date(template.created_at).toLocaleDateString() : '-',
+        template.created_at ? new Date(template.created_at).toLocaleDateString(getFormattingLocale()) : '-',
     },
   ];
 

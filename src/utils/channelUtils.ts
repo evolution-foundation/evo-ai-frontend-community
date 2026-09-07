@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 /**
  * Utility functions for channel formatting and display
  */
@@ -83,7 +84,7 @@ const PROVIDER_TRANSLATIONS: Record<string, string> = {
   'google': 'Gmail',
   'microsoft': 'Outlook',
   'bandwidth': 'Bandwidth',
-  'default': 'Padrão',
+  get 'default'() { return i18n.t("pipelines:pipelineCard.default"); },
 };
 
 /**
@@ -93,7 +94,7 @@ const PROVIDER_TRANSLATIONS: Record<string, string> = {
  * @returns Formatted display name
  */
 export function getChannelDisplayName(channelType?: string, provider?: string): string {
-  if (!channelType) return 'Desconhecido';
+  if (!channelType) return i18n.t("pipelines:kanban.item.status.unknown");
 
   // First try direct translation
   const directTranslation = CHANNEL_TYPE_TRANSLATIONS[channelType];
@@ -118,7 +119,7 @@ export function getChannelDisplayName(channelType?: string, provider?: string): 
     .replace(/_/g, ' ')
     .replace(/\b\w/g, l => l.toUpperCase());
 
-  return cleaned || 'Desconhecido';
+  return cleaned || i18n.t("pipelines:kanban.item.status.unknown");
 }
 
 /**

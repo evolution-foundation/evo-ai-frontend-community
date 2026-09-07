@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
 
@@ -33,6 +34,7 @@ interface UseAudioRecorderOptions {
 }
 
 export const useAudioRecorder = (options?: UseAudioRecorderOptions): UseAudioRecorderReturn => {
+  const { t: tUi } = useUiTranslation();
   const preferWhatsAppCloudFormat = options?.preferWhatsAppCloudFormat === true;
   const onMaxDurationReached = options?.onMaxDurationReached;
   const [isRecording, setIsRecording] = useState(false);
@@ -118,7 +120,7 @@ export const useAudioRecorder = (options?: UseAudioRecorderOptions): UseAudioRec
   // Iniciar gravação
   const startRecording = useCallback(async () => {
     if (!isSupported) {
-      toast.error('Seu navegador não suporta gravação de áudio');
+      toast.error(tUi("interface:useaudiorecorder.yourBrowserDoesNotSupportAudioRecording"));
       return;
     }
 
@@ -219,7 +221,7 @@ export const useAudioRecorder = (options?: UseAudioRecorderOptions): UseAudioRec
           setRecordingData(audioData);
           setHasRecording(true);
         } catch {
-          toast.error('Erro ao processar gravação de áudio');
+          toast.error(tUi("interface:useaudiorecorder.couldNotProcessAudioRecording"));
 
           // Fallback: usar blob original
           const finalDuration = duration; // DECLARAR AQUI TAMBÉM
@@ -275,7 +277,7 @@ export const useAudioRecorder = (options?: UseAudioRecorderOptions): UseAudioRec
 
       mediaRecorder.onerror = event => {
         console.error('Erro na gravação:', event);
-        toast.error('Erro durante a gravação de áudio');
+        toast.error(tUi("interface:useaudiorecorder.errorDuringAudioRecording"));
         stopRecording();
       };
 
@@ -320,13 +322,13 @@ export const useAudioRecorder = (options?: UseAudioRecorderOptions): UseAudioRec
       monitorAudioLevel();
     } catch (error) {
       console.error('Erro ao acessar microfone:', error);
-      toast.error('Erro ao acessar o microfone. Verifique as permissões.');
+      toast.error(tUi("interface:useaudiorecorder.couldNotAccessTheMicrophoneCheckYourPermissions"));
 
       // LIBERAR TRAVA EM CASO DE ERRO
       isInitializingRef.current = false;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSupported, preferWhatsAppCloudFormat]);
+  }, [isSupported, preferWhatsAppCloudFormat, tUi]);
 
   // Parar gravação
   const stopRecording = useCallback(() => {

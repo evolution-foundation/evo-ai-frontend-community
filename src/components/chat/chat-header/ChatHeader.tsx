@@ -384,7 +384,7 @@ const ChatHeader = ({
           <DropdownMenuSeparator />
 
           <DropdownMenuLabel className="text-xs uppercase tracking-wide text-muted-foreground">
-            {t('chatHeader.actions.priorityLabel', 'Prioridade')}
+            {t('chatHeader.actions.priorityLabel')}
           </DropdownMenuLabel>
 
           <DropdownMenuItem

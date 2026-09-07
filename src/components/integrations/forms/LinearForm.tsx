@@ -14,39 +14,39 @@ export function LinearForm({ config, onConfigChange }: IntegrationFormProps) {
     <div className="space-y-4">
       <FormField
         id="LINEAR_CLIENT_ID"
-        label={t('integrations.linear.clientId')}
+        label={t("linear.clientId")}
         value={getValue('linearClientId')}
         onChange={(value) => onConfigChange('linearClientId', value)}
-        placeholder={t('integrations.linear.placeholders.clientId')}
+        placeholder={t("linear.placeholders.clientId")}
         type="text"
-        description={t('integrations.linear.clientIdDescription')}
+        description={t("linear.clientIdDescription")}
       />
       <FormField
         id="LINEAR_CLIENT_SECRET"
-        label={t('integrations.linear.clientSecret')}
+        label={t("linear.clientSecret")}
         value={getValue('linearClientSecret')}
         onChange={(value) => onConfigChange('linearClientSecret', value)}
-        placeholder={t('integrations.linear.placeholders.clientSecret')}
+        placeholder={t("linear.placeholders.clientSecret")}
         type="password"
-        description={t('integrations.linear.clientSecretDescription')}
+        description={t("linear.clientSecretDescription")}
       />
       <FormField
         id="LINEAR_REDIRECT_URI"
-        label={t('integrations.linear.redirectUri')}
+        label={t("linear.redirectUri")}
         value={getValue('linearRedirectUri')}
         onChange={(value) => onConfigChange('linearRedirectUri', value)}
-        placeholder={t('integrations.linear.placeholders.redirectUri')}
+        placeholder={t("linear.placeholders.redirectUri")}
         type="url"
-        description={t('integrations.linear.redirectUriDescription')}
+        description={t("linear.redirectUriDescription")}
       />
       <FormField
         id="LINEAR_OAUTH_REDIRECT_URI"
-        label={t('integrations.linear.mcpRedirectUri')}
+        label={t("linear.mcpRedirectUri")}
         value={getValue('linearMcpRedirectUri')}
         onChange={(value) => onConfigChange('linearMcpRedirectUri', value)}
-        placeholder={t('integrations.linear.placeholders.mcpRedirectUri')}
+        placeholder={t("linear.placeholders.mcpRedirectUri")}
         type="url"
-        description={t('integrations.linear.mcpRedirectUriDescription')}
+        description={t("linear.mcpRedirectUriDescription")}
       />
     </div>
   );

@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { Fragment } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Button } from '@evoapi/design-system';
 import { useState } from 'react';
@@ -60,6 +62,7 @@ const OperationHeatmapCard = ({
   labels,
   tooltip,
 }: OperationHeatmapCardProps) => {
+  const { t: tUi } = useUiTranslation();
   const [expanded, setExpanded] = useState(false);
   const byKey = new Map<string, number>();
   data.cells.forEach(cell => {
@@ -69,7 +72,7 @@ const OperationHeatmapCard = ({
   const hasMoreThanDefaultDays = data.days.length > 15;
   const showingText =
     labels?.showing ||
-    `Mostrando ${visibleDays.length} de ${data.days.length} dias`;
+    i18n.t("interface:messages.visibleDays", { visible: visibleDays.length, total: data.days.length });
 
   return (
     <Card>
@@ -105,7 +108,7 @@ const OperationHeatmapCard = ({
                       key={`cell-${day.day_index}-${hour}`}
                       className="h-5 rounded-sm border border-border/30"
                       style={{ backgroundColor: cellColor(value, data.max_value) }}
-                      title={`${day.day_label} ${toHourLabel(hour)}: ${value} ${labels?.conversations || 'conversas'}`}
+                      title={`${day.day_label} ${toHourLabel(hour)}: ${value} ${labels?.conversations || tUi("customerDashboard:dashboard.agents.conversations")}`}
                     />
                   );
                 })}
@@ -123,27 +126,27 @@ const OperationHeatmapCard = ({
             </span>
             <Button variant="outline" size="sm" onClick={() => setExpanded(prev => !prev)}>
               {expanded
-                ? (labels?.collapse || 'Mostrar últimos 15 dias')
-                : (labels?.expand || 'Expandir período completo')}
+                ? (labels?.collapse || tUi("customerDashboard:dashboard.charts.heatmapCollapse"))
+                : (labels?.expand || tUi("customerDashboard:dashboard.charts.heatmapExpand"))}
             </Button>
           </div>
         )}
 
         <div className="flex flex-wrap gap-2">
           <Badge variant="secondary">
-            {labels?.peakSlot || 'Pico semanal'}: {data.peak_slot.day_label} {toHourLabel(data.peak_slot.hour)} ({data.peak_slot.conversations})
+            {labels?.peakSlot || tUi("customerDashboard:dashboard.charts.heatmapPeakSlot")}: {data.peak_slot.day_label} {toHourLabel(data.peak_slot.hour)} ({data.peak_slot.conversations})
           </Badge>
           <Badge variant="secondary">
-            {labels?.peakWeekday || 'Dia mais forte'}: {data.peak_day_of_week.day_label} ({data.peak_day_of_week.conversations})
+            {labels?.peakWeekday || tUi("customerDashboard:dashboard.charts.heatmapPeakWeekday")}: {data.peak_day_of_week.day_label} ({data.peak_day_of_week.conversations})
           </Badge>
           <Badge variant="secondary">
-            {labels?.peakHour || 'Hora de pico'}: {toHourLabel(data.peak_hour.hour)} ({data.peak_hour.conversations})
+            {labels?.peakHour || tUi("customerDashboard:dashboard.charts.heatmapPeakHour")}: {toHourLabel(data.peak_hour.hour)} ({data.peak_hour.conversations})
           </Badge>
           <Badge variant="secondary">
-            {labels?.peakPeriodDay || 'Dia de pico no período'}: {formatDateLabel(peakDayInPeriod?.date || null)} ({peakDayInPeriod?.conversations || 0})
+            {labels?.peakPeriodDay || tUi("customerDashboard:dashboard.charts.heatmapPeakPeriodDay")}: {formatDateLabel(peakDayInPeriod?.date || null)} ({peakDayInPeriod?.conversations || 0})
           </Badge>
           <Badge variant="outline">
-            {labels?.timezone || 'Timezone'}: {data.timezone}
+            {labels?.timezone || i18n.t('interface:fallbacks.timeZone')}: {data.timezone}
           </Badge>
         </div>
       </CardContent>

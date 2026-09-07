@@ -22,9 +22,9 @@ const TaskSection = ({ data, onChange, editingAgentId, folderId }: TaskSectionPr
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2">{t('edit.task.title') || 'Configuração de Tarefa'}</h2>
+        <h2 className="text-2xl font-bold mb-2">{t('edit.task.title')}</h2>
         <p className="text-sm text-muted-foreground">
-          {t('edit.task.subtitle') || 'Configure a tarefa que este agente irá executar'}
+          {t('edit.task.subtitle')}
         </p>
       </div>
 

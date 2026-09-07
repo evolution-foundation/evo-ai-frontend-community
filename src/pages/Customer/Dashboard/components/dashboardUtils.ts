@@ -1,5 +1,6 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 export const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('pt-BR', {
+  return new Intl.NumberFormat(getFormattingLocale(), {
     style: 'currency',
     currency: 'BRL',
   }).format(value);

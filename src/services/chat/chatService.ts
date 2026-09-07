@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import api from '@/services/core/api';
 import { withRetry } from '@/utils/retry/retryHelper';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
@@ -271,7 +272,7 @@ class ChatService {
           if (onUploadProgress && progressEvent.total) {
             const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
             // Para simplificar, usar o primeiro arquivo como referência
-            onUploadProgress(progress, files[0]?.name || 'arquivo');
+            onUploadProgress(progress, files[0]?.name || i18n.t("chat:messageInput.filePreview.file"));
           }
         },
       });

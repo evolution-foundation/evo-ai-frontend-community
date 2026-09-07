@@ -98,7 +98,8 @@
     "maxTokens": "Max Tokens",
     "topP": "Top P",
     "frequencyPenalty": "Frequency Penalty",
-    "presencePenalty": "Presence Penalty"
+    "presencePenalty": "Presence Penalty",
+    "loadingModels": "Loading models…"
   },
   "a2aConfig": {
     "title": "Agent-to-Agent Configuration",
@@ -114,7 +115,22 @@
     "timeout": "Timeout (seconds)",
     "retries": "Retries",
     "headers": "HTTP Headers",
-    "addHeader": "Add Header"
+    "addHeader": "Add Header",
+    "externalSharingTitle": "External sharing",
+    "externalSharingDescription": "Configure external sharing for the A2A agent",
+    "publishState": {
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "publishStateDescription": "Publication status controls whether the agent is available externally",
+    "callbackUrl": "Callback URL",
+    "callbackUrlPlaceholder": "https://example.com/callback",
+    "callbackUrlDescription": "HTTPS URL that receives agent event notifications",
+    "allowlist": "Allowlist",
+    "allowlistPlaceholder": "example.com or 192.168.1.1",
+    "allowlistDescription": "Domains or IP addresses allowed to access the agent externally",
+    "publishStateLabel": "Publication status"
   },
   "advancedBot": {
     "title": "Advanced Settings",
@@ -235,7 +251,8 @@
       "subtitle": "Other agents that can be invoked as tools",
       "selectAgents": "Select Agents",
       "noAgents": "No agent selected",
-      "addAgent": "Add Agent"
+      "addAgent": "Add Agent",
+      "description": "Choose the tools this agent can use"
     },
     "mcpServers": {
       "title": "MCP Servers",
@@ -402,7 +419,8 @@
       "variables": "variables",
       "enterValue": "Enter the value for {{key}}",
       "availableTools": "Available Tools",
-      "skip": "Skip"
+      "skip": "Skip",
+      "selectedCount": "{{selected}} of {{total}} tools selected"
     },
     "customMcp": {
       "title": "Select Custom MCPs",
@@ -502,7 +520,10 @@
     "minValue": "Minimum value is {{min}}",
     "maxValue": "Maximum value is {{max}}",
     "required": "This field is required",
-    "invalidApiKey": "API Key invalid"
+    "invalidApiKey": "API Key invalid",
+    "httpsRequired": "Callback URL must use HTTPS",
+    "allowlistRequired": "At least one allowlist entry is required for external sharing",
+    "instructionMinLength": "Instructions must contain at least {{min}} characters"
   },
   "messages": {
     "saveSuccess": "AI agent saved successfully",
@@ -524,7 +545,9 @@
     "createError": "Error creating AI agent",
     "providerRequired": "Provider is required for external AI agents",
     "providerConfigError": "Error saving provider configuration. You can configure it later on the edit page.",
-    "loadAgentTypesError": "Error loading agent types"
+    "loadAgentTypesError": "Error loading agent types",
+    "apiKeysError": "Could not load API keys",
+    "createSuccess": "Agent created successfully"
   },
   "edit": {
     "menu": {
@@ -1576,6 +1599,27 @@
     },
     "supabase": {
       "description": "Access and manage Supabase projects, databases and APIs."
+    },
+    "enabled": "Enabled",
+    "enable": "ENABLE",
+    "configure": "Configure",
+    "googleDrive": {
+      "description": "Allow the agent to access, search, and manage files in Google Drive."
+    },
+    "gmail": {
+      "description": "Connect the agent to Gmail to read, send, and manage emails automatically."
+    },
+    "googleCalendar": {
+      "description": "Schedule events, check availability, and manage calendars."
+    },
+    "hubspot": {
+      "description": "Sync contacts, deals, and activities with HubSpot CRM."
+    },
+    "booking": {
+      "description": "Search and book accommodations through the Booking.com API."
+    },
+    "slack": {
+      "description": "Send messages, create channels, and manage Slack workspaces."
     }
   },
   "integrations": {
@@ -1585,5 +1629,8 @@
     "title": "Custom MCPs",
     "subtitle": "Configure custom MCP servers created by you",
     "add": "Add Custom MCP"
+  },
+  "loading": {
+    "creating": "Creating agent…"
   }
 }

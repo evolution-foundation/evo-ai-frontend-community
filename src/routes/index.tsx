@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
@@ -119,13 +120,18 @@ import CanvaCallback from '@/pages/CanvaCallback';
 import SupabaseCallback from '@/pages/SupabaseCallback';
 // import ChangePassword from '../pages/ChangePassword';
 
+function ChatLoadingFallback() {
+  const { t } = useUiTranslation();
+  return <div className="flex items-center justify-center h-full">{t('common:loading')}</div>;
+}
+
 const ChatRouteElement = (
   <PrivateRoute>
     <CustomerRoute>
       <MainLayout>
         <PermissionRoute resource="conversations" action="read">
           <Suspense
-            fallback={<div className="flex items-center justify-center h-full">Carregando...</div>}
+            fallback={<ChatLoadingFallback />}
           >
             <ChatPage />
           </Suspense>
@@ -136,6 +142,7 @@ const ChatRouteElement = (
 );
 
 const AppRouter = () => {
+  const { t: tUi } = useUiTranslation();
   return (
     <BrowserRouter>
       <RouterGuard>
@@ -1131,10 +1138,9 @@ const AppRouter = () => {
                       <div className="p-6">
                         <div className="h-full flex items-center justify-center">
                           <div className="text-center">
-                            <h2 className="text-2xl font-bold mb-2">🔧 Configuração</h2>
+                            <h2 className="text-2xl font-bold mb-2">{tUi("interface:index.settings")}</h2>
                             <p className="text-muted-foreground">
-                              Página de configuração em desenvolvimento
-                            </p>
+                              {tUi("interface:index.settingsPageUnderDevelopment")}</p>
                           </div>
                         </div>
                       </div>

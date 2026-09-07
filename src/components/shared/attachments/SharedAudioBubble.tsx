@@ -62,7 +62,7 @@ interface AudioPlayerProps {
 }
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ attachment, messageType, onToast }) => {
-  const { t } = useLanguage();
+  const { t } = useLanguage('attachments');
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -70,7 +70,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ attachment, messageType, onTo
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const audioUrl = attachment.data_url || attachment.file_url;
-  const filename = attachment.fallback_title || t('attachments.audio.title');
+  const filename = attachment.fallback_title || t('audio.title');
 
   // Formatar tempo em mm:ss
   const formatTime = (seconds: number): string => {
@@ -117,7 +117,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ attachment, messageType, onTo
 
     const handleError = () => {
       setIsLoading(false);
-      onToast?.(t('attachments.audio.loadError'), 'error');
+      onToast?.(t('audio.loadError'), 'error');
     };
 
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -177,7 +177,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ attachment, messageType, onTo
       link.click();
       document.body.removeChild(link);
 
-      onToast?.(t('attachments.audio.downloadStarted', { filename }), 'success');
+      onToast?.(t('audio.downloadStarted', { filename }), 'success');
     }
   };
 
@@ -190,7 +190,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ attachment, messageType, onTo
           messageType === 'out' ? 'text-white/70' : 'text-slate-500'
         }`}>
           <Volume2 className="h-4 w-4" />
-          <span className="text-sm">{t('attachments.audio.notAvailable')}</span>
+          <span className="text-sm">{t('audio.notAvailable')}</span>
         </div>
       </div>
     );
@@ -249,7 +249,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ attachment, messageType, onTo
                   : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200'
                 }
               `}
-              title={t('attachments.audio.download')}
+              title={t('audio.download')}
             >
               <Download className="h-3 w-3" />
             </button>

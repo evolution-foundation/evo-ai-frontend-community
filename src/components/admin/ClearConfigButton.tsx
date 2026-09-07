@@ -33,15 +33,13 @@ export const ClearConfigButton = ({ configType, configLabel, onCleared }: ClearC
       await adminConfigService.clearConfig(configType);
       await refreshGlobalConfig();
       toast.success(
-        t('clearConfig.success', { config: configLabel }) ||
-          `${configLabel} configuration cleared successfully`,
+        t("channels.clearConfig.success", { config: configLabel }),
       );
       onCleared?.();
     } catch (error) {
       console.error('Error clearing config:', error);
       toast.error(
-        t('clearConfig.error', { config: configLabel }) ||
-          `Failed to clear ${configLabel} configuration`,
+        t("channels.clearConfig.error", { config: configLabel }),
       );
     } finally {
       setIsClearing(false);
@@ -53,24 +51,23 @@ export const ClearConfigButton = ({ configType, configLabel, onCleared }: ClearC
       <AlertDialogTrigger asChild>
         <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10">
           <Trash2 className="h-4 w-4 mr-2" />
-          {t('clearConfig.button', 'Clear Configuration')}
+          {t("channels.clearConfig.button")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t('clearConfig.dialogTitle', 'Clear Configuration')}
+            {t("channels.clearConfig.dialogTitle")}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t('clearConfig.dialogDescription', {
+            {t("channels.clearConfig.dialogDescription", {
               config: configLabel,
-            }) ||
-              `Are you sure? This will remove all ${configLabel} credentials. The provider will stop working until you reconfigure it.`}
+            })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>
-            {t('clearConfig.cancel', 'Cancel')}
+            {t("channels.clearConfig.cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleClear}
@@ -79,8 +76,8 @@ export const ClearConfigButton = ({ configType, configLabel, onCleared }: ClearC
           >
             <Trash2 className="h-4 w-4 mr-2" />
             {isClearing
-              ? t('clearConfig.clearing', 'Clearing...')
-              : t('clearConfig.confirm', 'Clear')}
+              ? t("channels.clearConfig.clearing")
+              : t("channels.clearConfig.confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

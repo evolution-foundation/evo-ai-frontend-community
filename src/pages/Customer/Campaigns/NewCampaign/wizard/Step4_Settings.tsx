@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import {
   Button,
   Label,
@@ -56,6 +57,7 @@ interface Step4Props {
 }
 
 const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBack }: Step4Props) => {
+  const { t: tUi } = useUiTranslation();
 
   const handleNext = () => {
     const scheduleOption = data.template_strategy === 'ab_test' ? data.ab_test_schedule_option : data.schedule_option;
@@ -97,12 +99,12 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <Settings2 className="h-5 w-5 text-primary" />
                 </div>
-                <Label className="text-xl font-bold">Estratégia de Envio</Label>
+                <Label className="text-xl font-bold">{tUi("interface:step4Settings.sendingStrategy")}</Label>
               </div>
 
               <div className="bg-card border border-border rounded-xl p-6 space-y-6">
                 <div className="space-y-2">
-                  <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Estratégia de Distribuição</Label>
+                  <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{tUi("interface:step4Settings.distributionStrategy")}</Label>
                   <Select
                     value={data.template_strategy || 'round_robin'}
                     onValueChange={(value) => onChange({ template_strategy: value as any })}
@@ -111,10 +113,10 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="round_robin">sequencial</SelectItem>
-                      <SelectItem value="weighted">Split</SelectItem>
-                      <SelectItem value="random">Aleatorio</SelectItem>
-                      <SelectItem value="ab_test">Teste A/B</SelectItem>
+                      <SelectItem value="round_robin">{tUi("interface:step4Settings.sequential")}</SelectItem>
+                      <SelectItem value="weighted">{tUi("journey:panels.split.nodeTitle")}</SelectItem>
+                      <SelectItem value="random">{tUi("interface:step4Settings.random")}</SelectItem>
+                      <SelectItem value="ab_test">{tUi("campaigns:status.sending_testab")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -122,7 +124,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                 {/* Split (Weighted) Strategy UI */}
                 {data.template_strategy === 'weighted' && (
                   <div className="space-y-4 pt-4 border-t border-border animate-in fade-in duration-500">
-                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Distribuição por Template (%)</Label>
+                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{tUi("interface:step4Settings.distributionByTemplate")}</Label>
                     <div className="space-y-3">
                       {data.template_ids?.map((id) => {
                         const templateName = availableTemplates.find((t) => t.id === id)?.name || `Template ${id}`;
@@ -169,7 +171,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                 {data.template_strategy === 'ab_test' && (
                   <div className="space-y-6 pt-4 border-t border-border animate-in fade-in duration-500">
                     <div className="space-y-3">
-                      <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Critério de Vencedor</Label>
+                      <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{tUi("interface:step4Settings.winnerCriterion")}</Label>
                       <RadioGroup
                         value={data.ab_test_winner_criteria || 'open_rate'}
                         onValueChange={(value) => onChange({ ab_test_winner_criteria: value as any })}
@@ -177,18 +179,18 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                       >
                         <div className={`flex items-center space-x-3 p-4 border rounded-xl transition-all cursor-pointer ${data.ab_test_winner_criteria === 'open_rate' ? 'border-primary bg-primary/5' : 'border-border bg-background hover:border-primary/50'}`}>
                           <RadioGroupItem value="open_rate" id="open_rate" />
-                          <Label htmlFor="open_rate" className="font-semibold cursor-pointer">Taxa de Abertura</Label>
+                          <Label htmlFor="open_rate" className="font-semibold cursor-pointer">{tUi("interface:step4Settings.openRate")}</Label>
                         </div>
                         <div className={`flex items-center space-x-3 p-4 border rounded-xl transition-all cursor-pointer ${data.ab_test_winner_criteria === 'click_rate' ? 'border-primary bg-primary/5' : 'border-border bg-background hover:border-primary/50'}`}>
                           <RadioGroupItem value="click_rate" id="click_rate" />
-                          <Label htmlFor="click_rate" className="font-semibold cursor-pointer">Taxa de Clique</Label>
+                          <Label htmlFor="click_rate" className="font-semibold cursor-pointer">{tUi("interface:step4Settings.clickRate")}</Label>
                         </div>
                       </RadioGroup>
                     </div>
 
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Amostra do Teste</Label>
+                        <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{tUi("interface:step4Settings.testSample")}</Label>
                         <span className="text-primary font-bold">{data.ab_test_percentage || 20}%</span>
                       </div>
                       <Input
@@ -201,8 +203,8 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                         className="h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                       />
                       <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
-                        <span>Mensagem Base: {(data.ab_test_percentage || 20) / 2}%</span>
-                        <span>Restante (Vencedor): {100 - (data.ab_test_percentage || 20)}%</span>
+                        <span>{tUi("interface:step4Settings.baseMessage")} {(data.ab_test_percentage || 20) / 2}%</span>
+                        <span>{tUi("interface:step4Settings.remainingWinner")} {100 - (data.ab_test_percentage || 20)}%</span>
                       </div>
                     </div>
                   </div>
@@ -217,7 +219,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
               <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center">
                 <Calendar className="h-5 w-5 text-orange-500" />
               </div>
-              <Label className="text-xl font-bold">Agendamento <span className="text-destructive">*</span></Label>
+              <Label className="text-xl font-bold">{tUi("campaigns:wizard.step4.scheduling")} <span className="text-destructive">*</span></Label>
             </div>
 
             <div className="space-y-3">
@@ -237,9 +239,9 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <Zap className={`h-4 w-4 ${currentScheduleOption === 'now' ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <Label className="text-base font-semibold cursor-pointer">Enviar agora</Label>
+                    <Label className="text-base font-semibold cursor-pointer">{tUi("campaigns:wizard.step4.sendNow")}</Label>
                   </div>
-                  <p className="text-xs text-muted-foreground">O envio começará assim que a campanha for criada</p>
+                  <p className="text-xs text-muted-foreground">{tUi("interface:step4Settings.sendingWillStartAsSoonAsTheCampaignIsCreated")}</p>
                 </div>
               </div>
 
@@ -259,16 +261,16 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <Clock className={`h-4 w-4 ${currentScheduleOption === 'later' ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <Label className="text-base font-semibold cursor-pointer">Agendar para mais tarde</Label>
+                    <Label className="text-base font-semibold cursor-pointer">{tUi("campaigns:wizard.step4.scheduleLater")}</Label>
                   </div>
-                  <p className="text-xs text-muted-foreground">Escolha uma data e horário futuro para o início</p>
+                  <p className="text-xs text-muted-foreground">{tUi("interface:step4Settings.chooseAFutureStartDateAndTime")}</p>
                 </div>
               </div>
 
               {currentScheduleOption === 'later' && (
                 <div className="bg-muted/20 border border-border rounded-xl p-4 mt-2 animate-in zoom-in-95 duration-300">
                   <Label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2 block">
-                    Data e Hora {data.template_strategy === 'ab_test' ? '(Teste)' : ''}
+                    {tUi("campaigns:wizard.step4.dateTime")} {data.template_strategy === 'ab_test' ? tUi("interface:step4Settings.test") : ''}
                   </Label>
                   <Input
                     type="datetime-local"
@@ -285,9 +287,9 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
               {data.template_strategy === 'ab_test' && (
                 <div className="bg-muted/30 border border-border rounded-xl p-4 mt-4 space-y-4 animate-in slide-in-from-top-4 duration-500">
                   <div className="flex items-center justify-between">
-                    <Label className="text-sm font-bold">Mensagem Vencedora</Label>
+                    <Label className="text-sm font-bold">{tUi("interface:step4Settings.winningMessage")}</Label>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">Não enviar automaticamente</span>
+                      <span className="text-xs text-muted-foreground">{tUi("interface:step4Settings.doNotSendAutomatically")}</span>
                       <Switch
                         checked={data.ab_test_skip_winner}
                         onCheckedChange={(v) => onChange({ ab_test_skip_winner: v })}
@@ -297,7 +299,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
 
                   {!data.ab_test_skip_winner && (
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Enviar em</Label>
+                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{tUi("interface:step4Settings.sendIn")}</Label>
                       <Input
                         type="datetime-local"
                         value={data.ab_test_winner_scheduled_date || ''}
@@ -317,7 +319,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
               <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
                 <Settings2 className="h-5 w-5 text-blue-500" />
               </div>
-              <Label className="text-xl font-bold">Opções Avançadas</Label>
+              <Label className="text-xl font-bold">{tUi("interface:step4Settings.advancedOptions")}</Label>
             </div>
 
             <div className="bg-card border border-border rounded-xl divide-y divide-border overflow-hidden">
@@ -328,8 +330,8 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                     <Zap className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1">
-                    <Label className="text-sm font-bold">Janela de Distribuição</Label>
-                    <p className="text-[10px] text-muted-foreground">Intervalo entre os disparos da campanha</p>
+                    <Label className="text-sm font-bold">{tUi("interface:step4Settings.distributionInterval")}</Label>
+                    <p className="text-[10px] text-muted-foreground">{tUi("interface:step4Settings.intervalBetweenCampaignSends")}</p>
                   </div>
                 </div>
                 <Select
@@ -337,27 +339,27 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                   onValueChange={(val) => onChange({ spread_sending_hours: parseFloat(val) })}
                 >
                   <SelectTrigger className="h-10 bg-background border-border text-foreground rounded-lg">
-                    <SelectValue placeholder="Sem intervalo" />
+                    <SelectValue placeholder={tUi("interface:step4Settings.noInterval")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="0.166">10 minutos</SelectItem>
-                    <SelectItem value="0.5">30 minutos</SelectItem>
-                    <SelectItem value="1">60 minutos</SelectItem>
-                    <SelectItem value="1.5">1 Hora 30 minutos</SelectItem>
-                    <SelectItem value="2">2 Horas</SelectItem>
-                    <SelectItem value="2.5">2 Horas 30 minutos</SelectItem>
-                    <SelectItem value="3">3 Horas</SelectItem>
-                    <SelectItem value="4">4 Horas</SelectItem>
-                    <SelectItem value="5">5 Horas</SelectItem>
-                    <SelectItem value="6">6 Horas</SelectItem>
-                    <SelectItem value="7">7 Horas</SelectItem>
-                    <SelectItem value="8">8 Horas</SelectItem>
-                    <SelectItem value="9">10 Horas</SelectItem>
-                    <SelectItem value="11">11 Horas</SelectItem>
-                    <SelectItem value="12">12 Horas</SelectItem>
-                    <SelectItem value="18">18 Horas</SelectItem>
-                    <SelectItem value="24">24 Horas</SelectItem>
-                    <SelectItem value="0">Sem intervalo</SelectItem>
+                    <SelectItem value="0.166">{tUi("interface:step4Settings.10Minutes")}</SelectItem>
+                    <SelectItem value="0.5">{tUi("interface:step4Settings.30Minutes")}</SelectItem>
+                    <SelectItem value="1">{tUi("interface:step4Settings.60Minutes")}</SelectItem>
+                    <SelectItem value="1.5">{tUi("interface:step4Settings.1Hour30Minutes")}</SelectItem>
+                    <SelectItem value="2">{tUi("interface:step4Settings.2Hours")}</SelectItem>
+                    <SelectItem value="2.5">{tUi("interface:step4Settings.2Hours30Minutes")}</SelectItem>
+                    <SelectItem value="3">{tUi("interface:step4Settings.3Hours")}</SelectItem>
+                    <SelectItem value="4">{tUi("interface:step4Settings.4Hours")}</SelectItem>
+                    <SelectItem value="5">{tUi("interface:step4Settings.5Hours")}</SelectItem>
+                    <SelectItem value="6">{tUi("interface:step4Settings.6Hours")}</SelectItem>
+                    <SelectItem value="7">{tUi("interface:step4Settings.7Hours")}</SelectItem>
+                    <SelectItem value="8">{tUi("interface:step4Settings.8Hours")}</SelectItem>
+                    <SelectItem value="9">{tUi("interface:step4Settings.10Hours")}</SelectItem>
+                    <SelectItem value="11">{tUi("interface:step4Settings.11Hours")}</SelectItem>
+                    <SelectItem value="12">{tUi("interface:step4Settings.12Hours")}</SelectItem>
+                    <SelectItem value="18">{tUi("interface:step4Settings.18Hours")}</SelectItem>
+                    <SelectItem value="24">{tUi("interface:step4Settings.24Hours")}</SelectItem>
+                    <SelectItem value="0">{tUi("interface:step4Settings.noInterval")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -370,8 +372,8 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                       <Clock className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div>
-                      <Label className="text-sm font-bold">Janelas de Tempo</Label>
-                      <p className="text-[10px] text-muted-foreground">Restringir envios ao horário permitido e dias</p>
+                      <Label className="text-sm font-bold">{tUi("campaigns:wizard.step4.timeWindows")}</Label>
+                      <p className="text-[10px] text-muted-foreground">{tUi("interface:step4Settings.restrictSendingToAllowedHoursAndDays")}</p>
                     </div>
                   </div>
                   <Switch
@@ -384,7 +386,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                   <div className="space-y-4 animate-in fade-in duration-300 pl-11">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Início</Label>
+                        <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{tUi("campaigns:wizard.step4.start")}</Label>
                         <Input
                           type="time"
                           value={data.business_hours_start || '09:00'}
@@ -393,7 +395,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Fim</Label>
+                        <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{tUi("campaigns:wizard.step4.end")}</Label>
                         <Input
                           type="time"
                           value={data.business_hours_end || '18:00'}
@@ -404,16 +406,16 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Dias da Semana</Label>
+                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{tUi("campaigns:wizard.step4.weekdays")}</Label>
                       <div className="flex flex-wrap gap-2">
                         {[
-                          { id: 1, label: 'Seg' },
-                          { id: 2, label: 'Ter' },
-                          { id: 3, label: 'Qua' },
-                          { id: 4, label: 'Qui' },
-                          { id: 5, label: 'Sex' },
-                          { id: 6, label: 'Sáb' },
-                          { id: 0, label: 'Dom' },
+                          { id: 1, label: tUi("campaigns:wizard.step4.monday") },
+                          { id: 2, label: tUi("campaigns:wizard.step4.tuesday") },
+                          { id: 3, label: tUi("campaigns:wizard.step4.wednesday") },
+                          { id: 4, label: tUi("campaigns:wizard.step4.thursday") },
+                          { id: 5, label: tUi("campaigns:wizard.step4.friday") },
+                          { id: 6, label: tUi("campaigns:wizard.step4.saturday") },
+                          { id: 0, label: tUi("campaigns:wizard.step4.sunday") },
                         ].map((day) => {
                           const isSelected = data.allowed_weekdays?.includes(day.id);
                           return (
@@ -448,8 +450,8 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                     <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div>
-                    <Label className="text-sm font-bold">Tentativas Automáticas</Label>
-                    <p className="text-[10px] text-muted-foreground">Tentar reenviar em caso de falha</p>
+                    <Label className="text-sm font-bold">{tUi("interface:step4Settings.automaticRetries")}</Label>
+                    <p className="text-[10px] text-muted-foreground">{tUi("interface:step4Settings.retrySendingOnFailure")}</p>
                   </div>
                 </div>
                 <Switch
@@ -466,8 +468,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
       {/* FOOTER ACTIONS */}
       <div className="flex justify-between items-center py-6 border-t border-border mt-auto">
         <Button variant="outline" className="px-6" onClick={onBack}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-        </Button>
+          <ArrowLeft className="mr-2 h-4 w-4" /> {tUi("common:base.buttons.back")}</Button>
         <Button
           className={`h-11 px-8 rounded-lg font-bold transition-all ${isValid
             ? 'bg-primary text-primary-foreground hover:opacity-90 shadow-md'
@@ -476,7 +477,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
           onClick={handleNext}
           disabled={!isValid}
         >
-          Continuar <ArrowRight className="ml-2 h-4 w-4" />
+          {tUi("aiAgents:actions.continue")} <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
     </div>

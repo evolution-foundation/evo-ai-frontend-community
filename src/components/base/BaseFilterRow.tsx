@@ -15,7 +15,7 @@ import {
 } from '@evoapi/design-system';
 import { CalendarIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
-import { pt } from 'date-fns/locale';
+import { getFormattingDateFnsLocale } from '@/lib/formattingLocale';
 
 import { BaseFilter, FilterType } from '@/types/core';
 
@@ -80,7 +80,7 @@ export default function BaseFilterRow<T extends BaseFilter>({
                 <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
                 <span className="truncate">
                   {filter.values
-                    ? format(new Date(filter.values as string), 'dd/MM/yyyy', { locale: pt })
+                    ? format(new Date(filter.values as string), 'P', { locale: getFormattingDateFnsLocale() })
                     : tCommon('base.filter.selectDate')}
                 </span>
               </Button>

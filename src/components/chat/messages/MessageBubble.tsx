@@ -374,10 +374,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 {(isDeleted || isRevokedByContact) && (
                   <div className="mt-1 text-xs italic text-muted-foreground opacity-80">
                     {isRevokedByContact
-                      ? t('messages.messageBubble.revokedByContact', 'Deleted by the contact')
-                      : t('messages.messageBubble.deletedPlaceholder', 'This message was deleted')}
+                      ? t('messages.messageBubble.revokedByContact')
+                      : t('messages.messageBubble.deletedPlaceholder')}
                     {isDeleted && isRevokeCrmOnly && (
-                      <span className="ml-1">· {t('messages.messageBubble.revokeCrmOnly', 'removed only in the CRM')}</span>
+                      <span className="ml-1">· {t('messages.messageBubble.revokeCrmOnly')}</span>
                     )}
                   </div>
                 )}
@@ -535,10 +535,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               {(isDeleted || isRevokedByContact) && (
                 <div className="mt-1 text-xs italic text-muted-foreground opacity-80">
                   {isRevokedByContact
-                    ? t('messages.messageBubble.revokedByContact', 'Deleted by the contact')
-                    : t('messages.messageBubble.deletedPlaceholder', 'This message was deleted')}
+                    ? t('messages.messageBubble.revokedByContact')
+                    : t('messages.messageBubble.deletedPlaceholder')}
                   {isDeleted && isRevokeCrmOnly && (
-                    <span className="ml-1">· {t('messages.messageBubble.revokeCrmOnly', 'removed only in the CRM')}</span>
+                    <span className="ml-1">· {t('messages.messageBubble.revokeCrmOnly')}</span>
                   )}
                 </div>
               )}

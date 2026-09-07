@@ -41,7 +41,7 @@ const MessageDeliveryFields = ({
           <Clock className="h-5 w-5 text-purple-500 mt-0.5" />
           <div className="flex-1 space-y-2">
             <Label htmlFor={`${idPrefix}message-wait-time`} className="font-medium">
-              {t('advancedBot.messageWaitTime') || 'Tempo de espera de mensagens (segundos)'}
+              {t('advancedBot.messageWaitTime')}
             </Label>
             <Input
               id={`${idPrefix}message-wait-time`}
@@ -55,8 +55,7 @@ const MessageDeliveryFields = ({
               className="w-32"
             />
             <p className="text-sm text-muted-foreground">
-              {t('advancedBot.messageWaitTimeDescription') ||
-                'Tempo que o agente aguarda antes de processar mensagens'}
+              {t('advancedBot.messageWaitTimeDescription')}
             </p>
           </div>
         </div>
@@ -67,22 +66,20 @@ const MessageDeliveryFields = ({
           <Clock className="h-5 w-5 text-purple-500 mt-0.5" />
           <div className="flex-1 space-y-2">
             <Label htmlFor={`${idPrefix}message-signature`} className="font-medium">
-              {t('advancedBot.messageSignature') || 'Assinatura da Mensagem'}
+              {t('advancedBot.messageSignature')}
             </Label>
             <Textarea
               id={`${idPrefix}message-signature`}
               value={config.message_signature || ''}
               onChange={e => onChange({ ...config, message_signature: e.target.value })}
               placeholder={
-                t('advancedBot.messageSignaturePlaceholder') ||
-                'Adicione uma assinatura personalizada para as mensagens deste agente...'
+                t('advancedBot.messageSignaturePlaceholder')
               }
               rows={3}
               className="max-w-2xl"
             />
             <p className="text-sm text-muted-foreground">
-              {t('advancedBot.messageSignatureDescription') ||
-                'Texto que será adicionado ao final de cada mensagem do agente'}
+              {t('advancedBot.messageSignatureDescription')}
             </p>
           </div>
         </div>
@@ -97,12 +94,11 @@ const MessageDeliveryFields = ({
                 htmlFor={`${idPrefix}enable-text-segmentation`}
                 className="font-medium cursor-pointer"
               >
-                {t('advancedBot.enableTextSegmentation') || 'Habilitar segmentação de texto'}
+                {t('advancedBot.enableTextSegmentation')}
               </Label>
             </div>
             <p className="text-sm text-muted-foreground mb-3">
-              {t('advancedBot.textSegmentationDescription') ||
-                'Configure como as mensagens longas serão divididas e enviadas'}
+              {t('advancedBot.textSegmentationDescription')}
             </p>
             {config.enable_text_segmentation && (
               <div className="space-y-3 ml-6 border-l-2 border-purple-200 dark:border-purple-800 pl-4 pt-2">
@@ -111,7 +107,7 @@ const MessageDeliveryFields = ({
                     htmlFor={`${idPrefix}max-characters-per-segment`}
                     className="text-sm font-medium"
                   >
-                    {t('advancedBot.maxCharactersPerSegment') || 'Máximo de caracteres por segmento'}
+                    {t('advancedBot.maxCharactersPerSegment')}
                   </Label>
                   <Input
                     id={`${idPrefix}max-characters-per-segment`}
@@ -128,14 +124,13 @@ const MessageDeliveryFields = ({
                     className="w-32"
                   />
                   <p className="text-xs text-muted-foreground">
-                    {t('advancedBot.maxCharactersDescription') ||
-                      'Número máximo de caracteres em cada segmento'}
+                    {t('advancedBot.maxCharactersDescription')}
                   </p>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor={`${idPrefix}min-segment-size`} className="text-sm font-medium">
-                    {t('advancedBot.minSegmentSize') || 'Tamanho mínimo do segmento'}
+                    {t('advancedBot.minSegmentSize')}
                   </Label>
                   <Input
                     id={`${idPrefix}min-segment-size`}
@@ -149,14 +144,13 @@ const MessageDeliveryFields = ({
                     className="w-32"
                   />
                   <p className="text-xs text-muted-foreground">
-                    {t('advancedBot.minSegmentDescription') ||
-                      'Tamanho mínimo para criar um novo segmento'}
+                    {t('advancedBot.minSegmentDescription')}
                   </p>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor={`${idPrefix}character-delay-ms`} className="text-sm font-medium">
-                    {t('advancedBot.characterDelayMs') || 'Delay por caractere (ms)'}
+                    {t('advancedBot.characterDelayMs')}
                   </Label>
                   <Input
                     id={`${idPrefix}character-delay-ms`}
@@ -174,8 +168,7 @@ const MessageDeliveryFields = ({
                     className="w-32"
                   />
                   <p className="text-xs text-muted-foreground">
-                    {t('advancedBot.characterDelayDescription') ||
-                      'Tempo de espera entre caracteres ao enviar mensagens'}
+                    {t('advancedBot.characterDelayDescription')}
                   </p>
                 </div>
               </div>
@@ -263,10 +256,9 @@ export const MessageHandlingPanel = ({
     <ToggleRow
       id={id}
       icon={<Smile className="h-5 w-5 text-yellow-500 mt-0.5" />}
-      title={t('edit.configuration.behavior.useEmojis') || 'Usar Emojis Nas Respostas'}
+      title={t('edit.configuration.behavior.useEmojis')}
       description={
-        t('edit.configuration.behavior.useEmojisDescription') ||
-        'Permite que o agente use emojis nas respostas para tornar a comunicação mais amigável'
+        t('edit.configuration.behavior.useEmojisDescription')
       }
       checked={behaviorSettings.useEmojis}
       onCheckedChange={checked => onBehaviorSettingsChange({ ...behaviorSettings, useEmojis: checked })}
@@ -278,11 +270,10 @@ export const MessageHandlingPanel = ({
       id={id}
       icon={<Reply className="h-5 w-5 text-blue-500 mt-0.5" />}
       title={
-        t('edit.configuration.behavior.sendAsReply') || 'Enviar mensagem como resposta na conversa'
+        t('edit.configuration.behavior.sendAsReply')
       }
       description={
-        t('edit.configuration.behavior.sendAsReplyDescription') ||
-        'Permite que o agente envie mensagens como resposta a uma mensagem específica na conversa'
+        t('edit.configuration.behavior.sendAsReplyDescription')
       }
       checked={behaviorSettings.sendAsReply}
       onCheckedChange={checked =>

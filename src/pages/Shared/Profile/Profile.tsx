@@ -979,7 +979,7 @@ const Profile = () => {
           <h4 className="font-medium">{t('notifications.email.title')}</h4>
           {notificationSettings.available_types.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {t('notifications.loading') || 'Loading notification preferences...'}
+              {t('notifications.loading')}
             </p>
           ) : (
             <div className="space-y-3">
@@ -1008,7 +1008,7 @@ const Profile = () => {
           <h4 className="font-medium">{t('notifications.push.title')}</h4>
           {notificationSettings.available_types.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {t('notifications.loading') || 'Loading notification preferences...'}
+              {t('notifications.loading')}
             </p>
           ) : (
             <div className="space-y-3">
@@ -1080,7 +1080,7 @@ const Profile = () => {
                       {t('audio.tone.options.notification')}
                     </SelectItem>
                     <SelectItem value="magic">
-                      {t('audio.tone.options.magic') || 'Magic'}
+                      {t('audio.tone.options.magic')}
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -1089,7 +1089,7 @@ const Profile = () => {
                   variant="outline"
                   size="icon"
                   onClick={() => playNotificationSoundPreview(audioSettings.notification_tone)}
-                  title={t('audio.tone.preview') || 'Preview sound'}
+                  title={t('audio.tone.preview')}
                 >
                   <Play className="h-4 w-4" />
                 </Button>

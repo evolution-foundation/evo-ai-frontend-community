@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { BaseActionCableConnector, ConnectionParams } from './BaseActionCableConnector';
 import { toast } from 'sonner';
 
@@ -478,7 +479,7 @@ export class ChatActionCableConnector extends BaseActionCableConnector {
 
     if (eventData.status === 'failed') {
       toast.error(
-        `Macro "${eventData.macro_name}" falhou: ${eventData.error_message || 'erro desconhecido'}`,
+        i18n.t("interface:dynamic.macroFailed", { name: eventData.macro_name, error: eventData.error_message || i18n.t("interface:chatactioncableconnector.unknownError") }),
         { duration: 8000 },
       );
     }
@@ -613,8 +614,8 @@ export class ChatActionCableConnector extends BaseActionCableConnector {
    */
   protected onReconnected(): void {
     super.onReconnected();
-    toast.success('Conexão em tempo real reestabelecida', {
-      description: 'Agora você receberá mensagens em tempo real novamente.',
+    toast.success(i18n.t("interface:chatactioncableconnector.realTimeConnectionRestored"), {
+      description: i18n.t("interface:chatactioncableconnector.youWillNowReceiveMessagesInRealTimeAgain"),
     });
   }
 
@@ -623,8 +624,8 @@ export class ChatActionCableConnector extends BaseActionCableConnector {
    */
   protected onDisconnected(): void {
     super.onDisconnected();
-    toast.warning('Conexão em tempo real perdida', {
-      description: 'Tentando reconectar automaticamente...',
+    toast.warning(i18n.t("interface:chatactioncableconnector.realTimeConnectionLost"), {
+      description: i18n.t("interface:chatactioncableconnector.tryingToReconnectAutomatically"),
     });
   }
 

@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useRelativeTime } from '@/lib/useRelativeTime';
 import { Avatar, AvatarFallback, AvatarImage, Button } from '@evoapi/design-system';
@@ -27,7 +28,7 @@ const CHANNEL_NAMES: Record<string, string> = {
   'Channel::Telegram': 'Telegram',
   'Channel::Api': 'API',
   'Channel::WebWidget': 'Web Chat',
-  'Channel::Email': 'E-mail',
+  get 'Channel::Email'() { return i18n.t("teams:addUsers.table.email"); },
   'Channel::Sms': 'SMS',
   'Channel::Line': 'LINE',
   'Channel::FacebookPage': 'Facebook',

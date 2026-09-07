@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -32,6 +33,7 @@ const AsanaConfigDialog = ({
   initialConfig,
   agentId,
 }: AsanaConfigDialogProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
 
   const [isConnecting, setIsConnecting] = useState(false);
@@ -102,7 +104,7 @@ const AsanaConfigDialog = ({
       setAvailableTools(response.tools || []);
     } catch (error) {
       console.error('Error loading Asana tools:', error);
-      toast.error('Erro ao carregar ferramentas disponíveis');
+      toast.error(tUi("interface:asanaconfigdialog.couldNotLoadAvailableTools"));
     } finally {
       setIsLoadingTools(false);
     }
@@ -119,7 +121,7 @@ const AsanaConfigDialog = ({
       }
     } catch (error) {
       console.error('Error connecting to Asana:', error);
-      toast.error('Erro ao conectar com Asana');
+      toast.error(tUi("interface:asanaconfigdialog.couldNotConnectToAsana"));
     } finally {
       setIsConnecting(false);
     }
@@ -157,11 +159,11 @@ const AsanaConfigDialog = ({
 
       // Then update local state
       onSave(updatedConfig);
-      toast.success('Configurações salvas com sucesso!');
+      toast.success(tUi("integrations:messages.saveSuccess"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error saving Asana configuration:', error);
-      toast.error('Erro ao salvar configurações');
+      toast.error(tUi("integrations:messages.saveError"));
     }
   };
 
@@ -171,11 +173,11 @@ const AsanaConfigDialog = ({
       if (onDisconnect) {
         onDisconnect();
       }
-      toast.success('Asana desconectado com sucesso!');
+      toast.success(tUi("interface:asanaconfigdialog.asanaDisconnectedSuccessfully"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error disconnecting Asana:', error);
-      toast.error('Erro ao desconectar Asana');
+      toast.error(tUi("interface:asanaconfigdialog.couldNotDisconnectAsana"));
     }
   };
 
@@ -197,7 +199,7 @@ const AsanaConfigDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BrandIcon id="asana" size={20} className="h-5 w-5" />
-            {t('edit.integrations.asana.configTitle') || 'Configurar Asana.com'}
+            {t('edit.integrations.asana.configTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -212,11 +214,10 @@ const AsanaConfigDialog = ({
               </div>
               <div>
                 <h3 className="text-lg font-semibold">
-                  {t('edit.integrations.asana.connectTitle') || 'Conectar com Asana.com'}
+                  {t('edit.integrations.asana.connectTitle')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.asana.connectDescription') ||
-                    'Conecte sua conta Asana.com para permitir que o agente acesse boards, itens e automações'}
+                  {t('edit.integrations.asana.connectDescription')}
                 </p>
               </div>
             </div>
@@ -230,12 +231,12 @@ const AsanaConfigDialog = ({
               {isConnecting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('edit.integrations.asana.connecting') || 'Conectando...'}
+                  {t('edit.integrations.asana.connecting')}
                 </>
               ) : (
                 <>
                   <BrandIcon id="asana" size={16} className="mr-2 h-4 w-4" />
-                  {t('edit.integrations.asana.connectButton') || 'Conectar com Asana.com'}
+                  {t('edit.integrations.asana.connectButton')}
                 </>
               )}
             </Button>
@@ -248,12 +249,12 @@ const AsanaConfigDialog = ({
                 <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
                   <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
                   <span className="font-medium">
-                    {t('edit.integrations.asana.connected') || 'Conectado'}
+                    {t('edit.integrations.asana.connected')}
                   </span>
                 </div>
                 {config.username && (
                   <p className="text-sm text-green-700 dark:text-green-300 mt-2">
-                    {t('edit.integrations.asana.connectedAs') || 'Conectado como'}:{' '}
+                    {t('edit.integrations.asana.connectedAs')}:{' '}
                     <strong>{config.username}</strong>
                   </p>
                 )}
@@ -264,8 +265,7 @@ const AsanaConfigDialog = ({
 
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.asana.connectedDescription') ||
-                    'O agente agora pode acessar boards, itens e outras informações do Asana.'}
+                  {t('edit.integrations.asana.connectedDescription')}
                 </p>
               </div>
             </div>
@@ -275,7 +275,7 @@ const AsanaConfigDialog = ({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium">
-                    {t('edit.integrations.asana.toolsTitle') || 'Ferramentas Disponíveis'}
+                    {t('edit.integrations.asana.toolsTitle')}
                   </h4>
                   {availableTools.length > 0 && (
                     <div className="flex items-center space-x-2">
@@ -288,14 +288,13 @@ const AsanaConfigDialog = ({
                         onCheckedChange={handleSelectAll}
                       />
                       <Label htmlFor="select-all" className="text-xs font-medium cursor-pointer">
-                        {t('edit.integrations.asana.selectAll') || 'Selecionar todas'}
+                        {t('edit.integrations.asana.selectAll')}
                       </Label>
                     </div>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mb-3">
-                  {t('edit.integrations.asana.toolsDescription') ||
-                    'Selecione quais ferramentas do Asana o agente poderá usar'}
+                  {t('edit.integrations.asana.toolsDescription')}
                 </p>
               </div>
 
@@ -328,14 +327,14 @@ const AsanaConfigDialog = ({
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center p-4">
-                  {t('edit.integrations.asana.noTools') || 'Nenhuma ferramenta disponível'}
+                  {t('edit.integrations.asana.noTools')}
                 </p>
               )}
             </div>
 
             <div className="flex flex-col gap-3 pt-4 border-t">
               <Button onClick={handleSave} className="w-full">
-                {t('edit.integrations.asana.saveConfig') || 'SALVAR CONFIGURAÇÕES'}
+                {t('edit.integrations.asana.saveConfig')}
               </Button>
 
               {onDisconnect && (
@@ -344,7 +343,7 @@ const AsanaConfigDialog = ({
                   onClick={handleDisconnect}
                   className="w-full text-destructive hover:text-destructive/80"
                 >
-                  {t('edit.integrations.asana.disconnect') || 'Desconectar'}
+                  {t('edit.integrations.asana.disconnect')}
                 </Button>
               )}
             </div>

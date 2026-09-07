@@ -150,15 +150,15 @@ export function useWidgetChat() {
       const status = error?.response?.status;
 
       if (status === 403) {
-        showToast(t('toast.featureDisabled') || 'Feature unavailable', 'error');
+        showToast(t('toast.featureDisabled'), 'error');
         return;
       }
 
       if (status === 404) {
-        showToast(t('toast.conversationNotFound') || 'Conversation not found', 'info');
+        showToast(t('toast.conversationNotFound'), 'info');
       }
 
-      showToast(t('toast.errorEndingConversation') || 'An error occurred while ending the conversation', 'error');
+      showToast(t('toast.errorEndingConversation'), 'error');
     }
   }
 

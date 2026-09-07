@@ -91,7 +91,7 @@ export default function ContactPipelinesBadge({
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="text-xs text-muted-foreground cursor-help">
-                +{hiddenPipelines.length} {t('pipelines.morePipelines', { count: hiddenPipelines.length })}
+                {t('pipelines.morePipelines', { count: hiddenPipelines.length })}
               </div>
             </TooltipTrigger>
             <TooltipContent side="top" className="px-3 py-2 bg-popover border border-border shadow-lg rounded-lg max-w-xs">

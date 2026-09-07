@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { type ReactNode } from 'react';
 import {
   Button,
@@ -195,7 +196,7 @@ export function NodeConfigModal(props: NodeConfigModalProps) {
                 <CollapsibleTrigger asChild>
                   <Button variant="ghost" size="sm" className="-ml-3 gap-2 group">
                     <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
-                    {props.advancedLabel ?? 'Advanced settings'}
+                    {props.advancedLabel ?? i18n.t('interface:fallbacks.advancedSettings')}
                   </Button>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-3">{props.advanced}</CollapsibleContent>

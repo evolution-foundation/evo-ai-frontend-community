@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { type ReactNode } from 'react';
 import { Button } from '@evoapi/design-system';
 import { Activity, ArrowLeft, Clock, Loader2, Save } from 'lucide-react';
@@ -127,7 +128,7 @@ export function JourneyEditorHeader({
             <div className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground">
               <Clock className="h-3 w-3" aria-hidden="true" />
               <span>
-                {lastSavedFormatter ? lastSavedFormatter(lastSaved) : lastSaved.toLocaleTimeString()}
+                {lastSavedFormatter ? lastSavedFormatter(lastSaved) : lastSaved.toLocaleTimeString(getFormattingLocale())}
                 {showUnsavedHint ? ` • ${unsavedChangesHint}` : null}
               </span>
             </div>

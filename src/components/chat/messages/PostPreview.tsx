@@ -1,3 +1,5 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@evoapi/design-system/avatar';
@@ -42,6 +44,7 @@ interface PostPreviewProps {
 }
 
 const PostPreview: React.FC<PostPreviewProps> = ({ postData }) => {
+  const { t: tUi } = useUiTranslation();
   if (!postData || Object.keys(postData).length === 0) {
     return null;
   }
@@ -80,7 +83,7 @@ const PostPreview: React.FC<PostPreviewProps> = ({ postData }) => {
     if (!dateString) return '';
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR', {
+      return date.toLocaleDateString(getFormattingLocale(), {
         day: '2-digit',
         month: 'short',
         year: 'numeric',
@@ -115,7 +118,7 @@ const PostPreview: React.FC<PostPreviewProps> = ({ postData }) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-foreground transition-colors"
-                title="Abrir post no Facebook"
+                title={tUi("interface:postpreview.openPostOnFacebook")}
               >
                 <ExternalLink className="h-4 w-4" />
               </a>
@@ -135,7 +138,7 @@ const PostPreview: React.FC<PostPreviewProps> = ({ postData }) => {
           <div className="relative w-full bg-muted">
             <img
               src={postImage}
-              alt="Post image"
+              alt={tUi("interface:postpreview.postImage")}
               className="w-full h-auto object-contain max-h-96"
               loading="lazy"
               onError={(e) => {
@@ -155,17 +158,17 @@ const PostPreview: React.FC<PostPreviewProps> = ({ postData }) => {
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               {(postData.likes_count ?? 0) > 0 && (
                 <span>
-                  {postData.likes_count} {postData.likes_count === 1 ? 'curtida' : 'curtidas'}
+                  {tUi("chat:post.likes", { count: postData.likes_count })}
                 </span>
               )}
               {(postData.comments_count ?? 0) > 0 && (
                 <span>
-                  {postData.comments_count} {postData.comments_count === 1 ? 'comentário' : 'comentários'}
+                  {tUi("chat:post.comments", { count: postData.comments_count })}
                 </span>
               )}
               {(postData.shares_count ?? 0) > 0 && (
                 <span>
-                  {postData.shares_count} {postData.shares_count === 1 ? 'compartilhamento' : 'compartilhamentos'}
+                  {tUi("chat:post.shares", { count: postData.shares_count })}
                 </span>
               )}
             </div>

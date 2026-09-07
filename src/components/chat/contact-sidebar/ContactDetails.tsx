@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import React, { useState } from 'react';
 
 import { useLanguage } from '@/hooks/useLanguage';
@@ -51,7 +52,7 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({ contact, onContactAttri
     if (!iso) return t('contactSidebar.contactDetails.notInformed');
     const date = new Date(iso);
     if (isNaN(date.getTime())) return t('contactSidebar.contactDetails.notInformed');
-    return date.toLocaleDateString('pt-BR', {
+    return date.toLocaleDateString(getFormattingLocale(), {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

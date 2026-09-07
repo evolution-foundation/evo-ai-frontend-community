@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useContext, useReducer, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
@@ -627,7 +628,7 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
       const pendingMessage: Message = {
         id: Date.now().toString(), // ID temporário
         content:
-          content || (files.length > 0 ? (isAudioFile ? '' : `📎 ${files.length} arquivo(s)`) : ''),
+          content || (files.length > 0 ? (isAudioFile ? '' : i18n.t("interface:dynamic.attachedFiles", { count: files.length })) : ''),
         message_type: 'outgoing',
         content_type:
           files.length > 0 ? (isAudioFile ? 'audio' : isImageFile ? 'image' : 'file') : 'text',

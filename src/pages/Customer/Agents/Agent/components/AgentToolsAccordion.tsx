@@ -69,7 +69,7 @@ const AgentToolsAccordion = ({
           <AccordionTrigger className={triggerClass}>
             <span className="flex flex-1 items-center">
               <Users className={iconClass} />
-              {t('edit.menu.subAgents') || 'Sub Agentes'}
+              {t('edit.menu.subAgents')}
             </span>
           </AccordionTrigger>
           <AccordionContent className={contentClass}>
@@ -92,7 +92,7 @@ const AgentToolsAccordion = ({
             <AccordionTrigger className={triggerClass}>
               <span className="flex flex-1 items-center">
                 <Wrench className={iconClass} />
-                {t('edit.menu.tools') || 'Ferramentas'}
+                {t('edit.menu.tools')}
               </span>
             </AccordionTrigger>
             <AccordionContent className={contentClass}>
@@ -112,7 +112,7 @@ const AgentToolsAccordion = ({
             <AccordionTrigger className={triggerClass}>
               <span className="flex flex-1 items-center">
                 <Plug className={iconClass} />
-                {t('edit.menu.integrations') || 'Integrações'}
+                {t('edit.menu.integrations')}
               </span>
             </AccordionTrigger>
             <AccordionContent className={contentClass}>
@@ -128,7 +128,7 @@ const AgentToolsAccordion = ({
             <AccordionTrigger className={triggerClass}>
               <span className="flex flex-1 items-center">
                 <Server className={iconClass} />
-                {t('edit.menu.mcpServers') || 'Servidores MCP'}
+                {t('edit.menu.mcpServers')}
               </span>
             </AccordionTrigger>
             <AccordionContent className={contentClass}>

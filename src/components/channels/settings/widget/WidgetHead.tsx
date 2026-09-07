@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { Avatar, AvatarFallback, AvatarImage } from '@evoapi/design-system';
 import { WidgetConfig } from '../helpers/widgetHelpers';
 import { getReplyTimeDisplayText } from '../helpers/widgetHelpers';
@@ -10,6 +11,7 @@ interface WidgetHeadProps {
 }
 
 export default function WidgetHead({ config }: WidgetHeadProps) {
+  const { t: tUi } = useUiTranslation();
   const isDefaultScreen = config.isDefaultScreen &&
     (config.welcomeHeading || config.welcomeTagline);
 
@@ -30,7 +32,7 @@ export default function WidgetHead({ config }: WidgetHeadProps) {
             <Avatar
               className={`mr-3 ${!isDefaultScreen ? 'w-8 h-8 mb-1' : 'w-12 h-12 mb-2'}`}
             >
-              <AvatarImage src={config.avatarUrl} alt="Avatar" />
+              <AvatarImage src={config.avatarUrl} alt={tUi("interface:widgethead.avatar")} />
               <AvatarFallback className="bg-slate-200 dark:bg-slate-700">
                 {config.websiteName?.charAt(0) || 'W'}
               </AvatarFallback>

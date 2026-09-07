@@ -1,3 +1,5 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState } from 'react';
 import {
   Dialog,
@@ -27,6 +29,7 @@ export default function ViewTokenModal({
   token,
   onCopy,
 }: ViewTokenModalProps) {
+  const { t: tUi } = useUiTranslation();
   const [showToken, setShowToken] = useState(false);
   const { t } = useTranslation('accessTokens');
 
@@ -75,7 +78,7 @@ export default function ViewTokenModal({
 
           {/* Token ID */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Token ID</label>
+            <label className="text-sm font-medium">{tUi("accessTokens:viewModal.labels.tokenId")}</label>
             <div className="flex gap-2">
               <Input
                 value={token.id}
@@ -92,8 +95,7 @@ export default function ViewTokenModal({
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Unique identifier for this access token
-            </p>
+              {tUi("accessTokens:viewModal.descriptions.tokenId")}</p>
           </div>
 
           {/* Access Token */}
@@ -127,7 +129,7 @@ export default function ViewTokenModal({
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Use this token in the Authorization header: <code>Authorization: Bearer {token.token.substring(0, 20)}...</code>
+              {tUi("interface:viewtokenmodal.useThisTokenInTheAuthorizationHeader")} <code>Authorization: Bearer {token.token.substring(0, 20)}...</code>
             </p>
           </div>
 
@@ -142,41 +144,40 @@ export default function ViewTokenModal({
                   </Badge>
                 ))
               ) : (
-                <span className="text-sm text-muted-foreground">No scopes configured</span>
+                <span className="text-sm text-muted-foreground">{tUi("accessTokens:viewModal.descriptions.noScopes")}</span>
               )}
             </div>
             <p className="text-xs text-muted-foreground">
-              Permissions that this token has access to
-            </p>
+              {tUi("accessTokens:viewModal.descriptions.scopes")}</p>
           </div>
 
           {/* Token Details */}
           <div className="space-y-4 p-4 bg-muted rounded-lg">
-            <h4 className="font-medium">Token Details</h4>
+            <h4 className="font-medium">{tUi("accessTokens:viewModal.sections.tokenDetails")}</h4>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">{t('viewModal.labels.createdAt')}</p>
-                <p className="text-sm">{new Date(token.created_at).toLocaleString()}</p>
+                <p className="text-sm">{new Date(token.created_at).toLocaleString(getFormattingLocale())}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Last Updated</p>
-                <p className="text-sm">{new Date(token.updated_at).toLocaleString()}</p>
+                <p className="text-sm font-medium text-muted-foreground">{tUi("accessTokens:viewModal.labels.updatedAt")}</p>
+                <p className="text-sm">{new Date(token.updated_at).toLocaleString(getFormattingLocale())}</p>
               </div>
             </div>
 
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Owner ID</p>
+              <p className="text-sm font-medium text-muted-foreground">{tUi("accessTokens:viewModal.labels.ownerId")}</p>
               <p className="text-sm font-mono">{token.owner_id}</p>
             </div>
           </div>
 
           {/* API Usage Example */}
           <div className="space-y-4 p-4 bg-muted rounded-lg">
-            <h4 className="font-medium">API Usage Example</h4>
+            <h4 className="font-medium">{tUi("accessTokens:viewModal.sections.apiUsage")}</h4>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">cURL Example</label>
+              <label className="text-sm font-medium">{tUi("accessTokens:viewModal.examples.curl")}</label>
               <div className="flex gap-2">
                 <Input
                   value={`curl -H "api_access_token: ${token.token}" https://api.example.com/v1/endpoint`}
@@ -195,7 +196,7 @@ export default function ViewTokenModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">JavaScript Example</label>
+              <label className="text-sm font-medium">{tUi("accessTokens:viewModal.examples.javascript")}</label>
               <div className="flex gap-2">
                 <Input
                   value={`fetch('https://api.example.com/v1/endpoint', { headers: { 'Authorization': 'Bearer ${token.token}' } })`}
@@ -220,14 +221,13 @@ export default function ViewTokenModal({
               <Key className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
               <div>
                 <h4 className="font-medium text-yellow-800 dark:text-yellow-200">
-                  Important - Security
-                </h4>
+                  {tUi("accessTokens:viewModal.security.title")}</h4>
                 <ul className="mt-2 text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
-                  <li>• Never expose the access token in client-side code or public repositories</li>
-                  <li>• Use HTTPS in production for all API communications</li>
-                  <li>• Regenerate the token if you suspect it has been compromised</li>
-                  <li>• Monitor token usage regularly</li>
-                  <li>• Store tokens securely using environment variables or secure vaults</li>
+                  <li>{tUi("interface:viewtokenmodal.neverExposeTheAccessTokenInClientSideCodeOr")}</li>
+                  <li>{tUi("interface:viewtokenmodal.useHttpsInProductionForAllApiCommunications")}</li>
+                  <li>{tUi("interface:viewtokenmodal.regenerateTheTokenIfYouSuspectItHasBeenCompromised")}</li>
+                  <li>{tUi("interface:viewtokenmodal.monitorTokenUsageRegularly")}</li>
+                  <li>{tUi("interface:viewtokenmodal.storeTokensSecurelyUsingEnvironmentVariablesOrSecureVaults")}</li>
                 </ul>
               </div>
             </div>

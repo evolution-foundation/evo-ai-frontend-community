@@ -146,5 +146,7 @@
       "channels": "No channel data for the selected period.",
       "pipelineInactive": "Pipeline inactive in the selected period."
     }
-  }
+  },
+  "periodDays_one": "{{period}} ({{count}} day)",
+  "periodDays_other": "{{period}} ({{count}} days)"
 }

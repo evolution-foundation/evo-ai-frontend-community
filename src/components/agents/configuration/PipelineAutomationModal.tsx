@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@evoapi/design-system';
 import PipelineAutomation, { PipelineAutomationConfig } from '@/pages/Customer/Agents/Agent/sections/PipelineAutomation';
 
@@ -20,11 +21,12 @@ const PipelineAutomationModal = ({
   onChange,
   availablePipelines = [],
 }: PipelineAutomationModalProps) => {
+  const { t: tUi } = useUiTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Automação de Pipelines</DialogTitle>
+          <DialogTitle>{tUi("interface:pipelineautomationmodal.pipelineAutomation")}</DialogTitle>
         </DialogHeader>
         <PipelineAutomation
           rules={rules}

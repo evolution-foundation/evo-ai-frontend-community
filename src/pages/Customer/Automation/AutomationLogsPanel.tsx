@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useCallback, useEffect, useState } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -46,7 +47,7 @@ function formatDateTime(iso?: string) {
   if (!iso) return '—';
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleString();
+  return date.toLocaleString(getFormattingLocale());
 }
 
 function formatDuration(ms?: number) {

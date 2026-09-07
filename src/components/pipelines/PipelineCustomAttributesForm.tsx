@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -62,6 +64,7 @@ export default function PipelineCustomAttributesForm({
   pipelineCustomFields,
   stageCustomFields,
 }: PipelineCustomAttributesFormProps) {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('customAttributes');
   const [definedAttributes, setDefinedAttributes] = useState<PipelineAttributeDefinition[]>([]);
   const [loading, setLoading] = useState(false);
@@ -560,7 +563,7 @@ export default function PipelineCustomAttributesForm({
                             ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300'
                             : 'bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'}`}
                         >
-                          {isGlobalAttribute ? 'Global' : 'Local'}
+                          {isGlobalAttribute ? i18n.t('interface:fallbacks.global') : i18n.t('interface:fallbacks.local')}
                         </span>
                         <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
                           {typeLabel}
@@ -631,8 +634,7 @@ export default function PipelineCustomAttributesForm({
                         <div className="flex items-center gap-2 flex-wrap">
                           <Label className="text-sm font-medium">{displayName}</Label>
                           <span className="text-xs px-2 py-0.5 rounded bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-                            Local
-                          </span>
+                            {tUi("interface:pipelinecustomattributesform.local")}</span>
                           {localType && (
                             <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
                               {getAttributeTypeLabel(localType)}

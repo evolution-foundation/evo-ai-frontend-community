@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useCredentialScopePermissions } from '@/hooks/useCredentialScopePermissions';
@@ -575,7 +576,7 @@ export default function IntegrationCredentials() {
                     </td>
                     <td className="p-3">
                       {connection.connection_expires_at
-                        ? parseOwnerTimestamp(connection.connection_expires_at).toLocaleString()
+                        ? parseOwnerTimestamp(connection.connection_expires_at).toLocaleString(getFormattingLocale())
                         : t('oauthSection.noExpiry')}
                     </td>
                     <td className="p-3">

@@ -79,7 +79,7 @@ export default function SegmentModal({
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = t('modal.validation.nameRequired');
+      newErrors.name = t("messages.nameRequired");
     }
 
     if (formData.name.trim().length < 2) {
@@ -164,7 +164,7 @@ export default function SegmentModal({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>
-              {isNew ? t('modal.createTitle') : t('modal.editTitle')}
+              {isNew ? t("createEdit.titleNew") : t("createEdit.titleEdit")}
             </DialogTitle>
             <DialogDescription>
               {isNew
@@ -177,11 +177,11 @@ export default function SegmentModal({
             {/* Nome do Segmento */}
             <div className="bg-muted p-4 rounded-lg">
               <Label htmlFor="name" className="text-sm font-medium mb-2">
-                {t('modal.segmentName')} <span className="text-red-500">*</span>
+                {t("createEdit.name.label")} <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="name"
-                placeholder={t('modal.segmentNamePlaceholder')}
+                placeholder={t("createEdit.name.placeholder")}
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 className={errors.name ? 'border-red-500' : ''}
@@ -193,24 +193,24 @@ export default function SegmentModal({
 
             {/* Tipo de Combinação */}
             <div className="bg-muted p-4 rounded-lg">
-              <Label className="text-sm font-medium mb-3">{t('modal.combinationType')}</Label>
+              <Label className="text-sm font-medium mb-3">{t("createEdit.definition.combinationType")}</Label>
               <RadioGroup value={definitionType} onValueChange={handleDefinitionTypeChange}>
                 <div className="flex items-center space-x-2 mb-2">
                   <RadioGroupItem value="Everyone" id="everyone" />
                   <label htmlFor="everyone" className="text-sm cursor-pointer">
-                    {t('modal.combinationTypes.everyone')}
+                    {t("createEdit.definition.everyone.label")}
                   </label>
                 </div>
                 <div className="flex items-center space-x-2 mb-2">
                   <RadioGroupItem value="And" id="and" />
                   <label htmlFor="and" className="text-sm cursor-pointer">
-                    {t('modal.combinationTypes.and')}
+                    {t("createEdit.definition.and.label")}
                   </label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="Or" id="or" />
                   <label htmlFor="or" className="text-sm cursor-pointer">
-                    {t('modal.combinationTypes.or')}
+                    {t("createEdit.definition.or.label")}
                   </label>
                 </div>
               </RadioGroup>
@@ -220,10 +220,10 @@ export default function SegmentModal({
             {definitionType === 'Everyone' && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h4 className="text-sm font-semibold text-blue-900 mb-1">
-                  {t('modal.universalSegment.title')}
+                  {t("createEdit.definition.everyone.messageTitle")}
                 </h4>
                 <p className="text-sm text-blue-700">
-                  {t('modal.universalSegment.description')}
+                  {t("createEdit.definition.everyone.messageDescription")}
                 </p>
               </div>
             )}
@@ -232,7 +232,7 @@ export default function SegmentModal({
             {definitionType !== 'Everyone' && (
               <div className="space-y-4">
                 <Label className="text-sm font-medium">
-                  {t('modal.segmentConditions')}
+                  {t("createEdit.definition.title")}
                 </Label>
                 
                 {nodes.map((node, index) => (
@@ -252,7 +252,7 @@ export default function SegmentModal({
                   className="w-full border-dashed"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  {t('modal.addCondition')}
+                  {t("actions.addCondition")}
                 </Button>
               </div>
             )}
@@ -265,16 +265,16 @@ export default function SegmentModal({
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
-              {t('modal.cancel')}
+              {t("actions.cancel")}
             </Button>
             <Button type="submit" disabled={loading}>
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                  {isNew ? t('modal.creating') : t('modal.saving')}
+                  {isNew ? t('modal.creating') : t("actions.saving")}
                 </>
               ) : (
-                isNew ? t('modal.createButton') : t('modal.saveButton')
+                isNew ? t('modal.createButton') : t("actions.save")
               )}
             </Button>
           </DialogFooter>

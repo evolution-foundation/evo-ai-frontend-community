@@ -71,11 +71,7 @@ export default function RemoveItemModal({
 
         <div className="py-4">
           <p className="text-sm text-muted-foreground">
-            {t('removeItem.confirmMessage')}{' '}
-            <span className="font-medium text-foreground">
-              {getItemDisplayName()}
-            </span>{' '}
-            (#{getItemDisplayId()}) deste pipeline?
+            {t('removeItem.confirmDetails', { name: getItemDisplayName(), id: getItemDisplayId() })}
           </p>
 
           <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-border">

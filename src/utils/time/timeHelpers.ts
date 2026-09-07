@@ -1,5 +1,6 @@
-import { format, fromUnixTime, isToday, isYesterday, isThisYear } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { getFormattingLocale } from '@/lib/formattingLocale';
+import i18n from '@/i18n/config';
+import { fromUnixTime, isToday, isYesterday, isThisYear } from 'date-fns';
 
 /**
  * Normaliza created_at (API/WebSocket) para Unix timestamp em segundos.
@@ -27,100 +28,41 @@ export function normalizeToUnixSeconds(
   return Math.floor(ms / 1000);
 }
 
-/**
- * Formata um timestamp Unix para exibir horário de forma inteligente
- * Baseado no padrão Evolution, mas com lógica brasileira
- */
+/** Format timestamps using the active UI locale. */
+const formatTime = (date: Date) => new Intl.DateTimeFormat(getFormattingLocale(), {
+  hour: '2-digit', minute: '2-digit',
+}).format(date);
+const formatDay = (date: Date) => new Intl.DateTimeFormat(getFormattingLocale(), {
+  day: 'numeric', month: 'short', ...(isThisYear(date) ? {} : { year: 'numeric' as const }),
+}).format(date);
+
 export const formatConversationTime = (timestamp: number): string => {
-  if (!timestamp || timestamp <= 0) {
-    return 'Agora';
-  }
-
+  if (!timestamp || timestamp <= 0) return i18n.t('common:dateTime.now');
   const date = fromUnixTime(timestamp);
-  // const now = new Date();
-
-  // Se é hoje: mostra apenas o horário (14:30)
-  if (isToday(date)) {
-    return format(date, 'HH:mm', { locale: ptBR });
-  }
-
-  // Se foi ontem: "Ontem"
-  if (isYesterday(date)) {
-    return 'Ontem';
-  }
-
-  // Se é deste ano: mostra dia e mês (15 Jan)
-  if (isThisYear(date)) {
-    return format(date, 'dd MMM', { locale: ptBR });
-  }
-
-  // Se é de outro ano: mostra ano também (15 Jan 2023)
-  return format(date, 'dd MMM yyyy', { locale: ptBR });
+  if (!Number.isFinite(date.getTime())) return i18n.t('common:dateTime.invalid');
+  if (isToday(date)) return formatTime(date);
+  if (isYesterday(date)) return i18n.t('common:dateTime.yesterday');
+  return formatDay(date);
 };
 
-/**
- * Formata timestamp para tooltip com informações completas
- */
 export const formatDetailedTime = (timestamp: number): string => {
-  if (!timestamp || timestamp <= 0) {
-    return 'Data inválida';
-  }
-
   const date = fromUnixTime(timestamp);
-  return format(date, "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR });
+  if (!timestamp || timestamp <= 0 || !Number.isFinite(date.getTime())) {
+    return i18n.t('common:dateTime.invalid');
+  }
+  return new Intl.DateTimeFormat(getFormattingLocale(), {
+    dateStyle: 'long', timeStyle: 'short',
+  }).format(date);
 };
 
-/**
- * Formata horário de mensagem (mais específico que conversação)
- * Aceita tanto Unix timestamp quanto string de data
- */
 export const formatMessageTime = (timestamp: number | string): string => {
-  if (!timestamp) {
-    return '';
-  }
-
-  let date: Date;
-
-  if (typeof timestamp === 'string') {
-    // Se é string, pode ser ISO string ou Unix timestamp em string
-    date = new Date(timestamp);
-
-    // Se a data é inválida, tentar como Unix timestamp
-    if (isNaN(date.getTime())) {
-      const unixTime = parseInt(timestamp, 10);
-      if (unixTime > 0) {
-        date = fromUnixTime(unixTime);
-      } else {
-        return 'Data inválida';
-      }
-    }
-  } else {
-    // Se é número, assumir Unix timestamp
-    if (timestamp <= 0) {
-      return '';
-    }
-    date = fromUnixTime(timestamp);
-  }
-
-  // Se é hoje: apenas horário
-  if (isToday(date)) {
-    return format(date, 'HH:mm', { locale: ptBR });
-  }
-
-  // Se foi ontem: "Ontem às 14:30"
-  if (isYesterday(date)) {
-    return `Ontem às ${format(date, 'HH:mm', { locale: ptBR })}`;
-  }
-
-  // Outros dias: "15 Jan às 14:30"
-  if (isThisYear(date)) {
-    return `${format(date, 'dd MMM', { locale: ptBR })} às ${format(date, 'HH:mm', {
-      locale: ptBR,
-    })}`;
-  }
-
-  // Outros anos: "15 Jan 2023 às 14:30"
-  return `${format(date, 'dd MMM yyyy', { locale: ptBR })} às ${format(date, 'HH:mm', {
-    locale: ptBR,
-  })}`;
+  if (!timestamp || (typeof timestamp === 'number' && timestamp <= 0)) return '';
+  const date = typeof timestamp === 'number' || /^\d+$/.test(timestamp)
+    ? fromUnixTime(Number(timestamp)) : new Date(timestamp);
+  if (!Number.isFinite(date.getTime())) return i18n.t('common:dateTime.invalid');
+  if (isToday(date)) return formatTime(date);
+  return i18n.t('common:dateTime.dateAtTime', {
+    date: isYesterday(date) ? i18n.t('common:dateTime.yesterday') : formatDay(date),
+    time: formatTime(date),
+  });
 };

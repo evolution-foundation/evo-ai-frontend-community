@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { listSessions, getSessionMessages, createSession, deleteSession } from '@/services/agents/sessionService';
 import { sendChatMessage } from '@/services/agents/chatService';
@@ -31,6 +32,7 @@ interface AgentChatProviderProps {
 }
 
 export function AgentChatProvider({ children, agentId }: AgentChatProviderProps) {
+  const { t: tUi } = useUiTranslation();
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
@@ -51,13 +53,13 @@ export function AgentChatProvider({ children, agentId }: AgentChatProviderProps)
       setSessions(validSessions);
     } catch (error) {
       console.error('Error loading sessions:', error);
-      toast.error('Erro ao carregar sessões');
+      toast.error(tUi("interface:agentchatcontext.couldNotLoadSessions"));
       // Clear sessions on error to avoid showing stale data
       setSessions([]);
     } finally {
       setIsLoading(false);
     }
-  }, [agentId]);
+  }, [agentId, tUi]);
 
   // Select session and load messages
   const selectSession = useCallback(async (sessionId: string | null) => {
@@ -85,7 +87,7 @@ export function AgentChatProvider({ children, agentId }: AgentChatProviderProps)
           const httpStatus = error?.response?.status;
 
           if (httpStatus === 404) {
-            toast.error('Sessão não encontrada');
+            toast.error(tUi("interface:agentchatcontext.sessionNotFound"));
             setSessions(prev => prev.filter(s => s.id !== sessionId));
             setSelectedSessionId(null);
             setMessages([]);
@@ -99,11 +101,11 @@ export function AgentChatProvider({ children, agentId }: AgentChatProviderProps)
       }
 
       console.error('Error loading messages:', lastError);
-      toast.error('Erro ao carregar mensagens. Tente novamente.');
+      toast.error(tUi("interface:agentchatcontext.couldNotLoadMessagesPleaseTryAgain"));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [tUi]);
 
   // Create new session
   const createNewSession = useCallback(async () => {
@@ -120,16 +122,16 @@ export function AgentChatProvider({ children, agentId }: AgentChatProviderProps)
         await loadSessions();
       } else {
         console.error('No session_id returned from backend');
-        toast.error('Erro ao criar sessão: ID não retornado');
+        toast.error(tUi("interface:agentchatcontext.couldNotCreateSessionNoIdReturned"));
       }
     } catch (error: any) {
       console.error('Error creating session:', error);
-      const errorMessage = error?.response?.data?.detail || error?.message || 'Erro ao criar sessão';
+      const errorMessage = error?.response?.data?.detail || error?.message || tUi("interface:agentchatcontext.couldNotCreateSession");
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, [agentId, loadSessions]);
+  }, [agentId, loadSessions, tUi]);
 
   // Delete session
   const deleteSessionHandler = useCallback(async (sessionId: string) => {
@@ -141,7 +143,7 @@ export function AgentChatProvider({ children, agentId }: AgentChatProviderProps)
         setSelectedSessionId(null);
         setMessages([]);
       }
-      toast.success('Sessão deletada com sucesso');
+      toast.success(tUi("journey:sessions.viewer.messages.deleteSuccess"));
     } catch (error: any) {
       console.error('Error deleting session:', error);
       // If session not found (404), remove it from the list anyway
@@ -151,14 +153,14 @@ export function AgentChatProvider({ children, agentId }: AgentChatProviderProps)
           setSelectedSessionId(null);
           setMessages([]);
         }
-        toast.success('Sessão removida');
+        toast.success(tUi("interface:agentchatcontext.sessionRemoved"));
       } else {
-        toast.error('Erro ao deletar sessão');
+        toast.error(tUi("journey:sessions.viewer.messages.deleteError"));
         // Reload sessions to sync with backend
         await loadSessions();
       }
     }
-  }, [selectedSessionId, loadSessions]);
+  }, [selectedSessionId, loadSessions, tUi]);
 
   // Send message via HTTP endpoint
   const sendMessageHandler = useCallback(async (content: string, files?: FileData[]) => {
@@ -166,7 +168,7 @@ export function AgentChatProvider({ children, agentId }: AgentChatProviderProps)
 
     // Require session to be selected - don't create automatically
     if (!selectedSessionId) {
-      toast.error('Por favor, selecione uma conversa ou crie uma nova antes de enviar uma mensagem');
+      toast.error(tUi("interface:agentchatcontext.selectAConversationOrCreateOneBeforeSendingAMessage"));
       return;
     }
 
@@ -236,12 +238,12 @@ export function AgentChatProvider({ children, agentId }: AgentChatProviderProps)
         error?.response?.data?.error?.message ||
         error?.response?.data?.detail ||
         error?.message ||
-        'Erro ao enviar mensagem';
+        tUi("widget:errors.sendMessage");
       toast.error(errorDetail);
     } finally {
       setIsSending(false);
     }
-  }, [selectedSessionId, agentId, loadSessions]);
+  }, [selectedSessionId, agentId, loadSessions, tUi]);
 
   // Clear messages
   const clearMessages = useCallback(() => {

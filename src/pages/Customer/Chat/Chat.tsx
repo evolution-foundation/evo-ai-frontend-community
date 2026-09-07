@@ -905,7 +905,7 @@ const Chat = () => {
           className="hidden md:flex relative w-[5px] -mx-[2px] z-10 shrink-0 cursor-col-resize group items-center justify-center"
           role="separator"
           aria-orientation="vertical"
-          aria-label={t('chatSidebar.resizeHandle', 'Redimensionar lista de conversas')}
+          aria-label={t('chatSidebar.resizeHandle')}
         >
           <div
             className={`w-px h-full transition-colors ${

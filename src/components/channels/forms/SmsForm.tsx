@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useLanguage } from '@/hooks/useLanguage';
 import { FormField } from '../shared/FormField';
 import { FormCheckbox } from '../shared/FormCheckbox';
@@ -13,6 +14,7 @@ interface SmsFormProps {
 }
 
 export const SmsForm = ({ selectedProvider, form, onFormChange }: SmsFormProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('sms');
   const getStr = (key: string, fallback = ''): string =>
     typeof form[key] === 'string' ? (form[key] as string) : fallback;
@@ -59,7 +61,7 @@ export const SmsForm = ({ selectedProvider, form, onFormChange }: SmsFormProps) 
                   label={t('fields.advancedAuth.apiKeySid.label')}
                   value={getStr('api_key_sid')}
                   onChange={value => onFormChange('api_key_sid', value)}
-                  placeholder={t('fields.twilio.advancedAuth.apiKeySid.placeholder')}
+                  placeholder={t("fields.advancedAuth.apiKeySid.placeholder")}
                   required
                   helpText={t('fields.advancedAuth.apiKeySid.helpText')}
                 />
@@ -89,7 +91,7 @@ export const SmsForm = ({ selectedProvider, form, onFormChange }: SmsFormProps) 
                   onChange={value => onFormChange('messaging_service_sid', value)}
                   placeholder={t('fields.phoneConfig.messagingServiceSid.placeholder')}
                   required
-                  helpText={t('fields.twilio.phoneConfig.messagingServiceSid.helpText')}
+                  helpText={t("fields.phoneConfig.messagingServiceSid.helpText")}
                 />
               </div>
             ) : (
@@ -104,7 +106,7 @@ export const SmsForm = ({ selectedProvider, form, onFormChange }: SmsFormProps) 
                     placeholder={t('fields.phoneNumber.placeholder')}
                     defaultCountry="BR"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">{t('fields.twilio.phoneNumber.helpText')}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t("fields.phoneNumber.helpText")}</p>
                 </div>
               </div>
             )}
@@ -167,9 +169,9 @@ export const SmsForm = ({ selectedProvider, form, onFormChange }: SmsFormProps) 
           data-tour="sms-phone-config"
         >
           <div className="text-sm text-sidebar-foreground/70 space-y-2">
-            <p><strong>API Key & Secret:</strong> {t('fields.bandwidth.info.apiKeyInfo')}</p>
-            <p><strong>Application ID:</strong> {t('fields.bandwidth.info.applicationIdInfo')}</p>
-            <p><strong>Account ID:</strong> {t('fields.bandwidth.info.accountIdInfo')}</p>
+            <p><strong>{tUi("interface:smsform.apiKeyAndSecret")}</strong> {t('fields.bandwidth.info.apiKeyInfo')}</p>
+            <p><strong>{tUi("interface:smsform.applicationId")}</strong> {t('fields.bandwidth.info.applicationIdInfo')}</p>
+            <p><strong>{tUi("users:details.accountStatus.accountId")}</strong> {t('fields.bandwidth.info.accountIdInfo')}</p>
           </div>
         </FormSection>
       </div>

@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -45,6 +46,7 @@ const ElevenLabsConfigDialog = ({
   onDeactivate,
   initialConfig,
 }: ElevenLabsConfigDialogProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
 
   const [config, setConfig] = useState<ElevenLabsConfig>({
@@ -91,7 +93,7 @@ const ElevenLabsConfigDialog = ({
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch voices');
+          throw new Error(tUi("interface:elevenlabsconfigdialog.couldNotFetchVoices"));
         }
 
         const data = await response.json();
@@ -116,7 +118,7 @@ const ElevenLabsConfigDialog = ({
     };
 
     fetchVoices();
-  }, [config.apiKey]);
+  }, [config.apiKey, tUi]);
 
   const handleSave = () => {
     onSave(config);
@@ -135,7 +137,7 @@ const ElevenLabsConfigDialog = ({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {t('edit.integrations.elevenlabs.configTitle') || 'Configurar integração'}
+            {t('edit.integrations.elevenlabs.configTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -143,12 +145,12 @@ const ElevenLabsConfigDialog = ({
           {/* API Key */}
           <div className="space-y-2">
             <Label htmlFor="apiKey">
-              {t('edit.integrations.elevenlabs.apiKey') || 'API Key'}
+              {t('edit.integrations.elevenlabs.apiKey')}
             </Label>
             <Input
               id="apiKey"
               type="password"
-              placeholder={t('edit.integrations.elevenlabs.apiKeyPlaceholder') || 'Insira sua API Key do ElevenLabs'}
+              placeholder={t('edit.integrations.elevenlabs.apiKeyPlaceholder')}
               value={config.apiKey}
               onChange={(e) => setConfig({ ...config, apiKey: e.target.value })}
             />
@@ -158,10 +160,10 @@ const ElevenLabsConfigDialog = ({
           {config.apiKey && !voicesError && (
             <div className="space-y-3">
               <Label>
-                {t('edit.integrations.elevenlabs.whenToRespond') || 'Quando responder em áudio:'}
+                {t('edit.integrations.elevenlabs.whenToRespond')}
               </Label>
               <p className="text-sm text-muted-foreground">
-                {t('edit.integrations.elevenlabs.whenToRespondDescription') || 'Defina em quais momentos o agente vai mandar em áudio a resposta.'}
+                {t('edit.integrations.elevenlabs.whenToRespondDescription')}
               </p>
 
               <Select
@@ -175,10 +177,10 @@ const ElevenLabsConfigDialog = ({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="when_client_asks">
-                    {t('edit.integrations.elevenlabs.whenClientAsksInAudio') || 'Quando a pergunta do cliente for em áudio'}
+                    {t('edit.integrations.elevenlabs.whenClientAsksInAudio')}
                   </SelectItem>
                   <SelectItem value="always">
-                    {t('edit.integrations.elevenlabs.alwaysRespondInAudio') || 'Responder sempre em áudio'}
+                    {t('edit.integrations.elevenlabs.alwaysRespondInAudio')}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -189,10 +191,10 @@ const ElevenLabsConfigDialog = ({
           {config.apiKey && !voicesError && (
             <div className="space-y-3">
               <Label>
-                {t('edit.integrations.elevenlabs.voiceSelection') || 'Qual voz deseja usar:'}
+                {t('edit.integrations.elevenlabs.voiceSelection')}
               </Label>
               <p className="text-sm text-muted-foreground">
-                {t('edit.integrations.elevenlabs.voiceSelectionDescription') || 'Escolha a voz que deseja usar nas respostas do agente.'}
+                {t('edit.integrations.elevenlabs.voiceSelectionDescription')}
               </p>
 
               <div className="flex gap-2">
@@ -205,10 +207,10 @@ const ElevenLabsConfigDialog = ({
                     {loadingVoices ? (
                       <span className="flex items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        {t('edit.integrations.elevenlabs.loadingVoices') || 'Carregando vozes...'}
+                        {t('edit.integrations.elevenlabs.loadingVoices')}
                       </span>
                     ) : (
-                      <SelectValue placeholder={t('edit.integrations.elevenlabs.selectVoice') || 'Selecione uma voz'} />
+                      <SelectValue placeholder={t('edit.integrations.elevenlabs.selectVoice')} />
                     )}
                   </SelectTrigger>
                   <SelectContent>
@@ -238,8 +240,7 @@ const ElevenLabsConfigDialog = ({
           {config.apiKey && voicesError && (
             <div className="p-4 border border-destructive/50 rounded-lg bg-destructive/10">
               <p className="text-sm text-destructive">
-                {t('edit.integrations.elevenlabs.errorLoadingVoices') || 'Erro ao carregar vozes'} - Verifique se a API Key está correta.
-              </p>
+                {t('edit.integrations.elevenlabs.errorLoadingVoices')} {tUi("interface:elevenlabsconfigdialog.checkThatTheApiKeyIsCorrect")}</p>
             </div>
           )}
 
@@ -248,7 +249,7 @@ const ElevenLabsConfigDialog = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label>
-                  {t('edit.integrations.elevenlabs.stability') || 'Estabilidade:'}
+                  {t('edit.integrations.elevenlabs.stability')}
                 </Label>
                 <span className="text-sm font-medium">{config.stability}%</span>
               </div>
@@ -268,7 +269,7 @@ const ElevenLabsConfigDialog = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label>
-                  {t('edit.integrations.elevenlabs.similarity') || 'Similaridade:'}
+                  {t('edit.integrations.elevenlabs.similarity')}
                 </Label>
                 <span className="text-sm font-medium">{config.similarity}%</span>
               </div>
@@ -290,7 +291,7 @@ const ElevenLabsConfigDialog = ({
               disabled={!config.apiKey}
               className="w-full"
             >
-              {t('edit.integrations.elevenlabs.applyConfig') || 'APLICAR CONFIGURAÇÕES'}
+              {t('edit.integrations.elevenlabs.applyConfig')}
             </Button>
 
             {onDeactivate && (
@@ -299,7 +300,7 @@ const ElevenLabsConfigDialog = ({
                 onClick={handleDeactivate}
                 className="w-full text-destructive hover:text-destructive/80"
               >
-                {t('edit.integrations.elevenlabs.deactivate') || 'Desativar integração'}
+                {t('edit.integrations.elevenlabs.deactivate')}
               </Button>
             )}
           </div>

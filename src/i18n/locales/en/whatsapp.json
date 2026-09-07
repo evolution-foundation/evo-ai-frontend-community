@@ -34,10 +34,10 @@
   "cloudForm": {
     "title": "WhatsApp Cloud",
     "defaultChannelName": "WhatsApp Cloud",
-    "or": "ou",
+    "or": "or",
     "autoConfig": {
       "title": "Automatic Configuration",
-      "description": "Use o Facebook Embedded Signup para configurar automaticamente seu canal WhatsApp.",
+      "description": "Use Facebook Embedded Signup to configure your WhatsApp channel automatically.",
       "connecting": "Connecting...",
       "configureButton": "Configure with Facebook"
     },
@@ -70,7 +70,8 @@
       },
       "phoneNumber": {
         "label": "Phone Number",
-        "placeholder": "+5511999999999"
+        "placeholder": "+5511999999999",
+        "helpText": "Include the country code (e.g. +55 for Brazil)"
       },
       "apiKey": {
         "label": "API Key",
@@ -262,11 +263,13 @@
       },
       "instanceId": {
         "label": "Instance ID",
-        "placeholder": "Your Instance ID from Z-API"
+        "placeholder": "Your Instance ID from Z-API",
+        "helpText": "Find the instance ID in your Z-API dashboard"
       },
       "token": {
         "label": "Token",
-        "placeholder": "Your token from Z-API"
+        "placeholder": "Your token from Z-API",
+        "helpText": "Find the instance token in your Z-API dashboard"
       },
       "clientToken": {
         "label": "Client Token",
@@ -337,7 +340,8 @@
     },
     "help": {
       "title": "Help - Twilio WhatsApp"
-    }
+    },
+    "useApiKey": "Use an API key"
   },
   "evolutionGoForm": {
     "title": "Evolution Go API",
@@ -467,7 +471,8 @@
     },
     "errors": {
       "loginCanceled": "Facebook login canceled",
-      "connectionCanceled": "Connection with Facebook canceled"
+      "connectionCanceled": "Connection with Facebook canceled",
+      "connectionFailed": "Could not connect to WhatsApp"
     }
   },
   "validation": {

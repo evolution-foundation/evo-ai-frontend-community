@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 export interface FilterOperatorType {
   key: string;
   label: string;
@@ -177,7 +178,7 @@ export const DEFAULT_CONTACT_FILTER: BaseFilter = {
 export const MCP_SERVER_FILTER_TYPES: FilterType[] = [
   {
     attributeKey: 'name',
-    attributeI18nKey: 'Nome',
+    attributeI18nKey: "roles:table.name",
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -185,7 +186,7 @@ export const MCP_SERVER_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'description',
-    attributeI18nKey: 'Descrição',
+    attributeI18nKey: "roles:table.description",
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -193,19 +194,19 @@ export const MCP_SERVER_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'type',
-    attributeI18nKey: 'Tipo',
+    attributeI18nKey: "agents:card.type",
     inputType: 'search_select',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_1,
     attribute_type: 'standard',
     options: [
-      { label: 'Oficial', value: 'official' },
-      { label: 'Comunidade', value: 'community' },
+      { get label() { return i18n.t("mcpServers:types.official"); }, value: 'official' },
+      { get label() { return i18n.t("mcpServers:types.community"); }, value: 'community' },
     ],
   },
   {
     attributeKey: 'config_type',
-    attributeI18nKey: 'Tipo de Configuração',
+    attributeI18nKey: "mcpServers:form.labels.configType",
     inputType: 'search_select',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_1,
@@ -215,12 +216,12 @@ export const MCP_SERVER_FILTER_TYPES: FilterType[] = [
       { label: 'OAuth', value: 'oauth' },
       { label: 'Webhook', value: 'webhook' },
       { label: 'Basic Auth', value: 'basic_auth' },
-      { label: 'Credentials', value: 'credentials' },
+      { get label() { return i18n.t("products:import.tabs.credentials"); }, value: 'credentials' },
     ],
   },
   {
     attributeKey: 'created_at',
-    attributeI18nKey: 'Data de Criação',
+    attributeI18nKey: "contacts:export.fields.createdAt",
     inputType: 'date',
     dataType: 'date',
     filterOperators: OPERATOR_TYPES_5,
@@ -237,7 +238,7 @@ export const DEFAULT_MCP_SERVER_FILTER: BaseFilter = {
 export const CUSTOM_MCP_SERVER_FILTER_TYPES: FilterType[] = [
   {
     attributeKey: 'name',
-    attributeI18nKey: 'Nome',
+    attributeI18nKey: "roles:table.name",
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -245,7 +246,7 @@ export const CUSTOM_MCP_SERVER_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'description',
-    attributeI18nKey: 'Descrição',
+    attributeI18nKey: "roles:table.description",
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -253,7 +254,7 @@ export const CUSTOM_MCP_SERVER_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'url',
-    attributeI18nKey: 'URL',
+    attributeI18nKey: 'common:filterFields.url',
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -261,7 +262,7 @@ export const CUSTOM_MCP_SERVER_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'timeout',
-    attributeI18nKey: 'Timeout',
+    attributeI18nKey: 'common:filterFields.timeout',
     inputType: 'number',
     dataType: 'number',
     filterOperators: OPERATOR_TYPES_1,
@@ -269,7 +270,7 @@ export const CUSTOM_MCP_SERVER_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'tags',
-    attributeI18nKey: 'Tags',
+    attributeI18nKey: 'common:filterFields.tags',
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -277,7 +278,7 @@ export const CUSTOM_MCP_SERVER_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'created_at',
-    attributeI18nKey: 'Data de Criação',
+    attributeI18nKey: "contacts:export.fields.createdAt",
     inputType: 'date',
     dataType: 'date',
     // Date column: only equality operators (the Go backend matches by DATE();
@@ -296,7 +297,7 @@ export const DEFAULT_CUSTOM_MCP_SERVER_FILTER: BaseFilter = {
 export const TOOL_FILTER_TYPES: FilterType[] = [
   {
     attributeKey: 'name',
-    attributeI18nKey: 'Nome',
+    attributeI18nKey: "roles:table.name",
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -304,7 +305,7 @@ export const TOOL_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'description',
-    attributeI18nKey: 'Descrição',
+    attributeI18nKey: "roles:table.description",
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -312,7 +313,7 @@ export const TOOL_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'tags',
-    attributeI18nKey: 'Tags',
+    attributeI18nKey: 'common:filterFields.tags',
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -329,7 +330,7 @@ export const DEFAULT_TOOL_FILTER: BaseFilter = {
 export const CUSTOM_TOOL_FILTER_TYPES: FilterType[] = [
   {
     attributeKey: 'name',
-    attributeI18nKey: 'Nome',
+    attributeI18nKey: "roles:table.name",
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -337,7 +338,7 @@ export const CUSTOM_TOOL_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'description',
-    attributeI18nKey: 'Descrição',
+    attributeI18nKey: "roles:table.description",
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -345,7 +346,7 @@ export const CUSTOM_TOOL_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'method',
-    attributeI18nKey: 'Método HTTP',
+    attributeI18nKey: "customTools:details.fields.method",
     inputType: 'search_select',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_1,
@@ -362,7 +363,7 @@ export const CUSTOM_TOOL_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'endpoint',
-    attributeI18nKey: 'Endpoint',
+    attributeI18nKey: 'common:filterFields.endpoint',
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -370,7 +371,7 @@ export const CUSTOM_TOOL_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'tags',
-    attributeI18nKey: 'Tags',
+    attributeI18nKey: 'common:filterFields.tags',
     inputType: 'plain_text',
     dataType: 'text',
     filterOperators: OPERATOR_TYPES_3,
@@ -378,7 +379,7 @@ export const CUSTOM_TOOL_FILTER_TYPES: FilterType[] = [
   },
   {
     attributeKey: 'created_at',
-    attributeI18nKey: 'Data de Criação',
+    attributeI18nKey: "contacts:export.fields.createdAt",
     inputType: 'date',
     dataType: 'date',
     // Date column: only equality operators (the Go backend matches by DATE();

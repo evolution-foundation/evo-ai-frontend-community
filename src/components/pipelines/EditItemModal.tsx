@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useAccountUsers } from '@/hooks/useAccountUsers';
@@ -168,7 +169,7 @@ export default function EditItemModal({
   const calculateTotalValue = () =>
     services.reduce((total, service) => total + (parseFloat(service.value) || 0), 0);
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+    new Intl.NumberFormat(getFormattingLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 
   const canSubmit = selectedStageId !== null;
 
@@ -430,7 +431,7 @@ export default function EditItemModal({
                                   }}
                                 >
                                   <CommandInput
-                                    placeholder={t('editItem.searchService') || 'Buscar ou digitar serviço...'}
+                                    placeholder={t('editItem.searchService')}
                                     value={service.name}
                                     onValueChange={value => updateService(index, 'name', value)}
                                   />
@@ -445,11 +446,11 @@ export default function EditItemModal({
                                           {t('editItem.useCustomService', { name: service.name })}
                                         </button>
                                       ) : (
-                                        <span>{t('editItem.noServicesFound') || 'Nenhum serviço encontrado'}</span>
+                                        <span>{t('editItem.noServicesFound')}</span>
                                       )}
                                     </CommandEmpty>
                                     {catalogServices.length > 0 && (
-                                      <CommandGroup heading={t('editItem.catalogServices') || 'Catálogo de serviços'}>
+                                      <CommandGroup heading={t('editItem.catalogServices')}>
                                         {catalogServices.map(cs => (
                                           <CommandItem key={cs.id} value={cs.id} onSelect={() => selectCatalogService(index, cs)}>
                                             <Check

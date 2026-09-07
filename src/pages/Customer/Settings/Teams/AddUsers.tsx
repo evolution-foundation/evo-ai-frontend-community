@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -182,7 +183,7 @@ const AddUsers: React.FC = () => {
         <Checkbox
           checked={selectedIds.includes(user.id)}
           onCheckedChange={() => handleUserToggle(user.id)}
-          aria-label={`Selecionar ${user.name}`}
+          aria-label={i18n.t("interface:messages.selectUser", { name: user.name })}
         />
       ),
     },

@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -194,7 +195,7 @@ export default function OpenAISettings({ onBack }: OpenAISettingsProps = {}) {
                     {t('openai.settings.status.configuredAt')}
                   </label>
                   <p className="text-sm font-medium">
-                    {new Date(hook.created_at).toLocaleDateString('pt-BR', {
+                    {new Date(hook.created_at).toLocaleDateString(getFormattingLocale(), {
                       day: '2-digit',
                       month: '2-digit',
                       year: 'numeric',
@@ -208,7 +209,7 @@ export default function OpenAISettings({ onBack }: OpenAISettingsProps = {}) {
                     {t('openai.settings.status.lastUpdate')}
                   </label>
                   <p className="text-sm font-medium">
-                    {new Date(hook.updated_at).toLocaleDateString('pt-BR', {
+                    {new Date(hook.updated_at).toLocaleDateString(getFormattingLocale(), {
                       day: '2-digit',
                       month: '2-digit',
                       year: 'numeric',

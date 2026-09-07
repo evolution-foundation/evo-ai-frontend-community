@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback } from 'react';
 import { Integration } from '@/types/integrations';
 import { integrationsService } from '@/services/integrations';
@@ -21,6 +23,7 @@ interface UseIntegrationsReturn {
 }
 
 export function useIntegrations(options: UseIntegrationsOptions = {}): UseIntegrationsReturn {
+  const { t: tUi } = useUiTranslation();
   const { autoLoad = true, category } = options;
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [loading, setLoading] = useState(false);
@@ -34,14 +37,14 @@ export function useIntegrations(options: UseIntegrationsOptions = {}): UseIntegr
       const response = await integrationsService.getIntegrations();
       setIntegrations(response.data);
     } catch (err) {
-      const errorMessage = 'Erro ao carregar integrações';
+      const errorMessage = tUi("integrations:messages.loadError");
       setError(errorMessage);
       console.error('Error loading integrations:', err);
       toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tUi]);
 
   const toggleIntegration = useCallback(
     async (integration: Integration) => {
@@ -53,7 +56,7 @@ export function useIntegrations(options: UseIntegrationsOptions = {}): UseIntegr
           } else {
             await integrationsService.toggleIntegration(integration.id, false);
           }
-          toast.success(`${integration.name} desconectado com sucesso`);
+          toast.success(i18n.t("interface:dynamic.integrationDisconnected", { integration: integration.name }));
         } else {
           // Check if it's an OAuth integration that needs redirect
           if (integration.action && integration.action.startsWith('http')) {
@@ -62,7 +65,7 @@ export function useIntegrations(options: UseIntegrationsOptions = {}): UseIntegr
             return;
           } else {
             await integrationsService.toggleIntegration(integration.id, true);
-            toast.success(`${integration.name} conectado com sucesso`);
+            toast.success(i18n.t("interface:dynamic.integrationConnected", { integration: integration.name }));
           }
         }
 
@@ -70,11 +73,11 @@ export function useIntegrations(options: UseIntegrationsOptions = {}): UseIntegr
         await loadIntegrations();
       } catch (err) {
         console.error('Error toggling integration:', err);
-        toast.error('Erro ao alterar status da integração');
+        toast.error(tUi("integrations:messages.toggleError"));
         throw err;
       }
     },
-    [loadIntegrations],
+    [loadIntegrations, tUi],
   );
 
   const filterByCategory = useCallback(
@@ -134,10 +137,10 @@ export function useIntegrations(options: UseIntegrationsOptions = {}): UseIntegr
       );
     } catch (err) {
       console.error('Error refreshing integration:', err);
-      toast.error('Erro ao atualizar integração');
+      toast.error(tUi("interface:useintegrations.couldNotUpdateIntegration"));
       throw err;
     }
-  }, []);
+  }, [tUi]);
 
   useEffect(() => {
     if (autoLoad) {

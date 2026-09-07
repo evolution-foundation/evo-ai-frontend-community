@@ -75,7 +75,7 @@ const CustomMCPServersSection = ({
                       variant="ghost"
                       size="sm"
                       onClick={() => handleRemoveCustomMCPServer(serverId)}
-                      aria-label={t('actions.remove') || 'Remover'}
+                      aria-label={t('actions.remove')}
                       className="text-destructive hover:text-destructive/80"
                     >
                       <X className="h-4 w-4" />
@@ -116,7 +116,7 @@ const CustomMCPServersSection = ({
                   className="mt-5 h-auto gap-2 rounded-[9px] bg-primary px-5 py-[10px] text-sm font-semibold text-primary-foreground hover:bg-primary/85"
                 >
                   <Plus className="h-4 w-4" />
-                  {t('customMCPServers.add') || 'Adicionar Custom MCP'}
+                  {t('customMCPServers.add')}
                 </Button>
               )}
             </div>

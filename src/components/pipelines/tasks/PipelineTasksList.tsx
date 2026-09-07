@@ -94,7 +94,7 @@ const PipelineTasksList = forwardRef<PipelineTasksListRef, PipelineTasksListProp
     if (hasSubtasks) {
       confirmMessage = t('tasks.messages.deleteWithSubtasksConfirm', { 
         count: task?.subtask_count || 0 
-      }) || `Esta tarefa tem ${task?.subtask_count} subtarefa(s). Deletar todas?`;
+      });
     }
     
     if (confirm(confirmMessage)) {

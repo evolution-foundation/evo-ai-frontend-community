@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useCallback, useEffect } from 'react';
 import {
   Dialog,
@@ -40,6 +41,7 @@ interface ToolsDialogProps {
 }
 
 const ToolsDialog = ({ open, onOpenChange, onSelectTools, editingTool }: ToolsDialogProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
   const [searchTerm, setSearchTerm] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -123,7 +125,7 @@ const ToolsDialog = ({ open, onOpenChange, onSelectTools, editingTool }: ToolsDi
   const groupedTools = filteredTools.reduce((acc, tool) => {
     // Encontrar a categoria do tool
     const toolCategory = toolCategories.find(cat => cat.tools.includes(tool.id));
-    const categoryName = toolCategory ? toolCategory.name : 'Outras';
+    const categoryName = toolCategory ? toolCategory.name : tUi("interface:toolsdialog.other");
 
     if (!acc[categoryName]) {
       acc[categoryName] = [];

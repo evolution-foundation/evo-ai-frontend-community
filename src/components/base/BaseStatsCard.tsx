@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -93,7 +94,7 @@ export default function BaseStatsCard({
 
     switch (valueFormat) {
       case 'currency':
-        return new Intl.NumberFormat('pt-BR', {
+        return new Intl.NumberFormat(getFormattingLocale(), {
           style: 'currency',
           currency: currency,
           minimumFractionDigits: 2,
@@ -104,7 +105,7 @@ export default function BaseStatsCard({
         return `${val}%`;
       
       case 'number':
-        return new Intl.NumberFormat('pt-BR').format(val);
+        return new Intl.NumberFormat(getFormattingLocale()).format(val);
       
       case 'custom':
         return val.toString() + (suffix || '');

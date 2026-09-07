@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -30,6 +32,7 @@ import { useAppDataStore } from '@/store/appDataStore';
 import { apiErrorMessage } from '@/utils/apiHelpers';
 
 export const useChannelSubmission = (form?: FormData) => {
+  const { t: tUi } = useUiTranslation();
   const navigate = useNavigate();
   const { validateByChannelAndProvider, getStr } = useChannelValidation();
   const { addInbox } = useAppDataStore();
@@ -185,7 +188,7 @@ export const useChannelSubmission = (form?: FormData) => {
               result = {
                 success: false,
                 error:
-                  'Health check falhou. Verifique se a URL da Evolution Go está correta e acessível.',
+                  tUi("interface:usechannelsubmission.healthCheckFailedVerifyThatTheEvolutionGoUrlIs"),
               };
               setHealthCheckPassed(false);
               setIsTesting(false);
@@ -305,15 +308,15 @@ export const useChannelSubmission = (form?: FormData) => {
           break;
         }
         case 'email': {
-          if (!selectedProvider) throw new Error('Selecione um provedor de email');
+          if (!selectedProvider) throw new Error(tUi("interface:usechannelsubmission.selectAnEmailProvider"));
 
           if (selectedProvider.id === 'google') {
             if (!(typeof config.googleOAuthClientId === 'string' && config.googleOAuthClientId)) {
-              toast.error('OAuth do Google não está configurado');
+              toast.error(tUi("channels:settings.oauth.errors.googleNotConfigured"));
               setIsSubmitting(false);
               return;
             }
-            toast.info('Redirecionando para autenticação Gmail...');
+            toast.info(tUi("interface:usechannelsubmission.redirectingToGmailAuthentication"));
             try {
               const { url } = await EmailOauthService.generateGoogleAuthorization(
                 getStr(form, 'email'),
@@ -322,19 +325,19 @@ export const useChannelSubmission = (form?: FormData) => {
                 window.location.href = url;
                 return;
               }
-              toast.error('Não foi possível iniciar o OAuth do Google');
+              toast.error(tUi("channels:settings.oauth.errors.googleStartFailed"));
             } catch (e: unknown) {
-              toast.error((e as Error)?.message || 'Falha no OAuth do Google');
+              toast.error((e as Error)?.message || tUi("interface:usechannelsubmission.googleOauthFailed"));
             }
             setIsSubmitting(false);
             return;
           } else if (selectedProvider.id === 'microsoft') {
             if (!(typeof config.azureAppId === 'string' && config.azureAppId)) {
-              toast.error('OAuth da Microsoft não está configurado');
+              toast.error(tUi("channels:settings.oauth.errors.microsoftNotConfigured"));
               setIsSubmitting(false);
               return;
             }
-            toast.info('Redirecionando para autenticação Outlook...');
+            toast.info(tUi("interface:usechannelsubmission.redirectingToOutlookAuthentication"));
             try {
               const { url } = await EmailOauthService.generateMicrosoftAuthorization(
                 getStr(form, 'email'),
@@ -343,22 +346,22 @@ export const useChannelSubmission = (form?: FormData) => {
                 window.location.href = url;
                 return;
               }
-              toast.error('Não foi possível iniciar o OAuth da Microsoft');
+              toast.error(tUi("channels:settings.oauth.errors.microsoftStartFailed"));
             } catch (e: unknown) {
-              toast.error((e as Error)?.message || 'Falha no OAuth da Microsoft');
+              toast.error((e as Error)?.message || tUi("interface:usechannelsubmission.microsoftOauthFailed"));
             }
             setIsSubmitting(false);
             return;
           } else if (selectedProvider.id === 'other_provider') {
             payload = {
-              name: getStr(form, 'name') || 'Canal Email',
+              name: getStr(form, 'name') || tUi("email:title"),
               channel: {
                 type: 'email',
                 email: getStr(form, 'email'),
               },
             };
           } else {
-            throw new Error('Provedor de email não suportado');
+            throw new Error(tUi("interface:usechannelsubmission.unsupportedEmailProvider"));
           }
           break;
         }
@@ -370,7 +373,7 @@ export const useChannelSubmission = (form?: FormData) => {
           break;
         }
         case 'sms': {
-          if (!selectedProvider) throw new Error('Selecione um provedor SMS');
+          if (!selectedProvider) throw new Error(tUi("interface:usechannelsubmission.selectAnSmsProvider"));
 
           if (selectedProvider.id === 'twilio') {
             payload = {
@@ -408,12 +411,12 @@ export const useChannelSubmission = (form?: FormData) => {
               },
             } as SmsBandwidthPayload;
           } else {
-            throw new Error('Provedor SMS não suportado');
+            throw new Error(tUi("interface:usechannelsubmission.unsupportedSmsProvider"));
           }
           break;
         }
         case 'whatsapp': {
-          if (!selectedProvider) throw new Error('Selecione um provedor');
+          if (!selectedProvider) throw new Error(tUi("channels:newChannel.selectProvider"));
           if (selectedProvider.id === 'whatsapp_cloud') {
             payload = {
               name: getStr(form, 'name') || 'WhatsApp Cloud',
@@ -445,7 +448,7 @@ export const useChannelSubmission = (form?: FormData) => {
               });
             } catch (error) {
               throw new Error(
-                apiErrorMessage(error) || (error as Error).message || 'Falha na verificação do Twilio',
+                apiErrorMessage(error) || (error as Error).message || tUi("interface:usechannelsubmission.twilioVerificationFailed"),
               );
             }
             payload = {
@@ -475,7 +478,7 @@ export const useChannelSubmission = (form?: FormData) => {
               throw new Error(
                 apiErrorMessage(error) ||
                   (error as Error).message ||
-                  'Falha na verificação do Notificame',
+                  tUi("interface:usechannelsubmission.notificameVerificationFailed"),
               );
             }
             payload = {
@@ -601,7 +604,7 @@ export const useChannelSubmission = (form?: FormData) => {
               const healthOk = await EvolutionGoService.healthCheck(apiUrl);
               if (!healthOk) {
                 throw new Error(
-                  'Health check falhou. Verifique se a URL da Evolution Go está correta e acessível.',
+                  tUi("interface:usechannelsubmission.healthCheckFailedVerifyThatTheEvolutionGoUrlIs"),
                 );
               }
             }
@@ -682,12 +685,12 @@ export const useChannelSubmission = (form?: FormData) => {
               },
             } as WhatsappZapiPayload;
           } else {
-            throw new Error(`Provedor WhatsApp '${selectedProvider.id}' não implementado`);
+            throw new Error(i18n.t("interface:messages.unsupportedWhatsApp", { provider: selectedProvider.id }));
           }
           break;
         }
         default:
-          throw new Error('Tipo de canal não suportado');
+          throw new Error(tUi("interface:usechannelsubmission.unsupportedChannelType"));
       }
 
       // Capture and clear pending ref BEFORE createChannel so that

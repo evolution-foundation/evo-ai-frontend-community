@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState, useEffect } from 'react';
 import {
   Label,
@@ -297,7 +298,7 @@ export function CustomAttributeConfiguration({
               <div className="flex justify-between">
                 <span>{t('triggerComponents.customAttribute.createdAt')}:</span>
                 <span className="font-medium">
-                  {new Date(selectedAttribute.created_at).toLocaleDateString()}
+                  {new Date(selectedAttribute.created_at).toLocaleDateString(getFormattingLocale())}
                 </span>
               </div>
             </div>

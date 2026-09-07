@@ -105,7 +105,7 @@ export default function BaseForm({
   formClassName = '',
   children,
 }: BaseFormProps) {
-  const { t } = useLanguage();
+  const { t } = useLanguage('common');
   const finalSubmitLabel = submitLabel || t('base.buttons.save');
   const finalCancelLabel = cancelLabel || t('base.buttons.cancel');
 

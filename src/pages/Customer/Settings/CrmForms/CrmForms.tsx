@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, Copy, Loader2, FileText } from 'lucide-react';
@@ -395,7 +396,7 @@ export default function CrmForms() {
                       </td>
                       <td className="px-4 py-3 text-sidebar-foreground/70">{stageLabel(lead)}</td>
                       <td className="px-4 py-3 text-sidebar-foreground/70">
-                        {lead.created_at ? new Date(lead.created_at).toLocaleString() : '—'}
+                        {lead.created_at ? new Date(lead.created_at).toLocaleString(getFormattingLocale()) : '—'}
                       </td>
                     </tr>
                   ))}

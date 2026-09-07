@@ -35,14 +35,14 @@ interface VideoPlayerProps {
 }
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({ attachment, messageType, onToast }) => {
-  const { t } = useLanguage();
+  const { t } = useLanguage('attachments');
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [showControls, setShowControls] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const videoUrl = attachment.data_url || attachment.file_url;
-  const filename = attachment.fallback_title || t('attachments.video.title');
+  const filename = attachment.fallback_title || t('video.title');
 
   const togglePlayPause = () => {
     const video = videoRef.current;
@@ -86,19 +86,19 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ attachment, messageType, onTo
       link.click();
       document.body.removeChild(link);
 
-      onToast?.(t('attachments.video.downloadStarted', { filename }), 'success');
+      onToast?.(t('video.downloadStarted', { filename }), 'success');
     }
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return `0 ${t('attachments.file.size.bytes')}`;
+    if (bytes === 0) return `0 ${t('file.size.bytes')}`;
 
     const k = 1024;
     const sizes = [
-      t('attachments.file.size.bytes'),
-      t('attachments.file.size.kilobytes'),
-      t('attachments.file.size.megabytes'),
-      t('attachments.file.size.gigabytes')
+      t('file.size.bytes'),
+      t('file.size.kilobytes'),
+      t('file.size.megabytes'),
+      t('file.size.gigabytes')
     ];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
 
@@ -114,7 +114,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ attachment, messageType, onTo
           messageType === 'out' ? 'text-white/70' : 'text-slate-500'
         }`}>
           <Play className="h-4 w-4" />
-          <span className="text-sm">{t('attachments.video.notAvailable')}</span>
+          <span className="text-sm">{t('video.notAvailable')}</span>
         </div>
       </div>
     );
@@ -167,7 +167,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ attachment, messageType, onTo
           <button
             onClick={downloadVideo}
             className="p-1.5 bg-black bg-opacity-50 rounded-full hover:bg-opacity-70 transition-all duration-200"
-            title={t('attachments.video.download')}
+            title={t('video.download')}
           >
             <Download className="w-4 h-4 text-white" />
           </button>
@@ -175,7 +175,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ attachment, messageType, onTo
           <button
             onClick={toggleFullscreen}
             className="p-1.5 bg-black bg-opacity-50 rounded-full hover:bg-opacity-70 transition-all duration-200"
-            title={t('attachments.video.fullscreen')}
+            title={t('video.fullscreen')}
           >
             <Maximize className="w-4 h-4 text-white" />
           </button>
@@ -191,7 +191,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ attachment, messageType, onTo
           <button
             onClick={toggleMute}
             className="p-1.5 bg-black bg-opacity-50 rounded-full hover:bg-opacity-70 transition-all duration-200"
-            title={isMuted ? t('attachments.video.unmute') : t('attachments.video.mute')}
+            title={isMuted ? t('video.unmute') : t('video.mute')}
           >
             {isMuted ? (
               <VolumeX className="w-4 h-4 text-white" />

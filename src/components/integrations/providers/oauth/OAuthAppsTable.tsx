@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { Key, Edit, Trash2, Copy, Eye, EyeOff, Shield } from 'lucide-react';
 import { OAuthApplication } from '@/types/integrations';
 import { BaseTable, TableColumn, TableAction } from '@/components/base';
@@ -50,7 +51,7 @@ export default function OAuthAppsTable({
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return 'N/A';
 
-      return new Intl.DateTimeFormat('pt-BR', {
+      return new Intl.DateTimeFormat(getFormattingLocale(), {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',

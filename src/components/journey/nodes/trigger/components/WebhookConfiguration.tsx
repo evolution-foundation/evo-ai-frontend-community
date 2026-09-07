@@ -275,12 +275,12 @@ export function WebhookConfiguration({
                 import.meta.env.VITE_CAMPAIGN_API_URL || 'http://localhost:3000'
               }/api/v1/journeys/trigger/5286fd5c-7ed9-4c0c-ae3e-479e35047fb8' \\
 --header 'Content-Type: application/json' \\
---header 'api_access_token: [SEU_API_TOKEN]' \\
+--header 'api_access_token: [YOUR_API_TOKEN]' \\
 --data-raw '{
-  "contact_id": "uuid-do-contato",
+  "contact_id": "contact-uuid",
   "data": {
     "contact": {
-      "id": "uuid-do-contato",
+      "id": "contact-uuid",
       "name": "${t('triggerComponents.webhook.exampleContactName')}",
       "email": "${t('triggerComponents.webhook.exampleEmail')}"
     }

@@ -1,3 +1,5 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
+import i18n from '@/i18n/config';
 import { Fragment, useState, useEffect, useCallback } from 'react';
 import {
   Select,
@@ -52,12 +54,12 @@ interface SegmentConditionEditorProps {
 // category is intentionally omitted: free-form custom events were removed in
 // EVO-1263 (only canonical manifest events are selectable now).
 const SEGMENT_EVENT_CATEGORY_LABELS: Record<EventCategory, string> = {
-  contact: 'Eventos de Contato',
-  conversation: 'Eventos de Conversa',
-  message: 'Eventos de Mensagem',
-  campaign: 'Eventos de Campanha',
-  purchase: 'Eventos de Compra',
-  custom: 'Personalizado',
+  get contact() { return i18n.t("events:categories.contact"); },
+  get conversation() { return i18n.t("events:categories.conversation"); },
+  get message() { return i18n.t("events:categories.message"); },
+  get campaign() { return i18n.t("events:categories.campaign"); },
+  get purchase() { return i18n.t("events:categories.purchase"); },
+  get custom() { return i18n.t("events:categories.custom"); },
 };
 
 // Manifest-driven, category-grouped event picker shared by the Performed and
@@ -72,6 +74,7 @@ function ManifestEventSelect({
   value: string;
   onSelect: (eventName: string) => void;
 }) {
+  const { t: tUi } = useUiTranslation();
   const { currentLanguage } = useLanguage();
   // A persisted node may hold a legacy snake_case value (e.g. `contact_created`)
   // from before EVO-1263, or a value already in canonical form. Resolve it so it
@@ -83,7 +86,7 @@ function ManifestEventSelect({
   return (
     <Select value={selected} onValueChange={(v) => v && onSelect(v)}>
       <SelectTrigger className="w-full">
-        <SelectValue placeholder="Selecione um evento" />
+        <SelectValue placeholder={tUi("events:selector.placeholder")} />
       </SelectTrigger>
       <SelectContent>
         {EVENT_CATEGORIES.filter((category) => category !== 'custom').map((category) => {
@@ -113,6 +116,7 @@ export default function SegmentConditionEditor({
   onUpdate,
   onRemove,
 }: SegmentConditionEditorProps) {
+  const { t: tUi } = useUiTranslation();
   const [selectedConditionType, setSelectedConditionType] = useState<string>(condition.type || '');
   const [localCondition, setLocalCondition] = useState<SegmentNodeUnion>(condition);
 
@@ -636,7 +640,7 @@ export default function SegmentConditionEditor({
           {selectedConditionType === 'Performed' && (
             <div className="space-y-4">
               <div>
-                <Label className="text-sm font-medium mb-1">Nome do Evento</Label>
+                <Label className="text-sm font-medium mb-1">{tUi("segments:conditionEditor.eventName")}</Label>
                 <ManifestEventSelect
                   value={(localCondition as PerformedNode).event}
                   onSelect={handleEventSelect}
@@ -645,7 +649,7 @@ export default function SegmentConditionEditor({
 
               <div className="flex gap-4">
                 <div className="flex-1">
-                  <Label className="text-sm font-medium mb-1">Vezes Executado</Label>
+                  <Label className="text-sm font-medium mb-1">{tUi("segments:conditionEditor.timesPerformed")}</Label>
                   <Select
                     value={(localCondition as PerformedNode).timesOperator}
                     onValueChange={v => handlePropertyChange('timesOperator', v)}
@@ -654,14 +658,14 @@ export default function SegmentConditionEditor({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="GreaterThanOrEqual">Pelo menos</SelectItem>
-                      <SelectItem value="LessThan">Menos que</SelectItem>
-                      <SelectItem value="Equals">Exatamente</SelectItem>
+                      <SelectItem value="GreaterThanOrEqual">{tUi("segments:conditionEditor.timesOperators.greaterThanOrEqual")}</SelectItem>
+                      <SelectItem value="LessThan">{tUi("segments:conditionEditor.timesOperators.lessThan")}</SelectItem>
+                      <SelectItem value="Equals">{tUi("segments:conditionEditor.timesOperators.equals")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="flex-1">
-                  <Label className="text-sm font-medium mb-1">Quantidade</Label>
+                  <Label className="text-sm font-medium mb-1">{tUi("products:pipelinePanel.quantity")}</Label>
                   <Input
                     type="number"
                     min="1"
@@ -685,8 +689,7 @@ export default function SegmentConditionEditor({
                   className="flex items-center gap-1"
                 >
                   <Settings className="h-3 w-3" />
-                  Propriedades
-                </Button>
+                  {tUi("aiAgents:outputSchema.properties")}</Button>
                 <Button
                   variant={showTimeWindow ? 'default' : 'outline'}
                   size="sm"
@@ -712,14 +715,13 @@ export default function SegmentConditionEditor({
                   className="flex items-center gap-1"
                 >
                   <Clock className="h-3 w-3" />
-                  Janela de Tempo
-                </Button>
+                  {tUi("segments:conditionEditor.timeWindow")}</Button>
               </div>
 
               {/* Properties Panel */}
               {showPropertyConfig && (
                 <div className="rounded-lg border p-4">
-                  <h4 className="text-sm font-semibold mb-2">Propriedades do Evento</h4>
+                  <h4 className="text-sm font-semibold mb-2">{tUi("segments:conditionEditor.eventProperties")}</h4>
                   <div className="space-y-2">
                     {performedProperties.map((prop, i) => (
                       <div key={i} className="flex items-center gap-2 p-2 rounded border">
@@ -743,8 +745,8 @@ export default function SegmentConditionEditor({
                               <SelectValue
                                 placeholder={
                                   loadingCustomAttributes
-                                    ? 'Carregando...'
-                                    : 'Selecione um atributo'
+                                    ? tUi("common:loading")
+                                    : tUi("segments:conditionEditor.selectAttribute")
                                 }
                               />
                             </SelectTrigger>
@@ -752,8 +754,7 @@ export default function SegmentConditionEditor({
                               {availableCustomAttributes.length === 0 &&
                                 !loadingCustomAttributes && (
                                   <div className="p-2 text-sm text-muted-foreground text-center">
-                                    Nenhum atributo personalizado cadastrado
-                                  </div>
+                                    {tUi("segments:conditionEditor.noAttributesFound")}</div>
                                 )}
                               {availableCustomAttributes.map(attr => (
                                 <SelectItem key={attr.id} value={attr.attribute_key}>
@@ -789,15 +790,14 @@ export default function SegmentConditionEditor({
                             <SelectTrigger className="flex-1">
                               <SelectValue
                                 placeholder={
-                                  loadingLabels ? 'Carregando...' : 'Selecione uma label'
+                                  loadingLabels ? tUi("common:loading") : tUi("segments:conditionEditor.selectLabel")
                                 }
                               />
                             </SelectTrigger>
                             <SelectContent>
                               {availableLabels.length === 0 && !loadingLabels && (
                                 <div className="p-2 text-sm text-muted-foreground text-center">
-                                  Nenhuma label cadastrada
-                                </div>
+                                  {tUi("segments:conditionEditor.noLabelsFound")}</div>
                               )}
                               {availableLabels.map(label => (
                                 <SelectItem key={label.id} value={label.title}>
@@ -814,7 +814,7 @@ export default function SegmentConditionEditor({
                           </Select>
                         ) : (
                           <Input
-                            placeholder="Caminho"
+                            placeholder={tUi("segments:conditionEditor.path")}
                             value={prop.path}
                             onChange={e => {
                               const updated = [...performedProperties];
@@ -836,15 +836,15 @@ export default function SegmentConditionEditor({
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Equals">Igual</SelectItem>
-                            <SelectItem value="NotEquals">Diferente</SelectItem>
-                            <SelectItem value="Contains">Contém</SelectItem>
-                            <SelectItem value="Exists">Existe</SelectItem>
+                            <SelectItem value="Equals">{tUi("segments:operators.equals")}</SelectItem>
+                            <SelectItem value="NotEquals">{tUi("segments:operators.notEquals")}</SelectItem>
+                            <SelectItem value="Contains">{tUi("common:filter.operators.contains")}</SelectItem>
+                            <SelectItem value="Exists">{tUi("segments:operators.exists")}</SelectItem>
                           </SelectContent>
                         </Select>
                         {prop.operator.type !== 'Exists' && (
                           <Input
-                            placeholder="Valor"
+                            placeholder={tUi("contacts:filter.value")}
                             value={prop.operator.value || ''}
                             onChange={e => {
                               const updated = [...performedProperties];
@@ -864,8 +864,7 @@ export default function SegmentConditionEditor({
                     ))}
                     <Button variant="outline" size="sm" onClick={addProperty} className="w-full">
                       <Plus className="h-3 w-3 mr-1" />
-                      Adicionar Propriedade
-                    </Button>
+                      {tUi("segments:conditionEditor.addProperty")}</Button>
                   </div>
                 </div>
               )}
@@ -873,7 +872,7 @@ export default function SegmentConditionEditor({
               {/* Time Window Panel */}
               {showTimeWindow && (
                 <div className="rounded-lg border p-4">
-                  <h4 className="text-sm font-semibold mb-2">Janela de Tempo</h4>
+                  <h4 className="text-sm font-semibold mb-2">{tUi("segments:conditionEditor.timeWindow")}</h4>
                   <div className="flex gap-2">
                     <Input
                       type="number"
@@ -896,11 +895,11 @@ export default function SegmentConditionEditor({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="minutes">Minutos</SelectItem>
-                        <SelectItem value="hours">Horas</SelectItem>
-                        <SelectItem value="days">Dias</SelectItem>
-                        <SelectItem value="weeks">Semanas</SelectItem>
-                        <SelectItem value="months">Meses</SelectItem>
+                        <SelectItem value="minutes">{tUi("segments:conditionEditor.timeUnits.minutes")}</SelectItem>
+                        <SelectItem value="hours">{tUi("segments:conditionEditor.timeUnits.hours")}</SelectItem>
+                        <SelectItem value="days">{tUi("segments:conditionEditor.timeUnits.days")}</SelectItem>
+                        <SelectItem value="weeks">{tUi("segments:conditionEditor.timeUnits.weeks")}</SelectItem>
+                        <SelectItem value="months">{tUi("segments:conditionEditor.timeUnits.months")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -913,7 +912,7 @@ export default function SegmentConditionEditor({
           {selectedConditionType === 'LastPerformed' && (
             <div className="space-y-4">
               <div>
-                <Label className="text-sm font-medium mb-1">Nome do Evento</Label>
+                <Label className="text-sm font-medium mb-1">{tUi("segments:conditionEditor.eventName")}</Label>
                 <ManifestEventSelect
                   value={(localCondition as LastPerformedNode).event}
                   onSelect={handleEventSelect}
@@ -934,8 +933,7 @@ export default function SegmentConditionEditor({
                   className="flex items-center gap-1"
                 >
                   <Settings className="h-3 w-3" />
-                  Onde Propriedades
-                </Button>
+                  {tUi("segments:conditionEditor.whereProperties")}</Button>
                 <Button
                   variant={showTimeWindow ? 'default' : 'outline'}
                   size="sm"
@@ -961,14 +959,13 @@ export default function SegmentConditionEditor({
                   className="flex items-center gap-1"
                 >
                   <Clock className="h-3 w-3" />
-                  Janela de Tempo
-                </Button>
+                  {tUi("segments:conditionEditor.timeWindow")}</Button>
               </div>
 
               {/* Properties Panel */}
               {showPropertyConfig && (
                 <div className="rounded-lg border p-4">
-                  <h4 className="text-sm font-semibold mb-2">Onde Propriedades</h4>
+                  <h4 className="text-sm font-semibold mb-2">{tUi("segments:conditionEditor.whereProperties")}</h4>
                   <div className="space-y-2">
                     {performedProperties.map((prop, i) => (
                       <div key={i} className="flex items-center gap-2 p-2 rounded border">
@@ -1002,8 +999,8 @@ export default function SegmentConditionEditor({
                               <SelectValue
                                 placeholder={
                                   loadingCustomAttributes
-                                    ? 'Carregando...'
-                                    : 'Selecione um atributo'
+                                    ? tUi("common:loading")
+                                    : tUi("segments:conditionEditor.selectAttribute")
                                 }
                               />
                             </SelectTrigger>
@@ -1011,8 +1008,7 @@ export default function SegmentConditionEditor({
                               {availableCustomAttributes.length === 0 &&
                                 !loadingCustomAttributes && (
                                   <div className="p-2 text-sm text-muted-foreground text-center">
-                                    Nenhum atributo personalizado cadastrado
-                                  </div>
+                                    {tUi("segments:conditionEditor.noAttributesFound")}</div>
                                 )}
                               {availableCustomAttributes.map(attr => (
                                 <SelectItem key={attr.id} value={attr.attribute_key}>
@@ -1058,15 +1054,14 @@ export default function SegmentConditionEditor({
                             <SelectTrigger className="flex-1">
                               <SelectValue
                                 placeholder={
-                                  loadingLabels ? 'Carregando...' : 'Selecione uma label'
+                                  loadingLabels ? tUi("common:loading") : tUi("segments:conditionEditor.selectLabel")
                                 }
                               />
                             </SelectTrigger>
                             <SelectContent>
                               {availableLabels.length === 0 && !loadingLabels && (
                                 <div className="p-2 text-sm text-muted-foreground text-center">
-                                  Nenhuma label cadastrada
-                                </div>
+                                  {tUi("segments:conditionEditor.noLabelsFound")}</div>
                               )}
                               {availableLabels.map(label => (
                                 <SelectItem key={label.id} value={label.title}>
@@ -1083,7 +1078,7 @@ export default function SegmentConditionEditor({
                           </Select>
                         ) : (
                           <Input
-                            placeholder="Caminho"
+                            placeholder={tUi("segments:conditionEditor.path")}
                             value={prop.path}
                             onChange={e => {
                               const updated = [...performedProperties];
@@ -1125,15 +1120,15 @@ export default function SegmentConditionEditor({
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Equals">Igual</SelectItem>
-                            <SelectItem value="NotEquals">Diferente</SelectItem>
-                            <SelectItem value="Contains">Contém</SelectItem>
-                            <SelectItem value="Exists">Existe</SelectItem>
+                            <SelectItem value="Equals">{tUi("segments:operators.equals")}</SelectItem>
+                            <SelectItem value="NotEquals">{tUi("segments:operators.notEquals")}</SelectItem>
+                            <SelectItem value="Contains">{tUi("common:filter.operators.contains")}</SelectItem>
+                            <SelectItem value="Exists">{tUi("segments:operators.exists")}</SelectItem>
                           </SelectContent>
                         </Select>
                         {prop.operator.type !== 'Exists' && (
                           <Input
-                            placeholder="Valor"
+                            placeholder={tUi("contacts:filter.value")}
                             value={prop.operator.value || ''}
                             onChange={e => {
                               const updated = [...performedProperties];
@@ -1163,8 +1158,7 @@ export default function SegmentConditionEditor({
                     ))}
                     <Button variant="outline" size="sm" onClick={addProperty} className="w-full">
                       <Plus className="h-3 w-3 mr-1" />
-                      Adicionar Propriedade
-                    </Button>
+                      {tUi("segments:conditionEditor.addProperty")}</Button>
                   </div>
                 </div>
               )}
@@ -1172,7 +1166,7 @@ export default function SegmentConditionEditor({
               {/* Time Window Panel */}
               {showTimeWindow && (
                 <div className="rounded-lg border p-4">
-                  <h4 className="text-sm font-semibold mb-2">Janela de Tempo</h4>
+                  <h4 className="text-sm font-semibold mb-2">{tUi("segments:conditionEditor.timeWindow")}</h4>
                   <div className="flex gap-2">
                     <Input
                       type="number"
@@ -1195,11 +1189,11 @@ export default function SegmentConditionEditor({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="minutes">Minutos</SelectItem>
-                        <SelectItem value="hours">Horas</SelectItem>
-                        <SelectItem value="days">Dias</SelectItem>
-                        <SelectItem value="weeks">Semanas</SelectItem>
-                        <SelectItem value="months">Meses</SelectItem>
+                        <SelectItem value="minutes">{tUi("segments:conditionEditor.timeUnits.minutes")}</SelectItem>
+                        <SelectItem value="hours">{tUi("segments:conditionEditor.timeUnits.hours")}</SelectItem>
+                        <SelectItem value="days">{tUi("segments:conditionEditor.timeUnits.days")}</SelectItem>
+                        <SelectItem value="weeks">{tUi("segments:conditionEditor.timeUnits.weeks")}</SelectItem>
+                        <SelectItem value="months">{tUi("segments:conditionEditor.timeUnits.months")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -1212,7 +1206,7 @@ export default function SegmentConditionEditor({
           {selectedConditionType === 'Email' && (
             <div className="space-y-4">
               <div>
-                <Label className="text-sm font-medium mb-1">Evento de Email</Label>
+                <Label className="text-sm font-medium mb-1">{tUi("segments:conditionEditor.channelEvents.email.label")}</Label>
                 <Select
                   value={(localCondition as EmailNode).event || 'MessageSent'}
                   onValueChange={v => handlePropertyChange('event', v)}
@@ -1221,20 +1215,20 @@ export default function SegmentConditionEditor({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MessageSent">Email Enviado</SelectItem>
-                    <SelectItem value="EmailOpened">Email Aberto</SelectItem>
-                    <SelectItem value="EmailClicked">Email Clicado</SelectItem>
-                    <SelectItem value="EmailBounced">Email Retornado</SelectItem>
-                    <SelectItem value="EmailDelivered">Email Entregue</SelectItem>
+                    <SelectItem value="MessageSent">{tUi("segments:conditionEditor.channelEvents.email.messageSent")}</SelectItem>
+                    <SelectItem value="EmailOpened">{tUi("segments:conditionEditor.eventTemplates.emailOpened")}</SelectItem>
+                    <SelectItem value="EmailClicked">{tUi("segments:conditionEditor.channelEvents.email.emailClicked")}</SelectItem>
+                    <SelectItem value="EmailBounced">{tUi("segments:conditionEditor.channelEvents.email.emailBounced")}</SelectItem>
+                    <SelectItem value="EmailDelivered">{tUi("segments:conditionEditor.channelEvents.email.emailDelivered")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label className="text-sm font-medium mb-1">Template ID (opcional)</Label>
+                <Label className="text-sm font-medium mb-1">{tUi("segments:conditionEditor.channelEvents.web.templateIdLabel")}</Label>
                 <Input
                   value={(localCondition as EmailNode).templateId || ''}
                   onChange={e => handlePropertyChange('templateId', e.target.value)}
-                  placeholder="ID do template de email"
+                  placeholder={tUi("segments:conditionEditor.channelEvents.email.templateIdPlaceholder")}
                 />
               </div>
             </div>
@@ -1244,7 +1238,7 @@ export default function SegmentConditionEditor({
           {selectedConditionType === 'WhatsApp' && (
             <div className="space-y-4">
               <div>
-                <Label className="text-sm font-medium mb-1">Evento de WhatsApp</Label>
+                <Label className="text-sm font-medium mb-1">{tUi("segments:conditionEditor.channelEvents.whatsapp.label")}</Label>
                 <Select
                   value={(localCondition as EmailNode).event || 'MessageSent'}
                   onValueChange={v => handlePropertyChange('event', v)}
@@ -1253,18 +1247,18 @@ export default function SegmentConditionEditor({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MessageSent">WhatsApp Enviado</SelectItem>
-                    <SelectItem value="MessageRead">WhatsApp Lido</SelectItem>
-                    <SelectItem value="MessageReplied">WhatsApp Respondido</SelectItem>
+                    <SelectItem value="MessageSent">{tUi("segments:conditionEditor.channelEvents.whatsapp.messageSent")}</SelectItem>
+                    <SelectItem value="MessageRead">{tUi("segments:conditionEditor.channelEvents.whatsapp.messageRead")}</SelectItem>
+                    <SelectItem value="MessageReplied">{tUi("segments:conditionEditor.channelEvents.whatsapp.messageReplied")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label className="text-sm font-medium mb-1">Template ID (opcional)</Label>
+                <Label className="text-sm font-medium mb-1">{tUi("segments:conditionEditor.channelEvents.web.templateIdLabel")}</Label>
                 <Input
                   value={(localCondition as EmailNode).templateId || ''}
                   onChange={e => handlePropertyChange('templateId', e.target.value)}
-                  placeholder="ID do template de WhatsApp"
+                  placeholder={tUi("segments:conditionEditor.channelEvents.whatsapp.templateIdPlaceholder")}
                 />
               </div>
             </div>
@@ -1274,7 +1268,7 @@ export default function SegmentConditionEditor({
           {selectedConditionType === 'Web' && (
             <div className="space-y-4">
               <div>
-                <Label className="text-sm font-medium mb-1">Evento Web</Label>
+                <Label className="text-sm font-medium mb-1">{tUi("segments:conditionEditor.channelEvents.web.label")}</Label>
                 <Select
                   value={(localCondition as EmailNode).event || 'MessageSent'}
                   onValueChange={v => handlePropertyChange('event', v)}
@@ -1283,18 +1277,18 @@ export default function SegmentConditionEditor({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MessageSent">Mensagem Web Enviada</SelectItem>
-                    <SelectItem value="MessageOpened">Mensagem Web Aberta</SelectItem>
-                    <SelectItem value="MessageClicked">Mensagem Web Clicada</SelectItem>
+                    <SelectItem value="MessageSent">{tUi("segments:conditionEditor.channelEvents.web.messageSent")}</SelectItem>
+                    <SelectItem value="MessageOpened">{tUi("segments:conditionEditor.channelEvents.web.messageOpened")}</SelectItem>
+                    <SelectItem value="MessageClicked">{tUi("segments:conditionEditor.channelEvents.web.messageClicked")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label className="text-sm font-medium mb-1">Template ID (opcional)</Label>
+                <Label className="text-sm font-medium mb-1">{tUi("segments:conditionEditor.channelEvents.web.templateIdLabel")}</Label>
                 <Input
                   value={(localCondition as EmailNode).templateId || ''}
                   onChange={e => handlePropertyChange('templateId', e.target.value)}
-                  placeholder="ID do template web"
+                  placeholder={tUi("segments:conditionEditor.channelEvents.web.templateIdPlaceholder")}
                 />
               </div>
             </div>
@@ -1304,7 +1298,7 @@ export default function SegmentConditionEditor({
           {selectedConditionType === 'SMS' && (
             <div className="space-y-4">
               <div>
-                <Label className="text-sm font-medium mb-1">Evento de SMS</Label>
+                <Label className="text-sm font-medium mb-1">{tUi("segments:conditionEditor.channelEvents.sms.label")}</Label>
                 <Select
                   value={(localCondition as EmailNode).event || 'MessageSent'}
                   onValueChange={v => handlePropertyChange('event', v)}
@@ -1313,18 +1307,18 @@ export default function SegmentConditionEditor({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MessageSent">SMS Enviado</SelectItem>
-                    <SelectItem value="MessageRead">SMS Lido</SelectItem>
-                    <SelectItem value="MessageReplied">SMS Respondido</SelectItem>
+                    <SelectItem value="MessageSent">{tUi("segments:conditionEditor.channelEvents.sms.messageSent")}</SelectItem>
+                    <SelectItem value="MessageRead">{tUi("segments:conditionEditor.channelEvents.sms.messageRead")}</SelectItem>
+                    <SelectItem value="MessageReplied">{tUi("segments:conditionEditor.channelEvents.sms.messageReplied")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label className="text-sm font-medium mb-1">Template ID (opcional)</Label>
+                <Label className="text-sm font-medium mb-1">{tUi("segments:conditionEditor.channelEvents.web.templateIdLabel")}</Label>
                 <Input
                   value={(localCondition as EmailNode).templateId || ''}
                   onChange={e => handlePropertyChange('templateId', e.target.value)}
-                  placeholder="ID do template de SMS"
+                  placeholder={tUi("segments:conditionEditor.channelEvents.sms.templateIdPlaceholder")}
                 />
               </div>
             </div>
@@ -1334,7 +1328,7 @@ export default function SegmentConditionEditor({
           {selectedConditionType === 'RandomBucket' && (
             <div className="space-y-4">
               <div>
-                <Label className="text-sm font-medium mb-1">Porcentagem Incluída</Label>
+                <Label className="text-sm font-medium mb-1">{tUi("segments:conditionEditor.randomBucket.percentageIncluded")}</Label>
                 <div className="flex items-center gap-2">
                   <Input
                     type="number"
@@ -1363,12 +1357,11 @@ export default function SegmentConditionEditor({
           {/* Manual Configuration */}
           {selectedConditionType === 'Manual' && (
             <div className="text-center py-8 rounded-lg border">
-              <h4 className="text-lg font-semibold mb-2">Upload Manual de Segmento</h4>
+              <h4 className="text-lg font-semibold mb-2">{tUi("segments:conditionEditor.manualUpload.title")}</h4>
               <p className="text-sm text-muted-foreground mb-4">
-                Faça upload de um arquivo CSV com os IDs dos usuários
-              </p>
-              <Button variant="outline">📁 Upload CSV</Button>
-              <p className="text-xs text-muted-foreground mt-2">Formato: Uma coluna com user_id</p>
+                {tUi("segments:conditionEditor.manualUpload.description")}</p>
+              <Button variant="outline">{tUi("segments:conditionEditor.manualUpload.uploadButton")}</Button>
+              <p className="text-xs text-muted-foreground mt-2">{tUi("segments:conditionEditor.manualUpload.format")}</p>
             </div>
           )}
         </div>

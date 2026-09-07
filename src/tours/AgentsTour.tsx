@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useEffect, useMemo, useRef } from 'react';
 import type { Step } from 'react-joyride';
 import { useJoyride } from '@/hooks/useJoyride';
@@ -78,44 +79,45 @@ export function AgentsTour() {
 const CUSTOM_TOOLS_ROUTE = '/agents/custom-tools';
 
 export function AgentsCustomToolsTour() {
+  const { t: tUi } = useUiTranslation();
   const { Tour, controls } = useJoyride({
     tourKey: 'agents-custom-tools',
     steps: useMemo<Step[]>(
       () => [
         {
           target: '[data-tour="agents-custom-tools-page"]',
-          title: 'Custom Tools',
-          content: 'Crie e gerencie ferramentas personalizadas que seus Agentes de IA podem utilizar durante o atendimento.',
+          title: tUi("customTools:title"),
+          content: tUi("interface:agentstour.createAndManageCustomToolsForYourAiAgentsTo"),
           placement: 'auto',
           disableBeacon: true,
           disableScrolling: true,
         },
         {
           target: '[data-tour="agents-custom-tools-header"]',
-          title: 'Barra de Ferramentas',
-          content: 'Busque tools existentes, aplique filtros ou crie uma nova tool clicando em "Nova Tool".',
+          title: tUi("tours:settingsTeams.step2.title"),
+          content: tUi("interface:agentstour.searchExistingToolsApplyFiltersOrCreateAToolBy"),
           placement: 'auto',
           disableBeacon: true,
           disableScrolling: true,
         },
         {
           target: '[data-tour="agents-custom-tools-view-toggle"]',
-          title: 'Modo de Visualização',
-          content: 'Alterne entre visualização em cards e em tabela.',
+          title: tUi("tours:agents.step4.title"),
+          content: tUi("interface:agentstour.switchBetweenCardAndTableViews"),
           placement: 'auto',
           disableBeacon: true,
           disableScrolling: true,
         },
         {
           target: '[data-tour="agents-custom-tools-content"]',
-          title: 'Lista de Custom Tools',
-          content: 'Cada card exibe nome, descrição e status da tool. Use as ações para editar, testar ou excluir. Ferramentas testadas garantem que o Agente as use corretamente.',
+          title: tUi("interface:agentstour.customToolsList"),
+          content: tUi("interface:agentstour.eachCardShowsTheToolSNameDescriptionAndStatus"),
           placement: 'auto',
           disableBeacon: true,
           disableScrolling: true,
         },
       ],
-      [],
+      [tUi],
     ),
   });
   const controlsRef = useRef(controls);
@@ -135,44 +137,45 @@ export function AgentsCustomToolsTour() {
 const CUSTOM_MCPS_ROUTE = '/agents/custom-mcp-servers';
 
 export function AgentsCustomMCPsTour() {
+  const { t: tUi } = useUiTranslation();
   const { Tour, controls } = useJoyride({
     tourKey: 'agents-custom-mcps',
     steps: useMemo<Step[]>(
       () => [
         {
           target: '[data-tour="agents-custom-mcps-page"]',
-          title: 'Custom MCP Servers',
-          content: 'Configure servidores MCP personalizados para expandir as capacidades dos seus Agentes de IA com contextos e ferramentas externas.',
+          title: tUi("customMcpServers:title"),
+          content: tUi("interface:agentstour.configureCustomMcpServersToGiveYourAiAgentsAccess"),
           placement: 'auto',
           disableBeacon: true,
           disableScrolling: true,
         },
         {
           target: '[data-tour="agents-custom-mcps-header"]',
-          title: 'Barra de Ferramentas',
-          content: 'Busque servidores MCP existentes, filtre por critérios ou adicione um novo servidor clicando em "Novo Servidor".',
+          title: tUi("tours:settingsTeams.step2.title"),
+          content: tUi("interface:agentstour.searchForExistingMcpServersFilterThemOrAddOne"),
           placement: 'auto',
           disableBeacon: true,
           disableScrolling: true,
         },
         {
           target: '[data-tour="agents-custom-mcps-view-toggle"]',
-          title: 'Modo de Visualização',
-          content: 'Alterne entre visualização em cards e em tabela conforme sua preferência.',
+          title: tUi("tours:agents.step4.title"),
+          content: tUi("interface:agentstour.switchBetweenCardAndTableViewsToSuitYourPreference"),
           placement: 'auto',
           disableBeacon: true,
           disableScrolling: true,
         },
         {
           target: '[data-tour="agents-custom-mcps-content"]',
-          title: 'Lista de Servidores MCP',
-          content: 'Cada servidor exibe nome, URL de conexão e status. Use as ações para editar, testar a conexão ou excluir o servidor.',
+          title: tUi("interface:agentstour.mcpServersList"),
+          content: tUi("interface:agentstour.eachServerShowsItsNameConnectionUrlAndStatusUse"),
           placement: 'auto',
           disableBeacon: true,
           disableScrolling: true,
         },
       ],
-      [],
+      [tUi],
     ),
   });
   const controlsRef = useRef(controls);

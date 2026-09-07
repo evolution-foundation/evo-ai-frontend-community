@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import {
   Card,
@@ -1097,7 +1098,7 @@ export default function AgentBotConfigurationForm({
                                                     <p className="text-xs text-muted-foreground mt-1">
                                                       {new Date(
                                                         post.created_time,
-                                                      ).toLocaleDateString()}
+                                                      ).toLocaleDateString(getFormattingLocale())}
                                                     </p>
                                                   )}
                                                 </div>

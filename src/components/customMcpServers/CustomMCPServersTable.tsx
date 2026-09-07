@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Badge, Button } from '@evoapi/design-system';
 import { Edit, Trash2, TestTube, Loader2, ExternalLink } from 'lucide-react';
@@ -114,7 +115,7 @@ export default function CustomMCPServersTable({
       sortable: true,
       render: server => (
         <span className="text-sm text-muted-foreground">
-          {new Date(server.created_at).toLocaleDateString('pt-BR')}
+          {new Date(server.created_at).toLocaleDateString(getFormattingLocale())}
         </span>
       ),
     },
@@ -146,13 +147,13 @@ export default function CustomMCPServersTable({
 
   const actions: TableAction<CustomMcpServer>[] = [
     {
-      label: t('table.actions.edit'),
+      label: t("actions.edit"),
       icon: <Edit className="h-4 w-4" />,
       onClick: onEditServer,
       show: () => isReady && can('ai_custom_mcp_servers', 'update'),
     },
     {
-      label: t('table.actions.delete'),
+      label: t("actions.delete"),
       icon: <Trash2 className="h-4 w-4" />,
       onClick: onDeleteServer,
       variant: 'destructive' as const,

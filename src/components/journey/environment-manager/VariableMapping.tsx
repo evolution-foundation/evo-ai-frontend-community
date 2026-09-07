@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import {
   Button,
   Input,
@@ -310,7 +311,7 @@ export function VariableMapping({
                     <SelectContent className="bg-background border-input">
                       {TRANSFORM_OPTIONS.map(option => (
                         <SelectItem key={option.value} value={option.value} className="text-xs">
-                          {option.value === 'none' ? 'None' : option.label}
+                          {option.value === 'none' ? i18n.t('interface:fallbacks.none') : option.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

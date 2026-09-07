@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Provider as ProviderType } from '@/components/channels/ProviderGrid';
 import { useGlobalConfig } from '@/contexts/GlobalConfigContext';
@@ -24,6 +25,7 @@ export interface FormData {
 }
 
 export const useChannelForm = () => {
+  const { t: tUi } = useUiTranslation();
   const config = useGlobalConfig();
   const [selectedChannel, setSelectedChannel] = useState<ChannelType | null>(null);
   const [selectedProvider, setSelectedProvider] = useState<ProviderType | null>(null);
@@ -215,7 +217,7 @@ export const useChannelForm = () => {
       case 'other_provider':
         setForm(prev => ({
           ...prev,
-          name: prev.name || 'Canal Email',
+          name: prev.name || tUi("email:title"),
           email: prev.email || '',
         }));
         break;

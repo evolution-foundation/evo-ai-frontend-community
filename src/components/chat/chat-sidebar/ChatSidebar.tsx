@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useRef, useCallback, useMemo, type CSSProperties } from 'react';
 import { Button } from '@evoapi/design-system/button';
 import { Checkbox } from '@evoapi/design-system/checkbox';
@@ -157,6 +158,7 @@ const ChatSidebar = ({
   canBulkUpdateStatus = true,
   width,
 }: ChatSidebarProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('chat');
   const chatContext = useChatContext();
   // Explicitly type conversations to ensure TypeScript recognizes it has 'state'
@@ -703,7 +705,7 @@ const ChatSidebar = ({
               }`}
             >
               {showArchived && <ArrowLeft className="h-3.5 w-3.5" />}
-              {t('chatSidebar.view.active', 'Ativas')}
+              {t('chatSidebar.view.active')}
             </button>
             {!showArchived && (
               <button
@@ -1013,11 +1015,10 @@ const ChatSidebar = ({
                             <Badge
                               variant="outline"
                               className="h-4 px-1.5 text-[10px] bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-700 flex-shrink-0"
-                              title="Facebook Post"
+                              title={tUi("interface:chatsidebar.facebookPost")}
                             >
                               <FileText className="h-2.5 w-2.5 mr-0.5" />
-                              Post
-                            </Badge>
+                              {tUi("interface:chatsidebar.post")}</Badge>
                           )}
                         </div>
 
@@ -1090,8 +1091,7 @@ const ChatSidebar = ({
                   className="w-full"
                   onClick={handleLoadMoreClick}
                 >
-                  Carregar mais
-                </Button>
+                  {tUi("contacts:events.timeline.loadMore")}</Button>
               </div>
             )}
           </>

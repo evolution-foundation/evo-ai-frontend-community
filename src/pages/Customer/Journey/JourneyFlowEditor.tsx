@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -147,6 +148,7 @@ function friendlySaveErrorMessage(
 }
 
 function JourneyFlowEditor() {
+  const { t: tUi } = useUiTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t, currentLanguage } = useLanguage('journey');
@@ -1017,7 +1019,7 @@ function JourneyFlowEditor() {
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-4">
             <span>
-              Status:{' '}
+              {tUi("interface:journeyfloweditor.status")}{' '}
               {journey.isActive ? t('flowEditor.status.active') : t('flowEditor.status.inactive')}
             </span>
             <span>

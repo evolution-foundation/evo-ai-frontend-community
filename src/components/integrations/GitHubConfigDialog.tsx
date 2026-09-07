@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -31,6 +32,7 @@ const GitHubConfigDialog = ({
   initialConfig,
   agentId,
 }: GitHubConfigDialogProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('agents');
 
   const [isConnecting, setIsConnecting] = useState(false);
@@ -101,7 +103,7 @@ const GitHubConfigDialog = ({
       setAvailableTools(response.tools || []);
     } catch (error) {
       console.error('Error loading GitHub tools:', error);
-      toast.error('Erro ao carregar ferramentas disponíveis');
+      toast.error(tUi("interface:githubconfigdialog.couldNotLoadAvailableTools"));
     } finally {
       setIsLoadingTools(false);
     }
@@ -118,7 +120,7 @@ const GitHubConfigDialog = ({
       }
     } catch (error) {
       console.error('Error connecting to GitHub:', error);
-      toast.error('Erro ao conectar com GitHub');
+      toast.error(tUi("interface:githubconfigdialog.couldNotConnectToGithub"));
     } finally {
       setIsConnecting(false);
     }
@@ -156,11 +158,11 @@ const GitHubConfigDialog = ({
 
       // Then update local state
       onSave(updatedConfig);
-      toast.success('Configurações salvas com sucesso!');
+      toast.success(tUi("integrations:messages.saveSuccess"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error saving GitHub configuration:', error);
-      toast.error('Erro ao salvar configurações');
+      toast.error(tUi("integrations:messages.saveError"));
     }
   };
 
@@ -170,11 +172,11 @@ const GitHubConfigDialog = ({
       if (onDisconnect) {
         onDisconnect();
       }
-      toast.success('GitHub desconectado com sucesso!');
+      toast.success(tUi("interface:githubconfigdialog.githubDisconnectedSuccessfully"));
       onOpenChange(false);
     } catch (error) {
       console.error('Error disconnecting GitHub:', error);
-      toast.error('Erro ao desconectar GitHub');
+      toast.error(tUi("interface:githubconfigdialog.couldNotDisconnectGithub"));
     }
   };
 
@@ -196,7 +198,7 @@ const GitHubConfigDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Github className="h-5 w-5" />
-            {t('edit.integrations.github.configTitle') || 'Configurar GitHub'}
+            {t('edit.integrations.github.configTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -211,11 +213,10 @@ const GitHubConfigDialog = ({
               </div>
               <div>
                 <h3 className="text-lg font-semibold">
-                  {t('edit.integrations.github.connectTitle') || 'Conectar com GitHub'}
+                  {t('edit.integrations.github.connectTitle')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.github.connectDescription') ||
-                    'Permita que o agente acesse repositórios, issues e pull requests do GitHub'}
+                  {t('edit.integrations.github.connectDescription')}
                 </p>
               </div>
             </div>
@@ -229,12 +230,12 @@ const GitHubConfigDialog = ({
               {isConnecting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('edit.integrations.github.connecting') || 'Conectando...'}
+                  {t('edit.integrations.github.connecting')}
                 </>
               ) : (
                 <>
                   <Github className="mr-2 h-4 w-4" />
-                  {t('edit.integrations.github.connectButton') || 'Conectar com GitHub'}
+                  {t('edit.integrations.github.connectButton')}
                 </>
               )}
             </Button>
@@ -247,12 +248,12 @@ const GitHubConfigDialog = ({
                 <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
                   <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
                   <span className="font-medium">
-                    {t('edit.integrations.github.connected') || 'Conectado'}
+                    {t('edit.integrations.github.connected')}
                   </span>
                 </div>
                 {config.username && (
                   <p className="text-sm text-green-700 dark:text-green-300 mt-2">
-                    {t('edit.integrations.github.connectedAs') || 'Conectado como'}:{' '}
+                    {t('edit.integrations.github.connectedAs')}:{' '}
                     <strong>{config.username}</strong>
                   </p>
                 )}
@@ -263,8 +264,7 @@ const GitHubConfigDialog = ({
 
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  {t('edit.integrations.github.connectedDescription') ||
-                    'O agente agora pode acessar repositórios, issues, pull requests e outras informações do GitHub.'}
+                  {t('edit.integrations.github.connectedDescription')}
                 </p>
               </div>
             </div>
@@ -274,7 +274,7 @@ const GitHubConfigDialog = ({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium">
-                    {t('edit.integrations.github.toolsTitle') || 'Ferramentas Disponíveis'}
+                    {t('edit.integrations.github.toolsTitle')}
                   </h4>
                   {availableTools.length > 0 && (
                     <div className="flex items-center space-x-2">
@@ -287,14 +287,13 @@ const GitHubConfigDialog = ({
                         onCheckedChange={handleSelectAll}
                       />
                       <Label htmlFor="select-all" className="text-xs font-medium cursor-pointer">
-                        {t('edit.integrations.github.selectAll') || 'Selecionar todas'}
+                        {t('edit.integrations.github.selectAll')}
                       </Label>
                     </div>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mb-3">
-                  {t('edit.integrations.github.toolsDescription') ||
-                    'Selecione quais ferramentas do GitHub o agente poderá usar'}
+                  {t('edit.integrations.github.toolsDescription')}
                 </p>
               </div>
 
@@ -327,14 +326,14 @@ const GitHubConfigDialog = ({
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center p-4">
-                  {t('edit.integrations.github.noTools') || 'Nenhuma ferramenta disponível'}
+                  {t('edit.integrations.github.noTools')}
                 </p>
               )}
             </div>
 
             <div className="flex flex-col gap-3 pt-4 border-t">
               <Button onClick={handleSave} className="w-full">
-                {t('edit.integrations.github.saveConfig') || 'SALVAR CONFIGURAÇÕES'}
+                {t('edit.integrations.github.saveConfig')}
               </Button>
 
               {onDisconnect && (
@@ -343,7 +342,7 @@ const GitHubConfigDialog = ({
                   onClick={handleDisconnect}
                   className="w-full text-destructive hover:text-destructive/80"
                 >
-                  {t('edit.integrations.github.disconnect') || 'Desconectar'}
+                  {t('edit.integrations.github.disconnect')}
                 </Button>
               )}
             </div>

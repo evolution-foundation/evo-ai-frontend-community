@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Badge, Card, Button } from '@evoapi/design-system';
 import {
@@ -78,7 +79,7 @@ export default function IntegrationStatus({
     if (!dateString) return t('connection.never');
 
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('pt-BR', {
+    return new Intl.DateTimeFormat(getFormattingLocale(), {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

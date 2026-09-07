@@ -14,29 +14,29 @@ export function GitHubForm({ config, onConfigChange }: IntegrationFormProps) {
     <div className="space-y-4">
       <FormField
         id="GITHUB_OAUTH_CLIENT_ID"
-        label={t('integrations.github.clientId')}
+        label={t("github.clientId")}
         value={getValue('githubClientId')}
         onChange={(value) => onConfigChange('githubClientId', value)}
-        placeholder={t('integrations.github.placeholders.clientId')}
-        description={t('integrations.github.clientIdDescription')}
+        placeholder={t("github.placeholders.clientId")}
+        description={t("github.clientIdDescription")}
       />
       <FormField
         id="GITHUB_OAUTH_CLIENT_SECRET"
-        label={t('integrations.github.clientSecret')}
+        label={t("github.clientSecret")}
         value={getValue('githubClientSecret')}
         onChange={(value) => onConfigChange('githubClientSecret', value)}
-        placeholder={t('integrations.github.placeholders.clientSecret')}
+        placeholder={t("github.placeholders.clientSecret")}
         type="password"
-        description={t('integrations.github.clientSecretDescription')}
+        description={t("github.clientSecretDescription")}
       />
       <FormField
         id="GITHUB_OAUTH_REDIRECT_URI"
-        label={t('integrations.github.redirectUri')}
+        label={t("github.redirectUri")}
         value={getValue('githubRedirectUri')}
         onChange={(value) => onConfigChange('githubRedirectUri', value)}
-        placeholder={t('integrations.github.placeholders.redirectUri')}
+        placeholder={t("github.placeholders.redirectUri")}
         type="url"
-        description={t('integrations.github.redirectUriDescription')}
+        description={t("github.redirectUriDescription")}
       />
     </div>
   );

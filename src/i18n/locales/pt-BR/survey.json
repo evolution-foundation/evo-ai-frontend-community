@@ -1,0 +1,24 @@
+{
+  "survey": {
+    "rating": {
+      "veryDissatisfied": "Muito insatisfeito",
+      "dissatisfied": "Insatisfeito",
+      "neutral": "Nem satisfeito nem insatisfeito",
+      "satisfied": "Satisfeito",
+      "verySatisfied": "Muito satisfeito",
+      "successMessage": "Obrigado pela sua avaliação!",
+      "label": "Qual é seu nível de satisfação com o atendimento recebido?"
+    },
+    "api": {
+      "errorMessage": "Não foi possível enviar sua avaliação. Tente novamente.",
+      "successMessage": "Obrigado pelo seu comentário!",
+      "submitting": "Enviando…"
+    },
+    "description": "Conte como foi sua experiência com nosso atendimento",
+    "feedback": {
+      "label": "Comentário adicional",
+      "placeholder": "Conte o que foi bom ou o que podemos melhorar…",
+      "buttonText": "Enviar avaliação"
+    }
+  }
+}

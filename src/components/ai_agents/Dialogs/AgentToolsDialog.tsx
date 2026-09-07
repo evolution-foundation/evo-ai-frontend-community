@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
@@ -70,15 +71,15 @@ const getAgentTypeInfo = (type: string, t: (key: string) => string) => {
       color: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700',
     },
     sequential: {
-      label: 'Sequential',
+      label: i18n.t("aiAgents:planner.types.sequential"),
       color: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900 dark:text-amber-200 dark:border-amber-700',
     },
     parallel: {
-      label: 'Parallel',
+      label: i18n.t("aiAgents:planner.types.parallel"),
       color: 'bg-violet-100 text-violet-800 border-violet-200 dark:bg-violet-900 dark:text-violet-200 dark:border-violet-700',
     },
     loop: {
-      label: 'Loop',
+      label: i18n.t("interface:agenttoolsdialog.loop"),
       color: 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900 dark:text-indigo-200 dark:border-indigo-700',
     },
     task: {

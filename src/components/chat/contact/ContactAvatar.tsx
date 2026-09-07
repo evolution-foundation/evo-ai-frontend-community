@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { useState, useEffect } from 'react';
 
 import { Avatar, AvatarImage, AvatarFallback } from '@evoapi/design-system/avatar';
@@ -50,6 +51,7 @@ const ContactAvatar: React.FC<ContactAvatarProps> = ({
   channelProvider,
   showRing = false,
 }) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('chat');
   const [imageError, setImageError] = useState(false);
 
@@ -100,7 +102,7 @@ const ContactAvatar: React.FC<ContactAvatarProps> = ({
     const channelNames: Record<string, string> = {
       whatsapp: 'WhatsApp',
       telegram: 'Telegram',
-      email: 'E-mail',
+      email: tUi("chat:scheduledActions.channelEmail"),
       sms: 'SMS',
       api: 'API',
       webwidget: 'Web Widget',
@@ -122,7 +124,7 @@ const ContactAvatar: React.FC<ContactAvatarProps> = ({
       notificame: 'Notificame',
       zapi: 'Z-API',
       twilio: 'Twilio',
-      default: 'Padrão',
+      default: tUi("pipelines:pipelineCard.default"),
       google: 'Google',
       microsoft: 'Microsoft',
     };

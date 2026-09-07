@@ -248,6 +248,7 @@
         }
       },
       "backupCodes": {
+        "regenerateDescription": "Gere novos códigos de recuperação. Seus códigos anteriores deixarão de funcionar.",
         "title": "Códigos de Backup",
         "description": "Guarde estes códigos em um local seguro. Cada código pode ser usado apenas uma vez para fazer login caso você perca acesso ao seu dispositivo.",
         "warning": "Estes códigos não serão mostrados novamente. Certifique-se de salvá-los agora!",

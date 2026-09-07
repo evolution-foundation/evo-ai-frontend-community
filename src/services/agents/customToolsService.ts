@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import evoaiApi from '@/services/core/apiEvoAI';
 import { extractData } from '@/utils/apiHelpers';
 import {
@@ -132,7 +133,7 @@ export const initialCustomToolsState: CustomToolsState = {
 // The previous guard tested `data.message`, which never exists in that envelope, so
 // `data.error.message` was unreachable and callers only ever saw axios's generic
 // "Request failed with status code 400".
-export const getErrorMessage = (error: any, defaultMessage: string = 'Erro desconhecido'): string => {
+export const getErrorMessage = (error: any, defaultMessage: string = i18n.t("customMcpServers:test.unknownError")): string => {
   const data = error?.response?.data;
   const base = data?.error?.message || data?.message;
   if (!base) return error?.message || defaultMessage;

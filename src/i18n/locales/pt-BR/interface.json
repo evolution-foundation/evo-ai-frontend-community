@@ -1,0 +1,786 @@
+{
+  "agentmessageinput": {
+    "youCanAttachUpTo5Files": "Você pode anexar no máximo 5 arquivos"
+  },
+  "contacteditmodal": {
+    "contactEditing": "Edição de Contatos"
+  },
+  "pipelineautomationmodal": {
+    "pipelineAutomation": "Automação de Pipelines"
+  },
+  "configurationform": {
+    "iDoNotAcceptCalls": "Não aceito chamadas",
+    "instanceIdNotFound": "Instance ID não encontrado",
+    "couldNotDisplayQrCode": "Erro ao exibir QR code"
+  },
+  "messageinput": {
+    "sendEnter": "Enviar (Enter)"
+  },
+  "postpreview": {
+    "openPostOnFacebook": "Abrir post no Facebook",
+    "postImage": "Imagem da publicação"
+  },
+  "formattingbubblemenu": {
+    "italic": "Itálico",
+    "bold": "Negrito"
+  },
+  "richtexteditor": {
+    "typeYourPrivateNote": "Digite sua nota privada..."
+  },
+  "startconversationmodal": {
+    "selectATemplate": "Selecione um Template",
+    "fillInTheVariables": "Preencha as Variáveis",
+    "visualEmailTemplateHtmlWillBeGeneratedAutomatically": "<p style=\"color: #666;\">Template de email visual. O HTML será gerado automaticamente.</p>",
+    "template": "Modelo:",
+    "changeTemplate": "Trocar template"
+  },
+  "hubconnectbutton": {
+    "noHubChannelsAvailableForThisTypeCreateOneOr": "Nenhum canal disponível no Hub para este tipo. Crie um novo ou linke um canal de outro tipo.",
+    "couldNotListHubChannels": "Falha ao listar canais do Hub",
+    "connectionCancelledInMeta": "Conexão cancelada na Meta.",
+    "metaDeclinedTheConnection": "A Meta recusou a conexão.",
+    "connectionSentToTheHubWaitingForChannelConfirmation": "Conexão enviada ao Hub. Aguardando confirmação do canal…",
+    "couldNotCompleteTheHubConnection": "Falha ao concluir a conexão no Hub",
+    "metaDidNotCompleteAuthorizationUseTheLinkToOpen": "A Meta não concluiu a autorização. Use o link para abrir o fluxo em outra aba.",
+    "inboxCreatedButTheHubDidNotReturnAPublic": "Inbox criada, mas o Hub não retornou link público. Verifique a configuração.",
+    "inboxCreatedCompleteTheConnectionInTheMetaWindow": "Inbox criada. Conclua a conexão na janela da Meta.",
+    "inboxCreatedCompleteTheConnectionInTheTabThatOpened": "Inbox criada. Conclua a conexão na aba que foi aberta.",
+    "couldNotCreateInboxThroughEvoHub": "Falha ao criar inbox via Evo Hub",
+    "selectAHubChannelToLink": "Selecione um canal do Hub para vincular.",
+    "couldNotLinkInboxToTheExistingHubChannel": "Falha ao linkar inbox ao canal Hub existente",
+    "enterANameForTheInboxBeforeContinuing": "Informe um nome para a inbox antes de continuar.",
+    "theConnectionWasNotCompleted": "A conexão não foi concluída.",
+    "thePendingConnectionWasDiscardedYouCanStartAgainWhenever": "A conexão pendente foi descartada. Comece de novo quando quiser.",
+    "inboxCreatedWaitingForTheMetaConnectionInTheHub": "Inbox criada. Aguardando conexão Meta no Hub…",
+    "completeAuthorizationInTheMetaWindowIfItDidNot": "Conclua a autorização na janela da Meta. Se ela não abriu, use o botão abaixo.",
+    "ifTheTabDidNotOpenClickTheButtonBelow": "Se a aba não abriu, clique no botão abaixo para reabrir.",
+    "openConnectionLink": "Abrir link de conexão",
+    "theChannelIsAlreadyActiveMessagesWillArriveThroughThe": "O canal já está ativo — mensagens chegarão pelo webhook do Hub.",
+    "createNewConnection": "Criar nova conexão",
+    "configureThisCrmSWebhookOnAnAlreadyConnectedChannel": "Apenas configura o webhook deste CRM em um canal já conectado.",
+    "loadingAvailableChannels": "Carregando canais disponíveis…",
+    "select": "— Selecione —",
+    "channelConnected": "Canal conectado.",
+    "inboxLinkedToTheExistingEvoHubChannel": "Inbox vinculada ao canal Evo Hub existente.",
+    "channelConnectedInTheHub": "Canal conectado no Hub.",
+    "tryAgain": "Tentar de novo",
+    "tryThroughTheHubInAnotherTab": "Tentar pelo Hub em outra aba",
+    "howWouldYouLikeToConnectThisChannelInEvo": "Como conectar este canal no Evo Hub?",
+    "createAChannelInTheHubAndOpenTheMeta": "Cria um canal novo no Hub e abre o fluxo de OAuth Meta em outra aba.",
+    "useAnExistingHubChannel": "Usar canal existente do Hub",
+    "hubChannel": "Canal do Hub",
+    "connectThroughEvoHub": "Conectar via Evo Hub",
+    "linkExistingChannel": "Vincular canal existente"
+  },
+  "asanaconfigdialog": {
+    "couldNotLoadAvailableTools": "Erro ao carregar ferramentas disponíveis",
+    "couldNotConnectToAsana": "Erro ao conectar com Asana",
+    "asanaDisconnectedSuccessfully": "Asana desconectado com sucesso!",
+    "couldNotDisconnectAsana": "Erro ao desconectar Asana"
+  },
+  "atlassianconfigdialog": {
+    "couldNotLoadAvailableTools": "Erro ao carregar ferramentas disponíveis",
+    "couldNotConnectToAtlassian": "Erro ao conectar com Atlassian",
+    "atlassianDisconnectedSuccessfully": "Atlassian desconectado com sucesso!",
+    "couldNotDisconnectAtlassian": "Erro ao desconectar Atlassian"
+  },
+  "canvaconfigdialog": {
+    "couldNotLoadAvailableTools": "Erro ao carregar ferramentas disponíveis",
+    "couldNotConnectToCanva": "Erro ao conectar com Canva",
+    "canvaDisconnectedSuccessfully": "Canva desconectado com sucesso!",
+    "couldNotDisconnectCanva": "Erro ao desconectar Canva"
+  },
+  "elevenlabsconfigdialog": {
+    "checkThatTheApiKeyIsCorrect": "- Verifique se a API Key está correta.",
+    "couldNotFetchVoices": "Não foi possível buscar as vozes"
+  },
+  "githubconfigdialog": {
+    "couldNotLoadAvailableTools": "Erro ao carregar ferramentas disponíveis",
+    "couldNotConnectToGithub": "Erro ao conectar com GitHub",
+    "githubDisconnectedSuccessfully": "GitHub desconectado com sucesso!",
+    "couldNotDisconnectGithub": "Erro ao desconectar GitHub"
+  },
+  "googlecalendarconfigdialog": {
+    "couldNotLoadCalendars": "Erro ao carregar agendas",
+    "couldNotConnectToGoogleCalendar": "Erro ao conectar com Google Calendar",
+    "pleaseSelectACalendar": "Por favor, selecione uma agenda",
+    "googleCalendarDisconnectedSuccessfully": "Google Calendar desconectado com sucesso!",
+    "couldNotDisconnectGoogleCalendar": "Erro ao desconectar Google Calendar",
+    "loadingCalendars": "Carregando agendas...",
+    "selectACalendar": "Selecione uma agenda",
+    "preventLastMinuteBookings": "Não permita agendamentos em cima da hora",
+    "maximumNumberOfDaysAllowed": "Limite máximo de dias permitido",
+    "simultaneousBookings": "Agendamentos simultâneos",
+    "limitBookingsAtTheSameTime": "Limite de agendamento no mesmo horário",
+    "allowBookingsAtAnyTime": "Permite agendamento em qualquer horário",
+    "businessHours": "Horários de atendimento",
+    "googleMeetIntegration": "Integração com Google Meet",
+    "availabilityLookup": "Consulta de horários",
+    "theAgentCanCheckAvailableTimes": "Agente pode consultar horários disponíveis",
+    "distributionMode": "Modo de distribuição",
+    "howBookingsWillBeDistributed": "Como os agendamentos serão divididos",
+    "bookingsAlternateBetweenCalendarsInSequence": "Os agendamentos são distribuídos entre as agendas alternando entre elas de maneira sequencial.",
+    "smartDistribution": "Distribuição Inteligente",
+    "automaticallySelectTheMostSuitableCalendarBasedOnTheCustomer": "Seleciona automaticamente a agenda mais apropriada de acordo com a conversa com o cliente.",
+    "requestUserName": "Solicitar nome do usuário",
+    "requestCompanyName": "Solicitar nome da empresa",
+    "requestAnEmailAddressToSendTheCalendarInvitation": "Solicitar e-mail para enviar convite na agenda",
+    "attachAConversationSummaryToTheBooking": "Anexar um resumo da conversa no agendamento",
+    "pleaseEnterAnEmailAddress": "Por favor, insira um e-mail",
+    "limitTheDurationOfEachBooking": "Limite o tempo para cada agendamento",
+    "alwaysOpen": "Sempre aberto",
+    "generateAMeetLinkWhenBooking": "Gerar link do Meet ao fazer o agendamento",
+    "sequentialDistribution": "Distribuição sequencial",
+    "bookingFields": "Campos para agendamento",
+    "primary": "(Principal)",
+    "requestSubject": "Solicitar assunto",
+    "howLongItWillLast": "Quanto tempo vai durar"
+  },
+  "googlesheetsconfigdialog": {
+    "couldNotLoadSpreadsheets": "Erro ao carregar planilhas",
+    "couldNotConnectToGoogleSheets": "Erro ao conectar com Google Sheets",
+    "pleaseSelectASpreadsheet": "Por favor, selecione uma planilha",
+    "googleSheetsDisconnectedSuccessfully": "Google Sheets desconectado com sucesso!",
+    "couldNotDisconnectGoogleSheets": "Erro ao desconectar Google Sheets",
+    "loadingSpreadsheets": "Carregando planilhas...",
+    "selectASpreadsheet": "Selecione uma planilha",
+    "chooseWhichSpreadsheetTheAgentCanAccess": "Escolha qual planilha o agente terá acesso",
+    "theAgentCanUpdateSpreadsheetCells": "Agente pode atualizar células da planilha",
+    "allowCreation": "Permitir Criação",
+    "pleaseEnterAnEmailAddress": "Por favor, insira um e-mail",
+    "allowReading": "Permitir Leitura",
+    "theAgentCanReadSpreadsheetData": "Agente pode consultar dados da planilha",
+    "allowWriting": "Permitir Escrita",
+    "theAgentCanCreateSpreadsheetRows": "Agente pode criar novas linhas na planilha"
+  },
+  "hubspotconfigdialog": {
+    "couldNotLoadAvailableTools": "Erro ao carregar ferramentas disponíveis",
+    "couldNotConnectToHubspot": "Erro ao conectar com HubSpot",
+    "hubspotDisconnectedSuccessfully": "HubSpot desconectado com sucesso!",
+    "couldNotDisconnectHubspot": "Erro ao desconectar HubSpot"
+  },
+  "linearconfigdialog": {
+    "couldNotLoadAvailableTools": "Erro ao carregar ferramentas disponíveis",
+    "couldNotConnectToLinear": "Erro ao conectar com Linear",
+    "linearDisconnectedSuccessfully": "Linear desconectado com sucesso!",
+    "couldNotDisconnectLinear": "Erro ao desconectar Linear"
+  },
+  "mondayconfigdialog": {
+    "couldNotLoadAvailableTools": "Erro ao carregar ferramentas disponíveis",
+    "couldNotConnectToMonday": "Erro ao conectar com Monday",
+    "mondayDisconnectedSuccessfully": "Monday desconectado com sucesso!",
+    "couldNotDisconnectMonday": "Erro ao desconectar Monday"
+  },
+  "notionconfigdialog": {
+    "couldNotLoadAvailableTools": "Erro ao carregar ferramentas disponíveis",
+    "couldNotConnectToNotion": "Erro ao conectar com Notion",
+    "notionDisconnectedSuccessfully": "Notion desconectado com sucesso!",
+    "couldNotDisconnectNotion": "Erro ao desconectar Notion"
+  },
+  "paypalconfigdialog": {
+    "couldNotLoadAvailableTools": "Erro ao carregar ferramentas disponíveis",
+    "couldNotConnectToPaypal": "Erro ao conectar com PayPal",
+    "paypalDisconnectedSuccessfully": "PayPal desconectado com sucesso!",
+    "couldNotDisconnectPaypal": "Erro ao desconectar PayPal"
+  },
+  "stripeconfigdialog": {
+    "couldNotLoadAvailableTools": "Erro ao carregar ferramentas disponíveis",
+    "couldNotConnectToStripe": "Erro ao conectar com Stripe",
+    "stripeDisconnectedSuccessfully": "Stripe desconectado com sucesso!",
+    "couldNotDisconnectStripe": "Erro ao desconectar Stripe"
+  },
+  "supabaseconfigdialog": {
+    "couldNotLoadAvailableTools": "Erro ao carregar ferramentas disponíveis",
+    "couldNotConnectToSupabase": "Erro ao conectar com Supabase",
+    "supabaseDisconnectedSuccessfully": "Supabase desconectado com sucesso!",
+    "couldNotDisconnectSupabase": "Erro ao desconectar Supabase"
+  },
+  "integrationmodal": {
+    "newIntegration": "Nova Integração"
+  },
+  "permissionscontext": {
+    "couldNotLoadUserPermissions": "Erro ao carregar permissões do usuário",
+    "couldNotLoadAccountPermissions": "Erro ao carregar permissões do account",
+    "couldNotReloadPermissions": "Erro ao recarregar permissões"
+  },
+  "agentchatcontext": {
+    "couldNotLoadSessions": "Erro ao carregar sessões",
+    "sessionNotFound": "Sessão não encontrada",
+    "couldNotLoadMessagesPleaseTryAgain": "Erro ao carregar mensagens. Tente novamente.",
+    "couldNotCreateSessionNoIdReturned": "Erro ao criar sessão: ID não retornado",
+    "couldNotCreateSession": "Erro ao criar sessão",
+    "sessionRemoved": "Sessão removida",
+    "selectAConversationOrCreateOneBeforeSendingAMessage": "Por favor, selecione uma conversa ou crie uma nova antes de enviar uma mensagem"
+  },
+  "chatcontext": {
+    "messageReceived": "Mensagem recebida"
+  },
+  "usechannelsubmission": {
+    "healthCheckFailedVerifyThatTheEvolutionGoUrlIs": "Health check falhou. Verifique se a URL da Evolution Go está correta e acessível.",
+    "selectAnEmailProvider": "Selecione um provedor de email",
+    "redirectingToGmailAuthentication": "Redirecionando para autenticação Gmail...",
+    "googleOauthFailed": "Falha no OAuth do Google",
+    "redirectingToOutlookAuthentication": "Redirecionando para autenticação Outlook...",
+    "microsoftOauthFailed": "Falha no OAuth da Microsoft",
+    "unsupportedEmailProvider": "Provedor de email não suportado",
+    "selectAnSmsProvider": "Selecione um provedor SMS",
+    "unsupportedSmsProvider": "Provedor SMS não suportado",
+    "twilioVerificationFailed": "Falha na verificação do Twilio",
+    "notificameVerificationFailed": "Falha na verificação do Notificame",
+    "unsupportedChannelType": "Tipo de canal não suportado"
+  },
+  "usechannelvalidation": {
+    "instanceIdIsRequired": "Instance ID é obrigatório",
+    "clientTokenIsRequired": "Client Token é obrigatório"
+  },
+  "useassignmenthandlers": {
+    "youDoNotHavePermissionToAssignConversations": "Você não tem permissão para atribuir conversas",
+    "youDoNotHavePermissionToAddLabels": "Você não tem permissão para adicionar etiquetas"
+  },
+  "useaudiorecorder": {
+    "yourBrowserDoesNotSupportAudioRecording": "Seu navegador não suporta gravação de áudio",
+    "couldNotProcessAudioRecording": "Erro ao processar gravação de áudio",
+    "errorDuringAudioRecording": "Erro durante a gravação de áudio",
+    "couldNotAccessTheMicrophoneCheckYourPermissions": "Erro ao acessar o microfone. Verifique as permissões."
+  },
+  "usecannedresponses": {
+    "couldNotLoadCannedResponses": "Erro ao carregar respostas prontas"
+  },
+  "useconversationhandlers": {
+    "youDoNotHavePermissionToDeleteConversations": "Você não tem permissão para deletar conversas"
+  },
+  "usefilteroptions": {
+    "couldNotLoadFilterOptions": "Erro ao carregar opções de filtro"
+  },
+  "usemessagehistory": {
+    "couldNotLoadPreviousMessages": "Erro ao carregar mensagens anteriores"
+  },
+  "useintegrationdetails": {
+    "couldNotLoadIntegrationDetails": "Erro ao carregar detalhes da integração",
+    "integrationDisconnectedSuccessfully": "Integração desconectada com sucesso",
+    "couldNotDisconnectIntegration": "Erro ao desconectar integração",
+    "integrationReconnectedSuccessfully": "Integração reconectada com sucesso",
+    "couldNotReconnectIntegration": "Erro ao reconectar integração",
+    "connectionTestSuccessful": "Teste de conexão realizado com sucesso"
+  },
+  "useintegrations": {
+    "couldNotUpdateIntegration": "Erro ao atualizar integração"
+  },
+  "useoauthflow": {
+    "enterYourShopifyStoreDomainForExampleMystoreMyshopifyCom": "Digite o domínio da sua loja Shopify (exemplo: minhaloja.myshopify.com):",
+    "aStoreDomainIsRequiredForShopify": "Domínio da loja é obrigatório para Shopify",
+    "couldNotStartOauthFlow": "Erro ao iniciar fluxo OAuth",
+    "couldNotConnectIntegration": "Erro ao conectar integração"
+  },
+  "usewebhooks": {
+    "couldNotDeleteWebhook": "Erro ao excluir webhook",
+    "webhookDeletedSuccessfully": "Webhook excluído com sucesso"
+  },
+  "usepermissions": {
+    "couldNotLoadRolePermissions": "Erro ao carregar permissões de função",
+    "couldNotRemovePermissionsFromRole": "Erro ao remover permissões da função",
+    "couldNotDeleteRolePermissions": "Erro ao excluir permissões de função"
+  },
+  "useaccount": {
+    "couldNotLoadAccount": "Erro ao carregar conta",
+    "couldNotUpdateAccount": "Erro ao atualizar conta"
+  },
+  "useaccountusers": {
+    "couldNotLoadUsers": "Erro ao carregar usuários"
+  },
+  "useagentform": {
+    "agentTypeIsRequired": "Tipo do agente é obrigatório",
+    "aModelIsRequiredForLlmAgents": "Modelo é obrigatório para agentes LLM"
+  },
+  "useagentvalidation": {
+    "agentTypeIsRequired": "Tipo do agente é obrigatório",
+    "aModelIsRequiredForLlmAgents": "Modelo é obrigatório para agentes LLM",
+    "clientIdIsRequired": "Client ID é obrigatório",
+    "instructionsAreRecommendedForA2aAgents": "Instrução é recomendada para agentes A2A",
+    "atLeastOneSubAgentIsRequired": "Pelo menos um sub-agente é necessário",
+    "maximumIterationsMustBeGreaterThan0": "Número máximo de iterações deve ser maior que 0",
+    "workflowConfigurationIsRequired": "Configuração de workflow é necessária",
+    "atLeastOneTaskMustBeConfigured": "Pelo menos uma tarefa deve ser configurada"
+  },
+  "useavailableagents": {
+    "agentHasNoDescription": "Agente sem descrição"
+  },
+  "usepermissionsconfig": {
+    "couldNotLoadPermissions": "Erro ao carregar permissões"
+  },
+  "useuseravailability": {
+    "couldNotUpdateAvailabilityStatus": "Não foi possível atualizar o status de disponibilidade"
+  },
+  "catalog": {
+    "aNewContactWasCreatedInTheCrm": "Um novo contato foi criado no CRM.",
+    "anExistingContactHadOneOrMoreFieldsModified": "Um contato existente teve um ou mais campos alterados.",
+    "aContactRecordWasDeleted": "Um registro de contato foi excluído.",
+    "aLabelWasAppliedToAContact": "Uma etiqueta foi aplicada a um contato.",
+    "aLabelWasRemovedFromAContact": "Uma etiqueta foi removida de um contato.",
+    "aCustomAttributeOnAContactWasSetOrChanged": "Um atributo personalizado de um contato foi definido ou alterado.",
+    "aNewConversationWasOpenedWithAContact": "Uma nova conversa foi aberta com um contato.",
+    "anOpenConversationWasClosedResolved": "Uma conversa aberta foi encerrada/resolvida.",
+    "anActivityNoteStatusChangeEtcOccurredOnAConversation": "Uma atividade (nota, mudança de status etc.) ocorreu em uma conversa.",
+    "theFirstAgentReplyWasSentOnAConversation": "A primeira resposta de um atendente foi enviada em uma conversa.",
+    "aReplyTimeMeasurementWasRecordedForAConversation": "Uma medição do tempo de resposta foi registrada para uma conversa.",
+    "aConversationWasHandedOffFromTheBotToA": "Uma conversa foi transferida do bot para um atendente humano.",
+    "aConversationWasResolvedByTheBotWithoutHumanHandoff": "Uma conversa foi resolvida pelo bot sem transferência para um atendente humano.",
+    "aNewIncomingOrOutgoingMessageWasRecorded": "Uma nova mensagem recebida ou enviada foi registrada.",
+    "aMessageReachedTheRecipientDevice": "Uma mensagem chegou ao dispositivo do destinatário.",
+    "aMessageWasReadByTheRecipient": "Uma mensagem foi lida pelo destinatário.",
+    "aMessageDeliveryAttemptFailed": "Uma tentativa de entrega de mensagem falhou.",
+    "aPipelineDrivenCampaignEnteredExecutionForAContact": "Uma campanha de pipeline começou a ser executada para um contato.",
+    "aCampaignSentAMessageToAContact": "Uma campanha enviou uma mensagem a um contato.",
+    "aContactOpenedACampaignMessage": "Um contato abriu uma mensagem de campanha.",
+    "aContactClickedALinkInACampaignMessage": "Um contato clicou em um link de uma mensagem de campanha.",
+    "userDefinedEventWithFreeFormKeyValueProperties": "Evento definido pelo usuário com propriedades livres de chave e valor."
+  },
+  "utils": {
+    "theFlowMustHaveAtLeastOneStartNode": "O flow deve ter pelo menos um node de início",
+    "theFlowMustHaveOnlyOneStartNode": "O flow deve ter apenas um node de início",
+    "theFlowMustHaveAtLeastOneNode": "O flow deve ter pelo menos um node",
+    "theFlowMustHaveAtLeastOneTriggerNode": "O flow deve ter pelo menos um node trigger"
+  },
+  "contacteditrules": {
+    "industry": "Indústria"
+  },
+  "newcampaign": {
+    "review": "Revisão"
+  },
+  "campaigntriggerconfig": {
+    "triggerConfiguration": "Configuração de Trigger",
+    "configureHowTheCampaignWillBeTriggeredAutomatically": "Configure como a campanha será disparada automaticamente"
+  },
+  "step1Basicinfo": {
+    "triggerConfigurationIsRequiredForTriggeredCampaigns": "Configuração de trigger é obrigatória para campanhas com gatilho",
+    "anEventNameIsRequiredForEventTriggers": "Nome do evento é obrigatório para triggers do tipo evento",
+    "aSegmentIsRequiredForSegmentTriggers": "Segmento é obrigatório para triggers do tipo segmento",
+    "aLabelIsRequiredForLabelTriggers": "Etiqueta é obrigatória para triggers do tipo etiqueta",
+    "aCustomAttributeIsRequiredForAttributeTriggers": "Atributo personalizado é obrigatório para triggers do tipo atributo",
+    "aWebhookUrlIsRequiredForWebhookTriggers": "URL do webhook é obrigatória para triggers do tipo webhook",
+    "eGBlackFridayCampaign": "Ex.: Campanha Black Friday",
+    "brieflyDescribeThePurposeOfThisCampaign": "Descreva brevemente o objetivo desta campanha…",
+    "optional": "Opcional"
+  },
+  "step4Settings": {
+    "sendingStrategy": "Estratégia de Envio",
+    "distributionStrategy": "Estratégia de Distribuição",
+    "distributionByTemplate": "Distribuição por Template (%)",
+    "winnerCriterion": "Critério de Vencedor",
+    "baseMessage": "Mensagem Base:",
+    "sendingWillStartAsSoonAsTheCampaignIsCreated": "O envio começará assim que a campanha for criada",
+    "chooseAFutureStartDateAndTime": "Escolha uma data e horário futuro para o início",
+    "winningMessage": "Mensagem Vencedora",
+    "doNotSendAutomatically": "Não enviar automaticamente",
+    "sendIn": "Enviar em",
+    "advancedOptions": "Opções Avançadas",
+    "distributionInterval": "Janela de Distribuição",
+    "restrictSendingToAllowedHoursAndDays": "Restringir envios ao horário permitido e dias",
+    "automaticRetries": "Tentativas Automáticas",
+    "retrySendingOnFailure": "Tentar reenviar em caso de falha",
+    "openRate": "Taxa de abertura",
+    "clickRate": "Taxa de clique",
+    "testSample": "Amostra do Teste",
+    "remainingWinner": "Restante (Vencedor):",
+    "intervalBetweenCampaignSends": "Intervalo entre os disparos da campanha",
+    "noInterval": "Sem intervalo",
+    "10Minutes": "10 minutos",
+    "30Minutes": "30 minutos",
+    "60Minutes": "60 minutos",
+    "1Hour30Minutes": "1 hora 30 minutos",
+    "2Hours": "2 horas",
+    "2Hours30Minutes": "2 horas 30 minutos",
+    "3Hours": "3 horas",
+    "4Hours": "4 horas",
+    "5Hours": "5 horas",
+    "6Hours": "6 horas",
+    "7Hours": "7 horas",
+    "8Hours": "8 horas",
+    "10Hours": "10 horas",
+    "11Hours": "11 horas",
+    "12Hours": "12 horas",
+    "18Hours": "18 horas",
+    "24Hours": "24 horas",
+    "sequential": "Sequencial",
+    "random": "Aleatório",
+    "test": "(Teste)"
+  },
+  "step5Review": {
+    "yourCampaignWasUpdatedSuccessfully": "Sua campanha foi atualizada com sucesso.",
+    "yourCampaignWasCreatedSuccessfullyAndIsReady": "Sua campanha foi criada com sucesso e está pronta",
+    "nextSteps": "Próximos Passos",
+    "monitorSendingAndEngagementStatistics": "Monitorize as estatísticas de envio e envolvimento",
+    "generalInformation": "Informações Gerais",
+    "name": "Nome:",
+    "selection": "Seleção:",
+    "noneSelected": "Nenhum selecionado",
+    "distributionStrategy": "Estratégia de Distribuição",
+    "winnerCriterion": "Critério de vencedor",
+    "theWinnerWillNotBeSentAutomatically": "Vencedor não será enviado automaticamente",
+    "allowedHours": "Horário Permitido",
+    "noTimeRestrictions": "Sem restrição de horário",
+    "trackCampaignProgressOnTheDashboard": "Acompanhe o progresso da campanha no painel",
+    "youCanPauseOrEditTheCampaignAtAnyTime": "Pode pausar ou editar a campanha a qualquer momento",
+    "viewCampaigns": "Ver campanhas",
+    "channelAndType": "Canal e Tipo:",
+    "estimatedContacts": "Contatos estimados",
+    "templates": "Modelos:",
+    "selected": "selecionado(s)",
+    "weightsByTemplate": "Pesos por Template",
+    "sampleSize": "Tamanho da amostra",
+    "ofContacts": "% dos contatos",
+    "winnerDelivery": "Envio do Vencedor",
+    "sendingInterval": "Intervalo de Envio:",
+    "rateLimit": "Limite de Taxa",
+    "retriesEnabled": "Retentativas ativas",
+    "campaignUpdated": "Campanha Atualizada!",
+    "campaignCreated": "Campanha Criada!",
+    "continueEditing": "Continuar editando",
+    "selectedInbox": "Inbox selecionado",
+    "sendImmediately": "Envio Imediato",
+    "sequential": "Sequencial",
+    "openRate": "Taxa de abertura",
+    "clickRate": "Taxa de clique"
+  },
+  "contacts": {
+    "youDoNotHavePermissionToCreateContacts": "Você não tem permissão para criar contatos",
+    "selectAtLeast2ContactsToMerge": "Selecione pelo menos 2 contatos para mesclar",
+    "youDoNotHavePermissionToMergeContacts": "Você não tem permissão para mesclar contatos",
+    "youDoNotHavePermissionToViewContacts": "Você não tem permissão para visualizar contatos"
+  },
+  "scheduledactions": {
+    "youDoNotHavePermissionToViewScheduledActions": "Você não tem permissão para visualizar ações agendadas"
+  },
+  "privateroute": {
+    "checkingAuthentication": "Verificando autenticação..."
+  },
+  "publicroute": {
+    "checkingAuthentication": "Verificando autenticação..."
+  },
+  "index": {
+    "settings": "🔧 Configuração",
+    "settingsPageUnderDevelopment": "Página de configuração em desenvolvimento"
+  },
+  "accountservice": {
+    "couldNotFetchAccount": "Erro ao buscar conta",
+    "couldNotUpdateAccount": "Erro ao atualizar conta"
+  },
+  "automationservice": {
+    "couldNotFetchAutomations": "Erro ao buscar automações",
+    "couldNotFetchAutomation": "Erro ao buscar automação",
+    "couldNotCreateAutomation": "Erro ao criar automação",
+    "couldNotUpdateAutomation": "Erro ao atualizar automação",
+    "couldNotDeleteAutomation": "Erro ao excluir automação",
+    "couldNotCloneAutomation": "Erro ao clonar automação",
+    "couldNotFetchAutomationRuns": "Erro ao buscar execuções da automação",
+    "couldNotUploadFile": "Erro ao fazer upload do arquivo"
+  },
+  "chatactioncableconnector": {
+    "unknownError": "erro desconhecido",
+    "realTimeConnectionRestored": "Conexão em tempo real reestabelecida",
+    "youWillNowReceiveMessagesInRealTimeAgain": "Agora você receberá mensagens em tempo real novamente.",
+    "realTimeConnectionLost": "Conexão em tempo real perdida",
+    "tryingToReconnectAutomatically": "Tentando reconectar automaticamente…"
+  },
+  "openaiservice": {
+    "aiResponseHasNoContent": "Resposta da IA sem conteúdo"
+  },
+  "journeyservice": {
+    "couldNotFetchJourneys": "Erro ao buscar jornadas",
+    "couldNotFetchJourney": "Erro ao buscar jornada",
+    "couldNotCreateJourney": "Erro ao criar jornada",
+    "couldNotUpdateJourney": "Erro ao atualizar jornada",
+    "couldNotDeleteJourney": "Erro ao excluir jornada",
+    "couldNotChangeJourneyStatus": "Erro ao alterar status da jornada",
+    "couldNotDuplicateJourney": "Erro ao duplicar jornada",
+    "couldNotFetchJourneysByTriggerType": "Erro ao buscar jornadas por tipo de trigger",
+    "couldNotFetchJourneyVariables": "Erro ao buscar variáveis da jornada",
+    "couldNotUpdateJourneyVariables": "Erro ao atualizar variáveis da jornada",
+    "couldNotFetchJourneySessions": "Erro ao buscar sessões da jornada",
+    "couldNotFetchSessionStatistics": "Erro ao buscar estatísticas de sessões",
+    "couldNotFetchSession": "Erro ao buscar sessão",
+    "couldNotDeleteSessions": "Erro ao deletar sessões em lote"
+  },
+  "agentstour": {
+    "switchBetweenCardAndTableViews": "Alterne entre visualização em cards e em tabela.",
+    "eachCardShowsTheToolSNameDescriptionAndStatus": "Cada card exibe nome, descrição e status da tool. Use as ações para editar, testar ou excluir. Ferramentas testadas garantem que o Agente as use corretamente.",
+    "searchForExistingMcpServersFilterThemOrAddOne": "Busque servidores MCP existentes, filtre por critérios ou adicione um novo servidor clicando em \"Novo Servidor\".",
+    "switchBetweenCardAndTableViewsToSuitYourPreference": "Alterne entre visualização em cards e em tabela conforme sua preferência.",
+    "eachServerShowsItsNameConnectionUrlAndStatusUse": "Cada servidor exibe nome, URL de conexão e status. Use as ações para editar, testar a conexão ou excluir o servidor.",
+    "customToolsList": "Lista de ferramentas personalizadas",
+    "mcpServersList": "Lista de Servidores MCP",
+    "createAndManageCustomToolsForYourAiAgentsTo": "Crie e gerencie ferramentas personalizadas que seus Agentes de IA podem utilizar durante o atendimento.",
+    "searchExistingToolsApplyFiltersOrCreateAToolBy": "Busque tools existentes, aplique filtros ou crie uma nova tool clicando em \"Nova Tool\".",
+    "configureCustomMcpServersToGiveYourAiAgentsAccess": "Configure servidores MCP personalizados para expandir as capacidades dos seus Agentes de IA com contextos e ferramentas externas."
+  },
+  "scheduledactionstour": {
+    "viewAndManageActionsScheduledToRunAutomaticallyForContacts": "Aqui você visualiza e gerencia todas as ações programadas para serem executadas automaticamente em contatos — como envio de mensagens em datas específicas.",
+    "searchActions": "Buscar Ações",
+    "searchScheduledActionsByContactNameActionTypeOrAnother": "Pesquise ações agendadas pelo nome do contato, tipo de ação ou qualquer outro campo para encontrar rapidamente o que precisa.",
+    "createAScheduledActionChooseAContactActionTypeAnd": "Clique aqui para criar uma nova ação agendada. Você poderá escolher o contato, definir o tipo de ação e configurar a data e hora de execução.",
+    "actionsList": "Lista de Ações",
+    "viewEachActionSStatusScheduledCompletedOrCancelledAnd": "Todas as ações agendadas aparecem aqui com status (agendada, executada, cancelada) e contagem regressiva. Use as ações da linha para editar ou cancelar uma ação antes da execução."
+  },
+  "macros": {
+    "sendAnAutomaticMessageInTheConversation": "Envia uma mensagem automática na conversa",
+    "addLabelsToTheConversation": "Adiciona etiquetas à conversa",
+    "removeLabelsFromTheConversation": "Remove etiquetas da conversa",
+    "assignTheConversationToASpecificTeam": "Atribui a conversa a uma equipe específica",
+    "assignTheConversationToASpecificAgent": "Atribui a conversa a um agente específico",
+    "removeTeamAssignment": "Remover atribuição de equipe",
+    "removeTheTeamAssignmentFromTheConversation": "Remove a atribuição de equipe da conversa",
+    "muteTheConversationToStopReceivingNotifications": "Silencia a conversa para não receber notificações",
+    "changeConversationStatus": "Altera o status da conversa",
+    "snoozeTheConversationUntilASpecifiedTimeInHours": "Adia a conversa até uma data específica (em horas)",
+    "changeConversationPriority": "Altera a prioridade da conversa",
+    "sendTheConversationTranscriptByEmail": "Envia a transcrição da conversa para um email",
+    "sendAFileAttachmentInTheConversation": "Envia um arquivo anexo na conversa",
+    "addPrivateNote": "Adicionar nota privada",
+    "addAPrivateNoteToTheConversation": "Adiciona uma nota privada à conversa",
+    "sendWebhook": "Enviar webhook",
+    "sendAWebhookToAnExternalEndpoint": "Dispara um webhook para um endpoint externo",
+    "resolved": "Resolvida",
+    "assignTeam": "Atribuir equipe"
+  },
+  "customattributes": {
+    "attributesAppliedToPipelinesStagesOrItems": "Atributos aplicados a pipelines, estágios ou items",
+    "attributesAppliedToPipelineStages": "Atributos aplicados aos estágios do pipeline",
+    "customAttributesForPipelinesStagesAndItems": "Atributos personalizados para pipelines, estágios e items",
+    "attributesAppliedToConversations": "Atributos aplicados às conversas",
+    "attributesAppliedToContacts": "Atributos aplicados aos contatos",
+    "attributesAppliedToThePipelineItself": "Atributos aplicados ao pipeline em si",
+    "attributesAppliedToPipelineItemsDealsLeads": "Atributos aplicados aos itens (negócios/leads) do pipeline",
+    "customAttributesForConversations": "Atributos personalizados para conversas",
+    "customAttributesForContacts": "Atributos personalizados para contatos"
+  },
+  "usersFilters": {
+    "confirmationStatus": "Status de Confirmação"
+  },
+  "agentutils": {
+    "agentNamesCannotContainSpacesOrSpecialCharactersUseOnly": "Nome do agente não pode conter espaços ou caracteres especiais. Use apenas letras, números, _ ou -",
+    "apiKeyIdMustBeAValidUuid": "ID da API key deve ser um UUID válido",
+    "unknownErrorSavingAgent": "Erro desconhecido ao salvar agente"
+  },
+  "medialabels": {
+    "contact": "👤 Contato",
+    "photo": "📷 Foto",
+    "document": "📎 Documento",
+    "attachment": "📎 Anexo"
+  },
+  "viewtokenmodal": {
+    "useThisTokenInTheAuthorizationHeader": "Use este token no cabeçalho Authorization:",
+    "neverExposeTheAccessTokenInClientSideCodeOr": "• Nunca exponha o token de acesso no código do cliente ou em repositórios públicos",
+    "useHttpsInProductionForAllApiCommunications": "• Use HTTPS em produção para toda comunicação por API",
+    "regenerateTheTokenIfYouSuspectItHasBeenCompromised": "• Gere um novo token se suspeitar que ele foi comprometido",
+    "monitorTokenUsageRegularly": "• Monitore o uso do token regularmente",
+    "storeTokensSecurelyUsingEnvironmentVariablesOrSecureVaults": "• Armazene tokens com segurança em variáveis de ambiente ou cofres de segredos"
+  },
+  "agentwizardmodal": {
+    "closeWizard": "Fechar assistente"
+  },
+  "modelselector": {
+    "customModel": "Modelo personalizado"
+  },
+  "facebookchannelform": {
+    "facebookAppIdIsNotConfigured": "O ID do aplicativo Facebook não está configurado"
+  },
+  "smsform": {
+    "apiKeyAndSecret": "Chave de API e segredo:",
+    "applicationId": "ID do aplicativo:"
+  },
+  "templatepreview": {
+    "from": "De:",
+    "messagePreview": "Prévia da mensagem",
+    "characters": "Caracteres:"
+  },
+  "widgetbuilderform": {
+    "iframeEmbed": "Incorporação por iframe",
+    "noIframeEmbedAvailableToCopy": "Nenhuma incorporação por iframe disponível para copiar",
+    "iframeCodeCopiedToClipboard": "Código do iframe copiado para a área de transferência!",
+    "couldNotCopyIframeCode": "Não foi possível copiar o código do iframe",
+    "avatar": "Foto de perfil"
+  },
+  "widgetpreview": {
+    "widgetPreview": "Prévia do widget"
+  },
+  "chatsidebar": {
+    "facebookPost": "Publicação do Facebook",
+    "post": "Publicação"
+  },
+  "editableconversationcustomattributes": {
+    "conversationIsRequired": "A conversa é obrigatória"
+  },
+  "contactmergemodal": {
+    "company": "Empresa:"
+  },
+  "custommcpserverwizardmodal": {
+    "closeWizard": "Fechar assistente"
+  },
+  "customtoolwizardmodal": {
+    "closeWizard": "Fechar assistente"
+  },
+  "sendmessagenode": {
+    "moreAttachments": "mais anexos…"
+  },
+  "aiproviders": {
+    "customOpenaiCompatible": "Personalizado (compatível com OpenAI)"
+  },
+  "authcontext": {
+    "noActiveMfaSession": "Nenhuma sessão de autenticação multifator ativa"
+  },
+  "useconversationmoderations": {
+    "couldNotLoadModerations": "Não foi possível carregar as moderações"
+  },
+  "usecontactpipelines": {
+    "couldNotLoadPipelineData": "Não foi possível carregar os dados dos pipelines"
+  },
+  "usecontactpipelinescache": {
+    "couldNotLoadPipelines": "Não foi possível carregar os pipelines"
+  },
+  "usecontactsconversations": {
+    "couldNotLoadContactConversations": "Não foi possível carregar as conversas do contato"
+  },
+  "recaptcha": {
+    "couldNotLoadRecaptcha": "Não foi possível carregar o reCAPTCHA"
+  },
+  "step3Content": {
+    "loadingInboxes": "Carregando caixas de entrada…"
+  },
+  "wizardprogress": {
+    "viewingStep": "Visualizando passo",
+    "complete": "Completo"
+  },
+  "channelsettings": {
+    "inboxDataNotFound": "Dados da caixa de entrada não encontrados",
+    "inboxAvatar": "Avatar da caixa de entrada"
+  },
+  "dashboardperformancesection": {
+    "ofVolume": "% do volume",
+    "firstReply": "1ª resp:"
+  },
+  "journeyfloweditor": {
+    "status": "Estado:"
+  },
+  "emailtemplateeditor": {
+    "from": "De:"
+  },
+  "onboardingpage": {
+    "selectLanguage": "Selecionar idioma"
+  },
+  "api": {
+    "noNewTokenReceived": "Nenhum novo token recebido"
+  },
+  "apiauth": {
+    "noNewTokenReceived": "Nenhum novo token recebido"
+  },
+  "reconnectservice": {
+    "healthCheckFailed": "A verificação de funcionamento falhou"
+  },
+  "widgetapi": {
+    "tokenExpired": "Token expirado"
+  },
+  "apihelpers": {
+    "networkErrorUnableToReachTheServer": "Erro de rede: não foi possível acessar o servidor"
+  },
+  "createcallbackpage": {
+    "agentIdIsRequiredForMcpIntegrations": "O ID do agente é obrigatório para integrações MCP"
+  },
+  "messages": {
+    "agentError": "Erro: {{error}}",
+    "fileTooLarge": "O arquivo {{name}} excede o tamanho máximo de {{size}}",
+    "fileProcessingError": "Não foi possível processar o arquivo {{name}}",
+    "settingUpdateError": "Não foi possível atualizar a configuração",
+    "visibleDays": "Mostrando {{visible}} de {{total}} dias",
+    "sendShortcut": "Enviar ({{modifier}} + Enter)",
+    "metaMissingFields": "A Meta não devolveu {{fields}}. Conclua a conexão pela aba do Hub.",
+    "unsupportedWhatsApp": "O provedor WhatsApp {{provider}} não é suportado",
+    "unsupportedOAuth": "OAuth não é suportado para {{integration}}",
+    "missingClientId": "Client ID não configurado para {{integration}}",
+    "oauthError": "Erro de OAuth: {{error}}",
+    "rolePermissionsRemoved": "Permissões removidas da função “{{role}}”",
+    "rolePermissionsDeleted": "Permissões de função excluídas: {{count}}",
+    "unconnectedNodes": "Nós não conectados: {{count}}",
+    "nodeWithoutLabel": "O nó {{id}} não tem rótulo definido",
+    "selectUser": "Selecionar {{name}}",
+    "validationError": "Erro de validação: {{errors}}"
+  },
+  "typebotconfigform": {
+    "typebotPublicId": "id-publico-do-typebot"
+  },
+  "agenttoolsdialog": {
+    "loop": "Repetição"
+  },
+  "basicinfoform": {
+    "loop": "Repetição"
+  },
+  "basicsettingsform": {
+    "avatar": "Foto de perfil"
+  },
+  "widgethead": {
+    "avatar": "Foto de perfil"
+  },
+  "messageinputselect": {
+    "menu": "Menu"
+  },
+  "contactform": {
+    "avatar": "Foto de perfil"
+  },
+  "pipelinecustomattributesform": {
+    "local": "Local"
+  },
+  "messagelist": {
+    "avatar": "Foto de perfil"
+  },
+  "typingindicator": {
+    "avatar": "Foto de perfil"
+  },
+  "pipelineautomation": {
+    "followUp": "Acompanhamento"
+  },
+  "toolsdialog": {
+    "other": "Outras"
+  },
+  "bulkinvitemodal": {
+    "user1ExampleComUser2ExampleComUser3ExampleComUser4": "usuario1@exemplo.com usuario2@exemplo.com, usuario3@exemplo.com usuario4@exemplo.com"
+  },
+  "usejoyride": {
+    "openTour": "Abrir tour"
+  },
+  "campaign": {
+    "sending": "Enviando"
+  },
+  "dynamic": {
+    "fieldKey": "Chave de {{label}}",
+    "fieldValue": "Valor de {{label}}",
+    "templateValue": "Valor para {{variable}}",
+    "teamId": "Equipe #{{id}}",
+    "newMessageFrom": "Nova mensagem de {{name}}",
+    "attachedFiles": "📎 Arquivos: {{count}}",
+    "integrationDisconnected": "{{integration}} desconectado com sucesso",
+    "integrationConnected": "{{integration}} conectado com sucesso",
+    "fileSize": "Arquivo ({{size}} KB)",
+    "macroFailed": "A macro “{{name}}” falhou: {{error}}"
+  },
+  "fallbacks": {
+    "customModel": "Modelo personalizado",
+    "custom": "Personalizado",
+    "templateBody": "Corpo da mensagem do modelo…",
+    "buttonText": "Texto do botão",
+    "emailSubject": "Assunto do e-mail",
+    "emailTemplateContent": "Conteúdo do modelo de e-mail…\n\nUse a sintaxe {{syntax}} para valores dinâmicos.",
+    "messageTemplateContent": "Conteúdo da mensagem do modelo…\n\nUse a sintaxe {{syntax}} para valores dinâmicos.",
+    "timeZone": "Fuso horário",
+    "none": "Nenhum",
+    "advancedSettings": "Configurações avançadas",
+    "global": "Global",
+    "local": "Local",
+    "loadingChannels": "Carregando canais…",
+    "selectChannel": "Selecione um canal",
+    "noPreview": "Sem prévia do conteúdo",
+    "split": "Divisão",
+    "random": "Aleatório",
+    "immediate": "Imediato",
+    "logo": "Logotipo",
+    "chat": "Conversa"
+  }
+}

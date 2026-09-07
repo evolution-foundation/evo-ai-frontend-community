@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import type { PaginatedResponse, StandardResponse, PaginationMeta } from '@/types/core';
 
 // Attribute Model Types
@@ -114,18 +115,18 @@ export interface CustomAttributesState {
 export const ATTRIBUTE_MODEL_OPTIONS = [
   {
     value: 'conversation_attribute' as AttributeModel,
-    label: 'Conversas',
-    description: 'Atributos aplicados às conversas'
+    get label() { return i18n.t("aiAgents:chat.conversations"); },
+    get description() { return i18n.t("interface:customattributes.attributesAppliedToConversations"); }
   },
   {
     value: 'contact_attribute' as AttributeModel,
-    label: 'Contatos',
-    description: 'Atributos aplicados aos contatos'
+    get label() { return i18n.t("contacts:title"); },
+    get description() { return i18n.t("interface:customattributes.attributesAppliedToContacts"); }
   },
   {
     value: 'pipeline_attribute' as AttributeModel,
     label: 'Pipeline',
-    description: 'Atributos aplicados a pipelines, estágios ou items'
+    get description() { return i18n.t("interface:customattributes.attributesAppliedToPipelinesStagesOrItems"); }
   }
 ];
 
@@ -136,17 +137,17 @@ export const PIPELINE_TYPE_OPTIONS = [
   {
     value: 'pipeline' as PipelineType,
     label: 'Pipeline',
-    description: 'Atributos aplicados ao pipeline em si'
+    get description() { return i18n.t("interface:customattributes.attributesAppliedToThePipelineItself"); }
   },
   {
     value: 'pipeline_stage' as PipelineType,
-    label: 'Estágio',
-    description: 'Atributos aplicados aos estágios do pipeline'
+    get label() { return i18n.t("customAttributes:table.columns.model.pipeline_stage_attribute"); },
+    get description() { return i18n.t("interface:customattributes.attributesAppliedToPipelineStages"); }
   },
   {
     value: 'pipeline_item' as PipelineType,
-    label: 'Item',
-    description: 'Atributos aplicados aos items (deals/leads) do pipeline'
+    get label() { return i18n.t("pipelines:pipelineCard.stats.items"); },
+    get description() { return i18n.t("interface:customattributes.attributesAppliedToPipelineItemsDealsLeads"); }
   }
 ];
 
@@ -247,17 +248,17 @@ export const ATTRIBUTE_TYPE_OPTIONS = [
 export const ATTRIBUTE_TABS = [
   {
     key: 'conversation_attribute' as AttributeModel,
-    name: 'Conversas',
-    description: 'Atributos personalizados para conversas'
+    get name() { return i18n.t("aiAgents:chat.conversations"); },
+    get description() { return i18n.t("interface:customattributes.customAttributesForConversations"); }
   },
   {
     key: 'contact_attribute' as AttributeModel,
-    name: 'Contatos',
-    description: 'Atributos personalizados para contatos'
+    get name() { return i18n.t("contacts:title"); },
+    get description() { return i18n.t("interface:customattributes.customAttributesForContacts"); }
   },
   {
     key: 'pipeline_attribute' as AttributeModel,
     name: 'Pipeline',
-    description: 'Atributos personalizados para pipelines, estágios e items'
+    get description() { return i18n.t("interface:customattributes.customAttributesForPipelinesStagesAndItems"); }
   }
 ];

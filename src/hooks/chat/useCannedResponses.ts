@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback } from 'react';
 import { cannedResponsesService } from '@/services/cannedResponses/cannedResponsesService';
 import type { CannedResponse } from '@/types/knowledge';
@@ -25,6 +26,7 @@ interface UseCannedResponsesReturn {
 export const useCannedResponses = ({
   enabled = true,
 }: UseCannedResponsesOptions): UseCannedResponsesReturn => {
+  const { t: tUi } = useUiTranslation();
   const [cannedResponses, setCannedResponses] = useState<CannedResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,12 +45,12 @@ export const useCannedResponses = ({
       setCannedResponses(response.data);
     } catch (err) {
       console.error('Error loading canned responses:', err);
-      setError('Erro ao carregar respostas prontas');
+      setError(tUi("interface:usecannedresponses.couldNotLoadCannedResponses"));
       setCannedResponses([]);
     } finally {
       setIsLoading(false);
     }
-  }, [enabled]);
+  }, [enabled, tUi]);
 
   useEffect(() => {
     loadCannedResponses();

@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { EditorView } from 'prosemirror-view';
@@ -28,6 +29,7 @@ const ITEM_BOX = 'h-9 w-9 flex items-center justify-center rounded-md flex-shrin
  * e `.prosemirror-editor` tem overflow-y-auto que cortaria um menu absolute.
  */
 const FormattingBubbleMenu: React.FC<FormattingBubbleMenuProps> = ({ view, rect, onClose }) => {
+  const { t: tUi } = useUiTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,28 +63,28 @@ const FormattingBubbleMenu: React.FC<FormattingBubbleMenuProps> = ({ view, rect,
   const items = [
     {
       key: 'bold',
-      label: 'Negrito',
+      label: tUi("interface:formattingbubblemenu.bold"),
       icon: <Bold className="h-4 w-4" />,
       active: isMarkActive(messageSchema.marks.strong),
       onClick: () => runMarkCommand(toggleMark(messageSchema.marks.strong)),
     },
     {
       key: 'italic',
-      label: 'Itálico',
+      label: tUi("interface:formattingbubblemenu.italic"),
       icon: <Italic className="h-4 w-4" />,
       active: isMarkActive(messageSchema.marks.em),
       onClick: () => runMarkCommand(toggleMark(messageSchema.marks.em)),
     },
     {
       key: 'code',
-      label: 'Código',
+      label: tUi("cannedResponses:table.columns.shortCode"),
       icon: <Code className="h-4 w-4" />,
       active: isMarkActive(messageSchema.marks.code),
       onClick: () => runMarkCommand(toggleMark(messageSchema.marks.code)),
     },
     {
       key: 'bulletList',
-      label: 'Lista',
+      label: tUi("customAttributes:attributeTypeOptions.list.label"),
       icon: <List className="h-4 w-4" />,
       active: false,
       onClick: () => runMarkCommand(wrapInList(messageSchema.nodes.bullet_list)),

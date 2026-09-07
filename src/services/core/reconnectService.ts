@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { actionCableService } from './websocket/actionCableService';
 import { useAuthStore } from '@/store/authStore';
 
@@ -135,7 +136,7 @@ export class ReconnectService {
       });
 
       if (!response.ok) {
-        throw new Error('Health check failed');
+        throw new Error(i18n.t("interface:reconnectservice.healthCheckFailed"));
       }
     } catch (error) {
       console.error('ReconnectService.checkAndReconnect error:', error);

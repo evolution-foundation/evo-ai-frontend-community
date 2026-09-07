@@ -14,17 +14,17 @@ export function MicrosoftForm({ config, onConfigChange }: IntegrationFormProps) 
     <div className="space-y-4">
       <FormField
         id="AZURE_APP_ID"
-        label={t('integrations.microsoft.appId')}
+        label={t("microsoft.appId")}
         value={getValue('azureAppId')}
         onChange={(value) => onConfigChange('azureAppId', value)}
-        placeholder={t('integrations.microsoft.placeholders.appId')}
+        placeholder={t("microsoft.placeholders.appId")}
       />
       <FormField
         id="AZURE_APP_SECRET"
-        label={t('integrations.microsoft.appSecret')}
+        label={t("microsoft.appSecret")}
         value={getValue('azureAppSecret')}
         onChange={(value) => onConfigChange('azureAppSecret', value)}
-        placeholder={t('integrations.microsoft.placeholders.appSecret')}
+        placeholder={t("microsoft.placeholders.appSecret")}
         type="password"
       />
     </div>

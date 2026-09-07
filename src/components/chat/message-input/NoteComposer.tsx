@@ -41,7 +41,6 @@ const NoteComposer: React.FC<NoteComposerProps> = ({ onSave, onExit, isSaving = 
         <span style={{ fontSize: 13.5, color: '#9a3412', lineHeight: 1.4 }}>
           {t(
             'messageInput.noteComposer.helper',
-            'Salve notas importantes na conversa para que outros usuários possam ver no futuro.',
           )}
         </span>
         <div onClick={onExit} style={{ cursor: 'pointer', color: '#c2410c', flex: '0 0 auto', display: 'flex', marginTop: 1 }}>
@@ -55,7 +54,7 @@ const NoteComposer: React.FC<NoteComposerProps> = ({ onSave, onExit, isSaving = 
       <textarea
         value={content}
         onChange={e => setContent(e.target.value)}
-        placeholder={t('messageInput.noteComposer.placeholder', 'Adicionar nota ao atendimento...')}
+        placeholder={t('messageInput.noteComposer.placeholder')}
         disabled={isSaving}
         autoFocus
         style={{
@@ -87,7 +86,7 @@ const NoteComposer: React.FC<NoteComposerProps> = ({ onSave, onExit, isSaving = 
             borderRadius: 9,
           }}
         >
-          {t('messageInput.noteComposer.cancel', 'Cancelar')}
+          {t('messageInput.noteComposer.cancel')}
         </div>
         <div
           onClick={() => !isSaving && handleSave()}
@@ -104,7 +103,7 @@ const NoteComposer: React.FC<NoteComposerProps> = ({ onSave, onExit, isSaving = 
             userSelect: 'none',
           }}
         >
-          {isSaving ? t('messageInput.noteComposer.saving', 'Salvando...') : t('messageInput.noteComposer.save', 'Salvar')}
+          {isSaving ? t('messageInput.noteComposer.saving') : t('messageInput.noteComposer.save')}
         </div>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Edit, Trash2 } from 'lucide-react';
 import BaseTable from '@/components/base/BaseTable';
@@ -90,7 +91,7 @@ export default function LabelsTable({
       sortable: true,
       render: (label: Label) => (
         <div className="text-sm text-muted-foreground">
-          {new Date(label.created_at).toLocaleDateString('pt-BR')}
+          {new Date(label.created_at).toLocaleDateString(getFormattingLocale())}
         </div>
       ),
     },

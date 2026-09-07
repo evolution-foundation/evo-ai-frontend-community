@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@evoapi/design-system';
 import ContactEditRules, { ContactEditConfig } from '@/pages/Customer/Agents/Agent/sections/ContactEditRules';
 import { ModalSaveFooter } from './ModalSaveFooter';
@@ -21,6 +22,7 @@ const ContactEditModal = ({
   onSave,
   isSaving = false,
 }: ContactEditModalProps) => {
+  const { t: tUi } = useUiTranslation();
   const { handleOpenChange, handleSave } = useModalSaveClose({
     open,
     value: config,
@@ -37,8 +39,7 @@ const ContactEditModal = ({
       <DialogContent className="max-h-[90vh] gap-3 overflow-y-auto p-5 sm:max-w-[820px]">
         <DialogHeader className="sm:text-center">
           <DialogTitle className="text-xl font-bold text-foreground">
-            Edição de Contatos
-          </DialogTitle>
+            {tUi("interface:contacteditmodal.contactEditing")}</DialogTitle>
         </DialogHeader>
         <ContactEditRules config={config} onChange={onChange} />
         <ModalSaveFooter

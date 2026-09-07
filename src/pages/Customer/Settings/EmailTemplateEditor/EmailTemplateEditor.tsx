@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -25,9 +27,10 @@ import MessageTemplateService, {
 import { TemplateFormData } from '@/types/channels/inbox';
 
 const EmailTemplateEditor: React.FC = () => {
+  const { t: tUi } = useUiTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { t } = useLanguage('channels');
+  const { t, currentLanguage } = useLanguage('channels');
 
   const inboxId = searchParams.get('inboxId') || '';
   const templateId = searchParams.get('templateId') || '';
@@ -131,8 +134,7 @@ const EmailTemplateEditor: React.FC = () => {
         setIsLegacyHtml(true);
         console.warn('Template contains HTML (legacy format). Cannot load into visual editor.');
         toast.warning(
-          t('settings.messageTemplates.editor.legacyHtmlWarning') ||
-            'Este template foi criado com HTML. Você pode editá-lo visualmente agora.',
+          t('settings.messageTemplates.editor.legacyHtmlWarning'),
         );
         // Start with empty editor - user can recreate the template visually
       } else {
@@ -148,8 +150,7 @@ const EmailTemplateEditor: React.FC = () => {
           // Invalid JSON - start with empty editor
           console.warn('Content is not valid JSON design:', error);
           toast.warning(
-            t('settings.messageTemplates.editor.invalidContentWarning') ||
-              'Não foi possível carregar o conteúdo. Editor iniciado vazio.',
+            t('settings.messageTemplates.editor.invalidContentWarning'),
           );
         }
       }
@@ -236,7 +237,7 @@ const EmailTemplateEditor: React.FC = () => {
   // Editor options
   const editorOptions = {
     minHeight: '100%',
-    locale: 'pt-BR',
+    locale: currentLanguage,
     appearance: {
       theme: 'dark' as const,
       panels: {
@@ -444,11 +445,10 @@ const EmailTemplateEditor: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-sidebar-foreground">
-                      {t('settings.messageTemplates.editor.htmlPreview') || 'Visualização HTML'}
+                      {t('settings.messageTemplates.editor.htmlPreview')}
                     </h3>
                     <p className="text-xs text-sidebar-foreground/60 mt-1">
-                      {t('settings.messageTemplates.editor.htmlPreviewDescription') ||
-                        'Este template foi criado com HTML. Você pode editá-lo visualmente no editor abaixo.'}
+                      {t('settings.messageTemplates.editor.htmlPreviewDescription')}
                     </p>
                   </div>
                   <Button
@@ -460,8 +460,7 @@ const EmailTemplateEditor: React.FC = () => {
                       setFormData(prev => ({ ...prev, content: '' }));
                     }}
                   >
-                    {t('settings.messageTemplates.editor.startVisualEdit') ||
-                      'Começar Edição Visual'}
+                    {t('settings.messageTemplates.editor.startVisualEdit')}
                   </Button>
                 </div>
               </div>
@@ -470,16 +469,15 @@ const EmailTemplateEditor: React.FC = () => {
                   {/* Email header */}
                   <div className="email-header bg-gray-50 dark:bg-slate-700 p-4 border-b border-gray-200 dark:border-gray-600">
                     <div className="mb-2">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">Subject:</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{tUi("journey:panels.sendTranscript.node.subjectLabel")}</span>
                       <div className="text-sm font-medium text-slate-900 dark:text-slate-100 mt-1">
-                        {formData.subject || 'Email Subject'}
+                        {formData.subject || i18n.t('interface:fallbacks.emailSubject')}
                       </div>
                     </div>
                     <div>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">From:</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{tUi("interface:emailtemplateeditor.from")}</span>
                       <div className="text-sm text-slate-700 dark:text-slate-300 mt-1">
-                        noreply@example.com
-                      </div>
+                        {tUi("adminSettings:email.placeholders.senderEmail")}</div>
                     </div>
                   </div>
 

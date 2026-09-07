@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { extractData, extractResponse } from '@/utils/apiHelpers';
 import api from '../core/api';
 import authApi from '@/services/core/apiAuth';
@@ -21,7 +22,7 @@ class AutomationService {
       return extractResponse<AutomationRule>(response) as AutomationsResponse;
     } catch (error: any) {
       console.error('Erro ao buscar automações:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao buscar automações');
+      throw new Error(error?.response?.data?.message || i18n.t("interface:automationservice.couldNotFetchAutomations"));
     }
   }
 
@@ -31,7 +32,7 @@ class AutomationService {
       return extractData<AutomationRule>(response);
     } catch (error: any) {
       console.error('Erro ao buscar automação:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao buscar automação');
+      throw new Error(error?.response?.data?.message || i18n.t("interface:automationservice.couldNotFetchAutomation"));
     }
   }
 
@@ -73,10 +74,10 @@ class AutomationService {
               `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`,
           )
           .join('; ');
-        throw new Error(`Erro de validação: ${errorMessages}`);
+        throw new Error(i18n.t("interface:messages.validationError", { errors: errorMessages }));
       }
 
-      throw new Error(error?.response?.data?.message || 'Erro ao criar automação');
+      throw new Error(error?.response?.data?.message || i18n.t("interface:automationservice.couldNotCreateAutomation"));
     }
   }
 
@@ -115,10 +116,10 @@ class AutomationService {
               `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`,
           )
           .join('; ');
-        throw new Error(`Erro de validação: ${errorMessages}`);
+        throw new Error(i18n.t("interface:messages.validationError", { errors: errorMessages }));
       }
 
-      throw new Error(error?.response?.data?.message || 'Erro ao atualizar automação');
+      throw new Error(error?.response?.data?.message || i18n.t("interface:automationservice.couldNotUpdateAutomation"));
     }
   }
 
@@ -128,7 +129,7 @@ class AutomationService {
       return extractData<AutomationDeleteResponse>(response);
     } catch (error: any) {
       console.error('Erro ao excluir automação:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao excluir automação');
+      throw new Error(error?.response?.data?.message || i18n.t("interface:automationservice.couldNotDeleteAutomation"));
     }
   }
 
@@ -138,7 +139,7 @@ class AutomationService {
       return extractData<AutomationResponse>(response);
     } catch (error: any) {
       console.error('Erro ao clonar automação:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao clonar automação');
+      throw new Error(error?.response?.data?.message || i18n.t("interface:automationservice.couldNotCloneAutomation"));
     }
   }
 
@@ -158,7 +159,7 @@ class AutomationService {
       };
     } catch (error: any) {
       console.error('Erro ao buscar execuções da automação:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao buscar execuções da automação');
+      throw new Error(error?.response?.data?.message || i18n.t("interface:automationservice.couldNotFetchAutomationRuns"));
     }
   }
 
@@ -230,7 +231,7 @@ class AutomationService {
       return extractData<string>(response);
     } catch (error: any) {
       console.error('Erro ao fazer upload do arquivo:', error);
-      throw new Error(error?.response?.data?.message || 'Erro ao fazer upload do arquivo');
+      throw new Error(error?.response?.data?.message || i18n.t("interface:automationservice.couldNotUploadFile"));
     }
   }
 

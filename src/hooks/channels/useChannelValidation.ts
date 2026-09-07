@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 export interface FormData {
@@ -5,23 +6,24 @@ export interface FormData {
 }
 
 export const useChannelValidation = () => {
+  const { t: tUi } = useUiTranslation();
   const getStr = (form: FormData, key: string, fallback = ''): string =>
     typeof form[key] === 'string' ? (form[key] as string) : fallback;
 
   const validateWebWidget = (form: FormData) => {
     if (!getStr(form, 'name').trim()) {
-      toast.error('Nome do canal é obrigatório');
+      toast.error(tUi("sms:validation.nameRequired"));
       return false;
     }
     if (!getStr(form, 'website_url').trim()) {
-      toast.error('Website URL é obrigatório');
+      toast.error(tUi("channels:settings.validation.websiteUrlRequired"));
       return false;
     }
     // Validate URL format
     try {
       new URL(getStr(form, 'website_url'));
     } catch {
-      toast.error('Website URL deve ser uma URL válida (ex: https://meusite.com)');
+      toast.error(tUi("channels:settings.validation.websiteUrlInvalid"));
       return false;
     }
     return true;
@@ -29,35 +31,35 @@ export const useChannelValidation = () => {
 
   const validateTwilioWhatsapp = (form: FormData) => {
     if (!getStr(form, 'name').trim()) {
-      toast.error('Nome do canal é obrigatório');
+      toast.error(tUi("sms:validation.nameRequired"));
       return false;
     }
     if (!getStr(form, 'account_sid').trim()) {
-      toast.error('Account SID é obrigatório');
+      toast.error(tUi("sms:validation.accountSidRequired"));
       return false;
     }
     if (!getStr(form, 'auth_token').trim()) {
-      toast.error('Auth Token é obrigatório');
+      toast.error(tUi("sms:validation.authTokenRequired"));
       return false;
     }
     if (form.use_api_key && !getStr(form, 'api_key_sid').trim()) {
-      toast.error('API Key SID é obrigatório quando usar API Key');
+      toast.error(tUi("channels:settings.validation.apiKeySidRequired"));
       return false;
     }
     if (form.use_messaging_service) {
       if (!getStr(form, 'messaging_service_sid').trim()) {
-        toast.error('Messaging Service SID é obrigatório');
+        toast.error(tUi("channels:settings.validation.messagingServiceSidRequired"));
         return false;
       }
     } else {
       if (!getStr(form, 'phone_number').trim()) {
-        toast.error('Telefone é obrigatório');
+        toast.error(tUi("channels:settings.validation.phoneRequired"));
         return false;
       }
       // Validate phone number format (E.164)
       const phonePattern = /^\+[1-9]\d{1,14}$/;
       if (!phonePattern.test(getStr(form, 'phone_number'))) {
-        toast.error('Telefone deve estar no formato internacional (+5511999999999)');
+        toast.error(tUi("channels:settings.validation.phoneInvalidFormat"));
         return false;
       }
     }
@@ -66,25 +68,25 @@ export const useChannelValidation = () => {
 
   const validateNotificame = (form: FormData) => {
     if (!getStr(form, 'name').trim()) {
-      toast.error('Nome do canal é obrigatório');
+      toast.error(tUi("sms:validation.nameRequired"));
       return false;
     }
     if (!getStr(form, 'phone_number').trim()) {
-      toast.error('Telefone é obrigatório');
+      toast.error(tUi("channels:settings.validation.phoneRequired"));
       return false;
     }
     if (!getStr(form, 'api_token').trim()) {
-      toast.error('API Token é obrigatório');
+      toast.error(tUi("channels:settings.validation.apiTokenRequired"));
       return false;
     }
     if (!getStr(form, 'channel_id').trim()) {
-      toast.error('Channel ID é obrigatório');
+      toast.error(tUi("channels:settings.validation.channelIdRequired"));
       return false;
     }
     // Validate phone number format (E.164)
     const phonePattern = /^\+[1-9]\d{1,14}$/;
     if (!phonePattern.test(getStr(form, 'phone_number'))) {
-      toast.error('Telefone deve estar no formato internacional (+5511999999999)');
+      toast.error(tUi("channels:settings.validation.phoneInvalidFormat"));
       return false;
     }
     return true;
@@ -92,27 +94,27 @@ export const useChannelValidation = () => {
 
   const validateEvolution = (form: FormData, hasEvolutionConfig: boolean) => {
     if (!getStr(form, 'name').trim()) {
-      toast.error('Nome do canal é obrigatório');
+      toast.error(tUi("sms:validation.nameRequired"));
       return false;
     }
     if (!getStr(form, 'phone_number').trim()) {
-      toast.error('Telefone é obrigatório');
+      toast.error(tUi("channels:settings.validation.phoneRequired"));
       return false;
     }
     if (!hasEvolutionConfig) {
       if (!getStr(form, 'api_url').trim()) {
-        toast.error('API URL é obrigatório');
+        toast.error(tUi("channels:settings.validation.apiUrlRequired"));
         return false;
       }
       if (!getStr(form, 'admin_token').trim()) {
-        toast.error('Admin Token é obrigatório');
+        toast.error(tUi("channels:settings.validation.adminTokenRequired"));
         return false;
       }
     }
     // Validate phone number format (E.164)
     const phonePattern = /^\+[1-9]\d{1,14}$/;
     if (!phonePattern.test(getStr(form, 'phone_number'))) {
-      toast.error('Telefone deve estar no formato internacional (+5511999999999)');
+      toast.error(tUi("channels:settings.validation.phoneInvalidFormat"));
       return false;
     }
     return true;
@@ -120,27 +122,27 @@ export const useChannelValidation = () => {
 
   const validateEvolutionGo = (form: FormData, hasEvolutionGoConfig: boolean) => {
     if (!getStr(form, 'name').trim()) {
-      toast.error('Nome do canal é obrigatório');
+      toast.error(tUi("sms:validation.nameRequired"));
       return false;
     }
     if (!getStr(form, 'phone_number').trim()) {
-      toast.error('Telefone é obrigatório');
+      toast.error(tUi("channels:settings.validation.phoneRequired"));
       return false;
     }
     if (!hasEvolutionGoConfig) {
       if (!getStr(form, 'api_url').trim()) {
-        toast.error('API URL é obrigatório');
+        toast.error(tUi("channels:settings.validation.apiUrlRequired"));
         return false;
       }
       if (!getStr(form, 'admin_token').trim()) {
-        toast.error('Admin Token é obrigatório');
+        toast.error(tUi("channels:settings.validation.adminTokenRequired"));
         return false;
       }
     }
     // Validate phone number format (E.164)
     const phonePattern = /^\+[1-9]\d{1,14}$/;
     if (!phonePattern.test(getStr(form, 'phone_number'))) {
-      toast.error('Telefone deve estar no formato internacional (+5511999999999)');
+      toast.error(tUi("channels:settings.validation.phoneInvalidFormat"));
       return false;
     }
     return true;
@@ -148,29 +150,29 @@ export const useChannelValidation = () => {
 
   const validateZapi = (form: FormData) => {
     if (!getStr(form, 'name').trim()) {
-      toast.error('Nome do canal é obrigatório');
+      toast.error(tUi("sms:validation.nameRequired"));
       return false;
     }
     if (!getStr(form, 'phone_number').trim()) {
-      toast.error('Telefone é obrigatório');
+      toast.error(tUi("channels:settings.validation.phoneRequired"));
       return false;
     }
     if (!getStr(form, 'instance_id').trim()) {
-      toast.error('Instance ID é obrigatório');
+      toast.error(tUi("interface:usechannelvalidation.instanceIdIsRequired"));
       return false;
     }
     if (!getStr(form, 'token').trim()) {
-      toast.error('Token é obrigatório');
+      toast.error(tUi("whatsapp:validation.tokenRequired"));
       return false;
     }
     if (!getStr(form, 'client_token').trim()) {
-      toast.error('Client Token é obrigatório');
+      toast.error(tUi("interface:usechannelvalidation.clientTokenIsRequired"));
       return false;
     }
     // Validate phone number format (E.164)
     const phonePattern = /^\+[1-9]\d{1,14}$/;
     if (!phonePattern.test(getStr(form, 'phone_number'))) {
-      toast.error('Telefone deve estar no formato internacional (+5511999999999)');
+      toast.error(tUi("channels:settings.validation.phoneInvalidFormat"));
       return false;
     }
     return true;
@@ -192,7 +194,7 @@ export const useChannelValidation = () => {
       case 'whatsapp':
         // Every other guard in this file toasts before returning false.
         if (!providerId) {
-          toast.error('Selecione um provedor');
+          toast.error(tUi("apiKeys:form.placeholders.provider"));
           return false;
         }
 

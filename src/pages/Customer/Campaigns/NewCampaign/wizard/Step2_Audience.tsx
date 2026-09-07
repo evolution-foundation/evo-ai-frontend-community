@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState, useEffect } from 'react';
 import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Badge } from '@evoapi/design-system';
 import { ArrowRight, ArrowLeft, Users, Plus, X, Tag as TagIcon, Target } from 'lucide-react';
@@ -312,7 +313,7 @@ const Step2_Audience = ({ data, onChange, onNext, onBack }: Step2Props) => {
                     <SelectContent>
                       {newFilterType === 'segment' && segments.map(seg => (
                         <SelectItem key={seg.id} value={seg.id}>
-                          {seg.name} ({(seg.contactsCount || 0).toLocaleString('pt-BR')})
+                          {seg.name} ({(seg.contactsCount || 0).toLocaleString(getFormattingLocale())})
                         </SelectItem>
                       ))}
                       {newFilterType === 'tag' && labels.map(label => (

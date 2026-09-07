@@ -40,23 +40,23 @@ const AgentSummaryPanel = ({ agent, model, subAgentsCount }: AgentSummaryPanelPr
 
   const typeLabel = getAgentTypeLabel(agent.type, t);
   const origin = isExternalAgent(agent.type)
-    ? t('edit.profile.summary.external') || 'Externo'
-    : t('edit.profile.summary.native') || 'Nativo';
+    ? t('edit.profile.summary.external')
+    : t('edit.profile.summary.native');
 
   const createdAt = agent.created_at
     ? new Date(agent.created_at).toLocaleDateString(currentLanguage)
     : '—';
 
   const rows = [
-    { label: t('edit.profile.summary.type') || 'Tipo', value: `${typeLabel} · ${origin}` },
-    { label: t('edit.profile.summary.model') || 'Modelo', value: model || agent.model || '—' },
-    { label: t('edit.profile.summary.createdAt') || 'Criado em', value: createdAt },
+    { label: t('edit.profile.summary.type'), value: `${typeLabel} · ${origin}` },
+    { label: t('edit.profile.summary.model'), value: model || agent.model || '—' },
+    { label: t('edit.profile.summary.createdAt'), value: createdAt },
   ];
 
   const counters: Array<{ value: number | string; label: string }> = [
     {
       value: subAgentsCount,
-      label: t('edit.profile.summary.subAgents') || 'Sub-agentes',
+      label: t('edit.profile.summary.subAgents'),
     },
   ];
 
@@ -64,7 +64,7 @@ const AgentSummaryPanel = ({ agent, model, subAgentsCount }: AgentSummaryPanelPr
     counters.push({
       // A dash and not 0: the fetch may have failed, which is not "no products".
       value: productsCount ?? '—',
-      label: t('edit.profile.summary.products') || 'Produtos',
+      label: t('edit.profile.summary.products'),
     });
   }
 
@@ -74,7 +74,7 @@ const AgentSummaryPanel = ({ agent, model, subAgentsCount }: AgentSummaryPanelPr
         <div className="flex items-center gap-[9px] border-b border-border px-5 py-4">
           <Globe className="h-[17px] w-[17px] text-primary" />
           <span className="text-[12.5px] font-bold uppercase tracking-[0.5px] text-primary">
-            {t('edit.profile.summary.title') || 'Resumo do Agente'}
+            {t('edit.profile.summary.title')}
           </span>
         </div>
 
@@ -112,11 +112,10 @@ const AgentSummaryPanel = ({ agent, model, subAgentsCount }: AgentSummaryPanelPr
         <Info className="mt-0.5 h-[17px] w-[17px] flex-shrink-0 text-primary" />
         <div>
           <p className="text-[13px] font-bold text-primary">
-            {t('edit.profile.summary.tipTitle') || 'Dica de configuração'}
+            {t('edit.profile.summary.tipTitle')}
           </p>
           <p className="mt-0.5 text-[12.5px] leading-[1.55] text-primary">
-            {t('edit.profile.summary.tipBody') ||
-              'Preencha o Papel e o Objetivo para que o agente entenda melhor seu contexto e responda com mais precisão.'}
+            {t('edit.profile.summary.tipBody')}
           </p>
         </div>
       </div>

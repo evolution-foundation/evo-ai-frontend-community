@@ -1,4 +1,8 @@
 import i18n from 'i18next';
+import enInterface from './locales/en/interface.json';
+import ptBRInterface from './locales/pt-BR/interface.json';
+import enSurvey from './locales/en/survey.json';
+import ptBRSurvey from './locales/pt-BR/survey.json';
 import { initReactI18next } from 'react-i18next';
 
 import ptBRAuth from './locales/pt-BR/auth.json';
@@ -399,6 +403,8 @@ const detectLanguage = (): Locale => {
 
 const resources = {
   'pt-BR': {
+    survey: ptBRSurvey,
+    interface: ptBRInterface,
     auth: ptBRAuth,
     changePassword: ptBRChangePassword,
     mcpServers: ptBRMcpServers,
@@ -523,6 +529,8 @@ const resources = {
     events: ptEvents,
   },
   en: {
+    survey: enSurvey,
+    interface: enInterface,
     auth: enAuth,
     changePassword: enChangePassword,
     mcpServers: enMcpServers,
@@ -778,6 +786,7 @@ i18n.use(initReactI18next).init({
   resources,
   lng: initialLanguage,
   fallbackLng: defaultLocale,
+  defaultNS: 'common',
   debug: false, // Set to true for debugging
   interpolation: {
     escapeValue: false,

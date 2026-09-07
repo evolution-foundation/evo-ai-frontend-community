@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Dialog, DialogContent } from '@evoapi/design-system';
@@ -60,6 +61,7 @@ interface AgentWizardModalProps {
 }
 
 const AgentWizardModal = ({ open, onOpenChange, onAgentCreated, embedded = false }: AgentWizardModalProps) => {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -675,7 +677,7 @@ const AgentWizardModal = ({ open, onOpenChange, onAgentCreated, embedded = false
           type="button"
           onClick={() => onOpenChange(false)}
           className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          aria-label="Close wizard"
+          aria-label={tUi("interface:agentwizardmodal.closeWizard")}
         >
           <X className="h-5 w-5" />
         </button>
@@ -704,7 +706,7 @@ const AgentWizardModal = ({ open, onOpenChange, onAgentCreated, embedded = false
             <div className="flex items-center justify-center h-96">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-lg font-medium">Criando agente...</p>
+                <p className="text-lg font-medium">{tUi("aiAgents:messages.creating")}</p>
               </div>
             </div>
           ) : (

@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useRef } from 'react';
 import { Button, Textarea } from '@evoapi/design-system';
 import { Send, Paperclip, X, Image, FileText, File, Loader2 } from 'lucide-react';
@@ -16,6 +18,7 @@ export function AgentMessageInput({
   isDisabled = false,
   placeholder,
 }: AgentMessageInputProps) {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('aiAgents');
   const [messageInput, setMessageInput] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<FileData[]>([]);
@@ -47,7 +50,7 @@ export function AgentMessageInput({
     const maxFileSize = 10 * 1024 * 1024; // 10MB
 
     if (selectedFiles.length + newFiles.length > 5) {
-      toast.error('Você pode anexar no máximo 5 arquivos');
+      toast.error(tUi("interface:agentmessageinput.youCanAttachUpTo5Files"));
       return;
     }
 
@@ -55,7 +58,7 @@ export function AgentMessageInput({
 
     for (const file of newFiles) {
       if (file.size > maxFileSize) {
-        toast.error(`Arquivo ${file.name} excede o tamanho máximo de ${formatFileSize(maxFileSize)}`);
+        toast.error(i18n.t("interface:messages.fileTooLarge", { name: file.name, size: formatFileSize(maxFileSize) }));
         continue;
       }
 
@@ -83,7 +86,7 @@ export function AgentMessageInput({
         });
       } catch (error) {
         console.error('Error processing file:', error);
-        toast.error(`Erro ao processar arquivo ${file.name}`);
+        toast.error(i18n.t("interface:messages.fileProcessingError", { name: file.name }));
       }
     }
 
@@ -143,7 +146,7 @@ export function AgentMessageInput({
           value={messageInput}
           onChange={e => setMessageInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={placeholder || t('chat.typeMessage') || 'Digite sua mensagem...'}
+          placeholder={placeholder || t('chat.typeMessage') || tUi("aiAgents:chat.typeMessage")}
           className="flex-1 min-h-[40px] max-h-[240px] resize-none"
           disabled={isDisabled}
           rows={1}

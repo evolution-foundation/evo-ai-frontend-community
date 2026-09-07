@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   Dialog,
@@ -58,7 +59,7 @@ export default function CustomMCPServerDetails({
             {/* Basic Information */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">{t('details.sections.basicInfo')}</h3>
+                <h3 className="text-lg font-semibold">{t("form.sections.basicInfo")}</h3>
                 <div className="flex gap-2">
                   {onTest && (
                     <Button
@@ -131,7 +132,7 @@ export default function CustomMCPServerDetails({
                   <label className="text-sm font-medium text-muted-foreground">{t('details.labels.createdAt')}</label>
                   <p className="text-sm mt-1 flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    {new Date(server.created_at).toLocaleDateString('pt-BR')}
+                    {new Date(server.created_at).toLocaleDateString(getFormattingLocale())}
                   </p>
                 </div>
               </div>
@@ -143,7 +144,7 @@ export default function CustomMCPServerDetails({
             <div className="space-y-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <TestTube className="h-5 w-5" />
-                {t('details.sections.tools')} ({server.tools?.length || 0})
+                {t("form.sections.tools")} ({server.tools?.length || 0})
               </h3>
 
               {server.tools && server.tools.length > 0 ? (

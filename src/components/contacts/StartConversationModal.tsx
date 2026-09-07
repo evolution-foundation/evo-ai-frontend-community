@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -77,6 +79,7 @@ export default function StartConversationModal({
   onOpenChange,
   contact,
 }: StartConversationModalProps) {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('contacts');
   const [selectedInboxId, setSelectedInboxId] = useState<string>('');
   const [message, setMessage] = useState('');
@@ -510,7 +513,7 @@ export default function StartConversationModal({
                     </div>
                   ) : !selectedTemplate ? (
                     <>
-                      <Label>Selecione um Template</Label>
+                      <Label>{tUi("interface:startconversationmodal.selectATemplate")}</Label>
                       <div className="space-y-2 max-h-48 overflow-y-auto">
                         {messageTemplates.map(template => {
                           const previewText = getTemplatePreviewText(template, isEmailInbox);
@@ -553,7 +556,7 @@ export default function StartConversationModal({
                   ) : (
                     <>
                       <div className="flex items-center justify-between">
-                        <Label>Template: {selectedTemplate.name}</Label>
+                        <Label>{tUi("interface:startconversationmodal.template")} {selectedTemplate.name}</Label>
                         <Button
                           type="button"
                           variant="ghost"
@@ -563,8 +566,7 @@ export default function StartConversationModal({
                             setTemplateParams({});
                           }}
                         >
-                          Trocar Template
-                        </Button>
+                          {tUi("interface:startconversationmodal.changeTemplate")}</Button>
                       </div>
 
                       {isWhatsAppCloud && !isTemplateSendable(selectedTemplate) && (
@@ -576,7 +578,7 @@ export default function StartConversationModal({
                       {/* Template Variables */}
                       {Object.keys(templateParams).length > 0 && (
                         <div className="space-y-2">
-                          <Label className="text-sm">Preencha as Variáveis</Label>
+                          <Label className="text-sm">{tUi("interface:startconversationmodal.fillInTheVariables")}</Label>
                           {extractTemplateVariables(selectedTemplate).map(variable => {
                             const key = variable.name;
                             return (
@@ -591,7 +593,7 @@ export default function StartConversationModal({
                                     setTemplateParams(prev => ({ ...prev, [key]: e.target.value }))
                                   }
                                   className="flex-1 h-9 px-3 text-sm rounded-md border border-input bg-background"
-                                  placeholder={variable.example || `Valor para {{${key}}}`}
+                                  placeholder={variable.example || i18n.t("interface:dynamic.templateValue", { variable: '{{' + key + '}}' })}
                                 />
                               </div>
                             );
@@ -601,7 +603,7 @@ export default function StartConversationModal({
 
                       {/* Preview of processed message */}
                       <div className="mt-3 p-3 bg-muted/30 rounded-lg">
-                        <Label className="text-xs text-muted-foreground mb-1 block">Preview</Label>
+                        <Label className="text-xs text-muted-foreground mb-1 block">{tUi("contacts:import.preview")}</Label>
                         {isEmailInbox ? (
                           <div className="text-sm">
                             {(() => {
@@ -627,7 +629,7 @@ export default function StartConversationModal({
                                 } else {
                                   // JSON format - show message that HTML will be generated
                                   html =
-                                    '<p style="color: #666;">Template de email visual. O HTML será gerado automaticamente.</p>';
+                                    tUi("interface:startconversationmodal.visualEmailTemplateHtmlWillBeGeneratedAutomatically");
                                 }
                               }
 

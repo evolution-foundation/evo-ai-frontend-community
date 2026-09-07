@@ -94,7 +94,8 @@
       "outputModes": "Output Modes:",
       "tags": "Tags:",
       "noTools": "No tools discovered",
-      "noToolsDescription": "Execute a test to discover the available tools"
+      "noToolsDescription": "Execute a test to discover the available tools",
+      "testPrompt": "Select a tool to test it"
     },
     "headers": {
       "title": "Headers HTTP",
@@ -102,6 +103,10 @@
     },
     "tags": {
       "title": "Tags"
+    },
+    "sections": {
+      "headers": "Headers",
+      "tags": "Tags"
     }
   },
   "form": {
@@ -237,7 +242,8 @@
       "tools": "Tools",
       "timeout": "Timeout",
       "createdAt": "Created at",
-      "actions": "Test"
+      "actions": "Test",
+      "test": "Test"
     },
     "custom": "Custom",
     "noDescription": "No description",
@@ -248,6 +254,12 @@
     "emptyMessage": "No custom MCP server found",
     "emptyTitle": "No custom MCP server created",
     "emptyDescription": "Create custom MCP servers to expand the capabilities of agents.",
-    "emptyAction": "Create custom MCP server"
+    "emptyAction": "Create custom MCP server",
+    "empty": {
+      "message": "No MCP servers found",
+      "title": "No MCP servers found",
+      "description": "Add an MCP server to connect your tools",
+      "action": "Add MCP server"
+    }
   }
 }

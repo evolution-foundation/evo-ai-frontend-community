@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config';
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@evoapi/design-system';
 import { toast } from 'sonner';
@@ -80,6 +82,7 @@ export default function HubConnectButton({
   name,
   onCreated,
 }: HubConnectButtonProps) {
+  const { t: tUi } = useUiTranslation();
   // Flag genérica (default ON p/ community standalone): quando false (deploy
   // enterprise/SaaS), esconde "Usar canal existente do Hub". Motivo: a listagem
   // de canais existentes do Hub usa credenciais GLOBAIS e NÃO filtra por tenant
@@ -126,7 +129,7 @@ export default function HubConnectButton({
         setAvailableChannels(channels);
         if (channels.length === 0) {
           setChannelsError(
-            'Nenhum canal disponível no Hub para este tipo. Crie um novo ou linke um canal de outro tipo.',
+            tUi("interface:hubconnectbutton.noHubChannelsAvailableForThisTypeCreateOneOr"),
           );
         }
       })
@@ -135,7 +138,7 @@ export default function HubConnectButton({
         const msg =
           (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
           (err as { message?: string })?.message ??
-          'Falha ao listar canais do Hub';
+          tUi("interface:hubconnectbutton.couldNotListHubChannels");
         setChannelsError(msg);
       })
       .finally(() => {
@@ -144,7 +147,7 @@ export default function HubConnectButton({
     return () => {
       cancelled = true;
     };
-  }, [mode, channelType]);
+  }, [mode, channelType, tUi]);
 
   // Guards the transition so the socket event and the reconciliation below
   // cannot announce the same connection twice.
@@ -154,8 +157,8 @@ export default function HubConnectButton({
     if (alreadyConnected.current) return;
     alreadyConnected.current = true;
     setConnectionStatus('connected');
-    toast.success('Canal conectado.');
-  }, []);
+    toast.success(tUi("interface:hubconnectbutton.channelConnected"));
+  }, [tUi]);
 
   // The Hub webhooks the CRM when the operator finishes the Meta signup and the
   // backend re-emits it on ActionCable; without this the screen only learned
@@ -254,7 +257,7 @@ export default function HubConnectButton({
           // "Meta sent empty" and only surfaced as a generic 400 from the proxy.
           const missing = (['phone_number_id', 'waba_id'] as const).filter((key) => !data.data?.[key]);
           if (missing.length) {
-            failSignup(`A Meta não devolveu ${missing.join(' e ')}. Conclua a conexão pela aba do Hub.`);
+            failSignup(i18n.t("interface:messages.metaMissingFields", { fields: missing.join(', ') }));
             return;
           }
 
@@ -264,9 +267,9 @@ export default function HubConnectButton({
             ...(data.data.business_id ? { business_id: data.data.business_id } : {}),
           });
         } else if (data.event === 'CANCEL') {
-          failSignup('Conexão cancelada na Meta.');
+          failSignup(tUi("interface:hubconnectbutton.connectionCancelledInMeta"));
         } else if (data.event === 'ERROR') {
-          failSignup(data.data?.error_message || 'A Meta recusou a conexão.');
+          failSignup(data.data?.error_message || tUi("interface:hubconnectbutton.metaDeclinedTheConnection"));
         }
       } catch {
         // A Meta message that is not the signup JSON.
@@ -275,7 +278,7 @@ export default function HubConnectButton({
 
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  }, [failSignup]);
+  }, [failSignup, tUi]);
 
   useEffect(() => {
     if (!signupData || !authCode || inboxId === null) return;
@@ -285,11 +288,11 @@ export default function HubConnectButton({
       .connectWhatsapp(inboxId, { ...signupData, auth_code: authCode, connection_mode: HUB_CONNECTION_MODE })
       .then(() => {
         if (cancelled) return;
-        toast.success('Conexão enviada ao Hub. Aguardando confirmação do canal…');
+        toast.success(tUi("interface:hubconnectbutton.connectionSentToTheHubWaitingForChannelConfirmation"));
       })
       .catch((error: unknown) => {
         if (cancelled) return;
-        failSignup(apiErrorMessage(error) ?? 'Falha ao concluir a conexão no Hub');
+        failSignup(apiErrorMessage(error) ?? tUi("interface:hubconnectbutton.couldNotCompleteTheHubConnection"));
       })
       .finally(() => {
         if (cancelled) return;
@@ -300,7 +303,7 @@ export default function HubConnectButton({
     return () => {
       cancelled = true;
     };
-  }, [signupData, authCode, inboxId, failSignup]);
+  }, [signupData, authCode, inboxId, failSignup, tUi]);
 
   // Returns false when the Hub sends no app/config for the channel (today's
   // shared-app case); the caller then opens the Hub tab.
@@ -333,7 +336,7 @@ export default function HubConnectButton({
         if (!code) {
           // Domain not allowed, popup closed or permission denied — the SDK does
           // not tell them apart, and untreated the screen spun on "connecting" forever.
-          failSignup('A Meta não concluiu a autorização. Use o link para abrir o fluxo em outra aba.');
+          failSignup(tUi("interface:hubconnectbutton.metaDidNotCompleteAuthorizationUseTheLinkToOpen"));
           return;
         }
         setAuthCode(code);
@@ -360,7 +363,7 @@ export default function HubConnectButton({
       const link = inbox?.evolution_hub?.public_link ?? null;
 
       if (!link) {
-        toast.error('Inbox criada, mas o Hub não retornou link público. Verifique a configuração.');
+        toast.error(tUi("interface:hubconnectbutton.inboxCreatedButTheHubDidNotReturnAPublic"));
         return;
       }
 
@@ -371,19 +374,19 @@ export default function HubConnectButton({
       const inPage = channelType === 'whatsapp_cloud' && (await startEmbeddedSignup(inbox.id));
       setInPageSignup(inPage);
       if (inPage) {
-        toast.success('Inbox criada. Conclua a conexão na janela da Meta.');
+        toast.success(tUi("interface:hubconnectbutton.inboxCreatedCompleteTheConnectionInTheMetaWindow"));
         return;
       }
 
       window.open(link, '_blank', 'noopener,noreferrer');
-      toast.success('Inbox criada. Conclua a conexão na aba que foi aberta.');
+      toast.success(tUi("interface:hubconnectbutton.inboxCreatedCompleteTheConnectionInTheTabThatOpened"));
     } catch (error: unknown) {
       // Hub errors arrive structured (PLAN_FORBIDS_SHARED, QUOTA_EXCEEDED);
       // reading `data.message` raw dropped the translated text.
       const message =
         apiErrorMessage(error) ??
         (error as { message?: string }).message ??
-        'Falha ao criar inbox via Evo Hub';
+        tUi("interface:hubconnectbutton.couldNotCreateInboxThroughEvoHub");
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -392,7 +395,7 @@ export default function HubConnectButton({
 
   const handleLinkExisting = async () => {
     if (!selectedHubChannelId) {
-      toast.error('Selecione um canal do Hub para vincular.');
+      toast.error(tUi("interface:hubconnectbutton.selectAHubChannelToLink"));
       return;
     }
     setSubmitting(true);
@@ -406,13 +409,13 @@ export default function HubConnectButton({
       const inbox = response.data?.data;
       setInboxId(inbox.id);
       setLinkedDone(true);
-      toast.success('Inbox vinculada ao canal Evo Hub existente.');
+      toast.success(tUi("interface:hubconnectbutton.inboxLinkedToTheExistingEvoHubChannel"));
       onCreated?.({ inboxId: inbox.id });
     } catch (error: unknown) {
       const message =
         apiErrorMessage(error) ??
         (error as { message?: string }).message ??
-        'Falha ao linkar inbox ao canal Hub existente';
+        tUi("interface:hubconnectbutton.couldNotLinkInboxToTheExistingHubChannel");
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -433,7 +436,7 @@ export default function HubConnectButton({
 
   const handleSubmit = () => {
     if (!name.trim()) {
-      toast.error('Informe um nome para a inbox antes de continuar.');
+      toast.error(tUi("interface:hubconnectbutton.enterANameForTheInboxBeforeContinuing"));
       return;
     }
     if (mode === 'new') {
@@ -451,7 +454,7 @@ export default function HubConnectButton({
         <div className="space-y-2 border rounded-md p-4 bg-muted/30" data-testid="hub-connected">
           <div className="flex items-center gap-2 text-sm">
             <CheckCircle2 className="h-5 w-5 text-green-500" />
-            <span>Canal conectado no Hub.</span>
+            <span>{tUi("interface:hubconnectbutton.channelConnectedInTheHub")}</span>
           </div>
         </div>
       );
@@ -462,17 +465,15 @@ export default function HubConnectButton({
         <div className="space-y-3 border rounded-md p-4 bg-muted/30" data-testid="hub-failed">
           <div className="flex items-center gap-2 text-sm">
             <AlertCircle className="h-5 w-5 text-destructive" />
-            <span>A conexão não foi concluída.</span>
+            <span>{tUi("interface:hubconnectbutton.theConnectionWasNotCompleted")}</span>
           </div>
           <p className="text-xs text-muted-foreground">{signupError}</p>
           {discarded ? (
             <>
               <p className="text-xs text-muted-foreground">
-                A conexão pendente foi descartada. Comece de novo quando quiser.
-              </p>
+                {tUi("interface:hubconnectbutton.thePendingConnectionWasDiscardedYouCanStartAgainWhenever")}</p>
               <Button type="button" variant="outline" onClick={restartConnection}>
-                Tentar de novo
-              </Button>
+                {tUi("interface:hubconnectbutton.tryAgain")}</Button>
             </>
           ) : (
             <Button
@@ -484,8 +485,7 @@ export default function HubConnectButton({
               }}
             >
               <ExternalLink className="h-4 w-4 mr-2" />
-              Tentar pelo Hub em outra aba
-            </Button>
+              {tUi("interface:hubconnectbutton.tryThroughTheHubInAnotherTab")}</Button>
           )}
         </div>
       );
@@ -495,12 +495,12 @@ export default function HubConnectButton({
       <div className="space-y-3 border rounded-md p-4 bg-muted/30" data-testid="hub-waiting">
         <div className="flex items-center gap-2 text-sm">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          <span>Inbox criada. Aguardando conexão Meta no Hub…</span>
+          <span>{tUi("interface:hubconnectbutton.inboxCreatedWaitingForTheMetaConnectionInTheHub")}</span>
         </div>
         <p className="text-xs text-muted-foreground">
           {inPageSignup
-            ? 'Conclua a autorização na janela da Meta. Se ela não abriu, use o botão abaixo.'
-            : 'Se a aba não abriu, clique no botão abaixo para reabrir.'}
+            ? tUi("interface:hubconnectbutton.completeAuthorizationInTheMetaWindowIfItDidNot")
+            : tUi("interface:hubconnectbutton.ifTheTabDidNotOpenClickTheButtonBelow")}
         </p>
         <Button
           type="button"
@@ -508,8 +508,7 @@ export default function HubConnectButton({
           onClick={() => window.open(publicLink, '_blank', 'noopener,noreferrer')}
         >
           <ExternalLink className="h-4 w-4 mr-2" />
-          Abrir link de conexão
-        </Button>
+          {tUi("interface:hubconnectbutton.openConnectionLink")}</Button>
       </div>
     );
   }
@@ -519,11 +518,10 @@ export default function HubConnectButton({
       <div className="space-y-2 border rounded-md p-4 bg-muted/30">
         <div className="flex items-center gap-2 text-sm">
           <CheckCircle2 className="h-5 w-5 text-green-500" />
-          <span>Inbox vinculada ao canal Evo Hub existente.</span>
+          <span>{tUi("interface:hubconnectbutton.inboxLinkedToTheExistingEvoHubChannel")}</span>
         </div>
         <p className="text-xs text-muted-foreground">
-          O canal já está ativo — mensagens chegarão pelo webhook do Hub.
-        </p>
+          {tUi("interface:hubconnectbutton.theChannelIsAlreadyActiveMessagesWillArriveThroughThe")}</p>
       </div>
     );
   }
@@ -531,7 +529,7 @@ export default function HubConnectButton({
   return (
     <div className="space-y-3">
       <fieldset className="space-y-2">
-        <legend className="text-sm font-medium">Como conectar este canal no Evo Hub?</legend>
+        <legend className="text-sm font-medium">{tUi("interface:hubconnectbutton.howWouldYouLikeToConnectThisChannelInEvo")}</legend>
         <label className="flex items-start gap-2 text-sm cursor-pointer">
           <input
             type="radio"
@@ -542,10 +540,9 @@ export default function HubConnectButton({
             className="mt-1"
           />
           <div>
-            <div className="font-medium">Criar nova conexão</div>
+            <div className="font-medium">{tUi("interface:hubconnectbutton.createNewConnection")}</div>
             <div className="text-xs text-muted-foreground">
-              Cria um canal novo no Hub e abre o fluxo de OAuth Meta em outra aba.
-            </div>
+              {tUi("interface:hubconnectbutton.createAChannelInTheHubAndOpenTheMeta")}</div>
           </div>
         </label>
         {allowExistingHubChannels && (
@@ -559,10 +556,9 @@ export default function HubConnectButton({
               className="mt-1"
             />
             <div>
-              <div className="font-medium">Usar canal existente do Hub</div>
+              <div className="font-medium">{tUi("interface:hubconnectbutton.useAnExistingHubChannel")}</div>
               <div className="text-xs text-muted-foreground">
-                Apenas configura o webhook deste CRM em um canal já conectado.
-              </div>
+                {tUi("interface:hubconnectbutton.configureThisCrmSWebhookOnAnAlreadyConnectedChannel")}</div>
             </div>
           </label>
         )}
@@ -570,12 +566,11 @@ export default function HubConnectButton({
 
       {mode === 'existing' && (
         <div className="space-y-2">
-          <label className="block text-sm font-medium">Canal do Hub</label>
+          <label className="block text-sm font-medium">{tUi("interface:hubconnectbutton.hubChannel")}</label>
           {loadingChannels ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Carregando canais disponíveis…
-            </div>
+              {tUi("interface:hubconnectbutton.loadingAvailableChannels")}</div>
           ) : (
             <select
               className="w-full border rounded-md px-3 py-2 bg-background text-sm"
@@ -583,7 +578,7 @@ export default function HubConnectButton({
               onChange={(e) => setSelectedHubChannelId(e.target.value)}
               disabled={availableChannels.length === 0}
             >
-              <option value="">— Selecione —</option>
+              <option value="">{tUi("interface:hubconnectbutton.select")}</option>
               {availableChannels.map((channel) => (
                 <option key={channel.id} value={channel.id}>
                   {channel.name} ({channel.status})
@@ -609,7 +604,7 @@ export default function HubConnectButton({
         ) : (
           <Link2 className="h-4 w-4 mr-2" />
         )}
-        {mode === 'new' ? 'Conectar via Evo Hub' : 'Vincular canal existente'}
+        {mode === 'new' ? tUi("interface:hubconnectbutton.connectThroughEvoHub") : tUi("interface:hubconnectbutton.linkExistingChannel")}
       </Button>
     </div>
   );

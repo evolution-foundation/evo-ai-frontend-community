@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -22,6 +23,7 @@ interface BulkInviteModalProps {
 }
 
 export default function BulkInviteModal({ isOpen, onClose, onSuccess }: BulkInviteModalProps) {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('users');
   const [loading, setLoading] = useState(false);
   const [emailsText, setEmailsText] = useState('');
@@ -193,9 +195,7 @@ export default function BulkInviteModal({ isOpen, onClose, onSuccess }: BulkInvi
               id="emails"
               value={emailsText}
               onChange={e => setEmailsText(e.target.value)}
-              placeholder={`usuario1@exemplo.com
-usuario2@exemplo.com, usuario3@exemplo.com
-usuario4@exemplo.com`}
+              placeholder={tUi("interface:bulkinvitemodal.user1ExampleComUser2ExampleComUser3ExampleComUser4")}
               className="bg-sidebar border-sidebar-border text-sidebar-foreground min-h-[120px]"
               disabled={loading}
             />

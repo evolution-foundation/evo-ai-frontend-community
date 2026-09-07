@@ -49,21 +49,21 @@ const DashboardFiltersDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>{t('dashboard.filters.title') || 'Filtros'}</DialogTitle>
+          <DialogTitle>{t('dashboard.filters.title')}</DialogTitle>
           <DialogDescription>
-            {t('dashboard.filters.subtitle') || 'Refine os indicadores por pipeline, equipe, canal e período'}
+            {t('dashboard.filters.subtitle')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-2">
           <div className="space-y-2">
-            <Label htmlFor="dashboard-pipeline-filter">{t('dashboard.filters.pipeline') || 'Pipeline'}</Label>
+            <Label htmlFor="dashboard-pipeline-filter">{t('dashboard.filters.pipeline')}</Label>
             <Select value={draftFilters.pipelineId} onValueChange={value => onFiltersChange({ pipelineId: value })}>
               <SelectTrigger id="dashboard-pipeline-filter">
-                <SelectValue placeholder={t('dashboard.filters.allPipelines') || 'Todos os pipelines'} />
+                <SelectValue placeholder={t('dashboard.filters.allPipelines')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={allValue}>{t('dashboard.filters.allPipelines') || 'Todos os pipelines'}</SelectItem>
+                <SelectItem value={allValue}>{t('dashboard.filters.allPipelines')}</SelectItem>
                 {pipelines.map(pipeline => (
                   <SelectItem key={pipeline.id} value={pipeline.id}>
                     {pipeline.name}
@@ -74,13 +74,13 @@ const DashboardFiltersDialog = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="dashboard-team-filter">{t('dashboard.filters.team') || 'Equipe'}</Label>
+            <Label htmlFor="dashboard-team-filter">{t('dashboard.filters.team')}</Label>
             <Select value={draftFilters.teamId} onValueChange={value => onFiltersChange({ teamId: value })}>
               <SelectTrigger id="dashboard-team-filter">
-                <SelectValue placeholder={t('dashboard.filters.allTeams') || 'Todas as equipes'} />
+                <SelectValue placeholder={t('dashboard.filters.allTeams')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={allValue}>{t('dashboard.filters.allTeams') || 'Todas as equipes'}</SelectItem>
+                <SelectItem value={allValue}>{t('dashboard.filters.allTeams')}</SelectItem>
                 {teams.map(team => (
                   <SelectItem key={team.id} value={team.id}>
                     {team.name}
@@ -91,13 +91,13 @@ const DashboardFiltersDialog = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="dashboard-inbox-filter">{t('dashboard.filters.channel') || 'Canal'}</Label>
+            <Label htmlFor="dashboard-inbox-filter">{t('dashboard.filters.channel')}</Label>
             <Select value={draftFilters.inboxId} onValueChange={value => onFiltersChange({ inboxId: value })}>
               <SelectTrigger id="dashboard-inbox-filter">
-                <SelectValue placeholder={t('dashboard.filters.allChannels') || 'Todos os canais'} />
+                <SelectValue placeholder={t('dashboard.filters.allChannels')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={allValue}>{t('dashboard.filters.allChannels') || 'Todos os canais'}</SelectItem>
+                <SelectItem value={allValue}>{t('dashboard.filters.allChannels')}</SelectItem>
                 {inboxes.map(inbox => (
                   <SelectItem key={inbox.id} value={inbox.id}>
                     {inbox.name}
@@ -108,13 +108,13 @@ const DashboardFiltersDialog = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="dashboard-user-filter">{t('dashboard.filters.user') || 'Usuário'}</Label>
+            <Label htmlFor="dashboard-user-filter">{t('dashboard.filters.user')}</Label>
             <Select value={draftFilters.userId} onValueChange={value => onFiltersChange({ userId: value })}>
               <SelectTrigger id="dashboard-user-filter">
-                <SelectValue placeholder={t('dashboard.filters.allUsers') || 'Todos os usuários'} />
+                <SelectValue placeholder={t('dashboard.filters.allUsers')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={allValue}>{t('dashboard.filters.allUsers') || 'Todos os usuários'}</SelectItem>
+                <SelectItem value={allValue}>{t('dashboard.filters.allUsers')}</SelectItem>
                 {users.map(user => (
                   <SelectItem key={user.id} value={user.id}>
                     {user.name}
@@ -125,7 +125,7 @@ const DashboardFiltersDialog = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="dashboard-since-filter">{t('dashboard.filters.since') || 'De'}</Label>
+            <Label htmlFor="dashboard-since-filter">{t('dashboard.filters.since')}</Label>
             <Input
               id="dashboard-since-filter"
               type="date"
@@ -135,7 +135,7 @@ const DashboardFiltersDialog = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="dashboard-until-filter">{t('dashboard.filters.until') || 'Até'}</Label>
+            <Label htmlFor="dashboard-until-filter">{t('dashboard.filters.until')}</Label>
             <Input
               id="dashboard-until-filter"
               type="date"
@@ -147,9 +147,9 @@ const DashboardFiltersDialog = ({
 
         <DialogFooter>
           <Button variant="outline" onClick={onClear}>
-            {t('dashboard.filters.clear') || 'Limpar filtros'}
+            {t('dashboard.filters.clear')}
           </Button>
-          <Button onClick={onApply}>{t('dashboard.filters.apply') || 'Aplicar filtros'}</Button>
+          <Button onClick={onApply}>{t('dashboard.filters.apply')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -152,10 +152,10 @@ export default function TeamsTable({
       sortOrder={sortOrder}
       onSort={onSort}
       getRowKey={getRowKey || ((team: Team) => team.id.toString())}
-      emptyTitle={t('table.empty.title')}
-      emptyDescription={t('table.empty.description')}
+      emptyTitle={t("empty.title")}
+      emptyDescription={t("empty.description")}
       emptyAction={onCreateTeam && isReady && can('teams', 'create') ? {
-        label: t('table.empty.action'),
+        label: t("empty.action"),
         onClick: onCreateTeam,
       } : undefined}
     />

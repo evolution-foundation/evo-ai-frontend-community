@@ -123,7 +123,8 @@
     "actions": {
       "viewDetails": "View details",
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "openMenu": "Open actions menu"
     },
     "empty": {
       "title": "No MCP servers created",

@@ -20,12 +20,12 @@ const ChangePassword = () => {
       z.object({
         password: z
           .string()
-          .min(1, { message: t('validation.password.required') })
-          .min(8, { message: t('validation.password.minLength') }),
+          .min(1, { message: t("changePassword.validation.password.required") })
+          .min(8, { message: t("changePassword.validation.password.minLength") }),
         confirmPassword: z
           .string()
-          .min(1, { message: t('validation.confirmPassword.required') })
-          .min(8, { message: t('validation.confirmPassword.minLength') }),
+          .min(1, { message: t("changePassword.validation.confirmPassword.required") })
+          .min(8, { message: t("changePassword.validation.confirmPassword.minLength") }),
       }),
     [t],
   );
@@ -89,7 +89,7 @@ const ChangePassword = () => {
 
         {/* Formulário */}
         <div className="w-full max-w-2xl bg-neutral-surface-default rounded-xl border border-neutral-surface-disabled p-8">
-          <h1 className="text-3xl font-bold text-center mb-3">{t('title')}</h1>
+          <h1 className="text-3xl font-bold text-center mb-3">{t("changePassword.title")}</h1>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* E-mail */}
@@ -99,12 +99,12 @@ const ChangePassword = () => {
               render={({ field }) => (
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium mb-1">
-                    {t('form.password.label')}
+                    {t("changePassword.form.password.label")}
                   </label>
                   <Input
                     id="password"
                     type="password"
-                    placeholder={t('form.password.placeholder')}
+                    placeholder={t("changePassword.form.password.placeholder")}
                     {...field}
                     disabled={isLoading}
                   />
@@ -123,12 +123,12 @@ const ChangePassword = () => {
                 render={({ field }) => (
                   <div>
                     <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">
-                      {t('form.confirmPassword.label')}
+                      {t("changePassword.form.confirmPassword.label")}
                     </label>
                     <Input
                       id="confirmPassword"
                       type="password"
-                      placeholder={t('form.confirmPassword.placeholder')}
+                      placeholder={t("changePassword.form.confirmPassword.placeholder")}
                       {...field}
                       disabled={isLoading}
                     />
@@ -150,15 +150,15 @@ const ChangePassword = () => {
               size="lg"
             >
               {isLoading
-                ? t('form.submit.loading')
-                : t('form.submit.idle')}
+                ? t("changePassword.form.submit.loading")
+                : t("changePassword.form.submit.idle")}
             </Button>
           </form>
 
           {/* Link para login */}
           <p className="text-sm text-center mt-4">
             <Link to="/login" className="text-primary-interaction-default hover:underline">
-              {t('links.backToLogin')}
+              {t("changePassword.links.backToLogin")}
             </Link>
           </p>
         </div>

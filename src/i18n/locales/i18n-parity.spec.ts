@@ -4,20 +4,12 @@ import {
   emptyValueKeys,
   findLeaks,
   missingKeys,
+  flattenWithValues,
 } from './_lib/parity';
 
-/**
- * Catalog-wide i18n parity (EVO-1430).
- *
- * Iterates every `en/*.json` ↔ `pt-BR/*.json` pair and enforces, per file:
- *  - pt-BR contains every EN key (no missing → pt-BR renders fully);
- *  - pt-BR string values are non-empty;
- *  - no English leakage (pt-BR === EN) outside the allowlist.
- *
- * Pre-existing pt-BR-only orphan keys (extras absent from EN) are reported as
- * a non-failing console warning: they predate this card, are invisible to
- * users, and fixing them would require touching EN (out of scope).
- */
+/** Every English and Brazilian Portuguese catalog must have matching keys,
+ * nonempty values, and matching interpolation variables. Source references
+ * are validated separately by npm run i18n:audit. */
 
 type LocaleModule = Record<string, unknown>;
 
@@ -58,6 +50,23 @@ describe('i18n catalog parity (EVO-1430)', () => {
 
     it('pt-BR contains every EN key', () => {
       expect(missingKeys(en, pt)).toEqual([]);
+    });
+
+    it('EN contains every pt-BR key', () => {
+      expect(missingKeys(pt, en)).toEqual([]);
+    });
+
+    it('EN has no empty string values', () => {
+      expect(emptyValueKeys(en)).toEqual([]);
+    });
+
+    it('preserves interpolation variables in both languages', () => {
+      const variables = (value: string) => [...new Set([...value.matchAll(/{{\s*-?\s*([\w.]+)/g)].map(match => match[1]))].sort();
+      const enValues = Object.entries(flattenWithValues(en));
+      const ptValues = new Map(Object.entries(flattenWithValues(pt)));
+      const mismatches = enValues.filter(([key, value]) => typeof value === 'string' && typeof ptValues.get(key) === 'string'
+        && JSON.stringify(variables(value)) !== JSON.stringify(variables(ptValues.get(key) as string))).map(([key]) => key);
+      expect(mismatches).toEqual([]);
     });
 
     it('pt-BR has no empty string values', () => {

@@ -67,13 +67,13 @@ export function WaitHybridConfig({ data, onChange, journeyId }: WaitHybridConfig
     if (triggerType === 'event') {
       if (!data.eventType) return t('panels.waitComponents.hybrid.configureEvent');
       const eventTypeLabels: Record<string, string> = {
-        event: t('panels.waitComponents.event.types.event'),
-        segment: t('panels.waitComponents.event.types.segment'),
-        contactCreated: t('panels.waitComponents.event.types.contactCreated'),
-        contactUpdated: t('panels.waitComponents.event.types.contactUpdated'),
-        label: t('panels.waitComponents.event.types.label'),
-        customAttribute: t('panels.waitComponents.event.types.customAttribute'),
-        webhook: t('panels.waitComponents.event.types.webhook'),
+        event: t("triggerComponents.types.event"),
+        segment: t("triggerComponents.types.segment"),
+        contactCreated: t("triggerComponents.types.contactCreated"),
+        contactUpdated: t("triggerComponents.types.contactUpdated"),
+        label: t("triggerComponents.types.label"),
+        customAttribute: t("triggerComponents.types.customAttribute"),
+        webhook: t("triggerComponents.types.webhook"),
       };
       return eventTypeLabels[data.eventType] || data.eventType;
     } else if (triggerType === 'condition' && data.conditionField) {

@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { getAccessibleAgents } from '@/services/agents';
 
@@ -8,6 +9,7 @@ export interface AvailableAgent {
 }
 
 export const useAvailableAgents = (clientId: string) => {
+  const { t: tUi } = useUiTranslation();
   const [availableAgents, setAvailableAgents] = useState<AvailableAgent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,13 +27,13 @@ export const useAvailableAgents = (clientId: string) => {
         const agents = response.data.map((agent: any) => ({
           id: agent.id,
           name: agent.name,
-          description: agent.description || 'Agente sem descrição',
+          description: agent.description || tUi("interface:useavailableagents.agentHasNoDescription"),
         }));
 
         setAvailableAgents(agents);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar agentes disponíveis');
+      setError(err instanceof Error ? err.message : tUi("aiAgents:subAgents.loadError"));
     } finally {
       setIsLoading(false);
     }

@@ -1,0 +1,786 @@
+{
+  "agentmessageinput": {
+    "youCanAttachUpTo5Files": "You can attach up to 5 files"
+  },
+  "contacteditmodal": {
+    "contactEditing": "Contact editing"
+  },
+  "pipelineautomationmodal": {
+    "pipelineAutomation": "Pipeline automation"
+  },
+  "configurationform": {
+    "iDoNotAcceptCalls": "I do not accept calls",
+    "instanceIdNotFound": "Instance ID not found",
+    "couldNotDisplayQrCode": "Could not display QR code"
+  },
+  "messageinput": {
+    "sendEnter": "Send (Enter)"
+  },
+  "postpreview": {
+    "openPostOnFacebook": "Open post on Facebook",
+    "postImage": "Post image"
+  },
+  "formattingbubblemenu": {
+    "italic": "Italic",
+    "bold": "Bold"
+  },
+  "richtexteditor": {
+    "typeYourPrivateNote": "Type your private note…"
+  },
+  "startconversationmodal": {
+    "selectATemplate": "Select a template",
+    "fillInTheVariables": "Fill in the variables",
+    "visualEmailTemplateHtmlWillBeGeneratedAutomatically": "<p style=\"color: #666;\">Visual email template. HTML will be generated automatically.</p>",
+    "template": "Template:",
+    "changeTemplate": "Change template"
+  },
+  "hubconnectbutton": {
+    "noHubChannelsAvailableForThisTypeCreateOneOr": "No Hub channels available for this type. Create one or link a channel of another type.",
+    "couldNotListHubChannels": "Could not list Hub channels",
+    "connectionCancelledInMeta": "Connection cancelled in Meta.",
+    "metaDeclinedTheConnection": "Meta declined the connection.",
+    "connectionSentToTheHubWaitingForChannelConfirmation": "Connection sent to the Hub. Waiting for channel confirmation…",
+    "couldNotCompleteTheHubConnection": "Could not complete the Hub connection",
+    "metaDidNotCompleteAuthorizationUseTheLinkToOpen": "Meta did not complete authorization. Use the link to open the flow in another tab.",
+    "inboxCreatedButTheHubDidNotReturnAPublic": "Inbox created, but the Hub did not return a public link. Check the configuration.",
+    "inboxCreatedCompleteTheConnectionInTheMetaWindow": "Inbox created. Complete the connection in the Meta window.",
+    "inboxCreatedCompleteTheConnectionInTheTabThatOpened": "Inbox created. Complete the connection in the tab that opened.",
+    "couldNotCreateInboxThroughEvoHub": "Could not create inbox through Evo Hub",
+    "selectAHubChannelToLink": "Select a Hub channel to link.",
+    "couldNotLinkInboxToTheExistingHubChannel": "Could not link inbox to the existing Hub channel",
+    "enterANameForTheInboxBeforeContinuing": "Enter a name for the inbox before continuing.",
+    "theConnectionWasNotCompleted": "The connection was not completed.",
+    "thePendingConnectionWasDiscardedYouCanStartAgainWhenever": "The pending connection was discarded. You can start again whenever you are ready.",
+    "inboxCreatedWaitingForTheMetaConnectionInTheHub": "Inbox created. Waiting for the Meta connection in the Hub…",
+    "completeAuthorizationInTheMetaWindowIfItDidNot": "Complete authorization in the Meta window. If it did not open, use the button below.",
+    "ifTheTabDidNotOpenClickTheButtonBelow": "If the tab did not open, click the button below to reopen it.",
+    "openConnectionLink": "Open connection link",
+    "theChannelIsAlreadyActiveMessagesWillArriveThroughThe": "The channel is already active. Messages will arrive through the Hub webhook.",
+    "createNewConnection": "Create new connection",
+    "configureThisCrmSWebhookOnAnAlreadyConnectedChannel": "Configure this CRM's webhook on an already connected channel.",
+    "loadingAvailableChannels": "Loading available channels…",
+    "select": "— Select —",
+    "channelConnected": "Channel connected.",
+    "inboxLinkedToTheExistingEvoHubChannel": "Inbox linked to the existing Evo Hub channel.",
+    "channelConnectedInTheHub": "Channel connected in the Hub.",
+    "tryAgain": "Try again",
+    "tryThroughTheHubInAnotherTab": "Try through the Hub in another tab",
+    "howWouldYouLikeToConnectThisChannelInEvo": "How would you like to connect this channel in Evo Hub?",
+    "createAChannelInTheHubAndOpenTheMeta": "Create a channel in the Hub and open the Meta OAuth flow in another tab.",
+    "useAnExistingHubChannel": "Use an existing Hub channel",
+    "hubChannel": "Hub channel",
+    "connectThroughEvoHub": "Connect through Evo Hub",
+    "linkExistingChannel": "Link existing channel"
+  },
+  "asanaconfigdialog": {
+    "couldNotLoadAvailableTools": "Could not load available tools",
+    "couldNotConnectToAsana": "Could not connect to Asana",
+    "asanaDisconnectedSuccessfully": "Asana disconnected successfully!",
+    "couldNotDisconnectAsana": "Could not disconnect Asana"
+  },
+  "atlassianconfigdialog": {
+    "couldNotLoadAvailableTools": "Could not load available tools",
+    "couldNotConnectToAtlassian": "Could not connect to Atlassian",
+    "atlassianDisconnectedSuccessfully": "Atlassian disconnected successfully!",
+    "couldNotDisconnectAtlassian": "Could not disconnect Atlassian"
+  },
+  "canvaconfigdialog": {
+    "couldNotLoadAvailableTools": "Could not load available tools",
+    "couldNotConnectToCanva": "Could not connect to Canva",
+    "canvaDisconnectedSuccessfully": "Canva disconnected successfully!",
+    "couldNotDisconnectCanva": "Could not disconnect Canva"
+  },
+  "elevenlabsconfigdialog": {
+    "checkThatTheApiKeyIsCorrect": "- Check that the API key is correct.",
+    "couldNotFetchVoices": "Could not fetch voices"
+  },
+  "githubconfigdialog": {
+    "couldNotLoadAvailableTools": "Could not load available tools",
+    "couldNotConnectToGithub": "Could not connect to GitHub",
+    "githubDisconnectedSuccessfully": "GitHub disconnected successfully!",
+    "couldNotDisconnectGithub": "Could not disconnect GitHub"
+  },
+  "googlecalendarconfigdialog": {
+    "couldNotLoadCalendars": "Could not load calendars",
+    "couldNotConnectToGoogleCalendar": "Could not connect to Google Calendar",
+    "pleaseSelectACalendar": "Please select a calendar",
+    "googleCalendarDisconnectedSuccessfully": "Google Calendar disconnected successfully!",
+    "couldNotDisconnectGoogleCalendar": "Could not disconnect Google Calendar",
+    "loadingCalendars": "Loading calendars…",
+    "selectACalendar": "Select a calendar",
+    "preventLastMinuteBookings": "Prevent last-minute bookings",
+    "maximumNumberOfDaysAllowed": "Maximum number of days allowed",
+    "simultaneousBookings": "Simultaneous bookings",
+    "limitBookingsAtTheSameTime": "Limit bookings at the same time",
+    "allowBookingsAtAnyTime": "Allow bookings at any time",
+    "businessHours": "Business hours",
+    "googleMeetIntegration": "Google Meet integration",
+    "availabilityLookup": "Availability lookup",
+    "theAgentCanCheckAvailableTimes": "The agent can check available times",
+    "distributionMode": "Distribution mode",
+    "howBookingsWillBeDistributed": "How bookings will be distributed",
+    "bookingsAlternateBetweenCalendarsInSequence": "Bookings alternate between calendars in sequence.",
+    "smartDistribution": "Smart distribution",
+    "automaticallySelectTheMostSuitableCalendarBasedOnTheCustomer": "Automatically select the most suitable calendar based on the customer conversation.",
+    "requestUserName": "Request user name",
+    "requestCompanyName": "Request company name",
+    "requestAnEmailAddressToSendTheCalendarInvitation": "Request an email address to send the calendar invitation",
+    "attachAConversationSummaryToTheBooking": "Attach a conversation summary to the booking",
+    "pleaseEnterAnEmailAddress": "Please enter an email address",
+    "limitTheDurationOfEachBooking": "Limit the duration of each booking",
+    "alwaysOpen": "Always open",
+    "generateAMeetLinkWhenBooking": "Generate a Meet link when booking",
+    "sequentialDistribution": "Sequential distribution",
+    "bookingFields": "Booking fields",
+    "primary": "(Primary)",
+    "requestSubject": "Request subject",
+    "howLongItWillLast": "How long it will last"
+  },
+  "googlesheetsconfigdialog": {
+    "couldNotLoadSpreadsheets": "Could not load spreadsheets",
+    "couldNotConnectToGoogleSheets": "Could not connect to Google Sheets",
+    "pleaseSelectASpreadsheet": "Please select a spreadsheet",
+    "googleSheetsDisconnectedSuccessfully": "Google Sheets disconnected successfully!",
+    "couldNotDisconnectGoogleSheets": "Could not disconnect Google Sheets",
+    "loadingSpreadsheets": "Loading spreadsheets…",
+    "selectASpreadsheet": "Select a spreadsheet",
+    "chooseWhichSpreadsheetTheAgentCanAccess": "Choose which spreadsheet the agent can access",
+    "theAgentCanUpdateSpreadsheetCells": "The agent can update spreadsheet cells",
+    "allowCreation": "Allow creation",
+    "pleaseEnterAnEmailAddress": "Please enter an email address",
+    "allowReading": "Allow reading",
+    "theAgentCanReadSpreadsheetData": "The agent can read spreadsheet data",
+    "allowWriting": "Allow writing",
+    "theAgentCanCreateSpreadsheetRows": "The agent can create spreadsheet rows"
+  },
+  "hubspotconfigdialog": {
+    "couldNotLoadAvailableTools": "Could not load available tools",
+    "couldNotConnectToHubspot": "Could not connect to HubSpot",
+    "hubspotDisconnectedSuccessfully": "HubSpot disconnected successfully!",
+    "couldNotDisconnectHubspot": "Could not disconnect HubSpot"
+  },
+  "linearconfigdialog": {
+    "couldNotLoadAvailableTools": "Could not load available tools",
+    "couldNotConnectToLinear": "Could not connect to Linear",
+    "linearDisconnectedSuccessfully": "Linear disconnected successfully!",
+    "couldNotDisconnectLinear": "Could not disconnect Linear"
+  },
+  "mondayconfigdialog": {
+    "couldNotLoadAvailableTools": "Could not load available tools",
+    "couldNotConnectToMonday": "Could not connect to Monday",
+    "mondayDisconnectedSuccessfully": "Monday disconnected successfully!",
+    "couldNotDisconnectMonday": "Could not disconnect Monday"
+  },
+  "notionconfigdialog": {
+    "couldNotLoadAvailableTools": "Could not load available tools",
+    "couldNotConnectToNotion": "Could not connect to Notion",
+    "notionDisconnectedSuccessfully": "Notion disconnected successfully!",
+    "couldNotDisconnectNotion": "Could not disconnect Notion"
+  },
+  "paypalconfigdialog": {
+    "couldNotLoadAvailableTools": "Could not load available tools",
+    "couldNotConnectToPaypal": "Could not connect to PayPal",
+    "paypalDisconnectedSuccessfully": "PayPal disconnected successfully!",
+    "couldNotDisconnectPaypal": "Could not disconnect PayPal"
+  },
+  "stripeconfigdialog": {
+    "couldNotLoadAvailableTools": "Could not load available tools",
+    "couldNotConnectToStripe": "Could not connect to Stripe",
+    "stripeDisconnectedSuccessfully": "Stripe disconnected successfully!",
+    "couldNotDisconnectStripe": "Could not disconnect Stripe"
+  },
+  "supabaseconfigdialog": {
+    "couldNotLoadAvailableTools": "Could not load available tools",
+    "couldNotConnectToSupabase": "Could not connect to Supabase",
+    "supabaseDisconnectedSuccessfully": "Supabase disconnected successfully!",
+    "couldNotDisconnectSupabase": "Could not disconnect Supabase"
+  },
+  "integrationmodal": {
+    "newIntegration": "New integration"
+  },
+  "permissionscontext": {
+    "couldNotLoadUserPermissions": "Could not load user permissions",
+    "couldNotLoadAccountPermissions": "Could not load account permissions",
+    "couldNotReloadPermissions": "Could not reload permissions"
+  },
+  "agentchatcontext": {
+    "couldNotLoadSessions": "Could not load sessions",
+    "sessionNotFound": "Session not found",
+    "couldNotLoadMessagesPleaseTryAgain": "Could not load messages. Please try again.",
+    "couldNotCreateSessionNoIdReturned": "Could not create session: no ID returned",
+    "couldNotCreateSession": "Could not create session",
+    "sessionRemoved": "Session removed",
+    "selectAConversationOrCreateOneBeforeSendingAMessage": "Select a conversation or create one before sending a message"
+  },
+  "chatcontext": {
+    "messageReceived": "Message received"
+  },
+  "usechannelsubmission": {
+    "healthCheckFailedVerifyThatTheEvolutionGoUrlIs": "Health check failed. Verify that the Evolution Go URL is correct and accessible.",
+    "selectAnEmailProvider": "Select an email provider",
+    "redirectingToGmailAuthentication": "Redirecting to Gmail authentication…",
+    "googleOauthFailed": "Google OAuth failed",
+    "redirectingToOutlookAuthentication": "Redirecting to Outlook authentication…",
+    "microsoftOauthFailed": "Microsoft OAuth failed",
+    "unsupportedEmailProvider": "Unsupported email provider",
+    "selectAnSmsProvider": "Select an SMS provider",
+    "unsupportedSmsProvider": "Unsupported SMS provider",
+    "twilioVerificationFailed": "Twilio verification failed",
+    "notificameVerificationFailed": "Notificame verification failed",
+    "unsupportedChannelType": "Unsupported channel type"
+  },
+  "usechannelvalidation": {
+    "instanceIdIsRequired": "Instance ID is required",
+    "clientTokenIsRequired": "Client token is required"
+  },
+  "useassignmenthandlers": {
+    "youDoNotHavePermissionToAssignConversations": "You do not have permission to assign conversations",
+    "youDoNotHavePermissionToAddLabels": "You do not have permission to add labels"
+  },
+  "useaudiorecorder": {
+    "yourBrowserDoesNotSupportAudioRecording": "Your browser does not support audio recording",
+    "couldNotProcessAudioRecording": "Could not process audio recording",
+    "errorDuringAudioRecording": "Error during audio recording",
+    "couldNotAccessTheMicrophoneCheckYourPermissions": "Could not access the microphone. Check your permissions."
+  },
+  "usecannedresponses": {
+    "couldNotLoadCannedResponses": "Could not load canned responses"
+  },
+  "useconversationhandlers": {
+    "youDoNotHavePermissionToDeleteConversations": "You do not have permission to delete conversations"
+  },
+  "usefilteroptions": {
+    "couldNotLoadFilterOptions": "Could not load filter options"
+  },
+  "usemessagehistory": {
+    "couldNotLoadPreviousMessages": "Could not load previous messages"
+  },
+  "useintegrationdetails": {
+    "couldNotLoadIntegrationDetails": "Could not load integration details",
+    "integrationDisconnectedSuccessfully": "Integration disconnected successfully",
+    "couldNotDisconnectIntegration": "Could not disconnect integration",
+    "integrationReconnectedSuccessfully": "Integration reconnected successfully",
+    "couldNotReconnectIntegration": "Could not reconnect integration",
+    "connectionTestSuccessful": "Connection test successful"
+  },
+  "useintegrations": {
+    "couldNotUpdateIntegration": "Could not update integration"
+  },
+  "useoauthflow": {
+    "enterYourShopifyStoreDomainForExampleMystoreMyshopifyCom": "Enter your Shopify store domain (for example: mystore.myshopify.com):",
+    "aStoreDomainIsRequiredForShopify": "A store domain is required for Shopify",
+    "couldNotStartOauthFlow": "Could not start OAuth flow",
+    "couldNotConnectIntegration": "Could not connect integration"
+  },
+  "usewebhooks": {
+    "couldNotDeleteWebhook": "Could not delete webhook",
+    "webhookDeletedSuccessfully": "Webhook deleted successfully"
+  },
+  "usepermissions": {
+    "couldNotLoadRolePermissions": "Could not load role permissions",
+    "couldNotRemovePermissionsFromRole": "Could not remove permissions from role",
+    "couldNotDeleteRolePermissions": "Could not delete role permissions"
+  },
+  "useaccount": {
+    "couldNotLoadAccount": "Could not load account",
+    "couldNotUpdateAccount": "Could not update account"
+  },
+  "useaccountusers": {
+    "couldNotLoadUsers": "Could not load users"
+  },
+  "useagentform": {
+    "agentTypeIsRequired": "Agent type is required",
+    "aModelIsRequiredForLlmAgents": "A model is required for LLM agents"
+  },
+  "useagentvalidation": {
+    "agentTypeIsRequired": "Agent type is required",
+    "aModelIsRequiredForLlmAgents": "A model is required for LLM agents",
+    "clientIdIsRequired": "Client ID is required",
+    "instructionsAreRecommendedForA2aAgents": "Instructions are recommended for A2A agents",
+    "atLeastOneSubAgentIsRequired": "At least one sub-agent is required",
+    "maximumIterationsMustBeGreaterThan0": "Maximum iterations must be greater than 0",
+    "workflowConfigurationIsRequired": "Workflow configuration is required",
+    "atLeastOneTaskMustBeConfigured": "At least one task must be configured"
+  },
+  "useavailableagents": {
+    "agentHasNoDescription": "Agent has no description"
+  },
+  "usepermissionsconfig": {
+    "couldNotLoadPermissions": "Could not load permissions"
+  },
+  "useuseravailability": {
+    "couldNotUpdateAvailabilityStatus": "Could not update availability status"
+  },
+  "catalog": {
+    "aNewContactWasCreatedInTheCrm": "A new contact was created in the CRM.",
+    "anExistingContactHadOneOrMoreFieldsModified": "An existing contact had one or more fields modified.",
+    "aContactRecordWasDeleted": "A contact record was deleted.",
+    "aLabelWasAppliedToAContact": "A label was applied to a contact.",
+    "aLabelWasRemovedFromAContact": "A label was removed from a contact.",
+    "aCustomAttributeOnAContactWasSetOrChanged": "A custom attribute on a contact was set or changed.",
+    "aNewConversationWasOpenedWithAContact": "A new conversation was opened with a contact.",
+    "anOpenConversationWasClosedResolved": "An open conversation was closed/resolved.",
+    "anActivityNoteStatusChangeEtcOccurredOnAConversation": "An activity (note, status change, etc.) occurred on a conversation.",
+    "theFirstAgentReplyWasSentOnAConversation": "The first agent reply was sent on a conversation.",
+    "aReplyTimeMeasurementWasRecordedForAConversation": "A reply-time measurement was recorded for a conversation.",
+    "aConversationWasHandedOffFromTheBotToA": "A conversation was handed off from the bot to a human agent.",
+    "aConversationWasResolvedByTheBotWithoutHumanHandoff": "A conversation was resolved by the bot without human handoff.",
+    "aNewIncomingOrOutgoingMessageWasRecorded": "A new incoming or outgoing message was recorded.",
+    "aMessageReachedTheRecipientDevice": "A message reached the recipient device.",
+    "aMessageWasReadByTheRecipient": "A message was read by the recipient.",
+    "aMessageDeliveryAttemptFailed": "A message delivery attempt failed.",
+    "aPipelineDrivenCampaignEnteredExecutionForAContact": "A pipeline-driven campaign entered execution for a contact.",
+    "aCampaignSentAMessageToAContact": "A campaign sent a message to a contact.",
+    "aContactOpenedACampaignMessage": "A contact opened a campaign message.",
+    "aContactClickedALinkInACampaignMessage": "A contact clicked a link in a campaign message.",
+    "userDefinedEventWithFreeFormKeyValueProperties": "User-defined event with free-form key/value properties."
+  },
+  "utils": {
+    "theFlowMustHaveAtLeastOneStartNode": "The flow must have at least one start node",
+    "theFlowMustHaveOnlyOneStartNode": "The flow must have only one start node",
+    "theFlowMustHaveAtLeastOneNode": "The flow must have at least one node",
+    "theFlowMustHaveAtLeastOneTriggerNode": "The flow must have at least one trigger node"
+  },
+  "contacteditrules": {
+    "industry": "Industry"
+  },
+  "newcampaign": {
+    "review": "Review"
+  },
+  "campaigntriggerconfig": {
+    "triggerConfiguration": "Trigger configuration",
+    "configureHowTheCampaignWillBeTriggeredAutomatically": "Configure how the campaign will be triggered automatically"
+  },
+  "step1Basicinfo": {
+    "triggerConfigurationIsRequiredForTriggeredCampaigns": "Trigger configuration is required for triggered campaigns",
+    "anEventNameIsRequiredForEventTriggers": "An event name is required for event triggers",
+    "aSegmentIsRequiredForSegmentTriggers": "A segment is required for segment triggers",
+    "aLabelIsRequiredForLabelTriggers": "A label is required for label triggers",
+    "aCustomAttributeIsRequiredForAttributeTriggers": "A custom attribute is required for attribute triggers",
+    "aWebhookUrlIsRequiredForWebhookTriggers": "A webhook URL is required for webhook triggers",
+    "eGBlackFridayCampaign": "e.g. Black Friday campaign",
+    "brieflyDescribeThePurposeOfThisCampaign": "Briefly describe the purpose of this campaign…",
+    "optional": "Optional"
+  },
+  "step4Settings": {
+    "sendingStrategy": "Sending strategy",
+    "distributionStrategy": "Distribution strategy",
+    "distributionByTemplate": "Distribution by template (%)",
+    "winnerCriterion": "Winner criterion",
+    "baseMessage": "Base message:",
+    "sendingWillStartAsSoonAsTheCampaignIsCreated": "Sending will start as soon as the campaign is created",
+    "chooseAFutureStartDateAndTime": "Choose a future start date and time",
+    "winningMessage": "Winning message",
+    "doNotSendAutomatically": "Do not send automatically",
+    "sendIn": "Send in",
+    "advancedOptions": "Advanced options",
+    "distributionInterval": "Distribution interval",
+    "restrictSendingToAllowedHoursAndDays": "Restrict sending to allowed hours and days",
+    "automaticRetries": "Automatic retries",
+    "retrySendingOnFailure": "Retry sending on failure",
+    "openRate": "Open rate",
+    "clickRate": "Click rate",
+    "testSample": "Test sample",
+    "remainingWinner": "Remaining (winner):",
+    "intervalBetweenCampaignSends": "Interval between campaign sends",
+    "noInterval": "No interval",
+    "10Minutes": "10 minutes",
+    "30Minutes": "30 minutes",
+    "60Minutes": "60 minutes",
+    "1Hour30Minutes": "1 hour 30 minutes",
+    "2Hours": "2 hours",
+    "2Hours30Minutes": "2 hours 30 minutes",
+    "3Hours": "3 hours",
+    "4Hours": "4 hours",
+    "5Hours": "5 hours",
+    "6Hours": "6 hours",
+    "7Hours": "7 hours",
+    "8Hours": "8 hours",
+    "10Hours": "10 hours",
+    "11Hours": "11 hours",
+    "12Hours": "12 hours",
+    "18Hours": "18 hours",
+    "24Hours": "24 hours",
+    "sequential": "Sequential",
+    "random": "Random",
+    "test": "(Test)"
+  },
+  "step5Review": {
+    "yourCampaignWasUpdatedSuccessfully": "Your campaign was updated successfully.",
+    "yourCampaignWasCreatedSuccessfullyAndIsReady": "Your campaign was created successfully and is ready",
+    "nextSteps": "Next steps",
+    "monitorSendingAndEngagementStatistics": "Monitor sending and engagement statistics",
+    "generalInformation": "General information",
+    "name": "Name:",
+    "selection": "Selection:",
+    "noneSelected": "None selected",
+    "distributionStrategy": "Distribution strategy",
+    "winnerCriterion": "Winner criterion",
+    "theWinnerWillNotBeSentAutomatically": "The winner will not be sent automatically",
+    "allowedHours": "Allowed hours",
+    "noTimeRestrictions": "No time restrictions",
+    "trackCampaignProgressOnTheDashboard": "Track campaign progress on the dashboard",
+    "youCanPauseOrEditTheCampaignAtAnyTime": "You can pause or edit the campaign at any time",
+    "viewCampaigns": "View campaigns",
+    "channelAndType": "Channel and type:",
+    "estimatedContacts": "Estimated contacts",
+    "templates": "Templates:",
+    "selected": "selected",
+    "weightsByTemplate": "Weights by template",
+    "sampleSize": "Sample size",
+    "ofContacts": "% of contacts",
+    "winnerDelivery": "Winner delivery",
+    "sendingInterval": "Sending interval:",
+    "rateLimit": "Rate limit",
+    "retriesEnabled": "Retries enabled",
+    "campaignUpdated": "Campaign updated!",
+    "campaignCreated": "Campaign created!",
+    "continueEditing": "Continue editing",
+    "selectedInbox": "Selected inbox",
+    "sendImmediately": "Send immediately",
+    "sequential": "Sequential",
+    "openRate": "Open rate",
+    "clickRate": "Click rate"
+  },
+  "contacts": {
+    "youDoNotHavePermissionToCreateContacts": "You do not have permission to create contacts",
+    "selectAtLeast2ContactsToMerge": "Select at least 2 contacts to merge",
+    "youDoNotHavePermissionToMergeContacts": "You do not have permission to merge contacts",
+    "youDoNotHavePermissionToViewContacts": "You do not have permission to view contacts"
+  },
+  "scheduledactions": {
+    "youDoNotHavePermissionToViewScheduledActions": "You do not have permission to view scheduled actions"
+  },
+  "privateroute": {
+    "checkingAuthentication": "Checking authentication…"
+  },
+  "publicroute": {
+    "checkingAuthentication": "Checking authentication…"
+  },
+  "index": {
+    "settings": "🔧 Settings",
+    "settingsPageUnderDevelopment": "Settings page under development"
+  },
+  "accountservice": {
+    "couldNotFetchAccount": "Could not fetch account",
+    "couldNotUpdateAccount": "Could not update account"
+  },
+  "automationservice": {
+    "couldNotFetchAutomations": "Could not fetch automations",
+    "couldNotFetchAutomation": "Could not fetch automation",
+    "couldNotCreateAutomation": "Could not create automation",
+    "couldNotUpdateAutomation": "Could not update automation",
+    "couldNotDeleteAutomation": "Could not delete automation",
+    "couldNotCloneAutomation": "Could not clone automation",
+    "couldNotFetchAutomationRuns": "Could not fetch automation runs",
+    "couldNotUploadFile": "Could not upload file"
+  },
+  "chatactioncableconnector": {
+    "unknownError": "unknown error",
+    "realTimeConnectionRestored": "Real-time connection restored",
+    "youWillNowReceiveMessagesInRealTimeAgain": "You will now receive messages in real time again.",
+    "realTimeConnectionLost": "Real-time connection lost",
+    "tryingToReconnectAutomatically": "Trying to reconnect automatically…"
+  },
+  "openaiservice": {
+    "aiResponseHasNoContent": "AI response has no content"
+  },
+  "journeyservice": {
+    "couldNotFetchJourneys": "Could not fetch journeys",
+    "couldNotFetchJourney": "Could not fetch journey",
+    "couldNotCreateJourney": "Could not create journey",
+    "couldNotUpdateJourney": "Could not update journey",
+    "couldNotDeleteJourney": "Could not delete journey",
+    "couldNotChangeJourneyStatus": "Could not change journey status",
+    "couldNotDuplicateJourney": "Could not duplicate journey",
+    "couldNotFetchJourneysByTriggerType": "Could not fetch journeys by trigger type",
+    "couldNotFetchJourneyVariables": "Could not fetch journey variables",
+    "couldNotUpdateJourneyVariables": "Could not update journey variables",
+    "couldNotFetchJourneySessions": "Could not fetch journey sessions",
+    "couldNotFetchSessionStatistics": "Could not fetch session statistics",
+    "couldNotFetchSession": "Could not fetch session",
+    "couldNotDeleteSessions": "Could not delete sessions"
+  },
+  "agentstour": {
+    "switchBetweenCardAndTableViews": "Switch between card and table views.",
+    "eachCardShowsTheToolSNameDescriptionAndStatus": "Each card shows the tool's name, description, and status. Use the actions to edit, test, or delete it. Test tools to ensure the agent can use them correctly.",
+    "searchForExistingMcpServersFilterThemOrAddOne": "Search for existing MCP servers, filter them, or add one by clicking \"New server\".",
+    "switchBetweenCardAndTableViewsToSuitYourPreference": "Switch between card and table views to suit your preference.",
+    "eachServerShowsItsNameConnectionUrlAndStatusUse": "Each server shows its name, connection URL, and status. Use the actions to edit, test the connection, or delete the server.",
+    "customToolsList": "Custom tools list",
+    "mcpServersList": "MCP servers list",
+    "createAndManageCustomToolsForYourAiAgentsTo": "Create and manage custom tools for your AI agents to use during conversations.",
+    "searchExistingToolsApplyFiltersOrCreateAToolBy": "Search existing tools, apply filters, or create a tool by clicking \"New tool\".",
+    "configureCustomMcpServersToGiveYourAiAgentsAccess": "Configure custom MCP servers to give your AI agents access to external context and tools."
+  },
+  "scheduledactionstour": {
+    "viewAndManageActionsScheduledToRunAutomaticallyForContacts": "View and manage actions scheduled to run automatically for contacts, such as sending messages on specific dates.",
+    "searchActions": "Search actions",
+    "searchScheduledActionsByContactNameActionTypeOrAnother": "Search scheduled actions by contact name, action type, or another field.",
+    "createAScheduledActionChooseAContactActionTypeAnd": "Create a scheduled action. Choose a contact, action type, and execution date and time.",
+    "actionsList": "Actions list",
+    "viewEachActionSStatusScheduledCompletedOrCancelledAnd": "View each action's status (scheduled, completed, or cancelled) and countdown. Use the row actions to edit or cancel it before it runs."
+  },
+  "macros": {
+    "sendAnAutomaticMessageInTheConversation": "Send an automatic message in the conversation",
+    "addLabelsToTheConversation": "Add labels to the conversation",
+    "removeLabelsFromTheConversation": "Remove labels from the conversation",
+    "assignTheConversationToASpecificTeam": "Assign the conversation to a specific team",
+    "assignTheConversationToASpecificAgent": "Assign the conversation to a specific agent",
+    "removeTeamAssignment": "Remove team assignment",
+    "removeTheTeamAssignmentFromTheConversation": "Remove the team assignment from the conversation",
+    "muteTheConversationToStopReceivingNotifications": "Mute the conversation to stop receiving notifications",
+    "changeConversationStatus": "Change conversation status",
+    "snoozeTheConversationUntilASpecifiedTimeInHours": "Snooze the conversation until a specified time (in hours)",
+    "changeConversationPriority": "Change conversation priority",
+    "sendTheConversationTranscriptByEmail": "Send the conversation transcript by email",
+    "sendAFileAttachmentInTheConversation": "Send a file attachment in the conversation",
+    "addPrivateNote": "Add private note",
+    "addAPrivateNoteToTheConversation": "Add a private note to the conversation",
+    "sendWebhook": "Send webhook",
+    "sendAWebhookToAnExternalEndpoint": "Send a webhook to an external endpoint",
+    "resolved": "Resolved",
+    "assignTeam": "Assign team"
+  },
+  "customattributes": {
+    "attributesAppliedToPipelinesStagesOrItems": "Attributes applied to pipelines, stages, or items",
+    "attributesAppliedToPipelineStages": "Attributes applied to pipeline stages",
+    "customAttributesForPipelinesStagesAndItems": "Custom attributes for pipelines, stages, and items",
+    "attributesAppliedToConversations": "Attributes applied to conversations",
+    "attributesAppliedToContacts": "Attributes applied to contacts",
+    "attributesAppliedToThePipelineItself": "Attributes applied to the pipeline itself",
+    "attributesAppliedToPipelineItemsDealsLeads": "Attributes applied to pipeline items (deals/leads)",
+    "customAttributesForConversations": "Custom attributes for conversations",
+    "customAttributesForContacts": "Custom attributes for contacts"
+  },
+  "usersFilters": {
+    "confirmationStatus": "Confirmation status"
+  },
+  "agentutils": {
+    "agentNamesCannotContainSpacesOrSpecialCharactersUseOnly": "Agent names cannot contain spaces or special characters. Use only letters, numbers, _ or -",
+    "apiKeyIdMustBeAValidUuid": "API key ID must be a valid UUID",
+    "unknownErrorSavingAgent": "Unknown error saving agent"
+  },
+  "medialabels": {
+    "contact": "👤 Contact",
+    "photo": "📷 Photo",
+    "document": "📎 Document",
+    "attachment": "📎 Attachment"
+  },
+  "viewtokenmodal": {
+    "useThisTokenInTheAuthorizationHeader": "Use this token in the Authorization header:",
+    "neverExposeTheAccessTokenInClientSideCodeOr": "• Never expose the access token in client-side code or public repositories",
+    "useHttpsInProductionForAllApiCommunications": "• Use HTTPS in production for all API communications",
+    "regenerateTheTokenIfYouSuspectItHasBeenCompromised": "• Regenerate the token if you suspect it has been compromised",
+    "monitorTokenUsageRegularly": "• Monitor token usage regularly",
+    "storeTokensSecurelyUsingEnvironmentVariablesOrSecureVaults": "• Store tokens securely using environment variables or secure vaults"
+  },
+  "agentwizardmodal": {
+    "closeWizard": "Close wizard"
+  },
+  "modelselector": {
+    "customModel": "Custom Model"
+  },
+  "facebookchannelform": {
+    "facebookAppIdIsNotConfigured": "Facebook app ID is not configured"
+  },
+  "smsform": {
+    "apiKeyAndSecret": "API key and secret:",
+    "applicationId": "Application ID:"
+  },
+  "templatepreview": {
+    "from": "From:",
+    "messagePreview": "Message preview",
+    "characters": "Characters:"
+  },
+  "widgetbuilderform": {
+    "iframeEmbed": "Iframe embed",
+    "noIframeEmbedAvailableToCopy": "No iframe embed available to copy",
+    "iframeCodeCopiedToClipboard": "Iframe code copied to clipboard!",
+    "couldNotCopyIframeCode": "Could not copy iframe code",
+    "avatar": "Avatar"
+  },
+  "widgetpreview": {
+    "widgetPreview": "Widget preview"
+  },
+  "chatsidebar": {
+    "facebookPost": "Facebook post",
+    "post": "Post"
+  },
+  "editableconversationcustomattributes": {
+    "conversationIsRequired": "Conversation is required"
+  },
+  "contactmergemodal": {
+    "company": "Company:"
+  },
+  "custommcpserverwizardmodal": {
+    "closeWizard": "Close wizard"
+  },
+  "customtoolwizardmodal": {
+    "closeWizard": "Close wizard"
+  },
+  "sendmessagenode": {
+    "moreAttachments": "more attachments…"
+  },
+  "aiproviders": {
+    "customOpenaiCompatible": "Custom (OpenAI-compatible)"
+  },
+  "authcontext": {
+    "noActiveMfaSession": "No active MFA session"
+  },
+  "useconversationmoderations": {
+    "couldNotLoadModerations": "Could not load moderations"
+  },
+  "usecontactpipelines": {
+    "couldNotLoadPipelineData": "Could not load pipeline data"
+  },
+  "usecontactpipelinescache": {
+    "couldNotLoadPipelines": "Could not load pipelines"
+  },
+  "usecontactsconversations": {
+    "couldNotLoadContactConversations": "Could not load contact conversations"
+  },
+  "recaptcha": {
+    "couldNotLoadRecaptcha": "Could not load reCAPTCHA"
+  },
+  "step3Content": {
+    "loadingInboxes": "Loading inboxes…"
+  },
+  "wizardprogress": {
+    "viewingStep": "Viewing step",
+    "complete": "Complete"
+  },
+  "channelsettings": {
+    "inboxDataNotFound": "Inbox data not found",
+    "inboxAvatar": "Inbox avatar"
+  },
+  "dashboardperformancesection": {
+    "ofVolume": "% of volume",
+    "firstReply": "First reply:"
+  },
+  "journeyfloweditor": {
+    "status": "Status:"
+  },
+  "emailtemplateeditor": {
+    "from": "From:"
+  },
+  "onboardingpage": {
+    "selectLanguage": "Select language"
+  },
+  "api": {
+    "noNewTokenReceived": "No new token received"
+  },
+  "apiauth": {
+    "noNewTokenReceived": "No new token received"
+  },
+  "reconnectservice": {
+    "healthCheckFailed": "Health check failed"
+  },
+  "widgetapi": {
+    "tokenExpired": "Token expired"
+  },
+  "apihelpers": {
+    "networkErrorUnableToReachTheServer": "Network error: unable to reach the server"
+  },
+  "createcallbackpage": {
+    "agentIdIsRequiredForMcpIntegrations": "Agent ID is required for MCP integrations"
+  },
+  "messages": {
+    "agentError": "Error: {{error}}",
+    "fileTooLarge": "File {{name}} exceeds the maximum size of {{size}}",
+    "fileProcessingError": "Could not process file {{name}}",
+    "settingUpdateError": "Could not update the setting",
+    "visibleDays": "Showing {{visible}} of {{total}} days",
+    "sendShortcut": "Send ({{modifier}} + Enter)",
+    "metaMissingFields": "Meta did not return {{fields}}. Complete the connection in the Hub tab.",
+    "unsupportedWhatsApp": "WhatsApp provider {{provider}} is not supported",
+    "unsupportedOAuth": "OAuth is not supported for {{integration}}",
+    "missingClientId": "Client ID is not configured for {{integration}}",
+    "oauthError": "OAuth error: {{error}}",
+    "rolePermissionsRemoved": "Permissions removed for role “{{role}}”",
+    "rolePermissionsDeleted": "Role permissions deleted: {{count}}",
+    "unconnectedNodes": "Unconnected nodes: {{count}}",
+    "nodeWithoutLabel": "Node {{id}} has no label",
+    "selectUser": "Select {{name}}",
+    "validationError": "Validation error: {{errors}}"
+  },
+  "typebotconfigform": {
+    "typebotPublicId": "typebot-public-id"
+  },
+  "agenttoolsdialog": {
+    "loop": "Loop"
+  },
+  "basicinfoform": {
+    "loop": "Loop"
+  },
+  "basicsettingsform": {
+    "avatar": "Avatar"
+  },
+  "widgethead": {
+    "avatar": "Avatar"
+  },
+  "messageinputselect": {
+    "menu": "Menu"
+  },
+  "contactform": {
+    "avatar": "Avatar"
+  },
+  "pipelinecustomattributesform": {
+    "local": "Local"
+  },
+  "messagelist": {
+    "avatar": "Avatar"
+  },
+  "typingindicator": {
+    "avatar": "Avatar"
+  },
+  "pipelineautomation": {
+    "followUp": "Follow-up"
+  },
+  "toolsdialog": {
+    "other": "Other"
+  },
+  "bulkinvitemodal": {
+    "user1ExampleComUser2ExampleComUser3ExampleComUser4": "user1@example.com user2@example.com, user3@example.com user4@example.com"
+  },
+  "usejoyride": {
+    "openTour": "Open tour"
+  },
+  "campaign": {
+    "sending": "Sending"
+  },
+  "dynamic": {
+    "fieldKey": "Key for {{label}}",
+    "fieldValue": "Value for {{label}}",
+    "templateValue": "Value for {{variable}}",
+    "teamId": "Team #{{id}}",
+    "newMessageFrom": "New message from {{name}}",
+    "attachedFiles": "📎 Files: {{count}}",
+    "integrationDisconnected": "{{integration}} disconnected successfully",
+    "integrationConnected": "{{integration}} connected successfully",
+    "fileSize": "File ({{size}} KB)",
+    "macroFailed": "Macro “{{name}}” failed: {{error}}"
+  },
+  "fallbacks": {
+    "customModel": "Custom Model",
+    "custom": "Custom",
+    "templateBody": "Template message body…",
+    "buttonText": "Button text",
+    "emailSubject": "Email subject",
+    "emailTemplateContent": "Email template content…\n\nUse {{syntax}} syntax for dynamic values.",
+    "messageTemplateContent": "Template message content…\n\nUse {{syntax}} syntax for dynamic values.",
+    "timeZone": "Time zone",
+    "none": "None",
+    "advancedSettings": "Advanced settings",
+    "global": "Global",
+    "local": "Local",
+    "loadingChannels": "Loading channels…",
+    "selectChannel": "Select a channel",
+    "noPreview": "No content preview",
+    "split": "Split",
+    "random": "Random",
+    "immediate": "Immediate",
+    "logo": "Logo",
+    "chat": "Chat"
+  }
+}

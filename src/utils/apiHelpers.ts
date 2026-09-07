@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 /**
  * API Response Helper Functions
  * 
@@ -96,7 +97,7 @@ export function extractError(error: any): ErrorInfo {
   if (error.request) {
     return {
       code: 'NETWORK_ERROR',
-      message: 'Network error: Unable to reach server',
+      message: i18n.t("interface:apihelpers.networkErrorUnableToReachTheServer"),
     };
   }
 

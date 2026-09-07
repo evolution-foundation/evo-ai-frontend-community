@@ -94,7 +94,13 @@
     "deleteSuccess": "Canned response deleted successfully",
     "deleteError": "Error deleting canned response",
     "bulkDeleteSuccess": "{{count}} canned response(s) deleted successfully",
-    "bulkDeleteError": "Error deleting canned responses"
+    "bulkDeleteError": "Error deleting canned responses",
+    "permissionDenied": {
+      "read": "You do not have permission to view canned responses",
+      "create": "You do not have permission to create canned responses",
+      "update": "You do not have permission to edit canned responses",
+      "delete": "You do not have permission to delete canned responses"
+    }
   },
   "dialog": {
     "delete": {

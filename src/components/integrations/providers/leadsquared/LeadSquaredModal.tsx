@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -31,7 +32,7 @@ interface LeadSquaredModalProps {
 const TIMEZONE_OPTIONS = [
   { value: 'America/Sao_Paulo', label: 'São Paulo (GMT-3)' },
   { value: 'America/New_York', label: 'New York (GMT-5)' },
-  { value: 'Europe/London', label: 'London (GMT+0)' },
+  { value: 'Europe/London', get label() { return i18n.t("channels:settings.businessHours.timezones.london"); } },
   { value: 'Asia/Dubai', label: 'Dubai (GMT+4)' },
   { value: 'Asia/Kolkata', label: 'Mumbai (GMT+5:30)' },
 ];

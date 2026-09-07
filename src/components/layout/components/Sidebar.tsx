@@ -44,7 +44,7 @@ export default function Sidebar({
   const prevActiveSubmenuRef = useRef<MenuItemType | null>(null);
 
   const companyName = t('sidebar.footer.brand');
-  const supportWhatsappUrl = 'https://api.whatsapp.com/send/?phone=553196219989&text=Ol%C3%A1%21+Preciso+de+suporte.&type=phone_number&app_absent=0';
+  const supportWhatsappUrl = `https://api.whatsapp.com/send/?phone=553196219989&text=${encodeURIComponent(t('sidebar.supportMessage'))}&type=phone_number&app_absent=0`;
 
   const totalUnanswered = useUnansweredConversationsStore((state) => state.totalUnanswered);
 

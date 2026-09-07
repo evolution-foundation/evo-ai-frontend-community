@@ -90,14 +90,8 @@ const MacrosButton: React.FC<MacrosButtonProps> = ({
       const hasPending = executions.some((exec: any) => exec.status === 'pending');
 
       if (hasFailure) {
-        const failedExec = executions.find((exec: any) => exec.status === 'failed');
-        const failedActions = failedExec?.actions_result
-          ?.filter((a: any) => a.status === 'failed')
-          ?.map((a: any) => a.action)
-          ?.join(', ');
         toast.error(
-          t('contactSidebar.macros.executePartialError', { name: selectedMacro.name }) ||
-            `Macro "${selectedMacro.name}" executada com falhas${failedActions ? `: ${failedActions}` : ''}`,
+          t('contactSidebar.macros.executePartialError', { name: selectedMacro.name }),
         );
       } else if (hasPending) {
         // Webhook actions are async — wait for macro.execution.completed

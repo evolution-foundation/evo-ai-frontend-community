@@ -9,7 +9,8 @@
     "lint": "eslint . --pass-on-unpruned-suppressions",
     "lint:fix": "eslint . --fix --prune-suppressions",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "i18n:audit": "node scripts/i18n-audit.mjs --check"
   },
   "dependencies": {
     "@breezystack/lamejs": "^1.2.7",

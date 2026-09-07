@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogTitle, Button } from '@evoapi/design-system';
 import { X, Code2, LayoutList } from 'lucide-react';
@@ -39,6 +40,7 @@ export default function CustomMCPServerWizardModal({
   embedded = false,
   server,
 }: CustomMCPServerWizardModalProps) {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('customMcpServers');
   const isEdit = !!server;
   const [currentStep, setCurrentStep] = useState(1);
@@ -234,7 +236,7 @@ export default function CustomMCPServerWizardModal({
           type="button"
           onClick={() => onOpenChange(false)}
           className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          aria-label="Close wizard"
+          aria-label={tUi("interface:custommcpserverwizardmodal.closeWizard")}
         >
           <X className="h-5 w-5" />
         </button>

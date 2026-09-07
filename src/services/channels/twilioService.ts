@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import api from '@/services/core/api';
 import { extractData } from '@/utils/apiHelpers';
 import type { TwilioWhatsappVerifyPayload, TwilioWhatsappVerifyResponse } from '@/types/channels/inbox';
@@ -20,7 +21,7 @@ class TwilioService {
 
     return {
       success: true,
-      message: response.data?.message || 'Conexão verificada com sucesso',
+      message: response.data?.message || i18n.t("channels:newChannel.messages.connectionVerified"),
       ...response.data,
     };
   }

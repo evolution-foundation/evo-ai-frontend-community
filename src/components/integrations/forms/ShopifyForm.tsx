@@ -14,17 +14,17 @@ export function ShopifyForm({ config, onConfigChange }: IntegrationFormProps) {
     <div className="space-y-4">
       <FormField
         id="SHOPIFY_CLIENT_ID"
-        label={t('integrations.shopify.clientId')}
+        label={t("shopify.clientId")}
         value={getValue('shopifyClientId')}
         onChange={(value) => onConfigChange('shopifyClientId', value)}
-        placeholder={t('integrations.shopify.placeholders.clientId')}
+        placeholder={t("shopify.placeholders.clientId")}
       />
       <FormField
         id="SHOPIFY_CLIENT_SECRET"
-        label={t('integrations.shopify.clientSecret')}
+        label={t("shopify.clientSecret")}
         value={getValue('shopifyClientSecret')}
         onChange={(value) => onConfigChange('shopifyClientSecret', value)}
-        placeholder={t('integrations.shopify.placeholders.clientSecret')}
+        placeholder={t("shopify.placeholders.clientSecret")}
         type="password"
       />
     </div>

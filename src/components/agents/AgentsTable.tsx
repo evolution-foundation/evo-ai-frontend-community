@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { Badge, Button, Checkbox } from '@evoapi/design-system';
 import {
   ArrowRight,
@@ -234,7 +235,7 @@ export default function AgentsTable({
               </div>
 
               <div role="cell" className={cn(COL.createdAt, 'text-[13px] text-muted-foreground')}>
-                {agent.created_at && new Date(agent.created_at).toLocaleDateString('pt-BR')}
+                {agent.created_at && new Date(agent.created_at).toLocaleDateString(getFormattingLocale())}
               </div>
 
               <div role="cell" className={cn(COL.actions, 'flex justify-end')}>

@@ -21,31 +21,31 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
   const STATUS_OPTIONS = [
     {
       value: 'all',
-      label: t('filters.status.options.all'),
+      label: t("contactSidebar.filters.status.options.all"),
       color: 'text-gray-700',
       count: null, // Será implementado depois
     },
     {
       value: 'open',
-      label: t('filters.status.options.open'),
+      label: t("contactSidebar.filters.status.options.open"),
       color: 'text-green-700',
       count: null,
     },
     {
       value: 'pending',
-      label: t('filters.status.options.pending'),
+      label: t("contactSidebar.filters.status.options.pending"),
       color: 'text-yellow-700',
       count: null,
     },
     {
       value: 'resolved',
-      label: t('filters.status.options.resolved'),
+      label: t("contactSidebar.filters.status.options.resolved"),
       color: 'text-blue-700',
       count: null,
     },
     {
       value: 'snoozed',
-      label: t('filters.status.options.snoozed'),
+      label: t("contactSidebar.filters.status.options.snoozed"),
       color: 'text-gray-700',
       count: null,
     },
@@ -108,7 +108,7 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
       <PopoverContent className="w-48 p-2" align="start">
         <div className="space-y-1">
           <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-            {t('filters.status.title')}
+            {t("contactSidebar.filters.status.title")}
           </div>
           {STATUS_OPTIONS.map(option => (
             <button
@@ -133,7 +133,7 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
               onClick={() => onStatusChange(['all'])}
               className="w-full text-xs text-muted-foreground hover:text-foreground px-2 py-1 text-left cursor-pointer"
             >
-              {t('filters.status.clearFilters')}
+              {t("contactSidebar.filters.status.clearFilters")}
             </button>
           </div>
         )}

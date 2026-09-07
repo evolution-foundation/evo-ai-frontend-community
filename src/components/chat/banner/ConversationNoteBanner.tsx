@@ -44,13 +44,13 @@ const ConversationNoteBanner: React.FC<ConversationNoteBannerProps> = ({ note, o
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: '#a97e10', textTransform: 'uppercase', letterSpacing: '.4px' }}>
-              {t('chatArea.noteBanner.title', 'Nota do atendimento')}
+              {t('chatArea.noteBanner.title')}
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: '0 0 auto' }}>
               <span style={{ fontSize: 11.5, color: '#b39a55' }}>{note.sender?.name}</span>
               <div
                 onClick={onHide}
-                title={t('chatArea.noteBanner.hide', 'Ocultar')}
+                title={t('chatArea.noteBanner.hide')}
                 style={{ cursor: 'pointer', color: '#bda75c', display: 'flex' }}
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">

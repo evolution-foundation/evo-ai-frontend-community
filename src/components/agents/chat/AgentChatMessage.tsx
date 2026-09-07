@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { useState } from 'react';
 import { ChatMessage } from '@/types';
 import { Bot, User, ChevronDown, ChevronRight } from 'lucide-react';
@@ -63,7 +64,7 @@ export function AgentChatMessage({ message }: AgentChatMessageProps) {
 
       let resultText = '';
       if (status === 'error') {
-        resultText = `Error: ${(response.error_message || 'Unknown error') as string}`;
+        resultText = i18n.t("interface:messages.agentError", { error: response.error_message || i18n.t('common:error') });
       } else {
         resultText = `Result:\n${JSON.stringify(response, null, 2)}`;
       }

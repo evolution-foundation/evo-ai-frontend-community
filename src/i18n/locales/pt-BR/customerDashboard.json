@@ -152,5 +152,7 @@
       "channels": "Sem dados de canal no período selecionado.",
       "pipelineInactive": "Funil inativo no período selecionado."
     }
-  }
+  },
+  "periodDays_one": "{{period}} ({{count}} dia)",
+  "periodDays_other": "{{period}} ({{count}} dias)"
 }

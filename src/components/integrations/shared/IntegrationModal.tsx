@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -24,7 +25,8 @@ export default function IntegrationModal({
   title,
   children
 }: IntegrationModalProps) {
-  const modalTitle = title || (integration ? `Configurar ${integration.name}` : 'Nova Integração');
+  const { t: tUi } = useUiTranslation();
+  const modalTitle = title || (integration ? `Configurar ${integration.name}` : tUi("interface:integrationmodal.newIntegration"));
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

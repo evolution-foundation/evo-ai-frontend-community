@@ -49,6 +49,7 @@ const SenderNamePreview: React.FC<SenderNamePreviewProps> = ({
 
     if (option.key === 'friendly') {
       return t('settings.senderSettings.friendly.format', {
+        name: option.preview.senderName,
         agentName: option.preview.senderName,
         businessName: displayBusinessName,
       });

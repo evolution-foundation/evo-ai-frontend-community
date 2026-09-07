@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 // Centralized media-type and attachment-label helpers used by the chat UI to
 // preview WhatsApp messages whose body is empty (media-only) and to render
 // reply previews consistently across MessageBubble, ChatSidebar, ReplyPreview
@@ -17,20 +18,20 @@ export type MediaType =
   | 'contact';
 
 const EMOJI_LABEL: Record<MediaType, string> = {
-  image: '📷 Foto',
-  video: '🎥 Vídeo',
-  audio: '🎵 Áudio',
-  file: '📎 Documento',
+  get image() { return i18n.t("interface:medialabels.photo"); },
+  get video() { return i18n.t("chat:messages.replyPreview.videoAttachment"); },
+  get audio() { return i18n.t("chat:messages.replyPreview.audioAttachment"); },
+  get file() { return i18n.t("interface:medialabels.document"); },
   sticker: '💟 Figurinha',
-  location: '📍 Localização',
-  contact: '👤 Contato',
+  get location() { return i18n.t("chat:messages.replyPreview.locationAttachment"); },
+  get contact() { return i18n.t("interface:medialabels.contact"); },
 };
 
 const isKnownMediaType = (value: unknown): value is MediaType =>
   typeof value === 'string' && value in EMOJI_LABEL;
 
 export const attachmentLabel = (fileType?: string | null): string => {
-  if (!fileType) return '📎 Anexo';
+  if (!fileType) return i18n.t("interface:medialabels.attachment");
   return isKnownMediaType(fileType) ? EMOJI_LABEL[fileType] : `📎 ${fileType}`;
 };
 

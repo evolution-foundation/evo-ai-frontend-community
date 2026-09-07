@@ -108,5 +108,13 @@
     "systemRoleCannotDelete": "Perfis do sistema não podem ser excluídos",
     "roleHasUsers": "Não é possível excluir um perfil com usuários atribuídos"
   },
-  "saveChanges": "Salvar Alterações"
+  "saveChanges": "Salvar Alterações",
+  "permissions": {
+    "categories": {
+      "core": "Recursos principais",
+      "agents": "Agentes",
+      "settings": "Configurações",
+      "other": "Outros"
+    }
+  }
 }

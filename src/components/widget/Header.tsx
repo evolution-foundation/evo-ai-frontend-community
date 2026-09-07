@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import React from 'react';
 import EndConversationButton from './EndConversationButton';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -18,7 +19,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({
   title = 'EvoAI',
-  subtitle = 'Como podemos ajudar?',
+  subtitle = i18n.t("widget:header.defaultSubtitle"),
   color = '#1f93ff',
   online = false,
   avatarUrl,

@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Edit, Trash2, Megaphone, Eye, Pause, Play, Copy, Square } from 'lucide-react';
 import { Campaign, CampaignStatus } from '@/types/campaigns';
@@ -81,7 +82,7 @@ export default function CampaignsTable({
 
   const formatNumber = (num: number | undefined) => {
     if (num === undefined || num === null) return '0';
-    return num.toLocaleString('pt-BR');
+    return num.toLocaleString(getFormattingLocale());
   };
 
   const formatPercentage = (delivered: number, total: number) => {

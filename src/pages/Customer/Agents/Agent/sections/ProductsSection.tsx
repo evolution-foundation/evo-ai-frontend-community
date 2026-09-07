@@ -76,10 +76,10 @@ export default function ProductsSection({ agent }: Props) {
       }
 
       setOriginalIds(new Set(attachedIds));
-      toast.success(t('edit.products.saveSuccess') || 'Saved');
+      toast.success(t('edit.products.saveSuccess'));
     } catch (error) {
       console.error(error);
-      toast.error(t('edit.products.saveError') || 'Save failed');
+      toast.error(t('edit.products.saveError'));
     } finally {
       setSaving(false);
     }
@@ -95,11 +95,10 @@ export default function ProductsSection({ agent }: Props) {
     <div>
       <div>
         <h2 className="text-[22px] font-extrabold tracking-[-0.3px] text-foreground">
-          {t('edit.products.title') || 'Produtos do agente'}
+          {t('edit.products.title')}
         </h2>
         <p className="mb-[26px] mt-1 text-sm text-muted-foreground">
-          {t('edit.products.subtitle') ||
-            'Selecione os produtos que este agente pode recomendar durante conversas. Eles serão injetados no system prompt automaticamente.'}
+          {t('edit.products.subtitle')}
         </p>
       </div>
 
@@ -122,7 +121,7 @@ export default function ProductsSection({ agent }: Props) {
           disabled={!isDirty || saving}
           className="h-auto flex-shrink-0 rounded-[9px] bg-primary px-[18px] py-[9px] text-sm font-semibold text-primary-foreground hover:bg-primary/85 disabled:opacity-55"
         >
-          {saving ? (t('edit.products.saving') || 'Salvando...') : (t('edit.products.save') || 'Salvar')}
+          {saving ? (t('edit.products.saving')) : (t('edit.products.save'))}
         </Button>
       </div>
 

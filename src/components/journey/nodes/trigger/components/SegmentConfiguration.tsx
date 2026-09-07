@@ -1,3 +1,4 @@
+import { getFormattingLocale } from '@/lib/formattingLocale';
 import { useState, useEffect } from 'react';
 import {
   Label,
@@ -168,7 +169,7 @@ export function SegmentConfiguration({
                           {segment.lastComputedAt && (
                             <span>
                               • {t('triggerComponents.segment.updated')}:{' '}
-                              {new Date(segment.lastComputedAt).toLocaleDateString()}
+                              {new Date(segment.lastComputedAt).toLocaleDateString(getFormattingLocale())}
                             </span>
                           )}
                         </div>
@@ -213,7 +214,7 @@ export function SegmentConfiguration({
                 <div className="flex justify-between">
                   <span>{t('triggerComponents.segment.lastUpdate')}:</span>
                   <span className="font-medium">
-                    {new Date(selectedSegment.lastComputedAt).toLocaleString()}
+                    {new Date(selectedSegment.lastComputedAt).toLocaleString(getFormattingLocale())}
                   </span>
                 </div>
               )}

@@ -140,7 +140,7 @@ export function SendMessageAttachments({
                   size="icon"
                   onClick={() => onRemoveAttachment(attachment.id)}
                   className="flex-shrink-0 h-7 w-7 text-flow-feedback-error-fg hover:text-flow-feedback-error-fg"
-                  aria-label={t('panels.sendMessage.removeAttachmentLabel') || 'Remove attachment'}
+                  aria-label={t('panels.sendMessage.removeAttachmentLabel')}
                 >
                   <X className="w-3 h-3" />
                 </Button>

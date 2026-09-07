@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import { Input, Button } from '@evoapi/design-system';
 import { Upload, Trash2, Globe, Copy } from 'lucide-react';
 import { toast } from 'sonner';
@@ -44,6 +45,7 @@ export default function BasicSettingsForm({
   onAvatarDelete,
   canManageAvatar = true,
 }: BasicSettingsFormProps) {
+  const { t: tUi } = useUiTranslation();
   const { t } = useLanguage('channels');
   
   const handleDisplayNameChange = (value: string) => {
@@ -74,7 +76,7 @@ export default function BasicSettingsForm({
             {formData.avatar_url ? (
               <img
                 src={formData.avatar_url}
-                alt="Avatar"
+                alt={tUi("interface:basicsettingsform.avatar")}
                 className="w-16 h-16 rounded-full object-cover border-2 border-border"
               />
             ) : (

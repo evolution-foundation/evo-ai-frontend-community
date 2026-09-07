@@ -122,11 +122,7 @@ export function JourneyTriggerNode({ selected, data, id }: JourneyTriggerNodePro
 
       case 'segment':
         if (data.segmentId && data.segmentName) {
-          const action =
-            data.segmentAction !== 'exited'
-              ? t('flowEditor.nodes.trigger.descriptions.segmentEnters')
-              : t('flowEditor.nodes.trigger.descriptions.segmentExits');
-          return `Quando ${action} "${data.segmentName}"`;
+          return t(data.segmentAction !== 'exited' ? 'flowEditor.nodes.trigger.descriptions.segmentEntered' : 'flowEditor.nodes.trigger.descriptions.segmentExited', { segment: data.segmentName });
         } else if (data.segmentId) {
           const action =
             data.segmentAction !== 'exited'

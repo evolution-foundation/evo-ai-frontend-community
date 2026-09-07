@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import axios from 'axios';
 
 // Create a separate axios instance for widget API calls
@@ -33,7 +34,7 @@ widgetApi.interceptors.response.use(
         }
 
         // Create a custom error with a flag to indicate token expiration
-        const expiredError = new Error('Token expired');
+        const expiredError = new Error(i18n.t("interface:widgetapi.tokenExpired"));
         (expiredError as any).isTokenExpired = true;
         (expiredError as any).websiteToken = websiteToken;
         return Promise.reject(expiredError);

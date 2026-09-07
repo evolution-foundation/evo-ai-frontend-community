@@ -12,7 +12,7 @@ import type { ConversationStatus } from '@/types/settings/widgetConfig';
 
 type UseWidgetRealtimeParams = {
   pubsubToken: string | null;
-  t: (key: string) => string;
+  t: (key: string, options?: Record<string, unknown>) => string;
   uiAvatarUrl?: string;
 
   conversationIdRef: RefObject<number | null>;
@@ -187,9 +187,7 @@ export function useWidgetRealtime({
                       fallback_title:
                         att.fallback_title ||
                         att.file_name ||
-                        `Arquivo (${
-                          att.file_size ? Math.round(att.file_size / 1024) : 0
-                        } KB)`,
+                        t("interface:dynamic.fileSize", { size: att.file_size ? Math.round(att.file_size / 1024) : 0 }),
                     }));
                   }
 
@@ -268,9 +266,7 @@ export function useWidgetRealtime({
                     fallback_title:
                       att.fallback_title ||
                       att.file_name ||
-                      `Arquivo (${
-                        att.file_size ? Math.round(att.file_size / 1024) : 0
-                      } KB)`,
+                      t("interface:dynamic.fileSize", { size: att.file_size ? Math.round(att.file_size / 1024) : 0 }),
                   }));
                 }
 

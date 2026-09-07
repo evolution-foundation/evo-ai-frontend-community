@@ -1,3 +1,4 @@
+import { useTranslation as useUiTranslation } from 'react-i18next';
 import CustomAttributesForm from '@/components/customAttributes/CustomAttributesForm';
 import { chatService } from '@/services/chat/chatService';
 import { Conversation } from '@/types/chat/api';
@@ -15,9 +16,10 @@ export default function EditableConversationCustomAttributes({
   conversation,
   onConversationUpdate,
 }: EditableConversationCustomAttributesProps) {
+  const { t: tUi } = useUiTranslation();
   const handleUpdateAttributes = async (updatedAttributes: Record<string, unknown>) => {
     if (!conversation) {
-      throw new Error('Conversation is required');
+      throw new Error(tUi("interface:editableconversationcustomattributes.conversationIsRequired"));
     }
     await chatService.updateConversationCustomAttributes(conversation.id, updatedAttributes);
   };

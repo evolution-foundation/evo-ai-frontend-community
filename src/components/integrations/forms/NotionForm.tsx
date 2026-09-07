@@ -14,12 +14,12 @@ export function NotionForm({ config, onConfigChange }: IntegrationFormProps) {
     <div className="space-y-4">
       <FormField
         id="NOTION_OAUTH_REDIRECT_URI"
-        label={t('integrations.notion.redirectUri')}
+        label={t("notion.redirectUri")}
         value={getValue('notionRedirectUri')}
         onChange={(value) => onConfigChange('notionRedirectUri', value)}
-        placeholder={t('integrations.notion.placeholders.redirectUri')}
+        placeholder={t("notion.placeholders.redirectUri")}
         type="url"
-        description={t('integrations.notion.redirectUriDescription')}
+        description={t("notion.redirectUriDescription")}
       />
     </div>
   );

@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import api from '@/services/core/api';
 import { extractData, extractResponse } from '@/utils/apiHelpers';
 import type {
@@ -60,7 +61,7 @@ class JourneyService {
       return extractResponse<Journey>(response) as JourneysResponse;
     } catch (error: any) {
       console.error('Erro ao buscar jornadas:', error);
-      throw new Error(apiErrorMessage(error, 'Erro ao buscar jornadas'));
+      throw new Error(apiErrorMessage(error, i18n.t("interface:journeyservice.couldNotFetchJourneys")));
     }
   }
 
@@ -70,7 +71,7 @@ class JourneyService {
       return extractData<Journey>(response);
     } catch (error: any) {
       console.error('Erro ao buscar jornada:', error);
-      throw new Error(apiErrorMessage(error, 'Erro ao buscar jornada'));
+      throw new Error(apiErrorMessage(error, i18n.t("interface:journeyservice.couldNotFetchJourney")));
     }
   }
 
@@ -92,7 +93,7 @@ class JourneyService {
       return extractData<Journey>(response);
     } catch (error: any) {
       console.error('Erro ao criar jornada:', error);
-      throw new Error(apiErrorMessage(error, 'Erro ao criar jornada'));
+      throw new Error(apiErrorMessage(error, i18n.t("interface:journeyservice.couldNotCreateJourney")));
     }
   }
 
@@ -113,7 +114,7 @@ class JourneyService {
       return extractData<Journey>(response);
     } catch (error: any) {
       console.error('Erro ao atualizar jornada:', error);
-      throw new Error(apiErrorMessage(error, 'Erro ao atualizar jornada'));
+      throw new Error(apiErrorMessage(error, i18n.t("interface:journeyservice.couldNotUpdateJourney")));
     }
   }
 
@@ -123,7 +124,7 @@ class JourneyService {
       return extractData<JourneyDeleteResponse>(response);
     } catch (error: any) {
       console.error('Erro ao excluir jornada:', error);
-      throw new Error(apiErrorMessage(error, 'Erro ao excluir jornada'));
+      throw new Error(apiErrorMessage(error, i18n.t("interface:journeyservice.couldNotDeleteJourney")));
     }
   }
 
@@ -136,7 +137,7 @@ class JourneyService {
       return extractData<JourneyResponse>(response);
     } catch (error: any) {
       console.error('Erro ao alterar status da jornada:', error);
-      throw new Error(apiErrorMessage(error, 'Erro ao alterar status da jornada'));
+      throw new Error(apiErrorMessage(error, i18n.t("interface:journeyservice.couldNotChangeJourneyStatus")));
     }
   }
 
@@ -151,7 +152,7 @@ class JourneyService {
       };
     } catch (error: any) {
       console.error('Erro ao duplicar jornada:', error);
-      throw new Error(apiErrorMessage(error, 'Erro ao duplicar jornada'));
+      throw new Error(apiErrorMessage(error, i18n.t("interface:journeyservice.couldNotDuplicateJourney")));
     }
   }
 
@@ -169,7 +170,7 @@ class JourneyService {
     } catch (error: any) {
       console.error('Erro ao buscar jornadas por tipo de trigger:', error);
       throw new Error(
-        apiErrorMessage(error, 'Erro ao buscar jornadas por tipo de trigger'),
+        apiErrorMessage(error, i18n.t("interface:journeyservice.couldNotFetchJourneysByTriggerType")),
       );
     }
   }
@@ -185,7 +186,7 @@ class JourneyService {
     } catch (error: any) {
       console.error('❌ Erro ao buscar variáveis da jornada:', error);
       console.error('❌ Error details:', error?.response?.data);
-      throw new Error(apiErrorMessage(error, 'Erro ao buscar variáveis da jornada'));
+      throw new Error(apiErrorMessage(error, i18n.t("interface:journeyservice.couldNotFetchJourneyVariables")));
     }
   }
 
@@ -201,7 +202,7 @@ class JourneyService {
       };
     } catch (error: any) {
       console.error('Erro ao atualizar variáveis da jornada:', error);
-      throw new Error(apiErrorMessage(error, 'Erro ao atualizar variáveis da jornada'));
+      throw new Error(apiErrorMessage(error, i18n.t("interface:journeyservice.couldNotUpdateJourneyVariables")));
     }
   }
 
@@ -227,7 +228,7 @@ class JourneyService {
       };
     } catch (error: any) {
       console.error('Erro ao buscar sessões da jornada:', error);
-      throw new Error(apiErrorMessage(error, 'Erro ao buscar sessões da jornada'));
+      throw new Error(apiErrorMessage(error, i18n.t("interface:journeyservice.couldNotFetchJourneySessions")));
     }
   }
 
@@ -244,7 +245,7 @@ class JourneyService {
       };
     } catch (error: any) {
       console.error('Erro ao buscar estatísticas de sessões:', error);
-      throw new Error(apiErrorMessage(error, 'Erro ao buscar estatísticas de sessões'));
+      throw new Error(apiErrorMessage(error, i18n.t("interface:journeyservice.couldNotFetchSessionStatistics")));
     }
   }
 
@@ -261,7 +262,7 @@ class JourneyService {
       };
     } catch (error: any) {
       console.error('Erro ao buscar sessão:', error);
-      throw new Error(apiErrorMessage(error, 'Erro ao buscar sessão'));
+      throw new Error(apiErrorMessage(error, i18n.t("interface:journeyservice.couldNotFetchSession")));
     }
   }
 
@@ -273,7 +274,7 @@ class JourneyService {
       await api.delete(`${this.getBaseUrl()}/${journeyId}/sessions/${sessionId}`);
     } catch (error: any) {
       console.error('Erro ao deletar sessão:', error);
-      throw new Error(apiErrorMessage(error, 'Erro ao deletar sessão'));
+      throw new Error(apiErrorMessage(error, i18n.t("journey:sessions.viewer.messages.deleteError")));
     }
   }
 
@@ -291,7 +292,7 @@ class JourneyService {
       };
     } catch (error: any) {
       console.error('Erro ao cancelar sessão:', error);
-      throw new Error(apiErrorMessage(error, 'Erro ao cancelar sessão'));
+      throw new Error(apiErrorMessage(error, i18n.t("journey:sessions.viewer.messages.cancelError")));
     }
   }
 
@@ -308,7 +309,7 @@ class JourneyService {
       };
     } catch (error: any) {
       console.error('Erro ao deletar sessões em lote:', error);
-      throw new Error(apiErrorMessage(error, 'Erro ao deletar sessões em lote'));
+      throw new Error(apiErrorMessage(error, i18n.t("interface:journeyservice.couldNotDeleteSessions")));
     }
   }
 }
