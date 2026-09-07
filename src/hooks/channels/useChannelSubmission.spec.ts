@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import { toast } from 'sonner';
@@ -55,7 +56,8 @@ const submit = async (channelType: string, providerId: string, form: Record<stri
 };
 
 describe('useChannelSubmission.submitCreate', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('en');
     vi.clearAllMocks();
     createChannelMock.mockResolvedValue({ data: { id: 'inbox-1' } } as never);
   });
@@ -143,7 +145,7 @@ describe('useChannelSubmission.submitCreate', () => {
   it('confirms the creation on screen', async () => {
     await submit('api', 'api', { name: 'api-inbox', webhook_url: 'https://hook' });
 
-    expect(toast.success).toHaveBeenCalledWith('Canal criado com sucesso');
+    expect(toast.success).toHaveBeenCalledWith('Channel created successfully');
   });
 
   it('shows the reason the backend gave for refusing the create', async () => {

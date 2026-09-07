@@ -161,7 +161,7 @@ export default function BodyParamsEditor({
                     onChange={e => updateRow(row.id, { key: e.target.value })}
                     placeholder={keyPlaceholder || t('keyValueEditor.keyPlaceholder')}
                     disabled={disabled}
-                    aria-label={`${label} name`}
+                    aria-label={t('bodyParamsEditor.name', { label })}
                     aria-invalid={!!err}
                     className={err ? 'border-destructive' : ''}
                   />
@@ -174,7 +174,7 @@ export default function BodyParamsEditor({
                   >
                     <SelectTrigger
                       className="w-36"
-                      aria-label={`${label} type`}
+                      aria-label={t('bodyParamsEditor.type', { label })}
                     >
                       <SelectValue />
                     </SelectTrigger>
@@ -207,7 +207,7 @@ export default function BodyParamsEditor({
                     t('form.fields.bodyParams.descriptionPlaceholder')
                   }
                   disabled={disabled}
-                  aria-label={`${label} description`}
+                  aria-label={t('bodyParamsEditor.description', { label })}
                 />
                 <label className="flex items-center gap-2 text-sm">
                   <Checkbox
@@ -216,7 +216,7 @@ export default function BodyParamsEditor({
                       updateSchema(row.id, { required: checked === true })
                     }
                     disabled={disabled}
-                    aria-label={`${label} required`}
+                    aria-label={t('bodyParamsEditor.required', { label })}
                   />
                   {t('form.fields.bodyParams.required')}
                 </label>

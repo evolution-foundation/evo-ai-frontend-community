@@ -81,26 +81,29 @@
     "reason": "Explicit Portuguese side of the bilingual event catalog; getEventLabel selects the requested locale.",
     "files": {
       "src/lib/events-manifest/catalog.ts": [
-        "Contato criado",
-        "Contato atualizado",
-        "Contato deletado",
-        "Etiqueta adicionada ao contato",
-        "Etiqueta removida do contato",
+        "Atividade na conversa",
         "Atributo customizado alterado",
+        "Campanha disparada",
+        "Compra aprovada",
+        "Contato atualizado",
+        "Contato criado",
+        "Contato deletado",
         "Conversa criada",
         "Conversa resolvida",
-        "Atividade na conversa",
-        "Primeira resposta da conversa",
-        "Tempo de resposta da conversa",
-        "Conversa transferida do bot",
         "Conversa resolvida pelo bot",
-        "Mensagem criada",
-        "Mensagem entregue",
-        "Mensagem lida",
-        "Campanha disparada",
-        "Mensagem falhou",
+        "Conversa transferida do bot",
+        "Etiqueta adicionada ao contato",
+        "Etiqueta removida do contato",
+        "Evento personalizado",
         "Link da campanha clicado",
-        "Mensagem da campanha enviada"
+        "Mensagem criada",
+        "Mensagem da campanha aberta",
+        "Mensagem da campanha enviada",
+        "Mensagem entregue",
+        "Mensagem falhou",
+        "Mensagem lida",
+        "Primeira resposta da conversa",
+        "Tempo de resposta da conversa"
       ]
     }
   },
@@ -704,6 +707,17 @@
       ],
       "src/pages/Shared/Profile/Profile.tsx": [
         "Ctrl"
+      ]
+    }
+  },
+  {
+    "reason": "Provider preset names from the model catalog remain recognizable as advertised.",
+    "files": {
+      "src/components/ai_agents/ModelSelector.tsx": [
+        "Pro Search",
+        "Deep Research",
+        "Advanced Deep Research",
+        "Fast Search"
       ]
     }
   }

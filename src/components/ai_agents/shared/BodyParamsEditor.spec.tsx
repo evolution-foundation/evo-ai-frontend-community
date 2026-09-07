@@ -1,11 +1,12 @@
+import i18n from '@/i18n/config';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import BodyParamsEditor from './BodyParamsEditor';
 import { coerceBodyParam, normalizeBodyParams } from './bodyParamSchema';
 
-vi.mock('@/hooks/useLanguage', () => ({
-  useLanguage: () => ({ t: (key: string) => key }),
-}));
+beforeEach(async () => {
+  await i18n.changeLanguage('en');
+});
 
 describe('coerceBodyParam', () => {
   it('keeps a valid schema object', () => {
@@ -52,7 +53,7 @@ describe('BodyParamsEditor', () => {
     render(
       <BodyParamsEditor value={{}} onChange={onChange} label="Body" />,
     );
-    fireEvent.click(screen.getByText('form.fields.bodyParams.addParam'));
+    fireEvent.click(screen.getByText(i18n.t('customTools:form.fields.bodyParams.addParam')));
     const nameInput = screen.getByLabelText('Body name');
     fireEvent.change(nameInput, { target: { value: 'queryText' } });
 
@@ -83,20 +84,20 @@ describe('BodyParamsEditor', () => {
   it('flags a filled row whose name is blank instead of dropping it silently', () => {
     const onChange = vi.fn();
     render(<BodyParamsEditor value={{}} onChange={onChange} label="Body" />);
-    fireEvent.click(screen.getByText('form.fields.bodyParams.addParam'));
+    fireEvent.click(screen.getByText(i18n.t('customTools:form.fields.bodyParams.addParam')));
     fireEvent.change(screen.getByLabelText('Body description'), {
       target: { value: 'the search query' },
     });
 
     expect(onChange.mock.calls.at(-1)![0]).toEqual({});
-    expect(screen.getByText('keyValueEditor.errors.emptyKey')).toBeTruthy();
+    expect(screen.getByText(i18n.t('customTools:keyValueEditor.errors.emptyKey'))).toBeTruthy();
   });
 
   it('leaves an untouched new row alone', () => {
     render(<BodyParamsEditor value={{}} onChange={vi.fn()} label="Body" />);
-    fireEvent.click(screen.getByText('form.fields.bodyParams.addParam'));
+    fireEvent.click(screen.getByText(i18n.t('customTools:form.fields.bodyParams.addParam')));
 
-    expect(screen.queryByText('keyValueEditor.errors.emptyKey')).toBeNull();
+    expect(screen.queryByText(i18n.t('customTools:keyValueEditor.errors.emptyKey'))).toBeNull();
   });
 
   it('coerces a legacy string value on load', () => {

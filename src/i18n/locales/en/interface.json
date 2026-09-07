@@ -333,7 +333,8 @@
     "aCampaignSentAMessageToAContact": "A campaign sent a message to a contact.",
     "aContactOpenedACampaignMessage": "A contact opened a campaign message.",
     "aContactClickedALinkInACampaignMessage": "A contact clicked a link in a campaign message.",
-    "userDefinedEventWithFreeFormKeyValueProperties": "User-defined event with free-form key/value properties."
+    "userDefinedEventWithFreeFormKeyValueProperties": "User-defined event with free-form key/value properties.",
+    "purchaseApprovedDescription": "A purchase was approved on a payment platform and captured as a lead in the CRM."
   },
   "utils": {
     "theFlowMustHaveAtLeastOneStartNode": "The flow must have at least one start node",

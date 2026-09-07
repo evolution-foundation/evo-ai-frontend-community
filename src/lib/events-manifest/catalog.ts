@@ -152,7 +152,7 @@ const ENTRIES: EventCatalogEntry[] = [
     eventName: 'conversation.created',
     category: 'conversation',
     dtoType: 'track',
-    labelPt: 'Atributo customizado alterado',
+    labelPt: 'Conversa criada',
     labelEn: 'Conversation created',
     get description() { return i18n.t("interface:catalog.aNewConversationWasOpenedWithAContact"); },
     schema: {
@@ -164,7 +164,7 @@ const ENTRIES: EventCatalogEntry[] = [
     eventName: 'conversation.resolved',
     category: 'conversation',
     dtoType: 'track',
-    labelPt: 'Conversa criada',
+    labelPt: 'Conversa resolvida',
     labelEn: 'Conversation resolved',
     get description() { return i18n.t("interface:catalog.anOpenConversationWasClosedResolved"); },
     schema: {
@@ -182,7 +182,7 @@ const ENTRIES: EventCatalogEntry[] = [
     eventName: 'conversation.activity',
     category: 'conversation',
     dtoType: 'track',
-    labelPt: 'Conversa resolvida',
+    labelPt: 'Atividade na conversa',
     labelEn: 'Conversation activity',
     get description() { return i18n.t("interface:catalog.anActivityNoteStatusChangeEtcOccurredOnAConversation"); },
     schema: {
@@ -194,7 +194,7 @@ const ENTRIES: EventCatalogEntry[] = [
     eventName: 'conversation.first_reply',
     category: 'conversation',
     dtoType: 'track',
-    labelPt: 'Atividade na conversa',
+    labelPt: 'Primeira resposta da conversa',
     labelEn: 'Conversation first reply',
     get description() { return i18n.t("interface:catalog.theFirstAgentReplyWasSentOnAConversation"); },
     schema: {
@@ -206,7 +206,7 @@ const ENTRIES: EventCatalogEntry[] = [
     eventName: 'conversation.reply_time',
     category: 'conversation',
     dtoType: 'track',
-    labelPt: 'Primeira resposta da conversa',
+    labelPt: 'Tempo de resposta da conversa',
     labelEn: 'Conversation reply time',
     get description() { return i18n.t("interface:catalog.aReplyTimeMeasurementWasRecordedForAConversation"); },
     schema: {
@@ -218,7 +218,7 @@ const ENTRIES: EventCatalogEntry[] = [
     eventName: 'conversation.bot_handoff',
     category: 'conversation',
     dtoType: 'track',
-    labelPt: 'Tempo de resposta da conversa',
+    labelPt: 'Conversa transferida do bot',
     labelEn: 'Conversation bot handoff',
     get description() { return i18n.t("interface:catalog.aConversationWasHandedOffFromTheBotToA"); },
     schema: {
@@ -230,7 +230,7 @@ const ENTRIES: EventCatalogEntry[] = [
     eventName: 'conversation.bot_resolved',
     category: 'conversation',
     dtoType: 'track',
-    labelPt: 'Conversa transferida do bot',
+    labelPt: 'Conversa resolvida pelo bot',
     labelEn: 'Conversation bot resolved',
     get description() { return i18n.t("interface:catalog.aConversationWasResolvedByTheBotWithoutHumanHandoff"); },
     schema: {
@@ -242,7 +242,7 @@ const ENTRIES: EventCatalogEntry[] = [
     eventName: 'message.created',
     category: 'message',
     dtoType: 'track',
-    labelPt: 'Conversa resolvida pelo bot',
+    labelPt: 'Mensagem criada',
     labelEn: 'Message created',
     get description() { return i18n.t("interface:catalog.aNewIncomingOrOutgoingMessageWasRecorded"); },
     schema: {
@@ -254,7 +254,7 @@ const ENTRIES: EventCatalogEntry[] = [
     eventName: 'message.delivered',
     category: 'message',
     dtoType: 'track',
-    labelPt: 'Mensagem criada',
+    labelPt: 'Mensagem entregue',
     labelEn: 'Message delivered',
     get description() { return i18n.t("interface:catalog.aMessageReachedTheRecipientDevice"); },
     schema: {
@@ -266,7 +266,7 @@ const ENTRIES: EventCatalogEntry[] = [
     eventName: 'message.read',
     category: 'message',
     dtoType: 'track',
-    labelPt: 'Mensagem entregue',
+    labelPt: 'Mensagem lida',
     labelEn: 'Message read',
     get description() { return i18n.t("interface:catalog.aMessageWasReadByTheRecipient"); },
     schema: {
@@ -278,7 +278,7 @@ const ENTRIES: EventCatalogEntry[] = [
     eventName: 'message.failed',
     category: 'message',
     dtoType: 'track',
-    labelPt: 'Mensagem lida',
+    labelPt: 'Mensagem falhou',
     labelEn: 'Message failed',
     get description() { return i18n.t("interface:catalog.aMessageDeliveryAttemptFailed"); },
     schema: {
@@ -311,7 +311,7 @@ const ENTRIES: EventCatalogEntry[] = [
     eventName: 'campaign.message.sent',
     category: 'campaign',
     dtoType: 'track',
-    labelPt: 'Mensagem falhou',
+    labelPt: 'Mensagem da campanha enviada',
     labelEn: 'Campaign message sent',
     get description() { return i18n.t("interface:catalog.aCampaignSentAMessageToAContact"); },
     schema: {
@@ -323,7 +323,7 @@ const ENTRIES: EventCatalogEntry[] = [
     eventName: 'campaign.message.opened',
     category: 'campaign',
     dtoType: 'track',
-    labelPt: 'Campanha disparada',
+    labelPt: 'Mensagem da campanha aberta',
     labelEn: 'Campaign message opened',
     get description() { return i18n.t("interface:catalog.aContactOpenedACampaignMessage"); },
     schema: {
@@ -347,7 +347,7 @@ const ENTRIES: EventCatalogEntry[] = [
     eventName: 'custom',
     category: 'custom',
     dtoType: 'track',
-    labelPt: 'Mensagem da campanha enviada',
+    labelPt: 'Evento personalizado',
     labelEn: 'Custom event',
     get description() { return i18n.t("interface:catalog.userDefinedEventWithFreeFormKeyValueProperties"); },
     schema: { required: {}, optional: {} },
@@ -360,7 +360,7 @@ const ENTRIES: EventCatalogEntry[] = [
     dtoType: 'track',
     labelPt: 'Compra aprovada',
     labelEn: 'Purchase approved',
-    description: 'A purchase was approved on a payment platform and captured as a lead in the CRM.',
+    get description() { return i18n.t('interface:catalog.purchaseApprovedDescription'); },
     schema: {
       required: {
         provider: f('string', 'Payment platform key (virtu, hotmart, kiwify, cakto)', PURCHASE_PROVIDERS),

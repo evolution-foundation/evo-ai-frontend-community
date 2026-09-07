@@ -381,5 +381,11 @@
     "title": "Advanced JSON",
     "mustBeObject": "The JSON must be an object.",
     "invalid": "Invalid JSON."
+  },
+  "bodyParamsEditor": {
+    "name": "{{label}} name",
+    "type": "{{label}} type",
+    "description": "{{label}} description",
+    "required": "{{label}} required"
   }
 }

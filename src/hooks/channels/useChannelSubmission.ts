@@ -123,7 +123,7 @@ export const useChannelSubmission = (form?: FormData) => {
           if (!useGlobalConfig) {
             const apiUrl = getStr(form, 'api_url');
             if (!apiUrl) {
-              toast.error('URL da API é obrigatória');
+              toast.error(tUi('channels:newChannel.messages.apiUrlRequired'));
               setIsTesting(false);
               return;
             }
@@ -134,7 +134,7 @@ export const useChannelSubmission = (form?: FormData) => {
               result = {
                 success: false,
                 error:
-                  'Health check falhou. Verifique se a URL da Evolution API está correta e acessível.',
+                  tUi('channels:newChannel.messages.evolutionHealthFailed'),
               };
               setHealthCheckPassed(false);
               setIsTesting(false);
@@ -148,7 +148,7 @@ export const useChannelSubmission = (form?: FormData) => {
 
           // Backend will run health check if using global config
           await EvolutionService.verifyConnection(verifyPayload);
-          result = { success: true, message: 'Conexão verificada com sucesso' };
+          result = { success: true, message: tUi('channels:newChannel.messages.connectionVerified') };
           setHealthCheckPassed(true);
         } catch (error) {
           result = { success: false, error: apiErrorMessage(error) || (error as Error).message };
@@ -177,7 +177,7 @@ export const useChannelSubmission = (form?: FormData) => {
           if (!useGlobalConfig) {
             const apiUrl = getStr(form, 'api_url');
             if (!apiUrl) {
-              toast.error('URL da API é obrigatória');
+              toast.error(tUi('channels:newChannel.messages.apiUrlRequired'));
               setIsTesting(false);
               return;
             }
@@ -202,7 +202,7 @@ export const useChannelSubmission = (form?: FormData) => {
 
           // Backend will run health check if using global config
           await EvolutionGoService.verifyConnection(verifyPayload);
-          result = { success: true, message: 'Conexão verificada com sucesso' };
+          result = { success: true, message: tUi('channels:newChannel.messages.connectionVerified') };
           setHealthCheckPassed(true);
         } catch (error) {
           result = { success: false, error: apiErrorMessage(error) || (error as Error).message };
@@ -236,14 +236,14 @@ export const useChannelSubmission = (form?: FormData) => {
 
       if (result) {
         if (result.success) {
-          toast.success(result.message || 'Conexão testada com sucesso');
+          toast.success(result.message || tUi('channels:newChannel.messages.connectionVerified'));
         } else {
-          toast.error(result.error || 'Falha no teste de conexão');
+          toast.error(result.error || tUi('channels:newChannel.messages.connectionTestFailed'));
         }
       }
     } catch (error) {
       toast.error(
-        apiErrorMessage(error) || (error as Error).message || 'Erro no teste de conexão',
+        apiErrorMessage(error) || (error as Error).message || tUi('channels:newChannel.messages.connectionTestFailed'),
       );
     } finally {
       setIsTesting(false);
@@ -503,13 +503,13 @@ export const useChannelSubmission = (form?: FormData) => {
             if (!useGlobalConfig) {
               const apiUrl = getStr(form, 'api_url');
               if (!apiUrl) {
-                throw new Error('URL da API é obrigatória');
+                throw new Error(tUi('channels:newChannel.messages.apiUrlRequired'));
               }
 
               const healthOk = await EvolutionService.healthCheck(apiUrl);
               if (!healthOk) {
                 throw new Error(
-                  'Health check falhou. Verifique se a URL da Evolution API está correta e acessível.',
+                  tUi('channels:newChannel.messages.evolutionHealthFailed'),
                 );
               }
             }
@@ -598,7 +598,7 @@ export const useChannelSubmission = (form?: FormData) => {
             if (!useGlobalConfig) {
               const apiUrl = getStr(form, 'api_url');
               if (!apiUrl) {
-                throw new Error('URL da API é obrigatória');
+                throw new Error(tUi('channels:newChannel.messages.apiUrlRequired'));
               }
 
               const healthOk = await EvolutionGoService.healthCheck(apiUrl);
@@ -716,7 +716,7 @@ export const useChannelSubmission = (form?: FormData) => {
         addInbox(data as Inbox);
       }
 
-      toast.success('Canal criado com sucesso');
+      toast.success(tUi('channels:newChannel.messages.channelCreated'));
       if (onCreated) {
         onCreated(createdId);
       } else {
@@ -724,7 +724,7 @@ export const useChannelSubmission = (form?: FormData) => {
       }
     } catch (e: unknown) {
       const err = e as Error;
-      toast.error(apiErrorMessage(e) || err?.message || 'Falha ao criar canal');
+      toast.error(apiErrorMessage(e) || err?.message || tUi('channels:newChannel.messages.channelCreateFailed'));
     } finally {
       setIsSubmitting(false);
     }

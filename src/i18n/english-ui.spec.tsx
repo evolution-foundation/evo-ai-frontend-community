@@ -70,6 +70,10 @@ describe('English UI regression audit', () => {
     await i18n.changeLanguage('en');
     expect(getEventLabel('contact.created', 'pt-BR')).toBe('Contato criado');
     expect(getEventLabel('contact.created', 'en')).toBe('Contact created');
+    expect(getEventLabel('message.read', 'pt-BR')).toBe('Mensagem lida');
+    expect(getEventLabel('message.failed', 'pt-BR')).toBe('Mensagem falhou');
+    expect(getEventLabel('campaign.message.sent', 'pt-BR')).toBe('Mensagem da campanha enviada');
+    expect(getEventLabel('custom', 'pt-BR')).toBe('Evento personalizado');
   });
 
   it('renders plural warnings and summaries without Portuguese fragments or unresolved variables', async () => {
