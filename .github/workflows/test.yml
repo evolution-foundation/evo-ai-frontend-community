@@ -154,6 +154,7 @@ jobs:
             src/utils/apiHelpers.spec.ts \
             src/hooks/channels/useChannelSubmission.spec.ts \
             src/hooks/channels/useChannelValidation.spec.ts \
+            src/components/channels/settings/BusinessHoursForm.spec.tsx \
             src/hooks/channels/useLiveChannelStatus.spec.ts \
             src/utils/channelStatus.spec.ts \
             src/components/channels/ChannelTypeHub.spec.tsx \
