@@ -40,6 +40,7 @@ export const useGlobalWebSocket = (handlers: GlobalWebSocketHandlers) => {
         pubsub_token: user.pubsub_token,
         user_id: user.id,
         access_token: accessToken,
+        resolveAccessToken: () => useAuthStore.getState().getAccessToken(),
       };
 
       // Convert HTTP/HTTPS URL to WS/WSS WebSocket URL

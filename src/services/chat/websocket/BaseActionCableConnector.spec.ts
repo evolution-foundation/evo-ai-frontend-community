@@ -22,7 +22,11 @@ vi.mock('@rails/actioncable', () => ({
   })),
 }));
 
-import { BaseActionCableConnector, type ConnectionParams } from './BaseActionCableConnector';
+import {
+  BaseActionCableConnector,
+  CABLE_REJECTED_EVENT,
+  type ConnectionParams,
+} from './BaseActionCableConnector';
 
 class ProbeConnector extends BaseActionCableConnector {
   public rejectedCalls = 0;
@@ -38,6 +42,8 @@ const params: ConnectionParams = {
   user_id: 'user-1',
   access_token: 'jwt-1',
 };
+
+const lastCallbacks = () => createMock.mock.calls[createMock.mock.calls.length - 1][1] as Callbacks;
 
 describe('BaseActionCableConnector (CRM-537)', () => {
   beforeEach(() => {
@@ -68,14 +74,39 @@ describe('BaseActionCableConnector (CRM-537)', () => {
     expect(createMock.mock.calls[0][0]).toMatchObject({ token_type: 'api_access_token' });
   });
 
-  it('does not retry a rejected subscription with the same params', () => {
-    const connector = new ProbeConnector(params, 'http://crm.test');
-    const callbacks = createMock.mock.calls[0][1] as Callbacks;
+  it('retries a rejected subscription with a freshly resolved token', () => {
+    let current = 'jwt-expired';
+    const connector = new ProbeConnector({ ...params, resolveAccessToken: () => current }, 'http://crm.test');
+    expect(createMock.mock.calls[0][0]).toMatchObject({ access_token: 'jwt-expired' });
 
-    callbacks.rejected?.();
-    vi.advanceTimersByTime(60_000);
+    lastCallbacks().rejected?.();
+    current = 'jwt-fresh';
+    vi.advanceTimersByTime(5_000);
 
     expect(connector.rejectedCalls).toBe(1);
-    expect(createMock).toHaveBeenCalledTimes(1);
+    expect(createMock).toHaveBeenCalledTimes(2);
+    expect(createMock.mock.calls[1][0]).toMatchObject({ access_token: 'jwt-fresh' });
+  });
+
+  it('announces the rejection so the host can refresh the session', () => {
+    const listener = vi.fn();
+    window.addEventListener(CABLE_REJECTED_EVENT, listener);
+    new ProbeConnector(params, 'http://crm.test');
+
+    lastCallbacks().rejected?.();
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    window.removeEventListener(CABLE_REJECTED_EVENT, listener);
+  });
+
+  it('stops retrying once the subscription is confirmed again', () => {
+    new ProbeConnector(params, 'http://crm.test');
+
+    lastCallbacks().rejected?.();
+    vi.advanceTimersByTime(5_000);
+    lastCallbacks().connected?.();
+    vi.advanceTimersByTime(60_000);
+
+    expect(createMock).toHaveBeenCalledTimes(2);
   });
 });

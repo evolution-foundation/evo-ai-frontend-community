@@ -84,6 +84,7 @@ export const useNotificationWebSocket = (callbacks: NotificationWebSocketProps) 
             channel: 'RoomChannel',
             pubsub_token: user.pubsub_token,
             user_id: user.id,
+            access_token: useAuthStore.getState().getAccessToken(),
           }),
         };
 

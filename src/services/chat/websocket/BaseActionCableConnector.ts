@@ -17,7 +17,14 @@ export interface ConnectionParams {
   // Auth-service token: the server rejects an agent subscription without it (CRM-537).
   access_token: string;
   token_type?: 'bearer' | 'api_access_token';
+  // Re-read on every (re)subscribe so a token refreshed elsewhere (HTTP 401 path,
+  // embedding host) reaches the cable without tearing the connector down.
+  resolveAccessToken?: () => string | null | undefined;
 }
+
+// Emitted when the server rejects the subscription; the host may refresh the session
+// before the connector retries with a fresh token.
+export const CABLE_REJECTED_EVENT = 'evolution:cable-rejected';
 
 export interface EventHandlers {
   [key: string]: (data: unknown) => void;
@@ -37,6 +44,7 @@ export class BaseActionCableConnector {
   protected connectionParams: ConnectionParams;
   protected websocketURL?: string;
   protected reconnectAttempts = 0;
+  protected subscriptionRejected = false;
 
   static isDisconnected = false;
 
@@ -68,7 +76,7 @@ export class BaseActionCableConnector {
           channel: this.connectionParams.channel,
           pubsub_token: this.connectionParams.pubsub_token,
           user_id: this.connectionParams.user_id,
-          access_token: this.connectionParams.access_token,
+          access_token: this.connectionParams.resolveAccessToken?.() || this.connectionParams.access_token,
           ...(this.connectionParams.token_type ? { token_type: this.connectionParams.token_type } : {}),
         },
         {
@@ -79,6 +87,7 @@ export class BaseActionCableConnector {
           connected: () => {
             const wasReconnecting = this.reconnectAttempts > 0;
             BaseActionCableConnector.isDisconnected = false;
+            this.subscriptionRejected = false;
             this.reconnectAttempts = 0;
             this.onConnected();
             this.startPresenceInterval();
@@ -96,14 +105,18 @@ export class BaseActionCableConnector {
             this.initReconnectTimer();
           },
 
-          // Servidor recusou a assinatura (token ausente/inválido, user_id divergente).
-          // Reconectar com os mesmos params seria inútil: quem reconecta é o hook,
-          // quando o token mudar.
+          // Servidor recusou a assinatura (token expirado/inválido, user_id divergente).
+          // Avisa o host (que pode renovar a sessão) e re-tenta com backoff lendo o
+          // token de novo a cada tentativa — um refresh feito no caminho HTTP chega aqui.
           rejected: () => {
             console.warn('🚫 WebSocket: assinatura rejeitada pelo servidor (sessão inválida ou expirada)');
-            this.clearReconnectTimer();
+            this.subscriptionRejected = true;
             this.stopPresenceInterval();
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent(CABLE_REJECTED_EVENT));
+            }
             this.onRejected();
+            this.initReconnectTimer();
           },
         },
       );
@@ -211,7 +224,7 @@ export class BaseActionCableConnector {
    * Chamado pelo timer de reconexão.
    */
   protected checkConnection(): void {
-    if (!BaseActionCableConnector.isDisconnected) {
+    if (!BaseActionCableConnector.isDisconnected && !this.subscriptionRejected) {
       // Conexão restaurada — nada a fazer (onReconnected já foi chamado
       // pelo callback connected: via wasReconnecting)
       this.clearReconnectTimer();

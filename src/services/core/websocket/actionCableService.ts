@@ -1,4 +1,5 @@
 import { createConsumer, Consumer, Subscription } from '@rails/actioncable';
+import { useAuthStore } from '@/store/authStore';
 
 class ActionCableService {
   private consumer: Consumer | null = null;
@@ -36,6 +37,7 @@ class ActionCableService {
         channel: 'RoomChannel',
         pubsub_token: this.pubsubToken,
         user_id: this.userId,
+        access_token: useAuthStore.getState().getAccessToken(),
       },
       {
         connected: () => {

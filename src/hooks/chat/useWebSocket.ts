@@ -97,6 +97,7 @@ export const useWebSocket = (
         pubsub_token: pubsubToken,
         user_id: userId,
         access_token: accessToken,
+        resolveAccessToken: () => useAuthStore.getState().getAccessToken(),
       };
 
       // Criar novo connector
