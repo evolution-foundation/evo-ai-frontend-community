@@ -252,7 +252,7 @@
       "strategyTitle": "Sending Strategy",
       "strategyLabel": "Distribution Strategy",
       "strategyOptions": {
-        "round_robin": "sequential",
+        "round_robin": "Sequential",
         "weighted": "Split",
         "random": "Random",
         "ab_test": "A/B Test"

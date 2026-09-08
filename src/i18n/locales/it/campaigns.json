@@ -125,6 +125,7 @@
   },
   "wizard": {
     "title": "Nuova Campagna",
+    "editTitle": "Modifica Campagna",
     "subtitle": "Crea una nuova campagna di messaggistica di massa",
     "inDevelopment": "In sviluppo",
     "validation": {
@@ -196,7 +197,7 @@
       "strategyTitle": "Strategia di Invio",
       "strategyLabel": "Strategia di Distribuzione",
       "strategyOptions": {
-        "round_robin": "sequenziale",
+        "round_robin": "Sequenziale",
         "weighted": "Split",
         "random": "Casuale",
         "ab_test": "Test A/B"

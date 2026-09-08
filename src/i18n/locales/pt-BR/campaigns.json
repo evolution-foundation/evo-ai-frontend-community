@@ -252,9 +252,9 @@
       "strategyTitle": "Estratégia de Envio",
       "strategyLabel": "Estratégia de Distribuição",
       "strategyOptions": {
-        "round_robin": "sequencial",
+        "round_robin": "Sequencial",
         "weighted": "Split",
-        "random": "Aleatorio",
+        "random": "Aleatório",
         "ab_test": "Teste A/B"
       },
       "weightsLabel": "Distribuição por Template (%)",

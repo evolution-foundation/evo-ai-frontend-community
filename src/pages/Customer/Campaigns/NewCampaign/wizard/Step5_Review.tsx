@@ -82,7 +82,8 @@ const Step5_Review = ({
         <div className="max-w-md w-full text-center space-y-6">
           {/* The orb carries the whitelabel primary (CRM-451): fill plus paired foreground, so
               contrast holds for any agency color. The title stays on text-foreground — primary
-              over the page background has no such pairing. "Próximos Passos" is semantic. */}
+              over the page background has no such pairing. The green next-steps panel
+              (wizard.success.nextSteps) is semantic. */}
           <div className="w-20 h-20 mx-auto bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center mb-6 shadow-lg animate-in zoom-in duration-500">
             <CheckCircle2 className="h-10 w-10 text-primary-foreground" />
           </div>
