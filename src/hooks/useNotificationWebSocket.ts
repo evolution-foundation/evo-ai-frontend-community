@@ -28,11 +28,9 @@ export const useNotificationWebSocket = (callbacks: NotificationWebSocketProps) 
     const wsProtocol = apiUrl.includes('https') ? 'wss:' : 'ws:';
     const wsUrl = apiUrl.replace(/^https?:/, wsProtocol);
 
-    // Same resolver as the HTTP header: a stale in-memory token opens a cable the
-    // server rejects.
-    const token = useAuthStore.getState().getAccessToken() || '';
-
-    return `${wsUrl}/cable?token=${token}`;
+    // No credential in the URL: nothing on the cable reads it (the server takes the
+    // token from the subscription identifier) and a URL leaks to logs and history.
+    return `${wsUrl}/cable`;
   };
 
   const handleWebSocketMessage = (event: MessageEvent) => {
@@ -84,6 +82,7 @@ export const useNotificationWebSocket = (callbacks: NotificationWebSocketProps) 
             channel: 'RoomChannel',
             pubsub_token: user.pubsub_token,
             user_id: user.id,
+            access_token: useAuthStore.getState().getAccessToken(),
           }),
         };
 

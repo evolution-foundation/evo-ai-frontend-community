@@ -1,4 +1,6 @@
 import { createConsumer, Consumer, Subscription } from '@rails/actioncable';
+import { useAuthStore } from '@/store/authStore';
+import { CABLE_REJECTED_EVENT } from '@/services/chat/websocket/BaseActionCableConnector';
 
 class ActionCableService {
   private consumer: Consumer | null = null;
@@ -7,6 +9,7 @@ class ActionCableService {
   private userId: string | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
+  private subscriptionRejected = false;
   private reconnectDelay = 1000; // Start with 1 second
 
   init(pubsubToken: string, userId: string) {
@@ -36,14 +39,27 @@ class ActionCableService {
         channel: 'RoomChannel',
         pubsub_token: this.pubsubToken,
         user_id: this.userId,
+        access_token: useAuthStore.getState().getAccessToken(),
       },
       {
         connected: () => {
+          this.subscriptionRejected = false;
           this.reconnectAttempts = 0;
           this.reconnectDelay = 1000;
         },
 
         disconnected: () => {
+          this.handleDisconnection();
+        },
+
+        // Since CRM-537 the server rejects an agent subscription whose access_token is
+        // expired or invalid. Same contract as BaseActionCableConnector: announce it so
+        // the host can refresh, then reconnect — init() re-reads the token.
+        rejected: () => {
+          this.subscriptionRejected = true;
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent(CABLE_REJECTED_EVENT));
+          }
           this.handleDisconnection();
         },
 
@@ -162,7 +178,7 @@ class ActionCableService {
   }
 
   isConnected(): boolean {
-    if (!this.consumer) return false;
+    if (!this.consumer || this.subscriptionRejected) return false;
 
     // Check if any subscription is connected
     for (const subscription of this.subscriptions.values()) {

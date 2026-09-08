@@ -14,7 +14,17 @@ export interface ConnectionParams {
   channel: string;
   pubsub_token: string;
   user_id: string;
+  // Auth-service token: the server rejects an agent subscription without it (CRM-537).
+  access_token: string;
+  token_type?: 'bearer' | 'api_access_token';
+  // Re-read on every (re)subscribe so a token refreshed elsewhere (HTTP 401 path,
+  // embedding host) reaches the cable without tearing the connector down.
+  resolveAccessToken?: () => string | null | undefined;
 }
+
+// Emitted when the server rejects the subscription; the host may refresh the session
+// before the connector retries with a fresh token.
+export const CABLE_REJECTED_EVENT = 'evolution:cable-rejected';
 
 export interface EventHandlers {
   [key: string]: (data: unknown) => void;
@@ -34,6 +44,7 @@ export class BaseActionCableConnector {
   protected connectionParams: ConnectionParams;
   protected websocketURL?: string;
   protected reconnectAttempts = 0;
+  protected subscriptionRejected = false;
 
   static isDisconnected = false;
 
@@ -65,6 +76,8 @@ export class BaseActionCableConnector {
           channel: this.connectionParams.channel,
           pubsub_token: this.connectionParams.pubsub_token,
           user_id: this.connectionParams.user_id,
+          access_token: this.connectionParams.resolveAccessToken?.() || this.connectionParams.access_token,
+          ...(this.connectionParams.token_type ? { token_type: this.connectionParams.token_type } : {}),
         },
         {
           // Receber mensagens do WebSocket
@@ -74,6 +87,7 @@ export class BaseActionCableConnector {
           connected: () => {
             const wasReconnecting = this.reconnectAttempts > 0;
             BaseActionCableConnector.isDisconnected = false;
+            this.subscriptionRejected = false;
             this.reconnectAttempts = 0;
             this.onConnected();
             this.startPresenceInterval();
@@ -91,8 +105,19 @@ export class BaseActionCableConnector {
             this.initReconnectTimer();
           },
 
-          // Note: 'rejected' callback não é suportado na tipagem do ActionCable
-          // mas pode ser chamado em runtime. Implementar manualmente se necessário.
+          // Server refused the subscription (expired/invalid token, mismatched user_id).
+          // Tell the host so it can refresh the session, then retry with the existing
+          // backoff, re-reading the token each time.
+          rejected: () => {
+            console.warn('🚫 WebSocket: assinatura rejeitada pelo servidor (sessão inválida ou expirada)');
+            this.subscriptionRejected = true;
+            this.stopPresenceInterval();
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent(CABLE_REJECTED_EVENT));
+            }
+            this.onRejected();
+            this.initReconnectTimer();
+          },
         },
       );
     } catch (error) {
@@ -199,7 +224,7 @@ export class BaseActionCableConnector {
    * Chamado pelo timer de reconexão.
    */
   protected checkConnection(): void {
-    if (!BaseActionCableConnector.isDisconnected) {
+    if (!BaseActionCableConnector.isDisconnected && !this.subscriptionRejected) {
       // Conexão restaurada — nada a fazer (onReconnected já foi chamado
       // pelo callback connected: via wasReconnecting)
       this.clearReconnectTimer();
