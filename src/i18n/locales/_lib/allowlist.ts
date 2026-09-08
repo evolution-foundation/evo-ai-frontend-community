@@ -112,7 +112,11 @@ export const PER_FILE_ALLOWED: Record<string, Set<string>> = {
     '🤖 Bot', 'WhatsApp Business', 'Twilio SMS', 'Inbox ID:', 'Account ID:',
     '📎 {{fileType}}',
   ]),
-  'campaigns.json': new Set(['Inbox - {{channel}}']),
+  'campaigns.json': new Set([
+    'Inbox - {{channel}}', 'Split', 'Template {{id}}', 'Templates:', '{{hours}}h',
+    // weekday initials that happen to collide between EN and pt-BR (Tue/Ter, Sat/Sáb)
+    'T', 'S',
+  ]),
   'contacts.json': new Set([
     'Twilio SMS', '+{{count}} pipeline', '+{{count}} pipelines',
     '{{days}}d {{hours}}h', '{{hours}}h {{minutes}}m', '{{minutes}}m {{seconds}}s',

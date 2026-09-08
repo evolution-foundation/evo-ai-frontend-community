@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@evoapi/design-system';
 import { ArrowRight, ArrowLeft, Settings2, Calendar, Clock, Zap, CheckCircle2 } from 'lucide-react';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface Step4Props {
   data: {
@@ -55,7 +56,41 @@ interface Step4Props {
   onBack: () => void;
 }
 
+const STRATEGY_OPTIONS = ['round_robin', 'weighted', 'random', 'ab_test'] as const;
+
+const WEEKDAYS = [
+  { id: 1, key: 'mon' },
+  { id: 2, key: 'tue' },
+  { id: 3, key: 'wed' },
+  { id: 4, key: 'thu' },
+  { id: 5, key: 'fri' },
+  { id: 6, key: 'sat' },
+  { id: 0, key: 'sun' },
+];
+
+const SPREAD_OPTIONS = [
+  { value: '0.166', key: 'min10' },
+  { value: '0.5', key: 'min30' },
+  { value: '1', key: 'min60' },
+  { value: '1.5', key: 'h1m30' },
+  { value: '2', key: 'h2' },
+  { value: '2.5', key: 'h2m30' },
+  { value: '3', key: 'h3' },
+  { value: '4', key: 'h4' },
+  { value: '5', key: 'h5' },
+  { value: '6', key: 'h6' },
+  { value: '7', key: 'h7' },
+  { value: '8', key: 'h8' },
+  { value: '9', key: 'h10' },
+  { value: '11', key: 'h11' },
+  { value: '12', key: 'h12' },
+  { value: '18', key: 'h18' },
+  { value: '24', key: 'h24' },
+  { value: '0', key: 'none' },
+];
+
 const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBack }: Step4Props) => {
+  const { t } = useLanguage('campaigns');
 
   const handleNext = () => {
     const scheduleOption = data.template_strategy === 'ab_test' ? data.ab_test_schedule_option : data.schedule_option;
@@ -97,12 +132,12 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <Settings2 className="h-5 w-5 text-primary" />
                 </div>
-                <Label className="text-xl font-bold">Estratégia de Envio</Label>
+                <Label className="text-xl font-bold">{t('wizard.step4.strategyTitle')}</Label>
               </div>
 
               <div className="bg-card border border-border rounded-xl p-6 space-y-6">
                 <div className="space-y-2">
-                  <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Estratégia de Distribuição</Label>
+                  <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{t('wizard.step4.strategyLabel')}</Label>
                   <Select
                     value={data.template_strategy || 'round_robin'}
                     onValueChange={(value) => onChange({ template_strategy: value as any })}
@@ -111,10 +146,11 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="round_robin">sequencial</SelectItem>
-                      <SelectItem value="weighted">Split</SelectItem>
-                      <SelectItem value="random">Aleatorio</SelectItem>
-                      <SelectItem value="ab_test">Teste A/B</SelectItem>
+                      {STRATEGY_OPTIONS.map((strategy) => (
+                        <SelectItem key={strategy} value={strategy}>
+                          {t(`wizard.step4.strategyOptions.${strategy}`)}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -122,10 +158,10 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                 {/* Split (Weighted) Strategy UI */}
                 {data.template_strategy === 'weighted' && (
                   <div className="space-y-4 pt-4 border-t border-border animate-in fade-in duration-500">
-                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Distribuição por Template (%)</Label>
+                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{t('wizard.step4.weightsLabel')}</Label>
                     <div className="space-y-3">
                       {data.template_ids?.map((id) => {
-                        const templateName = availableTemplates.find((t) => t.id === id)?.name || `Template ${id}`;
+                        const templateName = availableTemplates.find((template) => template.id === id)?.name || t('wizard.step4.templateFallback', { id });
                         return (
                           <div key={id} className="flex items-center gap-4 bg-muted/40 p-3 rounded-xl border border-border">
                             <div className="flex-1 min-w-0">
@@ -156,7 +192,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                         );
                       })}
                       <div className="flex justify-between items-center px-1 pt-2">
-                        <span className="text-xs text-muted-foreground">Total</span>
+                        <span className="text-xs text-muted-foreground">{t('wizard.step4.weightsTotal')}</span>
                         <span className={`text-sm font-bold ${Object.values(data.template_weights || {}).reduce((a, b) => a + b, 0) === 100 ? 'text-primary' : 'text-orange-500'}`}>
                           {Object.values(data.template_weights || {}).reduce((a, b) => a + b, 0)}%
                         </span>
@@ -169,7 +205,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                 {data.template_strategy === 'ab_test' && (
                   <div className="space-y-6 pt-4 border-t border-border animate-in fade-in duration-500">
                     <div className="space-y-3">
-                      <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Critério de Vencedor</Label>
+                      <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{t('wizard.step4.winnerCriteriaLabel')}</Label>
                       <RadioGroup
                         value={data.ab_test_winner_criteria || 'open_rate'}
                         onValueChange={(value) => onChange({ ab_test_winner_criteria: value as any })}
@@ -177,18 +213,18 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                       >
                         <div className={`flex items-center space-x-3 p-4 border rounded-xl transition-all cursor-pointer ${data.ab_test_winner_criteria === 'open_rate' ? 'border-primary bg-primary/5' : 'border-border bg-background hover:border-primary/50'}`}>
                           <RadioGroupItem value="open_rate" id="open_rate" />
-                          <Label htmlFor="open_rate" className="font-semibold cursor-pointer">Taxa de Abertura</Label>
+                          <Label htmlFor="open_rate" className="font-semibold cursor-pointer">{t('wizard.step4.winnerCriteria.open_rate')}</Label>
                         </div>
                         <div className={`flex items-center space-x-3 p-4 border rounded-xl transition-all cursor-pointer ${data.ab_test_winner_criteria === 'click_rate' ? 'border-primary bg-primary/5' : 'border-border bg-background hover:border-primary/50'}`}>
                           <RadioGroupItem value="click_rate" id="click_rate" />
-                          <Label htmlFor="click_rate" className="font-semibold cursor-pointer">Taxa de Clique</Label>
+                          <Label htmlFor="click_rate" className="font-semibold cursor-pointer">{t('wizard.step4.winnerCriteria.click_rate')}</Label>
                         </div>
                       </RadioGroup>
                     </div>
 
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Amostra do Teste</Label>
+                        <Label className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{t('wizard.step4.testSampleLabel')}</Label>
                         <span className="text-primary font-bold">{data.ab_test_percentage || 20}%</span>
                       </div>
                       <Input
@@ -201,8 +237,8 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                         className="h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                       />
                       <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
-                        <span>Mensagem Base: {(data.ab_test_percentage || 20) / 2}%</span>
-                        <span>Restante (Vencedor): {100 - (data.ab_test_percentage || 20)}%</span>
+                        <span>{t('wizard.step4.testSampleBase', { percentage: (data.ab_test_percentage || 20) / 2 })}</span>
+                        <span>{t('wizard.step4.testSampleRemainder', { percentage: 100 - (data.ab_test_percentage || 20) })}</span>
                       </div>
                     </div>
                   </div>
@@ -217,7 +253,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
               <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center">
                 <Calendar className="h-5 w-5 text-orange-500" />
               </div>
-              <Label className="text-xl font-bold">Agendamento <span className="text-destructive">*</span></Label>
+              <Label className="text-xl font-bold">{t('wizard.step4.scheduleTitle')} <span className="text-destructive">*</span></Label>
             </div>
 
             <div className="space-y-3">
@@ -237,9 +273,9 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <Zap className={`h-4 w-4 ${currentScheduleOption === 'now' ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <Label className="text-base font-semibold cursor-pointer">Enviar agora</Label>
+                    <Label className="text-base font-semibold cursor-pointer">{t('wizard.step4.sendNow')}</Label>
                   </div>
-                  <p className="text-xs text-muted-foreground">O envio começará assim que a campanha for criada</p>
+                  <p className="text-xs text-muted-foreground">{t('wizard.step4.sendNowDescription')}</p>
                 </div>
               </div>
 
@@ -259,16 +295,16 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <Clock className={`h-4 w-4 ${currentScheduleOption === 'later' ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <Label className="text-base font-semibold cursor-pointer">Agendar para mais tarde</Label>
+                    <Label className="text-base font-semibold cursor-pointer">{t('wizard.step4.scheduleLater')}</Label>
                   </div>
-                  <p className="text-xs text-muted-foreground">Escolha uma data e horário futuro para o início</p>
+                  <p className="text-xs text-muted-foreground">{t('wizard.step4.scheduleLaterDescription')}</p>
                 </div>
               </div>
 
               {currentScheduleOption === 'later' && (
                 <div className="bg-muted/20 border border-border rounded-xl p-4 mt-2 animate-in zoom-in-95 duration-300">
                   <Label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2 block">
-                    Data e Hora {data.template_strategy === 'ab_test' ? '(Teste)' : ''}
+                    {t('wizard.step4.dateTime')} {data.template_strategy === 'ab_test' ? t('wizard.step4.dateTimeTestSuffix') : ''}
                   </Label>
                   <Input
                     type="datetime-local"
@@ -285,9 +321,9 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
               {data.template_strategy === 'ab_test' && (
                 <div className="bg-muted/30 border border-border rounded-xl p-4 mt-4 space-y-4 animate-in slide-in-from-top-4 duration-500">
                   <div className="flex items-center justify-between">
-                    <Label className="text-sm font-bold">Mensagem Vencedora</Label>
+                    <Label className="text-sm font-bold">{t('wizard.step4.winnerMessage')}</Label>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">Não enviar automaticamente</span>
+                      <span className="text-xs text-muted-foreground">{t('wizard.step4.winnerSkipAuto')}</span>
                       <Switch
                         checked={data.ab_test_skip_winner}
                         onCheckedChange={(v) => onChange({ ab_test_skip_winner: v })}
@@ -297,7 +333,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
 
                   {!data.ab_test_skip_winner && (
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Enviar em</Label>
+                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t('wizard.step4.winnerSendAt')}</Label>
                       <Input
                         type="datetime-local"
                         value={data.ab_test_winner_scheduled_date || ''}
@@ -317,7 +353,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
               <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
                 <Settings2 className="h-5 w-5 text-blue-500" />
               </div>
-              <Label className="text-xl font-bold">Opções Avançadas</Label>
+              <Label className="text-xl font-bold">{t('wizard.step4.advancedTitle')}</Label>
             </div>
 
             <div className="bg-card border border-border rounded-xl divide-y divide-border overflow-hidden">
@@ -328,8 +364,8 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                     <Zap className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1">
-                    <Label className="text-sm font-bold">Janela de Distribuição</Label>
-                    <p className="text-[10px] text-muted-foreground">Intervalo entre os disparos da campanha</p>
+                    <Label className="text-sm font-bold">{t('wizard.step4.spreadTitle')}</Label>
+                    <p className="text-[10px] text-muted-foreground">{t('wizard.step4.spreadDescription')}</p>
                   </div>
                 </div>
                 <Select
@@ -337,27 +373,14 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                   onValueChange={(val) => onChange({ spread_sending_hours: parseFloat(val) })}
                 >
                   <SelectTrigger className="h-10 bg-background border-border text-foreground rounded-lg">
-                    <SelectValue placeholder="Sem intervalo" />
+                    <SelectValue placeholder={t('wizard.step4.spreadPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="0.166">10 minutos</SelectItem>
-                    <SelectItem value="0.5">30 minutos</SelectItem>
-                    <SelectItem value="1">60 minutos</SelectItem>
-                    <SelectItem value="1.5">1 Hora 30 minutos</SelectItem>
-                    <SelectItem value="2">2 Horas</SelectItem>
-                    <SelectItem value="2.5">2 Horas 30 minutos</SelectItem>
-                    <SelectItem value="3">3 Horas</SelectItem>
-                    <SelectItem value="4">4 Horas</SelectItem>
-                    <SelectItem value="5">5 Horas</SelectItem>
-                    <SelectItem value="6">6 Horas</SelectItem>
-                    <SelectItem value="7">7 Horas</SelectItem>
-                    <SelectItem value="8">8 Horas</SelectItem>
-                    <SelectItem value="9">10 Horas</SelectItem>
-                    <SelectItem value="11">11 Horas</SelectItem>
-                    <SelectItem value="12">12 Horas</SelectItem>
-                    <SelectItem value="18">18 Horas</SelectItem>
-                    <SelectItem value="24">24 Horas</SelectItem>
-                    <SelectItem value="0">Sem intervalo</SelectItem>
+                    {SPREAD_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {t(`wizard.step4.spreadOptions.${option.key}`)}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -370,8 +393,8 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                       <Clock className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div>
-                      <Label className="text-sm font-bold">Janelas de Tempo</Label>
-                      <p className="text-[10px] text-muted-foreground">Restringir envios ao horário permitido e dias</p>
+                      <Label className="text-sm font-bold">{t('wizard.step4.businessHoursTitle')}</Label>
+                      <p className="text-[10px] text-muted-foreground">{t('wizard.step4.businessHoursDescription')}</p>
                     </div>
                   </div>
                   <Switch
@@ -384,7 +407,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                   <div className="space-y-4 animate-in fade-in duration-300 pl-11">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Início</Label>
+                        <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t('wizard.step4.start')}</Label>
                         <Input
                           type="time"
                           value={data.business_hours_start || '09:00'}
@@ -393,7 +416,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Fim</Label>
+                        <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t('wizard.step4.end')}</Label>
                         <Input
                           type="time"
                           value={data.business_hours_end || '18:00'}
@@ -404,17 +427,9 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Dias da Semana</Label>
+                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t('wizard.step4.weekdays')}</Label>
                       <div className="flex flex-wrap gap-2">
-                        {[
-                          { id: 1, label: 'Seg' },
-                          { id: 2, label: 'Ter' },
-                          { id: 3, label: 'Qua' },
-                          { id: 4, label: 'Qui' },
-                          { id: 5, label: 'Sex' },
-                          { id: 6, label: 'Sáb' },
-                          { id: 0, label: 'Dom' },
-                        ].map((day) => {
+                        {WEEKDAYS.map((day) => {
                           const isSelected = data.allowed_weekdays?.includes(day.id);
                           return (
                             <button
@@ -432,7 +447,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                                   : 'bg-background border-border text-muted-foreground hover:border-primary/50'
                                 }`}
                             >
-                              {day.label}
+                              {t(`wizard.step4.weekdayShort.${day.key}`)}
                             </button>
                           );
                         })}
@@ -448,8 +463,8 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
                     <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div>
-                    <Label className="text-sm font-bold">Tentativas Automáticas</Label>
-                    <p className="text-[10px] text-muted-foreground">Tentar reenviar em caso de falha</p>
+                    <Label className="text-sm font-bold">{t('wizard.step4.retryTitle')}</Label>
+                    <p className="text-[10px] text-muted-foreground">{t('wizard.step4.retryDescription')}</p>
                   </div>
                 </div>
                 <Switch
@@ -466,7 +481,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
       {/* FOOTER ACTIONS */}
       <div className="flex justify-between items-center py-6 border-t border-border mt-auto">
         <Button variant="outline" className="px-6" onClick={onBack}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+          <ArrowLeft className="mr-2 h-4 w-4" /> {t('wizard.actions.back')}
         </Button>
         <Button
           className={`h-11 px-8 rounded-lg font-bold transition-all ${isValid
@@ -476,7 +491,7 @@ const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBac
           onClick={handleNext}
           disabled={!isValid}
         >
-          Continuar <ArrowRight className="ml-2 h-4 w-4" />
+          {t('wizard.actions.continue')} <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
     </div>
