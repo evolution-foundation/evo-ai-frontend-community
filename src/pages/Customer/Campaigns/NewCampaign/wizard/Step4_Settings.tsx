@@ -81,7 +81,7 @@ const SPREAD_OPTIONS = [
   { value: '6', key: 'h6' },
   { value: '7', key: 'h7' },
   { value: '8', key: 'h8' },
-  { value: '9', key: 'h10' },
+  { value: '10', key: 'h10' },
   { value: '11', key: 'h11' },
   { value: '12', key: 'h12' },
   { value: '18', key: 'h18' },
