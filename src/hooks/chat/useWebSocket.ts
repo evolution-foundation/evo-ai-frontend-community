@@ -97,7 +97,7 @@ export const useWebSocket = (
         pubsub_token: pubsubToken,
         user_id: userId,
         access_token: accessToken,
-        resolveAccessToken: () => useAuthStore.getState().getAccessToken(),
+        resolveAccessToken: () => accessTokenOption ?? useAuthStore.getState().getAccessToken(),
       };
 
       // Criar novo connector
@@ -138,7 +138,7 @@ export const useWebSocket = (
       console.error('❌ Erro ao conectar WebSocket:', error);
       setIsConnected(false);
     }
-  }, [enabled, userId, pubsubToken, websocketHost, accessToken]);
+  }, [enabled, userId, pubsubToken, websocketHost, accessToken, accessTokenOption]);
 
   /**
    * Desconectar do WebSocket
