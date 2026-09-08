@@ -9,7 +9,8 @@ vi.mock('@rails/actioncable', () => ({
     subscriptions: {
       create: (_params: unknown, callbacks: Record<string, (frame: unknown) => void>) => {
         Object.assign(handlers, callbacks);
-        return { unsubscribe: () => {} };
+        // `consumer` is what the service's isConnected() inspects.
+        return { unsubscribe: () => {}, consumer: {} };
       },
     },
     disconnect: () => {},
@@ -54,5 +55,23 @@ describe('actionCableService — contrato do frame do ActionCable', () => {
     handlers.received({ event: 'message.created', data: { id: 7 } });
 
     expect(detail).toEqual({ id: 7 });
+  });
+
+  // CRM-537: this subscriber is LIVE (AuthContext -> ReconnectService -> init) and
+  // HubConnectButton depends on the event only it emits.
+  it('announces the rejection and stops reporting itself connected', async () => {
+    const { actionCableService } = await import('./actionCableService');
+    const { CABLE_REJECTED_EVENT } = await import('@/services/chat/websocket/BaseActionCableConnector');
+    actionCableService.init('tok', 'user-1');
+    expect(actionCableService.isConnected()).toBe(true);
+
+    const listener = vi.fn();
+    window.addEventListener(CABLE_REJECTED_EVENT, listener);
+
+    handlers.rejected(undefined);
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(actionCableService.isConnected()).toBe(false);
+    window.removeEventListener(CABLE_REJECTED_EVENT, listener);
   });
 });

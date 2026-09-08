@@ -105,9 +105,9 @@ export class BaseActionCableConnector {
             this.initReconnectTimer();
           },
 
-          // Servidor recusou a assinatura (token expirado/inválido, user_id divergente).
-          // Avisa o host (que pode renovar a sessão) e re-tenta com backoff lendo o
-          // token de novo a cada tentativa — um refresh feito no caminho HTTP chega aqui.
+          // Server refused the subscription (expired/invalid token, mismatched user_id).
+          // Tell the host so it can refresh the session, then retry with the existing
+          // backoff, re-reading the token each time.
           rejected: () => {
             console.warn('🚫 WebSocket: assinatura rejeitada pelo servidor (sessão inválida ou expirada)');
             this.subscriptionRejected = true;
