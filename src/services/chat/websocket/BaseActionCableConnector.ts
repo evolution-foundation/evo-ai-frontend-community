@@ -14,6 +14,9 @@ export interface ConnectionParams {
   channel: string;
   pubsub_token: string;
   user_id: string;
+  // Auth-service token: the server rejects an agent subscription without it (CRM-537).
+  access_token: string;
+  token_type?: 'bearer' | 'api_access_token';
 }
 
 export interface EventHandlers {
@@ -65,6 +68,8 @@ export class BaseActionCableConnector {
           channel: this.connectionParams.channel,
           pubsub_token: this.connectionParams.pubsub_token,
           user_id: this.connectionParams.user_id,
+          access_token: this.connectionParams.access_token,
+          ...(this.connectionParams.token_type ? { token_type: this.connectionParams.token_type } : {}),
         },
         {
           // Receber mensagens do WebSocket
@@ -91,8 +96,15 @@ export class BaseActionCableConnector {
             this.initReconnectTimer();
           },
 
-          // Note: 'rejected' callback não é suportado na tipagem do ActionCable
-          // mas pode ser chamado em runtime. Implementar manualmente se necessário.
+          // Servidor recusou a assinatura (token ausente/inválido, user_id divergente).
+          // Reconectar com os mesmos params seria inútil: quem reconecta é o hook,
+          // quando o token mudar.
+          rejected: () => {
+            console.warn('🚫 WebSocket: assinatura rejeitada pelo servidor (sessão inválida ou expirada)');
+            this.clearReconnectTimer();
+            this.stopPresenceInterval();
+            this.onRejected();
+          },
         },
       );
     } catch (error) {

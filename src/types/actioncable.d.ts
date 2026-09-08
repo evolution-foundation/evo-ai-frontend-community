@@ -6,6 +6,7 @@ declare module '@rails/actioncable' {
         callbacks?: {
           connected?: () => void;
           disconnected?: () => void;
+          rejected?: () => void;
           received?: (data: unknown) => void;
         }
       ): Subscription;

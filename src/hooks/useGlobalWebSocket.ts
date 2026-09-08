@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/store/authStore';
 import { ChatActionCableConnector, type ChatEventHandlers, type ConnectionParams } from '@/services/chat';
 
 interface GlobalWebSocketHandlers {
@@ -12,6 +13,8 @@ interface GlobalWebSocketHandlers {
 
 export const useGlobalWebSocket = (handlers: GlobalWebSocketHandlers) => {
   const { user } = useAuth();
+  // getAccessToken() prefers localStorage (embedded host) over the store copy.
+  const accessToken = useAuthStore(state => state.getAccessToken());
   const connectorRef = useRef<ChatActionCableConnector | null>(null);
   const handlersRef = useRef<GlobalWebSocketHandlers>(handlers);
 
@@ -21,7 +24,7 @@ export const useGlobalWebSocket = (handlers: GlobalWebSocketHandlers) => {
   }, [handlers]);
 
   const connect = useCallback(() => {
-    if (!user?.id || !user?.pubsub_token) {
+    if (!user?.id || !user?.pubsub_token || !accessToken) {
       return;
     }
 
@@ -36,6 +39,7 @@ export const useGlobalWebSocket = (handlers: GlobalWebSocketHandlers) => {
         channel: 'RoomChannel',
         pubsub_token: user.pubsub_token,
         user_id: user.id,
+        access_token: accessToken,
       };
 
       // Convert HTTP/HTTPS URL to WS/WSS WebSocket URL
@@ -71,7 +75,7 @@ export const useGlobalWebSocket = (handlers: GlobalWebSocketHandlers) => {
     } catch (error) {
       console.error('❌ Global WebSocket: Error connecting', error);
     }
-  }, [user?.id, user?.pubsub_token]);
+  }, [user?.id, user?.pubsub_token, accessToken]);
 
   const disconnect = useCallback(() => {
     if (connectorRef.current) {
@@ -80,7 +84,7 @@ export const useGlobalWebSocket = (handlers: GlobalWebSocketHandlers) => {
     }
   }, []);
 
-  // Connect when user and organization are available
+  // Connect when user, pubsub_token and access token are available
   useEffect(() => {
     if (user?.id && user?.pubsub_token) {
       connect();
@@ -89,7 +93,7 @@ export const useGlobalWebSocket = (handlers: GlobalWebSocketHandlers) => {
     return () => {
       disconnect();
     };
-  }, [user?.id, user?.pubsub_token, connect, disconnect]);
+  }, [user?.id, user?.pubsub_token, accessToken, connect, disconnect]);
 
   useEffect(() => {
     const handleAuthLost = () => {
@@ -134,4 +138,3 @@ export const useGlobalWebSocket = (handlers: GlobalWebSocketHandlers) => {
     disconnect,
   };
 };
-
