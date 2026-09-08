@@ -13,6 +13,7 @@ import {
 } from '@evoapi/design-system';
 import { ArrowRight, ArrowLeft, Settings2, Calendar, Clock, Zap, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { SPREAD_OPTIONS, WEEKDAYS } from './options';
 
 interface Step4Props {
   data: {
@@ -57,37 +58,6 @@ interface Step4Props {
 }
 
 const STRATEGY_OPTIONS = ['round_robin', 'weighted', 'random', 'ab_test'] as const;
-
-const WEEKDAYS = [
-  { id: 1, key: 'mon' },
-  { id: 2, key: 'tue' },
-  { id: 3, key: 'wed' },
-  { id: 4, key: 'thu' },
-  { id: 5, key: 'fri' },
-  { id: 6, key: 'sat' },
-  { id: 0, key: 'sun' },
-];
-
-const SPREAD_OPTIONS = [
-  { value: '0.166', key: 'min10' },
-  { value: '0.5', key: 'min30' },
-  { value: '1', key: 'min60' },
-  { value: '1.5', key: 'h1m30' },
-  { value: '2', key: 'h2' },
-  { value: '2.5', key: 'h2m30' },
-  { value: '3', key: 'h3' },
-  { value: '4', key: 'h4' },
-  { value: '5', key: 'h5' },
-  { value: '6', key: 'h6' },
-  { value: '7', key: 'h7' },
-  { value: '8', key: 'h8' },
-  { value: '10', key: 'h10' },
-  { value: '11', key: 'h11' },
-  { value: '12', key: 'h12' },
-  { value: '18', key: 'h18' },
-  { value: '24', key: 'h24' },
-  { value: '0', key: 'none' },
-];
 
 const Step4_Settings = ({ data, availableTemplates = [], onChange, onNext, onBack }: Step4Props) => {
   const { t } = useLanguage('campaigns');

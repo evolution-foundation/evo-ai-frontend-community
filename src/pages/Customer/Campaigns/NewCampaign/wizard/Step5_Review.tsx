@@ -3,6 +3,7 @@ import { Button, Label } from '@evoapi/design-system';
 import { ArrowLeft, Check, CheckCircle2, Megaphone, Users, MessageSquare, Settings2, Calendar, Zap, Clock } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useNavigate } from 'react-router-dom';
+import { WEEKDAYS } from './options';
 
 interface Step5Props {
   data: {
@@ -49,16 +50,6 @@ interface Step5Props {
   onCreate: () => Promise<void>;
   isEditMode?: boolean;
 }
-
-const WEEKDAYS = [
-  { id: 1, key: 'mon' },
-  { id: 2, key: 'tue' },
-  { id: 3, key: 'wed' },
-  { id: 4, key: 'thu' },
-  { id: 5, key: 'fri' },
-  { id: 6, key: 'sat' },
-  { id: 0, key: 'sun' },
-];
 
 const Step5_Review = ({
   data,
