@@ -136,10 +136,8 @@ jobs:
       #     persists, and 9 stays selectable. The "10 Horas" row shipped bound to 9, and
       #     dropping 9 now would blank the trigger on campaigns that hold it — Radix shows
       #     the placeholder only for an empty value, so the window reads as "no interval".
-      #   - access-token creation (CRM-561): the POST carries the host's active account,
-      #     which is the ONLY thing that tells the auth which account to bind the token
-      #     to. Dropping the header is invisible here and shows up as a 401 on every CRM
-      #     call the customer's automations make.
+      #   - access-token creation (CRM-561): dropping the account header fails silently
+      #     — the token is created, and every later CRM call made with it 401s.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
