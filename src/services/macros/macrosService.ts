@@ -1,7 +1,7 @@
 import type { AxiosResponse } from 'axios';
 import api from '@/services/core/api';
 import { extractData, extractResponse } from '@/utils/apiHelpers';
-import authApi from '@/services/core/apiAuth';
+import usersService from '@/services/users/usersService';
 import type {
   Macro,
   MacrosResponse,
@@ -83,7 +83,7 @@ class MacrosService {
   async getFormData(): Promise<MacroFormData> {
     const [inboxesRes, agentsRes, teamsRes, labelsRes] = await Promise.allSettled([
       api.get('/inboxes'),
-      authApi.get('/users'),
+      usersService.getAccountUsers(),
       api.get('/teams'),
       api.get('/labels'),
     ]);
@@ -94,7 +94,7 @@ class MacrosService {
     // one, so the failing source has to be reported instead of swallowed.
     const getResultData = (
       source: MacroFormDataSource,
-      result: PromiseSettledResult<AxiosResponse>,
+      result: PromiseSettledResult<AxiosResponse | MacroFormOption[]>,
       isAuthService = false,
     ): MacroFormOption[] => {
       if (result.status === 'rejected') {
@@ -105,11 +105,10 @@ class MacrosService {
 
       try {
         if (isAuthService) {
-          // Auth services return {data, meta} structure
-          const response = extractResponse<MacroFormOption>(result.value);
-          return response.data || [];
+          // Already the account directory, resolved by usersService.
+          return Array.isArray(result.value) ? result.value : [];
         }
-        const data = extractData<MacroFormOption[]>(result.value);
+        const data = extractData<MacroFormOption[]>(result.value as AxiosResponse);
         return Array.isArray(data) ? data : [];
       } catch (error) {
         console.error(`Failed to parse ${source} for the macro form:`, error);

@@ -124,13 +124,13 @@ const CustomerDashboardPage = () => {
           pipelinesService.getPipelines({ page: 1, per_page: 100, sort: 'name', order: 'asc' }),
           TeamsService.getTeams({ page: 1, per_page: 100, sort: 'name', order: 'asc' }),
           InboxesService.list(),
-          usersService.getUsers({ page: 1, per_page: 100, sort: 'name', order: 'asc' }),
+          usersService.getAccountUsers({ sort: 'name', order: 'asc' }),
         ]);
 
         setPipelines((pipelinesResponse.data || []).map(item => ({ id: item.id, name: item.name })));
         setTeams((teamsResponse.data || []).map(item => ({ id: item.id, name: item.name })));
         setInboxes((inboxesResponse.data || []).map(item => ({ id: item.id, name: item.name })));
-        setUsers((usersResponse.data || []).map(item => ({ id: item.id, name: item.available_name || item.name })));
+        setUsers(usersResponse.map(item => ({ id: item.id, name: item.available_name || item.name })));
       } catch (err) {
         console.error('Error loading dashboard filter options:', err);
       }

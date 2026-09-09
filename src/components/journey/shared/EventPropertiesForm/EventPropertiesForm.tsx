@@ -368,8 +368,8 @@ async function loadLookup(kind: LookupKind, pipelineId?: string): Promise<Lookup
       return (response?.data || []).map((l) => ({ id: String(l.id), name: l.title }));
     }
     case 'agent': {
-      const response = await UsersService.getUsers({ per_page: 100 });
-      return (response?.data || []).map((u) => ({ id: String(u.id), name: u.name }));
+      const users = await UsersService.getAccountUsers();
+      return users.map((u) => ({ id: String(u.id), name: u.name }));
     }
     case 'campaign': {
       const response = await campaignsService.getCampaigns({ per_page: 100 });

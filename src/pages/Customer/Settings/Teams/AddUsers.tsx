@@ -44,12 +44,12 @@ const AddUsers: React.FC = () => {
       setIsLoading(true);
       const [teamResponse, usersResponse, membersResponse] = await Promise.all([
         TeamsService.getTeam(teamId),
-        usersService.getUsers(),
+        usersService.getAccountUsers(),
         TeamsService.getTeamMembers(teamId),
       ]);
 
       setTeam(teamResponse);
-      setUsers(usersResponse.data || []);
+      setUsers(usersResponse);
       const existingMemberIds = (membersResponse as unknown as TeamMembershipRow[])
         .map(extractMemberId)
         .filter((id): id is string => Boolean(id));

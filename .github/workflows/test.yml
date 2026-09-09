@@ -140,6 +140,12 @@ jobs:
       #     which is the ONLY thing that tells the auth which account to bind the token
       #     to. Dropping the header is invisible here and shows up as a 401 on every CRM
       #     call the customer's automations make.
+      #   - account people directory (CRM-539): every agent selector reads
+      #     usersService.getAccountUsers, which asks the auth for full pages and walks
+      #     them all (the default page is 20, and a truncated list looks complete);
+      #     the channel "Atendentes" total is the size of that list and the current
+      #     inbox members are the ones marked. The account scope itself is the host's
+      #     request context — a caller-side filter here would only mask its absence.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -219,7 +225,9 @@ jobs:
             src/components/journey/nodes/trigger/components/EventBasicConfig.spec.tsx \
             src/i18n/locales/journey-parity.spec.ts \
             src/pages/Customer/Campaigns/NewCampaign/wizard/Step4_Settings.spreadWindow.spec.tsx \
-            src/services/auth/accessTokensService.spec.ts
+            src/services/auth/accessTokensService.spec.ts \
+            src/services/users/usersService.spec.ts \
+            src/components/channels/settings/CollaboratorsForm.spec.tsx
 
   # Lint gate scoped to the files the PR touched.
   eslint:

@@ -15,7 +15,7 @@ vi.mock('@/services/contacts/labelsService', () => ({
   labelsService: { getLabels: vi.fn() },
 }));
 vi.mock('@/services/users/usersService', () => ({
-  default: { getUsers: vi.fn() },
+  default: { getUsers: vi.fn(), getAccountUsers: vi.fn() },
 }));
 vi.mock('@/services/campaigns/campaignsService', () => ({
   campaignsService: { getCampaigns: vi.fn() },
@@ -395,8 +395,6 @@ describe('EventPropertiesForm — lookup page sizes', () => {
   const cases: Array<[string, string, () => ReturnType<typeof vi.fn>, unknown]> = [
     ['conversation.created', 'inbox_id', () => asMock(InboxesService.list), { per_page: 200 }],
     ['contact.label.added', 'labelId', () => asMock(labelsService.getLabels), { per_page: 200 }],
-    // The auth service caps page_size at MAX_PAGE_SIZE = 100.
-    ['campaign.triggered', 'assigned_by_id', () => asMock(UsersService.getUsers), { per_page: 100 }],
     // evo-flow's CampaignQueryDto rejects anything over 100.
     ['campaign.message.sent', 'campaign_id', () => asMock(campaignsService.getCampaigns), { per_page: 100 }],
     // message_templates has an explicit unpaginated branch for -1.
@@ -418,6 +416,21 @@ describe('EventPropertiesForm — lookup page sizes', () => {
     await user.click(within(listbox).getByText(key));
 
     await waitFor(() => expect(mock).toHaveBeenCalledWith(expected));
+  });
+
+  // CRM-539: people come from the account directory, which walks every page
+  // itself, so the lookup no longer pins a page size.
+  it('campaign.triggered → assigned_by_id reads the account directory', async () => {
+    const mock = asMock(UsersService.getAccountUsers);
+    mock.mockResolvedValue([{ id: 7, name: 'Ana' }]);
+    const user = userEvent.setup();
+    render(<Harness eventName="campaign.triggered" />);
+
+    const listbox = await openPicker(user);
+    await user.click(within(listbox).getByText('assigned_by_id'));
+
+    await waitFor(() => expect(mock).toHaveBeenCalledTimes(1));
+    expect(asMock(UsersService.getUsers)).not.toHaveBeenCalled();
   });
 
   it('asks the pipeline endpoints for nothing — they do not paginate', async () => {

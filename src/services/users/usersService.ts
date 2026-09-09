@@ -10,6 +10,10 @@ import type {
   User,
 } from '@/types/users';
 
+// The auth caps page_size at 100; the page ceiling only bounds a runaway meta.
+const ACCOUNT_USERS_PAGE_SIZE = 100;
+const ACCOUNT_USERS_MAX_PAGES = 50;
+
 class UsersService {
   // List users with pagination and filters
   async getUsers(params?: UsersListParams): Promise<UsersResponse> {
@@ -18,6 +22,29 @@ class UsersService {
     });
 
     return extractResponse<User>(response) as UsersResponse;
+  }
+
+  // The people directory of the current account, complete. Every selector
+  // that lists agents (channel collaborators, assignee, automation/macro
+  // forms, ...) reads from here, never from GET /users directly: the auth
+  // pages at 20 by default, and the account scope is applied by the auth
+  // from the request context — so one call site keeps the behaviour uniform.
+  async getAccountUsers(params: Pick<UsersListParams, 'sort' | 'order' | 'q'> = {}): Promise<User[]> {
+    const users: User[] = [];
+    let page = 1;
+    let totalPages = 1;
+
+    do {
+      const response = await apiAuth.get('/users', {
+        params: { ...params, page, per_page: ACCOUNT_USERS_PAGE_SIZE },
+      });
+      const { data, meta } = extractResponse<User>(response);
+      users.push(...(Array.isArray(data) ? data : []));
+      totalPages = Number(meta?.pagination?.total_pages) || 1;
+      page += 1;
+    } while (page <= totalPages && page <= ACCOUNT_USERS_MAX_PAGES);
+
+    return users;
   }
 
   // Get single user

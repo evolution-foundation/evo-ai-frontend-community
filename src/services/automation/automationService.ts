@@ -1,6 +1,6 @@
 import { extractData, extractResponse } from '@/utils/apiHelpers';
 import api from '../core/api';
-import authApi from '@/services/core/apiAuth';
+import usersService from '@/services/users/usersService';
 import type {
   AutomationRule,
   AutomationRuleRun,
@@ -174,20 +174,14 @@ class AutomationService {
     try {
       const [inboxesRes, agentsRes, teamsRes, labelsRes] = await Promise.allSettled([
         api.get('/inboxes'),
-        authApi.get('/users'),
+        usersService.getAccountUsers(),
         api.get('/teams'),
         api.get('/labels'),
       ]);
 
-      const getResultData = (result: PromiseSettledResult<any>, isAuthService = false): any[] => {
+      const getResultData = (result: PromiseSettledResult<any>): any[] => {
         if (result.status === 'fulfilled') {
-          const data = extractData<{ users?: any[] } | any[]>(result.value);
-          if (isAuthService) {
-            if (data && typeof data === 'object' && 'users' in data && Array.isArray(data.users)) {
-              return data.users;
-            }
-            return Array.isArray(data) ? data : [];
-          }
+          const data = extractData<any[]>(result.value);
           return Array.isArray(data) ? data : [];
         }
         return [];
@@ -195,7 +189,7 @@ class AutomationService {
 
       return {
         inboxes: getResultData(inboxesRes),
-        agents: getResultData(agentsRes, true), // true = isAuthService
+        agents: agentsRes.status === 'fulfilled' ? agentsRes.value : [],
         teams: getResultData(teamsRes),
         labels: getResultData(labelsRes),
         campaigns: [],
