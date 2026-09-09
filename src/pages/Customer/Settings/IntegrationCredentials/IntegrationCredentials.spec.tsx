@@ -5,6 +5,7 @@ import IntegrationCredentials from './IntegrationCredentials';
 import { parseOwnerTimestamp } from './ownerTimestamp';
 import { maskKey } from '@/constants/aiProviders';
 import type { IntegrationCredential } from '@/types/agents';
+import { toast } from 'sonner';
 
 // EVO-2250 story 2.1: the vault page reads the new registry only, never
 // returns the value to the browser, gates every action on
@@ -31,14 +32,23 @@ const listCustomTools = vi.fn();
 const listCustomMcpServers = vi.fn();
 const listAgentBots = vi.fn();
 
-vi.mock('@/services/agents', () => ({
-  listIntegrationCredentials: (...args: unknown[]) => listIntegrationCredentials(...args),
-  createIntegrationCredential: (...args: unknown[]) => createIntegrationCredential(...args),
-  updateIntegrationCredential: (...args: unknown[]) => updateIntegrationCredential(...args),
-  deleteIntegrationCredential: (...args: unknown[]) => deleteIntegrationCredential(...args),
-  listCustomTools: (...args: unknown[]) => listCustomTools(...args),
-  listCustomMcpServers: (...args: unknown[]) => listCustomMcpServers(...args),
-}));
+// deleteConflictConsumers is NOT stubbed: it is the contract reader under test,
+// so the 409 cases below exercise the real payload check.
+vi.mock('@/services/agents', async () => {
+  const actual = await vi.importActual<
+    typeof import('@/services/agents/integrationCredentialService')
+  >('@/services/agents/integrationCredentialService');
+
+  return {
+    deleteConflictConsumers: actual.deleteConflictConsumers,
+    listIntegrationCredentials: (...args: unknown[]) => listIntegrationCredentials(...args),
+    createIntegrationCredential: (...args: unknown[]) => createIntegrationCredential(...args),
+    updateIntegrationCredential: (...args: unknown[]) => updateIntegrationCredential(...args),
+    deleteIntegrationCredential: (...args: unknown[]) => deleteIntegrationCredential(...args),
+    listCustomTools: (...args: unknown[]) => listCustomTools(...args),
+    listCustomMcpServers: (...args: unknown[]) => listCustomMcpServers(...args),
+  };
+});
 
 vi.mock('@/services/channels/agentBotsService', () => ({
   default: {
@@ -669,5 +679,141 @@ describe('IntegrationCredentials — deleting (AC6)', () => {
     await user.click(await screen.findByText('deleteDialog.confirm'));
 
     await waitFor(() => expect(deleteIntegrationCredential).toHaveBeenCalledWith('cred-dify'));
+  });
+});
+
+// The core refuses the delete with 409 while a consumer still points at the
+// credential, and names each holder in `details.consumers` (CRM-191, PR #29).
+describe('IntegrationCredentials — the 409 names who holds the credential (CRM-207)', () => {
+  const conflictError = (
+    consumers: unknown,
+    { status = 409, code = 'CONFLICT' }: { status?: number; code?: string } = {},
+  ) => ({
+    response: {
+      status,
+      data: {
+        success: false,
+        error: {
+          code,
+          message: 'integration credential is still in use by 2 consumer(s)',
+          details: { consumers },
+        },
+      },
+    },
+  });
+
+  const confirmDelete = async () => {
+    const user = userEvent.setup();
+    render(<IntegrationCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getAllByLabelText('actions.delete')[0]);
+    await user.click(await screen.findByText('deleteDialog.confirm'));
+
+    return user;
+  };
+
+  it('lists every consumer as its own item and drops the generic toast', async () => {
+    deleteIntegrationCredential.mockRejectedValue(
+      conflictError(['Bot de canal (whatsapp)', 'Ferramenta Busca [Authorization]']),
+    );
+    await confirmDelete();
+
+    const alert = await screen.findByRole('alert');
+    expect(within(alert).getByText('deleteDialog.conflict.title')).toBeInTheDocument();
+    expect(within(alert).getByText('deleteDialog.conflict.help')).toBeInTheDocument();
+
+    const items = within(alert).getAllByRole('listitem').map(item => item.textContent);
+    expect(items).toEqual(['Bot de canal (whatsapp)', 'Ferramenta Busca [Authorization]']);
+
+    expect(toast.error).not.toHaveBeenCalled();
+    expect(screen.getByText('deleteDialog.confirm')).toBeInTheDocument();
+  });
+
+  it('replaces the pre-flight warning, which is a tolerant snapshot of the listing', async () => {
+    listIntegrationCredentials.mockResolvedValue([
+      { ...DIFY_CREDENTIAL, referenced_by: ['Agente Dify'] },
+    ]);
+    deleteIntegrationCredential.mockRejectedValue(conflictError(['Bot de canal (whatsapp)']));
+    await confirmDelete();
+
+    const alert = await screen.findByRole('alert');
+    expect(within(alert).getByText('deleteDialog.conflict.title')).toBeInTheDocument();
+    expect(screen.queryByText('deleteDialog.inUseWarning')).not.toBeInTheDocument();
+  });
+
+  it('names the holders even when the listing reported none', async () => {
+    deleteIntegrationCredential.mockRejectedValue(conflictError(['Integração github']));
+    await confirmDelete();
+
+    const alert = await screen.findByRole('alert');
+    expect(within(alert).getAllByRole('listitem').map(item => item.textContent)).toEqual([
+      'Integração github',
+    ]);
+    expect(screen.queryByText('deleteDialog.inUseWarning')).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['a 500', { response: { status: 500, data: { error: { code: 'INTERNAL_ERROR' } } } }],
+    ['a 409 with no details', { response: { status: 409, data: { error: { code: 'CONFLICT' } } } }],
+    ['an empty consumer list', conflictError([])],
+    ['a consumer list that is not strings', conflictError([{ name: 'Bot' }])],
+    ['a 400 carrying a same-named field', conflictError(['Bot'], { status: 400 })],
+    [
+      'a 409 that is not this conflict',
+      conflictError(['Bot'], { code: 'RESOURCE_ALREADY_EXISTS' }),
+    ],
+  ])('falls back to the generic message for %s', async (_label, error) => {
+    deleteIntegrationCredential.mockRejectedValue(error);
+    await confirmDelete();
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('messages.deleteError'));
+    expect(screen.queryByText('deleteDialog.conflict.title')).not.toBeInTheDocument();
+    expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
+  });
+
+  it('clears the previous holders when the delete is retried', async () => {
+    deleteIntegrationCredential.mockRejectedValueOnce(conflictError(['Bot de canal (whatsapp)']));
+    const user = await confirmDelete();
+
+    await screen.findByText('deleteDialog.conflict.title');
+
+    deleteIntegrationCredential.mockResolvedValueOnce({ message: 'ok' });
+    await user.click(screen.getByText('deleteDialog.confirm'));
+
+    await waitFor(() =>
+      expect(screen.queryByText('deleteDialog.conflict.title')).not.toBeInTheDocument(),
+    );
+    expect(toast.success).toHaveBeenCalledWith('messages.deleteSuccess');
+  });
+
+  it('does not keep the old holders on screen when the retry fails for another reason', async () => {
+    deleteIntegrationCredential.mockRejectedValueOnce(conflictError(['Bot de canal (whatsapp)']));
+    const user = await confirmDelete();
+
+    await screen.findByText('deleteDialog.conflict.title');
+
+    deleteIntegrationCredential.mockRejectedValueOnce({ response: { status: 500, data: {} } });
+    await user.click(screen.getByText('deleteDialog.confirm'));
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('messages.deleteError'));
+    expect(screen.queryByText('deleteDialog.conflict.title')).not.toBeInTheDocument();
+    expect(screen.queryByText('Bot de canal (whatsapp)')).not.toBeInTheDocument();
+  });
+
+  // Cancel closes the dialog by flipping the open prop, which does not run
+  // onOpenChange — so opening another credential is a distinct entry point.
+  it('does not carry the holders over to another credential', async () => {
+    deleteIntegrationCredential.mockRejectedValueOnce(conflictError(['Bot de canal (whatsapp)']));
+    const user = await confirmDelete();
+
+    await screen.findByText('deleteDialog.conflict.title');
+    await user.click(screen.getByText('deleteDialog.cancel'));
+
+    await user.click(screen.getAllByLabelText('actions.delete')[1]);
+
+    expect(await screen.findByText('deleteDialog.confirm')).toBeInTheDocument();
+    expect(screen.queryByText('deleteDialog.conflict.title')).not.toBeInTheDocument();
+    expect(screen.queryByText('Bot de canal (whatsapp)')).not.toBeInTheDocument();
   });
 });
