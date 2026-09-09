@@ -319,6 +319,7 @@ export default function IntegrationCredentials() {
   // token is touched — and the provider-side grant is NOT revoked.
   const handleDisconnectConfirm = async () => {
     if (!connectionToDisconnect?.agent_id) {
+      toast.error(t('oauthSection.disconnectError'));
       return;
     }
 
@@ -573,42 +574,65 @@ export default function IntegrationCredentials() {
                 </tr>
               </thead>
               <tbody>
-                {oauthConnections.map(connection => (
-                  <tr key={connection.id} className="border-t">
-                    <td className="p-3">
-                      <Badge variant="outline">{connection.provider}</Badge>
-                    </td>
-                    <td className="p-3">{connection.agent_name ?? connection.owner_ref}</td>
-                    <td className="p-3">
-                      <Badge
-                        variant={
-                          connection.connection_status === 'connected' ? 'default' : 'secondary'
-                        }
-                      >
-                        {t(`oauthSection.status.${connection.connection_status ?? 'connected'}`)}
-                      </Badge>
-                    </td>
-                    <td className="p-3">
-                      {connection.connection_expires_at
-                        ? parseOwnerTimestamp(connection.connection_expires_at).toLocaleString()
-                        : t('oauthSection.noExpiry')}
-                    </td>
-                    <td className="p-3">
-                      <div className="flex justify-end gap-2">
-                        {canDisconnect && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            aria-label={t('oauthSection.actions.disconnect')}
-                            onClick={() => setConnectionToDisconnect(connection)}
-                          >
-                            {t('oauthSection.actions.disconnect')}
-                          </Button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {oauthConnections.map(connection => {
+                  // The listing sync deactivates a row whose connection left the
+                  // owner store: nothing to disconnect, so delete is the way out.
+                  const orphaned = !connection.is_active;
+
+                  return (
+                    <tr key={connection.id} className="border-t">
+                      <td className="p-3">
+                        <Badge variant="outline">{connection.provider}</Badge>
+                      </td>
+                      <td className="p-3">{connection.agent_name ?? connection.owner_ref}</td>
+                      <td className="p-3">
+                        <Badge
+                          variant={
+                            connection.connection_status === 'connected' && !orphaned
+                              ? 'default'
+                              : 'secondary'
+                          }
+                        >
+                          {orphaned
+                            ? t('oauthSection.status.disconnected')
+                            : t(
+                                `oauthSection.status.${connection.connection_status ?? 'connected'}`,
+                              )}
+                        </Badge>
+                      </td>
+                      <td className="p-3">
+                        {connection.connection_expires_at
+                          ? parseOwnerTimestamp(connection.connection_expires_at).toLocaleString()
+                          : t('oauthSection.noExpiry')}
+                      </td>
+                      <td className="p-3">
+                        <div className="flex justify-end gap-2">
+                          {orphaned
+                            ? canDeleteInScope(connection.scope ?? 'account') && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  aria-label={t('actions.delete')}
+                                  onClick={() => setCredentialToDelete(connection)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )
+                            : canDisconnect && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  aria-label={t('oauthSection.actions.disconnect')}
+                                  onClick={() => setConnectionToDisconnect(connection)}
+                                >
+                                  {t('oauthSection.actions.disconnect')}
+                                </Button>
+                              )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
