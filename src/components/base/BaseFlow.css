@@ -95,12 +95,12 @@
 
 /* Edges styling */
 .react-flow__edge-path {
-  stroke: var(--primary); /* Use primary color for edges */
+  stroke: var(--color-primary);
   stroke-width: 2;
 }
 
 .react-flow__edge.selected .react-flow__edge-path {
-  stroke: var(--primary); /* Use primary color for selected edges */
+  stroke: var(--color-primary);
   stroke-width: 3;
 }
 
@@ -109,14 +109,14 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: var(--primary);
-  border: 2px solid var(--primary);
+  background-color: var(--color-primary);
+  border: 2px solid var(--color-primary);
   opacity: 0.8;
 }
 
 .react-flow__handle:hover {
-  background-color: var(--primary);
-  border-color: var(--primary);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
   opacity: 1;
 }
 
@@ -188,16 +188,16 @@
 
 /* Base Flow Panel styles */
 .base-flow-panel {
-  background: hsl(var(--sidebar));
-  border: 1px solid hsl(var(--sidebar-border));
+  background: var(--color-sidebar);
+  border: 1px solid var(--color-sidebar-border);
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .base-flow-panel-header {
   padding: 16px;
-  border-bottom: 1px solid hsl(var(--sidebar-border));
-  background: hsl(var(--sidebar-accent));
+  border-bottom: 1px solid var(--color-sidebar-border);
+  background: var(--color-sidebar-accent);
 }
 
 .base-flow-panel-content {
@@ -209,16 +209,16 @@
 /* Base Node Panel styles */
 .base-node-panel {
   width: 420px;
-  background: hsl(var(--sidebar));
-  border: 1px solid hsl(var(--sidebar-border));
+  background: var(--color-sidebar);
+  border: 1px solid var(--color-sidebar-border);
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .base-node-panel-header {
   padding: 16px;
-  border-bottom: 1px solid hsl(var(--sidebar-border));
-  background: hsl(var(--sidebar-accent));
+  border-bottom: 1px solid var(--color-sidebar-border);
+  background: var(--color-sidebar-accent);
 }
 
 .base-node-panel-content {
@@ -236,8 +236,8 @@
 
 /* Context menu styles */
 .base-flow-context-menu {
-  background: hsl(var(--sidebar));
-  border: 1px solid hsl(var(--sidebar-border));
+  background: var(--color-sidebar);
+  border: 1px solid var(--color-sidebar-border);
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   padding: 4px;
@@ -253,19 +253,19 @@
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  color: hsl(var(--sidebar-foreground));
+  color: var(--color-sidebar-foreground);
 }
 
 .base-flow-context-menu-item:hover {
-  background: hsl(var(--sidebar-accent));
+  background: var(--color-sidebar-accent);
 }
 
 .base-flow-context-menu-item.destructive {
-  color: hsl(var(--destructive));
+  color: var(--color-destructive);
 }
 
 .base-flow-context-menu-item.destructive:hover {
-  background: hsl(var(--destructive) / 0.1);
+  background: color-mix(in srgb, var(--color-destructive) 10%, transparent);
 }
 
 /* Helper lines styles */
