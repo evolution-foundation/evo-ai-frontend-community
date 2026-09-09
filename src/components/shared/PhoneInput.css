@@ -38,10 +38,6 @@
   border-color: var(--color-destructive);
 }
 
-.phone-input-error .PhoneInputInput:focus-visible {
-  ring-color: var(--color-destructive);
-}
-
 /* Disabled state */
 .phone-input .PhoneInputInput:disabled {
   cursor: not-allowed;
