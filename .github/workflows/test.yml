@@ -155,6 +155,7 @@ jobs:
             src/pages/Admin/Roles/RolesList.spec.tsx \
             src/services/campaigns/campaignsService.spec.ts \
             src/pages/Customer/Settings/Users/Users.spec.tsx \
+            src/components/users/UserFormModal.spec.tsx \
             src/utils/apiHelpers.spec.ts \
             src/hooks/channels/useChannelSubmission.spec.ts \
             src/hooks/channels/useChannelValidation.spec.ts \

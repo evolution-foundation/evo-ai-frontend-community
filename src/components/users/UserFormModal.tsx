@@ -33,9 +33,8 @@ export default function UserFormModal({ isOpen, onClose, user, onSuccess }: User
   const { t } = useLanguage('users');
 
   // System roles (all types) + custom type:'account' roles. The panel hands out
-  // `agent` and the account roles (e.g. "Converse"); super_admin and
-  // account_owner are never offered (CRM-524) — the auth refuses them from
-  // this caller anyway.
+  // `agent` and the account roles; super_admin and account_owner are never
+  // offered (the auth refuses them from this caller anyway).
   const { roles: systemRoles, error: rolesError } = useRoles();
   const { roles: accountRoles } = useRoles({ type: 'account' });
 

@@ -121,11 +121,9 @@ describe('UserFormModal — account roles in the create-agent modal (AC8)', () =
   });
 });
 
-// CRM-524: the panel never hands out the user-global roles. account_owner is no
-// longer a base role, and super_admin (type:user) is dropped even when the API
-// lists it. Editing someone who already holds one keeps it visible but locked,
-// and a save that does not change the role omits it from the PATCH.
-describe('UserFormModal — non-assignable roles (CRM-524)', () => {
+// The panel never hands out the user-global roles: editing someone who holds
+// one keeps it visible but locked, and an unchanged role stays out of the PATCH.
+describe('UserFormModal — non-assignable roles', () => {
   const ownerUser = {
     id: 'u-owner',
     name: 'Dona',
