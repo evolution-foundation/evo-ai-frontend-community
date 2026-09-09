@@ -19,6 +19,7 @@ import useRoles from '@/hooks/useRoles';
 import type { User, UserFormData, UserUpdateData } from '@/types/users';
 import { Loader2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { isPanelAssignableRole } from '@/constants/roles';
 
 
 interface UserFormModalProps {
@@ -31,36 +32,39 @@ interface UserFormModalProps {
 export default function UserFormModal({ isOpen, onClose, user, onSuccess }: UserFormModalProps) {
   const { t } = useLanguage('users');
 
-  // Buscar system roles (todos os tipos) + roles customizadas type:'account'.
-  // Atendentes podem receber tanto as roles base (agent/account_owner) quanto
-  // roles customizadas type:'account' (ex.: "Converse"). O backend passou a
-  // retornar essas roles account em account_user_roles (RBAC split).
+  // System roles (all types) + custom type:'account' roles. The panel hands out
+  // `agent` and the account roles (e.g. "Converse"); super_admin and
+  // account_owner are never offered (CRM-524) — the auth refuses them from
+  // this caller anyway.
   const { roles: systemRoles, error: rolesError } = useRoles();
   const { roles: accountRoles } = useRoles({ type: 'account' });
 
-  // Deduplicar roles por chave para evitar que apareçam duplicados ou que a seleção marque múltiplos
   const uniqueRoles = useMemo(() => {
-    // Definimos os papéis básicos que devem estar sempre disponíveis
-    const baseRoles = [
-      { id: 'role-agent', key: 'agent', name: 'Agent', type: 'user' },
-      { id: 'role-account-owner', key: 'account_owner', name: 'Account Owner', type: 'user' },
-    ];
+    const baseRoles = [{ id: 'role-agent', key: 'agent', name: 'Agent', type: 'user' }];
 
-    // Roles atribuíveis a atendentes: type 'user' (compat legado), 'account'
-    // (atendentes customizados) ou sem type definido.
+    // type 'user' (legacy), 'account' (custom attendants) or untyped.
     const assignableRoleTypes = ['user', 'account', null, undefined];
     const filteredSystemRoles = [...systemRoles, ...accountRoles].filter(
-      role => !!role.key && (assignableRoleTypes.includes(role.type as any) || !role.type)
+      role =>
+        !!role.key &&
+        isPanelAssignableRole(role.key) &&
+        (assignableRoleTypes.includes(role.type as any) || !role.type)
     );
 
-    // Combinamos e removemos duplicatas por key (dando preferência ao que vem
-    // do sistema/account se existir).
     return Array.from(
       new Map(
         [...baseRoles, ...filteredSystemRoles].map(role => [role.key, role])
       ).values()
     );
   }, [systemRoles, accountRoles]);
+
+  // Editing someone who already holds a non-assignable role: show it, locked,
+  // so the field is not blank and the save does not re-grant it.
+  const currentRoleKey = user?.role?.key;
+  const lockedCurrentRole =
+    currentRoleKey && !isPanelAssignableRole(currentRoleKey)
+      ? { id: `role-current-${currentRoleKey}`, key: currentRoleKey, name: user?.role?.name || currentRoleKey }
+      : null;
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<UserFormData>({
@@ -161,10 +165,12 @@ export default function UserFormModal({ isOpen, onClose, user, onSuccess }: User
     try {
       if (user) {
         // Atualizar usuário
+        // `role` only travels when it changed: resubmitting the current one is
+        // a role-set rewrite on the auth side, which the guard may refuse.
         const updateData: UserUpdateData = {
           name: formData.name,
-          role: formData.role,
           availability: formData.availability,
+          ...(formData.role !== user.role?.key ? { role: formData.role } : {}),
         };
 
         await usersService.updateUser(user.id, updateData);
@@ -272,6 +278,11 @@ export default function UserFormModal({ isOpen, onClose, user, onSuccess }: User
                   <div className="px-2 py-4 text-sm text-center text-sidebar-foreground/60">
                     {rolesError ? rolesError : t('form.messages.loading')}
                   </div>
+                )}
+                {lockedCurrentRole && (
+                  <SelectItem key={lockedCurrentRole.id} value={lockedCurrentRole.key} disabled>
+                    {lockedCurrentRole.name}
+                  </SelectItem>
                 )}
                 {uniqueRoles.map(role => (
                   <SelectItem key={role.id} value={role.key}>

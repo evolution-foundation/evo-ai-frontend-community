@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import type { Role } from '@/types/auth/rbac';
+import type { User } from '@/types/users';
 
 vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({ t: (key: string) => key }),
@@ -36,6 +37,10 @@ const accountRole: Role = {
   updated_at: '',
 };
 
+// type:user like the seeded system role, so the panel filter (not the type
+// filter) is what keeps it out of the list.
+const superAdminRole: Role = { ...userRole, id: 'role-super-admin', key: 'super_admin', name: 'Super Admin', system: true };
+
 vi.mock('@/hooks/useRoles', () => ({
   default: (options?: { type?: 'user' | 'account' }) => {
     if (options?.type === 'account') {
@@ -43,7 +48,7 @@ vi.mock('@/hooks/useRoles', () => ({
     }
     // Default call (no type) — the "system" roles list. Include only a user
     // role here so we prove the account role comes from the dedicated fetch.
-    return { roles: [userRole], loading: false, error: null, refetch: vi.fn() };
+    return { roles: [userRole, superAdminRole], loading: false, error: null, refetch: vi.fn() };
   },
 }));
 
@@ -64,8 +69,16 @@ vi.mock('@evoapi/design-system', () => {
     ),
     Select: Passthrough,
     SelectContent: Passthrough,
-    SelectItem: ({ children, value }: { children?: React.ReactNode; value?: string }) => (
-      <div data-testid="select-item" data-value={value}>
+    SelectItem: ({
+      children,
+      value,
+      disabled,
+    }: {
+      children?: React.ReactNode;
+      value?: string;
+      disabled?: boolean;
+    }) => (
+      <div data-testid="select-item" data-value={value} data-disabled={disabled ? 'true' : undefined}>
         {children}
       </div>
     ),
@@ -94,18 +107,68 @@ describe('UserFormModal — account roles in the create-agent modal (AC8)', () =
     expect(screen.getByText('Converse')).toBeInTheDocument();
   });
 
-  it('still includes the base roles and the type:user roles, deduped by key', () => {
+  it('still includes the agent base role and the type:user roles, deduped by key', () => {
     renderModal();
 
     const items = screen.getAllByTestId('select-item');
     const values = items.map(el => el.getAttribute('data-value'));
 
-    // base roles always present
     expect(values).toContain('agent');
-    expect(values).toContain('account_owner');
     // type:user system role merged in
     expect(values).toContain('gerente');
     // no duplicate keys
     expect(new Set(values).size).toBe(values.length);
+  });
+});
+
+// CRM-524: the panel never hands out the user-global roles. account_owner is no
+// longer a base role, and super_admin (type:user) is dropped even when the API
+// lists it. Editing someone who already holds one keeps it visible but locked,
+// and a save that does not change the role omits it from the PATCH.
+describe('UserFormModal — non-assignable roles (CRM-524)', () => {
+  const ownerUser = {
+    id: 'u-owner',
+    name: 'Dona',
+    email: 'dona@example.com',
+    role: { id: 'role-owner', key: 'account_owner', name: 'Account Owner' },
+    availability: 'online',
+  } as unknown as User;
+
+  const values = () =>
+    screen.getAllByTestId('select-item').map(el => el.getAttribute('data-value'));
+
+  it('offers neither account_owner nor super_admin when creating', () => {
+    render(<UserFormModal isOpen user={null} onClose={vi.fn()} onSuccess={vi.fn()} />);
+
+    expect(values()).not.toContain('account_owner');
+    expect(values()).not.toContain('super_admin');
+    expect(values()).toContain('agent');
+  });
+
+  it('shows the current non-assignable role locked when editing', () => {
+    render(<UserFormModal isOpen user={ownerUser} onClose={vi.fn()} onSuccess={vi.fn()} />);
+
+    const locked = screen
+      .getAllByTestId('select-item')
+      .find(el => el.getAttribute('data-value') === 'account_owner');
+    expect(locked).toBeDefined();
+    expect(locked?.getAttribute('data-disabled')).toBe('true');
+    expect(values().filter(v => v === 'account_owner')).toHaveLength(1);
+  });
+
+  it('omits role from the PATCH when the role did not change', async () => {
+    const { default: usersService } = await import('@/services/users/usersService');
+    vi.mocked(usersService.updateUser).mockResolvedValue(ownerUser);
+    const { container } = render(
+      <UserFormModal isOpen user={ownerUser} onClose={vi.fn()} onSuccess={vi.fn()} />,
+    );
+
+    fireEvent.change(screen.getByDisplayValue('Dona'), { target: { value: 'Dona Renomeada' } });
+    fireEvent.submit(container.querySelector('form')!);
+
+    await waitFor(() => expect(usersService.updateUser).toHaveBeenCalledTimes(1));
+    const [, payload] = vi.mocked(usersService.updateUser).mock.calls[0];
+    expect(payload).not.toHaveProperty('role');
+    expect(payload.name).toBe('Dona Renomeada');
   });
 });
