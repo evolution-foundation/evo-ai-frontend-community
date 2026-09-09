@@ -123,8 +123,7 @@ const OAUTH_EXPIRED: IntegrationCredential = {
   connection_status: 'expired',
 };
 
-// The connection left the owner store: the listing sync deactivated the row
-// and the backend decorates it without an agent (CRM-208).
+// Deactivated by the listing sync: the backend decorates it without an agent.
 const OAUTH_ORPHANED: IntegrationCredential = {
   ...OAUTH_CREDENTIAL,
   id: 'cred-oauth-slack',
@@ -397,8 +396,6 @@ describe('IntegrationCredentials — OAuth connections section (2.5 AC1, AC2, AC
     expect(within(oauthSection()).getByText('oauthSection.empty')).toBeInTheDocument();
   });
 
-  // CRM-208: a row whose connection is gone has nothing to disconnect and the
-  // vault delete no longer conflicts, so delete is offered there and only there.
   it('offers delete, not disconnect, on an oauth row whose connection is gone', async () => {
     const user = userEvent.setup();
     deleteIntegrationCredential.mockResolvedValue({ message: 'ok' });
@@ -412,7 +409,6 @@ describe('IntegrationCredentials — OAuth connections section (2.5 AC1, AC2, AC
     await findAccountRow();
     const section = oauthSection();
     expect(within(section).getByText('oauthSection.status.disconnected')).toBeInTheDocument();
-    // One delete for the orphaned row, one disconnect for the live one.
     expect(within(section).getAllByLabelText('actions.delete')).toHaveLength(1);
     expect(within(section).getAllByLabelText('oauthSection.actions.disconnect')).toHaveLength(1);
 

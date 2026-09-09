@@ -560,10 +560,8 @@ export default function IntegrationCredentials() {
               </thead>
               <tbody>
                 {oauthConnections.map(connection => {
-                  // The listing sync deactivates an oauth row whose connection
-                  // left the owner store. There is no agent left to disconnect
-                  // and the vault delete no longer conflicts, so delete is the
-                  // way out (CRM-208).
+                  // The listing sync deactivates a row whose connection left the
+                  // owner store: nothing to disconnect, so delete is the way out.
                   const orphaned = !connection.is_active;
 
                   return (
