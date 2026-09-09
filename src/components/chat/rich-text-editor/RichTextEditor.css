@@ -32,7 +32,7 @@
 .prosemirror-editor:empty:before,
 .prosemirror-editor:has(> p:only-child > br.ProseMirror-trailingBreak:only-child):before {
   content: attr(data-placeholder);
-  color: hsl(var(--muted-foreground));
+  color: var(--color-muted-foreground);
   position: absolute;
   pointer-events: none;
   /* EVO-2234: keep the placeholder on one line and cut it with an ellipsis
@@ -58,8 +58,8 @@
 }
 
 .prosemirror-editor code {
-  background-color: hsl(var(--muted));
-  color: hsl(var(--muted-foreground));
+  background-color: var(--color-muted);
+  color: var(--color-muted-foreground);
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
   font-size: 0.875rem;
@@ -105,8 +105,8 @@
 }
 
 .rich-content code {
-  background-color: hsl(var(--muted));
-  color: hsl(var(--muted-foreground));
+  background-color: var(--color-muted);
+  color: var(--color-muted-foreground);
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
   font-size: 0.875rem;

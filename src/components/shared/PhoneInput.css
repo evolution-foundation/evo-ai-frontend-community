@@ -35,11 +35,11 @@
 
 /* Error state */
 .phone-input-error .PhoneInputInput {
-  border-color: hsl(var(--destructive));
+  border-color: var(--color-destructive);
 }
 
 .phone-input-error .PhoneInputInput:focus-visible {
-  ring-color: hsl(var(--destructive));
+  ring-color: var(--color-destructive);
 }
 
 /* Disabled state */
@@ -51,6 +51,6 @@
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .phone-input .PhoneInputCountrySelect {
-    color: hsl(var(--foreground));
+    color: var(--color-foreground);
   }
 }
