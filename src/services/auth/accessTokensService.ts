@@ -8,10 +8,8 @@ import type {
   AccessTokenResponse,
 } from '@/types/auth';
 
-// When embedded, the host persists the active account under this key (same
-// channel as `access_token`). The auth binds a new token to that account so API
-// calls made with it resolve their account without any further header. A
-// standalone install has no host and no header; the auth keeps its fallback.
+// The host persists the active account under this key. Standalone has no host and
+// no header; the auth falls back.
 const ACTIVE_ACCOUNT_KEY = 'evo_active_tenant_id';
 
 export const activeAccountHeaders = (): Record<string, string> => {

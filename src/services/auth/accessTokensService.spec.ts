@@ -9,9 +9,7 @@ vi.mock('@/services/core/apiAuth', () => ({
 
 const created = { data: { data: { access_token: { id: 't-1', token: 'secret' } } } };
 
-// CRM-561: the auth binds a new token to the account it was minted in, and it
-// learns that account only from this header. Without it an agency owner's token
-// resolves to no account and every CRM call answers 401.
+// The auth learns the account to bind the token to only from this header.
 describe('createAccessToken', () => {
   beforeEach(() => {
     post.mockReset();
