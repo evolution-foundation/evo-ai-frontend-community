@@ -123,6 +123,18 @@ const OAUTH_EXPIRED: IntegrationCredential = {
   connection_status: 'expired',
 };
 
+// The connection left the owner store: the listing sync deactivated the row
+// and the backend decorates it without an agent (CRM-208).
+const OAUTH_ORPHANED: IntegrationCredential = {
+  ...OAUTH_CREDENTIAL,
+  id: 'cred-oauth-slack',
+  provider: 'slack',
+  agent_id: undefined,
+  agent_name: undefined,
+  connection_status: 'expired',
+  is_active: false,
+};
+
 const ALL_PERMISSIONS = [
   'ai_integration_credentials.read',
   'ai_integration_credentials.create',
@@ -383,6 +395,63 @@ describe('IntegrationCredentials — OAuth connections section (2.5 AC1, AC2, AC
 
     await findAccountRow();
     expect(within(oauthSection()).getByText('oauthSection.empty')).toBeInTheDocument();
+  });
+
+  // CRM-208: a row whose connection is gone has nothing to disconnect and the
+  // vault delete no longer conflicts, so delete is offered there and only there.
+  it('offers delete, not disconnect, on an oauth row whose connection is gone', async () => {
+    const user = userEvent.setup();
+    deleteIntegrationCredential.mockResolvedValue({ message: 'ok' });
+    listIntegrationCredentials.mockResolvedValue([
+      DIFY_CREDENTIAL,
+      OAUTH_CREDENTIAL,
+      OAUTH_ORPHANED,
+    ]);
+    render(<IntegrationCredentials />);
+
+    await findAccountRow();
+    const section = oauthSection();
+    expect(within(section).getByText('oauthSection.status.disconnected')).toBeInTheDocument();
+    // One delete for the orphaned row, one disconnect for the live one.
+    expect(within(section).getAllByLabelText('actions.delete')).toHaveLength(1);
+    expect(within(section).getAllByLabelText('oauthSection.actions.disconnect')).toHaveLength(1);
+
+    await user.click(within(section).getByLabelText('actions.delete'));
+    await user.click(await screen.findByText('deleteDialog.confirm'));
+
+    await waitFor(() =>
+      expect(deleteIntegrationCredential).toHaveBeenCalledWith('cred-oauth-slack'),
+    );
+    expect(deleteIntegration).not.toHaveBeenCalled();
+  });
+
+  it('keeps disconnect and no delete on a live connection whose token expired (negative proof)', async () => {
+    listIntegrationCredentials.mockResolvedValue([DIFY_CREDENTIAL, OAUTH_EXPIRED]);
+    render(<IntegrationCredentials />);
+
+    await findAccountRow();
+    const section = oauthSection();
+    // Token expiry is the backend's word; only a deactivated row is orphaned.
+    expect(within(section).getByText('oauthSection.status.expired')).toBeInTheDocument();
+    expect(within(section).queryByText('oauthSection.status.disconnected')).not.toBeInTheDocument();
+    expect(within(section).getByLabelText('oauthSection.actions.disconnect')).toBeInTheDocument();
+    expect(within(section).queryByLabelText('actions.delete')).not.toBeInTheDocument();
+  });
+
+  it('hides the orphaned row delete without ai_integration_credentials.delete', async () => {
+    granted = ALL_PERMISSIONS.filter(
+      permission => permission !== 'ai_integration_credentials.delete',
+    );
+    listIntegrationCredentials.mockResolvedValue([DIFY_CREDENTIAL, OAUTH_ORPHANED]);
+    render(<IntegrationCredentials />);
+
+    await findAccountRow();
+    const section = oauthSection();
+    expect(within(section).getByText('oauthSection.status.disconnected')).toBeInTheDocument();
+    expect(within(section).queryByLabelText('actions.delete')).not.toBeInTheDocument();
+    expect(
+      within(section).queryByLabelText('oauthSection.actions.disconnect'),
+    ).not.toBeInTheDocument();
   });
 });
 
