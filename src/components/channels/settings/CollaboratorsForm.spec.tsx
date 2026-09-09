@@ -67,6 +67,14 @@ describe('CollaboratorsForm — account-scoped agents (CRM-539)', () => {
     expect(rowOf('Caio').className).not.toContain('ring-2');
   });
 
+  it('reports a failed directory load instead of showing "no agents"', async () => {
+    const { toast } = await import('sonner');
+    getAccountUsersMock.mockRejectedValue(new Error('403'));
+    render(<CollaboratorsForm inboxId="inbox-9" />);
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('settings.collaborators.errors.loadError'));
+  });
+
   it('renders the empty state when the directory is empty', async () => {
     getAccountUsersMock.mockResolvedValue([]);
     inboxMembersGetMock.mockResolvedValue([]);

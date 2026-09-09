@@ -12,13 +12,9 @@ const AgentsService = {
    * Endpoint: GET /api/v1/users
    */
   async getAll(): Promise<AgentChannel[]> {
-    try {
-      // Single account-scoped source (CRM-539); the auth pages at 20 otherwise.
-      return (await usersService.getAccountUsers()) as unknown as AgentChannel[];
-    } catch (error) {
-      console.error('AgentsService.getAll error:', error);
-      return []; // Return empty array on error
-    }
+    // Single account-scoped source (CRM-539); the auth pages at 20 otherwise.
+    // Errors propagate: an empty list must mean "no one", not "the request failed".
+    return (await usersService.getAccountUsers()) as unknown as AgentChannel[];
   },
 
   /**
