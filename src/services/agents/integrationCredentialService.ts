@@ -1,5 +1,5 @@
 import evoaiApi from '@/services/core/apiEvoAI';
-import { extractData, buildPaginationParams } from '@/utils/apiHelpers';
+import { apiErrorCode, extractData, buildPaginationParams } from '@/utils/apiHelpers';
 import type {
   IntegrationCredential,
   IntegrationCredentialCreate,
@@ -42,6 +42,27 @@ export const deleteIntegrationCredential = async (
 ): Promise<IntegrationCredentialDeleteResponse> => {
   const response = await evoaiApi.delete(`/integration-credentials/${credentialId}`);
   return extractData<IntegrationCredentialDeleteResponse>(response);
+};
+
+// The delete refuses with 409 while a consumer still points at the credential,
+// naming each holder in `details.consumers` as a ready-to-display string. The
+// whole shape is required, not just the status: a conflict without consumers
+// would render a list asserting that somebody holds it and showing nobody.
+export const deleteConflictConsumers = (error: unknown): string[] | null => {
+  if (!error || typeof error !== 'object') return null;
+
+  const response = (error as { response?: { status?: number; data?: unknown } }).response;
+  if (response?.status !== 409 || apiErrorCode(error) !== 'CONFLICT') return null;
+
+  const data = response.data;
+  if (!data || typeof data !== 'object') return null;
+
+  const consumers = (data as { error?: { details?: { consumers?: unknown } } }).error?.details
+    ?.consumers;
+  if (!Array.isArray(consumers) || consumers.length === 0) return null;
+  if (!consumers.every(entry => typeof entry === 'string' && entry.trim() !== '')) return null;
+
+  return consumers as string[];
 };
 
 // EVO-2250 story 2.7: the retirement guard, per consumer. A consumer only
