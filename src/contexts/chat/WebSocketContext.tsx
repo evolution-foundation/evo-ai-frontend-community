@@ -2,7 +2,7 @@ import React, { createContext, useContext, useReducer, useCallback, useEffect } 
 import { toast } from 'sonner';
 import { useWebSocket } from '@/hooks/chat/useWebSocket';
 import { useAuth } from '@/contexts/AuthContext';
-import { Message, Conversation, MessageSender, MessageTypeValue, Attachment } from '@/types/chat/api';
+import { Message, Conversation, Contact, MessageSender, MessageTypeValue, Attachment } from '@/types/chat/api';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   MessageCreatedEvent,
@@ -13,6 +13,7 @@ import {
   TypingEvent,
   PresenceUpdateEvent,
   ConversationReadEvent,
+  ContactUpdatedEvent,
 } from '@/services/chat/websocket/ChatActionCableConnector';
 import { normalizeToUnixSeconds } from '@/utils/time/timeHelpers';
 import { mapEventLabels } from '@/contexts/chat/eventLabels';
@@ -187,6 +188,7 @@ interface WebSocketHandlers {
   onConversationStatusChanged?: (conversationId: string, status: Conversation['status'], updatedAt?: string) => void;
   onConversationRead?: (conversationId: string, unreadCount: number) => void;
   onConversationLastActivity?: (conversationId: string, lastActivityAt: string) => void;
+  onContactUpdated?: (contact: Contact) => void;
 }
 
 interface WebSocketContextValue {
@@ -608,6 +610,26 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
             data.status,
             data.updated_at,
           );
+        }, []),
+
+        // Without this handler the connector's contact.updated registration was a
+        // no-op, so a resolved/renamed contact only landed after a REST refresh.
+        onContactUpdated: useCallback((data: ContactUpdatedEvent) => {
+          if (!data?.id) {
+            return;
+          }
+
+          const contact: Contact = {
+            id: String(data.id),
+            name: data.name ?? '',
+            email: data.email ?? null,
+            phone_number: data.phone_number ?? null,
+            avatar_url: data.thumbnail ?? null,
+            custom_attributes: data.custom_attributes ?? {},
+            additional_attributes: data.additional_attributes ?? {},
+          };
+
+          handlersRef.current.onContactUpdated?.(contact);
         }, []),
 
         onTypingOn: useCallback((data: TypingEvent) => {

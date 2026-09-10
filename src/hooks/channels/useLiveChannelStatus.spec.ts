@@ -52,6 +52,25 @@ describe('useLiveChannelStatus', () => {
     });
   });
 
+  // The overlay outranks the API state, so every value has to land where the
+  // backend's CONNECTION_MAP lands — `connecting` above all (CRM-490).
+  it.each([
+    ['open', 'connected'],
+    ['connected', 'connected'],
+    ['connecting', 'connecting'],
+    ['close', 'disconnected'],
+    ['closed', 'disconnected'],
+    ['disconnected', 'disconnected'],
+  ])('overlays the provider state %s as %s, mirroring the backend map (CRM-490)', async (raw, expected) => {
+    mockedGet.mockResolvedValueOnce({
+      data: { success: true, data: { instance: { instanceName: 'inst-1', state: raw } } },
+    });
+
+    const { result } = renderHook(() => useLiveChannelStatus([evolutionInbox()]));
+
+    await waitFor(() => expect(result.current.states.w1).toBe(expected));
+  });
+
   it('marks the inbox as failed when the probe errors, keeping the stored state authoritative', async () => {
     mockedGet.mockRejectedValueOnce(new Error('proxy down'));
 

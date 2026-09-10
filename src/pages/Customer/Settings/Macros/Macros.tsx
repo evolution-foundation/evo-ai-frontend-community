@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { SettingsMacrosTour } from '@/tours';
 import { toast } from 'sonner';
@@ -15,6 +15,7 @@ import { Settings } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { macrosService } from '@/services/macros';
 import { Macro, MacrosListParams, MacrosState } from '@/types/automation';
 // import { BaseFilter } from '@/types/core';
@@ -58,7 +59,6 @@ export default function Macros() {
   const [, setFilterModalOpen] = useState(false);
   // const [activeFilters, setActiveFilters] = useState<BaseFilter[]>([]);
   const [appliedFilters] = useState<AppliedFilter[]>([]);
-  const hasLoaded = useRef(false);
 
   // Load macros
   const loadMacros = useCallback(
@@ -101,18 +101,11 @@ export default function Macros() {
     [can, t],
   );
 
-  // Initial load
-  useEffect(() => {
-    if (!permissionsReady) {
-      return;
-    }
-
-    if (!hasLoaded.current) {
-      hasLoaded.current = true;
-      loadMacros();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permissionsReady]);
+  usePermissionGatedLoad({
+    resource: 'macros',
+    load: loadMacros,
+    onDenied: () => toast.error(t('messages.permissionDenied.read')),
+  });
 
   // Handlers
   const handleSearchChange = (query: string) => {

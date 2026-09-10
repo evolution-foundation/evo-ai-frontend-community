@@ -38,7 +38,7 @@ describe('frontend events manifest mirror', () => {
     );
   });
 
-  it('groups events by category covering all 5 categories', () => {
+  it('groups events by category covering all 6 categories', () => {
     const grouped = Object.fromEntries(EVENT_CATEGORIES.map((c) => [c, getEventsByCategory(c)]));
     expect(grouped.contact.length).toBeGreaterThanOrEqual(6);
     // EVO-1263: 2 original (created/resolved) + 5 added (activity, first_reply,
@@ -46,16 +46,23 @@ describe('frontend events manifest mirror', () => {
     expect(grouped.conversation).toHaveLength(7);
     expect(grouped.message.length).toBeGreaterThanOrEqual(4);
     expect(grouped.campaign.length).toBeGreaterThanOrEqual(4);
+    // CRM-316: the purchase captured by the CRM webhook, in its own group.
+    expect(grouped.purchase.map((e) => e.eventName)).toEqual(['purchase.approved']);
     expect(grouped.custom).toHaveLength(1);
   });
 
-  // EVO-1263 (AC1): the manifest is a strict replica of the backend SSOT
-  // EvoFlow::EVENT_NAMES (lib/events/evo_flow_event_names.rb), which has 22
-  // canonical names including `custom`. This count is the single guard keeping
-  // the frontend manifest faithful to the backend enum — keep it strict.
-  it('mirrors the backend EvoFlow::EVENT_NAMES count exactly (22)', () => {
-    expect(EVENT_NAMES).toHaveLength(22);
-    expect(getEventCatalog()).toHaveLength(22);
+  // EVO-1263 (AC1): this count is the single guard keeping the manifest faithful
+  // to the backend SSOT EvoFlow::EVENT_NAMES (lib/events/evo_flow_event_names.rb)
+  // — keep it strict, and bump BACKEND_COUNT with the backend, not with this file.
+  const BACKEND_COUNT = 24;
+  // Exposed by the journey builder as its own trigger type, never picked as an event.
+  const NOT_MIRRORED = ['pipeline.stage_changed'];
+
+  it('mirrors the backend EvoFlow::EVENT_NAMES, minus what is deliberately absent', () => {
+    const expected = BACKEND_COUNT - NOT_MIRRORED.length;
+    expect(EVENT_NAMES).toHaveLength(expected);
+    expect(getEventCatalog()).toHaveLength(expected);
+    NOT_MIRRORED.forEach((name) => expect(EVENT_NAMES).not.toContain(name));
   });
 
   // EVO-1263 (AC1): the 5 conversation events that previously existed only in

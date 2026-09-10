@@ -85,13 +85,32 @@ describe('CustomToolForm (refactored)', () => {
     const { rerender } = render(
       <CustomToolForm mode="create" onSubmit={() => {}} />,
     );
-    // GET default: 3 key-value editors (headers, query, path)
+    // GET default: 3 key-value editors (headers, query, path), no body editor
     expect(screen.getAllByText('keyValueEditor.addRow').length).toBe(3);
+    expect(screen.queryByText('form.fields.bodyParams.addParam')).toBeNull();
 
     const toolPost: CustomTool = { ...baseTool, method: 'POST' };
     rerender(<CustomToolForm tool={toolPost} mode="edit" onSubmit={() => {}} />);
-    // 4 with body_params
-    expect(screen.getAllByText('keyValueEditor.addRow').length).toBe(4);
+    // Body params now use a dedicated schema editor, not a key-value one
+    expect(screen.getAllByText('keyValueEditor.addRow').length).toBe(3);
+    expect(screen.getByText('form.fields.bodyParams.addParam')).toBeTruthy();
+  });
+
+  it('renders an existing body_params schema in the dedicated editor', () => {
+    const toolWithBody: CustomTool = {
+      ...baseTool,
+      method: 'POST',
+      body_params: {
+        queryText: { type: 'string', required: true, description: 'the query' },
+      },
+    };
+    const { rerender } = render(
+      <CustomToolForm mode="create" onSubmit={() => {}} />,
+    );
+    rerender(<CustomToolForm tool={toolWithBody} mode="edit" onSubmit={() => {}} />);
+    expect(screen.getByTestId('body_params-body-editor')).toBeTruthy();
+    expect(screen.getByDisplayValue('queryText')).toBeTruthy();
+    expect(screen.getByDisplayValue('the query')).toBeTruthy();
   });
 
   it('opens advanced collapse and shows values/error_handling fields when expanded', () => {

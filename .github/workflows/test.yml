@@ -90,13 +90,63 @@ jobs:
       #     success toast would look right on screen and still tell the operator
       #     the install is fine.
       #   - i18n-parity (CRM-162): en and pt-BR keep the same key set, catalog-wide.
+      #   - _lib/parity (CRM-484): the guard's own rules. A clean catalog keeps
+      #     i18n-parity green even with the rule broken; only this spec notices.
       #   - macros-parity (CRM-162): es, fr, it and pt are covered nowhere else, so
       #     macros.json is checked against en across all six. A key added to one
       #     locale only is invisible until someone on another reads the raw key.
       #   - contactsService.createContact / labelsService (CRM-321, CRM-381): the
       #     writes keep resolving to the unwrapped payload; re-declaring the envelope
       #     makes the caller unwrap twice and blank the page.
-      # The whole list runs in ~30s and is deterministic.
+      #   - AiCredentials / IntegrationCredentials (CRM-413): the scope privilege
+      #     stays ON TOP of the resource grant per verb, and a CREATE keeps
+      #     carrying its scope. Both are gates the server also enforces, so a
+      #     revert here only shows up as a 403 in the user's face.
+      #   - contact.updated reconciliation (CRM-447): with masking on, the
+      #     account-wide broadcast is masked for every audience while REST
+      #     unmasks per request, so the frame is reconciled against REST before
+      #     it reaches the store. Guards the gates that keep that affordable,
+      #     plus the socket-to-reducer hop no unit spec reaches.
+      #   - ConversationsContext reducer (CRM-445): the contact patch keeps
+      #     reading an empty field as "keep the current value" and keeps matching
+      #     REST-loaded conversations, which carry `contact` and no `meta.sender`.
+      #   - ModelSelector (CRM-482): the pinned model catalogue keeps its shape,
+      #     drops an id on the end-of-service date the provider published, and
+      #     keeps rendering a value the list no longer offers. None of the three
+      #     was gated before — the shape guard shipped with CRM-442 and never ran
+      #     here. The bedrock lifecycle spec stays out: it reaches the network.
+      #   - events manifest catalog (CRM-316): mirror of the evo-flow catalog the
+      #     journey trigger and segment editor read; a drift only shows in the UI.
+      #   - custom-tool body params (CRM-527): body_params stay the
+      #     {type, required, description} schema the tool-execution engine reads,
+      #     a legacy string is repaired on edit, and a nameless row is flagged
+      #     instead of dropped in silence. The three specs shipped green but
+      #     outside this list, so nothing here ran them.
+      #   - theme tokens on journey/segment screens (CRM-520): a fixed
+      #     gray/white/black class only looks right in one theme; the guard
+      #     fails on any new one, with no baseline.
+      #   - trigger filter contract (CRM-519): every key the event trigger offers
+      #     as a filter has a label and help in all locales, a select for ids and
+      #     closed sets, and no timestamp/object, and every lookup asks for a full
+      #     page instead of the endpoint default. A new catalog key that misses one
+      #     of these only shows up as a raw key in the user's face. journey-parity
+      #     is the ONLY guard for the six-locale event-switch keys (i18n-parity
+      #     skips journey.json), and EventBasicConfig owns the switch notice/Undo.
+      #   - Step4 distribution window (CRM-479): every hour row states the number it
+      #     persists, and 9 stays selectable. The "10 Horas" row shipped bound to 9, and
+      #     dropping 9 now would blank the trigger on campaigns that hold it — Radix shows
+      #     the placeholder only for an empty value, so the window reads as "no interval".
+      #   - access-token creation (CRM-561): the POST carries the host's active account,
+      #     which is the ONLY thing that tells the auth which account to bind the token
+      #     to. Dropping the header is invisible here and shows up as a 401 on every CRM
+      #     call the customer's automations make.
+      #   - account people directory (CRM-539): every agent selector reads
+      #     usersService.getAccountUsers, which asks the auth for full pages and walks
+      #     them all (the default page is 20, and a truncated list looks complete);
+      #     the channel "Atendentes" total is the size of that list and the current
+      #     inbox members are the ones marked. The account scope itself is the host's
+      #     request context — a caller-side filter here would only mask its absence.
+      # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
       # forked workers take ~30min on the runner and flake on worker OOM (the
@@ -107,6 +157,7 @@ jobs:
       - name: Vitest
         run: |
           npx vitest run --reporter=basic \
+            src/components/pipelines/StageAutomationRules.spec.tsx \
             src/contexts/PermissionsContext.spec.tsx \
             src/services/permissions.spec.ts \
             src/guards/RouterGuard.spec.tsx \
@@ -114,9 +165,14 @@ jobs:
             src/pages/Admin/Roles/RolesList.spec.tsx \
             src/services/campaigns/campaignsService.spec.ts \
             src/pages/Customer/Settings/Users/Users.spec.tsx \
+            src/components/users/UserFormModal.spec.tsx \
             src/utils/apiHelpers.spec.ts \
             src/hooks/channels/useChannelSubmission.spec.ts \
             src/hooks/channels/useChannelValidation.spec.ts \
+            src/hooks/channels/useLiveChannelStatus.spec.ts \
+            src/utils/channelStatus.spec.ts \
+            src/components/channels/ChannelTypeHub.spec.tsx \
+            src/components/inbox/HubConnectButton.spec.tsx \
             src/components/journey/environment-manager/EnvironmentManager.spec.tsx \
             src/components/journey/nodes/actions/add-label/AddLabelNode.spec.tsx \
             src/components/journey/nodes/actions/assign-bot/AssignBotPanel.spec.tsx \
@@ -146,10 +202,32 @@ jobs:
             src/components/layout/config/menuItems.spec.ts \
             src/components/macros/MacroActionRow.spec.tsx \
             src/pages/Setup/Setup.spec.tsx \
+            src/i18n/locales/_lib/parity.spec.ts \
             src/i18n/locales/i18n-parity.spec.ts \
             src/i18n/locales/macros-parity.spec.ts \
             src/services/contacts/contactsService.createContact.spec.ts \
-            src/services/contacts/labelsService.spec.ts
+            src/services/contacts/labelsService.spec.ts \
+            src/pages/Customer/Settings/AiCredentials/AiCredentials.spec.tsx \
+            src/pages/Customer/Settings/IntegrationCredentials/IntegrationCredentials.spec.tsx \
+            src/hooks/chat/useContactUpdatedReconciler.spec.tsx \
+            src/contexts/chat/ChatContext.contactUpdated.spec.tsx \
+            src/contexts/chat/ConversationsContext.spec.tsx \
+            src/components/ai_agents/__tests__/ModelSelector.availableModels.spec.ts \
+            src/components/ai_agents/__tests__/ModelSelector.retirement.spec.ts \
+            src/components/ai_agents/__tests__/ModelSelector.retiredValue.spec.tsx \
+            src/lib/events-manifest/catalog.spec.ts \
+            src/components/ai_agents/shared/BodyParamsEditor.spec.tsx \
+            src/components/customTools/CustomToolForm.spec.tsx \
+            src/components/customTools/CustomToolWizardModal.spec.tsx \
+            src/components/journey/theme-tokens.spec.ts \
+            src/components/journey/shared/EventPropertiesForm/filterFields.spec.ts \
+            src/components/journey/shared/EventPropertiesForm/EventPropertiesForm.spec.tsx \
+            src/components/journey/nodes/trigger/components/EventBasicConfig.spec.tsx \
+            src/i18n/locales/journey-parity.spec.ts \
+            src/pages/Customer/Campaigns/NewCampaign/wizard/Step4_Settings.spreadWindow.spec.tsx \
+            src/services/auth/accessTokensService.spec.ts \
+            src/services/users/usersService.spec.ts \
+            src/components/channels/settings/CollaboratorsForm.spec.tsx
 
   # Lint gate scoped to the files the PR touched.
   eslint:

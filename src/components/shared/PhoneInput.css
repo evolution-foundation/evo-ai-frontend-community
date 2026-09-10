@@ -12,15 +12,18 @@
 
 /* Error state */
 .phone-input-error .PhoneInputInput {
-  border-color: hsl(var(--destructive));
-}
-
-.phone-input-error .PhoneInputInput:focus-visible {
-  ring-color: hsl(var(--destructive));
+  border-color: var(--color-destructive);
 }
 
 /* Disabled state */
 .phone-input .PhoneInputInput:disabled {
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .phone-input .PhoneInputCountrySelect {
+    color: var(--color-foreground);
+  }
 }

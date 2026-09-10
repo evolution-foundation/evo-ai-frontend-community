@@ -137,6 +137,7 @@ export default function EditStageModal({
             id: String(tpl.id),
             name: tpl.name,
             language: tpl.language,
+            status: tpl.status,
           })),
         );
       })

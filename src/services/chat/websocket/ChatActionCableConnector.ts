@@ -306,7 +306,9 @@ export interface ContactUpdatedEvent {
   name: string;
   email?: string;
   phone_number?: string;
-  avatar_url?: string;
+  // Contact#push_event_data ships the avatar under `thumbnail`; there is no
+  // `avatar_url` key on this frame.
+  thumbnail?: string | null;
   account_id: string;
   custom_attributes: Record<string, unknown>;
   additional_attributes: Record<string, unknown>;

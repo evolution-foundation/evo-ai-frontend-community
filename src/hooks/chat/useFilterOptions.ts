@@ -72,7 +72,7 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
           contactsService.getContacts({ per_page: 100, sort: 'last_activity_at', order: 'desc' }),
           labelsService.getLabels({ per_page: 200 }),
           chatService.getAvailableTeams(),
-          usersService.getUsers({ per_page: 100 }),
+          usersService.getAccountUsers(),
         ]);
 
         // ✅ Processar inboxes
@@ -156,7 +156,7 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
 
         const users: FilterOption[] = [];
         if (usersResponse.status === 'fulfilled') {
-          const usersData = usersResponse.value?.data ?? [];
+          const usersData = usersResponse.value ?? [];
           if (Array.isArray(usersData)) {
             users.push(
               ...usersData.map((user: User) => ({

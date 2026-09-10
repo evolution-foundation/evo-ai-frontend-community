@@ -125,7 +125,7 @@ export function SplitNode({ selected, data, id }: SplitNodeProps) {
               '!rounded-full transition-all duration-300',
               isConnected
                 ? '!bg-green-500 !border-green-400'
-                : '!bg-neutral-400 !border-neutral-500',
+                : '!bg-muted-foreground !border-muted-foreground',
             )}
             style={{
               top: '50%',

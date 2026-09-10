@@ -15,6 +15,7 @@ import { Grid3X3, List, Users as UsersIcon } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { useDebouncedCallback } from '@/hooks/useDebounce';
 import { useAuthStore } from '@/store/authStore';
 import { usersService } from '@/services/users';
@@ -65,7 +66,7 @@ const INITIAL_STATE: UsersState = {
 
 export default function Users() {
   const { t } = useLanguage('users');
-  const { can, isReady: permissionsReady } = usePermissions();
+  const { can } = usePermissions();
   const { currentUser } = useAuthStore();
   const [state, setState] = useState<UsersState>(INITIAL_STATE);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
@@ -93,7 +94,6 @@ export default function Users() {
   const [detailsUser, setDetailsUser] = useState<User | null>(null);
   const [roleOptions, setRoleOptions] = useState<{ label: string; value: string }[]>([]);
   const currentUserId = currentUser?.id?.toString() || '';
-  const hasLoaded = useRef(false);
   // EVO-1947: the search term is the one request param every reload has to
   // carry — pagination, per-page and filter-apply all reload the list and none
   // of them know the term. A ref (not state) so those callbacks read the
@@ -179,18 +179,11 @@ export default function Users() {
     [activeFilters, can, t, state.sortBy, state.sortOrder],
   );
 
-  // Initial load
-  useEffect(() => {
-    if (!permissionsReady) {
-      return;
-    }
-
-    if (!hasLoaded.current) {
-      hasLoaded.current = true;
-      loadUsers();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permissionsReady]);
+  usePermissionGatedLoad({
+    resource: 'users',
+    load: loadUsers,
+    onDenied: () => toast.error(t('messages.permissionDenied.read')),
+  });
 
   // Handlers
   // One request per keystroke used to be free (the server ignored `q`); now it

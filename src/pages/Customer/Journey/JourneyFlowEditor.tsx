@@ -473,7 +473,7 @@ function JourneyFlowEditor() {
         id: 'mute-conversation-node',
         name: t('flowEditor.nodes.muteConversation.name'),
         icon: Volume2,
-        color: 'text-gray-400',
+        color: 'text-muted-foreground',
         category: 'conversation',
         description: t('flowEditor.nodes.muteConversation.description'),
         searchKeywords: ['mute', 'silence', 'quiet', 'hide', 'suppress'],

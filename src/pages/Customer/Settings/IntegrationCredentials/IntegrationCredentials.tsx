@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { usePermissions } from '@/contexts/PermissionsContext';
+import { useCredentialScopePermissions } from '@/hooks/useCredentialScopePermissions';
 import { toast } from 'sonner';
 import {
   Badge,
@@ -19,6 +19,7 @@ import EmptyState from '@/components/base/EmptyState';
 import { maskKey } from '@/constants/aiProviders';
 import {
   createIntegrationCredential,
+  deleteConflictConsumers,
   deleteIntegrationCredential,
   listCustomMcpServers,
   listCustomTools,
@@ -77,7 +78,6 @@ interface ConsumerInUse {
 
 export default function IntegrationCredentials() {
   const { t } = useLanguage('integrationCredentials');
-  const { can, isReady: permissionsReady } = usePermissions();
 
   const [credentials, setCredentials] = useState<IntegrationCredential[]>([]);
   const [loading, setLoading] = useState(false);
@@ -85,18 +85,19 @@ export default function IntegrationCredentials() {
   const [formOpen, setFormOpen] = useState(false);
   const [draft, setDraft] = useState<CredentialDraft>(EMPTY_DRAFT);
   const [credentialToDelete, setCredentialToDelete] = useState<IntegrationCredential | null>(null);
+  const [deleteConflict, setDeleteConflict] = useState<string[] | null>(null);
   const [connectionToDisconnect, setConnectionToDisconnect] =
     useState<IntegrationCredential | null>(null);
   const [consumersInUse, setConsumersInUse] = useState<ConsumerInUse[]>([]);
 
-  const canRead = can('ai_integration_credentials', 'read');
-  const canCreate = can('ai_integration_credentials', 'create');
-  const canUpdate = can('ai_integration_credentials', 'update');
-  const canDelete = can('ai_integration_credentials', 'delete');
-  // Writing at the installation level is a separate privilege: an account admin
-  // sees the inherited default but cannot change it (story 2.2, same rule as
-  // the AI credentials screen).
-  const canManageInstallation = can('installation_configs', 'manage');
+  const {
+    can,
+    permissionsReady,
+    canRead,
+    canCreateInScope,
+    canUpdateInScope,
+    canDeleteInScope,
+  } = useCredentialScopePermissions('ai_integration_credentials');
   // Disconnecting delegates to the agent-integration flow, which the backend
   // gates on ai_agents.update — the vault grants play no part here.
   const canDisconnect = can('ai_agents', 'update');
@@ -228,10 +229,6 @@ export default function IntegrationCredentials() {
     setFormOpen(true);
   };
 
-  // Editing an installation credential needs the installation privilege;
-  // account credentials only need ai_integration_credentials.update.
-  const canWriteScope = (scope: ApiKeyScope) =>
-    scope === 'installation' ? canManageInstallation : canUpdate;
 
   const openEditForm = (credential: IntegrationCredential) => {
     setDraft({
@@ -251,7 +248,8 @@ export default function IntegrationCredentials() {
       return;
     }
 
-    if (!canWriteScope(draft.scope)) {
+    const allowed = isEditing ? canUpdateInScope(draft.scope) : canCreateInScope(draft.scope);
+    if (!allowed) {
       toast.error(t('messages.permissionDenied.installation'));
       return;
     }
@@ -321,6 +319,7 @@ export default function IntegrationCredentials() {
   // token is touched — and the provider-side grant is NOT revoked.
   const handleDisconnectConfirm = async () => {
     if (!connectionToDisconnect?.agent_id) {
+      toast.error(t('oauthSection.disconnectError'));
       return;
     }
 
@@ -348,12 +347,22 @@ export default function IntegrationCredentials() {
 
     try {
       setSaving(true);
+      setDeleteConflict(null);
       await deleteIntegrationCredential(credentialToDelete.id);
       toast.success(t('messages.deleteSuccess'));
       setCredentialToDelete(null);
       loadCredentials();
     } catch (error) {
       console.error('Error deleting integration credential:', error);
+
+      // The refusal names its holders, so the dialog stays open and says who
+      // they are; a generic toast on top would compete with that answer.
+      const consumers = deleteConflictConsumers(error);
+      if (consumers) {
+        setDeleteConflict(consumers);
+        return;
+      }
+
       toast.error(t('messages.deleteError'));
     } finally {
       setSaving(false);
@@ -373,7 +382,7 @@ export default function IntegrationCredentials() {
   }
 
   const renderCredentialsTable = (rows: IntegrationCredential[], scope: ApiKeyScope) => {
-    const writable = canWriteScope(scope);
+    const writable = canUpdateInScope(scope);
 
     return (
       <div className="overflow-x-auto border rounded-lg">
@@ -430,12 +439,15 @@ export default function IntegrationCredentials() {
                         </span>
                       )
                     )}
-                    {canDelete && writable && (
+                    {canDeleteInScope(scope) && (
                       <Button
                         variant="ghost"
                         size="sm"
                         aria-label={t('actions.delete')}
-                        onClick={() => setCredentialToDelete(credential)}
+                        onClick={() => {
+                          setDeleteConflict(null);
+                          setCredentialToDelete(credential);
+                        }}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -457,7 +469,7 @@ export default function IntegrationCredentials() {
           <h1 className="text-2xl font-semibold">{t('title')}</h1>
           <p className="text-muted-foreground">{t('description')}</p>
         </div>
-        {canCreate && (
+        {canCreateInScope('account') && (
           <Button onClick={() => openCreateForm('account')}>
             <Plus className="mr-2 h-4 w-4" />
             {t('actions.add')}
@@ -504,7 +516,7 @@ export default function IntegrationCredentials() {
             title={t('empty.title')}
             description={t('empty.description')}
             action={
-              canCreate
+              canCreateInScope('account')
                 ? { label: t('actions.addFirst'), onClick: () => openCreateForm('account') }
                 : undefined
             }
@@ -519,7 +531,7 @@ export default function IntegrationCredentials() {
           <h2 className="text-sm font-medium uppercase text-muted-foreground">
             {t('sections.installation')}
           </h2>
-          {canManageInstallation && (
+          {canCreateInScope('installation') && (
             <Button variant="outline" size="sm" onClick={() => openCreateForm('installation')}>
               <Plus className="mr-2 h-4 w-4" />
               {t('actions.add')}
@@ -562,42 +574,65 @@ export default function IntegrationCredentials() {
                 </tr>
               </thead>
               <tbody>
-                {oauthConnections.map(connection => (
-                  <tr key={connection.id} className="border-t">
-                    <td className="p-3">
-                      <Badge variant="outline">{connection.provider}</Badge>
-                    </td>
-                    <td className="p-3">{connection.agent_name ?? connection.owner_ref}</td>
-                    <td className="p-3">
-                      <Badge
-                        variant={
-                          connection.connection_status === 'connected' ? 'default' : 'secondary'
-                        }
-                      >
-                        {t(`oauthSection.status.${connection.connection_status ?? 'connected'}`)}
-                      </Badge>
-                    </td>
-                    <td className="p-3">
-                      {connection.connection_expires_at
-                        ? parseOwnerTimestamp(connection.connection_expires_at).toLocaleString()
-                        : t('oauthSection.noExpiry')}
-                    </td>
-                    <td className="p-3">
-                      <div className="flex justify-end gap-2">
-                        {canDisconnect && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            aria-label={t('oauthSection.actions.disconnect')}
-                            onClick={() => setConnectionToDisconnect(connection)}
-                          >
-                            {t('oauthSection.actions.disconnect')}
-                          </Button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {oauthConnections.map(connection => {
+                  // The listing sync deactivates a row whose connection left the
+                  // owner store: nothing to disconnect, so delete is the way out.
+                  const orphaned = !connection.is_active;
+
+                  return (
+                    <tr key={connection.id} className="border-t">
+                      <td className="p-3">
+                        <Badge variant="outline">{connection.provider}</Badge>
+                      </td>
+                      <td className="p-3">{connection.agent_name ?? connection.owner_ref}</td>
+                      <td className="p-3">
+                        <Badge
+                          variant={
+                            connection.connection_status === 'connected' && !orphaned
+                              ? 'default'
+                              : 'secondary'
+                          }
+                        >
+                          {orphaned
+                            ? t('oauthSection.status.disconnected')
+                            : t(
+                                `oauthSection.status.${connection.connection_status ?? 'connected'}`,
+                              )}
+                        </Badge>
+                      </td>
+                      <td className="p-3">
+                        {connection.connection_expires_at
+                          ? parseOwnerTimestamp(connection.connection_expires_at).toLocaleString()
+                          : t('oauthSection.noExpiry')}
+                      </td>
+                      <td className="p-3">
+                        <div className="flex justify-end gap-2">
+                          {orphaned
+                            ? canDeleteInScope(connection.scope ?? 'account') && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  aria-label={t('actions.delete')}
+                                  onClick={() => setCredentialToDelete(connection)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )
+                            : canDisconnect && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  aria-label={t('oauthSection.actions.disconnect')}
+                                  onClick={() => setConnectionToDisconnect(connection)}
+                                >
+                                  {t('oauthSection.actions.disconnect')}
+                                </Button>
+                              )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -701,7 +736,12 @@ export default function IntegrationCredentials() {
 
       <Dialog
         open={Boolean(credentialToDelete)}
-        onOpenChange={open => !open && setCredentialToDelete(null)}
+        onOpenChange={open => {
+          if (!open) {
+            setCredentialToDelete(null);
+            setDeleteConflict(null);
+          }
+        }}
       >
         <DialogContent>
           <DialogHeader>
@@ -711,14 +751,35 @@ export default function IntegrationCredentials() {
             </DialogDescription>
           </DialogHeader>
 
-          {(credentialToDelete?.referenced_by?.length ?? 0) > 0 && (
-            <p role="alert" className="flex gap-2 text-sm text-amber-600">
-              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-              {t('deleteDialog.inUseWarning', {
-                count: credentialToDelete?.referenced_by?.length,
-                consumers: credentialToDelete?.referenced_by?.join(', '),
-              })}
-            </p>
+          {deleteConflict ? (
+            // The server just answered failing closed; `referenced_by` is a
+            // tolerant snapshot taken at listing time. Showing both would hand
+            // the reader two lists of who holds this and no way to choose.
+            <div
+              role="alert"
+              className="rounded border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive"
+            >
+              <p className="flex gap-2 font-medium">
+                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                {t('deleteDialog.conflict.title')}
+              </p>
+              <ul className="list-disc pl-10 mt-2 space-y-1">
+                {deleteConflict.map((consumer, index) => (
+                  <li key={`${consumer}-${index}`}>{consumer}</li>
+                ))}
+              </ul>
+              <p className="pl-6 mt-2">{t('deleteDialog.conflict.help')}</p>
+            </div>
+          ) : (
+            (credentialToDelete?.referenced_by?.length ?? 0) > 0 && (
+              <p role="alert" className="flex gap-2 text-sm text-amber-600">
+                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                {t('deleteDialog.inUseWarning', {
+                  count: credentialToDelete?.referenced_by?.length,
+                  consumers: credentialToDelete?.referenced_by?.join(', '),
+                })}
+              </p>
+            )
           )}
 
           <DialogFooter>

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, cleanup } from '@testing-library/react';
 import React from 'react';
 import { PermissionsProvider, usePermissions } from './PermissionsContext';
 
@@ -19,24 +19,38 @@ vi.mock('./AuthContext', () => ({
   useAuth: () => ({ user: mockUser(), logout: mockLogout }),
 }));
 
-vi.mock('@/store/authStore', () => ({
-  useAuthStore: { getState: () => ({ isLoggedIn: true }) },
-}));
+// Mirrors the store: `isLoggedIn` is derived from the current user, so it is
+// false for exactly as long as `useAuth().user` is null. Pinning it to true
+// hid the CRM-494 window, where the provider mounts with neither.
+// Real zustand store: the provider SUBSCRIBES to isLoggedIn (the F5 race fix),
+// so the mock must be reactive — a plain getState object cannot be called as a
+// hook and could never exercise the hydration flip.
+vi.mock('@/store/authStore', async () => {
+  const { create } = await import('zustand');
+  return { useAuthStore: create(() => ({ isLoggedIn: true })) };
+});
+import { useAuthStore } from '@/store/authStore';
 
 const mockAccountPermissions = vi.fn<[], Promise<string[]>>();
 const mockUserPermissions = vi.fn<[], Promise<string[]>>();
 
+// Deliberately omits `pipelines.read`: a key that is granted but absent from the
+// catalog is denied only while the catalog is loaded, which is how the CRM-494
+// examples below tell a loaded catalog from the null one.
+const resourceActionsPayload = {
+  data: {
+    all_permissions: [
+      { key: 'contacts.read', display_name: 'Contacts - Read' },
+      { key: 'installation_configs.manage', display_name: 'Installation Configs - Manage' },
+    ],
+  },
+};
+
+const mockResourceActions = vi.fn(() => Promise.resolve(resourceActionsPayload));
+
 vi.mock('@/services/permissions', () => ({
   permissionsService: {
-    getResourceActions: () =>
-      Promise.resolve({
-        data: {
-          all_permissions: [
-            { key: 'contacts.read', display_name: 'Contacts - Read' },
-            { key: 'installation_configs.manage', display_name: 'Installation Configs - Manage' },
-          ],
-        },
-      }),
+    getResourceActions: () => mockResourceActions(),
     getUserPermissions: () => mockUserPermissions(),
     getAccountPermissions: () => mockAccountPermissions(),
   },
@@ -89,6 +103,7 @@ async function renderWith(role: string, granted: string[]) {
 describe('PermissionsContext — can() stays data-driven (no role short-circuit)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useAuthStore.setState({ isLoggedIn: true });
   });
 
   it('denies a permission the user was not granted, even for super_admin', async () => {
@@ -241,5 +256,202 @@ describe('PermissionsProvider — the failure panel replaces the tree it wraps (
 
     await waitFor(() => expect(screen.getByTestId('app')).toBeTruthy());
     expect(screen.queryByTestId('permissions-load-failure')).toBeNull();
+  });
+});
+
+// CRM-494. In the embedded shell the provider mounts before the session is
+// restored, and nothing holds the tree back while it is: the reset to `pending`
+// arrived a commit late and the "no user yet" early-returns stamped `loaded` over
+// lists no request had ever asked for. `isReady` then answered true over two empty
+// arrays and `can()` read false for every key — a denial the user could only clear
+// by leaving the screen and coming back.
+describe('PermissionsContext — an unfetched list is never ready (CRM-494)', () => {
+  const renders: { isReady: boolean; account: number; user: number }[] = [];
+  let consoleError: ReturnType<typeof vi.spyOn>;
+
+  const BootProbe: React.FC = () => {
+    const { isReady, accountPermissions, userPermissions, can } = usePermissions();
+    renders.push({
+      isReady,
+      account: accountPermissions.length,
+      user: userPermissions.length,
+    });
+    return (
+      <>
+        <span data-testid="ready">{String(isReady)}</span>
+        {isReady ? (
+          <>
+            <span data-testid="contacts-read">{String(can('contacts', 'read'))}</span>
+            <span data-testid="pipelines-read">{String(can('pipelines', 'read'))}</span>
+            <span data-testid="installation-manage">
+              {String(can('installation_configs', 'manage'))}
+            </span>
+            <span data-testid="user-contacts-read">
+              {String(can('contacts', 'read', 'user'))}
+            </span>
+          </>
+        ) : null}
+      </>
+    );
+  };
+
+  function tree(blockOnLoadFailure: boolean) {
+    return (
+      <PermissionsProvider blockOnLoadFailure={blockOnLoadFailure}>
+        <BootProbe />
+      </PermissionsProvider>
+    );
+  }
+
+  // Mounts with no user — the state every reload starts from — and only then hands
+  // the session over, the way validityCheck() does a few ticks later.
+  async function bootThenAuthenticate(
+    granted: string[],
+    { blockOnLoadFailure = false, userGranted = ['contacts.read'] } = {},
+  ) {
+    mockUser.mockReturnValue(null);
+    const { rerender } = render(tree(blockOnLoadFailure));
+
+    expect(screen.getByTestId('ready').textContent).toBe('false');
+
+    mockUserPermissions.mockResolvedValue(userGranted);
+    mockAccountPermissions.mockResolvedValue(granted);
+    mockUser.mockReturnValue({ id: 'user-1', name: 'Someone', role: 'agent' });
+    rerender(tree(blockOnLoadFailure));
+
+    await waitFor(() => expect(screen.getByTestId('ready').textContent).toBe('true'));
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockResourceActions.mockResolvedValue(resourceActionsPayload);
+    renders.length = 0;
+    consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleError.mockRestore();
+  });
+
+  it('never reports ready while either permission list is still empty', async () => {
+    await bootThenAuthenticate(['contacts.read']);
+
+    const premature = renders.filter(r => r.isReady && (r.account === 0 || r.user === 0));
+    expect(premature).toEqual([]);
+    // Both lists really did fill, so the filter above had something to reject.
+    expect(renders.at(-1)).toMatchObject({ isReady: true });
+    expect(renders.at(-1)!.account).toBeGreaterThan(0);
+    expect(renders.at(-1)!.user).toBeGreaterThan(0);
+  });
+
+  it('serves the permission once it arrives, instead of a denial', async () => {
+    await bootThenAuthenticate(['contacts.read']);
+
+    expect(screen.getByTestId('contacts-read').textContent).toBe('true');
+    expect(screen.getByTestId('user-contacts-read').textContent).toBe('true');
+  });
+
+  it('still denies a permission the user does not hold', async () => {
+    await bootThenAuthenticate(['contacts.read']);
+
+    // The window closes by waiting for the fetch, not by letting `can()` pass.
+    expect(screen.getByTestId('installation-manage').textContent).toBe('false');
+  });
+
+  it('keeps rendering the children through the window, not the failure panel', async () => {
+    // The shell mounts the provider with the default, so a status stuck at
+    // `pending` would show as a blank tree rather than as the panel.
+    await bootThenAuthenticate(['contacts.read'], { blockOnLoadFailure: true });
+
+    expect(screen.queryByTestId('permissions-load-failure')).toBeNull();
+  });
+
+  it('loads the resource catalog after a reload instead of leaving it null', async () => {
+    await bootThenAuthenticate(['contacts.read', 'pipelines.read']);
+
+    expect(mockResourceActions).toHaveBeenCalledTimes(1);
+    // Granted, but not in the catalog: a null catalog would accept it.
+    expect(screen.getByTestId('pipelines-read').textContent).toBe('false');
+  });
+
+  it('refetches the catalog for the next user instead of reusing the previous one', async () => {
+    await bootThenAuthenticate(['contacts.read']);
+    expect(mockResourceActions).toHaveBeenCalledTimes(1);
+
+    // Unmount before the next user: left mounted, the first provider also sees the
+    // new id, resets and refetches its own catalog — a third call that lands or not
+    // depending on how far its effects had settled.
+    cleanup();
+    mockAccountPermissions.mockResolvedValue(['installation_configs.manage']);
+    mockUser.mockReturnValue({ id: 'user-2', name: 'Someone Else', role: 'agent' });
+    render(tree(false));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('installation-manage').textContent).toBe('true'),
+    );
+    // The second user gets their own catalog, and never sees the first user's grants.
+    expect(mockResourceActions).toHaveBeenCalledTimes(2);
+    expect(screen.getByTestId('contacts-read').textContent).toBe('false');
+    const premature = renders.filter(r => r.isReady && (r.account === 0 || r.user === 0));
+    expect(premature).toEqual([]);
+  });
+
+  it('reports ready with a permissive catalog when the catalog fetch fails', async () => {
+    mockResourceActions.mockRejectedValue(new Error('catalog down'));
+
+    await bootThenAuthenticate(['contacts.read', 'pipelines.read']);
+
+    // A failed catalog must not hold every screen hostage; the grant list still
+    // decides, so an ungranted key stays denied.
+    expect(screen.getByTestId('pipelines-read').textContent).toBe('true');
+    expect(screen.getByTestId('installation-manage').textContent).toBe('false');
+  });
+
+  it('retries the failed catalog on refreshPermissions instead of staying permissive', async () => {
+    mockResourceActions.mockRejectedValueOnce(new Error('catalog down'));
+    mockResourceActions.mockResolvedValue(resourceActionsPayload);
+
+    mockUser.mockReturnValue({ id: 'user-1', name: 'Someone', role: 'agent' });
+    mockUserPermissions.mockResolvedValue([]);
+    mockAccountPermissions.mockResolvedValue(['contacts.read', 'pipelines.read']);
+    render(
+      <PermissionsProvider blockOnLoadFailure={false}>
+        <Probe />
+      </PermissionsProvider>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId('ready').textContent).toBe('true'));
+
+    fireEvent.click(screen.getByText('retry'));
+
+    await waitFor(() => expect(mockResourceActions).toHaveBeenCalledTimes(2));
+  });
+
+  // F5 inside the embed: the bridge delivers `user` BEFORE the auth store
+  // hydrates isLoggedIn. CRM-494 already keeps the legs at `pending` there;
+  // this pins the OTHER half — the hydration flip must RE-RUN the fetches.
+  // With the old getState() snapshot (invisible to React) this test fails on
+  // the second expectation: ready stays false forever.
+  it('stays pending before hydration, then loads when isLoggedIn flips', async () => {
+    const { act } = await import('@testing-library/react');
+    useAuthStore.setState({ isLoggedIn: false });
+    mockUser.mockReturnValue({ id: 'u1', role: 'agent' });
+    mockUserPermissions.mockResolvedValue(['contacts.read']);
+    mockAccountPermissions.mockResolvedValue(['contacts.read']);
+
+    render(
+      <PermissionsProvider>
+        <Probe />
+      </PermissionsProvider>,
+    );
+
+    expect(screen.getByTestId('ready').textContent).toBe('false');
+
+    await act(async () => {
+      useAuthStore.setState({ isLoggedIn: true });
+    });
+
+    await waitFor(() => expect(screen.getByTestId('ready').textContent).toBe('true'));
+    expect(screen.getByTestId('contacts-read').textContent).toBe('true');
   });
 });

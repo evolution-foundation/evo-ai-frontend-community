@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
@@ -12,6 +12,7 @@ import {
   Button,
 } from '@evoapi/design-system';
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { automationService } from '@/services/automation/automationService';
 import type { AutomationRule } from '@/types/automation';
 import { AutomationsHeader, AutomationsTable, AutomationsPagination } from '@/components/automation';
@@ -49,13 +50,12 @@ const INITIAL_STATE: State = {
 export default function AutomationsListPage() {
   const { t } = useLanguage('automation');
   const navigate = useNavigate();
-  const { can, isReady: permissionsReady } = usePermissions();
+  const { can } = usePermissions();
 
   const [state, setState] = useState<State>(INITIAL_STATE);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [ruleToDelete, setRuleToDelete] = useState<AutomationRule | null>(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
-  const hasLoaded = useRef(false);
 
   const canRead = can('automation_rules', 'read');
   const canCreate = can('automation_rules', 'create');
@@ -94,13 +94,11 @@ export default function AutomationsListPage() {
     }
   }, [canRead, t]);
 
-  useEffect(() => {
-    if (!permissionsReady) return;
-    if (!hasLoaded.current) {
-      hasLoaded.current = true;
-      loadAutomations();
-    }
-  }, [permissionsReady, loadAutomations]);
+  usePermissionGatedLoad({
+    resource: 'automation_rules',
+    load: loadAutomations,
+    onDenied: () => toast.error(t('messages.permissionDenied.read')),
+  });
 
   const handleCreate = () => {
     if (!canCreate) {

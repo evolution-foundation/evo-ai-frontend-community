@@ -197,7 +197,7 @@ export function WaitConditionConfig({ data, onChange, journeyId }: WaitCondition
         <Label htmlFor="wait-condition-variable" className="text-sm font-medium">
           {t('panels.waitComponents.condition.variableLabel')}
         </Label>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+        <p className="text-xs text-muted-foreground">
           {t('panels.waitComponents.condition.variableDescription')}
         </p>
         <VariableSelect
@@ -223,7 +223,7 @@ export function WaitConditionConfig({ data, onChange, journeyId }: WaitCondition
           </Label>
         </div>
 
-        <p className="text-xs text-gray-500 dark:text-gray-400 pl-6">
+        <p className="text-xs text-muted-foreground pl-6">
           {t('panels.waitComponents.condition.fallbackDescription')}
         </p>
 

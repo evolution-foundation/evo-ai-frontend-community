@@ -388,25 +388,52 @@
     "anyLabel": "Qualquer etiqueta",
     "labelNamePlaceholder": "Nome da etiqueta...",
     "selectStage": "Selecionar etapa...",
+    "selectStatus": "Selecionar status...",
     "selectAgent": "Selecionar agente...",
     "selectPipeline": "Selecionar pipeline...",
     "selectLabel": "Selecionar etiqueta...",
+    "selectAgentBot": "Selecionar agente de IA...",
+    "selectTemplate": "Selecionar template...",
     "noOtherStages": "Nenhuma outra etapa disponível",
     "noOtherPipelines": "Nenhum outro pipeline disponível",
     "noStagesInPipeline": "Nenhuma etapa no pipeline selecionado",
     "noAgents": "Nenhum agente disponível",
+    "noAgentBots": "Nenhum agente de IA disponível",
+    "noTemplates": "Nenhum template disponível",
     "noLabels": "Nenhuma etiqueta disponível",
+    "aiMessagePlaceholder": "O que o agente deve falar? (opcional)",
+    "directMessagePlaceholder": "Mensagem a enviar...",
+    "finalizeMessagePlaceholder": "Mensagem de encerramento (opcional)...",
     "triggers": {
       "label_added": "Etiqueta adicionada",
       "conversation_status_changed": "Estado da conversa alterado",
-      "custom_attribute_updated": "Atributo personalizado atualizado"
+      "custom_attribute_updated": "Atributo personalizado atualizado",
+      "inactivity": "Por inatividade"
     },
     "actions": {
       "move_to_stage": "Mover para etapa",
       "move_to_pipeline": "Mover para outro pipeline",
       "assign_agent": "Atribuir agente",
-      "apply_label": "Aplicar etiqueta"
-    }
+      "apply_label": "Aplicar etiqueta",
+      "send_ai_message": "Mensagem via agente de IA",
+      "send_direct_message": "Mensagem direta",
+      "send_template": "Enviar template",
+      "finalize": "Finalizar atendimento"
+    },
+    "inactivity": {
+      "minutes": "minutos",
+      "hour": "hora",
+      "hours": "horas",
+      "days": "dias",
+      "base": {
+        "no_customer_reply": "Cliente sem responder",
+        "stage_stagnation": "Parado na etapa"
+      }
+    },
+    "templatePending": "Aguardando aprovação da Meta",
+    "templatesPendingHint": "Os seus templates ainda aguardam aprovação da Meta.",
+    "noTemplatesHint": "Nenhum template criado ainda.",
+    "manageTemplates": "Abrir Modelos de Mensagem"
   },
   "editStage": {
     "title": "Editar Etapa",
@@ -627,7 +654,8 @@
       "deletePipeline": "Deletar Pipeline",
       "private": "Privado",
       "noDescription": "Sem descrição",
-      "captureForms": "Formulários de Captura"
+      "captureForms": "Formulários de Captura",
+      "purchaseWebhook": "Webhook de compra"
     },
     "stage": {
       "addStage": "Adicionar Etapa",
@@ -840,6 +868,28 @@
       "delete": "Deletar Pipeline",
       "deleting": "Deletando..."
     }
+  },
+  "purchaseWebhook": {
+    "title": "Webhook de compra",
+    "subtitle": "Compra aprovada numa plataforma de pagamento vira lead neste funil: {{pipeline}}",
+    "platform": "Plataforma de pagamento",
+    "platformPlaceholder": "Escolha a plataforma",
+    "loadingPlatforms": "Carregando plataformas...",
+    "notConfigured": "sem credencial salva",
+    "credentialsHint": "As credenciais das plataformas ficam na tela de Integrações do CRM.",
+    "destinationRequired": "A credencial desta plataforma é pública — configure o \"Segredo de destino da URL\" nas Integrações do CRM antes de gerar.",
+    "product": "Produto (opcional)",
+    "productPlaceholder": "Rotula os leads desta URL com este produto; vazio = usa o da plataforma",
+    "generate": "Gerar URL",
+    "urlWhitelabel": "URL no domínio da sua marca",
+    "urlGlobal": "URL do webhook",
+    "copy": "Copiar",
+    "copiedShort": "Copiado",
+    "copied": "URL copiada",
+    "copyError": "Falha ao copiar — copie a URL manualmente",
+    "regenerateHint": "Cole no painel da plataforma como destino do webhook de compra aprovada. Ao trocar a credencial ou o segredo de destino, gere e registre de novo.",
+    "loadError": "Falha ao carregar as plataformas",
+    "mintError": "Falha ao gerar a URL"
   },
   "captureForms": {
     "title": "Formulários de Captura",

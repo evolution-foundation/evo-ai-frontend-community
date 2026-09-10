@@ -4,11 +4,12 @@ import { Inbox, InboxConnectionState } from '@/types/channels/inbox';
 import { normalizeChannelTypeId, LiveStatusOverlay } from '@/utils/channelStatus';
 
 // connectionState values reported by the Evolution API (v2 uses `state`,
-// older payloads use `status`).
+// older payloads use `status`). Values mirror the backend CONNECTION_MAP:
+// the overlay outranks the API state, so drift here silently overrides it.
 const EVOLUTION_STATE_MAP: Record<string, InboxConnectionState> = {
   open: 'connected',
   connected: 'connected',
-  connecting: 'pending',
+  connecting: 'connecting',
   close: 'disconnected',
   closed: 'disconnected',
   disconnected: 'disconnected',

@@ -107,7 +107,7 @@ export function SessionsViewer({ journeyId, journeyName, onClose }: SessionsView
     cancelled: {
       label: t('sessions.viewer.status.cancelled'),
       icon: Ban,
-      color: 'text-gray-500',
+      color: 'text-muted-foreground',
       bgColor: 'bg-gray-500/10',
       borderColor: 'border-gray-500/20',
     },
@@ -293,7 +293,7 @@ export function SessionsViewer({ journeyId, journeyName, onClose }: SessionsView
               </Card>
               <Card className="bg-gray-500/10 border-gray-500/20" data-testid="sessions-stat-cancelled">
                 <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-gray-500">{stats.byStatus?.cancelled ?? 0}</div>
+                  <div className="text-2xl font-bold text-muted-foreground">{stats.byStatus?.cancelled ?? 0}</div>
                   <div className="text-xs text-sidebar-foreground/60 mt-1">{t('sessions.viewer.stats.cancelled')}</div>
                 </CardContent>
               </Card>

@@ -1,5 +1,16 @@
 import type { PaginationMeta } from '@/types/core';
 
+export type BodyParamType = 'string' | 'number' | 'boolean' | 'object' | 'array';
+
+/** The schema the AI tool-execution engine expects for each body param. The
+ * wire type stays Record<string, unknown> because legacy tools stored a plain
+ * string per key; the editor normalizes those into this shape on load. */
+export interface BodyParamSchema {
+  type: BodyParamType;
+  required: boolean;
+  description: string;
+}
+
 export interface CustomTool {
   body_params: Record<string, unknown>;
   created_at: string;

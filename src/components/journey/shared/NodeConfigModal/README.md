@@ -138,7 +138,7 @@ All consumed via Tailwind utilities (`bg-flow-panel-bg`, `border-flow-panel-divi
 
 ## Promotion criterion
 
-Per [EVO-1253 architecture, D7](../../../../docs/architecture/flow-builder-design-system/architecture.md): NodeConfigModal stays in `journey/shared/` indefinitely. It does NOT promote to `@evoapi/design-system` because it consumes `--color-flow-panel-*` tokens that don't exist outside the Flow Builder. A reusable modal chrome WITHOUT flow tokens would be a different (generic) component owned by the design system team, not this card.
+Per the EVO-1253 architecture decision D7: NodeConfigModal stays in `journey/shared/` indefinitely. It does NOT promote to `@evoapi/design-system` because it consumes `--color-flow-panel-*` tokens that don't exist outside the Flow Builder. A reusable modal chrome WITHOUT flow tokens would be a different (generic) component owned by the design system team, not this card.
 
 ---
 

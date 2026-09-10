@@ -4,7 +4,6 @@ Scoped design layer for the Flow Builder (React Flow / Journey screen). Delivers
 
 **Card:** EVO-1253
 **Scope:** tokens, bridge components, Storybook stories, namespace + Button + Typography + Spacing contracts. **NOT** node modals (owned by EVO-1264).
-**Architecture doc:** [`docs/architecture/flow-builder-design-system/architecture.md`](../../../../docs/architecture/flow-builder-design-system/architecture.md) (sibling PRD: [`prd.md`](../../../../docs/architecture/flow-builder-design-system/prd.md))
 
 ---
 

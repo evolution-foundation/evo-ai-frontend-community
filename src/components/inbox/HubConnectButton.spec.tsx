@@ -8,6 +8,12 @@ vi.mock('@/services/core', () => ({
   api: { post: vi.fn(), get: vi.fn() },
 }));
 
+// evolutionHubService imports axios by module path, not through the barrel, so
+// the mock above does not reach it — without this one the service hits the network.
+vi.mock('@/services/core/api', () => ({
+  default: { post: vi.fn(), get: vi.fn(), delete: vi.fn() },
+}));
+
 // useGlobalConfig returns the config flat (GlobalConfigContextValue extends
 // GlobalConfig), so the mock has to be flat too — a nested { config } shape
 // leaves hubAllowExistingChannels undefined and silently enables the mode.
@@ -40,6 +46,7 @@ async function emitir(status: string, inboxId: string = INBOX_ID) {
     );
   });
 }
+
 
 describe('HubConnectButton — estado real da conexão', () => {
   beforeEach(() => {
@@ -108,3 +115,4 @@ describe('HubConnectButton — estado real da conexão', () => {
     expect(screen.getByTestId('hub-waiting')).toBeInTheDocument();
   });
 });
+

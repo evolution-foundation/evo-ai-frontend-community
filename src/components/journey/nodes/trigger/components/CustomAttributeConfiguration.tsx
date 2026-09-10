@@ -261,7 +261,7 @@ export function CustomAttributeConfiguration({
                 console.log('Variable inserted in custom attribute value:', variable);
               }}
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-muted-foreground">
               {t('triggerComponents.customAttribute.useVariablesHint')}
             </p>
           </div>
@@ -338,7 +338,7 @@ export function CustomAttributeConfiguration({
                   onMappingsChange={onVariableMappingsChange}
                   paths={generateCustomAttributePaths()}
                   journeyId={journeyId}
-                  className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border"
+                  className="bg-background p-4 rounded-lg border"
                 />
               </div>
             </div>

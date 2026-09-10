@@ -11,7 +11,7 @@ const meta: Meta<typeof EventPropertiesForm> = {
     docs: {
       description: {
         component:
-          'Schema-aware form for canonical event payloads. Renders required fields by spec.type, hides optional behind a picker, and switches to a free key/value editor when `eventName=custom`. Foundation for the EVO-1275 (10.7) Event Properties refactor.',
+          'Schema-aware form for canonical event payloads. Every schema key is an optional filter behind a picker (ids of the event itself are not offered), rendered by spec.type — CRM record ids as selects —, and switches to a free key/value editor when `eventName=custom`. Foundation for the EVO-1275 (10.7) Event Properties refactor.',
       },
     },
   },

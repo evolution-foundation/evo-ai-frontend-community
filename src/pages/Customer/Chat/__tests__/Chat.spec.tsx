@@ -22,6 +22,13 @@ const capturedProps = vi.hoisted(() => ({
 const capturedHeaderProps = vi.hoisted(() => ({
   onMarkAsResolved: null as ((conv: Conversation) => Promise<void>) | null,
   conversation: null as Conversation | null,
+  onAssignAgent: null as ((conv: Conversation) => Promise<void>) | null,
+  onAssignTeam: null as ((conv: Conversation) => Promise<void>) | null,
+  onAssignTag: null as ((conv: Conversation) => Promise<void>) | null,
+}));
+
+const capturedAssignmentProps = vi.hoisted(() => ({
+  description: null as string | null,
 }));
 
 const mockSelectedConversation = vi.hoisted(() => ({
@@ -45,7 +52,10 @@ vi.mock('react-router-dom', () => ({
 
 // ─── i18n ─────────────────────────────────────────────────────────────────────
 vi.mock('@/hooks/useLanguage', () => ({
-  useLanguage: () => ({ t: (k: string) => k }),
+  useLanguage: () => ({
+    // Echoes the {{name}} argument so a test can assert what was interpolated.
+    t: (k: string, opts?: { name?: string }) => (opts?.name ? `${k}|${opts.name}` : k),
+  }),
 }));
 
 // ─── Permissions ──────────────────────────────────────────────────────────────
@@ -104,10 +114,14 @@ vi.mock('@/hooks/chat/useConversationHandlers', () => ({
 // ─── Assignment handlers hook ─────────────────────────────────────────────────
 vi.mock('@/hooks/chat/useAssignmentHandlers', () => ({
   useAssignmentHandlers: () => ({
-    handleAssignAgent: vi.fn(),
-    handleAssignTeam: vi.fn(),
-    handleAssignTag: vi.fn(),
+    handleAssignAgent: (conversation: Conversation) => ({ conversation, type: 'agent' }),
+    handleAssignTeam: (conversation: Conversation) => ({ conversation, type: 'team' }),
+    handleAssignTag: (conversation: Conversation) => ({ conversation, type: 'label' }),
     handleAssignmentConfirm: vi.fn(),
+    users: [],
+    teams: [],
+    labels: [],
+    isLoadingAssignmentData: false,
   }),
 }));
 
@@ -152,7 +166,17 @@ vi.mock('@/components/chat/chat-header/ChatHeader', () => ({
   default: (props: any) => {
     capturedHeaderProps.onMarkAsResolved = props.onMarkAsResolved;
     capturedHeaderProps.conversation = props.conversation;
+    capturedHeaderProps.onAssignAgent = props.onAssignAgent;
+    capturedHeaderProps.onAssignTeam = props.onAssignTeam;
+    capturedHeaderProps.onAssignTag = props.onAssignTag;
     return <div data-testid="chat-header" />;
+  },
+}));
+
+vi.mock('@/components/chat/assignment/AssignmentModal', () => ({
+  default: (props: any) => {
+    capturedAssignmentProps.description = props.description;
+    return <div data-testid="assignment-modal" />;
   },
 }));
 
@@ -202,6 +226,19 @@ const otherConv: Conversation = {
   id: 'conv-other',
   uuid: 'uuid-other',
   status: 'open',
+} as any;
+
+const conversationToAssign: Conversation = {
+  id: 'conv-selected',
+  uuid: 'uuid-selected',
+  status: 'open',
+  contact: { id: 'contact-1', name: 'Maria Compradora' },
+  assignee: { id: 'user-1', name: 'Nickolas Atendente' },
+  team: { id: 'team-1', name: 'Time Comercial' },
+  labels: [
+    { id: 'label-1', title: 'onboarding_ativo' },
+    { id: 'label-2', title: 'atendimento_ia' },
+  ],
 } as any;
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -346,6 +383,58 @@ describe('Chat — ?segment= preset (EVO-1963)', () => {
     // Both storage mocks return [] — what matters is that the list loads at all.
     expect(mockFilterHandlers.handleApplyFilters).toHaveBeenCalledWith([]);
     expect(mockFilterHandlers.handleApplyFilters).not.toHaveBeenCalledWith(unansweredPreset);
+
+    unmount();
+  });
+});
+
+// CRM-388: the three "conversation with {{name}}" phrases name the interlocutor,
+// not what is being assigned (the label list, the assignee, the team).
+describe('Chat — assignment modal subtitle names the contact (CRM-388)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    capturedAssignmentProps.description = null;
+    capturedHeaderProps.onAssignAgent = null;
+    capturedHeaderProps.onAssignTeam = null;
+    capturedHeaderProps.onAssignTag = null;
+    mockState.selectedConversationId = 'uuid-selected';
+    mockSelectedConversation.value = conversationToAssign;
+  });
+
+  const cases = [
+    ['label', 'onAssignTag'],
+    ['agent', 'onAssignAgent'],
+    ['team', 'onAssignTeam'],
+  ] as const;
+
+  it.each(cases)('interpolates the contact into the %s subtitle', async (type, prop) => {
+    const { unmount } = render(<Chat />);
+
+    await act(async () => {
+      await capturedHeaderProps[prop]!(conversationToAssign);
+    });
+    await act(async () => {});
+
+    expect(capturedAssignmentProps.description).toBe(
+      `assignment.${type}.description|Maria Compradora`,
+    );
+
+    unmount();
+  });
+
+  it('falls back to the contact placeholder when the contact has no name', async () => {
+    mockSelectedConversation.value = { ...conversationToAssign, contact: {} } as any;
+
+    const { unmount } = render(<Chat />);
+
+    await act(async () => {
+      await capturedHeaderProps.onAssignTag!(mockSelectedConversation.value!);
+    });
+    await act(async () => {});
+
+    expect(capturedAssignmentProps.description).toBe(
+      'assignment.label.description|assignment.label.contactFallback',
+    );
 
     unmount();
   });

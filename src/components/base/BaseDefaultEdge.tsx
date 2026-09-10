@@ -87,7 +87,7 @@ export default function BaseDefaultEdge({
             className="nodrag nopan"
           >
             <button
-              className="rounded-full bg-white p-1 shadow-md"
+              className="rounded-full bg-background p-1 shadow-md"
               onClick={onEdgeClick}
             >
               <Trash2 className="text-red-500" size={16} />

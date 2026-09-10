@@ -5,6 +5,7 @@ import IntegrationCredentials from './IntegrationCredentials';
 import { parseOwnerTimestamp } from './ownerTimestamp';
 import { maskKey } from '@/constants/aiProviders';
 import type { IntegrationCredential } from '@/types/agents';
+import { toast } from 'sonner';
 
 // EVO-2250 story 2.1: the vault page reads the new registry only, never
 // returns the value to the browser, gates every action on
@@ -31,14 +32,23 @@ const listCustomTools = vi.fn();
 const listCustomMcpServers = vi.fn();
 const listAgentBots = vi.fn();
 
-vi.mock('@/services/agents', () => ({
-  listIntegrationCredentials: (...args: unknown[]) => listIntegrationCredentials(...args),
-  createIntegrationCredential: (...args: unknown[]) => createIntegrationCredential(...args),
-  updateIntegrationCredential: (...args: unknown[]) => updateIntegrationCredential(...args),
-  deleteIntegrationCredential: (...args: unknown[]) => deleteIntegrationCredential(...args),
-  listCustomTools: (...args: unknown[]) => listCustomTools(...args),
-  listCustomMcpServers: (...args: unknown[]) => listCustomMcpServers(...args),
-}));
+// deleteConflictConsumers is NOT stubbed: it is the contract reader under test,
+// so the 409 cases below exercise the real payload check.
+vi.mock('@/services/agents', async () => {
+  const actual = await vi.importActual<
+    typeof import('@/services/agents/integrationCredentialService')
+  >('@/services/agents/integrationCredentialService');
+
+  return {
+    deleteConflictConsumers: actual.deleteConflictConsumers,
+    listIntegrationCredentials: (...args: unknown[]) => listIntegrationCredentials(...args),
+    createIntegrationCredential: (...args: unknown[]) => createIntegrationCredential(...args),
+    updateIntegrationCredential: (...args: unknown[]) => updateIntegrationCredential(...args),
+    deleteIntegrationCredential: (...args: unknown[]) => deleteIntegrationCredential(...args),
+    listCustomTools: (...args: unknown[]) => listCustomTools(...args),
+    listCustomMcpServers: (...args: unknown[]) => listCustomMcpServers(...args),
+  };
+});
 
 vi.mock('@/services/channels/agentBotsService', () => ({
   default: {
@@ -121,6 +131,17 @@ const OAUTH_EXPIRED: IntegrationCredential = {
   agent_id: 'agent-2',
   agent_name: 'Cobrança',
   connection_status: 'expired',
+};
+
+// Deactivated by the listing sync: the backend decorates it without an agent.
+const OAUTH_ORPHANED: IntegrationCredential = {
+  ...OAUTH_CREDENTIAL,
+  id: 'cred-oauth-slack',
+  provider: 'slack',
+  agent_id: undefined,
+  agent_name: undefined,
+  connection_status: 'expired',
+  is_active: false,
 };
 
 const ALL_PERMISSIONS = [
@@ -227,6 +248,29 @@ describe('IntegrationCredentials — creating only static (AC2, AC4)', () => {
     const [payload] = createIntegrationCredential.mock.calls[0];
     expect(payload.kind).toBe('static');
     expect(payload.value).toBe('app-secret-0001');
+    // The page-level button is the account one: without this the row could
+    // silently land at another scope.
+    expect(payload.scope).toBe('account');
+  });
+
+  // handleSave used to run every save through the update gate, so a create-only
+  // grant was refused a credential the server would have accepted.
+  it('creates at account scope without ai_integration_credentials.update', async () => {
+    const user = userEvent.setup();
+    granted = ['ai_integration_credentials.read', 'ai_integration_credentials.create'];
+    createIntegrationCredential.mockResolvedValue(DIFY_CREDENTIAL);
+    render(<IntegrationCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+
+    await user.type(await screen.findByLabelText('form.labels.name'), 'Nova');
+    await user.type(screen.getByLabelText('form.labels.provider'), 'dify');
+    await user.type(screen.getByLabelText('form.labels.value'), 'create-only-0001');
+    await user.click(screen.getByText('actions.save'));
+
+    await waitFor(() => expect(createIntegrationCredential).toHaveBeenCalled());
+    expect(createIntegrationCredential.mock.calls[0][0]).toMatchObject({ scope: 'account' });
   });
 
   it('blocks the save when name, provider or value is missing', async () => {
@@ -361,14 +405,74 @@ describe('IntegrationCredentials — OAuth connections section (2.5 AC1, AC2, AC
     await findAccountRow();
     expect(within(oauthSection()).getByText('oauthSection.empty')).toBeInTheDocument();
   });
+
+  it('offers delete, not disconnect, on an oauth row whose connection is gone', async () => {
+    const user = userEvent.setup();
+    deleteIntegrationCredential.mockResolvedValue({ message: 'ok' });
+    listIntegrationCredentials.mockResolvedValue([
+      DIFY_CREDENTIAL,
+      OAUTH_CREDENTIAL,
+      OAUTH_ORPHANED,
+    ]);
+    render(<IntegrationCredentials />);
+
+    await findAccountRow();
+    const section = oauthSection();
+    expect(within(section).getByText('oauthSection.status.disconnected')).toBeInTheDocument();
+    expect(within(section).getAllByLabelText('actions.delete')).toHaveLength(1);
+    expect(within(section).getAllByLabelText('oauthSection.actions.disconnect')).toHaveLength(1);
+
+    await user.click(within(section).getByLabelText('actions.delete'));
+    await user.click(await screen.findByText('deleteDialog.confirm'));
+
+    await waitFor(() =>
+      expect(deleteIntegrationCredential).toHaveBeenCalledWith('cred-oauth-slack'),
+    );
+    expect(deleteIntegration).not.toHaveBeenCalled();
+  });
+
+  it('keeps disconnect and no delete on a live connection whose token expired (negative proof)', async () => {
+    listIntegrationCredentials.mockResolvedValue([DIFY_CREDENTIAL, OAUTH_EXPIRED]);
+    render(<IntegrationCredentials />);
+
+    await findAccountRow();
+    const section = oauthSection();
+    // Token expiry is the backend's word; only a deactivated row is orphaned.
+    expect(within(section).getByText('oauthSection.status.expired')).toBeInTheDocument();
+    expect(within(section).queryByText('oauthSection.status.disconnected')).not.toBeInTheDocument();
+    expect(within(section).getByLabelText('oauthSection.actions.disconnect')).toBeInTheDocument();
+    expect(within(section).queryByLabelText('actions.delete')).not.toBeInTheDocument();
+  });
+
+  it('hides the orphaned row delete without ai_integration_credentials.delete', async () => {
+    granted = ALL_PERMISSIONS.filter(
+      permission => permission !== 'ai_integration_credentials.delete',
+    );
+    listIntegrationCredentials.mockResolvedValue([DIFY_CREDENTIAL, OAUTH_ORPHANED]);
+    render(<IntegrationCredentials />);
+
+    await findAccountRow();
+    const section = oauthSection();
+    expect(within(section).getByText('oauthSection.status.disconnected')).toBeInTheDocument();
+    expect(within(section).queryByLabelText('actions.delete')).not.toBeInTheDocument();
+    expect(
+      within(section).queryByLabelText('oauthSection.actions.disconnect'),
+    ).not.toBeInTheDocument();
+  });
 });
 
 // EVO-2250 story 2.2: the installation link of the chain. Writing at that
-// level is gated on installation_configs.manage, NOT on the update grant of
-// the resource — the negative proofs below fail if the component ever swaps
-// canManageInstallation for canUpdate.
+// level needs installation_configs.manage ON TOP of the resource grant for the
+// verb in play — never one instead of the other. The negative proofs below fail
+// if the component ever swaps one for the other, in either direction.
 describe('IntegrationCredentials — installation scope (2.2 AC8)', () => {
   const findInstallationRow = () => screen.findByRole('cell', { name: 'n8n da casa' });
+
+  // Scoped to the section instead of indexed into getAllByText: the account's
+  // add button lives in the page header, so an index follows any layout change
+  // to the wrong button.
+  const installationSection = () => screen.getByLabelText('sections.installation');
+  const addInstallationButton = () => within(installationSection()).getByText('actions.add');
 
   beforeEach(() => {
     listIntegrationCredentials.mockResolvedValue([DIFY_CREDENTIAL, INSTALLATION_CREDENTIAL]);
@@ -422,6 +526,81 @@ describe('IntegrationCredentials — installation scope (2.2 AC8)', () => {
     const [id, payload] = updateIntegrationCredential.mock.calls[0];
     expect(id).toBe('cred-installation');
     expect(payload.scope).toBe('installation');
+  });
+
+  // The whole point of the section: the CREATE carries scope 'installation',
+  // or the row lands on the account and the Evo default stays empty. Updating
+  // an existing row cannot prove this — it inherits the scope it already had.
+  it('lets an installation admin CREATE at that level, carrying the scope', async () => {
+    const user = userEvent.setup();
+    granted = [...ALL_PERMISSIONS, 'installation_configs.manage'];
+    createIntegrationCredential.mockResolvedValue(INSTALLATION_CREDENTIAL);
+    render(<IntegrationCredentials />);
+
+    await findInstallationRow();
+    await user.click(addInstallationButton());
+
+    await user.type(await screen.findByLabelText('form.labels.name'), 'Nova da casa');
+    await user.type(screen.getByLabelText('form.labels.provider'), 'n8n');
+    await user.type(screen.getByLabelText('form.labels.value'), 'house-secret-0002');
+    await user.click(screen.getByText('actions.save'));
+
+    await waitFor(() => expect(createIntegrationCredential).toHaveBeenCalled());
+    expect(createIntegrationCredential.mock.calls[0][0]).toMatchObject({
+      name: 'Nova da casa',
+      provider: 'n8n',
+      value: 'house-secret-0002',
+      kind: 'static',
+      scope: 'installation',
+    });
+  });
+
+  // The scope privilege is ON TOP of ai_integration_credentials.create, not
+  // instead of it: offering the button to someone the server will refuse is a
+  // dead end.
+  it('hides the installation add button without ai_integration_credentials.create', async () => {
+    granted = [
+      ...ALL_PERMISSIONS.filter(
+        permission => permission !== 'ai_integration_credentials.create',
+      ),
+      'installation_configs.manage',
+    ];
+    render(<IntegrationCredentials />);
+
+    await findInstallationRow();
+    expect(within(installationSection()).queryByText('actions.add')).not.toBeInTheDocument();
+  });
+
+  // The same rule on the update axis: the PUT route demands
+  // ai_integration_credentials.update whatever the scope, so
+  // installation_configs.manage alone must not light up the edit controls.
+  it('keeps the installation row read-only without ai_integration_credentials.update', async () => {
+    granted = [
+      ...ALL_PERMISSIONS.filter(
+        permission => permission !== 'ai_integration_credentials.update',
+      ),
+      'installation_configs.manage',
+    ];
+    render(<IntegrationCredentials />);
+
+    await findInstallationRow();
+    expect(screen.queryAllByLabelText('actions.edit')).toHaveLength(0);
+    expect(screen.getByText('inheritedReadOnly')).toBeInTheDocument();
+  });
+
+  // Delete does not travel through update: dropping the update grant must not
+  // take the trash icon with it, on either row.
+  it('keeps the delete control without ai_integration_credentials.update', async () => {
+    granted = [
+      ...ALL_PERMISSIONS.filter(
+        permission => permission !== 'ai_integration_credentials.update',
+      ),
+      'installation_configs.manage',
+    ];
+    render(<IntegrationCredentials />);
+
+    await findInstallationRow();
+    expect(screen.getAllByLabelText('actions.delete')).toHaveLength(2);
   });
 
   it('shows the empty hint when the installation has nothing', async () => {
@@ -565,5 +744,141 @@ describe('IntegrationCredentials — deleting (AC6)', () => {
     await user.click(await screen.findByText('deleteDialog.confirm'));
 
     await waitFor(() => expect(deleteIntegrationCredential).toHaveBeenCalledWith('cred-dify'));
+  });
+});
+
+// The core refuses the delete with 409 while a consumer still points at the
+// credential, and names each holder in `details.consumers` (CRM-191, PR #29).
+describe('IntegrationCredentials — the 409 names who holds the credential (CRM-207)', () => {
+  const conflictError = (
+    consumers: unknown,
+    { status = 409, code = 'CONFLICT' }: { status?: number; code?: string } = {},
+  ) => ({
+    response: {
+      status,
+      data: {
+        success: false,
+        error: {
+          code,
+          message: 'integration credential is still in use by 2 consumer(s)',
+          details: { consumers },
+        },
+      },
+    },
+  });
+
+  const confirmDelete = async () => {
+    const user = userEvent.setup();
+    render(<IntegrationCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getAllByLabelText('actions.delete')[0]);
+    await user.click(await screen.findByText('deleteDialog.confirm'));
+
+    return user;
+  };
+
+  it('lists every consumer as its own item and drops the generic toast', async () => {
+    deleteIntegrationCredential.mockRejectedValue(
+      conflictError(['Bot de canal (whatsapp)', 'Ferramenta Busca [Authorization]']),
+    );
+    await confirmDelete();
+
+    const alert = await screen.findByRole('alert');
+    expect(within(alert).getByText('deleteDialog.conflict.title')).toBeInTheDocument();
+    expect(within(alert).getByText('deleteDialog.conflict.help')).toBeInTheDocument();
+
+    const items = within(alert).getAllByRole('listitem').map(item => item.textContent);
+    expect(items).toEqual(['Bot de canal (whatsapp)', 'Ferramenta Busca [Authorization]']);
+
+    expect(toast.error).not.toHaveBeenCalled();
+    expect(screen.getByText('deleteDialog.confirm')).toBeInTheDocument();
+  });
+
+  it('replaces the pre-flight warning, which is a tolerant snapshot of the listing', async () => {
+    listIntegrationCredentials.mockResolvedValue([
+      { ...DIFY_CREDENTIAL, referenced_by: ['Agente Dify'] },
+    ]);
+    deleteIntegrationCredential.mockRejectedValue(conflictError(['Bot de canal (whatsapp)']));
+    await confirmDelete();
+
+    const alert = await screen.findByRole('alert');
+    expect(within(alert).getByText('deleteDialog.conflict.title')).toBeInTheDocument();
+    expect(screen.queryByText('deleteDialog.inUseWarning')).not.toBeInTheDocument();
+  });
+
+  it('names the holders even when the listing reported none', async () => {
+    deleteIntegrationCredential.mockRejectedValue(conflictError(['Integração github']));
+    await confirmDelete();
+
+    const alert = await screen.findByRole('alert');
+    expect(within(alert).getAllByRole('listitem').map(item => item.textContent)).toEqual([
+      'Integração github',
+    ]);
+    expect(screen.queryByText('deleteDialog.inUseWarning')).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['a 500', { response: { status: 500, data: { error: { code: 'INTERNAL_ERROR' } } } }],
+    ['a 409 with no details', { response: { status: 409, data: { error: { code: 'CONFLICT' } } } }],
+    ['an empty consumer list', conflictError([])],
+    ['a consumer list that is not strings', conflictError([{ name: 'Bot' }])],
+    ['a 400 carrying a same-named field', conflictError(['Bot'], { status: 400 })],
+    [
+      'a 409 that is not this conflict',
+      conflictError(['Bot'], { code: 'RESOURCE_ALREADY_EXISTS' }),
+    ],
+  ])('falls back to the generic message for %s', async (_label, error) => {
+    deleteIntegrationCredential.mockRejectedValue(error);
+    await confirmDelete();
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('messages.deleteError'));
+    expect(screen.queryByText('deleteDialog.conflict.title')).not.toBeInTheDocument();
+    expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
+  });
+
+  it('clears the previous holders when the delete is retried', async () => {
+    deleteIntegrationCredential.mockRejectedValueOnce(conflictError(['Bot de canal (whatsapp)']));
+    const user = await confirmDelete();
+
+    await screen.findByText('deleteDialog.conflict.title');
+
+    deleteIntegrationCredential.mockResolvedValueOnce({ message: 'ok' });
+    await user.click(screen.getByText('deleteDialog.confirm'));
+
+    await waitFor(() =>
+      expect(screen.queryByText('deleteDialog.conflict.title')).not.toBeInTheDocument(),
+    );
+    expect(toast.success).toHaveBeenCalledWith('messages.deleteSuccess');
+  });
+
+  it('does not keep the old holders on screen when the retry fails for another reason', async () => {
+    deleteIntegrationCredential.mockRejectedValueOnce(conflictError(['Bot de canal (whatsapp)']));
+    const user = await confirmDelete();
+
+    await screen.findByText('deleteDialog.conflict.title');
+
+    deleteIntegrationCredential.mockRejectedValueOnce({ response: { status: 500, data: {} } });
+    await user.click(screen.getByText('deleteDialog.confirm'));
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('messages.deleteError'));
+    expect(screen.queryByText('deleteDialog.conflict.title')).not.toBeInTheDocument();
+    expect(screen.queryByText('Bot de canal (whatsapp)')).not.toBeInTheDocument();
+  });
+
+  // Cancel closes the dialog by flipping the open prop, which does not run
+  // onOpenChange — so opening another credential is a distinct entry point.
+  it('does not carry the holders over to another credential', async () => {
+    deleteIntegrationCredential.mockRejectedValueOnce(conflictError(['Bot de canal (whatsapp)']));
+    const user = await confirmDelete();
+
+    await screen.findByText('deleteDialog.conflict.title');
+    await user.click(screen.getByText('deleteDialog.cancel'));
+
+    await user.click(screen.getAllByLabelText('actions.delete')[1]);
+
+    expect(await screen.findByText('deleteDialog.confirm')).toBeInTheDocument();
+    expect(screen.queryByText('deleteDialog.conflict.title')).not.toBeInTheDocument();
+    expect(screen.queryByText('Bot de canal (whatsapp)')).not.toBeInTheDocument();
   });
 });

@@ -400,6 +400,7 @@
     "anyLabel": "Any label",
     "labelNamePlaceholder": "Label name...",
     "selectStage": "Select stage...",
+    "selectStatus": "Select status...",
     "selectAgent": "Select agent...",
     "selectPipeline": "Select pipeline...",
     "selectLabel": "Select label...",
@@ -419,6 +420,7 @@
       "minutes": "minutes",
       "hour": "hour",
       "hours": "hours",
+      "days": "days",
       "base": {
         "no_customer_reply": "Customer not replying",
         "stage_stagnation": "Stuck in stage"
@@ -439,7 +441,11 @@
       "send_direct_message": "Direct message",
       "send_template": "Send template",
       "finalize": "End conversation"
-    }
+    },
+    "templatePending": "Awaiting Meta approval",
+    "templatesPendingHint": "Your templates are still awaiting Meta approval.",
+    "noTemplatesHint": "No templates created yet.",
+    "manageTemplates": "Open Message Templates"
   },
   "editStage": {
     "title": "Edit Stage",
@@ -660,7 +666,8 @@
       "deletePipeline": "Delete Pipeline",
       "private": "Private",
       "noDescription": "No description",
-      "captureForms": "Capture Forms"
+      "captureForms": "Capture Forms",
+      "purchaseWebhook": "Purchase webhook"
     },
     "stage": {
       "addStage": "Add Stage",
@@ -875,6 +882,28 @@
       "delete": "Delete Pipeline",
       "deleting": "Deleting..."
     }
+  },
+  "purchaseWebhook": {
+    "title": "Purchase webhook",
+    "subtitle": "An approved purchase on a payment platform becomes a lead in this pipeline: {{pipeline}}",
+    "platform": "Payment platform",
+    "platformPlaceholder": "Pick the platform",
+    "loadingPlatforms": "Loading platforms...",
+    "notConfigured": "no credential saved",
+    "credentialsHint": "Platform credentials live on the CRM Integrations screen.",
+    "destinationRequired": "This platform's credential is public — configure the \"URL destination secret\" on the CRM Integrations screen first.",
+    "product": "Product (optional)",
+    "productPlaceholder": "Labels this URL's leads with this product; empty = the platform's own",
+    "generate": "Generate URL",
+    "urlWhitelabel": "URL on your brand's domain",
+    "urlGlobal": "Webhook URL",
+    "copy": "Copy",
+    "copiedShort": "Copied",
+    "copied": "URL copied",
+    "copyError": "Could not copy — copy the URL by hand",
+    "regenerateHint": "Paste it in the platform's panel as the approved-purchase webhook destination. If you change the credential or the destination secret, generate and register it again.",
+    "loadError": "Failed to load the platforms",
+    "mintError": "Failed to generate the URL"
   },
   "captureForms": {
     "title": "Capture Forms",

@@ -46,7 +46,7 @@ export function SetVariableNode({ selected, data, id }: SetVariableNodeProps) {
   const getOperationColor = () => {
     switch (data.operation) {
       case 'set': return 'text-purple-600';
-      case 'clear': return 'text-gray-600';
+      case 'clear': return 'text-muted-foreground';
       case 'increase': return 'text-green-600';
       case 'decrease': return 'text-red-600';
       case 'now':

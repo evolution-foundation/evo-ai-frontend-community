@@ -175,7 +175,7 @@ export default function SegmentModal({
 
           <div className="grid gap-6 py-4 max-h-[60vh] overflow-y-auto">
             {/* Nome do Segmento */}
-            <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="bg-muted p-4 rounded-lg">
               <Label htmlFor="name" className="text-sm font-medium mb-2">
                 {t('modal.segmentName')} <span className="text-red-500">*</span>
               </Label>
@@ -192,7 +192,7 @@ export default function SegmentModal({
             </div>
 
             {/* Tipo de Combinação */}
-            <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="bg-muted p-4 rounded-lg">
               <Label className="text-sm font-medium mb-3">{t('modal.combinationType')}</Label>
               <RadioGroup value={definitionType} onValueChange={handleDefinitionTypeChange}>
                 <div className="flex items-center space-x-2 mb-2">
@@ -270,7 +270,7 @@ export default function SegmentModal({
             <Button type="submit" disabled={loading}>
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
                   {isNew ? t('modal.creating') : t('modal.saving')}
                 </>
               ) : (

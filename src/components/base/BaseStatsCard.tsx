@@ -64,8 +64,8 @@ const colorVariants = {
     text: 'text-indigo-600 dark:text-indigo-400',
   },
   gray: {
-    bg: 'bg-gray-100 dark:bg-gray-900/50',
-    text: 'text-gray-600 dark:text-gray-400',
+    bg: 'bg-muted',
+    text: 'text-muted-foreground',
   },
 };
 

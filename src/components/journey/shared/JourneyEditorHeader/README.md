@@ -160,7 +160,7 @@ Consumed via Tailwind utilities (`bg-flow-panel-header-bg`, `border-flow-panel-d
 
 ## Promotion criterion
 
-Per [EVO-1253 architecture, D7](../../../../docs/architecture/flow-builder-design-system/architecture.md): `<JourneyEditorHeader>` stays local under `journey/shared/`. It consumes `--color-flow-panel-*` tokens that don't exist outside the Flow Builder, and its semantics (Back / Save / Sessions / Environment) are specific to the Journey Editor surface. Promotion to `@evoapi/design-system` would require a different generic component with no flow-specific assumptions.
+Per the EVO-1253 architecture decision D7: `<JourneyEditorHeader>` stays local under `journey/shared/`. It consumes `--color-flow-panel-*` tokens that don't exist outside the Flow Builder, and its semantics (Back / Save / Sessions / Environment) are specific to the Journey Editor surface. Promotion to `@evoapi/design-system` would require a different generic component with no flow-specific assumptions.
 
 ---
 

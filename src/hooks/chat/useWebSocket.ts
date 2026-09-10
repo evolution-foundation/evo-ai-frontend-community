@@ -4,12 +4,15 @@ import {
   ChatEventHandlers,
 } from '@/services/chat/websocket/ChatActionCableConnector';
 import { ConnectionParams } from '@/services/chat/websocket/BaseActionCableConnector';
+import { useAuthStore } from '@/store/authStore';
 
 export interface UseWebSocketOptions {
   enabled?: boolean;
   websocketHost?: string;
   handlers?: ChatEventHandlers;
   autoConnect?: boolean;
+  // Auth-service token sent with the subscription; defaults to the auth store's.
+  accessToken?: string;
 }
 
 export interface UseWebSocketReturn {
@@ -46,7 +49,16 @@ export const useWebSocket = (
   pubsubToken: string,
   options: UseWebSocketOptions = {},
 ): UseWebSocketReturn => {
-  const { enabled = true, websocketHost, handlers = {}, autoConnect = true } = options;
+  const {
+    enabled = true,
+    websocketHost,
+    handlers = {},
+    autoConnect = true,
+    accessToken: accessTokenOption,
+  } = options;
+  // getAccessToken() prefers localStorage (embedded host) over the store copy.
+  const storeAccessToken = useAuthStore(state => state.getAccessToken());
+  const accessToken = accessTokenOption ?? storeAccessToken;
 
   const connectorRef = useRef<ChatActionCableConnector | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -64,11 +76,12 @@ export const useWebSocket = (
    * Conectar ao WebSocket
    */
   const connect = useCallback(() => {
-    if (!enabled || !userId || !pubsubToken) {
+    if (!enabled || !userId || !pubsubToken || !accessToken) {
       console.warn('⚠️ WebSocket não pode conectar - parâmetros insuficientes:', {
         enabled,
         userId: !!userId,
         pubsubToken: !!pubsubToken,
+        accessToken: !!accessToken,
       });
       return;
     }
@@ -83,6 +96,8 @@ export const useWebSocket = (
         channel: 'RoomChannel', // Canal padrão do Evolution
         pubsub_token: pubsubToken,
         user_id: userId,
+        access_token: accessToken,
+        resolveAccessToken: () => accessTokenOption ?? useAuthStore.getState().getAccessToken(),
       };
 
       // Criar novo connector
@@ -123,7 +138,7 @@ export const useWebSocket = (
       console.error('❌ Erro ao conectar WebSocket:', error);
       setIsConnected(false);
     }
-  }, [enabled, userId, pubsubToken, websocketHost]);
+  }, [enabled, userId, pubsubToken, websocketHost, accessToken, accessTokenOption]);
 
   /**
    * Desconectar do WebSocket

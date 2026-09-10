@@ -33,4 +33,20 @@ describe('buildAutomationRulesPayload', () => {
       rules: [rule],
     });
   });
+
+  // CRM-467: a duration the preset Select does not carry (written by API or by
+  // Darwin) has to survive a save that never touched the rule.
+  it('passes an inactivity duration outside the preset list through untouched', () => {
+    const inactivityRule: StageAutomationRule = {
+      trigger: 'inactivity',
+      trigger_value: { minutes: 2880, base: 'no_customer_reply' },
+      action: 'send_direct_message',
+      action_value: 'Ainda tem interesse?',
+    };
+
+    expect(buildAutomationRulesPayload('Primeiro contato', [inactivityRule])).toEqual({
+      description: 'Primeiro contato',
+      rules: [{ ...inactivityRule, trigger_value: { minutes: 2880, base: 'no_customer_reply' } }],
+    });
+  });
 });

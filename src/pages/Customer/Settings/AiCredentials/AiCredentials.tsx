@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { usePermissions } from '@/contexts/PermissionsContext';
+import { useCredentialScopePermissions } from '@/hooks/useCredentialScopePermissions';
 import { toast } from 'sonner';
 import {
   Badge,
@@ -58,7 +58,6 @@ const EMPTY_DRAFT: CredentialDraft = {
 
 export default function AiCredentials() {
   const { t } = useLanguage('aiCredentials');
-  const { can, isReady: permissionsReady } = usePermissions();
 
   const [credentials, setCredentials] = useState<ApiKey[]>([]);
   // The server's word on the legacy fallback: 'pending' while a request is in
@@ -75,13 +74,13 @@ export default function AiCredentials() {
   const [credentialToDelete, setCredentialToDelete] = useState<ApiKey | null>(null);
   const [agentsUsingCredential, setAgentsUsingCredential] = useState<string[]>([]);
 
-  const canRead = can('ai_api_keys', 'read');
-  const canCreate = can('ai_api_keys', 'create');
-  const canUpdate = can('ai_api_keys', 'update');
-  const canDelete = can('ai_api_keys', 'delete');
-  // Writing at the installation level is a separate privilege: an account admin
-  // sees the inherited default but cannot change it.
-  const canManageInstallation = can('installation_configs', 'manage');
+  const {
+    permissionsReady,
+    canRead,
+    canCreateInScope,
+    canUpdateInScope,
+    canDeleteInScope,
+  } = useCredentialScopePermissions('ai_api_keys');
 
   const isEditing = Boolean(draft.id);
 
@@ -242,10 +241,6 @@ export default function AiCredentials() {
     setFormOpen(true);
   };
 
-  // Editing an installation credential needs the installation privilege;
-  // account credentials only need ai_api_keys.update.
-  const canWriteScope = (scope: ApiKeyScope) =>
-    scope === 'installation' ? canManageInstallation : canUpdate;
 
   const handleSave = async () => {
     const needsKey = !isEditing;
@@ -254,7 +249,8 @@ export default function AiCredentials() {
       return;
     }
 
-    if (!canWriteScope(draft.scope)) {
+    const allowed = isEditing ? canUpdateInScope(draft.scope) : canCreateInScope(draft.scope);
+    if (!allowed) {
       toast.error(t('messages.permissionDenied.installation'));
       return;
     }
@@ -392,7 +388,7 @@ export default function AiCredentials() {
   }
 
   const renderCredentialsTable = (rows: ApiKey[], scope: ApiKeyScope) => {
-    const writable = canWriteScope(scope);
+    const writable = canUpdateInScope(scope);
 
     return (
       <div className="overflow-x-auto border rounded-lg">
@@ -451,7 +447,7 @@ export default function AiCredentials() {
                         </span>
                       )
                     )}
-                    {canDelete && writable && (
+                    {canDeleteInScope(scope) && (
                       <Button
                         variant="ghost"
                         size="sm"
@@ -478,7 +474,7 @@ export default function AiCredentials() {
           <h1 className="text-2xl font-semibold">{t('title')}</h1>
           <p className="text-muted-foreground">{t('description')}</p>
         </div>
-        {canCreate && (
+        {canCreateInScope('account') && (
           <Button onClick={() => openCreateForm('account')}>
             <Plus className="mr-2 h-4 w-4" />
             {t('actions.add')}
@@ -537,7 +533,7 @@ export default function AiCredentials() {
             title={t('empty.title')}
             description={t('empty.description')}
             action={
-              canCreate
+              canCreateInScope('account')
                 ? { label: t('actions.addFirst'), onClick: () => openCreateForm('account') }
                 : undefined
             }
@@ -552,7 +548,7 @@ export default function AiCredentials() {
           <h2 className="text-sm font-medium uppercase text-muted-foreground">
             {t('sections.installation')}
           </h2>
-          {canManageInstallation && (
+          {canCreateInScope('installation') && (
             <Button variant="outline" size="sm" onClick={() => openCreateForm('installation')}>
               <Plus className="mr-2 h-4 w-4" />
               {t('actions.add')}

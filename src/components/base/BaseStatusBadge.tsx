@@ -14,9 +14,11 @@ const statusConfig = {
     borderClassName: 'border-emerald-600 dark:border-[#26533D]',
   },
   inactive: {
-    bgClassName: 'bg-gray-500',
-    textClassName: 'text-white',
-    borderClassName: 'border-gray-500',
+    // Solid pill like every other status: bg-muted sits at 1.09:1 against the
+    // card in light theme, so the badge disappears where it used to read.
+    bgClassName: 'bg-muted-foreground',
+    textClassName: 'text-background',
+    borderClassName: 'border-muted-foreground',
   },
   blocked: {
     bgClassName: 'bg-red-600 dark:bg-[#6A231D]',
