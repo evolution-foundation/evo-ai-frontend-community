@@ -42,6 +42,7 @@ export const getStandardFieldKeys = (language?: string) => ({
 export const FIELD_TYPES = {
   TEXT: 'text',
   EMAIL: 'email',
+  PHONE: 'phone',
   NUMBER: 'number',
   URL: 'url',
   DATE: 'date',
@@ -74,7 +75,7 @@ export const getDefaultPreChatFields = (language?: string): PreChatField[] => {
     },
     {
       name: 'phoneNumber',
-      type: FIELD_TYPES.TEXT,
+      type: FIELD_TYPES.PHONE,
       label: standardFields.phoneNumber.label,
       placeholder: standardFields.phoneNumber.placeholder,
       required: false,
