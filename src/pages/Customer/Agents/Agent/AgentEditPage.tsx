@@ -261,8 +261,7 @@ const AgentEditPage = () => {
 
   const loadUsers = useCallback(async () => {
     try {
-      const response = await usersService.getUsers();
-      const users = response.data || [];
+      const users = await usersService.getAccountUsers();
 
       const transformedUsers = users.map(user => ({
         id: user.id,

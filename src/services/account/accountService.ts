@@ -4,6 +4,7 @@ import { extractData } from '@/utils/apiHelpers';
 import type { Account, UpdateAccount, FormDataOptions, AccountUpdateResponse } from '@/types/settings';
 import { extractError } from '@/utils/apiHelpers';
 import { fetchGlobalConfig } from '@/contexts/GlobalConfigContext';
+import usersService from '@/services/users/usersService';
 
 class AccountService {
   async getAccount(): Promise<Account> {
@@ -32,18 +33,14 @@ class AccountService {
     try {
       const [inboxesRes, agentsRes, teamsRes, labelsRes] = await Promise.allSettled([
         api.get('/inboxes'),
-        authApi.get('/users'),
+        usersService.getAccountUsers(),
         api.get('/teams'),
         api.get('/labels'),
       ]);
 
-      const getResultData = (result: PromiseSettledResult<any>, isAuthService = false) => {
+      const getResultData = (result: PromiseSettledResult<any>) => {
         if (result.status === 'fulfilled') {
           const data = extractData(result.value);
-          if (isAuthService) {
-            // Auth service may return { users: [...] }
-            return (data as any)?.users || data || [];
-          }
           return Array.isArray(data) ? data : [];
         }
         return [];
@@ -51,7 +48,7 @@ class AccountService {
 
       return {
         inboxes: getResultData(inboxesRes),
-        agents: getResultData(agentsRes, true), // true = isAuthService
+        agents: agentsRes.status === 'fulfilled' ? agentsRes.value : [],
         teams: getResultData(teamsRes),
         labels: getResultData(labelsRes),
       };

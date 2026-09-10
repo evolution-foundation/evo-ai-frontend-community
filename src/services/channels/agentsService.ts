@@ -1,4 +1,5 @@
 import authApi from '@/services/core/apiAuth';
+import usersService from '@/services/users/usersService';
 import { extractData } from '@/utils/apiHelpers';
 import type { AgentChannel } from '@/types/channels/inbox';
 import type { AgentDeleteResponse } from '@/types/agents';
@@ -11,26 +12,9 @@ const AgentsService = {
    * Endpoint: GET /api/v1/users
    */
   async getAll(): Promise<AgentChannel[]> {
-    try {
-      const response = await authApi.get('/users');
-      const data = extractData<{ users?: AgentChannel[] } | AgentChannel[]>(response);
-
-      // Handle different response structures
-      // For auth-service response: { users: [...] } or direct array
-      if (Array.isArray(data)) {
-        return data;
-      }
-
-      if (data && typeof data === 'object' && 'users' in data && Array.isArray(data.users)) {
-        return data.users;
-      }
-
-      console.warn('AgentsService.getAll: Unexpected response structure:', data);
-      return [];
-    } catch (error) {
-      console.error('AgentsService.getAll error:', error);
-      return []; // Return empty array on error
-    }
+    // Single account-scoped source (CRM-539); the auth pages at 20 otherwise.
+    // Errors propagate: an empty list must mean "no one", not "the request failed".
+    return (await usersService.getAccountUsers()) as unknown as AgentChannel[];
   },
 
   /**

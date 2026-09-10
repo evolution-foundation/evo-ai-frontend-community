@@ -116,9 +116,9 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
 
     set({ isLoadingAgents: true });
     try {
-      const response = await usersService.getUsers();
+      const agents = await usersService.getAccountUsers();
       set({
-        agents: response.data,
+        agents,
         isLoadingAgents: false,
         lastFetchTimestamps: { ...state.lastFetchTimestamps, agents: now }
       });
