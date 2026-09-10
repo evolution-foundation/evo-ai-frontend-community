@@ -62,7 +62,8 @@ describe('CollaboratorsForm — account-scoped agents (CRM-539)', () => {
 
     await waitFor(() => expect(screen.getByText('Bia')).toBeInTheDocument());
     const rowOf = (name: string) => screen.getByText(name).closest('[class*="cursor-pointer"]') as HTMLElement;
-    expect(rowOf('Bia').className).toContain('border-primary');
+    // ring-2 is the selected-only class; border-primary also matches the hover of unselected rows.
+    expect(rowOf('Bia').className).toContain('ring-2');
     expect(rowOf('Ana').className).not.toContain('ring-2');
     expect(rowOf('Caio').className).not.toContain('ring-2');
   });

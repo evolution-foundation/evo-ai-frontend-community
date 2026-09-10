@@ -95,7 +95,6 @@ class MacrosService {
     const getResultData = (
       source: MacroFormDataSource,
       result: PromiseSettledResult<AxiosResponse | MacroFormOption[]>,
-      isAuthService = false,
     ): MacroFormOption[] => {
       if (result.status === 'rejected') {
         console.error(`Failed to load ${source} for the macro form:`, result.reason);
@@ -104,11 +103,9 @@ class MacrosService {
       }
 
       try {
-        if (isAuthService) {
-          // Already the account directory, resolved by usersService.
-          return Array.isArray(result.value) ? result.value : [];
-        }
-        const data = extractData<MacroFormOption[]>(result.value as AxiosResponse);
+        // The account directory arrives already resolved by usersService.
+        if (Array.isArray(result.value)) return result.value;
+        const data = extractData<MacroFormOption[]>(result.value);
         return Array.isArray(data) ? data : [];
       } catch (error) {
         console.error(`Failed to parse ${source} for the macro form:`, error);
@@ -119,7 +116,7 @@ class MacrosService {
 
     return {
       inboxes: getResultData('inboxes', inboxesRes),
-      agents: getResultData('agents', agentsRes, true),
+      agents: getResultData('agents', agentsRes),
       teams: getResultData('teams', teamsRes),
       labels: getResultData('labels', labelsRes),
       campaigns: [],
