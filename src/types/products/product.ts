@@ -1,6 +1,7 @@
 import type { PaginatedResponse, PaginationMeta } from '@/types/core';
 
 export type ProductKind = 'physical' | 'digital';
+export type ProductItemType = 'produto' | 'produto_ml' | 'servico' | 'insumo' | 'equipamento';
 export type ProductStatus = 'active' | 'inactive' | 'draft';
 export type ProductCurrency = 'BRL' | 'USD' | 'EUR';
 
@@ -27,22 +28,92 @@ export interface ProductImage {
   byte_size: number;
 }
 
+export type ProductMediaKind = 'image' | 'video';
+export type ProductMediaSource = 'url' | 'upload' | 'gallery';
+
+export interface ProductMedia {
+  id?: string;
+  kind: ProductMediaKind;
+  source: ProductMediaSource;
+  url: string;
+}
+
+export interface ProductIngredient {
+  id: string;
+  ingredient_product_id: string;
+  name?: string | null;
+  quantity: number;
+  unit: string;
+}
+
+export interface ProductIngredientFormData {
+  id?: string;
+  _destroy?: boolean;
+  ingredient_product_id: string;
+  name?: string;
+  quantity: number | null;
+  unit: string;
+}
+
+export interface ProductCategory {
+  id: string;
+  name: string;
+}
+
 export interface Product {
   id: string;
   name: string;
   slug?: string | null;
   kind: ProductKind;
+  item_type?: ProductItemType;
   description?: string | null;
   sku?: string | null;
   default_price: number;
+  cost_price?: number | null;
+  profit?: number;
   currency: ProductCurrency;
   purchase_url?: string | null;
   status: ProductStatus;
   stock_quantity?: number | null;
+  supplier?: string | null;
+  material?: string | null;
+  color?: string | null;
+  size?: string | null;
+  weight_kg?: number | null;
+  height_cm?: number | null;
+  width_cm?: number | null;
+  length_cm?: number | null;
+  ml_category?: string | null;
+  ml_buying_model?: string | null;
+  ml_listing_type?: string | null;
+  ml_condition?: string | null;
+  brand?: string | null;
+  model?: string | null;
+  compatible_brands?: string | null;
+  accessory_type?: string | null;
+  anatel_number?: string | null;
+  equipamento_tipo?: string | null;
+  publish_ml?: boolean;
   metadata?: Record<string, unknown>;
   labels?: string[];
+  category_id?: string | null;
+  category_name?: string | null;
+  ingredients?: ProductIngredient[];
+  media?: ProductMedia[];
   variants: ProductVariant[];
   images: ProductImage[];
+  // Fiscal — legado + Reforma Tributária (IBS/CBS), ver Tax::CalculationService
+  ncm?: string | null;
+  cest?: string | null;
+  cfop_padrao?: string | null;
+  cst_icms?: string | null;
+  csosn?: string | null;
+  cst_pis_cofins?: string | null;
+  cst_ibs_cbs?: string | null;
+  cclasstrib?: string | null;
+  reducao_ibs_cbs_pct?: number | null;
+  sujeito_imposto_seletivo?: boolean;
+  aliquota_imposto_seletivo_pct?: number | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -55,18 +126,52 @@ export interface Product {
 export interface ProductFormData {
   name: string;
   kind: ProductKind;
+  item_type?: ProductItemType;
   description?: string;
   sku?: string;
   default_price: number;
+  cost_price?: number | null;
   currency: ProductCurrency;
   purchase_url?: string;
   status: ProductStatus;
   stock_quantity?: number | null;
+  supplier?: string;
+  material?: string;
+  color?: string;
+  size?: string;
+  weight_kg?: number | null;
+  height_cm?: number | null;
+  width_cm?: number | null;
+  length_cm?: number | null;
+  ml_category?: string;
+  ml_buying_model?: string;
+  ml_listing_type?: string;
+  ml_condition?: string;
+  brand?: string;
+  model?: string;
+  compatible_brands?: string;
+  accessory_type?: string;
+  anatel_number?: string;
+  publish_ml?: boolean;
   labels?: string[];
+  category_id?: string | null;
+  media?: ProductMedia[];
   variants_attributes?: ProductVariantFormData[];
+  product_ingredients_attributes?: ProductIngredientFormData[];
   metadata?: Record<string, unknown>;
   // Active Storage signed_ids of newly uploaded blobs
   images?: string[];
+  ncm?: string;
+  cest?: string;
+  cfop_padrao?: string;
+  cst_icms?: string;
+  csosn?: string;
+  cst_pis_cofins?: string;
+  cst_ibs_cbs?: string;
+  cclasstrib?: string;
+  reducao_ibs_cbs_pct?: number | null;
+  sujeito_imposto_seletivo?: boolean;
+  aliquota_imposto_seletivo_pct?: number | null;
 }
 
 export interface ProductVariantFormData {
@@ -85,7 +190,9 @@ export interface ProductsListParams {
   per_page?: number;
   q?: string;
   kind?: ProductKind;
+  item_type?: ProductItemType;
   status?: ProductStatus;
+  category_id?: string;
 }
 
 /* ---------- Bulk import (EVO-1555 S1 + S1.1 dry-run) ---------- */
@@ -181,6 +288,45 @@ export interface ProductImportFetchResponse {
 }
 
 export interface ProductsResponse extends PaginatedResponse<Product> {}
+
+export interface ProductCategoriesResponse extends StandardResponse<ProductCategory[]> {}
+export interface ProductCategoryCreateResponse extends StandardResponse<ProductCategory> {}
+
+export interface ProductSellAffectedItem {
+  id: string;
+  name: string;
+  stock_quantity: number;
+}
+
+export interface ProductTaxCalculation {
+  regime: string;
+  base_calculo: number;
+  cbs_valor: number;
+  cbs_aliquota: number;
+  ibs_valor: number;
+  ibs_aliquota: number;
+  imposto_seletivo_valor: number;
+  imposto_seletivo_aliquota: number;
+  legado_valor: number;
+  legado_aliquota: number;
+  total_impostos: number;
+  preco_total: number;
+  avisos: string[];
+}
+
+export interface ProductTaxCalculationResponse extends StandardResponse<ProductTaxCalculation> {}
+
+export interface ProductSellResponse extends StandardResponse<{
+  product_id: string;
+  quantity: number;
+  affected: ProductSellAffectedItem[];
+}> {}
+
+export interface ProductUploadResponse extends StandardResponse<{
+  file_url: string;
+  blob_key: string;
+  blob_id: string;
+}> {}
 
 export interface PipelineItemProductLink {
   id: string;

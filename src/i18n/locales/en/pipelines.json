@@ -67,7 +67,8 @@
     "chooseItemType": "Choose item type",
     "itemTypes": {
       "conversation": "Conversation",
-      "contact": "Contact"
+      "contact": "Contact",
+      "task": "Task"
     },
     "searchItems": "Search Items",
     "searchPlaceholder": "Search by name, email, phone or ID...",
@@ -83,7 +84,8 @@
     "cancel": "Cancel",
     "success": "Item added successfully to the pipeline",
     "error": "Error adding item to the pipeline",
-    "loadError": "Error loading available items"
+    "loadError": "Error loading available items",
+    "taskTitleRequired": "Task title is required"
   },
   "createPipeline": {
     "title": "Create New Pipeline",
@@ -711,6 +713,10 @@
       },
       "valueLabel": "Total Value:",
       "system": "System"
+    },
+    "task": {
+      "untitled": "Untitled task",
+      "noDueDate": "No due date"
     },
     "messages": {
       "itemMoved": "Item moved successfully",

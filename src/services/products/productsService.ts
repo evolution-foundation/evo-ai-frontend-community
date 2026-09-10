@@ -13,6 +13,9 @@ import {
   ProductBulkPayload,
   ProductBulkRealResponse,
   ProductBulkDryRunResponse,
+  ProductSellResponse,
+  ProductTaxCalculation,
+  ProductUploadResponse,
   ProductImportSource,
   ProductImportCredentials,
   ProductImportFetchResponse,
@@ -97,6 +100,33 @@ class ProductsService {
   async deleteProduct(id: string): Promise<{ id: string }> {
     const response = await api.delete(`${this.baseUrl}/${id}`);
     return extractData<{ id: string }>(response);
+  }
+
+  // ---------- Sales (stock deduction + ingredients) ----------
+
+  async sellProduct(id: string, quantity: number): Promise<ProductSellResponse> {
+    const response = await api.post(`${this.baseUrl}/${id}/sell`, { quantity });
+    return response.data as ProductSellResponse;
+  }
+
+  // ---------- Fiscal ----------
+
+  async calcularImposto(id: string, quantity = 1, unitPrice?: number): Promise<ProductTaxCalculation> {
+    const response = await api.get(`${this.baseUrl}/${id}/calcular_imposto`, {
+      params: { quantity, unit_price: unitPrice },
+    });
+    return extractData<ProductTaxCalculation>(response);
+  }
+
+  // ---------- Media upload (images / videos) ----------
+
+  async uploadMediaFile(file: File): Promise<ProductUploadResponse> {
+    const formData = new FormData();
+    formData.append('attachment', file, file.name);
+    const response = await api.post('/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data as ProductUploadResponse;
   }
 
   // ---------- Variants ----------

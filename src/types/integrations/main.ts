@@ -186,6 +186,61 @@ export interface OpenAIFormData {
   enable_audio_transcription?: boolean;
 }
 
+export interface GeminiConfig {
+  api_key: string;
+}
+
+export interface GeminiHook extends IntegrationHook {
+  app_id: 'gemini';
+  settings: GeminiConfig;
+}
+
+export interface GeminiFormData {
+  api_key: string;
+}
+
+// Groq Integration types
+export interface GroqConfig {
+  api_key: string;
+}
+
+export interface GroqHook extends IntegrationHook {
+  app_id: 'groq';
+  settings: GroqConfig;
+}
+
+export interface GroqFormData {
+  api_key: string;
+}
+
+// ElevenLabs Integration types
+export interface ElevenLabsConfig {
+  api_key: string;
+}
+
+export interface ElevenLabsHook extends IntegrationHook {
+  app_id: 'elevenlabs';
+  settings: ElevenLabsConfig;
+}
+
+export interface ElevenLabsFormData {
+  api_key: string;
+}
+
+// Hugging Face Integration types
+export interface HuggingFaceConfig {
+  api_key: string;
+}
+
+export interface HuggingFaceHook extends IntegrationHook {
+  app_id: 'huggingface';
+  settings: HuggingFaceConfig;
+}
+
+export interface HuggingFaceFormData {
+  api_key: string;
+}
+
 // BMS Integration types
 export interface BMSHook extends IntegrationHook {
   app_id: 'bms';
@@ -223,6 +278,30 @@ export interface LeadSquaredFormData {
   transcript_activity_score?: string;
   conversation_activity_code?: number;
   transcript_activity_code?: number;
+}
+
+// Google Ads Integration types
+export interface GoogleAdsConfig {
+  client_id: string;
+  client_secret: string;
+  refresh_token: string;
+  developer_token: string;
+  login_customer_id?: string;
+  customer_id: string;
+}
+
+export interface GoogleAdsHook extends IntegrationHook {
+  app_id: 'google_ads';
+  settings: GoogleAdsConfig;
+}
+
+export interface GoogleAdsFormData {
+  client_id: string;
+  client_secret: string;
+  refresh_token: string;
+  developer_token: string;
+  login_customer_id: string;
+  customer_id: string;
 }
 
 // Google Translate Integration types

@@ -40,6 +40,7 @@ import {
   GitBranch,
   MessageSquare,
   FileText,
+  CheckSquare,
   Link2,
 } from 'lucide-react';
 
@@ -104,6 +105,16 @@ const PRIORITY_BADGE_CLASS: Record<string, string> = {
   alta: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
   media: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
   baixa: 'bg-primary/10 text-primary',
+};
+
+// task_status badge styles (PipelineTask['status']) — separate from conversation
+// STATUS_BADGE_CLASS since the label sets don't overlap (pending/completed/
+// cancelled/overdue vs open/pending/resolved/snoozed).
+const TASK_STATUS_BADGE_CLASS: Record<string, string> = {
+  pending: 'bg-muted text-muted-foreground',
+  completed: 'bg-primary/10 text-primary',
+  cancelled: 'bg-muted text-muted-foreground line-through',
+  overdue: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
 };
 
 export default function PipelineKanban() {
@@ -1344,15 +1355,17 @@ export default function PipelineKanban() {
                                   <Copy className="h-4 w-4 mr-2" />
                                   {t('kanban.copyId')}
                                 </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    setSelectedConversationForSchedule(item);
-                                    setScheduleActionOpen(true);
-                                  }}
-                                >
-                                  <CalendarClock className="h-4 w-4 mr-2" />
-                                  {t('kanban.item.scheduleAction')}
-                                </DropdownMenuItem>
+                                {item.type !== 'task' && (
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      setSelectedConversationForSchedule(item);
+                                      setScheduleActionOpen(true);
+                                    }}
+                                  >
+                                    <CalendarClock className="h-4 w-4 mr-2" />
+                                    {t('kanban.item.scheduleAction')}
+                                  </DropdownMenuItem>
+                                )}
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem className="text-destructive" onClick={() => handleRemoveItem(item)}>
                                   <Trash2 className="h-4 w-4 mr-2" />
@@ -1362,34 +1375,56 @@ export default function PipelineKanban() {
                             </DropdownMenu>
                           </div>
 
-                          {/* Contact header */}
-                          <div className="flex items-start gap-3 mb-2.5 pr-14">
-                            <div
-                              className="w-[34px] h-[34px] shrink-0 rounded-full flex items-center justify-center text-white text-[13px] font-bold shadow-sm"
-                              style={{ backgroundColor: getContactColor(item.contact?.name) }}
-                            >
-                              {item.contact?.name?.[0]?.toUpperCase() || 'U'}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-1.5">
+                          {/* Card header: task title vs. contact identity */}
+                          {item.type === 'task' ? (
+                            <div className="flex items-start gap-3 mb-2.5 pr-14">
+                              <div className="w-[34px] h-[34px] shrink-0 rounded-full flex items-center justify-center bg-primary/10 text-primary shadow-sm">
+                                <CheckSquare className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0 flex-1">
                                 <h4 className="text-sm font-bold text-foreground truncate">
-                                  {item.contact?.name || t('kanban.conversation.unknownUser')}
+                                  {item.title || t('kanban.task.untitled')}
                                 </h4>
-                                {item.conversation?.display_id && (
-                                  <span className="text-xs text-muted-foreground shrink-0">#{item.conversation.display_id}</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-start gap-3 mb-2.5 pr-14">
+                              <div
+                                className="w-[34px] h-[34px] shrink-0 rounded-full flex items-center justify-center text-white text-[13px] font-bold shadow-sm"
+                                style={{ backgroundColor: getContactColor(item.contact?.name) }}
+                              >
+                                {item.contact?.name?.[0]?.toUpperCase() || 'U'}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5">
+                                  <h4 className="text-sm font-bold text-foreground truncate">
+                                    {item.contact?.name || t('kanban.conversation.unknownUser')}
+                                  </h4>
+                                  {item.conversation?.display_id && (
+                                    <span className="text-xs text-muted-foreground shrink-0">#{item.conversation.display_id}</span>
+                                  )}
+                                </div>
+                                {item.contact?.phone_number && (
+                                  <div className="flex items-center gap-1 text-[12.5px] text-muted-foreground mt-0.5">
+                                    <Phone className="w-3 h-3 shrink-0" />
+                                    <span className="truncate">{item.contact.phone_number}</span>
+                                  </div>
                                 )}
                               </div>
-                              {item.contact?.phone_number && (
-                                <div className="flex items-center gap-1 text-[12.5px] text-muted-foreground mt-0.5">
-                                  <Phone className="w-3 h-3 shrink-0" />
-                                  <span className="truncate">{item.contact.phone_number}</span>
-                                </div>
-                              )}
                             </div>
-                          </div>
+                          )}
+
+                          {/* Task description preview */}
+                          {item.type === 'task' && item.description && (
+                            <div className="mb-2.5 p-2.5 bg-muted/50 rounded-lg">
+                              <p className="text-[12.5px] text-muted-foreground line-clamp-2 leading-relaxed">
+                                {item.description}
+                              </p>
+                            </div>
+                          )}
 
                           {/* Message preview */}
-                          {item.conversation?.last_non_activity_message?.content && (
+                          {item.type !== 'task' && item.conversation?.last_non_activity_message?.content && (
                             <div className="mb-2.5 p-2.5 bg-muted/50 rounded-lg">
                               <div className="flex items-center justify-between gap-2 mb-1">
                                 <span className="text-[12.5px] font-bold text-foreground truncate">
@@ -1415,7 +1450,7 @@ export default function PipelineKanban() {
                           )}
 
                           {/* Services value */}
-                          {item.services_info?.has_services && item.services_info.total_value > 0 && (
+                          {item.type !== 'task' && item.services_info?.has_services && item.services_info.total_value > 0 && (
                             <div className="flex items-center justify-between mb-2.5">
                               <span className="text-[11.5px] text-muted-foreground">{t('kanban.conversation.valueLabel')}</span>
                               <span className="text-[12.5px] font-bold text-primary">{item.services_info.formatted_total}</span>
@@ -1423,46 +1458,80 @@ export default function PipelineKanban() {
                           )}
 
                           {/* Footer: tag + priority + status */}
-                          {(firstLabel || item.conversation?.status || pBucket) && (
-                            <div className="flex items-center gap-1.5 flex-wrap mb-2">
-                              {firstLabel && (
-                                <span className="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-md bg-muted text-muted-foreground max-w-[120px] truncate">
-                                  {firstLabel}
-                                </span>
-                              )}
-                              {pBucket && (
-                                <span
-                                  className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md ${PRIORITY_BADGE_CLASS[pBucket]}`}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                                  {t(`kanban.search.priority.${pBucket}`)}
-                                </span>
-                              )}
-                              {item.conversation?.status && (
-                                <span
-                                  className={`inline-flex items-center gap-1 text-[11.5px] font-bold px-2 py-0.5 rounded-md ${statusBadgeClass(item.conversation.status)}`}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                                  {t(`kanban.conversation.status.${item.conversation.status}`, item.conversation.status)}
-                                </span>
-                              )}
-                            </div>
+                          {item.type === 'task' ? (
+                            (item.priority || item.task_status) && (
+                              <div className="flex items-center gap-1.5 flex-wrap mb-2">
+                                {item.priority && priorityBucket(item.priority) && (
+                                  <span
+                                    className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md ${PRIORITY_BADGE_CLASS[priorityBucket(item.priority)]}`}
+                                  >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                                    {t(`kanban.search.priority.${priorityBucket(item.priority)}`)}
+                                  </span>
+                                )}
+                                {item.task_status && (
+                                  <span
+                                    className={`inline-flex items-center gap-1 text-[11.5px] font-bold px-2 py-0.5 rounded-md ${TASK_STATUS_BADGE_CLASS[item.task_status] ?? 'bg-muted text-muted-foreground'}`}
+                                  >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                                    {t(`tasks.status.${item.task_status}`, item.task_status)}
+                                  </span>
+                                )}
+                              </div>
+                            )
+                          ) : (
+                            (firstLabel || item.conversation?.status || pBucket) && (
+                              <div className="flex items-center gap-1.5 flex-wrap mb-2">
+                                {firstLabel && (
+                                  <span className="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-md bg-muted text-muted-foreground max-w-[120px] truncate">
+                                    {firstLabel}
+                                  </span>
+                                )}
+                                {pBucket && (
+                                  <span
+                                    className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md ${PRIORITY_BADGE_CLASS[pBucket]}`}
+                                  >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                                    {t(`kanban.search.priority.${pBucket}`)}
+                                  </span>
+                                )}
+                                {item.conversation?.status && (
+                                  <span
+                                    className={`inline-flex items-center gap-1 text-[11.5px] font-bold px-2 py-0.5 rounded-md ${statusBadgeClass(item.conversation.status)}`}
+                                  >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                                    {t(`kanban.conversation.status.${item.conversation.status}`, item.conversation.status)}
+                                  </span>
+                                )}
+                              </div>
+                            )
                           )}
 
                           {/* Date + assignee */}
                           <div className="flex items-center justify-between text-[12px] text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
-                              {item.conversation?.last_activity_at
+                              {item.type === 'task'
+                                ? item.due_date
+                                  ? new Date(item.due_date).toLocaleDateString('pt-BR')
+                                  : t('kanban.task.noDueDate')
+                                : item.conversation?.last_activity_at
                                 ? new Date(item.conversation.last_activity_at * 1000).toLocaleDateString('pt-BR')
                                 : new Date((item.entered_at || 0) * 1000).toLocaleDateString('pt-BR')}
                             </span>
-                            {item.conversation?.assignee && (
-                              <span className="flex items-center gap-1 min-w-0">
-                                <User className="w-3 h-3 shrink-0" />
-                                <span className="truncate max-w-24">{item.conversation.assignee.name}</span>
-                              </span>
-                            )}
+                            {item.type === 'task'
+                              ? item.assignee && (
+                                  <span className="flex items-center gap-1 min-w-0">
+                                    <User className="w-3 h-3 shrink-0" />
+                                    <span className="truncate max-w-24">{item.assignee.name}</span>
+                                  </span>
+                                )
+                              : item.conversation?.assignee && (
+                                  <span className="flex items-center gap-1 min-w-0">
+                                    <User className="w-3 h-3 shrink-0" />
+                                    <span className="truncate max-w-24">{item.conversation.assignee.name}</span>
+                                  </span>
+                                )}
                           </div>
                         </div>
                         );

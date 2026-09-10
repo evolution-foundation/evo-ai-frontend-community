@@ -44,7 +44,8 @@ const PublicRoute = ({ children }: PublicRouteProps) => {
       location.pathname === '/widget' ||
       location.pathname.startsWith('/survey/responses/') ||
       location.pathname.startsWith('/f/') ||
-      location.pathname.startsWith('/chat/')
+      location.pathname.startsWith('/chat/') ||
+      location.pathname === '/cardapio-digital'
     ) {
       return <>{children}</>;
     }
@@ -56,6 +57,7 @@ const PublicRoute = ({ children }: PublicRouteProps) => {
     const isAuthConfirmationRoute = location.pathname.startsWith('/auth/');
     const isInstagramCallback = location.pathname === '/instagram/callback';
     const isGoogleCallback = location.pathname === '/google/callback';
+    const isGoogleWorkspaceCallback = location.pathname === '/settings/integrations/google-workspace/callback';
     const isGoogleCalendarCallback = location.pathname === '/google-calendar/callback';
     const isGoogleSheetsCallback = location.pathname === '/google-sheets/callback';
     const isGitHubCallback = location.pathname === '/github/callback';
@@ -78,6 +80,7 @@ const PublicRoute = ({ children }: PublicRouteProps) => {
       isAuthConfirmationRoute ||
       isInstagramCallback ||
       isGoogleCallback ||
+      isGoogleWorkspaceCallback ||
       isGoogleCalendarCallback ||
       isGoogleSheetsCallback ||
       isGitHubCallback ||

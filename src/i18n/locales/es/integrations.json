@@ -54,6 +54,10 @@
       "description": "Configure la integración con OpenAI para sugerencias inteligentes",
       "globallyConfigured": "OpenAI ya está configurado globalmente por el administrador"
     },
+    "gemini": {
+      "name": "Google Gemini",
+      "description": "Configura la integración con Google Gemini para funciones de IA"
+    },
     "shopify": {
       "name": "Shopify",
       "description": "Integre con Shopify para sincronizar datos de clientes y pedidos"
@@ -69,6 +73,22 @@
     "canva": {
       "name": "Canva",
       "description": "Cree y edite diseños, presentaciones y materiales visuales con Canva"
+    },
+    "groq": {
+      "name": "Groq",
+      "description": "Conecta Groq para inferencia de IA ultrarrápida"
+    },
+    "googleAds": {
+      "name": "Google Ads",
+      "description": "Conecta Google Ads para gestionar campañas y conversiones"
+    },
+    "elevenlabs": {
+      "name": "ElevenLabs",
+      "description": "Conecta ElevenLabs para generar audio de voz realista con IA"
+    },
+    "huggingface": {
+      "name": "Hugging Face",
+      "description": "Conecta Hugging Face para ejecutar modelos de IA de código abierto"
     }
   },
   "messages": {
@@ -632,6 +652,33 @@
       "updateError": "Error al actualizar aplicación OAuth",
       "clientIdCopied": "Client ID copiado al portapapeles",
       "clientSecretCopied": "Client Secret copiado al portapapeles"
+    }
+  },
+  "gemini": {
+    "modal": {
+      "title": "Configurar integración de Google Gemini",
+      "updateTitle": "Actualizar integración de Google Gemini",
+      "description": "Integra Google Gemini para aportar funciones de IA a tu panel usando los modelos Gemini.",
+      "apiConfig": "Configuración de la API",
+      "fields": {
+        "apiKey": {
+          "label": "Clave de API de Gemini",
+          "placeholder": "AIza...",
+          "hint": "Introduce tu clave de API de Google Gemini (Google AI Studio) para configurar la integración",
+          "required": "La clave de API es obligatoria"
+        }
+      },
+      "security": {
+        "title": "Seguridad:",
+        "description": "Tu clave de API se almacenará de forma segura y cifrada. Nunca compartas tu clave de API de Google Gemini con terceros."
+      },
+      "actions": {
+        "help": "¿Necesitas ayuda?",
+        "cancel": "Cancelar",
+        "configure": "Configurar integración",
+        "update": "Actualizar integración",
+        "saving": "Guardando..."
+      }
     }
   },
   "openai": {
@@ -1298,5 +1345,142 @@
   "email": {
     "name": "Email",
     "description": "Soporte vía email integrado"
+  },
+  "groq": {
+    "modal": {
+      "title": "Configurar integración con Groq",
+      "updateTitle": "Actualizar integración con Groq",
+      "description": "Conecta Groq para usar sus modelos de IA ultrarrápidos (Llama, Mixtral y otros) mediante inferencia LPU.",
+      "apiConfig": "Configuración de la API",
+      "fields": {
+        "apiKey": {
+          "label": "Clave de API de Groq",
+          "placeholder": "gsk_...",
+          "hint": "Ingresa tu clave de API de Groq (console.groq.com) para activar esta integración",
+          "required": "La clave de API es obligatoria"
+        }
+      },
+      "security": {
+        "title": "Seguridad:",
+        "description": "Tu clave de API se almacenará de forma segura y cifrada. Nunca compartas tu clave de API de Groq con terceros."
+      },
+      "actions": {
+        "help": "¿Necesitas ayuda?",
+        "cancel": "Cancelar",
+        "configure": "Configurar integración",
+        "update": "Actualizar integración",
+        "saving": "Guardando..."
+      }
+    }
+  },
+  "googleAds": {
+    "modal": {
+      "title": "Configurar integración con Google Ads",
+      "updateTitle": "Actualizar integración con Google Ads",
+      "description": "Conecta tu cuenta de Google Ads para obtener informes de campañas y gestionar conversiones. Necesitarás credenciales OAuth y un token de desarrollador de la API de Google Ads.",
+      "apiConfig": "Credenciales de la API",
+      "fields": {
+        "clientId": {
+          "label": "Client ID (OAuth)",
+          "placeholder": "xxxxx.apps.googleusercontent.com",
+          "hint": "Client ID de OAuth 2.0 creado en Google Cloud Console",
+          "required": "El Client ID es obligatorio"
+        },
+        "clientSecret": {
+          "label": "Client Secret (OAuth)",
+          "placeholder": "GOCSPX-...",
+          "hint": "Client Secret de OAuth 2.0 asociado al Client ID anterior",
+          "required": "El Client Secret es obligatorio"
+        },
+        "refreshToken": {
+          "label": "Refresh Token",
+          "placeholder": "1//0...",
+          "hint": "Refresh token de OAuth generado para un usuario de Google Ads con acceso a esta cuenta",
+          "required": "El Refresh Token es obligatorio"
+        },
+        "developerToken": {
+          "label": "Developer Token",
+          "placeholder": "Tu developer token de Google Ads",
+          "hint": "Emitido en el Centro de API de tu cuenta administradora (MCC) de Google Ads",
+          "required": "El Developer Token es obligatorio"
+        },
+        "customerId": {
+          "label": "ID de la cuenta de anuncios (Customer ID)",
+          "placeholder": "123-456-7890",
+          "hint": "El ID de la cuenta de Google Ads a la que quieres acceder",
+          "required": "El Customer ID es obligatorio"
+        },
+        "loginCustomerId": {
+          "label": "ID de la cuenta administradora (MCC, opcional)",
+          "placeholder": "123-456-7890",
+          "hint": "Necesario solo si la cuenta de anuncios está gestionada por un MCC"
+        }
+      },
+      "security": {
+        "title": "Seguridad:",
+        "description": "Tus credenciales se almacenarán de forma segura y cifrada. Nunca las compartas con terceros."
+      },
+      "actions": {
+        "documentation": "Documentación de la API de Google Ads",
+        "cancel": "Cancelar",
+        "configure": "Configurar integración",
+        "update": "Actualizar integración",
+        "saving": "Guardando..."
+      }
+    }
+  },
+  "elevenlabs": {
+    "modal": {
+      "title": "Configurar integración con ElevenLabs",
+      "updateTitle": "Actualizar integración con ElevenLabs",
+      "description": "Conecta ElevenLabs para generar audio de texto a voz realista para tu contenido.",
+      "apiConfig": "Configuración de la API",
+      "fields": {
+        "apiKey": {
+          "label": "Clave de API de ElevenLabs",
+          "placeholder": "sk_...",
+          "hint": "Ingresa tu clave de API de ElevenLabs (elevenlabs.io) para activar esta integración",
+          "required": "La clave de API es obligatoria"
+        }
+      },
+      "security": {
+        "title": "Seguridad:",
+        "description": "Tu clave de API se almacenará de forma segura y cifrada. Nunca compartas tu clave de API de ElevenLabs con terceros."
+      },
+      "actions": {
+        "help": "¿Necesitas ayuda?",
+        "cancel": "Cancelar",
+        "configure": "Configurar integración",
+        "update": "Actualizar integración",
+        "saving": "Guardando..."
+      }
+    }
+  },
+  "huggingface": {
+    "modal": {
+      "title": "Configurar integración con Hugging Face",
+      "updateTitle": "Actualizar integración con Hugging Face",
+      "description": "Conecta Hugging Face para ejecutar modelos de IA de código abierto (imagen, texto y más) mediante la Inference API.",
+      "apiConfig": "Configuración de la API",
+      "fields": {
+        "apiKey": {
+          "label": "Token de acceso de Hugging Face",
+          "placeholder": "hf_...",
+          "hint": "Ingresa tu token de acceso de Hugging Face (huggingface.co/settings/tokens) para activar esta integración",
+          "required": "El token de acceso es obligatorio"
+        }
+      },
+      "security": {
+        "title": "Seguridad:",
+        "description": "Tu token de acceso se almacenará de forma segura y cifrada. Nunca compartas tu token de Hugging Face con terceros."
+      },
+      "actions": {
+        "help": "¿Necesitas ayuda?",
+        "cancel": "Cancelar",
+        "configure": "Configurar integración",
+        "update": "Actualizar integración",
+        "saving": "Guardando..."
+      }
+    }
   }
 }
