@@ -110,6 +110,10 @@ export const getDefaultWidgetConfig = (): WidgetConfig => ({
   widgetBubbleType: 'standard',
 });
 
+/** The origin the embeds point at: where the agency is, never the backend's FRONTEND_URL. */
+export const widgetOrigin = (): string =>
+  typeof window !== 'undefined' ? window.location.origin : '';
+
 // Generate widget script
 export const extractWebsiteToken = (originalScript: string): string => {
   try {
@@ -129,20 +133,11 @@ export const generateWidgetScript = (
 ): string => {
   const token = extractWebsiteToken(originalScript);
 
-  // SDK and widget page are served from frontend origin (/widget route).
-  const SDK_BASE = typeof window !== 'undefined' ? window.location.origin : '';
-  let WIDGET_BASE = SDK_BASE;
+  // Both served from the agency's origin: the backend script carries the platform's
+  // FRONTEND_URL, which on a whitelabel host would leak into the client's site.
+  const SDK_BASE = widgetOrigin();
+  const WIDGET_BASE = SDK_BASE;
   const ENV_API_BASE = import.meta.env.VITE_API_URL || '';
-
-  // Keep compatibility with legacy scripts that already point widget page to frontend host.
-  try {
-    const fm = originalScript?.match(
-      /(SDK_BASE|FRONTEND_URL|BASE_URL|WIDGET_BASE)\s*=\s*['\"]([^'\"]+)['\"]/i,
-    );
-    if (fm && fm[2]) WIDGET_BASE = fm[2];
-  } catch (_) {}
-
-  if (!WIDGET_BASE) WIDGET_BASE = SDK_BASE;
 
   const opts = JSON.stringify({
     position: config.position,
@@ -159,7 +154,7 @@ export const generateWidgetScript = (
 // Generate iframe embed code (without SDK bubble)
 export const generateWidgetIframeEmbed = (originalScript: string): string => {
   const token = extractWebsiteToken(originalScript) || 'REPLACE_WITH_WEBSITE_TOKEN';
-  const widgetBase = typeof window !== 'undefined' ? window.location.origin : '';
+  const widgetBase = widgetOrigin();
   const envApiBase = import.meta.env.VITE_API_URL || '';
   const src = envApiBase
     ? `${widgetBase}/widget?website_token=${token}&api_base=${encodeURIComponent(envApiBase)}`

@@ -2,7 +2,17 @@
 import { createConsumer, Consumer, Subscription } from '@rails/actioncable';
 
 export interface CableOptions {
-  cableUrl?: string; // optional custom cable URL, defaults to VITE_API_URL origin + /cable
+  cableUrl?: string; // optional custom cable URL, defaults to VITE_API_URL + /cable
+  // Lets the server route the stream to the widget's account before the contact lookup.
+  websiteToken?: string;
+}
+
+// VITE_API_URL may be absolute (standalone) or a path under the current origin
+// (embedded host); a bare path would throw in `new URL`.
+export function resolveCableUrl(apiUrl: string | undefined, origin: string): string {
+  const base = new URL(apiUrl || '/', origin);
+  const path = base.pathname.replace(/\/+$/, '');
+  return `${base.origin}${path}/cable`;
 }
 
 export interface CableHandlers {
@@ -17,13 +27,16 @@ export class WidgetCable {
   private handlers: CableHandlers;
 
   constructor(pubsubToken: string, handlers: CableHandlers = {}, opts: CableOptions = {}) {
-    const base = new URL(import.meta.env.VITE_API_URL);
-    const cableUrl = opts.cableUrl || `${base.origin}/cable`;
+    const cableUrl = opts.cableUrl || resolveCableUrl(import.meta.env.VITE_API_URL, window.location.origin);
     this.consumer = createConsumer(cableUrl);
     this.handlers = handlers;
 
     this.subscription = this.consumer.subscriptions.create(
-      { channel: 'RoomChannel', pubsub_token: pubsubToken },
+      {
+        channel: 'RoomChannel',
+        pubsub_token: pubsubToken,
+        ...(opts.websiteToken ? { website_token: opts.websiteToken } : {}),
+      },
       {
         received: (msg: any) => {
           if (!msg) return;
