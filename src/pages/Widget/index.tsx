@@ -993,7 +993,7 @@ export default function Widget() {
                 console.error('❌ Widget: Error processing message', e);
               }
             },
-          });
+          }, { websiteToken: token });
         }
         // Only load messages if we haven't already started (for identified users)
         if (!hasStarted) {
