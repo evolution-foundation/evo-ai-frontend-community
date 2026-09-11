@@ -18,9 +18,7 @@ vi.mock('@rails/actioncable', () => ({
 
 import { WidgetCable, resolveCableUrl } from './widgetCable';
 
-// CRM-605: under an embedding host VITE_API_URL is a path ("/crm-api"), which
-// `new URL(path)` rejects — the widget lost realtime silently. The subscription
-// also carries website_token so the server can route the stream to the account.
+// Under an embedding host VITE_API_URL is a path ("/crm-api"), which `new URL(path)` rejects.
 describe('resolveCableUrl', () => {
   it('turns a path-only API base into an absolute cable URL under the current origin', () => {
     expect(resolveCableUrl('/crm-api', 'https://crm.agencia.com')).toBe('https://crm.agencia.com/crm-api/cable');

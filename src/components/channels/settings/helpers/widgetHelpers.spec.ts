@@ -27,8 +27,6 @@ const BACKEND_SCRIPT = `
 
 const CONFIG = { position: 'right', type: 'standard', launcherTitle: 'Fale conosco' };
 
-// CRM-605: the embeds point at the origin the agency is on, never at the
-// platform the backend script names. A whitelabel host must not leak the portal.
 describe('widgetHelpers — one origin for SDK and widget', () => {
   beforeEach(() => {
     vi.stubEnv('VITE_API_URL', '/crm-api');

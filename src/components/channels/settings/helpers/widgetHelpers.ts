@@ -133,9 +133,8 @@ export const generateWidgetScript = (
 ): string => {
   const token = extractWebsiteToken(originalScript);
 
-  // SDK and widget page are both served from the origin the agency is on: the
-  // backend script carries FRONTEND_URL (the platform), which on a whitelabel
-  // host would put the platform inside the client's site. One origin only.
+  // Both served from the agency's origin: the backend script carries the platform's
+  // FRONTEND_URL, which on a whitelabel host would leak into the client's site.
   const SDK_BASE = widgetOrigin();
   const WIDGET_BASE = SDK_BASE;
   const ENV_API_BASE = import.meta.env.VITE_API_URL || '';

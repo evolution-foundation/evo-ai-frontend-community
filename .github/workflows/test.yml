@@ -140,10 +140,8 @@ jobs:
       #     which is the ONLY thing that tells the auth which account to bind the token
       #     to. Dropping the header is invisible here and shows up as a 401 on every CRM
       #     call the customer's automations make.
-      #   - website widget embed + cable (CRM-605): the two embeds point SDK and
-      #     widget at the origin the agency is on (never the backend's FRONTEND_URL),
-      #     the cable URL resolves from a path-only API base instead of throwing, and
-      #     the subscription carries website_token so the server can route the stream.
+      #   - website widget embed + cable: both embeds point at the agency's origin, the
+      #     cable URL resolves from a path-only API base, and the subscription carries website_token.
       #   - account people directory (CRM-539): every agent selector reads
       #     usersService.getAccountUsers, which asks the auth for full pages and walks
       #     them all (the default page is 20, and a truncated list looks complete);

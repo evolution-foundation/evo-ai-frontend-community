@@ -3,8 +3,7 @@ import { createConsumer, Consumer, Subscription } from '@rails/actioncable';
 
 export interface CableOptions {
   cableUrl?: string; // optional custom cable URL, defaults to VITE_API_URL + /cable
-  // Sent with the subscription so the server can route the stream to the
-  // widget's account before it looks the contact up (CRM-605).
+  // Lets the server route the stream to the widget's account before the contact lookup.
   websiteToken?: string;
 }
 
