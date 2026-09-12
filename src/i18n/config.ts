@@ -338,6 +338,15 @@ import frTours from './locales/fr/tours.json';
 import itTours from './locales/it/tours.json'
 import itTutorials from './locales/it/tutorials.json';
 
+// Public CSAT survey page (no session, no layout — it renders for the contact
+// who clicked the link in the survey e-mail).
+import ptBRSurvey from './locales/pt-BR/survey.json';
+import ptSurvey from './locales/pt/survey.json';
+import enSurvey from './locales/en/survey.json';
+import esSurvey from './locales/es/survey.json';
+import frSurvey from './locales/fr/survey.json';
+import itSurvey from './locales/it/survey.json';
+
 // Segments / Journey / Campaigns namespaces
 import ptBRSegments from './locales/pt-BR/segments.json';
 import ptBRJourney from './locales/pt-BR/journey.json';
@@ -455,6 +464,7 @@ const resources = {
     roles: ptBRRoles,
     tours: ptBRTours,
     tutorials: ptBRTutorials,
+    survey: ptBRSurvey,
     segments: ptBRSegments,
     journey: ptBRJourney,
     campaigns: ptBRCampaigns,
@@ -517,6 +527,7 @@ const resources = {
     roles: ptRoles,
     tours: ptTours,
     tutorials: ptTutorials,
+    survey: ptSurvey,
     segments: ptSegments,
     journey: ptJourney,
     campaigns: ptCampaigns,
@@ -579,6 +590,7 @@ const resources = {
     roles: enRoles,
     tours: enTours,
     tutorials: enTutorials,
+    survey: enSurvey,
     segments: enSegments,
     journey: enJourney,
     campaigns: enCampaigns,
@@ -641,6 +653,7 @@ const resources = {
     roles: esRoles,
     tours: esTours,
     tutorials: esTutorials,
+    survey: esSurvey,
     segments: esSegments,
     journey: esJourney,
     campaigns: esCampaigns,
@@ -703,6 +716,7 @@ const resources = {
     roles: frRoles,
     tours: frTours,
     tutorials: frTutorials,
+    survey: frSurvey,
     segments: frSegments,
     journey: frJourney,
     campaigns: frCampaigns,
@@ -765,6 +779,7 @@ const resources = {
     roles: itRoles,
     tours: itTours,
     tutorials: itTutorials,
+    survey: itSurvey,
     segments: itSegments,
     journey: itJourney,
     campaigns: itCampaigns,

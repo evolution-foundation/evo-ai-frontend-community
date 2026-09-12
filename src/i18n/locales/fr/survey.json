@@ -1,0 +1,24 @@
+{
+  "survey": {
+    "description": "Comment évaluez-vous l'assistance reçue de {{inboxName}} ?",
+    "rating": {
+      "label": "Votre note",
+      "veryDissatisfied": "Très insatisfait",
+      "dissatisfied": "Insatisfait",
+      "neutral": "Neutre",
+      "satisfied": "Satisfait",
+      "verySatisfied": "Très satisfait",
+      "successMessage": "Merci pour votre note ! Elle nous aide à nous améliorer."
+    },
+    "feedback": {
+      "label": "Souhaitez-vous nous en dire plus ?",
+      "placeholder": "Écrivez votre commentaire ici",
+      "buttonText": "Envoyer le commentaire"
+    },
+    "api": {
+      "errorMessage": "Impossible de charger cette enquête. Le lien a peut-être expiré.",
+      "successMessage": "Commentaire envoyé. Merci !",
+      "submitting": "Envoi en cours..."
+    }
+  }
+}

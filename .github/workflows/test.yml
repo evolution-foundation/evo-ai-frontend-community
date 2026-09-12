@@ -231,7 +231,8 @@ jobs:
             src/services/users/usersService.spec.ts \
             src/components/channels/settings/CollaboratorsForm.spec.tsx \
             src/components/channels/settings/helpers/widgetHelpers.spec.ts \
-            src/services/widget/widgetCable.spec.ts
+            src/services/widget/widgetCable.spec.ts \
+            src/pages/Public/Survey/SurveyResponse.spec.tsx
 
   # Lint gate scoped to the files the PR touched.
   eslint:
