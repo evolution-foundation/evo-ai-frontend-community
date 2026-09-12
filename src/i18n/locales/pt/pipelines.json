@@ -432,7 +432,28 @@
     "templatePending": "Aguardando aprovação da Meta",
     "templatesPendingHint": "Os seus templates ainda aguardam aprovação da Meta.",
     "noTemplatesHint": "Nenhum template criado ainda.",
-    "manageTemplates": "Abrir Modelos de Mensagem"
+    "manageTemplates": "Abrir Modelos de Mensagem",
+    "templateSourceLabels": {
+      "generic": "Genérico",
+      "email": "E-mail",
+      "whatsapp_cloud": "WhatsApp"
+    },
+    "variableMapping": {
+      "label": "Variáveis",
+      "choosePath": "Escolha um campo...",
+      "fallbackPlaceholder": "Valor padrão se vazio (opcional)",
+      "fields": {
+        "contact_name": "Nome do contacto",
+        "contact_email": "E-mail do contacto",
+        "contact_phone_number": "Telefone do contacto",
+        "contact_identifier": "Identificador do contacto",
+        "conversation_display_id": "Número da conversa",
+        "conversation_status": "Estado da conversa",
+        "pipeline_pipeline_stage_name": "Nome da etapa",
+        "pipeline_pipeline_name": "Nome do pipeline",
+        "pipeline_entered_at": "Entrou na etapa"
+      }
+    }
   },
   "editStage": {
     "title": "Editar Etapa",

@@ -178,3 +178,224 @@ describe('StageAutomationRules — send_template with pending templates', () => 
     expect(screen.queryByText('stageAutomation.noTemplatesHint')).toBeNull();
   });
 });
+
+// CRM: a WhatsApp Cloud template's {{1}}, {{2}}... placeholders need a source
+// mapped in (contact/conversation/pipeline field) plus a fallback, mirroring
+// the per-variable picker already used by the canvas/flow "send message" node.
+describe('StageAutomationRules — send_template variable mapping', () => {
+  const templateRule = (
+    value: string,
+    overrides: Partial<StageAutomationRule> = {},
+  ): StageAutomationRule => ({
+    ...inactivityRule(60),
+    action: 'send_template',
+    action_value: value,
+    ...overrides,
+  });
+
+  const whatsappTemplate: MessageTemplateOption = {
+    id: 'w1',
+    name: 'boas_vindas_crm',
+    status: 'APPROVED',
+    source: 'whatsapp_cloud',
+    inboxName: 'Support Line',
+    placeholders: ['1', '2'],
+  };
+
+  const genericTemplate: MessageTemplateOption = {
+    id: 'g1',
+    name: 'Welcome',
+    status: 'ACTIVE',
+    source: 'generic',
+    placeholders: [],
+  };
+
+  it('renders one mapping field per placeholder when the selected template has variables', () => {
+    render(
+      <StageAutomationRules
+        rules={[templateRule('w1')]}
+        onChange={vi.fn()}
+        messageTemplates={[whatsappTemplate]}
+      />,
+    );
+
+    expect(screen.getAllByPlaceholderText('stageAutomation.variableMapping.fallbackPlaceholder')).toHaveLength(2);
+  });
+
+  it('renders no mapping fields for a template with no placeholders', () => {
+    render(
+      <StageAutomationRules
+        rules={[templateRule('g1')]}
+        onChange={vi.fn()}
+        messageTemplates={[genericTemplate]}
+      />,
+    );
+
+    expect(
+      screen.queryByPlaceholderText('stageAutomation.variableMapping.fallbackPlaceholder'),
+    ).toBeNull();
+  });
+
+  it('renders no mapping fields when no template is selected yet', () => {
+    render(
+      <StageAutomationRules
+        rules={[templateRule('')]}
+        onChange={vi.fn()}
+        messageTemplates={[whatsappTemplate]}
+      />,
+    );
+
+    expect(
+      screen.queryByPlaceholderText('stageAutomation.variableMapping.fallbackPlaceholder'),
+    ).toBeNull();
+  });
+
+  it('writes the mapped path into action_variables when a field is picked', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <StageAutomationRules
+        rules={[templateRule('w1')]}
+        onChange={onChange}
+        messageTemplates={[whatsappTemplate]}
+      />,
+    );
+
+    const pathCombobox = screen.getAllByRole('combobox').find(
+      cb => cb.textContent === 'stageAutomation.variableMapping.choosePath',
+    );
+    if (!pathCombobox) throw new Error('placeholder field combobox not found');
+    await user.click(pathCombobox);
+    await user.click(screen.getByRole('option', { name: 'stageAutomation.variableMapping.fields.contact_name' }));
+
+    expect(onChange).toHaveBeenCalledWith([
+      expect.objectContaining({
+        action_variables: { '1': '{{contact.name}}' },
+      }),
+    ]);
+  });
+
+  it('writes the fallback text into action_variable_fallbacks', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <StageAutomationRules
+        rules={[templateRule('w1')]}
+        onChange={onChange}
+        messageTemplates={[whatsappTemplate]}
+      />,
+    );
+
+    const fallbackInputs = screen.getAllByPlaceholderText(
+      'stageAutomation.variableMapping.fallbackPlaceholder',
+    );
+    await user.type(fallbackInputs[0], 'x');
+
+    expect(onChange).toHaveBeenCalledWith([
+      expect.objectContaining({
+        action_variable_fallbacks: { '1': 'x' },
+      }),
+    ]);
+  });
+
+  it('labels a WhatsApp Cloud option with its inbox, and a generic one plainly', async () => {
+    const user = userEvent.setup();
+    render(
+      <StageAutomationRules
+        rules={[templateRule('')]}
+        onChange={vi.fn()}
+        messageTemplates={[genericTemplate, whatsappTemplate]}
+      />,
+    );
+
+    const templateCombobox = screen
+      .getAllByRole('combobox')
+      .find(cb => cb.textContent === 'stageAutomation.selectTemplate');
+    if (!templateCombobox) throw new Error('template combobox not found');
+    await user.click(templateCombobox);
+
+    expect(screen.getByRole('option', { name: /stageAutomation\.templateSourceLabels\.generic.*Welcome/ })).toBeTruthy();
+    expect(
+      screen.getByRole('option', {
+        name: /stageAutomation\.templateSourceLabels\.whatsapp_cloud.*Support Line.*boas_vindas_crm/,
+      }),
+    ).toBeTruthy();
+  });
+
+  // Bug: {{1}} in template A ("contact.name") and {{1}} in template B (e.g.
+  // an order number) are unrelated. Switching the selected template must not
+  // let B silently inherit A's stale mapping by key coincidence.
+  const otherWhatsappTemplate: MessageTemplateOption = {
+    id: 'w2',
+    name: 'order_update',
+    status: 'APPROVED',
+    source: 'whatsapp_cloud',
+    inboxName: 'Support Line',
+    placeholders: ['1'],
+  };
+
+  it('clears action_variables/action_variable_fallbacks when the template selection changes', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <StageAutomationRules
+        rules={[
+          templateRule('w1', {
+            action_variables: { '1': '{{contact.name}}', '2': '{{contact.email}}' },
+            action_variable_fallbacks: { '1': 'x' },
+          }),
+        ]}
+        onChange={onChange}
+        messageTemplates={[whatsappTemplate, otherWhatsappTemplate]}
+      />,
+    );
+
+    const templateCombobox = screen
+      .getAllByRole('combobox')
+      .find(cb => /boas_vindas_crm/.test(cb.textContent ?? ''));
+    if (!templateCombobox) throw new Error('template combobox not found');
+    await user.click(templateCombobox);
+    await user.click(screen.getByRole('option', { name: /order_update/ }));
+
+    expect(onChange).toHaveBeenCalledWith([
+      expect.objectContaining({
+        action_value: 'w2',
+        action_variables: undefined,
+        action_variable_fallbacks: undefined,
+      }),
+    ]);
+  });
+
+  it('clears action_variables/action_variable_fallbacks when switching the action away from send_template', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <StageAutomationRules
+        rules={[
+          templateRule('w1', {
+            action_variables: { '1': '{{contact.name}}' },
+            action_variable_fallbacks: { '1': 'x' },
+          }),
+        ]}
+        onChange={onChange}
+        messageTemplates={[whatsappTemplate]}
+      />,
+    );
+
+    const actionCombobox = screen
+      .getAllByRole('combobox')
+      .find(cb => cb.textContent === 'stageAutomation.actions.send_template');
+    if (!actionCombobox) throw new Error('action-type combobox not found');
+    await user.click(actionCombobox);
+    await user.click(screen.getByRole('option', { name: 'stageAutomation.actions.send_direct_message' }));
+
+    expect(onChange).toHaveBeenCalledWith([
+      expect.objectContaining({
+        action: 'send_direct_message',
+        action_value: '',
+        action_variables: undefined,
+        action_variable_fallbacks: undefined,
+      }),
+    ]);
+  });
+});

@@ -37,6 +37,14 @@ export interface StageAutomationRule {
   action_value: string;
   // Optional suggested text passed to the AI for the send_ai_message action.
   ai_message?: string;
+  // For send_template only: maps a template placeholder key (e.g. "1" for a
+  // WhatsApp {{1}} placeholder, or a named key for a generic template's
+  // {{var}}) to a literal string containing an embedded {{path}} token, e.g.
+  // "1": "{{contact.name}}". The backend allowlists which paths are valid.
+  action_variables?: Record<string, string>;
+  // Same keys as action_variables: plain fallback text (no {{}}) used when
+  // the mapped path resolves empty.
+  action_variable_fallbacks?: Record<string, string>;
 }
 
 export interface PipelinesResponse extends PaginatedResponse<Pipeline> {}

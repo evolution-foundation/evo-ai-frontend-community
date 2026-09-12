@@ -21,6 +21,7 @@ import type {
 } from '@/types/analytics/pipelines';
 import type { PipelineStage } from '@/types/analytics';
 import type { Label } from '@/types/settings/labels';
+import type { MessageTemplateOption } from '@/services/messageTemplates/combinedTemplateOptions';
 
 interface Agent {
   id: string;
@@ -34,14 +35,9 @@ export interface AgentBotOption {
   name: string;
 }
 
-export interface MessageTemplateOption {
-  id: string;
-  name: string;
-  language?: string;
-  /** Provider approval status (WhatsApp Cloud): 'PENDING' renders disabled with a
-   *  "waiting for Meta approval" note instead of vanishing into "no templates". */
-  status?: string;
-}
+// Re-exported for back-compat with existing imports of this component's
+// module — the canonical definition lives with the fetch/merge logic.
+export type { MessageTemplateOption };
 
 export interface PipelineWithStages {
   id: string;
@@ -88,6 +84,41 @@ const DAY_LABEL_FROM_MINUTES = 7 * MINUTES_PER_DAY;
 
 const ANY_VALUE_SENTINEL = '__any__';
 const PLACEHOLDER_SENTINEL = '__placeholder__';
+
+// EVO: curated field paths for the send_template variable-mapping picker —
+// mirrors SOURCE_FIELD_PATHS in the canvas/flow SendMessageContent, which
+// every path here must stay resolvable against (the backend allowlists the
+// same set for action_variables).
+const VARIABLE_MAPPING_PATHS = [
+  'contact.name',
+  'contact.email',
+  'contact.phone_number',
+  'contact.identifier',
+  'conversation.display_id',
+  'conversation.status',
+  'pipeline.pipeline_stage.name',
+  'pipeline.pipeline.name',
+  'pipeline.entered_at',
+] as const;
+
+// A stale send_template variable mapping is keyed by placeholder position
+// ("1", "2"...), which is coincidental across templates — template A's {{1}}
+// meaning contact.name says nothing about template B's {{1}}. Spread this
+// into the patch whenever the selected template (or the action itself)
+// changes, so a new/different template never inherits the old mapping.
+const CLEAR_TEMPLATE_VARIABLES: Pick<StageAutomationRule, 'action_variables' | 'action_variable_fallbacks'> = {
+  action_variables: undefined,
+  action_variable_fallbacks: undefined,
+};
+
+// A generic/email template has no known channel — labeled plainly. A
+// WhatsApp Cloud template is bound to one inbox, so the label also carries
+// the inbox name (several inboxes may share a template name).
+function templateOptionLabel(tpl: MessageTemplateOption, t: (key: string) => string): string {
+  const sourceLabel = t(`stageAutomation.templateSourceLabels.${tpl.source ?? 'generic'}`);
+  const inboxPart = tpl.inboxName ? ` · ${tpl.inboxName}` : '';
+  return `${sourceLabel}${inboxPart}: ${tpl.name}`;
+}
 
 // trigger_value is an object for the inactivity trigger, a string otherwise.
 function asInactivityValue(value: StageAutomationRule['trigger_value']): InactivityTriggerValue {
@@ -524,11 +555,31 @@ export default function StageAutomationRules({
       const pendingOnly =
         messageTemplates.length > 0 && messageTemplates.every(tpl => tpl.status === 'PENDING');
       const showHint = messageTemplates.length === 0 || pendingOnly;
+      const selectedTemplate = messageTemplates.find(tpl => tpl.id === rule.action_value);
+      const placeholders = selectedTemplate?.placeholders ?? [];
+      const actionVariables = rule.action_variables ?? {};
+      const actionVariableFallbacks = rule.action_variable_fallbacks ?? {};
+
+      // "{{path}}" is embedded literally into the stored value — the backend
+      // resolves it at send time; an empty selection clears the key instead
+      // of writing a broken "{{}}" token.
+      const setVariablePath = (key: string, path: string) => {
+        updateRule(index, {
+          action_variables: { ...actionVariables, [key]: path ? `{{${path}}}` : '' },
+        });
+      };
+
+      const setVariableFallback = (key: string, fallback: string) => {
+        updateRule(index, {
+          action_variable_fallbacks: { ...actionVariableFallbacks, [key]: fallback },
+        });
+      };
+
       return (
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 space-y-3">
           <Select
             value={rule.action_value || ''}
-            onValueChange={v => updateRule(index, { action_value: v })}
+            onValueChange={v => updateRule(index, { action_value: v, ...CLEAR_TEMPLATE_VARIABLES })}
             disabled={disabled}
           >
             <SelectTrigger className="w-full">
@@ -542,7 +593,7 @@ export default function StageAutomationRules({
               ) : (
                 messageTemplates.map(tpl => (
                   <SelectItem key={tpl.id} value={tpl.id} disabled={tpl.status === 'PENDING'}>
-                    {tpl.name}
+                    {templateOptionLabel(tpl, t)}
                     {tpl.language ? ` (${tpl.language})` : ''}
                     {tpl.status === 'PENDING' ? ` (${t('stageAutomation.templatePending')})` : ''}
                   </SelectItem>
@@ -551,7 +602,7 @@ export default function StageAutomationRules({
             </SelectContent>
           </Select>
           {showHint && (
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {pendingOnly
                 ? t('stageAutomation.templatesPendingHint')
                 : t('stageAutomation.noTemplatesHint')}{' '}
@@ -563,6 +614,43 @@ export default function StageAutomationRules({
                 {t('stageAutomation.manageTemplates')}
               </button>
             </p>
+          )}
+          {placeholders.length > 0 && (
+            <div className="space-y-2 border-t pt-2">
+              <p className="text-xs text-muted-foreground font-medium">
+                {t('stageAutomation.variableMapping.label')}
+              </p>
+              {placeholders.map(key => {
+                const path = (actionVariables[key] ?? '').replace(/^\{\{|\}\}$/g, '');
+                return (
+                  <div key={key} className="flex gap-2">
+                    <Select
+                      value={path}
+                      onValueChange={v => setVariablePath(key, v)}
+                      disabled={disabled}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder={t('stageAutomation.variableMapping.choosePath')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {VARIABLE_MAPPING_PATHS.map(p => (
+                          <SelectItem key={p} value={p}>
+                            {t(`stageAutomation.variableMapping.fields.${p.replace(/\./g, '_')}`)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      className="flex-1"
+                      placeholder={t('stageAutomation.variableMapping.fallbackPlaceholder')}
+                      value={actionVariableFallbacks[key] ?? ''}
+                      onChange={e => setVariableFallback(key, e.target.value)}
+                      disabled={disabled}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
       );
@@ -646,7 +734,13 @@ export default function StageAutomationRules({
               <div className="flex gap-2">
                 <Select
                   value={rule.action}
-                  onValueChange={v => updateRule(index, { action: v as StageAutomationAction, action_value: '' })}
+                  onValueChange={v =>
+                    updateRule(index, {
+                      action: v as StageAutomationAction,
+                      action_value: '',
+                      ...CLEAR_TEMPLATE_VARIABLES,
+                    })
+                  }
                   disabled={disabled}
                 >
                   <SelectTrigger className="w-[200px]">

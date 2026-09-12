@@ -27,7 +27,7 @@ import type { Label as ConversationLabel } from '@/types/settings/labels';
 import { labelsService } from '@/services/contacts/labelsService';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import agentBotsService from '@/services/channels/agentBotsService';
-import globalMessageTemplatesService from '@/services/messageTemplates/globalMessageTemplatesService';
+import { fetchCombinedTemplateOptions } from '@/services/messageTemplates/combinedTemplateOptions';
 import type { AgentBotOption, MessageTemplateOption } from './StageAutomationRules';
 import { LocalAttributeDefinition, LocalAttributeDefinitionPayload } from '@/types/pipelines/localAttributeDefinition';
 import PipelineStageCustomAttributes from './PipelineStageCustomAttributes';
@@ -112,8 +112,10 @@ export default function EditStageModal({
     };
   }, [open]);
 
-  // Agent bots (for send_ai_message) and channel-less templates (for
-  // send_template). These are the real AgentBot records, not human assignees.
+  // Agent bots (for send_ai_message) and the combined template list — both
+  // channel-less (generic/email) and per-inbox WhatsApp Cloud templates —
+  // for send_template. Agent bots are the real AgentBot records, not human
+  // assignees.
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
@@ -128,18 +130,9 @@ export default function EditStageModal({
         if (!cancelled) setAgentBots([]);
       });
 
-    globalMessageTemplatesService
-      .getTemplates()
-      .then(res => {
-        if (cancelled) return;
-        setMessageTemplates(
-          (res.data ?? []).map(tpl => ({
-            id: String(tpl.id),
-            name: tpl.name,
-            language: tpl.language,
-            status: tpl.status,
-          })),
-        );
+    fetchCombinedTemplateOptions()
+      .then(options => {
+        if (!cancelled) setMessageTemplates(options);
       })
       .catch(() => {
         if (!cancelled) setMessageTemplates([]);
