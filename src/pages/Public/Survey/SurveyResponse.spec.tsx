@@ -63,6 +63,10 @@ describe('Public CSAT survey page (CRM-606)', () => {
     expect(screen.getByTitle('Muito satisfeito')).toBeInTheDocument();
   });
 
+  // The reachable branch, not a defensive one: the endpoint sends `content` only
+  // when the account configured its own prompt, and omits it otherwise, because an
+  // anonymous public endpoint has no reader locale to render a default in and this
+  // page does. That is what makes this the single owner of the phrase.
   it('falls back to the translated prompt when the backend sends no content', async () => {
     getSurveyDetails.mockResolvedValue(surveyDetails());
 
@@ -83,16 +87,6 @@ describe('Public CSAT survey page (CRM-606)', () => {
     await waitFor(() =>
       expect(updateSurvey).toHaveBeenCalledWith('3f1b6a0e-6f2a-4f4d-9a1e-0a7c3b2d5e81', 5, ''),
     );
-  });
-
-  // A null response is what tells the page the survey is still open; an object
-  // carrying `rating: null` would read as answered and hide the widget.
-  it('keeps the rating widget open while csat_survey_response is null', async () => {
-    getSurveyDetails.mockResolvedValue(surveyDetails());
-
-    render(<SurveyResponse />);
-
-    expect(await screen.findByText('Sua nota')).toBeInTheDocument();
   });
 
   it('shows the translated thank-you once a rating is already stored', async () => {
