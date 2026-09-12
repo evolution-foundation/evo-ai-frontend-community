@@ -200,6 +200,7 @@ describe('StageAutomationRules — send_template variable mapping', () => {
     source: 'whatsapp_cloud',
     inboxName: 'Support Line',
     placeholders: ['1', '2'],
+    content: 'Olá, {{1}}! Sua assinatura foi confirmada. {{2}}',
   };
 
   const genericTemplate: MessageTemplateOption = {
@@ -220,6 +221,21 @@ describe('StageAutomationRules — send_template variable mapping', () => {
     );
 
     expect(screen.getAllByPlaceholderText('stageAutomation.variableMapping.fallbackPlaceholder')).toHaveLength(2);
+  });
+
+  it('shows the template body so the user can see what each placeholder replaces', () => {
+    const { container } = render(
+      <StageAutomationRules
+        rules={[templateRule('w1')]}
+        onChange={vi.fn()}
+        messageTemplates={[whatsappTemplate]}
+      />,
+    );
+
+    // Placeholders render as separate highlighted <strong> nodes, so the
+    // template body is split across several text nodes — assert on the
+    // container's concatenated text rather than a single getByText match.
+    expect(container.textContent).toContain('Olá, {{1}}! Sua assinatura foi confirmada. {{2}}');
   });
 
   it('renders no mapping fields for a template with no placeholders', () => {

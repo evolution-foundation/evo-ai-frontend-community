@@ -28,6 +28,22 @@ interface Agent {
   name: string;
 }
 
+const TEMPLATE_PLACEHOLDER_PATTERN = /(\{\{[^{}]+\}\})/g;
+
+// Highlights {{1}}, {{var}}, etc. so the user can tell, at a glance, which
+// word in the template body each mapping field below is replacing.
+function renderTemplateContentWithHighlightedPlaceholders(content: string) {
+  return content.split(TEMPLATE_PLACEHOLDER_PATTERN).map((part, i) =>
+    part.startsWith('{{') ? (
+      <strong key={i} className="text-foreground font-semibold">
+        {part}
+      </strong>
+    ) : (
+      <span key={i}>{part}</span>
+    ),
+  );
+}
+
 // Minimal shapes the picker needs — the parent modal passes these in (agent
 // bots come from agentBotsService.getAll, NOT the human-assignee list).
 export interface AgentBotOption {
@@ -620,6 +636,11 @@ export default function StageAutomationRules({
               <p className="text-xs text-muted-foreground font-medium">
                 {t('stageAutomation.variableMapping.label')}
               </p>
+              {selectedTemplate?.content && (
+                <p className="text-xs text-muted-foreground bg-muted/50 rounded-md p-2 whitespace-pre-wrap">
+                  {renderTemplateContentWithHighlightedPlaceholders(selectedTemplate.content)}
+                </p>
+              )}
               {placeholders.map(key => {
                 const path = (actionVariables[key] ?? '').replace(/^\{\{|\}\}$/g, '');
                 return (

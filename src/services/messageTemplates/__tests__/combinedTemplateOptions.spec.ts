@@ -25,13 +25,15 @@ describe('fetchCombinedTemplateOptions', () => {
   it('merges channel-less templates with WhatsApp Cloud inbox templates', async () => {
     globalTemplatesMock.getTemplates.mockResolvedValue({
       success: true,
-      data: [{ id: 'g1', name: 'Welcome', language: 'en', status: 'ACTIVE', settings: {} }],
+      data: [{ id: 'g1', name: 'Welcome', language: 'en', status: 'ACTIVE', content: 'Hi {{1}}!', settings: {} }],
     });
     inboxesMock.list.mockResolvedValue({
       success: true,
       data: [
-        { id: 'ib1', name: 'Support Line', channel_type: 'Channel::WhatsappCloud' },
-        { id: 'ib2', name: 'Old Number', channel_type: 'Channel::Whatsapp' },
+        // Real API shape: every WhatsApp inbox (Cloud or not) shares the same
+        // STI channel_type — the provider field is what tells them apart.
+        { id: 'ib1', name: 'Support Line', channel_type: 'Channel::Whatsapp', provider: 'whatsapp_cloud' },
+        { id: 'ib2', name: 'Old Number', channel_type: 'Channel::Whatsapp', provider: 'evolution' },
       ],
     });
     channelTemplatesMock.getTemplates.mockResolvedValue({
@@ -42,6 +44,7 @@ describe('fetchCombinedTemplateOptions', () => {
           name: 'boas_vindas_crm',
           language: 'pt_BR',
           status: 'APPROVED',
+          content: 'Olá, {{1}}! Sua assinatura foi confirmada. {{2}}',
           variables: [{ name: '1' }, { name: '2' }],
         },
       ],
@@ -57,6 +60,7 @@ describe('fetchCombinedTemplateOptions', () => {
         status: 'ACTIVE',
         source: 'generic',
         placeholders: [],
+        content: 'Hi {{1}}!',
       },
       {
         id: 'w1',
@@ -67,11 +71,12 @@ describe('fetchCombinedTemplateOptions', () => {
         inboxId: 'ib1',
         inboxName: 'Support Line',
         placeholders: ['1', '2'],
+        content: 'Olá, {{1}}! Sua assinatura foi confirmada. {{2}}',
       },
     ]);
 
-    // Only the WhatsApp Cloud inbox is queried for templates — a legacy
-    // Channel::Whatsapp inbox is out of scope for this feature.
+    // Only the WhatsApp Cloud inbox is queried for templates — a non-Cloud
+    // (e.g. Evolution) WhatsApp provider is out of scope for this feature.
     expect(channelTemplatesMock.getTemplates).toHaveBeenCalledTimes(1);
     expect(channelTemplatesMock.getTemplates).toHaveBeenCalledWith('ib1');
   });
@@ -115,7 +120,7 @@ describe('fetchCombinedTemplateOptions', () => {
       }
       return Promise.resolve({
         success: true,
-        data: [{ id: 'ib1', name: 'Support Line', channel_type: 'Channel::WhatsappCloud' }],
+        data: [{ id: 'ib1', name: 'Support Line', channel_type: 'Channel::Whatsapp', provider: 'whatsapp_cloud' }],
         meta: { pagination: { page: 2, page_size: 1, total: 2, total_pages: 2 } },
       });
     });

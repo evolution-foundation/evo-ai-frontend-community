@@ -4,7 +4,13 @@ import messageTemplatesService from '@/services/channels/messageTemplatesService
 import type { MessageTemplate } from '@/types/channels/inbox';
 import type { Inbox } from '@/types/channels/inbox';
 
-const WHATSAPP_CLOUD_CHANNEL_TYPE = 'Channel::WhatsappCloud';
+// Every WhatsApp inbox — Cloud or not — shares the single STI channel_type
+// 'Channel::Whatsapp'; only the channel's `provider` field distinguishes a
+// Meta-approved Cloud connection from Evolution/Z-API/360dialog/etc. (both
+// STI spellings exist across the codebase, see SendMessagePanel.tsx).
+const isWhatsappCloudInbox = (inbox: Inbox) =>
+  inbox.channel_type === 'Channel::WhatsappCloud' ||
+  (inbox.channel_type === 'Channel::Whatsapp' && inbox.provider === 'whatsapp_cloud');
 
 /**
  * A template option for the stage-automation "send_template" picker, merged
@@ -26,6 +32,9 @@ export interface MessageTemplateOption {
   inboxId?: string;
   inboxName?: string;
   placeholders?: string[];
+  /** Raw template body (with {{1}}/{{var}} placeholders intact), shown next
+   *  to the variable-mapping fields so the user sees what each one replaces. */
+  content?: string;
 }
 
 const toGenericOption = (tpl: MessageTemplate): MessageTemplateOption => ({
@@ -35,6 +44,7 @@ const toGenericOption = (tpl: MessageTemplate): MessageTemplateOption => ({
   status: tpl.status,
   source: inferTemplateProvider(tpl),
   placeholders: (tpl.variables ?? []).map(v => v.name),
+  content: tpl.content,
 });
 
 const toWhatsappOption = (tpl: MessageTemplate, inbox: Inbox): MessageTemplateOption => ({
@@ -46,6 +56,7 @@ const toWhatsappOption = (tpl: MessageTemplate, inbox: Inbox): MessageTemplateOp
   inboxId: inbox.id,
   inboxName: inbox.name,
   placeholders: (tpl.variables ?? []).map(v => v.name),
+  content: tpl.content,
 });
 
 /**
@@ -83,7 +94,7 @@ export async function fetchCombinedTemplateOptions(): Promise<MessageTemplateOpt
 
   const whatsappInboxes: Inbox[] =
     inboxesResult.status === 'fulfilled'
-      ? inboxesResult.value.filter(inbox => inbox.channel_type === WHATSAPP_CLOUD_CHANNEL_TYPE)
+      ? inboxesResult.value.filter(isWhatsappCloudInbox)
       : [];
 
   const templatesPerInbox = await Promise.allSettled(
