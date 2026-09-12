@@ -56,7 +56,7 @@ describe('EditStageModal — template sourcing (WhatsApp Cloud fix)', () => {
       {
         id: 'w1',
         name: 'boas_vindas_crm',
-        source: 'whatsapp_cloud',
+        source: 'whatsapp',
         inboxName: 'Support Line',
         placeholders: ['1'],
       },
@@ -84,7 +84,7 @@ describe('EditStageModal — template sourcing (WhatsApp Cloud fix)', () => {
       {
         id: 'w1',
         name: 'boas_vindas_crm',
-        source: 'whatsapp_cloud',
+        source: 'whatsapp',
         inboxName: 'Support Line',
         placeholders: ['1'],
       },

@@ -31,23 +31,37 @@ describe('fetchCombinedTemplateOptions', () => {
       success: true,
       data: [
         // Real API shape: every WhatsApp inbox (Cloud or not) shares the same
-        // STI channel_type — the provider field is what tells them apart.
+        // STI channel_type — the provider field only tells them apart, it
+        // doesn't gate which ones can have templates (Evolution/Z-API/etc.
+        // inboxes have real per-channel templates too, same as Cloud).
         { id: 'ib1', name: 'Support Line', channel_type: 'Channel::Whatsapp', provider: 'whatsapp_cloud' },
         { id: 'ib2', name: 'Old Number', channel_type: 'Channel::Whatsapp', provider: 'evolution' },
+        { id: 'ib3', name: 'Support Email', channel_type: 'Channel::Email' },
       ],
     });
-    channelTemplatesMock.getTemplates.mockResolvedValue({
-      success: true,
-      data: [
-        {
-          id: 'w1',
-          name: 'boas_vindas_crm',
-          language: 'pt_BR',
-          status: 'APPROVED',
-          content: 'Olá, {{1}}! Sua assinatura foi confirmada. {{2}}',
-          variables: [{ name: '1' }, { name: '2' }],
-        },
-      ],
+    channelTemplatesMock.getTemplates.mockImplementation((inboxId: string) => {
+      if (inboxId === 'ib1') {
+        return Promise.resolve({
+          success: true,
+          data: [
+            {
+              id: 'w1',
+              name: 'boas_vindas_crm',
+              language: 'pt_BR',
+              status: 'APPROVED',
+              content: 'Olá, {{1}}! Sua assinatura foi confirmada. {{2}}',
+              variables: [{ name: '1' }, { name: '2' }],
+            },
+          ],
+        });
+      }
+      if (inboxId === 'ib2') {
+        return Promise.resolve({
+          success: true,
+          data: [{ id: 'w2', name: 'lead_abertura', language: 'pt_BR', variables: [] }],
+        });
+      }
+      return Promise.resolve({ success: true, data: [] });
     });
 
     const options = await fetchCombinedTemplateOptions();
@@ -67,18 +81,30 @@ describe('fetchCombinedTemplateOptions', () => {
         name: 'boas_vindas_crm',
         language: 'pt_BR',
         status: 'APPROVED',
-        source: 'whatsapp_cloud',
+        source: 'whatsapp',
         inboxId: 'ib1',
         inboxName: 'Support Line',
         placeholders: ['1', '2'],
         content: 'Olá, {{1}}! Sua assinatura foi confirmada. {{2}}',
       },
+      {
+        id: 'w2',
+        name: 'lead_abertura',
+        language: 'pt_BR',
+        status: undefined,
+        source: 'whatsapp',
+        inboxId: 'ib2',
+        inboxName: 'Old Number',
+        placeholders: [],
+        content: undefined,
+      },
     ]);
 
-    // Only the WhatsApp Cloud inbox is queried for templates — a non-Cloud
-    // (e.g. Evolution) WhatsApp provider is out of scope for this feature.
-    expect(channelTemplatesMock.getTemplates).toHaveBeenCalledTimes(1);
+    // Every WhatsApp inbox is queried for templates, Cloud or not — only a
+    // non-WhatsApp inbox (e.g. Email) is out of scope for this feature.
+    expect(channelTemplatesMock.getTemplates).toHaveBeenCalledTimes(2);
     expect(channelTemplatesMock.getTemplates).toHaveBeenCalledWith('ib1');
+    expect(channelTemplatesMock.getTemplates).toHaveBeenCalledWith('ib2');
   });
 
   it('resolves to the generic list alone when there are no WhatsApp Cloud inboxes', async () => {

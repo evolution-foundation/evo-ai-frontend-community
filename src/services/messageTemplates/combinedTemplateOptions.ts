@@ -4,31 +4,34 @@ import messageTemplatesService from '@/services/channels/messageTemplatesService
 import type { MessageTemplate } from '@/types/channels/inbox';
 import type { Inbox } from '@/types/channels/inbox';
 
-// Every WhatsApp inbox — Cloud or not — shares the single STI channel_type
-// 'Channel::Whatsapp'; only the channel's `provider` field distinguishes a
-// Meta-approved Cloud connection from Evolution/Z-API/360dialog/etc. (both
-// STI spellings exist across the codebase, see SendMessagePanel.tsx).
-const isWhatsappCloudInbox = (inbox: Inbox) =>
-  inbox.channel_type === 'Channel::WhatsappCloud' ||
-  (inbox.channel_type === 'Channel::Whatsapp' && inbox.provider === 'whatsapp_cloud');
+// Per-channel templates aren't a Cloud-only concept: an Evolution/Z-API/
+// 360dialog/etc. WhatsApp inbox has real templates too (see the account-level
+// "Automation Rules" screen, useAutomationFormData.ts, which already queries
+// every inbox with no provider filter at all). Every WhatsApp inbox — Cloud
+// or not — shares the single STI channel_type 'Channel::Whatsapp' (both STI
+// spellings exist across the codebase, see SendMessagePanel.tsx).
+const isWhatsappInbox = (inbox: Inbox) =>
+  inbox.channel_type === 'Channel::WhatsappCloud' || inbox.channel_type === 'Channel::Whatsapp';
 
 /**
  * A template option for the stage-automation "send_template" picker, merged
  * from two sources: channel-less (generic/email) templates and, per-inbox,
- * WhatsApp Cloud (Meta-approved) templates. `source`/`inboxName` let the UI
- * label each option unambiguously (e.g. "WhatsApp · Support Line: tpl_name")
- * and `placeholders` carries the keys a variable-mapping UI needs to render
- * one field per template variable ("1", "2"... for WhatsApp Cloud; named
- * keys for a generic template).
+ * every WhatsApp inbox's templates (Cloud/Meta-approved or not — Evolution,
+ * Z-API, 360dialog, etc. inboxes have real per-channel templates too).
+ * `source`/`inboxName` let the UI label each option unambiguously (e.g.
+ * "WhatsApp · Support Line: tpl_name") and `placeholders` carries the keys a
+ * variable-mapping UI needs to render one field per template variable ("1",
+ * "2"... for WhatsApp; named keys for a generic template).
  */
 export interface MessageTemplateOption {
   id: string;
   name: string;
   language?: string;
-  /** Provider approval status (WhatsApp Cloud): 'PENDING' renders disabled with a
-   *  "waiting for Meta approval" note instead of vanishing into "no templates". */
+  /** Provider approval status: only WhatsApp Cloud (Meta) templates have a
+   *  real approval workflow — 'PENDING' renders disabled with a "waiting for
+   *  Meta approval" note instead of vanishing into "no templates". */
   status?: string;
-  source?: 'generic' | 'email' | 'whatsapp_cloud';
+  source?: 'generic' | 'email' | 'whatsapp';
   inboxId?: string;
   inboxName?: string;
   placeholders?: string[];
@@ -52,7 +55,7 @@ const toWhatsappOption = (tpl: MessageTemplate, inbox: Inbox): MessageTemplateOp
   name: tpl.name,
   language: tpl.language,
   status: tpl.status,
-  source: 'whatsapp_cloud',
+  source: 'whatsapp',
   inboxId: inbox.id,
   inboxName: inbox.name,
   placeholders: (tpl.variables ?? []).map(v => v.name),
@@ -79,9 +82,9 @@ async function fetchAllInboxes(): Promise<Inbox[]> {
 
 /**
  * Fetch the combined template list for the stage-automation "send_template"
- * picker: channel-less templates (generic/email) plus every WhatsApp Cloud
- * inbox's approved/pending templates. Individual fetch failures are
- * swallowed (best-effort merge) rather than failing the whole picker.
+ * picker: channel-less templates (generic/email) plus every WhatsApp inbox's
+ * templates, Cloud or not. Individual fetch failures are swallowed
+ * (best-effort merge) rather than failing the whole picker.
  */
 export async function fetchCombinedTemplateOptions(): Promise<MessageTemplateOption[]> {
   const [genericResult, inboxesResult] = await Promise.allSettled([
@@ -94,7 +97,7 @@ export async function fetchCombinedTemplateOptions(): Promise<MessageTemplateOpt
 
   const whatsappInboxes: Inbox[] =
     inboxesResult.status === 'fulfilled'
-      ? inboxesResult.value.filter(isWhatsappCloudInbox)
+      ? inboxesResult.value.filter(isWhatsappInbox)
       : [];
 
   const templatesPerInbox = await Promise.allSettled(

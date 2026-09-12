@@ -450,7 +450,7 @@
     "templateSourceLabels": {
       "generic": "Genérico",
       "email": "E-mail",
-      "whatsapp_cloud": "WhatsApp"
+      "whatsapp": "WhatsApp"
     },
     "variableMapping": {
       "label": "Variáveis",

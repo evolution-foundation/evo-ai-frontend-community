@@ -197,7 +197,7 @@ describe('StageAutomationRules — send_template variable mapping', () => {
     id: 'w1',
     name: 'boas_vindas_crm',
     status: 'APPROVED',
-    source: 'whatsapp_cloud',
+    source: 'whatsapp',
     inboxName: 'Support Line',
     placeholders: ['1', '2'],
     content: 'Olá, {{1}}! Sua assinatura foi confirmada. {{2}}',
@@ -333,7 +333,7 @@ describe('StageAutomationRules — send_template variable mapping', () => {
     expect(screen.getByRole('option', { name: /stageAutomation\.templateSourceLabels\.generic.*Welcome/ })).toBeTruthy();
     expect(
       screen.getByRole('option', {
-        name: /stageAutomation\.templateSourceLabels\.whatsapp_cloud.*Support Line.*boas_vindas_crm/,
+        name: /stageAutomation\.templateSourceLabels\.whatsapp.*Support Line.*boas_vindas_crm/,
       }),
     ).toBeTruthy();
   });
@@ -345,7 +345,7 @@ describe('StageAutomationRules — send_template variable mapping', () => {
     id: 'w2',
     name: 'order_update',
     status: 'APPROVED',
-    source: 'whatsapp_cloud',
+    source: 'whatsapp',
     inboxName: 'Support Line',
     placeholders: ['1'],
   };
