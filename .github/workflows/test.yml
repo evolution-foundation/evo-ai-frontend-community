@@ -170,6 +170,7 @@ jobs:
             src/components/users/UserFormModal.spec.tsx \
             src/utils/apiHelpers.spec.ts \
             src/hooks/channels/useChannelSubmission.spec.ts \
+            src/services/channels/evolutionService.spec.ts \
             src/hooks/channels/useChannelValidation.spec.ts \
             src/hooks/channels/useLiveChannelStatus.spec.ts \
             src/utils/channelStatus.spec.ts \

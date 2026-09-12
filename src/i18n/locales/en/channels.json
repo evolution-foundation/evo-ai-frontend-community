@@ -220,7 +220,13 @@
       "selectProvider": "Select a provider to continue",
       "selectEmailProvider": "Select an email provider to continue",
       "selectSmsProvider": "Select an SMS provider to continue",
-      "testConnectionFirst": "You must test the connection before saving"
+      "testConnectionFirst": "You must test the connection before saving",
+      "apiUrlRequired": "API URL is required",
+      "evolutionHealthFailed": "Connection check failed. Verify that the Evolution API URL is correct and reachable.",
+      "connectionVerified": "Connection verified successfully",
+      "connectionTestFailed": "Connection test failed",
+      "channelCreated": "Channel created successfully",
+      "channelCreateFailed": "Failed to create channel"
     },
     "success": {
       "channelCreated": "Channel created successfully!",
