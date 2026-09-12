@@ -1,0 +1,24 @@
+{
+  "survey": {
+    "description": "Como você avalia o atendimento que recebeu de {{inboxName}}?",
+    "rating": {
+      "label": "Sua nota",
+      "veryDissatisfied": "Muito insatisfeito",
+      "dissatisfied": "Insatisfeito",
+      "neutral": "Neutro",
+      "satisfied": "Satisfeito",
+      "verySatisfied": "Muito satisfeito",
+      "successMessage": "Obrigado pela sua nota! Ela nos ajuda a melhorar."
+    },
+    "feedback": {
+      "label": "Quer contar mais alguma coisa?",
+      "placeholder": "Escreva seu comentário aqui",
+      "buttonText": "Enviar comentário"
+    },
+    "api": {
+      "errorMessage": "Não foi possível carregar esta avaliação. O link pode ter expirado.",
+      "successMessage": "Comentário enviado. Obrigado!",
+      "submitting": "Enviando..."
+    }
+  }
+}

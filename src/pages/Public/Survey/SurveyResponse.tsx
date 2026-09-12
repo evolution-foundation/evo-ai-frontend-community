@@ -7,12 +7,15 @@ import { surveyService } from '@/services/public/surveyService';
 import { SurveyDetails } from '@/types/core/survey';
 import { Button } from '@evoapi/design-system';
 
+// `label` is already the translated string, not a key: passing it back through
+// t() would resolve a second time, and a label carrying the ':' separator would
+// come back with everything before it stripped as a namespace.
 const getEmojiRatings = (t: any) => [
-  { value: 1, icon: Frown, labelKey: t('survey.rating.veryDissatisfied'), color: 'text-red-500' },
-  { value: 2, icon: Frown, labelKey: t('survey.rating.dissatisfied'), color: 'text-orange-400' },
-  { value: 3, icon: Meh, labelKey: t('survey.rating.neutral'), color: 'text-yellow-500' },
-  { value: 4, icon: Smile, labelKey: t('survey.rating.satisfied'), color: 'text-green-400' },
-  { value: 5, icon: Smile, labelKey: t('survey.rating.verySatisfied'), color: 'text-green-500' },
+  { value: 1, icon: Frown, label: t('survey.rating.veryDissatisfied'), color: 'text-red-500' },
+  { value: 2, icon: Frown, label: t('survey.rating.dissatisfied'), color: 'text-orange-400' },
+  { value: 3, icon: Meh, label: t('survey.rating.neutral'), color: 'text-yellow-500' },
+  { value: 4, icon: Smile, label: t('survey.rating.satisfied'), color: 'text-green-400' },
+  { value: 5, icon: Smile, label: t('survey.rating.verySatisfied'), color: 'text-green-500' },
 ];
 
 const SurveyResponse = () => {
@@ -166,7 +169,7 @@ const SurveyResponse = () => {
                 {t('survey.rating.label')}
               </label>
               <div className="flex justify-between gap-2">
-                {getEmojiRatings(t).map(({ value, icon: Icon, labelKey, color }) => (
+                {getEmojiRatings(t).map(({ value, icon: Icon, label, color }) => (
                   <button
                     key={value}
                     onClick={() => handleRatingSelect(value)}
@@ -176,7 +179,7 @@ const SurveyResponse = () => {
                         ? 'border-primary bg-primary/10'
                         : 'border-border hover:border-primary/50'
                     } ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                    title={t(labelKey)}
+                    title={label}
                   >
                     <Icon
                       className={`w-8 h-8 ${

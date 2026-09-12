@@ -1,0 +1,24 @@
+{
+  "survey": {
+    "description": "¿Cómo calificas la atención que recibiste de {{inboxName}}?",
+    "rating": {
+      "label": "Tu calificación",
+      "veryDissatisfied": "Muy insatisfecho",
+      "dissatisfied": "Insatisfecho",
+      "neutral": "Neutral",
+      "satisfied": "Satisfecho",
+      "verySatisfied": "Muy satisfecho",
+      "successMessage": "¡Gracias por tu calificación! Nos ayuda a mejorar."
+    },
+    "feedback": {
+      "label": "¿Quieres contarnos algo más?",
+      "placeholder": "Escribe tu comentario aquí",
+      "buttonText": "Enviar comentario"
+    },
+    "api": {
+      "errorMessage": "No pudimos cargar esta encuesta. Es posible que el enlace haya caducado.",
+      "successMessage": "Comentario enviado. ¡Gracias!",
+      "submitting": "Enviando..."
+    }
+  }
+}

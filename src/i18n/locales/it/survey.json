@@ -1,0 +1,24 @@
+{
+  "survey": {
+    "description": "Come valuti l'assistenza ricevuta da {{inboxName}}?",
+    "rating": {
+      "label": "Il tuo voto",
+      "veryDissatisfied": "Molto insoddisfatto",
+      "dissatisfied": "Insoddisfatto",
+      "neutral": "Neutro",
+      "satisfied": "Soddisfatto",
+      "verySatisfied": "Molto soddisfatto",
+      "successMessage": "Grazie per il tuo voto! Ci aiuta a migliorare."
+    },
+    "feedback": {
+      "label": "Vuoi raccontarci qualcosa in più?",
+      "placeholder": "Scrivi qui il tuo commento",
+      "buttonText": "Invia commento"
+    },
+    "api": {
+      "errorMessage": "Non è stato possibile caricare questo sondaggio. Il link potrebbe essere scaduto.",
+      "successMessage": "Commento inviato. Grazie!",
+      "submitting": "Invio in corso..."
+    }
+  }
+}
