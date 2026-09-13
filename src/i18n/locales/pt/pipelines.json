@@ -425,7 +425,7 @@
     "directMessagePlaceholder": "Mensagem a enviar...",
     "finalizeMessagePlaceholder": "Mensagem de encerramento (opcional)...",
     "emailToTeamMessagePlaceholder": "Mensagem do e-mail...",
-    "emailTranscriptPlaceholder": "email1@ex.com, email2@ex.com",
+    "emailTranscriptPlaceholder": "email1@exemplo.com, email2@exemplo.com",
     "customAttributeValuePlaceholder": "Valor...",
     "triggers": {
       "label_added": "Etiqueta adicionada",

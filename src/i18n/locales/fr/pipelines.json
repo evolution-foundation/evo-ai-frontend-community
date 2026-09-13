@@ -399,7 +399,7 @@
     "directMessagePlaceholder": "Message à envoyer...",
     "finalizeMessagePlaceholder": "Message de clôture (facultatif)...",
     "emailToTeamMessagePlaceholder": "Message de l'e-mail...",
-    "emailTranscriptPlaceholder": "email1@ex.com, email2@ex.com",
+    "emailTranscriptPlaceholder": "email1@exemple.com, email2@exemple.com",
     "customAttributeValuePlaceholder": "Valeur...",
     "triggers": {
       "label_added": "Étiquette ajoutée",
