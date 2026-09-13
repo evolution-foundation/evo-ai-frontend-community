@@ -30,7 +30,10 @@ import agentBotsService from '@/services/channels/agentBotsService';
 import { fetchCombinedTemplateOptions } from '@/services/messageTemplates/combinedTemplateOptions';
 import TeamsService from '@/services/teams/teamsService';
 import type { Team } from '@/types/users';
-import type { AgentBotOption, MessageTemplateOption } from './StageAutomationRules';
+import { cannedResponsesService } from '@/services/cannedResponses/cannedResponsesService';
+import { customAttributesService } from '@/services/customAttributes/customAttributesService';
+import type { CustomAttributeDefinition } from '@/types/settings';
+import type { AgentBotOption, MessageTemplateOption, CannedResponseOption } from './StageAutomationRules';
 import { LocalAttributeDefinition, LocalAttributeDefinitionPayload } from '@/types/pipelines/localAttributeDefinition';
 import PipelineStageCustomAttributes from './PipelineStageCustomAttributes';
 import StageAutomationRules, { type PipelineWithStages } from './StageAutomationRules';
@@ -94,6 +97,12 @@ export default function EditStageModal({
   const [agentBots, setAgentBots] = useState<AgentBotOption[]>([]);
   const [messageTemplates, setMessageTemplates] = useState<MessageTemplateOption[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
+  const [cannedResponses, setCannedResponses] = useState<CannedResponseOption[]>([]);
+  // Named apart from the existing `customAttributes` state above (which holds
+  // this stage's own attribute VALUES, keyed by attribute key) — this instead
+  // holds every custom attribute DEFINITION, for the update_custom_attribute
+  // stage-automation action's picker.
+  const [customAttributeDefinitions, setCustomAttributeDefinitions] = useState<CustomAttributeDefinition[]>([]);
 
   const stageColors = getStageColors(t);
 
@@ -119,6 +128,32 @@ export default function EditStageModal({
       })
       .catch(() => {
         if (!cancelled) setTeams([]);
+      });
+
+    cannedResponsesService
+      .getCannedResponses()
+      .then(res => {
+        if (cancelled) return;
+        const list = res.data ?? [];
+        setCannedResponses(
+          list.map(c => ({
+            id: c.id,
+            name: c.short_code ? `/${c.short_code}` : (c.content ?? String(c.id)).slice(0, 60),
+          })),
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setCannedResponses([]);
+      });
+
+    customAttributesService
+      .getCustomAttributes()
+      .then(res => {
+        if (cancelled) return;
+        setCustomAttributeDefinitions(res.data ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setCustomAttributeDefinitions([]);
       });
 
     return () => {
@@ -415,6 +450,8 @@ export default function EditStageModal({
               agentBots={agentBots}
               messageTemplates={messageTemplates}
               teams={teams}
+              cannedResponses={cannedResponses}
+              customAttributes={customAttributeDefinitions}
             />
           </TabsContent>
 

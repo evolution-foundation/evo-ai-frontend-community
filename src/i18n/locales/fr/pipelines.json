@@ -370,6 +370,8 @@
     "selectAgentBot": "Sélectionner un agent d'IA...",
     "selectTemplate": "Sélectionner un modèle...",
     "taskTitlePlaceholder": "Titre de la tâche à créer...",
+    "selectCannedResponse": "Sélectionner une réponse préenregistrée...",
+    "selectCustomAttribute": "Sélectionner un attribut personnalisé...",
     "noOtherStages": "Aucune autre étape disponible",
     "noOtherPipelines": "Aucun autre pipeline disponible",
     "noStagesInPipeline": "Aucune étape dans le pipeline sélectionné",
@@ -379,6 +381,8 @@
     "noTemplates": "Aucun modèle disponible",
     "anyLabel": "Toute étiquette",
     "noLabels": "Aucune étiquette disponible",
+    "noCannedResponses": "Aucune réponse préenregistrée disponible",
+    "noCustomAttributes": "Aucun attribut personnalisé disponible",
     "priorities": {
       "urgent": "Urgent",
       "high": "Haute",
@@ -386,9 +390,17 @@
       "low": "Basse",
       "none": "Aucune"
     },
+    "customAttributeModels": {
+      "conversation_attribute": "Conversation",
+      "contact_attribute": "Contact",
+      "pipeline_item_attribute": "Carte du pipeline"
+    },
     "aiMessagePlaceholder": "Que doit dire l'agent ? (facultatif)",
     "directMessagePlaceholder": "Message à envoyer...",
     "finalizeMessagePlaceholder": "Message de clôture (facultatif)...",
+    "emailToTeamMessagePlaceholder": "Message de l'e-mail...",
+    "emailTranscriptPlaceholder": "email1@ex.com, email2@ex.com",
+    "customAttributeValuePlaceholder": "Valeur...",
     "triggers": {
       "label_added": "Étiquette ajoutée",
       "conversation_status_changed": "Statut de conversation modifié",
@@ -409,7 +421,11 @@
       "send_template": "Envoyer un modèle",
       "finalize": "Terminer la conversation",
       "send_webhook_event": "Déclencher un webhook",
-      "create_pipeline_task": "Créer une tâche sur la carte"
+      "create_pipeline_task": "Créer une tâche sur la carte",
+      "send_canned_response": "Envoyer une réponse préenregistrée",
+      "send_email_to_team": "Envoyer un e-mail à l'équipe",
+      "send_email_transcript": "Envoyer la transcription par e-mail",
+      "update_custom_attribute": "Mettre à jour un attribut personnalisé"
     },
     "inactivity": {
       "minutes": "minutes",

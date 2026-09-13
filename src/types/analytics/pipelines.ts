@@ -24,7 +24,9 @@ export type StageAutomationAction =
   | 'change_status'
   | 'resolve_conversation'
   | 'snooze_conversation'
-  | 'send_email_transcript';
+  | 'send_email_transcript'
+  | 'send_canned_response'
+  | 'send_email_to_team';
 
 export type InactivityBase = 'no_customer_reply' | 'stage_stagnation';
 

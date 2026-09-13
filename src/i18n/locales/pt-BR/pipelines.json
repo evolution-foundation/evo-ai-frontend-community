@@ -409,6 +409,8 @@
     "selectAgentBot": "Selecionar agente de IA...",
     "selectTemplate": "Selecionar template...",
     "taskTitlePlaceholder": "Título da tarefa a ser criada...",
+    "selectCannedResponse": "Selecionar uma resposta pronta...",
+    "selectCustomAttribute": "Selecionar um atributo personalizado...",
     "noOtherStages": "Nenhuma outra etapa disponível",
     "noOtherPipelines": "Nenhum outro pipeline disponível",
     "noStagesInPipeline": "Nenhuma etapa no pipeline selecionado",
@@ -417,6 +419,8 @@
     "noAgentBots": "Nenhum agente de IA disponível",
     "noTemplates": "Nenhum template disponível",
     "noLabels": "Nenhuma etiqueta disponível",
+    "noCannedResponses": "Nenhuma resposta pronta disponível",
+    "noCustomAttributes": "Nenhum atributo personalizado disponível",
     "priorities": {
       "urgent": "Urgente",
       "high": "Alta",
@@ -424,9 +428,17 @@
       "low": "Baixa",
       "none": "Nenhuma"
     },
+    "customAttributeModels": {
+      "conversation_attribute": "Conversa",
+      "contact_attribute": "Contato",
+      "pipeline_item_attribute": "Cartão do pipeline"
+    },
     "aiMessagePlaceholder": "O que o agente deve falar? (opcional)",
     "directMessagePlaceholder": "Mensagem a enviar...",
     "finalizeMessagePlaceholder": "Mensagem de encerramento (opcional)...",
+    "emailToTeamMessagePlaceholder": "Mensagem do e-mail...",
+    "emailTranscriptPlaceholder": "email1@ex.com, email2@ex.com",
+    "customAttributeValuePlaceholder": "Valor...",
     "inactivity": {
       "minutes": "minutos",
       "hour": "hora",
@@ -459,7 +471,11 @@
       "send_template": "Enviar template",
       "finalize": "Finalizar atendimento",
       "send_webhook_event": "Disparar webhook",
-      "create_pipeline_task": "Criar tarefa no card"
+      "create_pipeline_task": "Criar tarefa no card",
+      "send_canned_response": "Enviar resposta pronta",
+      "send_email_to_team": "Enviar e-mail para equipe",
+      "send_email_transcript": "Enviar transcrição por e-mail",
+      "update_custom_attribute": "Atualizar atributo personalizado"
     },
     "templatePending": "Aguardando aprovação da Meta",
     "templatesPendingHint": "Seus templates ainda aguardam aprovação da Meta.",

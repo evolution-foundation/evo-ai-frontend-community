@@ -409,6 +409,8 @@
     "selectAgentBot": "Select AI agent...",
     "selectTemplate": "Select template...",
     "taskTitlePlaceholder": "Title for the task to be created...",
+    "selectCannedResponse": "Select a canned response...",
+    "selectCustomAttribute": "Select a custom attribute...",
     "noOtherStages": "No other stages available",
     "noOtherPipelines": "No other pipelines available",
     "noStagesInPipeline": "No stages in the selected pipeline",
@@ -417,6 +419,8 @@
     "noAgentBots": "No AI agents available",
     "noTemplates": "No templates available",
     "noLabels": "No labels available",
+    "noCannedResponses": "No canned responses available",
+    "noCustomAttributes": "No custom attributes available",
     "priorities": {
       "urgent": "Urgent",
       "high": "High",
@@ -424,9 +428,17 @@
       "low": "Low",
       "none": "None"
     },
+    "customAttributeModels": {
+      "conversation_attribute": "Conversation",
+      "contact_attribute": "Contact",
+      "pipeline_item_attribute": "Pipeline card"
+    },
     "aiMessagePlaceholder": "What should the agent say? (optional)",
     "directMessagePlaceholder": "Message to send...",
     "finalizeMessagePlaceholder": "Closing message (optional)...",
+    "emailToTeamMessagePlaceholder": "Email message...",
+    "emailTranscriptPlaceholder": "email1@ex.com, email2@ex.com",
+    "customAttributeValuePlaceholder": "Value...",
     "inactivity": {
       "minutes": "minutes",
       "hour": "hour",
@@ -459,7 +471,11 @@
       "send_template": "Send template",
       "finalize": "End conversation",
       "send_webhook_event": "Trigger webhook",
-      "create_pipeline_task": "Create task on card"
+      "create_pipeline_task": "Create task on card",
+      "send_canned_response": "Send canned response",
+      "send_email_to_team": "Send email to team",
+      "send_email_transcript": "Send conversation transcript by email",
+      "update_custom_attribute": "Update custom attribute"
     },
     "templatePending": "Awaiting Meta approval",
     "templatesPendingHint": "Your templates are still awaiting Meta approval.",

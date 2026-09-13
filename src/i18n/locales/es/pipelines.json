@@ -376,8 +376,12 @@
     "noLabels": "No hay etiquetas disponibles",
     "selectAgentBot": "Seleccionar agente de IA...",
     "selectTemplate": "Seleccionar plantilla...",
+    "selectCannedResponse": "Seleccionar una respuesta rápida...",
+    "selectCustomAttribute": "Seleccionar un atributo personalizado...",
     "noAgentBots": "No hay agentes de IA disponibles",
     "noTemplates": "No hay plantillas disponibles",
+    "noCannedResponses": "No hay respuestas rápidas disponibles",
+    "noCustomAttributes": "No hay atributos personalizados disponibles",
     "priorities": {
       "urgent": "Urgente",
       "high": "Alta",
@@ -385,9 +389,17 @@
       "low": "Baja",
       "none": "Ninguna"
     },
+    "customAttributeModels": {
+      "conversation_attribute": "Conversación",
+      "contact_attribute": "Contacto",
+      "pipeline_item_attribute": "Tarjeta del pipeline"
+    },
     "aiMessagePlaceholder": "¿Qué debe decir el agente? (opcional)",
     "directMessagePlaceholder": "Mensaje a enviar...",
     "finalizeMessagePlaceholder": "Mensaje de cierre (opcional)...",
+    "emailToTeamMessagePlaceholder": "Mensaje del correo...",
+    "emailTranscriptPlaceholder": "correo1@ej.com, correo2@ej.com",
+    "customAttributeValuePlaceholder": "Valor...",
     "inactivity": {
       "minutes": "minutos",
       "hour": "hora",
@@ -420,7 +432,11 @@
       "send_template": "Enviar plantilla",
       "finalize": "Finalizar atención",
       "send_webhook_event": "Disparar webhook",
-      "create_pipeline_task": "Crear tarea en la tarjeta"
+      "create_pipeline_task": "Crear tarea en la tarjeta",
+      "send_canned_response": "Enviar respuesta rápida",
+      "send_email_to_team": "Enviar correo al equipo",
+      "send_email_transcript": "Enviar transcripción por correo",
+      "update_custom_attribute": "Actualizar atributo personalizado"
     },
     "templatePending": "Esperando la aprobación de Meta",
     "templatesPendingHint": "Tus plantillas aún esperan la aprobación de Meta.",
