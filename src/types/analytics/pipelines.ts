@@ -10,11 +10,21 @@ export type StageAutomationAction =
   | 'move_to_stage'
   | 'move_to_pipeline'
   | 'assign_agent'
+  | 'assign_team'
   | 'apply_label'
+  | 'remove_label'
+  | 'change_priority'
   | 'send_ai_message'
   | 'send_direct_message'
   | 'send_template'
-  | 'finalize';
+  | 'finalize'
+  | 'send_webhook_event'
+  | 'create_pipeline_task'
+  | 'update_custom_attribute'
+  | 'change_status'
+  | 'resolve_conversation'
+  | 'snooze_conversation'
+  | 'send_email_transcript';
 
 export type InactivityBase = 'no_customer_reply' | 'stage_stagnation';
 

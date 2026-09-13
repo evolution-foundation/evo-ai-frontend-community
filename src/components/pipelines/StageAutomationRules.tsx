@@ -22,6 +22,7 @@ import type {
 import type { PipelineStage } from '@/types/analytics';
 import type { Label } from '@/types/settings/labels';
 import type { MessageTemplateOption } from '@/services/messageTemplates/combinedTemplateOptions';
+import type { Team } from '@/types/users';
 
 interface Agent {
   id: string;
@@ -73,6 +74,7 @@ interface StageAutomationRulesProps {
   pipelines?: PipelineWithStages[];
   agentBots?: AgentBotOption[];
   messageTemplates?: MessageTemplateOption[];
+  teams?: Team[];
 }
 
 function newRuleId() {
@@ -89,6 +91,7 @@ const makeEmptyRule = (): StageAutomationRule => ({
 });
 
 const CONVERSATION_STATUSES = ['open', 'resolved', 'pending', 'snoozed'] as const;
+const CONVERSATION_PRIORITIES = ['urgent', 'high', 'medium', 'low', 'none'] as const;
 const INACTIVITY_MINUTES = [
   2, 5, 10, 15, 30, 60, 120, 240, 480, 720, 1440, 2880, 4320, 10080, 20160, 43200,
 ] as const;
@@ -180,6 +183,7 @@ export default function StageAutomationRules({
   pipelines = [],
   agentBots = [],
   messageTemplates = [],
+  teams = [],
 }: StageAutomationRulesProps) {
   const { t } = useLanguage('pipelines');
   const navigate = useNavigate();
@@ -475,7 +479,32 @@ export default function StageAutomationRules({
       );
     }
 
-    if (rule.action === 'apply_label') {
+    if (rule.action === 'assign_team') {
+      return (
+        <Select
+          value={rule.action_value || ''}
+          onValueChange={v => updateRule(index, { action_value: v })}
+          disabled={disabled}
+        >
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder={t('stageAutomation.selectTeam') || 'Selecione uma equipe'} />
+          </SelectTrigger>
+          <SelectContent>
+            {teams.length === 0 ? (
+              <SelectItem value={PLACEHOLDER_SENTINEL} disabled>{t('stageAutomation.noTeams') || 'Nenhuma equipe disponível'}</SelectItem>
+            ) : (
+              teams.map(tm => (
+                <SelectItem key={tm.id} value={String(tm.id)}>
+                  {tm.name}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    if (rule.action === 'apply_label' || rule.action === 'remove_label') {
       return (
         <Select
           value={rule.action_value || ''}
@@ -505,6 +534,72 @@ export default function StageAutomationRules({
             )}
           </SelectContent>
         </Select>
+      );
+    }
+
+    if (rule.action === 'change_priority') {
+      return (
+        <Select
+          value={rule.action_value || ''}
+          onValueChange={v => updateRule(index, { action_value: v })}
+          disabled={disabled}
+        >
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder={t('stageAutomation.selectPriority') || 'Selecione a prioridade'} />
+          </SelectTrigger>
+          <SelectContent>
+            {CONVERSATION_PRIORITIES.map(p => (
+              <SelectItem key={p} value={p}>
+                {t(`stageAutomation.priorities.${p}`) || p}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    if (rule.action === 'change_status') {
+      return (
+        <Select
+          value={rule.action_value || ''}
+          onValueChange={v => updateRule(index, { action_value: v })}
+          disabled={disabled}
+        >
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder={t('stageAutomation.selectStatus') || 'Selecione o status'} />
+          </SelectTrigger>
+          <SelectContent>
+            {CONVERSATION_STATUSES.map(s => (
+              <SelectItem key={s} value={s}>
+                {t(`kanban.search.status.${s}`) || s}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    if (rule.action === 'send_webhook_event') {
+      return (
+        <Input
+          className="flex-1"
+          placeholder="https://seu-endpoint.com/webhook"
+          value={rule.action_value}
+          onChange={e => updateRule(index, { action_value: e.target.value })}
+          disabled={disabled}
+        />
+      );
+    }
+
+    if (rule.action === 'create_pipeline_task') {
+      return (
+        <Input
+          className="flex-1"
+          placeholder={t('stageAutomation.taskTitlePlaceholder') || 'Título da tarefa...'}
+          value={rule.action_value}
+          onChange={e => updateRule(index, { action_value: e.target.value })}
+          disabled={disabled}
+        />
       );
     }
 
@@ -771,11 +866,17 @@ export default function StageAutomationRules({
                     <SelectItem value="move_to_stage">{t('stageAutomation.actions.move_to_stage')}</SelectItem>
                     <SelectItem value="move_to_pipeline">{t('stageAutomation.actions.move_to_pipeline')}</SelectItem>
                     <SelectItem value="assign_agent">{t('stageAutomation.actions.assign_agent')}</SelectItem>
+                    <SelectItem value="assign_team">{t('stageAutomation.actions.assign_team') || 'Atribuir equipe'}</SelectItem>
                     <SelectItem value="apply_label">{t('stageAutomation.actions.apply_label')}</SelectItem>
+                    <SelectItem value="remove_label">{t('stageAutomation.actions.remove_label') || 'Remover etiqueta'}</SelectItem>
+                    <SelectItem value="change_priority">{t('stageAutomation.actions.change_priority') || 'Alterar prioridade'}</SelectItem>
+                    <SelectItem value="change_status">{t('stageAutomation.actions.change_status') || 'Alterar status'}</SelectItem>
                     <SelectItem value="send_ai_message">{t('stageAutomation.actions.send_ai_message')}</SelectItem>
                     <SelectItem value="send_direct_message">{t('stageAutomation.actions.send_direct_message')}</SelectItem>
                     <SelectItem value="send_template">{t('stageAutomation.actions.send_template')}</SelectItem>
                     <SelectItem value="finalize">{t('stageAutomation.actions.finalize')}</SelectItem>
+                    <SelectItem value="send_webhook_event">{t('stageAutomation.actions.send_webhook_event') || 'Disparar webhook'}</SelectItem>
+                    <SelectItem value="create_pipeline_task">{t('stageAutomation.actions.create_pipeline_task') || 'Criar tarefa no card'}</SelectItem>
                   </SelectContent>
                 </Select>
                 {renderActionValue(rule, index)}

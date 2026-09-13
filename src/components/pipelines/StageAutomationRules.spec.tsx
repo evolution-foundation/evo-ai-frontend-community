@@ -415,3 +415,75 @@ describe('StageAutomationRules — send_template variable mapping', () => {
     ]);
   });
 });
+
+describe('StageAutomationRules — new actions (remove_label, assign_team, change_priority, create_pipeline_task)', () => {
+  it('renders remove_label action with label options', () => {
+    const removeLabelRule: StageAutomationRule = {
+      id: 'rule-2',
+      trigger: 'label_added',
+      trigger_value: 'novo-lead',
+      action: 'remove_label',
+      action_value: 'prospect',
+    };
+    render(
+      <StageAutomationRules
+        rules={[removeLabelRule]}
+        onChange={vi.fn()}
+        labels={[{ id: '1', title: 'prospect', color: '#ff0000', show_on_sidebar: true }]}
+      />,
+    );
+    expect(screen.getByText('prospect')).toBeTruthy();
+  });
+
+  it('renders assign_team action with team options', () => {
+    const assignTeamRule: StageAutomationRule = {
+      id: 'rule-3',
+      trigger: 'conversation_status_changed',
+      trigger_value: 'resolved',
+      action: 'assign_team',
+      action_value: '1',
+    };
+    render(
+      <StageAutomationRules
+        rules={[assignTeamRule]}
+        onChange={vi.fn()}
+        teams={[{ id: 1, name: 'Vendas', description: 'Equipe de vendas', is_member: true } as any]}
+      />,
+    );
+    expect(screen.getByText('Vendas')).toBeTruthy();
+  });
+
+  it('renders change_priority action', () => {
+    const priorityRule: StageAutomationRule = {
+      id: 'rule-4',
+      trigger: 'label_added',
+      trigger_value: 'urgente',
+      action: 'change_priority',
+      action_value: 'urgent',
+    };
+    render(
+      <StageAutomationRules
+        rules={[priorityRule]}
+        onChange={vi.fn()}
+      />,
+    );
+    expect(screen.getByText('stageAutomation.priorities.urgent')).toBeTruthy();
+  });
+
+  it('renders create_pipeline_task action with input', () => {
+    const taskRule: StageAutomationRule = {
+      id: 'rule-5',
+      trigger: 'conversation_status_changed',
+      trigger_value: 'open',
+      action: 'create_pipeline_task',
+      action_value: 'Ligar para o cliente',
+    };
+    render(
+      <StageAutomationRules
+        rules={[taskRule]}
+        onChange={vi.fn()}
+      />,
+    );
+    expect(screen.getByDisplayValue('Ligar para o cliente')).toBeTruthy();
+  });
+});

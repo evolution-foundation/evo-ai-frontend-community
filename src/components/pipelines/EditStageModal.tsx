@@ -28,6 +28,8 @@ import { labelsService } from '@/services/contacts/labelsService';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import agentBotsService from '@/services/channels/agentBotsService';
 import { fetchCombinedTemplateOptions } from '@/services/messageTemplates/combinedTemplateOptions';
+import TeamsService from '@/services/teams/teamsService';
+import type { Team } from '@/types/users';
 import type { AgentBotOption, MessageTemplateOption } from './StageAutomationRules';
 import { LocalAttributeDefinition, LocalAttributeDefinitionPayload } from '@/types/pipelines/localAttributeDefinition';
 import PipelineStageCustomAttributes from './PipelineStageCustomAttributes';
@@ -91,6 +93,7 @@ export default function EditStageModal({
   const [pipelinesWithStages, setPipelinesWithStages] = useState<PipelineWithStages[]>([]);
   const [agentBots, setAgentBots] = useState<AgentBotOption[]>([]);
   const [messageTemplates, setMessageTemplates] = useState<MessageTemplateOption[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
 
   const stageColors = getStageColors(t);
 
@@ -107,6 +110,17 @@ export default function EditStageModal({
         if (cancelled) return;
         setLabels([]);
       });
+
+    TeamsService
+      .getTeams({ per_page: 100 })
+      .then(res => {
+        if (cancelled) return;
+        setTeams(res.data ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setTeams([]);
+      });
+
     return () => {
       cancelled = true;
     };
@@ -400,6 +414,7 @@ export default function EditStageModal({
               pipelines={pipelinesWithStages}
               agentBots={agentBots}
               messageTemplates={messageTemplates}
+              teams={teams}
             />
           </TabsContent>
 
