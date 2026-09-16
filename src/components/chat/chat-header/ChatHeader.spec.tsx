@@ -4,7 +4,21 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import ChatHeader from './ChatHeader';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import chatService from '@/services/chat/chatService';
+import { conversationAPI } from '@/services/conversations/conversationService';
 import { toast } from 'sonner';
+import type { Inbox } from '@/types/channels/inbox';
+
+let mockInboxes: Inbox[] = [];
+vi.mock('@/store/appDataStore', () => ({
+  useAppDataStore: (selector: (s: { inboxes: Inbox[] }) => unknown) =>
+    selector({ get inboxes() { return mockInboxes; } }),
+}));
+
+vi.mock('@/services/conversations/conversationService', () => ({
+  conversationAPI: {
+    moveChannel: vi.fn(),
+  },
+}));
 
 vi.mock('@/services/pipelines/pipelinesService', () => ({
   pipelinesService: {
@@ -521,6 +535,157 @@ describe('ChatHeader contact panel', () => {
     expect(onContactSidebarOpen).toHaveBeenCalledTimes(1);
   });
 
+});
+
+describe('ChatHeader change channel', () => {
+  beforeEach(() => {
+    vi.mocked(pipelinesService.getPipelines).mockResolvedValue({ data: [] } as never);
+    vi.mocked(pipelinesService.getPipelinesByConversation).mockResolvedValue([]);
+    mockInboxes = [];
+  });
+
+  const openMenu = async (user: ReturnType<typeof userEvent.setup>) => {
+    const menuTrigger = document.querySelector<HTMLElement>('[data-slot="dropdown-menu-trigger"]')!;
+    await user.click(menuTrigger);
+  };
+
+  it('hides the Change channel action when fewer than 2 eligible target inboxes exist', async () => {
+    // Current inbox itself never counts as a target, and an archived inbox is
+    // never eligible — so this account only has 1 eligible target (none).
+    mockInboxes = [
+      { id: '1', name: 'WhatsApp', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '2', name: 'Old WhatsApp', channel_type: 'Channel::Whatsapp', archived_at: '2026-01-01T00:00:00Z' } as Inbox,
+    ];
+
+    const user = userEvent.setup();
+    render(<ChatHeader {...defaultProps} />);
+    await openMenu(user);
+
+    expect(screen.queryByText('moveChannel.action')).not.toBeInTheDocument();
+  });
+
+  it('shows the Change channel action and opens the modal when 2+ eligible target inboxes exist', async () => {
+    mockInboxes = [
+      { id: '1', name: 'WhatsApp', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '2', name: 'WhatsApp Support', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '3', name: 'WhatsApp Sales', channel_type: 'Channel::Whatsapp' } as Inbox,
+    ];
+
+    const user = userEvent.setup();
+    render(<ChatHeader {...defaultProps} />);
+    await openMenu(user);
+
+    await user.click(await screen.findByText('moveChannel.action'));
+
+    expect(await screen.findByText('moveChannel.modalTitle')).toBeInTheDocument();
+    expect(screen.getByText('WhatsApp Support')).toBeInTheDocument();
+    expect(screen.getByText('WhatsApp Sales')).toBeInTheDocument();
+  });
+
+  it('excludes a Chat Widget inbox from eligible targets even for a same-type conversation', async () => {
+    mockInboxes = [
+      { id: '1', name: 'WhatsApp', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '2', name: 'WhatsApp Support', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '3', name: 'WhatsApp Sales', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '4', name: 'Website Chat', channel_type: 'Channel::WebWidget' } as Inbox,
+    ];
+
+    const user = userEvent.setup();
+    render(<ChatHeader {...defaultProps} />);
+    await openMenu(user);
+    await user.click(await screen.findByText('moveChannel.action'));
+
+    await screen.findByText('moveChannel.modalTitle');
+    expect(screen.getByText('WhatsApp Support')).toBeInTheDocument();
+    expect(screen.queryByText('Website Chat')).not.toBeInTheDocument();
+  });
+
+  it('only makes a cross-type Email inbox eligible when the contact has an email', async () => {
+    const conversationWithEmail = {
+      id: '42',
+      status: 'open' as const,
+      inbox: { id: '1', name: 'WhatsApp', channel_type: 'Channel::Whatsapp' },
+      contact: { id: '1', name: 'Test Contact', email: 'contact@example.com' },
+      custom_attributes: {},
+    } as never;
+    mockInboxes = [
+      { id: '1', name: 'WhatsApp', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '2', name: 'WhatsApp Support', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '3', name: 'Support Email', channel_type: 'Channel::Email' } as Inbox,
+    ];
+
+    const user = userEvent.setup();
+    render(<ChatHeader {...defaultProps} conversation={conversationWithEmail} />);
+    await openMenu(user);
+    await user.click(await screen.findByText('moveChannel.action'));
+
+    await screen.findByText('moveChannel.modalTitle');
+    expect(screen.getByText('Support Email')).toBeInTheDocument();
+  });
+
+  it('excludes a cross-type Email inbox when the contact has no email', async () => {
+    mockInboxes = [
+      { id: '1', name: 'WhatsApp', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '2', name: 'WhatsApp Support', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '3', name: 'WhatsApp Sales', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '4', name: 'Support Email', channel_type: 'Channel::Email' } as Inbox,
+    ];
+
+    const user = userEvent.setup();
+    render(<ChatHeader {...defaultProps} />);
+    await openMenu(user);
+    await user.click(await screen.findByText('moveChannel.action'));
+
+    await screen.findByText('moveChannel.modalTitle');
+    expect(screen.queryByText('Support Email')).not.toBeInTheDocument();
+  });
+
+  it('calls moveChannel and shows a success toast on confirm', async () => {
+    mockInboxes = [
+      { id: '1', name: 'WhatsApp', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '2', name: 'WhatsApp Support', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '3', name: 'WhatsApp Sales', channel_type: 'Channel::Whatsapp' } as Inbox,
+    ];
+    vi.mocked(conversationAPI.moveChannel).mockResolvedValue({} as never);
+
+    const user = userEvent.setup();
+    render(<ChatHeader {...defaultProps} />);
+    await openMenu(user);
+    await user.click(await screen.findByText('moveChannel.action'));
+    await screen.findByText('moveChannel.modalTitle');
+
+    await user.click(screen.getByText('WhatsApp Support'));
+    await user.click(screen.getByText('moveChannel.confirm'));
+
+    await waitFor(() => {
+      expect(conversationAPI.moveChannel).toHaveBeenCalledWith('42', '2');
+      expect(toast.success).toHaveBeenCalledWith('moveChannel.movedToast');
+    });
+  });
+
+  it('shows the ineligible-channel error toast on a 422 failure', async () => {
+    mockInboxes = [
+      { id: '1', name: 'WhatsApp', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '2', name: 'WhatsApp Support', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '3', name: 'WhatsApp Sales', channel_type: 'Channel::Whatsapp' } as Inbox,
+    ];
+    vi.mocked(conversationAPI.moveChannel).mockRejectedValue({
+      response: { status: 422 },
+    });
+
+    const user = userEvent.setup();
+    render(<ChatHeader {...defaultProps} />);
+    await openMenu(user);
+    await user.click(await screen.findByText('moveChannel.action'));
+    await screen.findByText('moveChannel.modalTitle');
+
+    await user.click(screen.getByText('WhatsApp Support'));
+    await user.click(screen.getByText('moveChannel.confirm'));
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('moveChannel.errorIneligible');
+    });
+  });
 });
 
 // jsdom does not evaluate media queries, so these lock the responsive classes
