@@ -576,6 +576,9 @@ const AgentEditPage = () => {
         if (newKnowledgeBaseId) {
           await api.post(`/ai_agents/${id}/knowledge_base`, {
             knowledge_base_id: newKnowledgeBaseId,
+            // Without this, the backend defaults knowledge_tags to [], silently
+            // wiping out whatever tags the user already set in the same accordion.
+            knowledge_tags: advancedSettings.knowledge_tags,
           });
         } else {
           await api.delete(`/ai_agents/${id}/knowledge_base`);
@@ -585,7 +588,7 @@ const AgentEditPage = () => {
         toast.error(extractBackendErrorMessage(error));
       }
     },
-    [id, knowledgeBaseId],
+    [id, knowledgeBaseId, advancedSettings.knowledge_tags],
   );
 
   // Returns true on success / false on failure so callers that persist from a nested
@@ -633,6 +636,11 @@ const AgentEditPage = () => {
           knowledge_tags: advancedSettings.knowledge_tags,
           knowledge_base_config_id: advancedSettings.knowledge_base_config_id,
           knowledge_max_results: advancedSettings.knowledge_max_results,
+          // Read-only relationship elsewhere (see handleKnowledgeBaseChange), but the
+          // backend does a wholesale config replace on update, not a merge — omitting
+          // this here would silently drop the attached knowledge base from the
+          // runtime config the agent processor reads.
+          knowledge_base_id: knowledgeBaseId,
           tools: tools.map(tool => tool as unknown as Record<string, unknown>),
           agent_tools: agentTools,
           custom_tools: customTools,
@@ -672,6 +680,9 @@ const AgentEditPage = () => {
           knowledge_tags: advancedSettings.knowledge_tags,
           knowledge_base_config_id: advancedSettings.knowledge_base_config_id,
           knowledge_max_results: advancedSettings.knowledge_max_results,
+          // See the 'llm' branch above: the backend replaces the whole config on
+          // update, so this must be re-sent on every save or the attachment is lost.
+          knowledge_base_id: knowledgeBaseId,
           tools: tools.map(tool => tool as unknown as Record<string, unknown>),
           agent_tools: agentTools,
           custom_tools: customTools,
@@ -709,6 +720,9 @@ const AgentEditPage = () => {
           knowledge_tags: advancedSettings.knowledge_tags,
           knowledge_base_config_id: advancedSettings.knowledge_base_config_id,
           knowledge_max_results: advancedSettings.knowledge_max_results,
+          // See the 'llm' branch above: the backend replaces the whole config on
+          // update, so this must be re-sent on every save or the attachment is lost.
+          knowledge_base_id: knowledgeBaseId,
           tools: tools.map(tool => tool as unknown as Record<string, unknown>),
           agent_tools: agentTools,
           custom_tools: customTools,
@@ -742,6 +756,9 @@ const AgentEditPage = () => {
           min_segment_size: externalConfigData.advanced_config?.min_segment_size ?? 50,
           character_delay_ms: externalConfigData.advanced_config?.character_delay_ms ?? 0.05,
           send_as_reply: behaviorSettings.sendAsReply,
+          // See the 'llm' branch above: the backend replaces the whole config on
+          // update, so this must be re-sent on every save or the attachment is lost.
+          knowledge_base_id: knowledgeBaseId,
         } as Record<string, unknown>;
       } else {
         agentUpdateData.config = {
@@ -759,6 +776,9 @@ const AgentEditPage = () => {
           knowledge_tags: advancedSettings.knowledge_tags,
           knowledge_base_config_id: advancedSettings.knowledge_base_config_id,
           knowledge_max_results: advancedSettings.knowledge_max_results,
+          // See the 'llm' branch above: the backend replaces the whole config on
+          // update, so this must be re-sent on every save or the attachment is lost.
+          knowledge_base_id: knowledgeBaseId,
           tools: tools.map(tool => tool as unknown as Record<string, unknown>),
           agent_tools: agentTools,
           custom_tools: customTools,

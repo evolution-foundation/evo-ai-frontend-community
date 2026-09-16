@@ -40,7 +40,7 @@ export default function SearchTestModal({ knowledgeBaseId, onClose }: SearchTest
         query,
         max_results: maxResults,
       });
-      setResults(res.data.results);
+      setResults(res.data?.results ?? []);
       setHasSearched(true);
     } catch (error) {
       console.error('Error running knowledge search test:', error);
