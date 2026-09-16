@@ -551,9 +551,9 @@ describe('ChatHeader change channel', () => {
     await user.click(menuTrigger);
   };
 
-  it('hides the Change channel action when fewer than 2 eligible target inboxes exist', async () => {
+  it('hides the Change channel action when no eligible target inbox exists', async () => {
     // Current inbox itself never counts as a target, and an archived inbox is
-    // never eligible — so this account only has 1 eligible target (none).
+    // never eligible — so this account has zero eligible targets.
     mockInboxes = [
       { id: '1', name: 'WhatsApp', channel_type: 'Channel::Whatsapp' } as Inbox,
       { id: '2', name: 'Old WhatsApp', channel_type: 'Channel::Whatsapp', archived_at: '2026-01-01T00:00:00Z' } as Inbox,
@@ -564,6 +564,26 @@ describe('ChatHeader change channel', () => {
     await openMenu(user);
 
     expect(screen.queryByText('moveChannel.action')).not.toBeInTheDocument();
+  });
+
+  // Boundary for I9: eligibleTargetInboxes already excludes the conversation's
+  // own inbox, so exactly one other eligible inbox — the two-WhatsApp-number
+  // account this feature is built for — must show the action. The old `>= 2`
+  // threshold hid it here.
+  it('shows the Change channel action when exactly one eligible target inbox exists', async () => {
+    mockInboxes = [
+      { id: '1', name: 'WhatsApp', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '2', name: 'WhatsApp Support', channel_type: 'Channel::Whatsapp' } as Inbox,
+    ];
+
+    const user = userEvent.setup();
+    render(<ChatHeader {...defaultProps} />);
+    await openMenu(user);
+
+    await user.click(await screen.findByText('moveChannel.action'));
+
+    expect(await screen.findByText('moveChannel.modalTitle')).toBeInTheDocument();
+    expect(screen.getByText('WhatsApp Support')).toBeInTheDocument();
   });
 
   it('shows the Change channel action and opens the modal when 2+ eligible target inboxes exist', async () => {
@@ -686,6 +706,39 @@ describe('ChatHeader change channel', () => {
     await waitFor(() => {
       expect(conversationAPI.moveChannel).toHaveBeenCalledWith('42', '2');
       expect(toast.success).toHaveBeenCalledWith('moveChannel.movedToast');
+    });
+  });
+
+  // I10: a successful move must refresh the conversation itself, not just the
+  // pipeline badge — otherwise the header keeps rendering the old inbox and the
+  // stale conversation feeds the next eligibility computation.
+  // refreshConversationBadge already refetches the conversation and dispatches
+  // updateConversation; this locks that in for the move path specifically.
+  it('refetches the conversation and dispatches updateConversation after a successful move', async () => {
+    mockInboxes = [
+      { id: '1', name: 'WhatsApp', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '2', name: 'WhatsApp Support', channel_type: 'Channel::Whatsapp' } as Inbox,
+    ];
+    vi.mocked(conversationAPI.moveChannel).mockResolvedValue({} as never);
+    const movedConversation = { id: '42', inbox: { id: '2', name: 'WhatsApp Support' } };
+    vi.mocked(chatService.getConversation).mockResolvedValue({
+      data: movedConversation,
+    } as never);
+
+    const user = userEvent.setup();
+    render(<ChatHeader {...defaultProps} />);
+    await openMenu(user);
+    await user.click(await screen.findByText('moveChannel.action'));
+    await screen.findByText('moveChannel.modalTitle');
+
+    await user.click(screen.getByText('WhatsApp Support'));
+    await user.click(screen.getByText('moveChannel.confirm'));
+
+    await waitFor(() => {
+      expect(chatService.getConversation).toHaveBeenCalledWith('42');
+      expect(mockUpdateConversation).toHaveBeenCalledWith(
+        expect.objectContaining({ id: '42' }),
+      );
     });
   });
 
