@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@evoapi/design-system';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   WebWidgetForm,
@@ -95,8 +104,16 @@ export default function NewChannel({ initialChannelId, onExit }: NewChannelProps
     config,
   } = useChannelForm();
 
-  const { isSubmitting, isTesting, testConnection, submitCreate, healthCheckPassed } =
-    useChannelSubmission(form);
+  const {
+    isSubmitting,
+    isTesting,
+    testConnection,
+    submitCreate,
+    healthCheckPassed,
+    archivedMatch,
+    confirmReactivate,
+    confirmCreateNew,
+  } = useChannelSubmission(form);
 
   // Generate channel types with dynamic config
   const channelTypes = useMemo(
@@ -564,6 +581,24 @@ export default function NewChannel({ initialChannelId, onExit }: NewChannelProps
           </>
         )}
       </div>
+
+      {/* Reactivate-vs-create-new: shown when submitCreate finds an archived
+          inbox with a matching WhatsApp phone number, instead of creating a
+          duplicate channel. */}
+      <Dialog open={!!archivedMatch} onOpenChange={() => {}}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('overview.archived.confirmTitle')}</DialogTitle>
+            <DialogDescription>{t('overview.archived.confirmDescription')}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={confirmCreateNew}>
+              {t('overview.archived.confirmCreateNew')}
+            </Button>
+            <Button onClick={confirmReactivate}>{t('overview.archived.confirmReactivate')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
