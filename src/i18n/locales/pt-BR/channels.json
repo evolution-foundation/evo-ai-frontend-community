@@ -1772,7 +1772,9 @@
       "confirmTitle": "Reconectar este número?",
       "confirmDescription": "Já existe um canal arquivado com este número de telefone. Reativá-lo restaura todo o histórico de conversas em vez de começar um canal novo e vazio.",
       "confirmReactivate": "Reativar canal existente",
-      "confirmCreateNew": "Criar um novo canal"
+      "confirmCreateNew": "Criar um novo canal",
+      "reactivated": "{{name}} reativado",
+      "reactivateFailed": "Falha ao reativar o canal"
     },
     "capabilities": {
       "publishing": "Publicação",

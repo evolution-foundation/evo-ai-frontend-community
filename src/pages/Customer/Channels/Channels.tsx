@@ -154,6 +154,16 @@ export default function Channels() {
 
   const isDeleteConfirmationValid = deleteModal.confirmationText === deleteModal.channel?.name;
 
+  const handleReactivate = async (inbox: Inbox) => {
+    try {
+      await InboxesService.reactivate(inbox.id);
+      toast.success(t('overview.archived.reactivated', { name: inbox.name }));
+      fetchInboxes();
+    } catch {
+      toast.error(t('overview.archived.reactivateFailed'));
+    }
+  };
+
   return (
     <div className="h-full flex flex-col p-4">
       <ChannelsTour />
@@ -175,6 +185,7 @@ export default function Channels() {
           onAdd={handleAddType}
           onOpenInbox={openChannelSettings}
           onDelete={openDeleteModal}
+          onReactivate={handleReactivate}
         />
       </div>
 
