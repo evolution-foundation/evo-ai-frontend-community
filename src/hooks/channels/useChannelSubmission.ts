@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/hooks/useLanguage';
 import { Provider as ProviderType } from '@/components/channels/ProviderGrid';
 import InboxesService from '@/services/channels/inboxesService';
 import {
@@ -31,6 +32,7 @@ import { apiErrorMessage } from '@/utils/apiHelpers';
 
 export const useChannelSubmission = (form?: FormData) => {
   const navigate = useNavigate();
+  const { t } = useLanguage('channels');
   const { validateByChannelAndProvider, getStr } = useChannelValidation();
   const { addInbox, fetchInboxes } = useAppDataStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -765,10 +767,11 @@ export const useChannelSubmission = (form?: FormData) => {
     if (!archivedMatch) return;
     try {
       await InboxesService.reactivate(archivedMatch.inboxId);
-      toast.success('Canal reativado com sucesso');
+      const name = getStr(pendingSubmitRef.current?.form ?? {}, 'name', '');
+      toast.success(t('overview.archived.reactivated', { name }));
       await fetchInboxes();
-    } catch (e: unknown) {
-      toast.error(apiErrorMessage(e) || (e as Error)?.message || 'Falha ao reativar canal');
+    } catch {
+      toast.error(t('overview.archived.reactivateFailed'));
     } finally {
       pendingSubmitRef.current = null;
       setArchivedMatch(null);

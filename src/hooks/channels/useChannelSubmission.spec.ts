@@ -8,6 +8,11 @@ import EvolutionGoService from '@/services/channels/evolutionGoService';
 
 vi.mock('react-router-dom', () => ({ useNavigate: () => vi.fn() }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() } }));
+vi.mock('@/hooks/useLanguage', () => ({
+  useLanguage: () => ({
+    t: (key: string, opts?: Record<string, unknown>) => (opts ? `${key}:${JSON.stringify(opts)}` : key),
+  }),
+}));
 
 const { fetchInboxesMock } = vi.hoisted(() => ({ fetchInboxesMock: vi.fn() }));
 vi.mock('@/store/appDataStore', () => ({
@@ -255,6 +260,20 @@ describe('useChannelSubmission — archived match on WhatsApp creation (EVO-2159
     expect(reactivateMock).toHaveBeenCalledWith('archived-1');
     expect(fetchInboxesMock).toHaveBeenCalled();
     expect(createChannelMock).not.toHaveBeenCalled();
+    expect(result.current.archivedMatch).toBeNull();
+    expect(toast.success).toHaveBeenCalledWith('overview.archived.reactivated:{"name":"evo"}');
+  });
+
+  it('shows the translated failure toast when reactivation fails', async () => {
+    checkArchivedMatchMock.mockResolvedValue({ inbox_id: 'archived-1' });
+    reactivateMock.mockRejectedValueOnce(new Error('boom'));
+    const result = await renderAndSubmitWhatsapp();
+
+    await act(async () => {
+      await result.current.confirmReactivate();
+    });
+
+    expect(toast.error).toHaveBeenCalledWith('overview.archived.reactivateFailed');
     expect(result.current.archivedMatch).toBeNull();
   });
 
