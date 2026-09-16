@@ -5,6 +5,8 @@ import { describe, expect, it, vi } from 'vitest';
 import StageAutomationRules from './StageAutomationRules';
 import type { MessageTemplateOption } from './StageAutomationRules';
 import type { StageAutomationRule } from '@/types/analytics/pipelines';
+import type { Team } from '@/types/users';
+import type { CustomAttributeDefinition } from '@/types/settings';
 
 vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({ t: (key: string) => key, currentLanguage: 'en' }),
@@ -485,5 +487,206 @@ describe('StageAutomationRules — new actions (remove_label, assign_team, chang
       />,
     );
     expect(screen.getByDisplayValue('Ligar para o cliente')).toBeTruthy();
+  });
+});
+
+describe('StageAutomationRules — new actions (send_canned_response, send_email_to_team, send_email_transcript, update_custom_attribute)', () => {
+  const vendasTeam: Team[] = [
+    { id: '1', name: 'Vendas', description: 'Equipe de vendas', allow_auto_assign: false, is_member: true },
+  ];
+  const origemAttribute: CustomAttributeDefinition[] = [
+    {
+      id: 'attr-1',
+      attribute_display_name: 'Origem',
+      attribute_display_type: 'text',
+      attribute_key: 'origem',
+      attribute_model: 'conversation_attribute',
+      created_at: '',
+      updated_at: '',
+    },
+  ];
+
+  it('renders send_canned_response action with canned response options, storing the id as a plain string', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const cannedRule: StageAutomationRule = {
+      id: 'rule-6',
+      trigger: 'label_added',
+      trigger_value: 'novo-lead',
+      action: 'send_canned_response',
+      action_value: '',
+    };
+    render(
+      <StageAutomationRules
+        rules={[cannedRule]}
+        onChange={onChange}
+        cannedResponses={[{ id: '10', name: '/saudacao' }]}
+      />,
+    );
+
+    const combobox = screen
+      .getAllByRole('combobox')
+      .find(cb => cb.textContent === 'stageAutomation.selectCannedResponse');
+    if (!combobox) throw new Error('canned response combobox not found');
+    await user.click(combobox);
+    expect(screen.getByRole('option', { name: '/saudacao' })).toBeTruthy();
+    await user.click(screen.getByRole('option', { name: '/saudacao' }));
+
+    expect(onChange).toHaveBeenCalledWith([
+      expect.objectContaining({ action_value: '10' }),
+    ]);
+  });
+
+  it('renders send_email_to_team action with a team checklist and message box, storing action_value as JSON', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const emailToTeamRule: StageAutomationRule = {
+      id: 'rule-7',
+      trigger: 'conversation_status_changed',
+      trigger_value: 'resolved',
+      action: 'send_email_to_team',
+      action_value: '',
+    };
+    render(
+      <StageAutomationRules
+        rules={[emailToTeamRule]}
+        onChange={onChange}
+        teams={vendasTeam}
+      />,
+    );
+
+    await user.click(screen.getByText('Vendas'));
+
+    expect(onChange).toHaveBeenCalledWith([
+      expect.objectContaining({
+        action_value: JSON.stringify({ team_ids: ['1'], message: '' }),
+      }),
+    ]);
+  });
+
+  it('writes the message into send_email_to_team action_value JSON', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const emailToTeamRule: StageAutomationRule = {
+      id: 'rule-7b',
+      trigger: 'conversation_status_changed',
+      trigger_value: 'resolved',
+      action: 'send_email_to_team',
+      action_value: JSON.stringify({ team_ids: ['1'], message: '' }),
+    };
+    render(
+      <StageAutomationRules
+        rules={[emailToTeamRule]}
+        onChange={onChange}
+        teams={vendasTeam}
+      />,
+    );
+
+    const textarea = screen.getByPlaceholderText('stageAutomation.emailToTeamMessagePlaceholder');
+    await user.type(textarea, 'x');
+
+    expect(onChange).toHaveBeenCalledWith([
+      expect.objectContaining({
+        action_value: JSON.stringify({ team_ids: ['1'], message: 'x' }),
+      }),
+    ]);
+  });
+
+  it('renders send_email_transcript action as a plain comma-separated email input', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const transcriptRule: StageAutomationRule = {
+      id: 'rule-8',
+      trigger: 'label_added',
+      trigger_value: 'fechado',
+      action: 'send_email_transcript',
+      action_value: '',
+    };
+    render(
+      <StageAutomationRules
+        rules={[transcriptRule]}
+        onChange={onChange}
+      />,
+    );
+
+    const input = screen.getByPlaceholderText('stageAutomation.emailTranscriptPlaceholder');
+    await user.type(input, 'a');
+
+    expect(onChange).toHaveBeenLastCalledWith([
+      expect.objectContaining({ action_value: 'a' }),
+    ]);
+  });
+
+  it('renders update_custom_attribute action with an attribute picker and value input, storing action_value as JSON', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const attrRule: StageAutomationRule = {
+      id: 'rule-9',
+      trigger: 'label_added',
+      trigger_value: 'novo-lead',
+      action: 'update_custom_attribute',
+      action_value: '',
+    };
+    render(
+      <StageAutomationRules
+        rules={[attrRule]}
+        onChange={onChange}
+        customAttributes={origemAttribute}
+      />,
+    );
+
+    const combobox = screen
+      .getAllByRole('combobox')
+      .find(cb => cb.textContent === 'stageAutomation.selectCustomAttribute');
+    if (!combobox) throw new Error('custom attribute combobox not found');
+    await user.click(combobox);
+    expect(screen.getByRole('option', { name: /Origem/ })).toBeTruthy();
+    await user.click(screen.getByRole('option', { name: /Origem/ }));
+
+    expect(onChange).toHaveBeenCalledWith([
+      expect.objectContaining({
+        action_value: JSON.stringify({
+          custom_attribute_key: 'origem',
+          custom_attribute_model: 'conversation_attribute',
+          custom_attribute_value: '',
+        }),
+      }),
+    ]);
+  });
+
+  it('writes the typed value into update_custom_attribute action_value JSON', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const attrRule: StageAutomationRule = {
+      id: 'rule-9b',
+      trigger: 'label_added',
+      trigger_value: 'novo-lead',
+      action: 'update_custom_attribute',
+      action_value: JSON.stringify({
+        custom_attribute_key: 'origem',
+        custom_attribute_model: 'conversation_attribute',
+        custom_attribute_value: '',
+      }),
+    };
+    render(
+      <StageAutomationRules
+        rules={[attrRule]}
+        onChange={onChange}
+        customAttributes={origemAttribute}
+      />,
+    );
+
+    const valueInput = screen.getByPlaceholderText('stageAutomation.customAttributeValuePlaceholder');
+    await user.type(valueInput, 'y');
+
+    expect(onChange).toHaveBeenLastCalledWith([
+      expect.objectContaining({
+        action_value: JSON.stringify({
+          custom_attribute_key: 'origem',
+          custom_attribute_model: 'conversation_attribute',
+          custom_attribute_value: 'y',
+        }),
+      }),
+    ]);
   });
 });

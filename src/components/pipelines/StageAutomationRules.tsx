@@ -10,6 +10,7 @@ import {
   SelectValue,
   Input,
   Textarea,
+  Checkbox,
 } from '@evoapi/design-system';
 import { PlusIcon, TrashIcon } from 'lucide-react';
 import type {
@@ -23,6 +24,7 @@ import type { PipelineStage } from '@/types/analytics';
 import type { Label } from '@/types/settings/labels';
 import type { MessageTemplateOption } from '@/services/messageTemplates/combinedTemplateOptions';
 import type { Team } from '@/types/users';
+import type { CustomAttributeDefinition } from '@/types/settings';
 
 interface Agent {
   id: string;
@@ -52,6 +54,14 @@ export interface AgentBotOption {
   name: string;
 }
 
+// Minimal shape for the send_canned_response picker — the parent modal
+// computes the display name (short_code preview vs. content preview), the
+// same way useAutomationFormData does for the canvas/account-level automation.
+export interface CannedResponseOption {
+  id: string | number;
+  name: string;
+}
+
 // Re-exported for back-compat with existing imports of this component's
 // module — the canonical definition lives with the fetch/merge logic.
 export type { MessageTemplateOption };
@@ -75,6 +85,8 @@ interface StageAutomationRulesProps {
   agentBots?: AgentBotOption[];
   messageTemplates?: MessageTemplateOption[];
   teams?: Team[];
+  cannedResponses?: CannedResponseOption[];
+  customAttributes?: CustomAttributeDefinition[];
 }
 
 function newRuleId() {
@@ -92,6 +104,14 @@ const makeEmptyRule = (): StageAutomationRule => ({
 
 const CONVERSATION_STATUSES = ['open', 'resolved', 'pending', 'snoozed'] as const;
 const CONVERSATION_PRIORITIES = ['urgent', 'high', 'medium', 'low', 'none'] as const;
+// Custom attribute models that map to a concrete record at automation-run
+// time (mirrors ActionRow.tsx's UPDATABLE_ATTRIBUTE_MODELS) — pipeline /
+// pipeline_stage attributes are config-level and have no per-run record.
+const UPDATABLE_ATTRIBUTE_MODELS = [
+  'conversation_attribute',
+  'contact_attribute',
+  'pipeline_item_attribute',
+] as const;
 const INACTIVITY_MINUTES = [
   2, 5, 10, 15, 30, 60, 120, 240, 480, 720, 1440, 2880, 4320, 10080, 20160, 43200,
 ] as const;
@@ -139,6 +159,47 @@ function templateOptionLabel(tpl: MessageTemplateOption, t: (key: string) => str
   return `${sourceLabel}${inboxPart}: ${tpl.name}`;
 }
 
+// send_email_to_team's action_value is a JSON string of
+// {"team_ids": [...], "message": "..."}; parse defensively since a hand-edited
+// or legacy rule may carry something else.
+interface EmailToTeamValue {
+  teamIds: string[];
+  message: string;
+}
+
+function parseEmailToTeamValue(value: string): EmailToTeamValue {
+  try {
+    const parsed = JSON.parse(value || '{}');
+    return {
+      teamIds: Array.isArray(parsed?.team_ids) ? parsed.team_ids.map(String) : [],
+      message: typeof parsed?.message === 'string' ? parsed.message : '',
+    };
+  } catch {
+    return { teamIds: [], message: '' };
+  }
+}
+
+// update_custom_attribute's action_value is a JSON string of
+// {"custom_attribute_key", "custom_attribute_model", "custom_attribute_value"}.
+interface CustomAttributeActionValue {
+  key: string;
+  model: string;
+  value: string;
+}
+
+function parseCustomAttributeValue(value: string): CustomAttributeActionValue {
+  try {
+    const parsed = JSON.parse(value || '{}');
+    return {
+      key: typeof parsed?.custom_attribute_key === 'string' ? parsed.custom_attribute_key : '',
+      model: typeof parsed?.custom_attribute_model === 'string' ? parsed.custom_attribute_model : '',
+      value: typeof parsed?.custom_attribute_value === 'string' ? parsed.custom_attribute_value : '',
+    };
+  } catch {
+    return { key: '', model: '', value: '' };
+  }
+}
+
 // trigger_value is an object for the inactivity trigger, a string otherwise.
 function asInactivityValue(value: StageAutomationRule['trigger_value']): InactivityTriggerValue {
   if (value && typeof value === 'object') {
@@ -184,6 +245,8 @@ export default function StageAutomationRules({
   agentBots = [],
   messageTemplates = [],
   teams = [],
+  cannedResponses = [],
+  customAttributes = [],
 }: StageAutomationRulesProps) {
   const { t } = useLanguage('pipelines');
   const navigate = useNavigate();
@@ -603,6 +666,153 @@ export default function StageAutomationRules({
       );
     }
 
+    if (rule.action === 'send_canned_response') {
+      return (
+        <Select
+          value={rule.action_value || ''}
+          onValueChange={v => updateRule(index, { action_value: v })}
+          disabled={disabled}
+        >
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder={t('stageAutomation.selectCannedResponse') || 'Selecione uma resposta pronta'} />
+          </SelectTrigger>
+          <SelectContent>
+            {cannedResponses.length === 0 ? (
+              <SelectItem value={PLACEHOLDER_SENTINEL} disabled>
+                {t('stageAutomation.noCannedResponses') || 'Nenhuma resposta pronta disponível'}
+              </SelectItem>
+            ) : (
+              cannedResponses.map(c => (
+                <SelectItem key={c.id} value={String(c.id)}>
+                  {c.name}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    if (rule.action === 'send_email_to_team') {
+      const { teamIds, message } = parseEmailToTeamValue(rule.action_value);
+      const toggleTeam = (id: string) => {
+        const nextIds = teamIds.includes(id) ? teamIds.filter(t => t !== id) : [...teamIds, id];
+        updateRule(index, { action_value: JSON.stringify({ team_ids: nextIds, message }) });
+      };
+      return (
+        <div className="flex-1 space-y-2">
+          <div className="space-y-1 max-h-32 overflow-y-auto rounded-md border p-2">
+            {teams.length === 0 ? (
+              <p className="text-xs text-muted-foreground">{t('stageAutomation.noTeams')}</p>
+            ) : (
+              teams.map(tm => {
+                const id = String(tm.id);
+                return (
+                  <label key={id} className="flex items-center gap-2 text-sm cursor-pointer">
+                    <Checkbox
+                      checked={teamIds.includes(id)}
+                      onCheckedChange={() => toggleTeam(id)}
+                      disabled={disabled}
+                    />
+                    {tm.name}
+                  </label>
+                );
+              })
+            )}
+          </div>
+          <Textarea
+            rows={2}
+            placeholder={t('stageAutomation.emailToTeamMessagePlaceholder') || 'Mensagem do e-mail...'}
+            value={message}
+            onChange={e =>
+              updateRule(index, { action_value: JSON.stringify({ team_ids: teamIds, message: e.target.value }) })
+            }
+            disabled={disabled}
+          />
+        </div>
+      );
+    }
+
+    if (rule.action === 'send_email_transcript') {
+      return (
+        <Input
+          className="flex-1"
+          placeholder={t('stageAutomation.emailTranscriptPlaceholder') || 'email1@ex.com, email2@ex.com'}
+          value={rule.action_value}
+          onChange={e => updateRule(index, { action_value: e.target.value })}
+          disabled={disabled}
+        />
+      );
+    }
+
+    if (rule.action === 'update_custom_attribute') {
+      const { key: selectedKey, model: selectedModel, value: attributeValue } = parseCustomAttributeValue(
+        rule.action_value,
+      );
+      const options = customAttributes.filter(attr =>
+        (UPDATABLE_ATTRIBUTE_MODELS as readonly string[]).includes(attr.attribute_model),
+      );
+      const composite = selectedKey && selectedModel ? `${selectedModel}::${selectedKey}` : '';
+
+      const pickAttribute = (value: string) => {
+        const sep = value.indexOf('::');
+        if (sep === -1) return;
+        const model = value.slice(0, sep);
+        const key = value.slice(sep + 2);
+        updateRule(index, {
+          action_value: JSON.stringify({
+            custom_attribute_key: key,
+            custom_attribute_model: model,
+            custom_attribute_value: '',
+          }),
+        });
+      };
+
+      const setAttributeValue = (value: string) => {
+        updateRule(index, {
+          action_value: JSON.stringify({
+            custom_attribute_key: selectedKey,
+            custom_attribute_model: selectedModel,
+            custom_attribute_value: value,
+          }),
+        });
+      };
+
+      return (
+        <div className="flex-1 space-y-2">
+          <Select value={composite} onValueChange={pickAttribute} disabled={disabled}>
+            <SelectTrigger>
+              <SelectValue placeholder={t('stageAutomation.selectCustomAttribute') || 'Selecione um atributo'} />
+            </SelectTrigger>
+            <SelectContent>
+              {options.length === 0 ? (
+                <SelectItem value={PLACEHOLDER_SENTINEL} disabled>
+                  {t('stageAutomation.noCustomAttributes') || 'Nenhum atributo disponível'}
+                </SelectItem>
+              ) : (
+                options.map(attr => (
+                  <SelectItem
+                    key={`${attr.attribute_model}::${attr.attribute_key}`}
+                    value={`${attr.attribute_model}::${attr.attribute_key}`}
+                  >
+                    {`${attr.attribute_display_name} · ${t(`stageAutomation.customAttributeModels.${attr.attribute_model}`)}`}
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+          {composite && (
+            <Input
+              placeholder={t('stageAutomation.customAttributeValuePlaceholder') || 'Valor...'}
+              value={attributeValue}
+              onChange={e => setAttributeValue(e.target.value)}
+              disabled={disabled}
+            />
+          )}
+        </div>
+      );
+    }
+
     if (rule.action === 'send_ai_message') {
       return (
         <div className="flex-1 space-y-2">
@@ -877,6 +1087,10 @@ export default function StageAutomationRules({
                     <SelectItem value="finalize">{t('stageAutomation.actions.finalize')}</SelectItem>
                     <SelectItem value="send_webhook_event">{t('stageAutomation.actions.send_webhook_event') || 'Disparar webhook'}</SelectItem>
                     <SelectItem value="create_pipeline_task">{t('stageAutomation.actions.create_pipeline_task') || 'Criar tarefa no card'}</SelectItem>
+                    <SelectItem value="send_canned_response">{t('stageAutomation.actions.send_canned_response') || 'Enviar resposta pronta'}</SelectItem>
+                    <SelectItem value="send_email_to_team">{t('stageAutomation.actions.send_email_to_team') || 'Enviar e-mail para equipe'}</SelectItem>
+                    <SelectItem value="send_email_transcript">{t('stageAutomation.actions.send_email_transcript') || 'Enviar transcrição por e-mail'}</SelectItem>
+                    <SelectItem value="update_custom_attribute">{t('stageAutomation.actions.update_custom_attribute') || 'Atualizar atributo personalizado'}</SelectItem>
                   </SelectContent>
                 </Select>
                 {renderActionValue(rule, index)}
