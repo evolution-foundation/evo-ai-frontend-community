@@ -218,6 +218,7 @@
     "title": "Conhecimento",
     "subtitle": "Gerencie sua base de conhecimento",
     "addContentButton": "Adicionar Conteúdo",
+    "searchTestButton": "Teste de Pesquisa de Conhecimento",
     "searchPlaceholder": "Pesquisar documentos...",
     "loading": "Carregando documentos...",
     "empty": {
@@ -247,6 +248,19 @@
         "create": "Criar",
         "upload": "Enviar",
         "processUrl": "Processar URL"
+      }
+    },
+    "searchTest": {
+      "title": "Teste de Pesquisa de Conhecimento",
+      "description": "Teste como uma consulta corresponderá às entradas desta base de conhecimento",
+      "queryPlaceholder": "Consulta de pesquisa",
+      "maxResults": "Máximo de Resultados",
+      "empty": "Ainda sem resultados. Experimente uma consulta acima.",
+      "noResults": "Nenhuma entrada correspondeu a essa consulta.",
+      "error": "Erro ao executar o teste de pesquisa de conhecimento",
+      "actions": {
+        "search": "Pesquisar",
+        "close": "Fechar"
       }
     }
   },

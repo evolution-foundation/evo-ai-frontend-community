@@ -218,6 +218,7 @@
     "title": "Knowledge",
     "subtitle": "Manage your knowledge base",
     "addContentButton": "Add Content",
+    "searchTestButton": "Knowledge Search Test",
     "searchPlaceholder": "Search documents...",
     "loading": "Loading documents...",
     "empty": {
@@ -247,6 +248,19 @@
         "create": "Create",
         "upload": "Upload",
         "processUrl": "Process URL"
+      }
+    },
+    "searchTest": {
+      "title": "Knowledge Search Test",
+      "description": "Test how a query will match against entries in this knowledge base",
+      "queryPlaceholder": "Search query",
+      "maxResults": "Max Results",
+      "empty": "No results yet. Try a search query above.",
+      "noResults": "No entries matched that query.",
+      "error": "Error running knowledge search test",
+      "actions": {
+        "search": "Search",
+        "close": "Close"
       }
     }
   },

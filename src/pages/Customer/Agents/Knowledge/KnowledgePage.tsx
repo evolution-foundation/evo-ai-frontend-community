@@ -7,6 +7,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import EmptyState from '@/components/base/EmptyState';
 import { AgentsTabsLayout } from '@/components/agents';
 import AddContentModal from './AddContentModal';
+import SearchTestModal from './SearchTestModal';
 
 const STATUS_BADGE_VARIANT: Record<KnowledgeDocument['status'], 'default' | 'secondary' | 'destructive'> = {
   active: 'default',
@@ -21,6 +22,7 @@ export default function KnowledgePage() {
   const activeKnowledgeBaseId = knowledgeBases.find(kb => kb.default)?.id ?? knowledgeBases[0]?.id ?? '';
   const { documents, loading, refetch } = useKnowledgeDocuments(activeKnowledgeBaseId);
   const [modalOpen, setModalOpen] = useState(false);
+  const [searchTestOpen, setSearchTestOpen] = useState(false);
   const [search, setSearch] = useState('');
 
   const filteredDocuments = useMemo(() => {
@@ -33,6 +35,10 @@ export default function KnowledgePage() {
     <AgentsTabsLayout tab="knowledge">
     <div className="flex h-full flex-col px-[34px] pb-5">
       <div className="mt-6 flex items-center justify-end gap-4">
+        <Button variant="outline" onClick={() => setSearchTestOpen(true)}>
+          <Search className="mr-2 h-4 w-4" />
+          {t('knowledge.searchTestButton')}
+        </Button>
         <Button onClick={() => setModalOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           {t('knowledge.addContentButton')}
@@ -101,6 +107,13 @@ export default function KnowledgePage() {
             setModalOpen(false);
             refetch();
           }}
+        />
+      )}
+
+      {searchTestOpen && (
+        <SearchTestModal
+          knowledgeBaseId={activeKnowledgeBaseId}
+          onClose={() => setSearchTestOpen(false)}
         />
       )}
     </div>

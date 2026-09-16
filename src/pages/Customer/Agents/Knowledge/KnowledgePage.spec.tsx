@@ -20,9 +20,11 @@ const TRANSLATIONS: Record<string, string> = {
   'knowledge.title': 'Knowledge',
   'knowledge.subtitle': 'Manage your knowledge base',
   'knowledge.addContentButton': 'Add Content',
+  'knowledge.searchTestButton': 'Knowledge Search Test',
   'knowledge.addContent.title': 'Add Content',
   'knowledge.addContent.description':
     'Create a new entry in the knowledge base to train your agents',
+  'knowledge.searchTest.title': 'Knowledge Search Test',
 };
 
 vi.mock('@/hooks/useLanguage', () => ({
@@ -74,5 +76,22 @@ describe('KnowledgePage', () => {
     await user.click(screen.getAllByRole('button', { name: /add content/i })[0]);
 
     expect(screen.getByText(/create a new entry/i)).toBeInTheDocument();
+  });
+
+  it('opens the Knowledge Search Test modal when the button is clicked', async () => {
+    baseKnowledgeBases();
+    vi.mocked(useKnowledgeDocuments).mockReturnValue({
+      documents: [],
+      loading: false,
+      refetch: vi.fn(),
+    });
+
+    render(<KnowledgePage />);
+    const user = (await import('@testing-library/user-event')).default.setup();
+    await user.click(screen.getByRole('button', { name: /knowledge search test/i }));
+
+    expect(
+      screen.getByRole('dialog', { name: /knowledge search test/i }),
+    ).toBeInTheDocument();
   });
 });

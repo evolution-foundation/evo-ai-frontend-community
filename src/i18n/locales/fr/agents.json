@@ -218,6 +218,7 @@
     "title": "Connaissances",
     "subtitle": "Gérez votre base de connaissances",
     "addContentButton": "Ajouter du Contenu",
+    "searchTestButton": "Test de Recherche de Connaissances",
     "searchPlaceholder": "Rechercher des documents...",
     "loading": "Chargement des documents...",
     "empty": {
@@ -247,6 +248,19 @@
         "create": "Créer",
         "upload": "Téléverser",
         "processUrl": "Traiter l'URL"
+      }
+    },
+    "searchTest": {
+      "title": "Test de Recherche de Connaissances",
+      "description": "Testez comment une requête correspondra aux entrées de cette base de connaissances",
+      "queryPlaceholder": "Requête de recherche",
+      "maxResults": "Résultats Maximum",
+      "empty": "Aucun résultat pour l'instant. Essayez une requête ci-dessus.",
+      "noResults": "Aucune entrée ne correspond à cette requête.",
+      "error": "Erreur lors de l'exécution du test de recherche de connaissances",
+      "actions": {
+        "search": "Rechercher",
+        "close": "Fermer"
       }
     }
   },
