@@ -78,7 +78,7 @@ describe('InboxesService.checkArchivedMatch', () => {
 
   it('GETs /inboxes/archived_whatsapp_match with the phone number', async () => {
     const getMock = vi.mocked(api.get);
-    getMock.mockResolvedValue({ data: { data: { inbox_id: 'i1' } } } as never);
+    getMock.mockResolvedValue({ data: { inbox_id: 'i1' } } as never);
 
     const result = await InboxesService.checkArchivedMatch('+5511999999999');
 
