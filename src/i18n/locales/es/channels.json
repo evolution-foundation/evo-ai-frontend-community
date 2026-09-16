@@ -1685,7 +1685,17 @@
       "manageAria": "Gestionar conexiones: {{count}} · {{status}}",
       "connect": "Conectar",
       "addConnection": "Agregar conexión",
-      "deleteConnection": "Eliminar conexión"
+      "deleteConnection": "Eliminar conexión",
+      "reactivate": "Reactivate"
+    },
+    "archived": {
+      "badge": "Archived",
+      "confirmTitle": "Reconnect this number?",
+      "confirmDescription": "An archived channel with this phone number already exists. Reactivating it restores its full conversation history instead of starting a new, empty channel.",
+      "confirmReactivate": "Reactivate existing channel",
+      "confirmCreateNew": "Create a new channel instead",
+      "reactivated": "{{name}} reactivated",
+      "reactivateFailed": "Failed to reactivate channel"
     },
     "capabilities": {
       "publishing": "Publicación",

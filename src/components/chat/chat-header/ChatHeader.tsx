@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Button } from '@evoapi/design-system/button';
 import {
   ArrowLeft,
@@ -6,6 +6,7 @@ import {
   MoreVertical,
   ArrowUp,
   ArrowDown,
+  ArrowRightLeft,
   Minus,
   AlertTriangle,
   User as UserIcon,
@@ -25,7 +26,16 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuLabel,
 } from '@evoapi/design-system/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@evoapi/design-system/dialog';
 import { Conversation } from '@/types/chat/api';
+import type { Inbox } from '@/types/channels/inbox';
 import type { Pipeline, PipelineStage } from '@/types/analytics';
 import ContactAvatar from '@/components/chat/contact/ContactAvatar';
 import { getStatusLabel } from '@/utils/chat/conversationStatus';
@@ -35,10 +45,34 @@ import { isPhoneBearingChannel } from '@/utils/channelUtils';
 import { formatContactPhone } from '@/utils/contact/formatContactPhone';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useChatContext } from '@/contexts/chat/ChatContext';
+import { useAppDataStore } from '@/store/appDataStore';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
+import { conversationAPI } from '@/services/conversations/conversationService';
 import chatService from '@/services/chat/chatService';
 import { toast } from 'sonner';
 import { findItemInPipeline } from '@/utils/chat/pipelineUtils';
+
+// Mirrors backend Conversation#eligible_move_target? (app/models/concerns/conversation_channel_move.rb)
+// exactly: archived is never eligible, Chat Widget is never a valid target, same
+// channel_type as the conversation's current inbox is always eligible, and a
+// cross-type WhatsApp/Email target is eligible only if the contact carries the
+// matching identifier. This is UX-only pre-filtering — the backend re-validates
+// on submit regardless — but exact parity keeps the picker from offering targets
+// the move will then reject.
+const isEligibleMoveTarget = (targetInbox: Inbox, conversation: Conversation): boolean => {
+  if (targetInbox.archived_at) return false;
+  if (targetInbox.channel_type === 'Channel::WebWidget') return false;
+  if (targetInbox.channel_type === conversation.inbox?.channel_type) return true;
+
+  switch (targetInbox.channel_type) {
+    case 'Channel::Whatsapp':
+      return !!conversation.contact?.phone_number;
+    case 'Channel::Email':
+      return !!conversation.contact?.email;
+    default:
+      return false;
+  }
+};
 
 interface ChatHeaderProps {
   conversation: Conversation;
@@ -93,7 +127,19 @@ const ChatHeader = ({
     ? formatContactPhone(conversation.contact?.phone_number)
     : null;
 
+  const allInboxes = useAppDataStore(state => state.inboxes);
+  const eligibleTargetInboxes = useMemo(
+    () =>
+      allInboxes.filter(
+        inbox => inbox.id !== conversation.inbox?.id && isEligibleMoveTarget(inbox, conversation),
+      ),
+    [allInboxes, conversation],
+  );
+
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moveChannelModalOpen, setMoveChannelModalOpen] = useState(false);
+  const [selectedTargetInboxId, setSelectedTargetInboxId] = useState<string | null>(null);
+  const [isMovingChannel, setIsMovingChannel] = useState(false);
   const [allPipelines, setAllPipelines] = useState<Pipeline[]>([]);
   const [isLoadingPipelines, setIsLoadingPipelines] = useState(false);
   const [pipelinesLoaded, setPipelinesLoaded] = useState(false);
@@ -226,6 +272,30 @@ const ChatHeader = ({
     },
     [convPipelineData, conversation.id, t, refreshConversationBadge, reloadConvPipelineData],
   );
+
+  const handleOpenMoveChannelModal = useCallback(() => {
+    setSelectedTargetInboxId(null);
+    setMoveChannelModalOpen(true);
+  }, []);
+
+  const handleConfirmMoveChannel = useCallback(async () => {
+    if (!selectedTargetInboxId) return;
+    const targetInbox = eligibleTargetInboxes.find(inbox => inbox.id === selectedTargetInboxId);
+    setIsMovingChannel(true);
+    try {
+      await conversationAPI.moveChannel(String(conversation.id), selectedTargetInboxId);
+      toast.success(t('moveChannel.movedToast', { inboxName: targetInbox?.name ?? '' }));
+      setMoveChannelModalOpen(false);
+      await refreshConversationBadge();
+    } catch {
+      // The only documented failure mode from the backend (422 when
+      // eligible_move_target? re-validation fails) shares this message with
+      // any other transport failure, since there's no other moveChannel.* key.
+      toast.error(t('moveChannel.errorIneligible'));
+    } finally {
+      setIsMovingChannel(false);
+    }
+  }, [selectedTargetInboxId, eligibleTargetInboxes, conversation.id, t, refreshConversationBadge]);
 
   const handleRemoveFromPipeline = useCallback(
     async (pipeline: Pipeline) => {
@@ -380,6 +450,20 @@ const ChatHeader = ({
             <Tag className="h-4 w-4 text-primary" />
             {t('chatHeader.actions.assignTag')}
           </DropdownMenuItem>
+
+          {/* eligibleTargetInboxes already excludes the conversation's own
+              inbox, so one entry is enough: there is somewhere else to move to.
+              Requiring 2 hid the action from the common two-WhatsApp-number
+              account this feature exists for. */}
+          {eligibleTargetInboxes.length >= 1 && (
+            <DropdownMenuItem
+              onClick={handleOpenMoveChannelModal}
+              className="flex items-center gap-2"
+            >
+              <ArrowRightLeft className="h-4 w-4 text-primary" />
+              {t('moveChannel.action')}
+            </DropdownMenuItem>
+          )}
 
           <DropdownMenuSeparator />
 
@@ -537,6 +621,65 @@ const ChatHeader = ({
           </Button>
         </div>
       </div>
+
+      <Dialog open={moveChannelModalOpen} onOpenChange={setMoveChannelModalOpen}>
+        <DialogContent className="sm:max-w-md overflow-hidden">
+          <DialogHeader className="min-w-0">
+            <DialogTitle className="flex items-center gap-2">
+              <ArrowRightLeft className="h-5 w-5" />
+              {t('moveChannel.modalTitle')}
+            </DialogTitle>
+            <DialogDescription className="break-words">
+              {t('moveChannel.modalDescription')}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="max-h-64 overflow-y-auto space-y-2 min-w-0">
+            {eligibleTargetInboxes.length === 0 ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-sm text-muted-foreground">
+                  {t('moveChannel.noEligibleTargets')}
+                </div>
+              </div>
+            ) : (
+              eligibleTargetInboxes.map(inbox => {
+                const isSelected = selectedTargetInboxId === inbox.id;
+                return (
+                  <div
+                    key={inbox.id}
+                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all hover:bg-accent ${
+                      isSelected ? 'bg-accent border-primary' : 'border-border'
+                    }`}
+                    onClick={() => setSelectedTargetInboxId(inbox.id)}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{inbox.name}</p>
+                    </div>
+                    {isSelected && <Check className="h-4 w-4 text-primary flex-shrink-0" />}
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-3 min-w-0">
+            <Button
+              variant="outline"
+              onClick={() => setMoveChannelModalOpen(false)}
+              disabled={isMovingChannel}
+            >
+              {t('moveChannel.cancel')}
+            </Button>
+            <Button
+              onClick={handleConfirmMoveChannel}
+              disabled={isMovingChannel || !selectedTargetInboxId}
+              className="w-full sm:w-auto"
+            >
+              {t('moveChannel.confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

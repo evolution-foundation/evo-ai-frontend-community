@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/hooks/useLanguage';
 import { Provider as ProviderType } from '@/components/channels/ProviderGrid';
 import InboxesService from '@/services/channels/inboxesService';
 import {
@@ -31,11 +32,26 @@ import { apiErrorMessage } from '@/utils/apiHelpers';
 
 export const useChannelSubmission = (form?: FormData) => {
   const navigate = useNavigate();
+  const { t } = useLanguage('channels');
   const { validateByChannelAndProvider, getStr } = useChannelValidation();
-  const { addInbox } = useAppDataStore();
+  const { addInbox, fetchInboxes } = useAppDataStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [healthCheckPassed, setHealthCheckPassed] = useState<boolean | null>(null);
+  // Set when submitCreate finds an archived inbox matching the phone number of a
+  // new WhatsApp channel being created. While set, the confirmation UI (owned by
+  // the host component, e.g. NewChannel) should offer reactivate-vs-create-new
+  // instead of the create request having gone through.
+  const [archivedMatch, setArchivedMatch] = useState<{ inboxId: string } | null>(null);
+  // Captures the exact submitCreate args so "Create new" can resume the original
+  // request (bypassing the archived check) after the user dismisses the modal.
+  const pendingSubmitRef = useRef<{
+    selectedChannel: ChannelType;
+    selectedProvider: ProviderType | null;
+    form: FormData;
+    config: any;
+    onCreated?: (createdId?: string) => void;
+  } | null>(null);
 
   const pendingInstanceRef = useRef<{
     instanceUuid: string;
@@ -256,12 +272,30 @@ export const useChannelSubmission = (form?: FormData) => {
     // navigation to /channels/:id/settings (which does not resolve when
     // NewChannel is mounted embedded, without <Routes> capturing the route).
     onCreated?: (createdId?: string) => void,
+    // Internal: set when resuming after the user chose "Create new" on the
+    // archived-match modal, so the check that already ran once is not repeated.
+    skipArchivedCheck = false,
   ) => {
     if (!selectedChannel) return;
 
     // Validate fields based on channel type and provider
     if (!validateByChannelAndProvider(selectedChannel.type, selectedProvider?.id, form, config)) {
       return;
+    }
+
+    // Before creating a WhatsApp channel, check whether an archived inbox
+    // already exists for this phone number. If so, hand off to the host's
+    // confirmation UI (reactivate vs. create new) instead of proceeding.
+    if (!skipArchivedCheck && selectedChannel.type === 'whatsapp') {
+      const phoneNumber = getStr(form, 'phone_number');
+      if (phoneNumber) {
+        const match = await InboxesService.checkArchivedMatch(phoneNumber);
+        if (match) {
+          pendingSubmitRef.current = { selectedChannel, selectedProvider, form, config, onCreated };
+          setArchivedMatch({ inboxId: match.inbox_id });
+          return;
+        }
+      }
     }
 
     setIsSubmitting(true);
@@ -727,11 +761,48 @@ export const useChannelSubmission = (form?: FormData) => {
     }
   };
 
+  // "Reactivate existing channel": restores the archived inbox instead of
+  // creating a duplicate, then refreshes the list. Never calls createChannel.
+  const confirmReactivate = async () => {
+    if (!archivedMatch) return;
+    try {
+      await InboxesService.reactivate(archivedMatch.inboxId);
+      const name = getStr(pendingSubmitRef.current?.form ?? {}, 'name', '');
+      toast.success(t('overview.archived.reactivated', { name }));
+      await fetchInboxes();
+    } catch {
+      toast.error(t('overview.archived.reactivateFailed'));
+    } finally {
+      pendingSubmitRef.current = null;
+      setArchivedMatch(null);
+    }
+  };
+
+  // "Create a new channel instead": dismisses the modal and resumes the
+  // original submitCreate call, this time skipping the archived check.
+  const confirmCreateNew = async () => {
+    const pending = pendingSubmitRef.current;
+    pendingSubmitRef.current = null;
+    setArchivedMatch(null);
+    if (!pending) return;
+    await submitCreate(
+      pending.selectedChannel,
+      pending.selectedProvider,
+      pending.form,
+      pending.config,
+      pending.onCreated,
+      true,
+    );
+  };
+
   return {
     isSubmitting,
     isTesting,
     testConnection,
     submitCreate,
     healthCheckPassed,
+    archivedMatch,
+    confirmReactivate,
+    confirmCreateNew,
   };
 };
