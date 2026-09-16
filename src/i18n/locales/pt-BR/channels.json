@@ -1770,7 +1770,7 @@
     "archived": {
       "badge": "Arquivado",
       "confirmTitle": "Reconectar este número?",
-      "confirmDescription": "Já existe um canal arquivado com este número de telefone. Reativá-lo restaura todo o histórico de conversas em vez de começar um canal novo e vazio.",
+      "confirmDescription": "Já existe um canal arquivado com este número de telefone. As duas opções mantêm todo o histórico de conversas — reativar retoma a mesma conexão, ou criar um novo canal se você quiser trocar de provedor.",
       "confirmReactivate": "Reativar canal existente",
       "confirmCreateNew": "Criar um novo canal",
       "reactivated": "{{name}} reativado",

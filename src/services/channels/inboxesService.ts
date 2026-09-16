@@ -140,6 +140,11 @@ const InboxesService = {
     });
     return extractData<{ inbox_id: string } | null>(response);
   },
+
+  async replaceArchivedChannel(inboxId: string, channel: Record<string, unknown>): Promise<Inbox> {
+    const response = await api.post(`/inboxes/${inboxId}/replace_archived_channel`, { channel });
+    return extractData<Inbox>(response);
+  },
 };
 
 export default InboxesService;

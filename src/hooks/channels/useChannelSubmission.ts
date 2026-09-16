@@ -273,8 +273,12 @@ export const useChannelSubmission = (form?: FormData) => {
     // NewChannel is mounted embedded, without <Routes> capturing the route).
     onCreated?: (createdId?: string) => void,
     // Internal: set when resuming after the user chose "Create new" on the
-    // archived-match modal, so the check that already ran once is not repeated.
-    skipArchivedCheck = false,
+    // archived-match modal. The archived inbox's conversations/messages must
+    // stay put, so this is not a real create — the payload built below is
+    // sent to replaceArchivedChannel, which swaps this inbox's Channel record
+    // for a fresh one (keeping the same Inbox, same history) instead of
+    // InboxesService.createChannel building a whole new Inbox.
+    replaceArchivedInboxId?: string,
   ) => {
     if (!selectedChannel) return;
 
@@ -286,7 +290,7 @@ export const useChannelSubmission = (form?: FormData) => {
     // Before creating a WhatsApp channel, check whether an archived inbox
     // already exists for this phone number. If so, hand off to the host's
     // confirmation UI (reactivate vs. create new) instead of proceeding.
-    if (!skipArchivedCheck && selectedChannel.type === 'whatsapp') {
+    if (!replaceArchivedInboxId && selectedChannel.type === 'whatsapp') {
       const phoneNumber = getStr(form, 'phone_number');
       if (phoneNumber) {
         const match = await InboxesService.checkArchivedMatch(phoneNumber);
@@ -731,9 +735,12 @@ export const useChannelSubmission = (form?: FormData) => {
 
       let response;
       try {
-        response = await InboxesService.createChannel(payload);
+        response = replaceArchivedInboxId
+          ? await InboxesService.replaceArchivedChannel(replaceArchivedInboxId, (payload as { channel: Record<string, unknown> }).channel)
+          : await InboxesService.createChannel(payload);
       } catch (createError) {
-        // createChannel failed — instance exists on Evolution Go but no inbox in CRM.
+        // createChannel/replaceArchivedChannel failed — instance exists on
+        // Evolution Go but no inbox in CRM references it.
         if (pendingInstance) {
           EvolutionGoService.deleteInstance(pendingInstance).catch(() => {});
         }
@@ -743,7 +750,11 @@ export const useChannelSubmission = (form?: FormData) => {
       const data = (response as any)?.data ?? response;
       const createdId = data?.id;
 
-      if (data && typeof data === 'object' && 'id' in data) {
+      if (replaceArchivedInboxId) {
+        // The inbox already exists in the list (it was archived, not gone) —
+        // addInbox would append a duplicate. Refresh instead, same as reactivate.
+        await fetchInboxes();
+      } else if (data && typeof data === 'object' && 'id' in data) {
         addInbox(data as Inbox);
       }
 
@@ -779,19 +790,21 @@ export const useChannelSubmission = (form?: FormData) => {
   };
 
   // "Create a new channel instead": dismisses the modal and resumes the
-  // original submitCreate call, this time skipping the archived check.
+  // original submitCreate call, targeting replaceArchivedChannel so the
+  // archived inbox's conversation history stays where it is.
   const confirmCreateNew = async () => {
     const pending = pendingSubmitRef.current;
+    const inboxId = archivedMatch?.inboxId;
     pendingSubmitRef.current = null;
     setArchivedMatch(null);
-    if (!pending) return;
+    if (!pending || !inboxId) return;
     await submitCreate(
       pending.selectedChannel,
       pending.selectedProvider,
       pending.form,
       pending.config,
       pending.onCreated,
-      true,
+      inboxId,
     );
   };
 

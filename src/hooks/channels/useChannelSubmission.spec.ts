@@ -30,7 +30,7 @@ vi.mock('@/hooks/channels/useChannelValidation', () => ({
 }));
 
 vi.mock('@/services/channels/inboxesService', () => ({
-  default: { createChannel: vi.fn(), checkArchivedMatch: vi.fn(), reactivate: vi.fn() },
+  default: { createChannel: vi.fn(), checkArchivedMatch: vi.fn(), reactivate: vi.fn(), replaceArchivedChannel: vi.fn() },
 }));
 vi.mock('@/services/channels/evolutionService', () => ({
   default: { healthCheck: vi.fn(), verifyConnection: vi.fn() },
@@ -48,6 +48,7 @@ vi.mock('@/services/channels/notificameService', () => ({
 const createChannelMock = vi.mocked(InboxesService.createChannel);
 const checkArchivedMatchMock = vi.mocked(InboxesService.checkArchivedMatch);
 const reactivateMock = vi.mocked(InboxesService.reactivate);
+const replaceArchivedChannelMock = vi.mocked(InboxesService.replaceArchivedChannel);
 
 const submit = async (channelType: string, providerId: string, form: Record<string, unknown>, config = {}) => {
   const { result } = renderHook(() => useChannelSubmission(form as never));
@@ -68,6 +69,7 @@ describe('useChannelSubmission.submitCreate', () => {
     createChannelMock.mockResolvedValue({ data: { id: 'inbox-1' } } as never);
     checkArchivedMatchMock.mockResolvedValue(null);
     reactivateMock.mockResolvedValue({} as never);
+    replaceArchivedChannelMock.mockResolvedValue({ data: { id: 'archived-1' } } as never);
   });
 
   it('includes business_account_id in the WhatsApp Cloud provider_config (EVO-2093 regression)', async () => {
@@ -207,6 +209,7 @@ describe('useChannelSubmission — archived match on WhatsApp creation (EVO-2159
     createChannelMock.mockResolvedValue({ data: { id: 'inbox-1' } } as never);
     checkArchivedMatchMock.mockResolvedValue(null);
     reactivateMock.mockResolvedValue({} as never);
+    replaceArchivedChannelMock.mockResolvedValue({ data: { id: 'archived-1' } } as never);
   });
 
   // Renders the hook and drives it through submitCreate for a WhatsApp/evolution
@@ -277,7 +280,7 @@ describe('useChannelSubmission — archived match on WhatsApp creation (EVO-2159
     expect(result.current.archivedMatch).toBeNull();
   });
 
-  it('proceeds with the original creation when the user chooses Create new', async () => {
+  it('replaces the archived channel in place instead of creating a new inbox, keeping history', async () => {
     checkArchivedMatchMock.mockResolvedValue({ inbox_id: 'archived-1' });
     const result = await renderAndSubmitWhatsapp();
 
@@ -286,9 +289,13 @@ describe('useChannelSubmission — archived match on WhatsApp creation (EVO-2159
     });
 
     expect(reactivateMock).not.toHaveBeenCalled();
-    expect(createChannelMock).toHaveBeenCalled();
-    const payload = createChannelMock.mock.calls.at(-1)?.[0] as any;
-    expect(payload.channel.provider).toBe('evolution');
+    expect(createChannelMock).not.toHaveBeenCalled();
+    expect(replaceArchivedChannelMock).toHaveBeenCalledWith(
+      'archived-1',
+      expect.objectContaining({ provider: 'evolution' }),
+    );
     expect(result.current.archivedMatch).toBeNull();
+    expect(toast.success).toHaveBeenCalledWith('Canal criado com sucesso');
+    expect(fetchInboxesMock).toHaveBeenCalled();
   });
 });
