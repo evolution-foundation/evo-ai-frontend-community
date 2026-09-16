@@ -189,6 +189,16 @@ export const conversationAPI = {
     return extractData<any>(response);
   },
 
+  // Move conversation to a different inbox/channel (Change channel action).
+  // Backend routes this as a member POST (config/routes.rb: `post :move_channel`),
+  // not PATCH — Conversation#eligible_move_target? re-validates server-side.
+  async moveChannel(conversationId: string, inboxId: string): Promise<Conversation> {
+    const response = await api.post(`/conversations/${conversationId}/move_channel`, {
+      inbox_id: inboxId,
+    });
+    return extractData<Conversation>(response);
+  },
+
   // Get conversation counts
   async getConversationCounts(): Promise<{
     open_count: number;
