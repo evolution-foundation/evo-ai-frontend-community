@@ -25,6 +25,8 @@ interface ToolsSectionProps {
   onAgentToolsChange: (agentTools: string[], agentToolsData?: Agent[]) => void;
   onCustomToolsChange: (customTools: { http_tools: CustomTool[] }) => void;
   onAdvancedSettingsChange: (settings: AdvancedSettingsData) => void;
+  knowledgeBaseId?: string;
+  onKnowledgeBaseChange?: (knowledgeBaseId: string) => void;
   editingAgentId?: string;
   folderId?: string;
 }
@@ -37,6 +39,8 @@ const ToolsSection = ({
   onAgentToolsChange,
   onCustomToolsChange,
   onAdvancedSettingsChange,
+  knowledgeBaseId,
+  onKnowledgeBaseChange,
   editingAgentId,
   folderId,
 }: ToolsSectionProps) => {
@@ -102,6 +106,8 @@ const ToolsSection = ({
         isOpen={showAdvancedSettings}
         onToggle={() => setShowAdvancedSettings(prev => !prev)}
         onAdvancedSettingsChange={onAdvancedSettingsChange}
+        knowledgeBaseId={knowledgeBaseId}
+        onKnowledgeBaseChange={onKnowledgeBaseChange}
         isReadOnly={false}
       />
     </div>

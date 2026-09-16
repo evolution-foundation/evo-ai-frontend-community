@@ -24,6 +24,7 @@ import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import usersService from '@/services/users/usersService';
 import { fetchAllPages } from '@/utils/apiHelpers';
 import teamsService from '@/services/teams/teamsService';
+import api from '@/services/core/api';
 import ProfileSection from './sections/ProfileSection';
 import ProductsSection from './sections/ProductsSection';
 import ConfigurationSection from './sections/ConfigurationSection';
@@ -116,6 +117,10 @@ const AgentEditPage = () => {
     knowledge_base_config_id: undefined as string | undefined,
     knowledge_max_results: 5,
   });
+  // The attached knowledge base (Phase 1 CRUD resource) is a relationship to a
+  // separate resource, not an agent config field — kept out of `advancedSettings`
+  // and persisted via its own attach/detach endpoint (see handleKnowledgeBaseChange).
+  const [knowledgeBaseId, setKnowledgeBaseId] = useState<string | undefined>(undefined);
 
   const [behaviorSettings, setBehaviorSettings] = useState({
     transferToHuman: false,
@@ -430,6 +435,7 @@ const AgentEditPage = () => {
           knowledge_base_config_id: agentData.config?.knowledge_base_config_id,
           knowledge_max_results: agentData.config?.knowledge_max_results || 5,
         });
+        setKnowledgeBaseId(agentData.config?.knowledge_base_id);
 
         const config = agentData.config as Record<string, unknown>;
         setBehaviorSettings({
@@ -554,6 +560,32 @@ const AgentEditPage = () => {
       setIsDirty(true);
     },
     [agent?.type, llmConfigData],
+  );
+
+  // Attaches/detaches the selected knowledge base immediately (it's a relationship to
+  // a separate resource, not an agent config field saved via handleSave). Optimistic
+  // update with rollback on failure, mirroring the rest of this page's toast pattern.
+  const handleKnowledgeBaseChange = useCallback(
+    async (newKnowledgeBaseId: string) => {
+      if (!id) return;
+
+      const previousKnowledgeBaseId = knowledgeBaseId;
+      setKnowledgeBaseId(newKnowledgeBaseId || undefined);
+
+      try {
+        if (newKnowledgeBaseId) {
+          await api.post(`/ai_agents/${id}/knowledge_base`, {
+            knowledge_base_id: newKnowledgeBaseId,
+          });
+        } else {
+          await api.delete(`/ai_agents/${id}/knowledge_base`);
+        }
+      } catch (error) {
+        setKnowledgeBaseId(previousKnowledgeBaseId);
+        toast.error(extractBackendErrorMessage(error));
+      }
+    },
+    [id, knowledgeBaseId],
   );
 
   // Returns true on success / false on failure so callers that persist from a nested
@@ -815,21 +847,6 @@ const AgentEditPage = () => {
 
             {visibleTabs.includes('tools') && (
               <TabsContent value="tools" className="mt-0">
-                {/*
-                  TODO(agent-knowledge-base, Task 5.1): AdvancedSettingsSection now accepts
-                  `knowledgeBaseId` / `onKnowledgeBaseChange` props to attach/detach a
-                  knowledge base (Phase 1 CRUD resource) via
-                  POST/DELETE /api/v1/ai_agents/:id/knowledge_base — a separate resource
-                  from the agent's own config, so it must NOT be folded into
-                  `onAdvancedSettingsChange` / `advancedSettings` below.
-                  Wiring this through requires threading a new callback down
-                  AgentToolsAccordion -> ToolsSection -> AdvancedSettingsSection (both
-                  currently only forward `onAdvancedSettingsChange`), then calling the
-                  attach/detach endpoint here using `id` (already available via useParams)
-                  and updating local state so the selector reflects the current
-                  attachment after save/reload. Left as a follow-up rather than guessed
-                  at here, since it touches three files outside this task's scope.
-                */}
                 <AgentToolsAccordion
                   agentId={id || ''}
                   agentType={agent.type}
@@ -855,6 +872,8 @@ const AgentEditPage = () => {
                     setAdvancedSettings(prev => ({ ...prev, ...settings }));
                     setIsDirty(true);
                   }}
+                  knowledgeBaseId={knowledgeBaseId}
+                  onKnowledgeBaseChange={handleKnowledgeBaseChange}
                   integrations={integrations}
                   onIntegrationsChange={newIntegrations => {
                     setIntegrations(newIntegrations);
