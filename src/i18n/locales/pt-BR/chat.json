@@ -1069,5 +1069,15 @@
   "unreadBadge": {
     "ariaLabel_one": "{{count}} mensagem não lida",
     "ariaLabel_other": "{{count}} mensagens não lidas"
+  },
+  "moveChannel": {
+    "action": "Mudar canal",
+    "modalTitle": "Mover conversa para outro canal",
+    "modalDescription": "Escolha outro canal para continuar esta conversa.",
+    "noEligibleTargets": "Nenhum canal elegível para mover esta conversa.",
+    "confirm": "Mover conversa",
+    "cancel": "Cancelar",
+    "movedToast": "Conversa movida para {{inboxName}}",
+    "errorIneligible": "Esta conversa não pode ser movida para esse canal."
   }
 }

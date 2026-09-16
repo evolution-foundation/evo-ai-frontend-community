@@ -1702,7 +1702,15 @@
       "manageAria": "Gerenciar conexões: {{count}} · {{status}}",
       "connect": "Conectar",
       "addConnection": "Adicionar conexão",
-      "deleteConnection": "Excluir conexão"
+      "deleteConnection": "Excluir conexão",
+      "reactivate": "Reativar"
+    },
+    "archived": {
+      "badge": "Arquivado",
+      "confirmTitle": "Reconectar este número?",
+      "confirmDescription": "Já existe um canal arquivado com este número de telefone. Reativá-lo restaura todo o histórico de conversas em vez de começar um canal novo e vazio.",
+      "confirmReactivate": "Reativar canal existente",
+      "confirmCreateNew": "Criar um novo canal"
     },
     "capabilities": {
       "publishing": "Publicação",
