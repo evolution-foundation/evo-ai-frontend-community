@@ -30,6 +30,7 @@ export interface Inbox {
   display_name?: string;
   channel_type: string;
   avatar_url?: string;
+  archived_at?: string | null;
   provider?: string;
   provider_config?: Record<string, unknown>;
   // Channel-specific fields
