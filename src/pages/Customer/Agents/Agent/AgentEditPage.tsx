@@ -815,6 +815,21 @@ const AgentEditPage = () => {
 
             {visibleTabs.includes('tools') && (
               <TabsContent value="tools" className="mt-0">
+                {/*
+                  TODO(agent-knowledge-base, Task 5.1): AdvancedSettingsSection now accepts
+                  `knowledgeBaseId` / `onKnowledgeBaseChange` props to attach/detach a
+                  knowledge base (Phase 1 CRUD resource) via
+                  POST/DELETE /api/v1/ai_agents/:id/knowledge_base — a separate resource
+                  from the agent's own config, so it must NOT be folded into
+                  `onAdvancedSettingsChange` / `advancedSettings` below.
+                  Wiring this through requires threading a new callback down
+                  AgentToolsAccordion -> ToolsSection -> AdvancedSettingsSection (both
+                  currently only forward `onAdvancedSettingsChange`), then calling the
+                  attach/detach endpoint here using `id` (already available via useParams)
+                  and updating local state so the selector reflects the current
+                  attachment after save/reload. Left as a follow-up rather than guessed
+                  at here, since it touches three files outside this task's scope.
+                */}
                 <AgentToolsAccordion
                   agentId={id || ''}
                   agentType={agent.type}
