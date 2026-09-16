@@ -14,6 +14,7 @@ interface ChannelTypeHubProps {
   onAdd: (typeStatus: ChannelTypeStatus) => void;
   onOpenInbox: (inbox: Inbox) => void;
   onDelete: (inbox: Inbox) => void;
+  onReactivate: (inbox: Inbox) => void;
 }
 
 export default function ChannelTypeHub({
@@ -22,6 +23,7 @@ export default function ChannelTypeHub({
   onAdd,
   onOpenInbox,
   onDelete,
+  onReactivate,
 }: ChannelTypeHubProps) {
   const { t, currentLanguage } = useLanguage('channels');
   const { states: liveStates, loadingIds, failedIds } = useLiveChannelStatus(inboxes);
@@ -70,6 +72,7 @@ export default function ChannelTypeHub({
             onAdd={onAdd}
             onOpenInbox={onOpenInbox}
             onDelete={onDelete}
+            onReactivate={onReactivate}
             liveVerifiedIds={liveVerifiedIds}
             liveLoadingIds={loadingIds}
             liveFailedIds={failedIds}

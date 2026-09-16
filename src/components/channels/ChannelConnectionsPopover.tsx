@@ -32,6 +32,8 @@ interface ChannelConnectionsPopoverProps {
   onOpenInbox: (inbox: Inbox) => void;
   /** Delete a single connection (per-row trash). Permission gating lives in the handler. */
   onDelete: (inbox: Inbox) => void;
+  /** Reactivate an archived connection. */
+  onReactivate: (inbox: Inbox) => void;
   liveVerifiedIds?: Set<string>;
   liveLoadingIds?: Set<string>;
   liveFailedIds?: Set<string>;
@@ -48,6 +50,7 @@ export default function ChannelConnectionsPopover({
   onAdd,
   onOpenInbox,
   onDelete,
+  onReactivate,
   liveVerifiedIds,
   liveLoadingIds,
   liveFailedIds,
@@ -152,29 +155,51 @@ export default function ChannelConnectionsPopover({
                         </span>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      aria-label={t('overview.actions.manage')}
-                      onClick={event => {
-                        event.stopPropagation();
-                        openInbox();
-                      }}
-                      className="shrink-0 rounded p-1 text-muted-foreground/60 transition-colors hover:text-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    >
-                      <List className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label={t('overview.actions.deleteConnection')}
-                      onClick={event => {
-                        event.stopPropagation();
-                        setOpen(false);
-                        onDelete(inbox);
-                      }}
-                      className="shrink-0 rounded p-1 text-muted-foreground/60 transition-colors hover:text-red-500 focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    {inbox.archived_at ? (
+                      <>
+                        <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
+                          {t('overview.archived.badge')}
+                        </span>
+                        <button
+                          type="button"
+                          aria-label={t('overview.actions.reactivate')}
+                          onClick={event => {
+                            event.stopPropagation();
+                            setOpen(false);
+                            onReactivate(inbox);
+                          }}
+                          className="shrink-0 rounded p-1 text-muted-foreground/60 transition-colors hover:text-emerald-500 focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        >
+                          <Link2 className="h-4 w-4" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          aria-label={t('overview.actions.manage')}
+                          onClick={event => {
+                            event.stopPropagation();
+                            openInbox();
+                          }}
+                          className="shrink-0 rounded p-1 text-muted-foreground/60 transition-colors hover:text-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        >
+                          <List className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={t('overview.actions.deleteConnection')}
+                          onClick={event => {
+                            event.stopPropagation();
+                            setOpen(false);
+                            onDelete(inbox);
+                          }}
+                          className="shrink-0 rounded p-1 text-muted-foreground/60 transition-colors hover:text-red-500 focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </>
+                    )}
                   </li>
                 );
               })}
