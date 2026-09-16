@@ -3,6 +3,7 @@ import axios, { AxiosError, AxiosInstance } from 'axios';
 import { extractData } from '@/utils/apiHelpers';
 import { wdebug } from '@/utils/widget/debug';
 import type { WidgetConfig, PreChatSubmissionData, WidgetMessage } from '@/types/settings';
+import type { CSATSurveyResponse } from '@/types/core/survey';
 import i18n from '@/i18n/config';
 
 // Use shared API client (baseURL = VITE_API_URL/api/v1 -> Evolution CRM)
@@ -598,7 +599,9 @@ class WidgetService {
   async updateMessageSubmittedValues(
     websiteToken: string,
     messageId: string | number,
-    submittedValues: { name: string; title: string; value: string },
+    submittedValues:
+      | { name: string; title: string; value: string }
+      | { csat_survey_response: CSATSurveyResponse },
   ) {
     const response = await this.requestWithBaseFallback((client) =>
       client.patch(
