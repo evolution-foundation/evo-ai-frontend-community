@@ -451,7 +451,11 @@ const ChatHeader = ({
             {t('chatHeader.actions.assignTag')}
           </DropdownMenuItem>
 
-          {eligibleTargetInboxes.length >= 2 && (
+          {/* eligibleTargetInboxes already excludes the conversation's own
+              inbox, so one entry is enough: there is somewhere else to move to.
+              Requiring 2 hid the action from the common two-WhatsApp-number
+              account this feature exists for. */}
+          {eligibleTargetInboxes.length >= 1 && (
             <DropdownMenuItem
               onClick={handleOpenMoveChannelModal}
               className="flex items-center gap-2"
