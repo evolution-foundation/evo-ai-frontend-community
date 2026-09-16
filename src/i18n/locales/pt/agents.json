@@ -200,7 +200,8 @@
     "tabs": {
       "agents": "Agentes de IA",
       "customTools": "Ferramentas Personalizadas",
-      "customMcpServers": "MCPs Personalizados"
+      "customMcpServers": "MCPs Personalizados",
+      "knowledge": "Conhecimento"
     },
     "noAccess": {
       "title": "Sem acesso a esta área",
@@ -209,7 +210,44 @@
     "subtitles": {
       "agents": "Gerencie seus agentes de IA",
       "customTools": "Gerencie suas ferramentas personalizadas",
-      "customMcpServers": "Gerencie seus servidores MCP personalizados"
+      "customMcpServers": "Gerencie seus servidores MCP personalizados",
+      "knowledge": "Gerencie sua base de conhecimento"
+    }
+  },
+  "knowledge": {
+    "title": "Conhecimento",
+    "subtitle": "Gerencie sua base de conhecimento",
+    "addContentButton": "Adicionar Conteúdo",
+    "searchPlaceholder": "Pesquisar documentos...",
+    "loading": "Carregando documentos...",
+    "empty": {
+      "title": "Ainda não há documentos",
+      "description": "Adicione entradas manuais, envie ficheiros ou importe um URL para começar a treinar os seus agentes."
+    },
+    "addContent": {
+      "title": "Adicionar Conteúdo",
+      "description": "Crie uma nova entrada na base de conhecimento para treinar os seus agentes",
+      "error": "Erro ao adicionar conteúdo de conhecimento",
+      "tabs": {
+        "manual": "Manual",
+        "upload": "Enviar",
+        "url": "URL"
+      },
+      "fields": {
+        "title": "Título",
+        "description": "Descrição",
+        "content": "Conteúdo",
+        "file": "Ficheiro",
+        "url": "URL",
+        "includeSubpages": "Incluir Subpáginas",
+        "maxPages": "Páginas Máximas"
+      },
+      "actions": {
+        "cancel": "Cancelar",
+        "create": "Criar",
+        "upload": "Enviar",
+        "processUrl": "Processar URL"
+      }
     }
   },
   "filters": {
