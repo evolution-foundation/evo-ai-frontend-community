@@ -57,11 +57,16 @@ export interface PaginationMeta {
   has_previous_page?: boolean;
 }
 
+// EVO-2207: a lead is the contact; its deal does not survive a kanban delete, so every
+// deal field can come back null. `id` switched from the pipeline item to the contact —
+// anything that needs to know which entity it holds reads the explicit fields.
 export interface FormLead {
   id: string;
+  contact_id: string;
+  pipeline_item_id?: string | null;
   contact?: { id: string; name?: string; email?: string } | null;
-  pipeline_id?: string;
-  pipeline_stage_id?: string;
+  pipeline_id?: string | null;
+  pipeline_stage_id?: string | null;
   created_at?: string;
 }
 
