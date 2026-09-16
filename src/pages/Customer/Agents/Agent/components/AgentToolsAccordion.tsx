@@ -31,6 +31,8 @@ interface AgentToolsAccordionProps {
   onAgentToolsChange: (agentTools: string[], agentToolsData?: Agent[]) => void;
   onCustomToolsChange: (customTools: { http_tools: CustomTool[] }) => void;
   onAdvancedSettingsChange: (settings: AdvancedSettingsData) => void;
+  knowledgeBaseId?: string;
+  onKnowledgeBaseChange?: (knowledgeBaseId: string) => void;
 
   integrations: Record<string, unknown>;
   onIntegrationsChange: (integrations: Record<string, unknown>) => void;
@@ -53,6 +55,8 @@ const AgentToolsAccordion = ({
   onAgentToolsChange,
   onCustomToolsChange,
   onAdvancedSettingsChange,
+  knowledgeBaseId,
+  onKnowledgeBaseChange,
   integrations,
   onIntegrationsChange,
   mcpServers,
@@ -116,6 +120,8 @@ const AgentToolsAccordion = ({
                 onAgentToolsChange={onAgentToolsChange}
                 onCustomToolsChange={onCustomToolsChange}
                 onAdvancedSettingsChange={onAdvancedSettingsChange}
+                knowledgeBaseId={knowledgeBaseId}
+                onKnowledgeBaseChange={onKnowledgeBaseChange}
                 editingAgentId={agentId}
                 folderId={undefined}
               />

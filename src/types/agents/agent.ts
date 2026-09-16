@@ -63,6 +63,11 @@ export interface AgentConfig {
   knowledge_tags?: string[];
   knowledge_base_config_id?: string; // UUID of the knowledge base configuration to use
   knowledge_max_results?: number; // Maximum number of knowledge search results (default: 5, max: 20)
+  // UUID of the attached knowledge base (Phase 1 CRUD resource). Managed via the
+  // dedicated attach/detach endpoint (POST/DELETE /api/v1/ai_agents/:id/knowledge_base),
+  // not saved as part of the agent's own config payload; kept here for reads
+  // (e.g. hydrating the "Load Knowledge" selector from GET /ai_agents/:id).
+  knowledge_base_id?: string;
 
   // Integrations config
   integrations?: Record<string, any>;

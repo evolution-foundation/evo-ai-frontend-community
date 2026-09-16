@@ -38,6 +38,7 @@ import MCPServers from '@/pages/Customer/Agents/MCPServers';
 import CustomMCPServers from '@/pages/Customer/Agents/CustomMCPServers';
 import Tools from '@/pages/Customer/Agents/Tools';
 import CustomTools from '@/pages/Customer/Agents/CustomTools';
+import KnowledgePage from '@/pages/Customer/Agents/Knowledge/KnowledgePage';
 import Contacts from '@/pages/Customer/Contacts';
 import ScheduledActions from '@/pages/Customer/Contacts/ScheduledActions';
 import { Channels, ChannelSettings, NewChannel } from '@/pages/Customer/Channels';
@@ -1381,6 +1382,21 @@ const AppRouter = () => {
                   <MainLayout>
                     <PermissionRoute resource="ai_custom_tools" action="update">
                       <CustomTools />
+                    </PermissionRoute>
+                  </MainLayout>
+                </CustomerRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/agents/knowledge"
+            element={
+              <PrivateRoute>
+                <CustomerRoute>
+                  <MainLayout>
+                    <PermissionRoute resource="ai_agents" action="read">
+                      <KnowledgePage />
                     </PermissionRoute>
                   </MainLayout>
                 </CustomerRoute>

@@ -24,6 +24,7 @@ import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import usersService from '@/services/users/usersService';
 import { fetchAllPages } from '@/utils/apiHelpers';
 import teamsService from '@/services/teams/teamsService';
+import api from '@/services/core/api';
 import ProfileSection from './sections/ProfileSection';
 import ProductsSection from './sections/ProductsSection';
 import ConfigurationSection from './sections/ConfigurationSection';
@@ -116,6 +117,10 @@ const AgentEditPage = () => {
     knowledge_base_config_id: undefined as string | undefined,
     knowledge_max_results: 5,
   });
+  // The attached knowledge base (Phase 1 CRUD resource) is a relationship to a
+  // separate resource, not an agent config field — kept out of `advancedSettings`
+  // and persisted via its own attach/detach endpoint (see handleKnowledgeBaseChange).
+  const [knowledgeBaseId, setKnowledgeBaseId] = useState<string | undefined>(undefined);
 
   const [behaviorSettings, setBehaviorSettings] = useState({
     transferToHuman: false,
@@ -430,6 +435,7 @@ const AgentEditPage = () => {
           knowledge_base_config_id: agentData.config?.knowledge_base_config_id,
           knowledge_max_results: agentData.config?.knowledge_max_results || 5,
         });
+        setKnowledgeBaseId(agentData.config?.knowledge_base_id);
 
         const config = agentData.config as Record<string, unknown>;
         setBehaviorSettings({
@@ -556,6 +562,35 @@ const AgentEditPage = () => {
     [agent?.type, llmConfigData],
   );
 
+  // Attaches/detaches the selected knowledge base immediately (it's a relationship to
+  // a separate resource, not an agent config field saved via handleSave). Optimistic
+  // update with rollback on failure, mirroring the rest of this page's toast pattern.
+  const handleKnowledgeBaseChange = useCallback(
+    async (newKnowledgeBaseId: string) => {
+      if (!id) return;
+
+      const previousKnowledgeBaseId = knowledgeBaseId;
+      setKnowledgeBaseId(newKnowledgeBaseId || undefined);
+
+      try {
+        if (newKnowledgeBaseId) {
+          await api.post(`/ai_agents/${id}/knowledge_base`, {
+            knowledge_base_id: newKnowledgeBaseId,
+            // Without this, the backend defaults knowledge_tags to [], silently
+            // wiping out whatever tags the user already set in the same accordion.
+            knowledge_tags: advancedSettings.knowledge_tags,
+          });
+        } else {
+          await api.delete(`/ai_agents/${id}/knowledge_base`);
+        }
+      } catch (error) {
+        setKnowledgeBaseId(previousKnowledgeBaseId);
+        toast.error(extractBackendErrorMessage(error));
+      }
+    },
+    [id, knowledgeBaseId, advancedSettings.knowledge_tags],
+  );
+
   // Returns true on success / false on failure so callers that persist from a nested
   // surface (CRM-213: the pipeline-rules modal Save) can keep their modal open when the
   // save is rejected. AgentEditHeader's onSave: () => void ignores the return.
@@ -601,6 +636,11 @@ const AgentEditPage = () => {
           knowledge_tags: advancedSettings.knowledge_tags,
           knowledge_base_config_id: advancedSettings.knowledge_base_config_id,
           knowledge_max_results: advancedSettings.knowledge_max_results,
+          // Read-only relationship elsewhere (see handleKnowledgeBaseChange), but the
+          // backend does a wholesale config replace on update, not a merge — omitting
+          // this here would silently drop the attached knowledge base from the
+          // runtime config the agent processor reads.
+          knowledge_base_id: knowledgeBaseId,
           tools: tools.map(tool => tool as unknown as Record<string, unknown>),
           agent_tools: agentTools,
           custom_tools: customTools,
@@ -640,6 +680,9 @@ const AgentEditPage = () => {
           knowledge_tags: advancedSettings.knowledge_tags,
           knowledge_base_config_id: advancedSettings.knowledge_base_config_id,
           knowledge_max_results: advancedSettings.knowledge_max_results,
+          // See the 'llm' branch above: the backend replaces the whole config on
+          // update, so this must be re-sent on every save or the attachment is lost.
+          knowledge_base_id: knowledgeBaseId,
           tools: tools.map(tool => tool as unknown as Record<string, unknown>),
           agent_tools: agentTools,
           custom_tools: customTools,
@@ -677,6 +720,9 @@ const AgentEditPage = () => {
           knowledge_tags: advancedSettings.knowledge_tags,
           knowledge_base_config_id: advancedSettings.knowledge_base_config_id,
           knowledge_max_results: advancedSettings.knowledge_max_results,
+          // See the 'llm' branch above: the backend replaces the whole config on
+          // update, so this must be re-sent on every save or the attachment is lost.
+          knowledge_base_id: knowledgeBaseId,
           tools: tools.map(tool => tool as unknown as Record<string, unknown>),
           agent_tools: agentTools,
           custom_tools: customTools,
@@ -710,6 +756,9 @@ const AgentEditPage = () => {
           min_segment_size: externalConfigData.advanced_config?.min_segment_size ?? 50,
           character_delay_ms: externalConfigData.advanced_config?.character_delay_ms ?? 0.05,
           send_as_reply: behaviorSettings.sendAsReply,
+          // See the 'llm' branch above: the backend replaces the whole config on
+          // update, so this must be re-sent on every save or the attachment is lost.
+          knowledge_base_id: knowledgeBaseId,
         } as Record<string, unknown>;
       } else {
         agentUpdateData.config = {
@@ -727,6 +776,9 @@ const AgentEditPage = () => {
           knowledge_tags: advancedSettings.knowledge_tags,
           knowledge_base_config_id: advancedSettings.knowledge_base_config_id,
           knowledge_max_results: advancedSettings.knowledge_max_results,
+          // See the 'llm' branch above: the backend replaces the whole config on
+          // update, so this must be re-sent on every save or the attachment is lost.
+          knowledge_base_id: knowledgeBaseId,
           tools: tools.map(tool => tool as unknown as Record<string, unknown>),
           agent_tools: agentTools,
           custom_tools: customTools,
@@ -840,6 +892,8 @@ const AgentEditPage = () => {
                     setAdvancedSettings(prev => ({ ...prev, ...settings }));
                     setIsDirty(true);
                   }}
+                  knowledgeBaseId={knowledgeBaseId}
+                  onKnowledgeBaseChange={handleKnowledgeBaseChange}
                   integrations={integrations}
                   onIntegrationsChange={newIntegrations => {
                     setIntegrations(newIntegrations);

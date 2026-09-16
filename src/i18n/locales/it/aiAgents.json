@@ -355,6 +355,8 @@
     "title": "Base di Conoscenza",
     "loadKnowledge": "Carica Base di Conoscenza",
     "loadKnowledgeDescription": "Consente l'accesso a documenti e basi di conoscenza per risposte più precise",
+    "selectKnowledgeBase": "Base di Conoscenza",
+    "selectKnowledgeBasePlaceholder": "Seleziona una base di conoscenza...",
     "knowledgeTags": "Tag Conoscenza",
     "knowledgeTagsDescription": "Specifica i tag per filtrare la conoscenza pertinente",
     "addTag": "Aggiungi Tag",

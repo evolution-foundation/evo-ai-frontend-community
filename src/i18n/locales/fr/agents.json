@@ -200,7 +200,8 @@
     "tabs": {
       "agents": "Agents IA",
       "customTools": "Outils Personnalisés",
-      "customMcpServers": "MCP Personnalisés"
+      "customMcpServers": "MCP Personnalisés",
+      "knowledge": "Connaissances"
     },
     "noAccess": {
       "title": "Aucun accès à cet espace",
@@ -209,7 +210,58 @@
     "subtitles": {
       "agents": "Gérez vos agents IA",
       "customTools": "Gérez vos outils personnalisés",
-      "customMcpServers": "Gérez vos serveurs MCP personnalisés"
+      "customMcpServers": "Gérez vos serveurs MCP personnalisés",
+      "knowledge": "Gérez votre base de connaissances"
+    }
+  },
+  "knowledge": {
+    "title": "Connaissances",
+    "subtitle": "Gérez votre base de connaissances",
+    "addContentButton": "Ajouter du Contenu",
+    "searchTestButton": "Test de Recherche de Connaissances",
+    "searchPlaceholder": "Rechercher des documents...",
+    "loading": "Chargement des documents...",
+    "empty": {
+      "title": "Aucun document pour le moment",
+      "description": "Ajoutez des entrées manuelles, téléversez des fichiers ou importez une URL pour commencer à entraîner vos agents."
+    },
+    "addContent": {
+      "title": "Ajouter du Contenu",
+      "description": "Créez une nouvelle entrée dans la base de connaissances pour entraîner vos agents",
+      "error": "Erreur lors de l'ajout du contenu de connaissance",
+      "tabs": {
+        "manual": "Manuel",
+        "upload": "Téléverser",
+        "url": "URL"
+      },
+      "fields": {
+        "title": "Titre",
+        "description": "Description",
+        "content": "Contenu",
+        "file": "Fichier",
+        "url": "URL",
+        "includeSubpages": "Inclure les Sous-pages",
+        "maxPages": "Pages Maximum"
+      },
+      "actions": {
+        "cancel": "Annuler",
+        "create": "Créer",
+        "upload": "Téléverser",
+        "processUrl": "Traiter l'URL"
+      }
+    },
+    "searchTest": {
+      "title": "Test de Recherche de Connaissances",
+      "description": "Testez comment une requête correspondra aux entrées de cette base de connaissances",
+      "queryPlaceholder": "Requête de recherche",
+      "maxResults": "Résultats Maximum",
+      "empty": "Aucun résultat pour l'instant. Essayez une requête ci-dessus.",
+      "noResults": "Aucune entrée ne correspond à cette requête.",
+      "error": "Erreur lors de l'exécution du test de recherche de connaissances",
+      "actions": {
+        "search": "Rechercher",
+        "close": "Fermer"
+      }
     }
   },
   "filters": {

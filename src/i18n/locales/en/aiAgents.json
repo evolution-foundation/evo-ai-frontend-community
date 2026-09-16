@@ -355,6 +355,8 @@
     "title": "Knowledge Base",
     "loadKnowledge": "Load Knowledge Base",
     "loadKnowledgeDescription": "Allow access to documents and knowledge bases for more accurate responses",
+    "selectKnowledgeBase": "Knowledge Base",
+    "selectKnowledgeBasePlaceholder": "Select a knowledge base...",
     "knowledgeTags": "Knowledge Tags",
     "knowledgeTagsDescription": "Specify tags to filter relevant knowledge",
     "addTag": "Add Tag",

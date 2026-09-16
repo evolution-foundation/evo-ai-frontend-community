@@ -200,7 +200,8 @@
     "tabs": {
       "agents": "Agentes de IA",
       "customTools": "Herramientas Personalizadas",
-      "customMcpServers": "MCPs Personalizados"
+      "customMcpServers": "MCPs Personalizados",
+      "knowledge": "Conocimiento"
     },
     "noAccess": {
       "title": "Sin acceso a esta área",
@@ -209,7 +210,58 @@
     "subtitles": {
       "agents": "Gestiona tus agentes de IA",
       "customTools": "Gestiona tus herramientas personalizadas",
-      "customMcpServers": "Gestiona tus servidores MCP personalizados"
+      "customMcpServers": "Gestiona tus servidores MCP personalizados",
+      "knowledge": "Gestiona tu base de conocimiento"
+    }
+  },
+  "knowledge": {
+    "title": "Conocimiento",
+    "subtitle": "Gestiona tu base de conocimiento",
+    "addContentButton": "Agregar Contenido",
+    "searchTestButton": "Prueba de Búsqueda de Conocimiento",
+    "searchPlaceholder": "Buscar documentos...",
+    "loading": "Cargando documentos...",
+    "empty": {
+      "title": "Aún no hay documentos",
+      "description": "Agrega entradas manuales, sube archivos o importa una URL para empezar a entrenar tus agentes."
+    },
+    "addContent": {
+      "title": "Agregar Contenido",
+      "description": "Crea una nueva entrada en la base de conocimiento para entrenar tus agentes",
+      "error": "Error al agregar contenido de conocimiento",
+      "tabs": {
+        "manual": "Manual",
+        "upload": "Subir Archivo",
+        "url": "URL"
+      },
+      "fields": {
+        "title": "Título",
+        "description": "Descripción",
+        "content": "Contenido",
+        "file": "Archivo",
+        "url": "URL",
+        "includeSubpages": "Incluir Subpáginas",
+        "maxPages": "Páginas Máximas"
+      },
+      "actions": {
+        "cancel": "Cancelar",
+        "create": "Crear",
+        "upload": "Subir",
+        "processUrl": "Procesar URL"
+      }
+    },
+    "searchTest": {
+      "title": "Prueba de Búsqueda de Conocimiento",
+      "description": "Prueba cómo una consulta coincidirá con las entradas de esta base de conocimiento",
+      "queryPlaceholder": "Consulta de búsqueda",
+      "maxResults": "Resultados Máximos",
+      "empty": "Aún no hay resultados. Prueba una consulta arriba.",
+      "noResults": "Ninguna entrada coincidió con esa consulta.",
+      "error": "Error al ejecutar la prueba de búsqueda de conocimiento",
+      "actions": {
+        "search": "Buscar",
+        "close": "Cerrar"
+      }
     }
   },
   "filters": {

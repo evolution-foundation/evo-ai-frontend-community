@@ -200,7 +200,8 @@
     "tabs": {
       "agents": "AI Agents",
       "customTools": "Custom Tools",
-      "customMcpServers": "Custom MCPs"
+      "customMcpServers": "Custom MCPs",
+      "knowledge": "Knowledge"
     },
     "noAccess": {
       "title": "No access to this area",
@@ -209,7 +210,58 @@
     "subtitles": {
       "agents": "Manage your AI agents",
       "customTools": "Manage your custom tools",
-      "customMcpServers": "Manage your custom MCP servers"
+      "customMcpServers": "Manage your custom MCP servers",
+      "knowledge": "Manage your knowledge base"
+    }
+  },
+  "knowledge": {
+    "title": "Knowledge",
+    "subtitle": "Manage your knowledge base",
+    "addContentButton": "Add Content",
+    "searchTestButton": "Knowledge Search Test",
+    "searchPlaceholder": "Search documents...",
+    "loading": "Loading documents...",
+    "empty": {
+      "title": "No documents yet",
+      "description": "Add manual entries, upload files, or import a URL to start training your agents."
+    },
+    "addContent": {
+      "title": "Add Content",
+      "description": "Create a new entry in the knowledge base to train your agents",
+      "error": "Error adding knowledge content",
+      "tabs": {
+        "manual": "Manual",
+        "upload": "Upload",
+        "url": "URL"
+      },
+      "fields": {
+        "title": "Title",
+        "description": "Description",
+        "content": "Content",
+        "file": "File",
+        "url": "URL",
+        "includeSubpages": "Include Sub-pages",
+        "maxPages": "Max Pages"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "create": "Create",
+        "upload": "Upload",
+        "processUrl": "Process URL"
+      }
+    },
+    "searchTest": {
+      "title": "Knowledge Search Test",
+      "description": "Test how a query will match against entries in this knowledge base",
+      "queryPlaceholder": "Search query",
+      "maxResults": "Max Results",
+      "empty": "No results yet. Try a search query above.",
+      "noResults": "No entries matched that query.",
+      "error": "Error running knowledge search test",
+      "actions": {
+        "search": "Search",
+        "close": "Close"
+      }
     }
   },
   "filters": {
