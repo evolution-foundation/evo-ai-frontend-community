@@ -1013,5 +1013,15 @@
   "unreadBadge": {
     "ariaLabel_one": "{{count}} message non lu",
     "ariaLabel_other": "{{count}} messages non lus"
+  },
+  "moveChannel": {
+    "action": "Change channel",
+    "modalTitle": "Move conversation to a different channel",
+    "modalDescription": "Choose another channel to continue this conversation on.",
+    "noEligibleTargets": "No eligible channel to move this conversation to.",
+    "confirm": "Move conversation",
+    "cancel": "Cancel",
+    "movedToast": "Conversation moved to {{inboxName}}",
+    "errorIneligible": "This conversation can't be moved to that channel."
   }
 }

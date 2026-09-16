@@ -1704,7 +1704,15 @@
       "manageAria": "Gérer les connexions : {{count}} · {{status}}",
       "connect": "Connecter",
       "addConnection": "Ajouter une connexion",
-      "deleteConnection": "Supprimer la connexion"
+      "deleteConnection": "Supprimer la connexion",
+      "reactivate": "Reactivate"
+    },
+    "archived": {
+      "badge": "Archived",
+      "confirmTitle": "Reconnect this number?",
+      "confirmDescription": "An archived channel with this phone number already exists. Reactivating it restores its full conversation history instead of starting a new, empty channel.",
+      "confirmReactivate": "Reactivate existing channel",
+      "confirmCreateNew": "Create a new channel instead"
     },
     "capabilities": {
       "publishing": "Publication",
