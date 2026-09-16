@@ -128,6 +128,18 @@ const InboxesService = {
     });
     return extractData(response);
   },
+
+  async reactivate(id: string): Promise<Inbox> {
+    const response = await api.post(`/inboxes/${id}/reactivate`);
+    return extractData<Inbox>(response);
+  },
+
+  async checkArchivedMatch(phoneNumber: string): Promise<{ inbox_id: string } | null> {
+    const response = await api.get('/inboxes/archived_whatsapp_match', {
+      params: { phone_number: phoneNumber },
+    });
+    return extractData<{ inbox_id: string } | null>(response);
+  },
 };
 
 export default InboxesService;
