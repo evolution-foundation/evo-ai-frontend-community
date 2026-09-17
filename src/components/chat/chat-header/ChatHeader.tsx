@@ -556,6 +556,15 @@ const ChatHeader = ({
                   it a long inbox name overflows the header and runs under the action
                   buttons on mobile instead of truncating (EVO-2234). */}
               {inboxName && <span className="min-w-0 truncate">{inboxName}</span>}
+              {conversation.assignee?.name && (
+                <span
+                  className="min-w-0 truncate"
+                  title={t('chatHeader.assignedTo')}
+                  aria-label={`${t('chatHeader.assignedTo')}: ${conversation.assignee.name}`}
+                >
+                  {conversation.assignee.name}
+                </span>
+              )}
               {(() => {
                 const meta = STATUS_META_LIGHT[conversation.status] || STATUS_META_LIGHT.snoozed;
                 // Rótulo LONGO do protótipo ("Atendimento em Aberto" etc.), distinto do
