@@ -27,6 +27,7 @@ import TwilioService from '@/services/channels/twilioService';
 import NotificameService from '@/services/channels/notificameService';
 import { ChannelType, FormData } from '@/hooks/channels/useChannelForm';
 import { useChannelValidation } from '@/hooks/channels/useChannelValidation';
+import { useReactivateInbox } from '@/hooks/channels/useReactivateInbox';
 import { useAppDataStore } from '@/store/appDataStore';
 import { apiErrorMessage } from '@/utils/apiHelpers';
 
@@ -34,6 +35,7 @@ export const useChannelSubmission = (form?: FormData) => {
   const navigate = useNavigate();
   const { t } = useLanguage('channels');
   const { validateByChannelAndProvider, getStr } = useChannelValidation();
+  const { reactivateInbox } = useReactivateInbox();
   const { addInbox, fetchInboxes } = useAppDataStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
@@ -777,10 +779,8 @@ export const useChannelSubmission = (form?: FormData) => {
   const confirmReactivate = async () => {
     if (!archivedMatch) return;
     try {
-      await InboxesService.reactivate(archivedMatch.inboxId);
       const name = getStr(pendingSubmitRef.current?.form ?? {}, 'name', '');
-      toast.success(t('overview.archived.reactivated', { name }));
-      await fetchInboxes();
+      await reactivateInbox(archivedMatch.inboxId, name);
     } catch {
       toast.error(t('overview.archived.reactivateFailed'));
     } finally {

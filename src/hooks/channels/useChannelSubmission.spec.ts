@@ -6,7 +6,8 @@ import InboxesService from '@/services/channels/inboxesService';
 import EvolutionService from '@/services/channels/evolutionService';
 import EvolutionGoService from '@/services/channels/evolutionGoService';
 
-vi.mock('react-router-dom', () => ({ useNavigate: () => vi.fn() }));
+const { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }));
+vi.mock('react-router-dom', () => ({ useNavigate: () => navigateMock }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() } }));
 vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({
@@ -267,7 +268,18 @@ describe('useChannelSubmission — archived match on WhatsApp creation (EVO-2159
     expect(toast.success).toHaveBeenCalledWith('overview.archived.reactivated:{"name":"evo"}');
   });
 
-  it('shows the translated failure toast when reactivation fails', async () => {
+  it('sends the user to the reactivated inbox settings so they can re-scan the QR code', async () => {
+    checkArchivedMatchMock.mockResolvedValue({ inbox_id: 'archived-1' });
+    const result = await renderAndSubmitWhatsapp();
+
+    await act(async () => {
+      await result.current.confirmReactivate();
+    });
+
+    expect(navigateMock).toHaveBeenCalledWith('/channels/archived-1/settings');
+  });
+
+  it('shows the translated failure toast and does not navigate when reactivation fails', async () => {
     checkArchivedMatchMock.mockResolvedValue({ inbox_id: 'archived-1' });
     reactivateMock.mockRejectedValueOnce(new Error('boom'));
     const result = await renderAndSubmitWhatsapp();
@@ -278,6 +290,7 @@ describe('useChannelSubmission — archived match on WhatsApp creation (EVO-2159
 
     expect(toast.error).toHaveBeenCalledWith('overview.archived.reactivateFailed');
     expect(result.current.archivedMatch).toBeNull();
+    expect(navigateMock).not.toHaveBeenCalled();
   });
 
   it('replaces the archived channel in place instead of creating a new inbox, keeping history', async () => {
