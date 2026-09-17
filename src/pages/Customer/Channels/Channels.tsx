@@ -16,6 +16,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useAppDataStore } from '@/store/appDataStore';
 import { usePermissions } from '@/contexts/PermissionsContext';
 import InboxesService from '@/services/channels/inboxesService';
+import { useReactivateInbox } from '@/hooks/channels/useReactivateInbox';
 import { Inbox } from '@/types/channels/inbox';
 import { ChannelsHeader, ChannelTypeHub } from '@/components/channels';
 import { ChannelTypeStatus } from '@/utils/channelStatus';
@@ -39,6 +40,7 @@ export default function Channels() {
     confirmationText: '',
   });
   const navigate = useNavigate();
+  const { reactivateInbox } = useReactivateInbox();
 
   useEffect(() => {
     if (!permissionsReady || permissionsLoading) {
@@ -156,9 +158,7 @@ export default function Channels() {
 
   const handleReactivate = async (inbox: Inbox) => {
     try {
-      await InboxesService.reactivate(inbox.id);
-      toast.success(t('overview.archived.reactivated', { name: inbox.name }));
-      fetchInboxes();
+      await reactivateInbox(inbox.id, inbox.name);
     } catch {
       toast.error(t('overview.archived.reactivateFailed'));
     }
