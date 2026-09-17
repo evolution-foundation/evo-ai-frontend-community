@@ -67,6 +67,8 @@ export default function MessageTemplates() {
   const { can, isReady: permissionsReady } = usePermissions();
 
   const inboxes = useAppDataStore(state => state.inboxes);
+  // Archived inboxes can't send new messages, so they aren't valid template scopes.
+  const activeInboxes = useMemo(() => inboxes.filter(inbox => !inbox.archived_at), [inboxes]);
   const fetchInboxes = useAppDataStore(state => state.fetchInboxes);
 
   const [scope, setScope] = useState<Scope>({ kind: 'global' });
@@ -164,7 +166,7 @@ export default function MessageTemplates() {
     if (value === 'global') {
       setScope({ kind: 'global' });
     } else {
-      const inbox = inboxes.find(i => String(i.id) === value);
+      const inbox = activeInboxes.find(i => String(i.id) === value);
       if (inbox) setScope({ kind: 'inbox', inbox });
     }
     setPage(1);
@@ -414,7 +416,7 @@ export default function MessageTemplates() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="global">{t('scope.global')}</SelectItem>
-              {inboxes.map(inbox => (
+              {activeInboxes.map(inbox => (
                 <SelectItem key={inbox.id} value={String(inbox.id)}>
                   {inbox.name}
                 </SelectItem>
