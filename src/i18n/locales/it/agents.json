@@ -241,7 +241,9 @@
         "file": "File",
         "url": "URL",
         "includeSubpages": "Includi Sottopagine",
-        "maxPages": "Pagine Massime"
+        "maxPages": "Pagine Massime",
+        "tags": "Tag",
+        "tagsHint": "Usati per restringere quali documenti un agente consulta."
       },
       "actions": {
         "cancel": "Annulla",

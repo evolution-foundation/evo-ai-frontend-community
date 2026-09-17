@@ -241,7 +241,9 @@
         "file": "Arquivo",
         "url": "URL",
         "includeSubpages": "Incluir Subpáginas",
-        "maxPages": "Páginas Máximas"
+        "maxPages": "Páginas Máximas",
+        "tags": "Tags",
+        "tagsHint": "Usadas para restringir quais documentos um agente consulta."
       },
       "actions": {
         "cancel": "Cancelar",

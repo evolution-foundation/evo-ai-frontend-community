@@ -241,7 +241,9 @@
         "file": "Fichier",
         "url": "URL",
         "includeSubpages": "Inclure les Sous-pages",
-        "maxPages": "Pages Maximum"
+        "maxPages": "Pages Maximum",
+        "tags": "Étiquettes",
+        "tagsHint": "Utilisées pour restreindre les documents consultés par un agent."
       },
       "actions": {
         "cancel": "Annuler",

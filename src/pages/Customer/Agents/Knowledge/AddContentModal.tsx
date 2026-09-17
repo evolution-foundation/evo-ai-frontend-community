@@ -18,6 +18,7 @@ import {
 } from '@evoapi/design-system';
 import api from '@/services/core/api';
 import { useLanguage } from '@/hooks/useLanguage';
+import { TagInput } from '@/components/ai_agents/shared';
 
 type Tab = 'manual' | 'upload' | 'url';
 
@@ -46,6 +47,19 @@ export default function AddContentModal({
   const [includeSubpages, setIncludeSubpages] = useState(false);
   const [maxPages, setMaxPages] = useState(1);
 
+  const [tags, setTags] = useState<string[]>([]);
+
+  const tagsInput = (id: string) => (
+    <TagInput
+      id={id}
+      label={t('knowledge.addContent.fields.tags')}
+      hint={t('knowledge.addContent.fields.tagsHint')}
+      value={tags}
+      onChange={setTags}
+      disabled={submitting}
+    />
+  );
+
   const withSubmitGuard = async (action: () => Promise<void>) => {
     setSubmitting(true);
     try {
@@ -62,7 +76,7 @@ export default function AddContentModal({
   const submitManual = () =>
     withSubmitGuard(async () => {
       await api.post(`/knowledge_bases/${knowledgeBaseId}/documents`, {
-        knowledge_document: { title, description, content, tags: [] },
+        knowledge_document: { title, description, content, tags },
       });
     });
 
@@ -72,6 +86,7 @@ export default function AddContentModal({
       const form = new FormData();
       form.append('file', file);
       form.append('title', title || file.name);
+      tags.forEach(tag => form.append('tags[]', tag));
       await api.post(`/knowledge_bases/${knowledgeBaseId}/documents/upload`, form, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -83,6 +98,7 @@ export default function AddContentModal({
         url,
         include_subpages: includeSubpages,
         max_pages: maxPages,
+        tags,
       });
     });
 
@@ -132,6 +148,7 @@ export default function AddContentModal({
                 rows={6}
               />
             </div>
+            {tagsInput('knowledge-manual-tags')}
             <DialogFooter>
               <Button variant="outline" onClick={onClose} disabled={submitting}>
                 {t('knowledge.addContent.actions.cancel')}
@@ -151,6 +168,7 @@ export default function AddContentModal({
                 onChange={e => setFile(e.target.files?.[0] ?? null)}
               />
             </div>
+            {tagsInput('knowledge-upload-tags')}
             <DialogFooter>
               <Button variant="outline" onClick={onClose} disabled={submitting}>
                 {t('knowledge.addContent.actions.cancel')}
@@ -195,6 +213,7 @@ export default function AddContentModal({
                 onChange={e => setMaxPages(Number(e.target.value))}
               />
             </div>
+            {tagsInput('knowledge-url-tags')}
             <DialogFooter>
               <Button variant="outline" onClick={onClose} disabled={submitting}>
                 {t('knowledge.addContent.actions.cancel')}

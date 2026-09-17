@@ -241,7 +241,9 @@
         "file": "Archivo",
         "url": "URL",
         "includeSubpages": "Incluir Subpáginas",
-        "maxPages": "Páginas Máximas"
+        "maxPages": "Páginas Máximas",
+        "tags": "Etiquetas",
+        "tagsHint": "Se usan para acotar qué documentos consulta un agente."
       },
       "actions": {
         "cancel": "Cancelar",

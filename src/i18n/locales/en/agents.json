@@ -241,7 +241,9 @@
         "file": "File",
         "url": "URL",
         "includeSubpages": "Include Sub-pages",
-        "maxPages": "Max Pages"
+        "maxPages": "Max Pages",
+        "tags": "Tags",
+        "tagsHint": "Used to narrow which documents an agent searches over."
       },
       "actions": {
         "cancel": "Cancel",
