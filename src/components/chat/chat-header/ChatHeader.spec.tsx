@@ -739,4 +739,18 @@ describe('ChatHeader mobile layout (EVO-2234)', () => {
     const shortStatus = screen.getByText('• open');
     expect(shortStatus).toHaveClass('md:hidden');
   });
+
+  it('shows the assignee name in the header itself, not only in the sidebar row that mobile hides', () => {
+    const conversation = { ...makeConversation(), assignee: { id: 'a1', name: 'Jane Agent' } } as never;
+
+    render(<ChatHeader {...defaultProps} conversation={conversation} />);
+
+    expect(screen.getByText('Jane Agent')).toBeInTheDocument();
+  });
+
+  it('renders nothing for the assignee when the conversation is unassigned', () => {
+    render(<ChatHeader {...defaultProps} />);
+
+    expect(screen.queryByTitle('chatHeader.assignedTo')).not.toBeInTheDocument();
+  });
 });
