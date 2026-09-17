@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useGlobalWebSocket } from '@/hooks/useGlobalWebSocket';
 import { playNotificationSound, getAudioSettings } from '@/utils/audioNotificationUtils';
 import i18n from '@/i18n/config';
+import { useDocumentTitleUnreadBadge } from '@/hooks/useDocumentTitleUnreadBadge';
 
 interface NotificationsMeta {
   count: number;
@@ -239,6 +240,8 @@ const NotificationsProviderInner: React.FC<NotificationsProviderProps> = ({ chil
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
+
+  useDocumentTitleUnreadBadge(state.meta.unreadCount);
 
   const actions = useMemo(() => ({
     fetchNotifications: async (params: { page?: number; status?: string; type?: string } = {}) => {
