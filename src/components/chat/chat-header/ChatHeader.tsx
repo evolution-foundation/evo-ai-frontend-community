@@ -52,17 +52,34 @@ import chatService from '@/services/chat/chatService';
 import { toast } from 'sonner';
 import { findItemInPipeline } from '@/utils/chat/pipelineUtils';
 
-// Mirrors backend Conversation#eligible_move_target? (app/models/concerns/conversation_channel_move.rb)
-// exactly: archived is never eligible, Chat Widget is never a valid target, same
-// channel_type as the conversation's current inbox is always eligible, and a
-// cross-type WhatsApp/Email target is eligible only if the contact carries the
-// matching identifier. This is UX-only pre-filtering — the backend re-validates
-// on submit regardless — but exact parity keeps the picker from offering targets
-// the move will then reject.
+// Mirrors backend ConversationChannelMove#eligible_move_target?
+// (app/models/concerns/conversation_channel_move.rb) exactly: archived is
+// never eligible, Chat Widget is never a valid target, and a same-type
+// target still needs the contact identifier the target channel requires
+// (except Api/FacebookPage, which the backend's ContactInboxBuilder can pair
+// without one) — same as a cross-type WhatsApp/Email target. This is
+// UX-only pre-filtering — the backend re-validates on submit regardless —
+// but exact parity keeps the picker from offering targets the move will
+// then reject.
 const isEligibleMoveTarget = (targetInbox: Inbox, conversation: Conversation): boolean => {
   if (targetInbox.archived_at) return false;
   if (targetInbox.channel_type === 'Channel::WebWidget') return false;
-  if (targetInbox.channel_type === conversation.inbox?.channel_type) return true;
+
+  if (targetInbox.channel_type === conversation.inbox?.channel_type) {
+    switch (targetInbox.channel_type) {
+      case 'Channel::Api':
+      case 'Channel::FacebookPage':
+        return true;
+      case 'Channel::Email':
+        return !!conversation.contact?.email;
+      case 'Channel::Sms':
+      case 'Channel::TwilioSms':
+      case 'Channel::Whatsapp':
+        return !!conversation.contact?.phone_number;
+      default:
+        return false;
+    }
+  }
 
   switch (targetInbox.channel_type) {
     case 'Channel::Whatsapp':
@@ -287,11 +304,9 @@ const ChatHeader = ({
       toast.success(t('moveChannel.movedToast', { inboxName: targetInbox?.name ?? '' }));
       setMoveChannelModalOpen(false);
       await refreshConversationBadge();
-    } catch {
-      // The only documented failure mode from the backend (422 when
-      // eligible_move_target? re-validation fails) shares this message with
-      // any other transport failure, since there's no other moveChannel.* key.
-      toast.error(t('moveChannel.errorIneligible'));
+    } catch (e: unknown) {
+      const status = (e as { response?: { status?: number } })?.response?.status;
+      toast.error(status === 422 ? t('moveChannel.errorIneligible') : t('moveChannel.errorGeneric'));
     } finally {
       setIsMovingChannel(false);
     }

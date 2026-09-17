@@ -89,7 +89,9 @@ const makeConversation = (id = '42') =>
     id,
     status: 'open' as const,
     inbox: { id: '1', name: 'WhatsApp', channel_type: 'Channel::Whatsapp' },
-    contact: { id: '1', name: 'Test Contact' },
+    // A WhatsApp conversation's contact_inbox is paired by phone number, so a
+    // real one always carries it — matters for same-type move eligibility.
+    contact: { id: '1', name: 'Test Contact', phone_number: '+5511999999999' },
     custom_attributes: {},
   }) as never;
 
@@ -660,6 +662,30 @@ describe('ChatHeader change channel', () => {
     expect(screen.queryByText('Support Email')).not.toBeInTheDocument();
   });
 
+  // Mirrors the backend fix for the same Sourcery finding (PR #373 / #395):
+  // same-type eligibility used to return true unconditionally, so an Email
+  // conversation for a contact with no email address could be offered a
+  // same-type Email target that the backend would then reject.
+  it('excludes a same-type Email target when the contact has no email', async () => {
+    const emailConversation = {
+      id: '42',
+      status: 'open' as const,
+      inbox: { id: '1', name: 'Support Email', channel_type: 'Channel::Email' },
+      contact: { id: '1', name: 'Test Contact' },
+      custom_attributes: {},
+    } as never;
+    mockInboxes = [
+      { id: '1', name: 'Support Email', channel_type: 'Channel::Email' } as Inbox,
+      { id: '2', name: 'Sales Email', channel_type: 'Channel::Email' } as Inbox,
+    ];
+
+    const user = userEvent.setup();
+    render(<ChatHeader {...defaultProps} conversation={emailConversation} />);
+    await openMenu(user);
+
+    expect(screen.queryByText('moveChannel.action')).not.toBeInTheDocument();
+  });
+
   it('calls moveChannel and shows a success toast on confirm', async () => {
     mockInboxes = [
       { id: '1', name: 'WhatsApp', channel_type: 'Channel::Whatsapp' } as Inbox,
@@ -738,6 +764,33 @@ describe('ChatHeader change channel', () => {
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('moveChannel.errorIneligible');
     });
+  });
+
+  // Sourcery finding (bug_risk, PR #395): every move failure showed the
+  // ineligible-channel message, even a transport error or a 5xx, telling the
+  // user the target was ineligible when the real problem was unrelated.
+  it('shows a generic error toast, not the ineligible one, on a non-422 failure', async () => {
+    mockInboxes = [
+      { id: '1', name: 'WhatsApp', channel_type: 'Channel::Whatsapp' } as Inbox,
+      { id: '2', name: 'WhatsApp Support', channel_type: 'Channel::Whatsapp' } as Inbox,
+    ];
+    vi.mocked(conversationAPI.moveChannel).mockRejectedValue({
+      response: { status: 500 },
+    });
+
+    const user = userEvent.setup();
+    render(<ChatHeader {...defaultProps} />);
+    await openMenu(user);
+    await user.click(await screen.findByText('moveChannel.action'));
+    await screen.findByText('moveChannel.modalTitle');
+
+    await user.click(screen.getByText('WhatsApp Support'));
+    await user.click(screen.getByText('moveChannel.confirm'));
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('moveChannel.errorGeneric');
+    });
+    expect(toast.error).not.toHaveBeenCalledWith('moveChannel.errorIneligible');
   });
 });
 
