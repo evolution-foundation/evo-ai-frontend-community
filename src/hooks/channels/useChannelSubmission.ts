@@ -295,10 +295,16 @@ export const useChannelSubmission = (form?: FormData) => {
     if (!replaceArchivedInboxId && selectedChannel.type === 'whatsapp') {
       const phoneNumber = getStr(form, 'phone_number');
       if (phoneNumber) {
-        const match = await InboxesService.checkArchivedMatch(phoneNumber);
-        if (match) {
-          pendingSubmitRef.current = { selectedChannel, selectedProvider, form, config, onCreated };
-          setArchivedMatch({ inboxId: match.inbox_id });
+        try {
+          const match = await InboxesService.checkArchivedMatch(phoneNumber);
+          if (match) {
+            pendingSubmitRef.current = { selectedChannel, selectedProvider, form, config, onCreated };
+            setArchivedMatch({ inboxId: match.inbox_id });
+            return;
+          }
+        } catch (e: unknown) {
+          const err = e as Error;
+          toast.error(apiErrorMessage(e) || err?.message || 'Falha ao criar canal');
           return;
         }
       }

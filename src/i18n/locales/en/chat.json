@@ -1076,6 +1076,7 @@
     "confirm": "Move conversation",
     "cancel": "Cancel",
     "movedToast": "Conversation moved to {{inboxName}}",
-    "errorIneligible": "This conversation can't be moved to that channel."
+    "errorIneligible": "This conversation can't be moved to that channel.",
+    "errorGeneric": "Something went wrong moving this conversation. Please try again."
   }
 }

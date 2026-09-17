@@ -228,6 +228,18 @@ describe('useChannelSubmission — archived match on WhatsApp creation (EVO-2159
     return result;
   };
 
+  // Sourcery finding (bug_risk, PR #395): checkArchivedMatch ran before the
+  // create try/catch, so a failed lookup was an unhandled rejection with no
+  // error toast instead of the standard creation-failure feedback.
+  it('shows the creation error toast when the archived-match lookup itself fails', async () => {
+    checkArchivedMatchMock.mockRejectedValueOnce(new Error('network down'));
+    const result = await renderAndSubmitWhatsapp();
+
+    expect(toast.error).toHaveBeenCalledWith('network down');
+    expect(createChannelMock).not.toHaveBeenCalled();
+    expect(result.current.archivedMatch).toBeNull();
+  });
+
   it('checks for an archived match before creating, and holds off createChannel when one is found', async () => {
     checkArchivedMatchMock.mockResolvedValue({ inbox_id: 'archived-1' });
     const result = await renderAndSubmitWhatsapp();
