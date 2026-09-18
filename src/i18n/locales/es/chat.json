@@ -678,6 +678,7 @@
     },
     "pendingPlaceholder": "Haz clic en Abrir para responder",
     "restrictedPlaceholder": "No se pueden enviar mensajes debido a la ventana de mensajería de 24 horas",
+    "archivedPlaceholder": "Canal archivado — no se pueden enviar mensajes",
     "defaultPlaceholder": "Escribe tu mensaje...",
     "noteComposer": {
       "helper": "Guarda notas importantes en la conversación para que otros usuarios puedan verlas después.",

@@ -703,6 +703,7 @@
     },
     "pendingPlaceholder": "Clique em Abrir para responder",
     "restrictedPlaceholder": "Não é possível enviar mensagens devido à janela de mensagem de 24 horas",
+    "archivedPlaceholder": "Canal arquivado — não é possível enviar mensagens",
     "defaultPlaceholder": "Digite sua mensagem...",
     "noteComposer": {
       "helper": "Salve notas importantes na conversa para que outros usuários possam ver no futuro.",
