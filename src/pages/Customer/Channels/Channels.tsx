@@ -142,7 +142,12 @@ export default function Channels() {
       // record stay put (read-only), so refetch instead of dropping it from
       // local state; a plain removal would make it briefly disappear, then
       // reappear on the next refetch still tagged as an active connection.
-      await fetchInboxes();
+      // Force the refresh: a plain fetchInboxes() is a no-op inside the
+      // store's 15-minute cache window (almost always true right after this
+      // page's own mount fetch), leaving every other reader of the shared
+      // store — a chat conversation's inbox lookup, for one — showing the
+      // stale pre-archive state until the cache happened to expire on its own.
+      await fetchInboxes(true);
 
       toast.success(t('success.removeSuccess'));
       closeDeleteModal();
@@ -151,7 +156,7 @@ export default function Channels() {
       toast.error((e as Error)?.message || t('errors.removeError'));
 
       // Refresh list on error to restore correct state
-      await fetchInboxes();
+      await fetchInboxes(true);
     } finally {
       setIsDeleting(null);
     }

@@ -12,7 +12,7 @@ export const useReactivateInbox = () => {
   const reactivateInbox = async (inboxId: string, name: string) => {
     await InboxesService.reactivate(inboxId);
     toast.success(t('overview.archived.reactivated', { name }));
-    await fetchInboxes();
+    await fetchInboxes(true);
     navigate(`/channels/${inboxId}/settings`);
   };
 
