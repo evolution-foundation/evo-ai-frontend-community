@@ -703,6 +703,7 @@
     },
     "pendingPlaceholder": "Click Open to reply",
     "restrictedPlaceholder": "Cannot send messages due to 24-hour messaging window",
+    "archivedPlaceholder": "Archived channel — cannot send messages",
     "defaultPlaceholder": "Type your message...",
     "noteComposer": {
       "helper": "Save important notes on the conversation so other users can see them later.",

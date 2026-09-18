@@ -678,6 +678,7 @@
     },
     "pendingPlaceholder": "Cliquez sur Ouvrir pour répondre",
     "restrictedPlaceholder": "Impossible d'envoyer des messages en raison de la fenêtre de messagerie de 24 heures",
+    "archivedPlaceholder": "Canal archivé — impossible d'envoyer des messages",
     "defaultPlaceholder": "Tapez votre message...",
     "noteComposer": {
       "helper": "Enregistrez des notes importantes sur la conversation afin que d'autres utilisateurs puissent les consulter plus tard.",

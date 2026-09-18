@@ -59,8 +59,8 @@ vi.mock('../banner', () => ({
   ConversationNoteBanner: () => null,
 }));
 vi.mock('../message-input', () => ({
-  MessageInput: ({ isDisabled }: { isDisabled: boolean }) => (
-    <div data-testid="message-input" data-disabled={isDisabled} />
+  MessageInput: ({ isDisabled, placeholder }: { isDisabled: boolean; placeholder: string }) => (
+    <div data-testid="message-input" data-disabled={isDisabled} data-placeholder={placeholder} />
   ),
 }));
 
@@ -118,6 +118,13 @@ describe('ChatArea archived-inbox read-only banner', () => {
       ARCHIVED_BANNER_TEXT,
     );
     expect(screen.getByTestId('message-input')).toHaveAttribute('data-disabled', 'true');
+    // The composer's placeholder must use its own archived-specific key, not
+    // the "24-hour messaging window" one — that text is wrong for an
+    // archived channel and would confuse the agent about why they can't type.
+    expect(screen.getByTestId('message-input')).toHaveAttribute(
+      'data-placeholder',
+      'messageInput.archivedPlaceholder',
+    );
   });
 
   it('takes the archived message over the disconnected one when both apply', () => {

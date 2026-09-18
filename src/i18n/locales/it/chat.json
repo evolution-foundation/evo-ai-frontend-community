@@ -678,6 +678,7 @@
     },
     "pendingPlaceholder": "Clicca su Apri per rispondere",
     "restrictedPlaceholder": "Impossibile inviare messaggi a causa della finestra di messaggistica di 24 ore",
+    "archivedPlaceholder": "Canale archiviato — impossibile inviare messaggi",
     "defaultPlaceholder": "Digita il tuo messaggio...",
     "noteComposer": {
       "helper": "Salva note importanti sulla conversazione in modo che altri utenti possano vederle in futuro.",
