@@ -67,7 +67,20 @@ describe('Channels delete flow (archive, not remove)', () => {
 
     await vi.waitFor(() => {
       expect(InboxesService.remove).toHaveBeenCalledWith('inbox-1');
-      expect(fetchInboxesMock).toHaveBeenCalled();
     });
+    // Regression: a plain fetchInboxes() is a no-op inside the store's
+    // 15-minute cache window (almost always true right after the page's own
+    // mount fetch, asserted separately below), so other pages reading the
+    // same store — a chat conversation's inbox lookup, for one — kept
+    // showing the pre-archive state until the cache happened to expire on
+    // its own. Check the LAST call specifically: the mount effect below also
+    // calls fetchInboxes(true), which would otherwise mask an unforced call
+    // made afterward by the delete handler.
+    expect(fetchInboxesMock).toHaveBeenLastCalledWith(true);
+  });
+
+  it('force-refreshes the inbox list on mount too', () => {
+    render(<Channels />);
+    expect(fetchInboxesMock).toHaveBeenCalledWith(true);
   });
 });

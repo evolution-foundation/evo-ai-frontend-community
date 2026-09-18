@@ -37,7 +37,11 @@ describe('useReactivateInbox', () => {
     });
 
     expect(reactivateMock).toHaveBeenCalledWith('inbox-1');
-    expect(fetchInboxesMock).toHaveBeenCalled();
+    // Force the refresh — a plain fetchInboxes() is a no-op inside the
+    // store's 15-minute cache window, leaving every other reader of the
+    // shared store (a chat conversation's inbox lookup, for one) showing
+    // the stale still-archived state.
+    expect(fetchInboxesMock).toHaveBeenCalledWith(true);
     expect(toast.success).toHaveBeenCalledWith('overview.archived.reactivated:{"name":"evo"}');
     expect(navigateMock).toHaveBeenCalledWith('/channels/inbox-1/settings');
   });
