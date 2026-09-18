@@ -267,7 +267,8 @@
       "whatsappMessage": "Solo puedes responder a esta conversación usando una plantilla de mensaje debido a",
       "cannotReply": "No puedes responder porque",
       "linkText": "Restricciones de ventana de mensajería de 24 horas",
-      "zapiDisconnected": "WhatsApp desconectado. Conecta el número para enviar mensajes."
+      "zapiDisconnected": "WhatsApp desconectado. Conecta el número para enviar mensajes.",
+      "inboxArchived": "Este canal ha sido archivado. Reactívalo o mueve la conversación a otro canal para continuar."
     },
     "noteBanner": {
       "title": "Nota de la atención",
