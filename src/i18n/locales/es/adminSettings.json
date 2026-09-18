@@ -333,6 +333,19 @@
         "OPENAI_PROMPT_SIMPLIFY": "Ingrese el prompt para simplificar texto..."
       }
     },
+    "fields": {
+      "knowledgeEmbeddingModel": "Modelo de Embedding de Conocimiento",
+      "memoryCompressionModel": "Modelo de Compresion de Memoria",
+      "audioTranscriptionModel": "Modelo de Transcripcion de Audio"
+    },
+    "hints": {
+      "knowledgeEmbeddingModel": "Modelo utilizado para generar embeddings de los documentos de la base de conocimiento. Deje en blanco para usar el valor predeterminado (text-embedding-3-small).",
+      "memoryCompressionModel": "Modelo utilizado para resumir la memoria de conversacion del agente. Deje en blanco para usar el valor predeterminado (gpt-4o-mini).",
+      "audioTranscriptionModel": "Modelo utilizado para transcribir mensajes de voz. Deje en blanco para usar el valor predeterminado (whisper-1)."
+    },
+    "sections": {
+      "aiFeatureModels": "Modelos de Funciones de IA"
+    },
     "secretConfigured": "Configurado",
     "secretNotConfigured": "No configurado",
     "clearSecret": "Borrar valor guardado",

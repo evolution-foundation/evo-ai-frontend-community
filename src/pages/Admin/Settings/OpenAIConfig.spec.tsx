@@ -163,4 +163,46 @@ describe('OpenAIConfig', () => {
       expect(payload).not.toHaveProperty('OPENAI_API_SECRET');
     });
   });
+
+  it('renders the three model-override fields', async () => {
+    await renderAndWait();
+
+    expect(
+      screen.getByLabelText('openai.fields.knowledgeEmbeddingModel'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('openai.fields.memoryCompressionModel'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('openai.fields.audioTranscriptionModel'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('openai.sections.aiFeatureModels')).toBeInTheDocument();
+  });
+
+  it('calls saveConfig with the model-override fields on form submit', async () => {
+    await renderAndWait();
+    mockSaveConfig.mockResolvedValue(EMPTY_CONFIG);
+
+    fireEvent.change(screen.getByLabelText('openai.fields.knowledgeEmbeddingModel'), {
+      target: { value: 'text-embedding-3-large' },
+    });
+    fireEvent.change(screen.getByLabelText('openai.fields.memoryCompressionModel'), {
+      target: { value: 'gpt-4o' },
+    });
+    fireEvent.change(screen.getByLabelText('openai.fields.audioTranscriptionModel'), {
+      target: { value: 'whisper-2' },
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('openai.save'));
+    });
+
+    await waitFor(() => {
+      expect(mockSaveConfig).toHaveBeenCalledWith('openai', expect.objectContaining({
+        KNOWLEDGE_EMBEDDING_MODEL: 'text-embedding-3-large',
+        MEMORY_COMPRESSION_MODEL: 'gpt-4o',
+        OPENAI_AUDIO_TRANSCRIPTION_MODEL: 'whisper-2',
+      }));
+    });
+  });
 });

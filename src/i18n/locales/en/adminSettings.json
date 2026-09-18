@@ -339,6 +339,19 @@
         "OPENAI_PROMPT_SIMPLIFY": "Enter prompt for simplifying text..."
       }
     },
+    "fields": {
+      "knowledgeEmbeddingModel": "Knowledge Embedding Model",
+      "memoryCompressionModel": "Memory Compression Model",
+      "audioTranscriptionModel": "Audio Transcription Model"
+    },
+    "hints": {
+      "knowledgeEmbeddingModel": "Model used to generate embeddings for knowledge base documents. Leave blank to use the default (text-embedding-3-small).",
+      "memoryCompressionModel": "Model used to summarize agent conversation memory. Leave blank to use the default (gpt-4o-mini).",
+      "audioTranscriptionModel": "Model used to transcribe voice messages. Leave blank to use the default (whisper-1)."
+    },
+    "sections": {
+      "aiFeatureModels": "AI Feature Models"
+    },
     "secretConfigured": "Configured",
     "secretNotConfigured": "Not configured",
     "clearSecret": "Clear saved value",

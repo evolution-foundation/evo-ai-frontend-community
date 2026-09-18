@@ -29,6 +29,9 @@ function createOpenAISchema(_t: (key: string) => string) {
     OPENAI_API_URL: z.string().optional(),
       OPENAI_MODEL: z.string().optional(),
     OPENAI_ENABLE_AUDIO_TRANSCRIPTION: z.union([z.boolean(), z.string()]).optional(),
+    OPENAI_AUDIO_TRANSCRIPTION_MODEL: z.string().optional(),
+    KNOWLEDGE_EMBEDDING_MODEL: z.string().optional(),
+    MEMORY_COMPRESSION_MODEL: z.string().optional(),
     OPENAI_PROMPT_REPLY: z.string().optional(),
     OPENAI_PROMPT_SUMMARY: z.string().optional(),
     OPENAI_PROMPT_REPHRASE: z.string().optional(),
@@ -47,6 +50,9 @@ const DEFAULTS: OpenAIFormData = {
   OPENAI_API_URL: '',
   OPENAI_MODEL: '',
   OPENAI_ENABLE_AUDIO_TRANSCRIPTION: false,
+  OPENAI_AUDIO_TRANSCRIPTION_MODEL: '',
+  KNOWLEDGE_EMBEDDING_MODEL: '',
+  MEMORY_COMPRESSION_MODEL: '',
   OPENAI_PROMPT_REPLY: '',
   OPENAI_PROMPT_SUMMARY: '',
   OPENAI_PROMPT_REPHRASE: '',
@@ -122,6 +128,20 @@ export default function OpenAIConfig() {
   useEffect(() => {
     loadConfig();
   }, [loadConfig]);
+
+  const modelOverrideField = (
+    fieldName: 'KNOWLEDGE_EMBEDDING_MODEL' | 'MEMORY_COMPRESSION_MODEL' | 'OPENAI_AUDIO_TRANSCRIPTION_MODEL',
+    id: string,
+    labelKey: string,
+    hintKey: string,
+    placeholder: string,
+  ) => (
+    <div className="space-y-1.5">
+      <Label htmlFor={id}>{t(labelKey)}</Label>
+      <Input id={id} placeholder={placeholder} {...register(fieldName)} />
+      <p className="text-xs text-muted-foreground">{t(hintKey)}</p>
+    </div>
+  );
 
   const onSubmit = async (formData: OpenAIFormData) => {
     setSaving(true);
@@ -217,6 +237,37 @@ export default function OpenAIConfig() {
                 </div>
               )}
             />
+
+            {modelOverrideField(
+              'OPENAI_AUDIO_TRANSCRIPTION_MODEL',
+              'openai-audio-transcription-model',
+              'openai.fields.audioTranscriptionModel',
+              'openai.hints.audioTranscriptionModel',
+              'whisper-1',
+            )}
+          </CardContent>
+        </Card>
+
+        {/* AI Feature Models */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t('openai.sections.aiFeatureModels')}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            {modelOverrideField(
+              'KNOWLEDGE_EMBEDDING_MODEL',
+              'openai-embedding-model',
+              'openai.fields.knowledgeEmbeddingModel',
+              'openai.hints.knowledgeEmbeddingModel',
+              'text-embedding-3-small',
+            )}
+            {modelOverrideField(
+              'MEMORY_COMPRESSION_MODEL',
+              'openai-memory-compression-model',
+              'openai.fields.memoryCompressionModel',
+              'openai.hints.memoryCompressionModel',
+              'gpt-4o-mini',
+            )}
           </CardContent>
         </Card>
 
