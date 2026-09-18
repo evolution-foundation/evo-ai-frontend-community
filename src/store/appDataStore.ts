@@ -51,7 +51,6 @@ interface AppDataState {
       forceRefresh?: boolean;
     },
   ) => Promise<void>;
-  removeInbox: (inboxId: string) => void;
   addInbox: (inbox: Inbox) => void;
   clearAppData: () => void;
 }
@@ -221,12 +220,6 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
     if (shouldLoadTeams) tasks.push(get().fetchTeams(forceRefresh));
 
     await Promise.allSettled(tasks);
-  },
-
-  removeInbox: inboxId => {
-    set(state => ({
-      inboxes: state.inboxes.filter(inbox => inbox.id !== inboxId),
-    }));
   },
 
   addInbox: inbox => {

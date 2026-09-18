@@ -27,7 +27,7 @@ export default function Channels() {
   const { can, isReady: permissionsReady, loading: permissionsLoading } = usePermissions();
   const { t } = useLanguage('channels');
 
-  const { inboxes, isLoadingInboxes, fetchInboxes, removeInbox } = useAppDataStore();
+  const { inboxes, isLoadingInboxes, fetchInboxes } = useAppDataStore();
   const [query, setQuery] = useState('');
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [deleteModal, setDeleteModal] = useState<{
@@ -138,8 +138,11 @@ export default function Channels() {
     try {
       await InboxesService.remove(channelId);
 
-      // Optimistically remove from local state
-      removeInbox(channelId);
+      // The channel is archived, not deleted — conversations and the inbox
+      // record stay put (read-only), so refetch instead of dropping it from
+      // local state; a plain removal would make it briefly disappear, then
+      // reappear on the next refetch still tagged as an active connection.
+      await fetchInboxes();
 
       toast.success(t('success.removeSuccess'));
       closeDeleteModal();
