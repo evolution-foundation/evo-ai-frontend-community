@@ -3,7 +3,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { toast } from 'sonner';
 import AiCredentials from './AiCredentials';
-import { maskKey } from '@/constants/aiProviders';
+import { AI_CONSUMERS, maskKey } from '@/constants/aiProviders';
 import type { ApiKey } from '@/types/agents';
 import type { ListApiKeysOptions } from '@/services/agents/agentService';
 
@@ -597,14 +597,20 @@ describe('AiCredentials — in-use panel (1.2 AC9)', () => {
     await waitFor(() => expect(panel).toHaveTextContent('inUse.legacy'));
   });
 
-  it('lists the five AI features of the CRM (1.4 completes the panel)', async () => {
+  it('lists the seven AI features of the CRM (1.4 completes the panel)', async () => {
     mockRegistry([OPENAI_KEY]);
     render(<AiCredentials />);
 
     const panel = await screen.findByLabelText('inUse.title');
-    ['aiAgents', 'inboxAssist', 'audioTranscription', 'labelSuggestion', 'moderation'].forEach(
-      feature => expect(panel).toHaveTextContent(`inUse.features.${feature}`),
-    );
+    [
+      'aiAgents',
+      'inboxAssist',
+      'audioTranscription',
+      'labelSuggestion',
+      'moderation',
+      'knowledgeEmbedding',
+      'memoryCompression',
+    ].forEach(feature => expect(panel).toHaveTextContent(`inUse.features.${feature}`));
   });
 
   // 1.4 AC7: an Anthropic account credential serves Agents but none of the four
@@ -693,6 +699,66 @@ describe('AiCredentials — creating (AC2)', () => {
       key_value: 'sk-nova-0001',
       scope: 'account',
     });
+  });
+});
+
+// Story 1.5: restrict a credential to specific AI features instead of letting
+// it serve every compatible feature automatically.
+describe('AiCredentials — restricting a credential to specific features', () => {
+  it('renders a checkbox for every canonical AI consumer in the create form', async () => {
+    const user = userEvent.setup();
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+    const dialog = within(await screen.findByRole('dialog'));
+
+    for (const consumer of AI_CONSUMERS) {
+      expect(
+        await dialog.findByText(new RegExp(`^consumers\\.${consumer.labelKey.split('.').pop()!}$`)),
+      ).toBeInTheDocument();
+    }
+  });
+
+  it('sends the checked consumers in the create payload', async () => {
+    const user = userEvent.setup();
+    createApiKey.mockResolvedValue(OPENAI_KEY);
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+    const dialog = within(await screen.findByRole('dialog'));
+
+    await user.type(await dialog.findByLabelText('form.labels.name'), 'Nova');
+    await user.click(dialog.getByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'OpenAI' }));
+    await user.type(dialog.getByLabelText('form.labels.key'), 'sk-scoped-0001');
+    await user.click(dialog.getByText('consumers.knowledgeEmbedding'));
+    await user.click(dialog.getByText('consumers.memoryCompression'));
+    await user.click(dialog.getByText('actions.save'));
+
+    await waitFor(() => expect(createApiKey).toHaveBeenCalled());
+    expect(createApiKey).toHaveBeenCalledWith(
+      expect.objectContaining({ allowed_consumers: ['knowledge_embedding', 'memory_compression'] }),
+    );
+  });
+
+  it('sends an empty allowed_consumers array when nothing is checked, preserving unrestricted behavior', async () => {
+    const user = userEvent.setup();
+    createApiKey.mockResolvedValue(OPENAI_KEY);
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+
+    await user.type(await screen.findByLabelText('form.labels.name'), 'Nova');
+    await user.click(screen.getByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'OpenAI' }));
+    await user.type(screen.getByLabelText('form.labels.key'), 'sk-unrestricted-0001');
+    await user.click(screen.getByText('actions.save'));
+
+    await waitFor(() => expect(createApiKey).toHaveBeenCalled());
+    expect(createApiKey).toHaveBeenCalledWith(expect.objectContaining({ allowed_consumers: [] }));
   });
 });
 

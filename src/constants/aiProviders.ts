@@ -50,12 +50,32 @@ export const SCOPE_CHAIN: ApiKeyScope[] = ['installation', 'account'];
 
 export type ApiKeyScope = 'installation' | 'account';
 
+// Mirrors Ai::ConsumerCompatibility::CONSUMERS keys in the CRM — the single
+// source of truth for what a "consumer" is called. Keep this list and that
+// Ruby hash in lockstep; a key added there with no entry here is invisible
+// on this screen (exactly the gap that motivated this plan).
+export interface AiConsumer {
+  key: string;
+  labelKey: string;
+}
+
+export const AI_CONSUMERS: AiConsumer[] = [
+  { key: 'ai_agents', labelKey: 'consumers.aiAgents' },
+  { key: 'inbox_assist', labelKey: 'consumers.inboxAssist' },
+  { key: 'audio_transcription', labelKey: 'consumers.audioTranscription' },
+  { key: 'label_suggestion', labelKey: 'consumers.labelSuggestion' },
+  { key: 'moderation', labelKey: 'consumers.moderation' },
+  { key: 'knowledge_embedding', labelKey: 'consumers.knowledgeEmbedding' },
+  { key: 'memory_compression', labelKey: 'consumers.memoryCompression' },
+];
+
 interface ResolvableCredential {
   provider: string;
   scope?: ApiKeyScope;
   is_active: boolean;
   openai_compatible?: boolean;
   created_at?: string;
+  allowed_consumers?: string[];
 }
 
 /** What the panel can say about a feature's credential.
@@ -77,7 +97,7 @@ export type CredentialResolution<T> =
 // `order(created_at: :asc)` of the Ruby side — array position is not an order.
 export function resolveCredential<T extends ResolvableCredential>(
   credentials: T[],
-  { openAICompatibleOnly = false }: { openAICompatibleOnly?: boolean } = {},
+  { openAICompatibleOnly = false, consumerKey }: { openAICompatibleOnly?: boolean; consumerKey?: string } = {},
 ): T | undefined {
   for (const scope of [...SCOPE_CHAIN].reverse()) {
     const candidates = credentials
@@ -86,7 +106,10 @@ export function resolveCredential<T extends ResolvableCredential>(
           credential.is_active &&
           (credential.scope ?? 'account') === scope &&
           (!openAICompatibleOnly ||
-            (credential.openai_compatible ?? isOpenAICompatible(credential.provider))),
+            (credential.openai_compatible ?? isOpenAICompatible(credential.provider))) &&
+          (!consumerKey ||
+            !credential.allowed_consumers?.length ||
+            credential.allowed_consumers.includes(consumerKey)),
       )
       .sort(byCreatedAtAsc);
 
@@ -117,7 +140,7 @@ function byCreatedAtAsc(a: ResolvableCredential, b: ResolvableCredential): numbe
  */
 export function resolveCredentialState<T extends ResolvableCredential>(
   credentials: T[],
-  options: { openAICompatibleOnly?: boolean; legacyActive?: boolean } = {},
+  options: { openAICompatibleOnly?: boolean; legacyActive?: boolean; consumerKey?: string } = {},
 ): CredentialResolution<T> {
   const credential = resolveCredential(credentials, options);
   if (credential) {

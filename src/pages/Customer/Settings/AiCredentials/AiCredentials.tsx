@@ -22,6 +22,7 @@ import {
 import { AlertTriangle, Edit, Key, Loader2, Plus, Trash2 } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 import {
+  AI_CONSUMERS,
   AI_PROVIDERS,
   CUSTOM_OPENAI_PROVIDER,
   isOpenAICompatible,
@@ -46,6 +47,7 @@ interface CredentialDraft {
   key_value: string;
   base_url: string;
   scope: ApiKeyScope;
+  allowed_consumers: string[];
 }
 
 const EMPTY_DRAFT: CredentialDraft = {
@@ -54,7 +56,20 @@ const EMPTY_DRAFT: CredentialDraft = {
   key_value: '',
   base_url: '',
   scope: 'account',
+  allowed_consumers: [],
 };
+
+// AI Agents reaches every provider; the other six build OpenAI-shaped
+// requests, so they resolve with the compatibility filter plus their own
+// consumer key (mirrors Ai::ConsumerCompatibility).
+const OPENAI_ONLY_FEATURES: { key: string; consumerKey: string }[] = [
+  { key: 'inboxAssist', consumerKey: 'inbox_assist' },
+  { key: 'audioTranscription', consumerKey: 'audio_transcription' },
+  { key: 'labelSuggestion', consumerKey: 'label_suggestion' },
+  { key: 'moderation', consumerKey: 'moderation' },
+  { key: 'knowledgeEmbedding', consumerKey: 'knowledge_embedding' },
+  { key: 'memoryCompression', consumerKey: 'memory_compression' },
+];
 
 export default function AiCredentials() {
   const { t } = useLanguage('aiCredentials');
@@ -119,20 +134,23 @@ export default function AiCredentials() {
   const listPending = loading;
   const signalPending = legacyFallbackActive === 'pending';
 
-  const featuresInUse = useMemo(() => {
-    const openAIOnly = resolveCredentialState(credentials, {
-      openAICompatibleOnly: true,
-      legacyActive,
-    });
-
-    return [
-      { key: 'aiAgents', resolution: resolveCredentialState(credentials, { legacyActive }) },
-      { key: 'inboxAssist', resolution: openAIOnly },
-      { key: 'audioTranscription', resolution: openAIOnly },
-      { key: 'labelSuggestion', resolution: openAIOnly },
-      { key: 'moderation', resolution: openAIOnly },
-    ];
-  }, [credentials, legacyActive]);
+  const featuresInUse = useMemo(
+    () => [
+      {
+        key: 'aiAgents',
+        resolution: resolveCredentialState(credentials, { legacyActive, consumerKey: 'ai_agents' }),
+      },
+      ...OPENAI_ONLY_FEATURES.map(({ key, consumerKey }) => ({
+        key,
+        resolution: resolveCredentialState(credentials, {
+          openAICompatibleOnly: true,
+          legacyActive,
+          consumerKey,
+        }),
+      })),
+    ],
+    [credentials, legacyActive],
+  );
 
   const loadCredentials = useCallback(async () => {
     if (!canRead) {
@@ -237,6 +255,7 @@ export default function AiCredentials() {
       key_value: '',
       base_url: credential.base_url ?? '',
       scope: credential.scope ?? 'account',
+      allowed_consumers: credential.allowed_consumers ?? [],
     });
     setFormOpen(true);
   };
@@ -264,6 +283,7 @@ export default function AiCredentials() {
           provider: draft.provider,
           base_url: draft.base_url || undefined,
           scope: draft.scope,
+          allowed_consumers: draft.allowed_consumers,
         };
         // An empty field keeps the stored key: never send a blank key_value.
         if (draft.key_value.trim()) {
@@ -279,6 +299,7 @@ export default function AiCredentials() {
           key_value: draft.key_value,
           base_url: draft.base_url || undefined,
           scope: draft.scope,
+          allowed_consumers: draft.allowed_consumers,
         };
 
         await createApiKey(payload);
@@ -641,6 +662,30 @@ export default function AiCredentials() {
                 {t('form.incompatibleWarning', { provider: providerLabel(draft.provider) })}
               </p>
             )}
+
+            <div className="space-y-1.5">
+              <Label>{t('form.labels.allowedConsumers')}</Label>
+              <p className="text-xs text-muted-foreground">{t('form.hints.allowedConsumers')}</p>
+              <div className="space-y-2">
+                {AI_CONSUMERS.map(consumer => (
+                  <label key={consumer.key} className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={draft.allowed_consumers.includes(consumer.key)}
+                      onChange={event =>
+                        setDraft(prev => ({
+                          ...prev,
+                          allowed_consumers: event.target.checked
+                            ? [...prev.allowed_consumers, consumer.key]
+                            : prev.allowed_consumers.filter(key => key !== consumer.key),
+                        }))
+                      }
+                    />
+                    {t(consumer.labelKey)}
+                  </label>
+                ))}
+              </div>
+            </div>
           </div>
 
           <DialogFooter>

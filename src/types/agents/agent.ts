@@ -141,6 +141,8 @@ export interface ApiKey {
   openai_compatible?: boolean;
   /** Which link of the resolution chain the credential belongs to. */
   scope?: ApiKeyScope;
+  /** AI features this credential is restricted to; empty/absent means unrestricted. */
+  allowed_consumers?: string[];
   created_at: string;
   updated_at: string;
   is_active: boolean;
@@ -154,6 +156,7 @@ export interface ApiKeyCreate {
   key_value?: string;
   base_url?: string;
   scope?: ApiKeyScope;
+  allowed_consumers?: string[];
 }
 
 export interface ApiKeyUpdate {
@@ -163,6 +166,7 @@ export interface ApiKeyUpdate {
   base_url?: string;
   is_active?: boolean;
   scope?: ApiKeyScope;
+  allowed_consumers?: string[];
 }
 
 // ============================================
