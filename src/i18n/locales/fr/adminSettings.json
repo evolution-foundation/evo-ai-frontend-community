@@ -345,6 +345,13 @@
     "sections": {
       "aiFeatureModels": "Modeles des Fonctionnalites IA"
     },
+    "credentialSelect": {
+      "automatic": "Automatique (par defaut)",
+      "inboxAssist": "Identifiant pour Assist de la Boite de Reception",
+      "audioTranscription": "Identifiant pour Transcription Audio",
+      "knowledgeEmbedding": "Identifiant pour Embedding de Connaissances",
+      "memoryCompression": "Identifiant pour Compression de Memoire"
+    },
     "secretConfigured": "Configure",
     "secretNotConfigured": "Non configure",
     "clearSecret": "Effacer la valeur enregistree",

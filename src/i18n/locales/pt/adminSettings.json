@@ -351,6 +351,13 @@
     "sections": {
       "aiFeatureModels": "Modelos de Funcionalidades de IA"
     },
+    "credentialSelect": {
+      "automatic": "Automatico (predefinido)",
+      "inboxAssist": "Credencial para Assist da Caixa de Entrada",
+      "audioTranscription": "Credencial para Transcricao de Audio",
+      "knowledgeEmbedding": "Credencial para Embedding de Conhecimento",
+      "memoryCompression": "Credencial para Compressao de Memoria"
+    },
     "secretConfigured": "Configurado",
     "secretNotConfigured": "Nao configurado",
     "clearSecret": "Limpar valor guardado",

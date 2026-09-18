@@ -13,6 +13,11 @@ import {
   CardTitle,
   Switch,
   Textarea,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@evoapi/design-system';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
@@ -21,6 +26,11 @@ import { AI_CREDENTIALS_ROUTE } from '@/components/ApiKeysModal';
 import { adminConfigService } from '@/services/admin/adminConfigService';
 import { extractError } from '@/utils/apiHelpers';
 import type { AdminConfigData } from '@/types/admin/adminConfig';
+import { listApiKeys } from '@/services/agents';
+import { isOpenAICompatible } from '@/constants/aiProviders';
+import type { ApiKey } from '@/types/agents';
+
+const AUTOMATIC_CREDENTIAL = 'automatic';
 
 // --- Schema factory with i18n ---
 
@@ -32,6 +42,10 @@ function createOpenAISchema(_t: (key: string) => string) {
     OPENAI_AUDIO_TRANSCRIPTION_MODEL: z.string().optional(),
     KNOWLEDGE_EMBEDDING_MODEL: z.string().optional(),
     MEMORY_COMPRESSION_MODEL: z.string().optional(),
+    INBOX_ASSIST_CREDENTIAL_ID: z.string().optional(),
+    AUDIO_TRANSCRIPTION_CREDENTIAL_ID: z.string().optional(),
+    KNOWLEDGE_EMBEDDING_CREDENTIAL_ID: z.string().optional(),
+    MEMORY_COMPRESSION_CREDENTIAL_ID: z.string().optional(),
     OPENAI_PROMPT_REPLY: z.string().optional(),
     OPENAI_PROMPT_SUMMARY: z.string().optional(),
     OPENAI_PROMPT_REPHRASE: z.string().optional(),
@@ -53,6 +67,10 @@ const DEFAULTS: OpenAIFormData = {
   OPENAI_AUDIO_TRANSCRIPTION_MODEL: '',
   KNOWLEDGE_EMBEDDING_MODEL: '',
   MEMORY_COMPRESSION_MODEL: '',
+  INBOX_ASSIST_CREDENTIAL_ID: '',
+  AUDIO_TRANSCRIPTION_CREDENTIAL_ID: '',
+  KNOWLEDGE_EMBEDDING_CREDENTIAL_ID: '',
+  MEMORY_COMPRESSION_CREDENTIAL_ID: '',
   OPENAI_PROMPT_REPLY: '',
   OPENAI_PROMPT_SUMMARY: '',
   OPENAI_PROMPT_REPHRASE: '',
@@ -99,6 +117,7 @@ export default function OpenAIConfig() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [credentials, setCredentials] = useState<ApiKey[]>([]);
 
   const openaiSchema = useMemo(() => createOpenAISchema(t), [t]);
 
@@ -125,9 +144,23 @@ export default function OpenAIConfig() {
     }
   }, [reset, t]);
 
+  const loadCredentials = useCallback(async () => {
+    try {
+      const keys = await listApiKeys(1, 100, { active: true });
+      setCredentials(keys.filter(k => k.openai_compatible ?? isOpenAICompatible(k.provider)));
+    } catch {
+      // Non-fatal: the dropdowns just show only "Automatic" if this fails.
+      setCredentials([]);
+    }
+  }, []);
+
   useEffect(() => {
     loadConfig();
-  }, [loadConfig]);
+    loadCredentials();
+  }, [loadConfig, loadCredentials]);
+
+  const eligibleCredentials = (consumerKey: string) =>
+    credentials.filter(c => !c.allowed_consumers?.length || c.allowed_consumers.includes(consumerKey));
 
   const modelOverrideField = (
     fieldName: 'KNOWLEDGE_EMBEDDING_MODEL' | 'MEMORY_COMPRESSION_MODEL' | 'OPENAI_AUDIO_TRANSCRIPTION_MODEL',
@@ -141,6 +174,43 @@ export default function OpenAIConfig() {
       <Input id={id} placeholder={placeholder} {...register(fieldName)} />
       <p className="text-xs text-muted-foreground">{t(hintKey)}</p>
     </div>
+  );
+
+  const credentialSelectField = (
+    fieldName:
+      | 'INBOX_ASSIST_CREDENTIAL_ID'
+      | 'AUDIO_TRANSCRIPTION_CREDENTIAL_ID'
+      | 'KNOWLEDGE_EMBEDDING_CREDENTIAL_ID'
+      | 'MEMORY_COMPRESSION_CREDENTIAL_ID',
+    consumerKey: string,
+    id: string,
+    labelKey: string,
+  ) => (
+    <Controller
+      name={fieldName}
+      control={control}
+      render={({ field }) => (
+        <div className="space-y-1.5">
+          <Label htmlFor={id}>{t(labelKey)}</Label>
+          <Select
+            value={field.value || AUTOMATIC_CREDENTIAL}
+            onValueChange={value => field.onChange(value === AUTOMATIC_CREDENTIAL ? '' : value)}
+          >
+            <SelectTrigger id={id}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={AUTOMATIC_CREDENTIAL}>{t('openai.credentialSelect.automatic')}</SelectItem>
+              {eligibleCredentials(consumerKey).map(cred => (
+                <SelectItem key={cred.id} value={cred.id}>
+                  {cred.name} ({cred.provider})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+    />
   );
 
   const onSubmit = async (formData: OpenAIFormData) => {
@@ -221,6 +291,13 @@ export default function OpenAIConfig() {
               )}
             </div>
 
+            {credentialSelectField(
+              'INBOX_ASSIST_CREDENTIAL_ID',
+              'inbox_assist',
+              'openai-inbox-assist-credential',
+              'openai.credentialSelect.inboxAssist',
+            )}
+
             <Controller
               name="OPENAI_ENABLE_AUDIO_TRANSCRIPTION"
               control={control}
@@ -245,6 +322,12 @@ export default function OpenAIConfig() {
               'openai.hints.audioTranscriptionModel',
               'whisper-1',
             )}
+            {credentialSelectField(
+              'AUDIO_TRANSCRIPTION_CREDENTIAL_ID',
+              'audio_transcription',
+              'openai-audio-transcription-credential',
+              'openai.credentialSelect.audioTranscription',
+            )}
           </CardContent>
         </Card>
 
@@ -261,12 +344,24 @@ export default function OpenAIConfig() {
               'openai.hints.knowledgeEmbeddingModel',
               'text-embedding-3-small',
             )}
+            {credentialSelectField(
+              'KNOWLEDGE_EMBEDDING_CREDENTIAL_ID',
+              'knowledge_embedding',
+              'openai-embedding-credential',
+              'openai.credentialSelect.knowledgeEmbedding',
+            )}
             {modelOverrideField(
               'MEMORY_COMPRESSION_MODEL',
               'openai-memory-compression-model',
               'openai.fields.memoryCompressionModel',
               'openai.hints.memoryCompressionModel',
               'gpt-4o-mini',
+            )}
+            {credentialSelectField(
+              'MEMORY_COMPRESSION_CREDENTIAL_ID',
+              'memory_compression',
+              'openai-memory-compression-credential',
+              'openai.credentialSelect.memoryCompression',
             )}
           </CardContent>
         </Card>

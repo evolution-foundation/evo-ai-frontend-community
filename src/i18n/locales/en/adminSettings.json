@@ -352,6 +352,13 @@
     "sections": {
       "aiFeatureModels": "AI Feature Models"
     },
+    "credentialSelect": {
+      "automatic": "Automatic (default)",
+      "inboxAssist": "Credential for Inbox Assist",
+      "audioTranscription": "Credential for Audio Transcription",
+      "knowledgeEmbedding": "Credential for Knowledge Embedding",
+      "memoryCompression": "Credential for Memory Compression"
+    },
     "secretConfigured": "Configured",
     "secretNotConfigured": "Not configured",
     "clearSecret": "Clear saved value",

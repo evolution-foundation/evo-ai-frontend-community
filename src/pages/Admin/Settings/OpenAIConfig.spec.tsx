@@ -37,6 +37,31 @@ vi.mock('@/services/admin/adminConfigService', () => ({
   },
 }));
 
+const mockListApiKeys = vi.fn();
+
+vi.mock('@/services/agents', () => ({
+  listApiKeys: (...args: unknown[]) => mockListApiKeys(...args),
+}));
+
+const CREDENTIALS = [
+  {
+    id: 'cred-unrestricted',
+    name: 'OpenAI Prod',
+    provider: 'openai',
+    openai_compatible: true,
+    is_active: true,
+    allowed_consumers: [],
+  },
+  {
+    id: 'cred-embeddings-only',
+    name: 'Embeddings Only',
+    provider: 'openai',
+    openai_compatible: true,
+    is_active: true,
+    allowed_consumers: ['knowledge_embedding'],
+  },
+];
+
 vi.mock('@/utils/apiHelpers', () => ({
   extractError: () => ({ message: 'Test error' }),
 }));
@@ -67,6 +92,7 @@ async function renderAndWait(mockData: Record<string, unknown> = EMPTY_CONFIG) {
 describe('OpenAIConfig', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockListApiKeys.mockResolvedValue(CREDENTIALS);
   });
 
   it('renders loading spinner before data loads', () => {
@@ -202,6 +228,72 @@ describe('OpenAIConfig', () => {
         KNOWLEDGE_EMBEDDING_MODEL: 'text-embedding-3-large',
         MEMORY_COMPRESSION_MODEL: 'gpt-4o',
         OPENAI_AUDIO_TRANSCRIPTION_MODEL: 'whisper-2',
+      }));
+    });
+  });
+
+  it('renders the four credential dropdowns with an Automatic default', async () => {
+    await renderAndWait();
+
+    expect(screen.getByLabelText('openai.credentialSelect.inboxAssist')).toBeInTheDocument();
+    expect(screen.getByLabelText('openai.credentialSelect.audioTranscription')).toBeInTheDocument();
+    expect(screen.getByLabelText('openai.credentialSelect.knowledgeEmbedding')).toBeInTheDocument();
+    expect(screen.getByLabelText('openai.credentialSelect.memoryCompression')).toBeInTheDocument();
+    // Radix's Select renders a hidden native <option> mirror alongside the
+    // visible trigger text, so each of the 4 dropdowns contributes 2 matches.
+    expect(screen.getAllByText('openai.credentialSelect.automatic').length).toBe(8);
+  });
+
+  it('only offers a restricted credential to the consumer it is allowed for', async () => {
+    await renderAndWait();
+
+    fireEvent.click(screen.getByLabelText('openai.credentialSelect.knowledgeEmbedding'));
+
+    expect(await screen.findByRole('option', { name: /Embeddings Only/i })).toBeInTheDocument();
+  });
+
+  it('does not offer a credential restricted to a different consumer', async () => {
+    await renderAndWait();
+
+    fireEvent.click(screen.getByLabelText('openai.credentialSelect.audioTranscription'));
+    await screen.findByRole('option', { name: /OpenAI Prod/i });
+
+    expect(screen.queryByRole('option', { name: /Embeddings Only/i })).not.toBeInTheDocument();
+  });
+
+  it('sends the selected credential id in the save payload', async () => {
+    await renderAndWait();
+    mockSaveConfig.mockResolvedValue(EMPTY_CONFIG);
+
+    fireEvent.click(screen.getByLabelText('openai.credentialSelect.inboxAssist'));
+    const option = await screen.findByRole('option', { name: /OpenAI Prod/i });
+    fireEvent.click(option);
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('openai.save'));
+    });
+
+    await waitFor(() => {
+      expect(mockSaveConfig).toHaveBeenCalledWith('openai', expect.objectContaining({
+        INBOX_ASSIST_CREDENTIAL_ID: 'cred-unrestricted',
+      }));
+    });
+  });
+
+  it('sends an empty string when Automatic is selected, preserving default resolution', async () => {
+    await renderAndWait();
+    mockSaveConfig.mockResolvedValue(EMPTY_CONFIG);
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('openai.save'));
+    });
+
+    await waitFor(() => {
+      expect(mockSaveConfig).toHaveBeenCalledWith('openai', expect.objectContaining({
+        INBOX_ASSIST_CREDENTIAL_ID: '',
+        AUDIO_TRANSCRIPTION_CREDENTIAL_ID: '',
+        KNOWLEDGE_EMBEDDING_CREDENTIAL_ID: '',
+        MEMORY_COMPRESSION_CREDENTIAL_ID: '',
       }));
     });
   });
