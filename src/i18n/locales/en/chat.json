@@ -268,7 +268,8 @@
       "whatsappMessage": "You can only reply to this conversation using a message template due to",
       "cannotReply": "You cannot reply because",
       "linkText": "24-hour messaging window restrictions",
-      "zapiDisconnected": "WhatsApp disconnected. Connect the number to send messages."
+      "zapiDisconnected": "WhatsApp disconnected. Connect the number to send messages.",
+      "inboxArchived": "This channel has been archived. Reactivate it or move the conversation to another channel to continue."
     },
     "noteBanner": {
       "title": "Attendance note",

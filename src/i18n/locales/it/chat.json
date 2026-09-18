@@ -267,7 +267,8 @@
       "whatsappMessage": "Puoi rispondere a questa conversazione solo usando un modello di messaggio a causa di",
       "cannotReply": "Non puoi rispondere perché",
       "linkText": "Restrizioni della finestra di messaggistica di 24 ore",
-      "zapiDisconnected": "WhatsApp disconnesso. Connetti il numero per inviare messaggi."
+      "zapiDisconnected": "WhatsApp disconnesso. Connetti il numero per inviare messaggi.",
+      "inboxArchived": "Questo canale è stato archiviato. Riattivalo o sposta la conversazione su un altro canale per continuare."
     },
     "noteBanner": {
       "title": "Nota dell'assistenza",

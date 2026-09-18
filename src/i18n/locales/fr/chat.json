@@ -267,7 +267,8 @@
       "whatsappMessage": "Vous ne pouvez répondre à cette conversation qu'en utilisant un modèle de message en raison de",
       "cannotReply": "Vous ne pouvez pas répondre car",
       "linkText": "Restrictions de fenêtre de messagerie de 24 heures",
-      "zapiDisconnected": "WhatsApp déconnecté. Connectez le numéro pour envoyer des messages."
+      "zapiDisconnected": "WhatsApp déconnecté. Connectez le numéro pour envoyer des messages.",
+      "inboxArchived": "Ce canal a été archivé. Réactivez-le ou déplacez la conversation vers un autre canal pour continuer."
     },
     "noteBanner": {
       "title": "Note de suivi",

@@ -244,14 +244,27 @@ const ChatArea = ({
     (isZapiChannel || isEvolutionChannel) &&
     ['close', 'disconnected', 'logged_out'].includes(providerConnection?.connection || '');
 
+  // Archived inboxes never accept new outbound messages either — conversations
+  // under them are kept read-only (history stays visible, composer disabled)
+  // until the user reactivates the channel or moves the conversation elsewhere.
+  const isArchivedInbox = !!inbox?.archived_at;
+
   // Determinar se deve mostrar restrições
   const hasMessagingWindowRestriction =
     isWhatsAppChannel || isInstagramChannel || isMessengerChannel;
   const shouldShowRestrictionBanner =
-    (!canReply && hasMessagingWindowRestriction && !isWhatsAppFreeTextChannel) || isDisconnected;
+    (!canReply && hasMessagingWindowRestriction && !isWhatsAppFreeTextChannel) ||
+    isDisconnected ||
+    isArchivedInbox;
 
   // Mensagem do banner quando não pode responder
   const getBannerMessage = () => {
+    if (isArchivedInbox) {
+      return t(
+        'chatArea.banner.inboxArchived',
+        'Este canal foi arquivado. Reative-o ou mova a conversa para outro canal para continuar.',
+      );
+    }
     if (isDisconnected) {
       const errorMessage = providerConnection?.error || '';
       return (
@@ -272,9 +285,10 @@ const ChatArea = ({
   };
 
   const getBannerLinkText = () => {
-    // Não mostrar texto do link quando Z-API/Evolution está desconectado ou é canal free text
-    // Esses providers não têm restrições de janela de 24 horas, apenas precisam estar conectados
-    if (isDisconnected || isZapiChannel || isEvolutionChannel) {
+    // Não mostrar texto do link quando Z-API/Evolution está desconectado, o canal foi
+    // arquivado, ou é canal free text — nenhum desses casos tem link de política de
+    // janela de 24 horas relevante.
+    if (isArchivedInbox || isDisconnected || isZapiChannel || isEvolutionChannel) {
       return undefined;
     }
     return t('chatArea.banner.linkText');
@@ -283,9 +297,10 @@ const ChatArea = ({
   // Links externos para políticas de janela de mensagem
   // Não mostrar link quando Z-API/Evolution está desconectado (apenas aviso de desconexão)
   const getBannerLink = () => {
-    // Se Z-API/Evolution está desconectado, não mostrar link de restrições de 24 horas
-    // Esses providers não têm restrições de janela de 24 horas, apenas precisam estar conectados
-    if (isDisconnected || isZapiChannel || isEvolutionChannel) {
+    // Se Z-API/Evolution está desconectado ou o canal foi arquivado, não mostrar link
+    // de restrições de 24 horas — esses providers não têm restrições de janela de 24
+    // horas, apenas precisam estar conectados (ou reativados).
+    if (isArchivedInbox || isDisconnected || isZapiChannel || isEvolutionChannel) {
       return undefined;
     }
     if (isWhatsAppChannel && !isWhatsAppFreeTextChannel) {
