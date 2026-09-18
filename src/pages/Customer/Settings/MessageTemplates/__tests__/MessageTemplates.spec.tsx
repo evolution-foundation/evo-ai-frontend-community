@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
 const h = vi.hoisted(() => ({
-  inboxes: [] as Array<{ id: string; name: string; channel_type: string; provider?: string }>,
+  inboxes: [] as Array<{ id: string; name: string; channel_type: string; provider?: string; archived_at?: string | null }>,
   navigate: vi.fn(),
   globalService: {
     getTemplates: vi.fn(),
@@ -126,6 +126,15 @@ beforeEach(() => {
 });
 
 describe('MessageTemplates (unified screen)', () => {
+  it('excludes archived inboxes from the scope picker, since you cannot send new templates through them', async () => {
+    h.inboxes.push({ id: 'archived-1', name: 'Old Number', channel_type: 'Channel::Whatsapp', archived_at: '2026-01-01T00:00:00Z' });
+    render(<MessageTemplates />);
+    await screen.findByText('welcome');
+
+    expect(screen.queryByText('Old Number')).not.toBeInTheDocument();
+    expect(screen.getByText('WhatsApp Cloud')).toBeInTheDocument();
+  });
+
   it('defaults to Global scope and lists channel-less templates (no inbox arg)', async () => {
     render(<MessageTemplates />);
     expect(await screen.findByText('welcome')).toBeInTheDocument();

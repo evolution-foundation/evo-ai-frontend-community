@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/hooks/useLanguage';
 import { Provider as ProviderType } from '@/components/channels/ProviderGrid';
 import InboxesService from '@/services/channels/inboxesService';
 import {
@@ -26,16 +27,33 @@ import TwilioService from '@/services/channels/twilioService';
 import NotificameService from '@/services/channels/notificameService';
 import { ChannelType, FormData } from '@/hooks/channels/useChannelForm';
 import { useChannelValidation } from '@/hooks/channels/useChannelValidation';
+import { useReactivateInbox } from '@/hooks/channels/useReactivateInbox';
 import { useAppDataStore } from '@/store/appDataStore';
 import { apiErrorMessage } from '@/utils/apiHelpers';
 
 export const useChannelSubmission = (form?: FormData) => {
   const navigate = useNavigate();
+  const { t } = useLanguage('channels');
   const { validateByChannelAndProvider, getStr } = useChannelValidation();
-  const { addInbox } = useAppDataStore();
+  const { reactivateInbox } = useReactivateInbox();
+  const { addInbox, fetchInboxes } = useAppDataStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [healthCheckPassed, setHealthCheckPassed] = useState<boolean | null>(null);
+  // Set when submitCreate finds an archived inbox matching the phone number of a
+  // new WhatsApp channel being created. While set, the confirmation UI (owned by
+  // the host component, e.g. NewChannel) should offer reactivate-vs-create-new
+  // instead of the create request having gone through.
+  const [archivedMatch, setArchivedMatch] = useState<{ inboxId: string } | null>(null);
+  // Captures the exact submitCreate args so "Create new" can resume the original
+  // request (bypassing the archived check) after the user dismisses the modal.
+  const pendingSubmitRef = useRef<{
+    selectedChannel: ChannelType;
+    selectedProvider: ProviderType | null;
+    form: FormData;
+    config: any;
+    onCreated?: (createdId?: string) => void;
+  } | null>(null);
 
   const pendingInstanceRef = useRef<{
     instanceUuid: string;
@@ -256,12 +274,40 @@ export const useChannelSubmission = (form?: FormData) => {
     // navigation to /channels/:id/settings (which does not resolve when
     // NewChannel is mounted embedded, without <Routes> capturing the route).
     onCreated?: (createdId?: string) => void,
+    // Internal: set when resuming after the user chose "Create new" on the
+    // archived-match modal. The archived inbox's conversations/messages must
+    // stay put, so this is not a real create — the payload built below is
+    // sent to replaceArchivedChannel, which swaps this inbox's Channel record
+    // for a fresh one (keeping the same Inbox, same history) instead of
+    // InboxesService.createChannel building a whole new Inbox.
+    replaceArchivedInboxId?: string,
   ) => {
     if (!selectedChannel) return;
 
     // Validate fields based on channel type and provider
     if (!validateByChannelAndProvider(selectedChannel.type, selectedProvider?.id, form, config)) {
       return;
+    }
+
+    // Before creating a WhatsApp channel, check whether an archived inbox
+    // already exists for this phone number. If so, hand off to the host's
+    // confirmation UI (reactivate vs. create new) instead of proceeding.
+    if (!replaceArchivedInboxId && selectedChannel.type === 'whatsapp') {
+      const phoneNumber = getStr(form, 'phone_number');
+      if (phoneNumber) {
+        try {
+          const match = await InboxesService.checkArchivedMatch(phoneNumber);
+          if (match) {
+            pendingSubmitRef.current = { selectedChannel, selectedProvider, form, config, onCreated };
+            setArchivedMatch({ inboxId: match.inbox_id });
+            return;
+          }
+        } catch (e: unknown) {
+          const err = e as Error;
+          toast.error(apiErrorMessage(e) || err?.message || 'Falha ao criar canal');
+          return;
+        }
+      }
     }
 
     setIsSubmitting(true);
@@ -697,9 +743,12 @@ export const useChannelSubmission = (form?: FormData) => {
 
       let response;
       try {
-        response = await InboxesService.createChannel(payload);
+        response = replaceArchivedInboxId
+          ? await InboxesService.replaceArchivedChannel(replaceArchivedInboxId, (payload as { channel: Record<string, unknown> }).channel)
+          : await InboxesService.createChannel(payload);
       } catch (createError) {
-        // createChannel failed — instance exists on Evolution Go but no inbox in CRM.
+        // createChannel/replaceArchivedChannel failed — instance exists on
+        // Evolution Go but no inbox in CRM references it.
         if (pendingInstance) {
           EvolutionGoService.deleteInstance(pendingInstance).catch(() => {});
         }
@@ -709,7 +758,11 @@ export const useChannelSubmission = (form?: FormData) => {
       const data = (response as any)?.data ?? response;
       const createdId = data?.id;
 
-      if (data && typeof data === 'object' && 'id' in data) {
+      if (replaceArchivedInboxId) {
+        // The inbox already exists in the list (it was archived, not gone) —
+        // addInbox would append a duplicate. Refresh instead, same as reactivate.
+        await fetchInboxes();
+      } else if (data && typeof data === 'object' && 'id' in data) {
         addInbox(data as Inbox);
       }
 
@@ -727,11 +780,48 @@ export const useChannelSubmission = (form?: FormData) => {
     }
   };
 
+  // "Reactivate existing channel": restores the archived inbox instead of
+  // creating a duplicate, then refreshes the list. Never calls createChannel.
+  const confirmReactivate = async () => {
+    if (!archivedMatch) return;
+    try {
+      const name = getStr(pendingSubmitRef.current?.form ?? {}, 'name', '');
+      await reactivateInbox(archivedMatch.inboxId, name);
+    } catch {
+      toast.error(t('overview.archived.reactivateFailed'));
+    } finally {
+      pendingSubmitRef.current = null;
+      setArchivedMatch(null);
+    }
+  };
+
+  // "Create a new channel instead": dismisses the modal and resumes the
+  // original submitCreate call, targeting replaceArchivedChannel so the
+  // archived inbox's conversation history stays where it is.
+  const confirmCreateNew = async () => {
+    const pending = pendingSubmitRef.current;
+    const inboxId = archivedMatch?.inboxId;
+    pendingSubmitRef.current = null;
+    setArchivedMatch(null);
+    if (!pending || !inboxId) return;
+    await submitCreate(
+      pending.selectedChannel,
+      pending.selectedProvider,
+      pending.form,
+      pending.config,
+      pending.onCreated,
+      inboxId,
+    );
+  };
+
   return {
     isSubmitting,
     isTesting,
     testConnection,
     submitCreate,
     healthCheckPassed,
+    archivedMatch,
+    confirmReactivate,
+    confirmCreateNew,
   };
 };

@@ -16,6 +16,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useAppDataStore } from '@/store/appDataStore';
 import { usePermissions } from '@/contexts/PermissionsContext';
 import InboxesService from '@/services/channels/inboxesService';
+import { useReactivateInbox } from '@/hooks/channels/useReactivateInbox';
 import { Inbox } from '@/types/channels/inbox';
 import { ChannelsHeader, ChannelTypeHub } from '@/components/channels';
 import { ChannelTypeStatus } from '@/utils/channelStatus';
@@ -26,7 +27,7 @@ export default function Channels() {
   const { can, isReady: permissionsReady, loading: permissionsLoading } = usePermissions();
   const { t } = useLanguage('channels');
 
-  const { inboxes, isLoadingInboxes, fetchInboxes, removeInbox } = useAppDataStore();
+  const { inboxes, isLoadingInboxes, fetchInboxes } = useAppDataStore();
   const [query, setQuery] = useState('');
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [deleteModal, setDeleteModal] = useState<{
@@ -39,6 +40,7 @@ export default function Channels() {
     confirmationText: '',
   });
   const navigate = useNavigate();
+  const { reactivateInbox } = useReactivateInbox();
 
   useEffect(() => {
     if (!permissionsReady || permissionsLoading) {
@@ -136,8 +138,16 @@ export default function Channels() {
     try {
       await InboxesService.remove(channelId);
 
-      // Optimistically remove from local state
-      removeInbox(channelId);
+      // The channel is archived, not deleted — conversations and the inbox
+      // record stay put (read-only), so refetch instead of dropping it from
+      // local state; a plain removal would make it briefly disappear, then
+      // reappear on the next refetch still tagged as an active connection.
+      // Force the refresh: a plain fetchInboxes() is a no-op inside the
+      // store's 15-minute cache window (almost always true right after this
+      // page's own mount fetch), leaving every other reader of the shared
+      // store — a chat conversation's inbox lookup, for one — showing the
+      // stale pre-archive state until the cache happened to expire on its own.
+      await fetchInboxes(true);
 
       toast.success(t('success.removeSuccess'));
       closeDeleteModal();
@@ -146,13 +156,21 @@ export default function Channels() {
       toast.error((e as Error)?.message || t('errors.removeError'));
 
       // Refresh list on error to restore correct state
-      await fetchInboxes();
+      await fetchInboxes(true);
     } finally {
       setIsDeleting(null);
     }
   };
 
   const isDeleteConfirmationValid = deleteModal.confirmationText === deleteModal.channel?.name;
+
+  const handleReactivate = async (inbox: Inbox) => {
+    try {
+      await reactivateInbox(inbox.id, inbox.name);
+    } catch {
+      toast.error(t('overview.archived.reactivateFailed'));
+    }
+  };
 
   return (
     <div className="h-full flex flex-col p-4">
@@ -175,6 +193,7 @@ export default function Channels() {
           onAdd={handleAddType}
           onOpenInbox={openChannelSettings}
           onDelete={openDeleteModal}
+          onReactivate={handleReactivate}
         />
       </div>
 

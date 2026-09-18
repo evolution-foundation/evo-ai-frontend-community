@@ -114,9 +114,15 @@ export function buildChannelTypeStatuses(
       unmonitored: inbox.health_source === 'none',
     }));
 
-    const errorCount = matched.filter(inbox => deriveInboxStatus(inbox, live) === 'error').length;
-    const attentionCount = matched.filter(inbox => deriveInboxStatus(inbox, live) === 'attention').length;
-    const activeCount = matched.length - errorCount - attentionCount;
+    // Archiving disconnects the provider, which would otherwise read as a
+    // connection error — but the point of archiving is that the user already
+    // knows it's gone, not that it needs attention. Archived inboxes stay
+    // listed (still counted in `total`/`inboxStates`) but never inflate
+    // error/attention/active.
+    const unarchived = matched.filter(inbox => !inbox.archived_at);
+    const errorCount = unarchived.filter(inbox => deriveInboxStatus(inbox, live) === 'error').length;
+    const attentionCount = unarchived.filter(inbox => deriveInboxStatus(inbox, live) === 'attention').length;
+    const activeCount = unarchived.length - errorCount - attentionCount;
 
     // Types the backend has no health support for (Telegram, SMS, API, Web Widget)
     // report `health_source: 'none'` on every inbox: calling that "active" claims a

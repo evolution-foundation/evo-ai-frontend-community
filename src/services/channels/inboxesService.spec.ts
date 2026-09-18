@@ -5,6 +5,8 @@ import api from '@/services/core/api';
 vi.mock('@/services/core/api', () => ({
   default: {
     patch: vi.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
   },
 }));
 
@@ -53,3 +55,37 @@ describe('InboxesService.updateWithAvatar', () => {
     expect(formData.has('business_name')).toBe(false);
   });
 });
+
+describe('InboxesService.reactivate', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('POSTs to /inboxes/:id/reactivate', async () => {
+    const postMock = vi.mocked(api.post);
+    postMock.mockResolvedValue({ data: { data: { id: 'i1', archived_at: null } } } as never);
+
+    await InboxesService.reactivate('i1');
+
+    expect(postMock).toHaveBeenCalledWith('/inboxes/i1/reactivate');
+  });
+});
+
+describe('InboxesService.checkArchivedMatch', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('GETs /inboxes/archived_whatsapp_match with the phone number', async () => {
+    const getMock = vi.mocked(api.get);
+    getMock.mockResolvedValue({ data: { inbox_id: 'i1' } } as never);
+
+    const result = await InboxesService.checkArchivedMatch('+5511999999999');
+
+    expect(getMock).toHaveBeenCalledWith('/inboxes/archived_whatsapp_match', {
+      params: { phone_number: '+5511999999999' },
+    });
+    expect(result).toEqual({ inbox_id: 'i1' });
+  });
+});
+

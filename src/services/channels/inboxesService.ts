@@ -128,6 +128,23 @@ const InboxesService = {
     });
     return extractData(response);
   },
+
+  async reactivate(id: string): Promise<Inbox> {
+    const response = await api.post(`/inboxes/${id}/reactivate`);
+    return extractData<Inbox>(response);
+  },
+
+  async checkArchivedMatch(phoneNumber: string): Promise<{ inbox_id: string } | null> {
+    const response = await api.get('/inboxes/archived_whatsapp_match', {
+      params: { phone_number: phoneNumber },
+    });
+    return extractData<{ inbox_id: string } | null>(response);
+  },
+
+  async replaceArchivedChannel(inboxId: string, channel: Record<string, unknown>): Promise<Inbox> {
+    const response = await api.post(`/inboxes/${inboxId}/replace_archived_channel`, { channel });
+    return extractData<Inbox>(response);
+  },
 };
 
 export default InboxesService;
