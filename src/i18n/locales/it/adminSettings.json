@@ -4,7 +4,7 @@
     "email": "E-mail",
     "storage": "Archiviazione",
     "channels": "Canali",
-    "openai": "OpenAI",
+    "openai": "Impostazioni IA",
     "integrations": "Integrazioni"
   },
   "email": {
@@ -289,8 +289,8 @@
     }
   },
   "openai": {
-    "title": "Configurazione OpenAI",
-    "description": "Configura la connessione all'API OpenAI e i modelli di prompt IA utilizzati per suggerimenti di risposta, riassunti e trasformazioni di testo.",
+    "title": "Impostazioni IA",
+    "description": "Configura la connessione all'API OpenAI, quale credenziale e modello usa ogni funzionalita IA, e i modelli di prompt utilizzati per suggerimenti di risposta, riassunti e trasformazioni di testo.",
     "connection": {
       "cardTitle": "Impostazioni di Connessione",
       "fields": {
@@ -347,6 +347,7 @@
     },
     "credentialSelect": {
       "automatic": "Automatico (predefinito)",
+      "loadError": "Impossibile caricare l'elenco delle credenziali. I menu sottostanti offriranno solo \"Automatico\" finche questo non viene risolto.",
       "inboxAssist": "Credenziale per Assist della Posta",
       "audioTranscription": "Credenziale per Trascrizione Audio",
       "knowledgeEmbedding": "Credenziale per Embedding della Conoscenza",
@@ -356,9 +357,9 @@
     "secretNotConfigured": "Non configurato",
     "clearSecret": "Cancella valore salvato",
     "messages": {
-      "saveSuccess": "Configurazione OpenAI salvata con successo",
-      "saveError": "Errore nel salvataggio della configurazione OpenAI",
-      "loadError": "Errore nel caricamento della configurazione OpenAI"
+      "saveSuccess": "Impostazioni IA salvate con successo",
+      "saveError": "Errore nel salvataggio delle impostazioni IA",
+      "loadError": "Errore nel caricamento delle impostazioni IA"
     },
     "save": "Salva Configurazione",
     "saving": "Salvataggio..."

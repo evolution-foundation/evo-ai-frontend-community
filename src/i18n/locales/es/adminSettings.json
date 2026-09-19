@@ -4,7 +4,7 @@
     "email": "Correo electronico",
     "storage": "Almacenamiento",
     "channels": "Canales",
-    "openai": "OpenAI",
+    "openai": "Configuracion de IA",
     "integrations": "Integraciones",
     "evolutionHub": "Evo Hub"
   },
@@ -290,8 +290,8 @@
     }
   },
   "openai": {
-    "title": "Configuracion de OpenAI",
-    "description": "Configure la conexion con la API de OpenAI y las plantillas de prompts de IA usadas para sugerencias de respuesta, resumenes y transformaciones de texto.",
+    "title": "Configuracion de IA",
+    "description": "Configure la conexion con la API de OpenAI, que credencial y modelo usa cada funcion de IA, y las plantillas de prompts usadas para sugerencias de respuesta, resumenes y transformaciones de texto.",
     "connection": {
       "cardTitle": "Configuracion de Conexion",
       "fields": {
@@ -348,6 +348,7 @@
     },
     "credentialSelect": {
       "automatic": "Automatico (predeterminado)",
+      "loadError": "No se pudo cargar la lista de credenciales. Los menus abajo solo ofreceran \"Automatico\" hasta que esto se solucione.",
       "inboxAssist": "Credencial para Asistencia de Bandeja",
       "audioTranscription": "Credencial para Transcripcion de Audio",
       "knowledgeEmbedding": "Credencial para Embedding de Conocimiento",
@@ -357,9 +358,9 @@
     "secretNotConfigured": "No configurado",
     "clearSecret": "Borrar valor guardado",
     "messages": {
-      "saveSuccess": "Configuracion de OpenAI guardada con exito",
-      "saveError": "Error al guardar la configuracion de OpenAI",
-      "loadError": "Error al cargar la configuracion de OpenAI"
+      "saveSuccess": "Configuracion de IA guardada con exito",
+      "saveError": "Error al guardar la configuracion de IA",
+      "loadError": "Error al cargar la configuracion de IA"
     },
     "save": "Guardar Configuracion",
     "saving": "Guardando..."

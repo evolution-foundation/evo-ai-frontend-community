@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,7 +21,6 @@ import {
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { AI_CREDENTIALS_ROUTE } from '@/components/ApiKeysModal';
 import { adminConfigService } from '@/services/admin/adminConfigService';
 import { extractError } from '@/utils/apiHelpers';
 import type { AdminConfigData } from '@/types/admin/adminConfig';
@@ -114,10 +112,10 @@ function buildFormValues(data: Record<string, unknown>): OpenAIFormData {
 
 export default function OpenAIConfig() {
   const { t } = useLanguage('adminSettings');
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [credentials, setCredentials] = useState<ApiKey[]>([]);
+  const [credentialsError, setCredentialsError] = useState(false);
 
   const openaiSchema = useMemo(() => createOpenAISchema(t), [t]);
 
@@ -148,9 +146,15 @@ export default function OpenAIConfig() {
     try {
       const keys = await listApiKeys(1, 100, { active: true });
       setCredentials(keys.filter(k => k.openai_compatible ?? isOpenAICompatible(k.provider)));
-    } catch {
-      // Non-fatal: the dropdowns just show only "Automatic" if this fails.
+      setCredentialsError(false);
+    } catch (error) {
+      // Non-fatal to the rest of the page — the dropdowns still work, just
+      // with only "Automatic" available — but this must not fail silently:
+      // an admin staring at empty dropdowns with real credentials configured
+      // needs to know this is a fetch error, not "no credentials exist."
+      console.error('Failed to load credentials for the AI feature pickers:', error);
       setCredentials([]);
+      setCredentialsError(true);
     }
   }, []);
 
@@ -246,6 +250,9 @@ export default function OpenAIConfig() {
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-sidebar-foreground">{t('openai.title')}</h2>
         <p className="text-sm text-sidebar-foreground/70 mt-1">{t('openai.description')}</p>
+        {credentialsError && (
+          <p className="text-sm text-destructive mt-2">{t('openai.credentialSelect.loadError')}</p>
+        )}
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -265,18 +272,6 @@ export default function OpenAIConfig() {
               {errors.OPENAI_API_URL && (
                 <p className="text-xs text-destructive">{errors.OPENAI_API_URL.message}</p>
               )}
-            </div>
-
-            <div className="rounded-lg border p-3 space-y-1">
-              <p className="text-sm">{t('openai.connection.credentialMoved')}</p>
-              <Button
-                type="button"
-                variant="link"
-                className="px-0 h-auto text-sm"
-                onClick={() => navigate(AI_CREDENTIALS_ROUTE)}
-              >
-                {t('openai.connection.goToCredentials')}
-              </Button>
             </div>
 
             <div className="space-y-2">

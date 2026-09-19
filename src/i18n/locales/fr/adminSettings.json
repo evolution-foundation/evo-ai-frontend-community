@@ -4,7 +4,7 @@
     "email": "E-mail",
     "storage": "Stockage",
     "channels": "Canaux",
-    "openai": "OpenAI",
+    "openai": "Parametres IA",
     "integrations": "Integrations"
   },
   "email": {
@@ -289,8 +289,8 @@
     }
   },
   "openai": {
-    "title": "Configuration OpenAI",
-    "description": "Configurez la connexion a l'API OpenAI et les modeles de prompts IA utilises pour les suggestions de reponse, les resumes et les transformations de texte.",
+    "title": "Parametres IA",
+    "description": "Configurez la connexion a l'API OpenAI, quelle credential et quel modele chaque fonctionnalite IA utilise, et les modeles de prompts utilises pour les suggestions de reponse, les resumes et les transformations de texte.",
     "connection": {
       "cardTitle": "Parametres de Connexion",
       "fields": {
@@ -347,6 +347,7 @@
     },
     "credentialSelect": {
       "automatic": "Automatique (par defaut)",
+      "loadError": "Impossible de charger la liste des identifiants. Les listes ci-dessous n'offriront que \"Automatique\" jusqu'a ce que ce soit corrige.",
       "inboxAssist": "Identifiant pour Assist de la Boite de Reception",
       "audioTranscription": "Identifiant pour Transcription Audio",
       "knowledgeEmbedding": "Identifiant pour Embedding de Connaissances",
@@ -356,9 +357,9 @@
     "secretNotConfigured": "Non configure",
     "clearSecret": "Effacer la valeur enregistree",
     "messages": {
-      "saveSuccess": "Configuration OpenAI enregistree avec succes",
-      "saveError": "Echec de l'enregistrement de la configuration OpenAI",
-      "loadError": "Echec du chargement de la configuration OpenAI"
+      "saveSuccess": "Parametres IA enregistres avec succes",
+      "saveError": "Echec de l'enregistrement des parametres IA",
+      "loadError": "Echec du chargement des parametres IA"
     },
     "save": "Enregistrer la Configuration",
     "saving": "Enregistrement..."

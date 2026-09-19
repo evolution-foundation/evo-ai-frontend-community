@@ -120,9 +120,11 @@ describe('OpenAIConfig', () => {
     expect(screen.getByText('openai.connection.cardTitle')).toBeInTheDocument();
     expect(screen.getByLabelText('openai.connection.fields.apiUrl')).toBeInTheDocument();
     expect(screen.getByLabelText('openai.connection.fields.model')).toBeInTheDocument();
-    // EVO-2250: the credential moved to Settings > AI Credentials.
+    // EVO-2250: the credential moved to Settings > AI Credentials. The
+    // "go there manually" banner was later removed once the inline
+    // per-feature credential pickers made it redundant.
     expect(screen.queryByLabelText('openai.connection.fields.apiSecret')).not.toBeInTheDocument();
-    expect(screen.getByText('openai.connection.credentialMoved')).toBeInTheDocument();
+    expect(screen.queryByText('openai.connection.credentialMoved')).not.toBeInTheDocument();
   });
 
   it('renders audio transcription toggle', async () => {
@@ -230,6 +232,14 @@ describe('OpenAIConfig', () => {
         OPENAI_AUDIO_TRANSCRIPTION_MODEL: 'whisper-2',
       }));
     });
+  });
+
+  it('shows a visible error when the credential list fails to load, instead of failing silently', async () => {
+    mockListApiKeys.mockRejectedValueOnce(new Error('network error'));
+
+    await renderAndWait();
+
+    expect(screen.getByText('openai.credentialSelect.loadError')).toBeInTheDocument();
   });
 
   it('renders the four credential dropdowns with an Automatic default', async () => {

@@ -4,7 +4,7 @@
     "email": "Email",
     "storage": "Storage",
     "channels": "Channels",
-    "openai": "OpenAI",
+    "openai": "AI Settings",
     "integrations": "Integrations",
     "evolutionHub": "Evo Hub"
   },
@@ -296,8 +296,8 @@
     }
   },
   "openai": {
-    "title": "OpenAI Configuration",
-    "description": "Configure the OpenAI API connection and AI prompt templates used for reply suggestions, summaries, and text transformations.",
+    "title": "AI Settings",
+    "description": "Configure the OpenAI API connection, which credential and model each AI feature uses, and the prompt templates used for reply suggestions, summaries, and text transformations.",
     "connection": {
       "cardTitle": "Connection Settings",
       "fields": {
@@ -354,6 +354,7 @@
     },
     "credentialSelect": {
       "automatic": "Automatic (default)",
+      "loadError": "Could not load the credential list. The dropdowns below will only offer \"Automatic\" until this is fixed.",
       "inboxAssist": "Credential for Inbox Assist",
       "audioTranscription": "Credential for Audio Transcription",
       "knowledgeEmbedding": "Credential for Knowledge Embedding",
@@ -363,9 +364,9 @@
     "secretNotConfigured": "Not configured",
     "clearSecret": "Clear saved value",
     "messages": {
-      "saveSuccess": "OpenAI configuration saved successfully",
-      "saveError": "Failed to save OpenAI configuration",
-      "loadError": "Failed to load OpenAI configuration"
+      "saveSuccess": "AI settings saved successfully",
+      "saveError": "Failed to save AI settings",
+      "loadError": "Failed to load AI settings"
     },
     "save": "Save Configuration",
     "saving": "Saving..."
