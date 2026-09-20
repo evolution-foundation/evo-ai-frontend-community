@@ -25,17 +25,58 @@ export const AI_PROVIDERS: AiProvider[] = [
 
 // Providers speaking the OpenAI wire protocol serve every AI feature. The rest
 // are only reachable through AI Agents. Mirrors IsOpenAICompatible in
-// evo-ai-core-service-community/pkg/api_key/model/api_key.go.
-const OPENAI_COMPATIBLE_PROVIDERS = new Set([
+// evo-ai-core-service-community/pkg/api_key/model/api_key.go. `openrouter`
+// belongs here too — verified (Task 1/2) to expose OpenAI-shaped /embeddings
+// and /audio/transcriptions endpoints, not just chat.
+export const OPENAI_COMPATIBLE_PROVIDERS_LIST = [
   'openai',
   'azure',
   'custom',
   CUSTOM_OPENAI_PROVIDER,
-]);
+  'openrouter',
+] as const;
+
+const OPENAI_COMPATIBLE_PROVIDERS = new Set<string>(OPENAI_COMPATIBLE_PROVIDERS_LIST);
 
 export function isOpenAICompatible(provider: string): boolean {
   return OPENAI_COMPATIBLE_PROVIDERS.has(provider);
 }
+
+// Providers that speak the OpenAI chat-completions wire protocol specifically —
+// a wider set than OPENAI_COMPATIBLE_PROVIDERS_LIST, most of which don't offer
+// OpenAI-compatible embeddings or audio transcription. Mirrors
+// Ai::Credential::CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS in the CRM and
+// chatCompletionsCompatibleProviders in evo-ai-core-service-community exactly.
+export const CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS_LIST = [
+  'openai',
+  'azure',
+  'custom',
+  CUSTOM_OPENAI_PROVIDER,
+  'openrouter',
+  'groq',
+  'deepseek',
+  'together_ai',
+  'fireworks_ai',
+] as const;
+
+const CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS = new Set<string>(CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS_LIST);
+
+export function isChatCompletionsCompatible(provider: string): boolean {
+  return CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS.has(provider);
+}
+
+// Fixed API hosts for providers whose base URL an admin should never have to
+// type by hand — mirrors KnownProviderBaseURL in evo-ai-core-service-community.
+// openai/azure/custom are deliberately absent: openai's default lives in
+// application config, azure endpoints are tenant-specific, and custom's whole
+// purpose is a URL the admin supplies.
+export const KNOWN_PROVIDER_BASE_URLS: Record<string, string> = {
+  openrouter: 'https://openrouter.ai/api/v1',
+  groq: 'https://api.groq.com/openai/v1',
+  deepseek: 'https://api.deepseek.com',
+  together_ai: 'https://api.together.xyz/v1',
+  fireworks_ai: 'https://api.fireworks.ai/inference/v1',
+};
 
 // The API returns only the last characters of a key, never the key itself.
 export function maskKey(hint?: string): string {
@@ -49,25 +90,6 @@ export function maskKey(hint?: string): string {
 export const SCOPE_CHAIN: ApiKeyScope[] = ['installation', 'account'];
 
 export type ApiKeyScope = 'installation' | 'account';
-
-// Mirrors Ai::ConsumerCompatibility::CONSUMERS keys in the CRM — the single
-// source of truth for what a "consumer" is called. Keep this list and that
-// Ruby hash in lockstep; a key added there with no entry here is invisible
-// on this screen (exactly the gap that motivated this plan).
-export interface AiConsumer {
-  key: string;
-  labelKey: string;
-}
-
-export const AI_CONSUMERS: AiConsumer[] = [
-  { key: 'ai_agents', labelKey: 'consumers.aiAgents' },
-  { key: 'inbox_assist', labelKey: 'consumers.inboxAssist' },
-  { key: 'audio_transcription', labelKey: 'consumers.audioTranscription' },
-  { key: 'label_suggestion', labelKey: 'consumers.labelSuggestion' },
-  { key: 'moderation', labelKey: 'consumers.moderation' },
-  { key: 'knowledge_embedding', labelKey: 'consumers.knowledgeEmbedding' },
-  { key: 'memory_compression', labelKey: 'consumers.memoryCompression' },
-];
 
 interface ResolvableCredential {
   provider: string;
@@ -97,7 +119,7 @@ export type CredentialResolution<T> =
 // `order(created_at: :asc)` of the Ruby side — array position is not an order.
 export function resolveCredential<T extends ResolvableCredential>(
   credentials: T[],
-  { openAICompatibleOnly = false, consumerKey }: { openAICompatibleOnly?: boolean; consumerKey?: string } = {},
+  { acceptedProviders, consumerKey }: { acceptedProviders?: readonly string[]; consumerKey?: string } = {},
 ): T | undefined {
   for (const scope of [...SCOPE_CHAIN].reverse()) {
     const candidates = credentials
@@ -105,8 +127,7 @@ export function resolveCredential<T extends ResolvableCredential>(
         credential =>
           credential.is_active &&
           (credential.scope ?? 'account') === scope &&
-          (!openAICompatibleOnly ||
-            (credential.openai_compatible ?? isOpenAICompatible(credential.provider))) &&
+          (!acceptedProviders || acceptedProviders.includes(credential.provider)) &&
           (!consumerKey ||
             !credential.allowed_consumers?.length ||
             credential.allowed_consumers.includes(consumerKey)),
@@ -140,7 +161,7 @@ function byCreatedAtAsc(a: ResolvableCredential, b: ResolvableCredential): numbe
  */
 export function resolveCredentialState<T extends ResolvableCredential>(
   credentials: T[],
-  options: { openAICompatibleOnly?: boolean; legacyActive?: boolean; consumerKey?: string } = {},
+  options: { acceptedProviders?: readonly string[]; legacyActive?: boolean; consumerKey?: string } = {},
 ): CredentialResolution<T> {
   const credential = resolveCredential(credentials, options);
   if (credential) {

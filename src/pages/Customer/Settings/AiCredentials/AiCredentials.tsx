@@ -22,9 +22,11 @@ import {
 import { AlertTriangle, Edit, Key, Loader2, Plus, Trash2 } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 import {
-  AI_CONSUMERS,
   AI_PROVIDERS,
-  CUSTOM_OPENAI_PROVIDER,
+  CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS_LIST,
+  KNOWN_PROVIDER_BASE_URLS,
+  OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  isChatCompletionsCompatible,
   isOpenAICompatible,
   maskKey,
   resolveCredentialState,
@@ -59,16 +61,42 @@ const EMPTY_DRAFT: CredentialDraft = {
   allowed_consumers: [],
 };
 
-// AI Agents reaches every provider; the other six build OpenAI-shaped
-// requests, so they resolve with the compatibility filter plus their own
-// consumer key (mirrors Ai::ConsumerCompatibility).
-const OPENAI_ONLY_FEATURES: { key: string; consumerKey: string }[] = [
-  { key: 'inboxAssist', consumerKey: 'inbox_assist' },
-  { key: 'audioTranscription', consumerKey: 'audio_transcription' },
-  { key: 'labelSuggestion', consumerKey: 'label_suggestion' },
-  { key: 'moderation', consumerKey: 'moderation' },
-  { key: 'knowledgeEmbedding', consumerKey: 'knowledge_embedding' },
-  { key: 'memoryCompression', consumerKey: 'memory_compression' },
+// AI Agents reaches every provider. Inbox assist and memory compression build
+// chat-completions requests, so any chat-completions-compatible provider can
+// serve them; the other three build OpenAI-shaped embeddings/transcription
+// requests and need the narrower set. Each resolves with its own consumer key
+// too (mirrors Ai::ConsumerCompatibility).
+const FILTERED_FEATURES: { key: string; consumerKey: string; acceptedProviders: readonly string[] }[] = [
+  {
+    key: 'inboxAssist',
+    consumerKey: 'inbox_assist',
+    acceptedProviders: CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'audioTranscription',
+    consumerKey: 'audio_transcription',
+    acceptedProviders: OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'labelSuggestion',
+    consumerKey: 'label_suggestion',
+    acceptedProviders: OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'moderation',
+    consumerKey: 'moderation',
+    acceptedProviders: OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'knowledgeEmbedding',
+    consumerKey: 'knowledge_embedding',
+    acceptedProviders: OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'memoryCompression',
+    consumerKey: 'memory_compression',
+    acceptedProviders: CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS_LIST,
+  },
 ];
 
 export default function AiCredentials() {
@@ -140,10 +168,10 @@ export default function AiCredentials() {
         key: 'aiAgents',
         resolution: resolveCredentialState(credentials, { legacyActive, consumerKey: 'ai_agents' }),
       },
-      ...OPENAI_ONLY_FEATURES.map(({ key, consumerKey }) => ({
+      ...FILTERED_FEATURES.map(({ key, consumerKey, acceptedProviders }) => ({
         key,
         resolution: resolveCredentialState(credentials, {
-          openAICompatibleOnly: true,
+          acceptedProviders,
           legacyActive,
           consumerKey,
         }),
@@ -237,10 +265,18 @@ export default function AiCredentials() {
     [],
   );
 
-  const draftIsIncompatible = useMemo(
-    () => Boolean(draft.provider) && !isOpenAICompatible(draft.provider),
-    [draft.provider],
-  );
+  // Three outcomes for the create/edit dialog's compatibility notice, mirroring
+  // FILTERED_FEATURES above: narrow OpenAI-compatible providers serve every
+  // feature (no warning), chat-completions-compatible providers (groq,
+  // deepseek, together_ai, fireworks_ai) serve AI Agents plus the two
+  // chat-completions features but not the OpenAI-shaped ones, and everything
+  // else is AI-Agents-only.
+  const draftCompatibilityWarning = useMemo(() => {
+    if (!draft.provider || isOpenAICompatible(draft.provider)) {
+      return null;
+    }
+    return isChatCompletionsCompatible(draft.provider) ? 'chatCompletions' : 'agentsOnly';
+  }, [draft.provider]);
 
   const openCreateForm = (scope: ApiKeyScope = 'account') => {
     setDraft({ ...EMPTY_DRAFT, scope });
@@ -614,7 +650,7 @@ export default function AiCredentials() {
                   setDraft({
                     ...draft,
                     provider: value,
-                    ...(value !== CUSTOM_OPENAI_PROVIDER ? { base_url: '' } : {}),
+                    base_url: KNOWN_PROVIDER_BASE_URLS[value] ?? draft.base_url,
                   })
                 }
               >
@@ -631,17 +667,16 @@ export default function AiCredentials() {
               </Select>
             </div>
 
-            {draft.provider === CUSTOM_OPENAI_PROVIDER && (
-              <div className="grid gap-2">
-                <Label htmlFor="credential-base-url">{t('form.labels.baseUrl')}</Label>
-                <Input
-                  id="credential-base-url"
-                  value={draft.base_url}
-                  placeholder="https://api.example.com/v1"
-                  onChange={event => setDraft({ ...draft, base_url: event.target.value })}
-                />
-              </div>
-            )}
+            <div className="grid gap-2">
+              <Label htmlFor="credential-base-url">{t('form.labels.baseUrl')}</Label>
+              <Input
+                id="credential-base-url"
+                value={draft.base_url}
+                placeholder="https://api.example.com/v1"
+                onChange={event => setDraft({ ...draft, base_url: event.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">{t('form.hints.baseUrl')}</p>
+            </div>
 
             <div className="grid gap-2">
               <Label htmlFor="credential-key">{t('form.labels.key')}</Label>
@@ -656,36 +691,14 @@ export default function AiCredentials() {
               />
             </div>
 
-            {draftIsIncompatible && (
+            {draftCompatibilityWarning && (
               <p role="alert" className="flex gap-2 text-sm text-amber-600">
                 <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-                {t('form.incompatibleWarning', { provider: providerLabel(draft.provider) })}
+                {draftCompatibilityWarning === 'chatCompletions'
+                  ? t('form.chatCompletionsWarning', { provider: providerLabel(draft.provider) })
+                  : t('form.incompatibleWarning', { provider: providerLabel(draft.provider) })}
               </p>
             )}
-
-            <div className="space-y-1.5">
-              <Label>{t('form.labels.allowedConsumers')}</Label>
-              <p className="text-xs text-muted-foreground">{t('form.hints.allowedConsumers')}</p>
-              <div className="space-y-2">
-                {AI_CONSUMERS.map(consumer => (
-                  <label key={consumer.key} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={draft.allowed_consumers.includes(consumer.key)}
-                      onChange={event =>
-                        setDraft(prev => ({
-                          ...prev,
-                          allowed_consumers: event.target.checked
-                            ? [...prev.allowed_consumers, consumer.key]
-                            : prev.allowed_consumers.filter(key => key !== consumer.key),
-                        }))
-                      }
-                    />
-                    {t(consumer.labelKey)}
-                  </label>
-                ))}
-              </div>
-            </div>
           </div>
 
           <DialogFooter>

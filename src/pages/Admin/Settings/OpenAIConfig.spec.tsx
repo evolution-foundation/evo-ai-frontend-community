@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
-import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import OpenAIConfig from './OpenAIConfig';
 
@@ -67,7 +67,6 @@ vi.mock('@/utils/apiHelpers', () => ({
 }));
 
 const EMPTY_CONFIG: Record<string, unknown> = {
-  OPENAI_API_URL: '',
   OPENAI_API_SECRET: null,
   OPENAI_MODEL: '',
   OPENAI_ENABLE_AUDIO_TRANSCRIPTION: false,
@@ -114,11 +113,32 @@ describe('OpenAIConfig', () => {
     expect(screen.getByText('openai.description')).toBeInTheDocument();
   });
 
-  it('renders connection settings card', async () => {
+  it('renders one card per AI feature instead of grouping by field type', async () => {
     await renderAndWait();
 
-    expect(screen.getByText('openai.connection.cardTitle')).toBeInTheDocument();
-    expect(screen.getByLabelText('openai.connection.fields.apiUrl')).toBeInTheDocument();
+    expect(screen.getByText('openai.cards.inboxAssist')).toBeInTheDocument();
+    expect(screen.getByText('openai.cards.audioTranscription')).toBeInTheDocument();
+    expect(screen.getByText('openai.cards.knowledgeEmbedding')).toBeInTheDocument();
+    expect(screen.getByText('openai.cards.memoryCompression')).toBeInTheDocument();
+
+    // The old type-grouped card titles must be gone.
+    expect(screen.queryByText('openai.connection.cardTitle')).not.toBeInTheDocument();
+    expect(screen.queryByText('openai.sections.aiFeatureModels')).not.toBeInTheDocument();
+  });
+
+  it('renders the inbox-assist prompt fields inside the same card as its model and credential', async () => {
+    await renderAndWait();
+
+    const inboxAssistCard = screen.getByText('openai.cards.inboxAssist').closest('[data-slot="card"]');
+    expect(inboxAssistCard).not.toBeNull();
+    expect(within(inboxAssistCard as HTMLElement).getByLabelText('openai.connection.fields.model')).toBeInTheDocument();
+    expect(within(inboxAssistCard as HTMLElement).getByLabelText('openai.credentialSelect.inboxAssist')).toBeInTheDocument();
+    expect(within(inboxAssistCard as HTMLElement).getByText('openai.prompts.fields.OPENAI_PROMPT_REPLY')).toBeInTheDocument();
+  });
+
+  it('renders the model field and no leftover connection-only fields', async () => {
+    await renderAndWait();
+
     expect(screen.getByLabelText('openai.connection.fields.model')).toBeInTheDocument();
     // EVO-2250: the credential moved to Settings > AI Credentials. The
     // "go there manually" banner was later removed once the inline
@@ -137,7 +157,7 @@ describe('OpenAIConfig', () => {
   it('renders all 9 prompt textarea fields', async () => {
     await renderAndWait();
 
-    expect(screen.getByText('openai.prompts.cardTitle')).toBeInTheDocument();
+    expect(screen.getByText('openai.cards.inboxAssist')).toBeInTheDocument();
 
     const promptKeys = [
       'OPENAI_PROMPT_REPLY', 'OPENAI_PROMPT_SUMMARY', 'OPENAI_PROMPT_REPHRASE',
@@ -150,19 +170,17 @@ describe('OpenAIConfig', () => {
     }
 
     const textareas = screen.getAllByRole('textbox');
-    // 2 connection inputs (apiUrl, model) + 9 prompt textareas.
+    // 1 connection input (model) + 9 prompt textareas.
     expect(textareas.length).toBeGreaterThanOrEqual(9);
   });
 
   it('calls saveConfig with openai on form submit', async () => {
     await renderAndWait({
       ...EMPTY_CONFIG,
-      OPENAI_API_URL: 'https://api.openai.com/v1',
       OPENAI_MODEL: 'gpt-4o',
     });
     mockSaveConfig.mockResolvedValue({
       ...EMPTY_CONFIG,
-      OPENAI_API_URL: 'https://api.openai.com/v1',
       OPENAI_MODEL: 'gpt-4o',
     });
 
@@ -172,7 +190,6 @@ describe('OpenAIConfig', () => {
 
     await waitFor(() => {
       expect(mockSaveConfig).toHaveBeenCalledWith('openai', expect.objectContaining({
-        OPENAI_API_URL: 'https://api.openai.com/v1',
         OPENAI_MODEL: 'gpt-4o',
       }));
     });
@@ -204,7 +221,6 @@ describe('OpenAIConfig', () => {
     expect(
       screen.getByLabelText('openai.fields.audioTranscriptionModel'),
     ).toBeInTheDocument();
-    expect(screen.getByText('openai.sections.aiFeatureModels')).toBeInTheDocument();
   });
 
   it('calls saveConfig with the model-override fields on form submit', async () => {
@@ -306,5 +322,53 @@ describe('OpenAIConfig', () => {
         MEMORY_COMPRESSION_CREDENTIAL_ID: '',
       }));
     });
+  });
+
+  // Task 1/2 widened chat-completions-eligible providers beyond
+  // OPENAI_COMPATIBLE_PROVIDERS: groq speaks chat completions but not
+  // OpenAI-shaped embeddings, so it must appear for inbox assist/memory
+  // compression but not for knowledge embedding/audio transcription.
+  it('offers a Groq credential for Inbox Assist but not for Knowledge Embedding (chat-only provider)', async () => {
+    mockListApiKeys.mockResolvedValue([
+      ...CREDENTIALS,
+      {
+        id: 'cred-groq',
+        name: 'Groq Fast',
+        provider: 'groq',
+        chat_completions_compatible: true,
+        openai_compatible: false,
+        is_active: true,
+        allowed_consumers: [],
+      },
+    ]);
+    await renderAndWait();
+
+    fireEvent.click(screen.getByLabelText('openai.credentialSelect.inboxAssist'));
+    expect(await screen.findByRole('option', { name: /Groq Fast/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('openai.credentialSelect.knowledgeEmbedding'));
+    expect(screen.queryByRole('option', { name: /Groq Fast/i })).not.toBeInTheDocument();
+  });
+
+  it('offers an OpenRouter credential for Knowledge Embedding and Audio Transcription too', async () => {
+    mockListApiKeys.mockResolvedValue([
+      ...CREDENTIALS,
+      {
+        id: 'cred-openrouter',
+        name: 'OpenRouter Prod',
+        provider: 'openrouter',
+        chat_completions_compatible: true,
+        openai_compatible: true,
+        is_active: true,
+        allowed_consumers: [],
+      },
+    ]);
+    await renderAndWait();
+
+    fireEvent.click(screen.getByLabelText('openai.credentialSelect.knowledgeEmbedding'));
+    expect(await screen.findByRole('option', { name: /OpenRouter Prod/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('openai.credentialSelect.audioTranscription'));
+    expect(await screen.findByRole('option', { name: /OpenRouter Prod/i })).toBeInTheDocument();
   });
 });

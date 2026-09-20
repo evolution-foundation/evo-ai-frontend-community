@@ -291,16 +291,20 @@
   "openai": {
     "title": "Parametres IA",
     "description": "Configurez la connexion a l'API OpenAI, quelle credential et quel modele chaque fonctionnalite IA utilise, et les modeles de prompts utilises pour les suggestions de reponse, les resumes et les transformations de texte.",
+    "cards": {
+      "inboxAssist": "Assist de la Boite de Reception",
+      "audioTranscription": "Transcription Audio",
+      "knowledgeEmbedding": "Embedding de Connaissances",
+      "memoryCompression": "Compression de Memoire"
+    },
     "connection": {
       "cardTitle": "Parametres de Connexion",
       "fields": {
-        "apiUrl": "URL de l'API",
         "apiSecret": "Cle API",
         "model": "Modele",
         "audioTranscription": "Activer la Transcription Audio"
       },
       "placeholders": {
-        "apiUrl": "https://api.openai.com/v1",
         "apiSecret": "Entrez la nouvelle cle API",
         "model": "gpt-4o"
       },

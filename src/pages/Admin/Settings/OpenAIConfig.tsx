@@ -25,17 +25,23 @@ import { adminConfigService } from '@/services/admin/adminConfigService';
 import { extractError } from '@/utils/apiHelpers';
 import type { AdminConfigData } from '@/types/admin/adminConfig';
 import { listApiKeys } from '@/services/agents';
-import { isOpenAICompatible } from '@/constants/aiProviders';
+import { isChatCompletionsCompatible, isOpenAICompatible } from '@/constants/aiProviders';
 import type { ApiKey } from '@/types/agents';
 
 const AUTOMATIC_CREDENTIAL = 'automatic';
+
+// inbox_assist and memory_compression build chat-completions requests, so any
+// chat-completions-compatible provider can serve them; the other consumers
+// (audio transcription, knowledge embedding) build OpenAI-shaped
+// embeddings/transcription requests and need the narrower OpenAI-compatible
+// set. Mirrors the same distinction in Ai::ConsumerCompatibility.
+const CHAT_CONSUMERS = new Set(['inbox_assist', 'memory_compression']);
 
 // --- Schema factory with i18n ---
 
 function createOpenAISchema(_t: (key: string) => string) {
   return z.object({
-    OPENAI_API_URL: z.string().optional(),
-      OPENAI_MODEL: z.string().optional(),
+    OPENAI_MODEL: z.string().optional(),
     OPENAI_ENABLE_AUDIO_TRANSCRIPTION: z.union([z.boolean(), z.string()]).optional(),
     OPENAI_AUDIO_TRANSCRIPTION_MODEL: z.string().optional(),
     KNOWLEDGE_EMBEDDING_MODEL: z.string().optional(),
@@ -59,7 +65,6 @@ function createOpenAISchema(_t: (key: string) => string) {
 type OpenAIFormData = z.infer<ReturnType<typeof createOpenAISchema>>;
 
 const DEFAULTS: OpenAIFormData = {
-  OPENAI_API_URL: '',
   OPENAI_MODEL: '',
   OPENAI_ENABLE_AUDIO_TRANSCRIPTION: false,
   OPENAI_AUDIO_TRANSCRIPTION_MODEL: '',
@@ -145,7 +150,7 @@ export default function OpenAIConfig() {
   const loadCredentials = useCallback(async () => {
     try {
       const keys = await listApiKeys(1, 100, { active: true });
-      setCredentials(keys.filter(k => k.openai_compatible ?? isOpenAICompatible(k.provider)));
+      setCredentials(keys);
       setCredentialsError(false);
     } catch (error) {
       // Non-fatal to the rest of the page — the dropdowns still work, just
@@ -164,7 +169,13 @@ export default function OpenAIConfig() {
   }, [loadConfig, loadCredentials]);
 
   const eligibleCredentials = (consumerKey: string) =>
-    credentials.filter(c => !c.allowed_consumers?.length || c.allowed_consumers.includes(consumerKey));
+    credentials.filter(c => {
+      const providerOk = CHAT_CONSUMERS.has(consumerKey)
+        ? (c.chat_completions_compatible ?? isChatCompletionsCompatible(c.provider))
+        : (c.openai_compatible ?? isOpenAICompatible(c.provider));
+      const restrictionOk = !c.allowed_consumers?.length || c.allowed_consumers.includes(consumerKey);
+      return providerOk && restrictionOk;
+    });
 
   const modelOverrideField = (
     fieldName: 'KNOWLEDGE_EMBEDDING_MODEL' | 'MEMORY_COMPRESSION_MODEL' | 'OPENAI_AUDIO_TRANSCRIPTION_MODEL',
@@ -256,43 +267,53 @@ export default function OpenAIConfig() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Connection Settings */}
+        {/* Inbox Assist */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">{t('openai.connection.cardTitle')}</CardTitle>
+            <CardTitle className="text-base">{t('openai.cards.inboxAssist')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="OPENAI_API_URL">{t('openai.connection.fields.apiUrl')}</Label>
-              <Input
-                id="OPENAI_API_URL"
-                placeholder={t('openai.connection.placeholders.apiUrl')}
-                {...register('OPENAI_API_URL')}
-              />
-              {errors.OPENAI_API_URL && (
-                <p className="text-xs text-destructive">{errors.OPENAI_API_URL.message}</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="OPENAI_MODEL">{t('openai.connection.fields.model')}</Label>
+                <Input
+                  id="OPENAI_MODEL"
+                  placeholder={t('openai.connection.placeholders.model')}
+                  {...register('OPENAI_MODEL')}
+                />
+                {errors.OPENAI_MODEL && (
+                  <p className="text-xs text-destructive">{errors.OPENAI_MODEL.message}</p>
+                )}
+              </div>
+
+              {credentialSelectField(
+                'INBOX_ASSIST_CREDENTIAL_ID',
+                'inbox_assist',
+                'openai-inbox-assist-credential',
+                'openai.credentialSelect.inboxAssist',
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="OPENAI_MODEL">{t('openai.connection.fields.model')}</Label>
-              <Input
-                id="OPENAI_MODEL"
-                placeholder={t('openai.connection.placeholders.model')}
-                {...register('OPENAI_MODEL')}
-              />
-              {errors.OPENAI_MODEL && (
-                <p className="text-xs text-destructive">{errors.OPENAI_MODEL.message}</p>
-              )}
-            </div>
+            {PROMPT_FIELDS.map((fieldName) => (
+              <div key={fieldName} className="space-y-2">
+                <Label htmlFor={fieldName}>{t(`openai.prompts.fields.${fieldName}`)}</Label>
+                <Textarea
+                  id={fieldName}
+                  rows={4}
+                  placeholder={t(`openai.prompts.placeholders.${fieldName}`)}
+                  {...register(fieldName)}
+                />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
 
-            {credentialSelectField(
-              'INBOX_ASSIST_CREDENTIAL_ID',
-              'inbox_assist',
-              'openai-inbox-assist-credential',
-              'openai.credentialSelect.inboxAssist',
-            )}
-
+        {/* Audio Transcription */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t('openai.cards.audioTranscription')}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
             <Controller
               name="OPENAI_ENABLE_AUDIO_TRANSCRIPTION"
               control={control}
@@ -310,74 +331,69 @@ export default function OpenAIConfig() {
               )}
             />
 
-            {modelOverrideField(
-              'OPENAI_AUDIO_TRANSCRIPTION_MODEL',
-              'openai-audio-transcription-model',
-              'openai.fields.audioTranscriptionModel',
-              'openai.hints.audioTranscriptionModel',
-              'whisper-1',
-            )}
-            {credentialSelectField(
-              'AUDIO_TRANSCRIPTION_CREDENTIAL_ID',
-              'audio_transcription',
-              'openai-audio-transcription-credential',
-              'openai.credentialSelect.audioTranscription',
-            )}
+            <div className="grid grid-cols-2 gap-4">
+              {modelOverrideField(
+                'OPENAI_AUDIO_TRANSCRIPTION_MODEL',
+                'openai-audio-transcription-model',
+                'openai.fields.audioTranscriptionModel',
+                'openai.hints.audioTranscriptionModel',
+                'whisper-1',
+              )}
+              {credentialSelectField(
+                'AUDIO_TRANSCRIPTION_CREDENTIAL_ID',
+                'audio_transcription',
+                'openai-audio-transcription-credential',
+                'openai.credentialSelect.audioTranscription',
+              )}
+            </div>
           </CardContent>
         </Card>
 
-        {/* AI Feature Models */}
+        {/* Knowledge Embedding */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">{t('openai.sections.aiFeatureModels')}</CardTitle>
+            <CardTitle className="text-base">{t('openai.cards.knowledgeEmbedding')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            {modelOverrideField(
-              'KNOWLEDGE_EMBEDDING_MODEL',
-              'openai-embedding-model',
-              'openai.fields.knowledgeEmbeddingModel',
-              'openai.hints.knowledgeEmbeddingModel',
-              'text-embedding-3-small',
-            )}
-            {credentialSelectField(
-              'KNOWLEDGE_EMBEDDING_CREDENTIAL_ID',
-              'knowledge_embedding',
-              'openai-embedding-credential',
-              'openai.credentialSelect.knowledgeEmbedding',
-            )}
-            {modelOverrideField(
-              'MEMORY_COMPRESSION_MODEL',
-              'openai-memory-compression-model',
-              'openai.fields.memoryCompressionModel',
-              'openai.hints.memoryCompressionModel',
-              'gpt-4o-mini',
-            )}
-            {credentialSelectField(
-              'MEMORY_COMPRESSION_CREDENTIAL_ID',
-              'memory_compression',
-              'openai-memory-compression-credential',
-              'openai.credentialSelect.memoryCompression',
-            )}
+            <div className="grid grid-cols-2 gap-4">
+              {modelOverrideField(
+                'KNOWLEDGE_EMBEDDING_MODEL',
+                'openai-embedding-model',
+                'openai.fields.knowledgeEmbeddingModel',
+                'openai.hints.knowledgeEmbeddingModel',
+                'text-embedding-3-small',
+              )}
+              {credentialSelectField(
+                'KNOWLEDGE_EMBEDDING_CREDENTIAL_ID',
+                'knowledge_embedding',
+                'openai-embedding-credential',
+                'openai.credentialSelect.knowledgeEmbedding',
+              )}
+            </div>
           </CardContent>
         </Card>
 
-        {/* AI Prompts */}
+        {/* Memory Compression */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">{t('openai.prompts.cardTitle')}</CardTitle>
+            <CardTitle className="text-base">{t('openai.cards.memoryCompression')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            {PROMPT_FIELDS.map((fieldName) => (
-              <div key={fieldName} className="space-y-2">
-                <Label htmlFor={fieldName}>{t(`openai.prompts.fields.${fieldName}`)}</Label>
-                <Textarea
-                  id={fieldName}
-                  rows={4}
-                  placeholder={t(`openai.prompts.placeholders.${fieldName}`)}
-                  {...register(fieldName)}
-                />
-              </div>
-            ))}
+            <div className="grid grid-cols-2 gap-4">
+              {modelOverrideField(
+                'MEMORY_COMPRESSION_MODEL',
+                'openai-memory-compression-model',
+                'openai.fields.memoryCompressionModel',
+                'openai.hints.memoryCompressionModel',
+                'gpt-4o-mini',
+              )}
+              {credentialSelectField(
+                'MEMORY_COMPRESSION_CREDENTIAL_ID',
+                'memory_compression',
+                'openai-memory-compression-credential',
+                'openai.credentialSelect.memoryCompression',
+              )}
+            </div>
           </CardContent>
         </Card>
 
