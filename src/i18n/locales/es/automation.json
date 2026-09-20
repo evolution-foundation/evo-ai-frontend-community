@@ -111,6 +111,7 @@
         "remove": "Quitar acción",
         "selectActionFirst": "Selecciona una acción para configurar",
         "noParams": "No se requieren parámetros",
+        "invalid": "A esta acción le falta información obligatoria.",
         "params": {
           "send_message": "Contenido del mensaje",
           "send_canned_response": "Elige una respuesta predefinida",
