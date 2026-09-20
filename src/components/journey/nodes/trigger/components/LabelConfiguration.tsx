@@ -69,12 +69,17 @@ export function LabelConfiguration({
 
         {/* Ação da Etiqueta */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('triggerComponents.label.labelAction')}</Label>
+          <Label htmlFor="label-trigger-action" className="text-sm font-medium">
+            {t('triggerComponents.label.labelAction')}
+          </Label>
           <Select
             value={labelAction}
             onValueChange={(value: 'applied' | 'removed') => onLabelActionChange(value)}
           >
-            <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+            <SelectTrigger
+              id="label-trigger-action"
+              className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+            >
               <SelectValue placeholder={t('triggerComponents.label.selectAction')} />
             </SelectTrigger>
             <SelectContent className="bg-sidebar border-sidebar-border">
@@ -98,7 +103,9 @@ export function LabelConfiguration({
 
         {/* Seleção da Etiqueta */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('triggerComponents.label.label')}</Label>
+          <Label htmlFor="label-trigger-label" className="text-sm font-medium">
+            {t('triggerComponents.label.label')}
+          </Label>
           {error ? (
             <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30">
               <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
@@ -112,7 +119,10 @@ export function LabelConfiguration({
               }}
               disabled={loadingLabels}
             >
-              <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+              <SelectTrigger
+                id="label-trigger-label"
+                className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+              >
                 <SelectValue
                   placeholder={
                     loadingLabels

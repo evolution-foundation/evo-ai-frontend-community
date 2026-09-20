@@ -38,7 +38,7 @@ export default function MacrosHeader({
       searchValue={searchValue}
       onSearchChange={onSearchChange}
       searchPlaceholder={t('header.searchPlaceholder')}
-      primaryAction={isReady && can('macros', 'create') ? {
+      primaryAction={isReady && can('macros', 'manage') ? {
         label: t('header.newMacro'),
         icon: <Plus className="h-4 w-4" />,
         onClick: onNewMacro,

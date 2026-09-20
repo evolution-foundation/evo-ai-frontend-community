@@ -3,7 +3,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EventPropertiesForm, type EventPropertiesValue } from './EventPropertiesForm';
-import '@/i18n/config';
+import i18n from '@/i18n/config';
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -130,5 +130,36 @@ describe('EventPropertiesForm', () => {
     expect(screen.queryByText('previous_status')).toBeNull();
     // contact.created shows its own required fields
     expect(screen.getByText('id')).toBeTruthy();
+  });
+});
+
+describe('EventPropertiesForm — section labels name a group (CRM-141)', () => {
+  const e = (key: string) => i18n.t(`events:${key}`);
+
+  it('names the schema-driven sections as groups', () => {
+    render(<Harness eventName="message.delivered" />);
+
+    const required = screen.getByRole('group', { name: e('propertiesForm.requiredSectionLabel') });
+    expect(within(required).getByText('message_id')).toBeTruthy();
+
+    expect(
+      screen.getByRole('group', { name: e('propertiesForm.optionalSectionLabel') }),
+    ).toBeTruthy();
+  });
+
+  it('names the custom key/value editor as a group and keeps its id per instance', () => {
+    render(
+      <>
+        <Harness eventName="custom" />
+        <Harness eventName="custom" />
+      </>,
+    );
+
+    const groups = screen.getAllByRole('group', { name: e('propertiesForm.customSectionLabel') });
+    expect(groups).toHaveLength(2);
+    // Two editors on screen must not share the label id, or the second group
+    // would borrow the first one's name.
+    const [first, second] = groups.map(g => g.getAttribute('aria-labelledby'));
+    expect(first).not.toBe(second);
   });
 });

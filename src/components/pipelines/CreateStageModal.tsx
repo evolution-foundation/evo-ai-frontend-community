@@ -110,8 +110,15 @@ export default function CreateStageModal({
                 })}
                 placeholder={t('createStage.descriptionPlaceholder')}
                 rows={3}
+                maxLength={500}
                 disabled={loading}
               />
+              <p className="text-xs text-muted-foreground">
+                {t('createStage.characterCount', {
+                  current: (formData.automation_rules?.description || '').length,
+                  max: 500,
+                })}
+              </p>
             </div>
 
             {/* Color */}

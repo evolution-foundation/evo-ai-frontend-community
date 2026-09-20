@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
-import { Button, Input, Checkbox, Badge } from '@evoapi/design-system';
+import { Button, Input, Checkbox } from '@evoapi/design-system';
 import { Package, Cloud, Search } from 'lucide-react';
 import { productsService } from '@/services/products/productsService';
 import type { Agent } from '@/types/agents';
@@ -92,18 +92,21 @@ export default function ProductsSection({ agent }: Props) {
   );
 
   return (
-    <div className="space-y-4">
+    <div>
       <div>
-        <h2 className="text-lg font-semibold">{t('edit.products.title') || 'Produtos do agente'}</h2>
-        <p className="text-sm text-muted-foreground">
+        <h2 className="text-[22px] font-extrabold tracking-[-0.3px] text-foreground">
+          {t('edit.products.title') || 'Produtos do agente'}
+        </h2>
+        <p className="mb-[26px] mt-1 text-sm text-muted-foreground">
           {t('edit.products.subtitle') ||
             'Selecione os produtos que este agente pode recomendar durante conversas. Eles serão injetados no system prompt automaticamente.'}
         </p>
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="flex items-center gap-[10px]">
+        {/* No border/background/height override, so the `--ring` focus token shows. */}
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder={tp('header.searchPlaceholder')}
             value={search}
@@ -111,24 +114,24 @@ export default function ProductsSection({ agent }: Props) {
             className="pl-9"
           />
         </div>
-        <Badge variant="outline">
+        <span className="flex-shrink-0 rounded-[8px] border border-border px-[10px] py-[5px] text-[12.5px] font-semibold text-muted-foreground">
           {attachedIds.size}/{allProducts.length}
-        </Badge>
-        <Button onClick={handleSave} disabled={!isDirty || saving}>
+        </span>
+        <Button
+          onClick={handleSave}
+          disabled={!isDirty || saving}
+          className="h-auto flex-shrink-0 rounded-[9px] bg-primary px-[18px] py-[9px] text-sm font-semibold text-primary-foreground hover:bg-primary/85 disabled:opacity-55"
+        >
           {saving ? (t('edit.products.saving') || 'Salvando...') : (t('edit.products.save') || 'Salvar')}
         </Button>
       </div>
 
       {loading ? (
-        <div className="text-center text-sm text-muted-foreground py-10">
-          {tp('page.loading')}
-        </div>
+        <div className="py-10 text-center text-sm text-muted-foreground">{tp('page.loading')}</div>
       ) : (
-        <div className="border rounded-md divide-y max-h-[60vh] overflow-y-auto">
+        <div className="mt-4 max-h-[60vh] divide-y divide-border overflow-y-auto rounded-[14px] border border-border bg-card">
           {filteredProducts.length === 0 && (
-            <p className="text-sm text-muted-foreground py-6 text-center">
-              {tp('table.empty')}
-            </p>
+            <p className="px-5 py-10 text-center text-sm text-muted-foreground">{tp('table.empty')}</p>
           )}
           {filteredProducts.map((product) => {
             const Icon = product.kind === 'digital' ? Cloud : Package;

@@ -105,12 +105,30 @@ describe('menuItems — EVO-1938 admin Settings gating for the default agent', (
     },
   );
 
-  // teams stays visible (teams.read kept for the chat picker); the Teams Settings
-  // use-vs-manage split is deferred to EVO-1955, like labels/canned/macros.
-  it.each(['/settings/labels', '/settings/canned-responses', '/settings/teams'])(
+  // Labels and canned responses stay agent-managed by product decision (CRM-70).
+  it.each(['/settings/labels', '/settings/canned-responses'])(
     'keeps the operational Settings item %s visible to the agent',
     href => {
       expect(isVisible(findSubItem(href), agentGranted)).toBe(true);
+    },
+  );
+
+  // CRM-70 use-vs-manage: the Settings screens of teams, macros and message
+  // templates demand `.manage`, which the agent does not hold — even though it
+  // keeps teams.read (chat picker), macros.read/execute and
+  // message_templates.read for the chat itself.
+  it.each(['/settings/teams', '/settings/macros', '/settings/message-templates'])(
+    'hides the manage-gated Settings item %s from the agent',
+    href => {
+      expect(isVisible(findSubItem(href), agentGranted)).toBe(false);
+    },
+  );
+
+  it.each(['/settings/teams', '/settings/macros', '/settings/message-templates'])(
+    'shows the manage-gated Settings item %s to a manage holder',
+    href => {
+      const managerGranted = [...agentGranted, 'teams.manage', 'macros.manage', 'message_templates.manage'];
+      expect(isVisible(findSubItem(href), managerGranted)).toBe(true);
     },
   );
 
@@ -118,5 +136,37 @@ describe('menuItems — EVO-1938 admin Settings gating for the default agent', (
     const adminGranted = [...agentGranted, 'integrations.read', 'segments.read'];
     expect(isVisible(findSubItem('/settings/integrations'), adminGranted)).toBe(true);
     expect(isVisible(findSubItem('/settings/segments'), adminGranted)).toBe(true);
+  });
+});
+
+// CRM-166: the agent now holds `custom_attribute_definitions.read` so a contact's
+// attributes render in the read-only screens. The Settings screen must not come
+// with it — it is gated on the administrative keys instead. Any of the three, not
+// `create` alone: create/update come as one group in the role editor, but delete is
+// its own, and deleting a definition is only offered from this screen.
+describe('menuItems — Settings > Atributos Personalizados gating (CRM-166)', () => {
+  const item = () => findSubItem('/settings/attributes');
+  const isVisible = (granted: string[]) =>
+    shouldShowMenuItem(item(), canFrom(granted), canAnyFrom(granted), canAllFrom(granted));
+
+  it('gates on the administrative keys, never on read', () => {
+    expect(item().action).toBeUndefined();
+    expect(item().permissions).toEqual([
+      'custom_attribute_definitions.create',
+      'custom_attribute_definitions.update',
+      'custom_attribute_definitions.delete',
+    ]);
+  });
+
+  it('hides the item from an agent holding only the definitions read', () => {
+    expect(isVisible(['conversations.read', 'custom_attribute_definitions.read'])).toBe(false);
+  });
+
+  it.each([
+    'custom_attribute_definitions.create',
+    'custom_attribute_definitions.update',
+    'custom_attribute_definitions.delete',
+  ])('shows the item to a role holding %s', key => {
+    expect(isVisible(['custom_attribute_definitions.read', key])).toBe(true);
   });
 });

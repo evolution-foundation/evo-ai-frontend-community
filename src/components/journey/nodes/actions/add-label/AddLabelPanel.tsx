@@ -98,13 +98,13 @@ export function AddLabelPanel({ nodeId, data, onUpdate, onClose }: AddLabelPanel
         )}
 
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('panels.addLabel.labelToAdd')}</Label>
+          <Label htmlFor="add-label-select" className="text-sm font-medium">{t('panels.addLabel.labelToAdd')}</Label>
           <Select
             value={formData.labelId || ''}
             onValueChange={handleLabelChange}
             disabled={loading}
           >
-            <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+            <SelectTrigger id="add-label-select" className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
               <SelectValue
                 placeholder={
                   loading

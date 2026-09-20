@@ -91,7 +91,10 @@ export default function CrmForms() {
   const loadContext = useCallback(async () => {
     try {
       const [pipes, cAttrs, dAttrs] = await Promise.all([
-        pipelinesService.getPipelines(),
+        // Archived pipelines are still valid destinations for existing forms, so the list
+        // has to include them — otherwise a form bound to one resolves to nothing and the
+        // screen goes quiet about a misconfiguration (EVO-2200).
+        pipelinesService.getPipelines({ include_inactive: true }),
         customAttributesService.getCustomAttributes('contact_attribute'),
         customAttributesService.getCustomAttributes('pipeline_item_attribute'),
       ]);
@@ -167,6 +170,21 @@ export default function CrmForms() {
     } finally {
       setLeadsLoading(false);
     }
+  };
+
+  // A form reaches a pipeline through its default destination OR a routing rule that
+  // overrides it — the same two paths the deactivation lookup covers. Flag the form when
+  // ANY of those targets is archived, not just the default, so a rule that routes leads
+  // into an archived pipeline is not silently missed (EVO-2200).
+  const destinationArchived = (form: CrmForm) => {
+    const targetIds = [
+      form.default_pipeline_id,
+      ...(form.routing_rules ?? []).map(rule => rule.pipeline_id),
+    ];
+    return targetIds.some(id => {
+      const pipe = pipelines.find(p => p.id === id);
+      return !!pipe && !pipe.is_active;
+    });
   };
 
   const stageLabel = (lead: FormLead) => {
@@ -258,9 +276,20 @@ export default function CrmForms() {
                       </button>
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell">
-                      <Badge variant={form.published ? 'default' : 'secondary'} className="text-xs">
-                        {form.published ? t('status.published') : t('status.draft')}
-                      </Badge>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <Badge variant={form.published ? 'default' : 'secondary'} className="text-xs">
+                          {form.published ? t('status.published') : t('status.draft')}
+                        </Badge>
+                        {destinationArchived(form) && (
+                          <Badge
+                            variant="destructive"
+                            className="text-xs"
+                            title={t('status.archivedPipelineHint')}
+                          >
+                            {t('status.archivedPipeline')}
+                          </Badge>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums hidden sm:table-cell">
                       <button

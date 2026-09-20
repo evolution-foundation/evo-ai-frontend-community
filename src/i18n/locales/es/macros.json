@@ -47,12 +47,28 @@
       "create": "Crear",
       "update": "Actualizar",
       "saving": "Guardando..."
+    },
+    "optionsError": {
+      "title": "No fue posible cargar todas las opciones",
+      "description": "Error al cargar: {{sources}}. Cierre y vuelva a abrir el formulario para intentarlo de nuevo.",
+      "sources": {
+        "inboxes": "bandejas de entrada",
+        "agents": "agentes",
+        "teams": "equipos",
+        "labels": "etiquetas"
+      }
     }
   },
   "actionRow": {
     "selectPlaceholder": "Seleccione una opción",
     "multiSelectPlaceholder": "Seleccione opciones",
+    "assignAgentInboxWarning": "Esta asignación solo se aplica a las conversaciones cuya bandeja de entrada tiene a este agente como miembro. En las demás la acción falla, y una acción fallida marca toda la ejecución como fallida.",
     "loadingOptions": "Cargando opciones...",
+    "loadFailed": "No fue posible cargar las opciones",
+    "emptyTeams": "Ningún equipo registrado",
+    "emptyAgents": "Ningún agente registrado",
+    "emptyLabels": "Ninguna etiqueta registrada",
+    "emptyOptions": "Ninguna opción disponible",
     "textareaPlaceholder": "Digite el mensaje o nota",
     "textPlaceholder": "Digite el valor",
     "hoursPlaceholder": "Horas para aplazamiento",
@@ -81,7 +97,6 @@
     },
     "actions": {
       "view": "Visualizar",
-      "execute": "Ejecutar",
       "edit": "Editar",
       "delete": "Eliminar"
     },
@@ -91,7 +106,6 @@
   "actions": {
     "edit": "Editar",
     "delete": "Eliminar",
-    "execute": "Ejecutar",
     "cancel": "Cancelar",
     "save": "Guardar",
     "confirm": "Confirmar"
@@ -105,9 +119,7 @@
     "deleteSuccess": "Macro eliminada con éxito",
     "deleteError": "Error al eliminar macro",
     "bulkDeleteSuccess": "{{count}} macro(s) eliminada(s) con éxito",
-    "bulkDeleteError": "Error al eliminar macros",
-    "executeSuccess": "Macro \"{{name}}\" ejecutada con éxito",
-    "executeError": "Error al ejecutar macro"
+    "bulkDeleteError": "Error al eliminar macros"
   },
   "dialog": {
     "delete": {

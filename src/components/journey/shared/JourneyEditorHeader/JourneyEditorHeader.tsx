@@ -9,7 +9,10 @@ export type JourneyEditorHeaderProps = {
   title: string;
   subtitle?: string;
 
-  onViewSessions: () => void;
+  // Optional so the caller can withhold it when RBAC denies the action: sessions
+  // live behind journeys.manage_sessions on the CRM proxy (EVO-2191), and the
+  // zone renders nothing when there is no handler.
+  onViewSessions?: () => void;
   viewSessionsLabel?: string;
 
   environmentSlot?: ReactNode;
@@ -87,26 +90,28 @@ export function JourneyEditorHeader({
       </div>
 
       <div data-zone="actions" className="flex items-center gap-2">
-        <div className="flex items-center border-l border-flow-panel-divider pl-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onViewSessions}
-            className="gap-2 hidden md:inline-flex"
-          >
-            <Activity className="h-4 w-4" aria-hidden="true" />
-            {viewSessionsLabel}
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={onViewSessions}
-            aria-label={viewSessionsLabel}
-            className="md:hidden h-9 w-9"
-          >
-            <Activity className="h-4 w-4" aria-hidden="true" />
-          </Button>
-        </div>
+        {onViewSessions ? (
+          <div className="flex items-center border-l border-flow-panel-divider pl-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onViewSessions}
+              className="gap-2 hidden md:inline-flex"
+            >
+              <Activity className="h-4 w-4" aria-hidden="true" />
+              {viewSessionsLabel}
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={onViewSessions}
+              aria-label={viewSessionsLabel}
+              className="md:hidden h-9 w-9"
+            >
+              <Activity className="h-4 w-4" aria-hidden="true" />
+            </Button>
+          </div>
+        ) : null}
 
         {environmentSlot ? (
           <div className="flex items-center border-l border-flow-panel-divider pl-2">

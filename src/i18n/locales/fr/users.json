@@ -9,7 +9,8 @@
     "actions": {
       "chat": "Converser",
       "edit": "Modifier",
-      "delete": "Supprimer"
+      "delete": "Supprimer",
+      "setPassword": "Modifier le mot de passe"
     }
   },
   "details": {
@@ -235,5 +236,22 @@
       "deleting": "Suppression en cours...",
       "confirm": "Supprimer Tous"
     }
+  },
+  "setPassword": {
+    "title": "Modifier le mot de passe",
+    "description": "Définissez un nouveau mot de passe pour {{name}}. Toutes ses sessions actives seront fermées.",
+    "password": "Nouveau mot de passe",
+    "confirm": "Confirmer le mot de passe",
+    "submit": "Modifier le mot de passe",
+    "cancel": "Annuler",
+    "success": "Mot de passe modifié. Sessions fermées : {{count}}",
+    "error": "Impossible de modifier le mot de passe",
+    "mismatch": "Les mots de passe ne correspondent pas",
+    "tooShort": "Le mot de passe doit contenir au moins 8 caractères",
+    "tooLong": "Le mot de passe ne peut pas dépasser 128 caractères",
+    "missingLowercase": "Le mot de passe doit contenir au moins une lettre minuscule",
+    "missingUppercase": "Le mot de passe doit contenir au moins une lettre majuscule",
+    "missingNumber": "Le mot de passe doit contenir au moins un chiffre",
+    "missingSpecial": "Le mot de passe doit contenir au moins un caractère spécial"
   }
 }

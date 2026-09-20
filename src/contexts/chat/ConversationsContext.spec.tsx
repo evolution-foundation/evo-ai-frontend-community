@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { conversationsReducer } from './ConversationsContextReducer';
 import { initialState } from '@/types/chat/conversations';
-import type { Conversation } from '@/types/chat/api';
+import type { Conversation, Contact } from '@/types/chat/api';
 import { matchesConversationId } from '@/utils/chat/conversationMatcher';
 
 // Test fixtures admit numeric ids because the backend / WebSocket can deliver
@@ -455,6 +455,133 @@ describe('ConversationsContext reducer', () => {
       expect(next.conversationsPagination?.total).toBe(42);
       expect(next.conversationsPagination?.total_pages).toBe(3);
       expect(next.conversationsPagination?.has_next_page).toBe(true);
+    });
+  });
+
+  describe('UPDATE_CONTACT_IN_CONVERSATIONS (contact name realtime)', () => {
+    // Websocket-born conversation (conversation.created): carries both `contact`
+    // and `meta.sender`, starting with a not-yet-resolved phone-as-name.
+    const makeConvWithContact = (name: string): Conversation =>
+      makeConversation({
+        id: 'conv-c',
+        uuid: 'conv-c',
+        contact: { id: 'contact-1', name },
+        meta: { sender: { id: 'contact-1', name, type: 'contact' } },
+      } as unknown as Partial<ConversationFixture>);
+
+    // REST-loaded conversation: ConversationSerializer emits `contact` and no
+    // `meta` at all. This is every conversation in the list after a refresh.
+    const makeRestConv = (name: string): Conversation =>
+      makeConversation({
+        id: 'conv-rest',
+        uuid: 'conv-rest',
+        contact: { id: 'contact-1', name },
+      } as unknown as Partial<ConversationFixture>);
+
+    it('patches conversation.contact.name so the chat sidebar/header reflect the resolved name without a REST refresh', () => {
+      const state = {
+        ...initialState,
+        conversations: [makeConvWithContact('553140204020')],
+      };
+
+      const next = conversationsReducer(state, {
+        type: 'UPDATE_CONTACT_IN_CONVERSATIONS',
+        payload: { id: 'contact-1', name: 'João Silva' } as Contact,
+      });
+
+      // The chat sidebar/header render `conversation.contact?.name` — this is
+      // the assertion the pre-fix reducer failed (it patched only meta.sender).
+      expect(next.conversations[0].contact?.name).toBe('João Silva');
+      // meta.sender stays in sync (pre-existing behavior, guards a regression).
+      expect(next.conversations[0].meta?.sender?.name).toBe('João Silva');
+    });
+
+    it('patches selectedConversationData.contact for the currently open conversation', () => {
+      const state = {
+        ...initialState,
+        selectedConversationId: 'conv-c',
+        selectedConversationData: makeConvWithContact('553140204020'),
+        conversations: [makeConvWithContact('553140204020')],
+      };
+
+      const next = conversationsReducer(state, {
+        type: 'UPDATE_CONTACT_IN_CONVERSATIONS',
+        payload: { id: 'contact-1', name: 'João Silva' } as Contact,
+      });
+
+      expect(next.selectedConversationData?.contact?.name).toBe('João Silva');
+    });
+
+    it('patches a REST-loaded conversation, which has no meta.sender to match on', () => {
+      const state = {
+        ...initialState,
+        selectedConversationId: 'conv-rest',
+        selectedConversationData: makeRestConv('553140204020'),
+        conversations: [makeRestConv('553140204020')],
+      };
+
+      const next = conversationsReducer(state, {
+        type: 'UPDATE_CONTACT_IN_CONVERSATIONS',
+        payload: { id: 'contact-1', name: 'João Silva' } as Contact,
+      });
+
+      // Matching on meta.sender alone made this a silent no-op: the rename and
+      // the ContactDetails edit path never reached a conversation from the list.
+      expect(next.conversations[0].contact?.name).toBe('João Silva');
+      expect(next.selectedConversationData?.contact?.name).toBe('João Silva');
+    });
+
+    it('keeps the current name when the event carries none, instead of blanking the UI', () => {
+      const state = {
+        ...initialState,
+        conversations: [makeRestConv('João Silva')],
+      };
+
+      const next = conversationsReducer(state, {
+        type: 'UPDATE_CONTACT_IN_CONVERSATIONS',
+        payload: { id: 'contact-1', name: '' } as Contact,
+      });
+
+      expect(next.conversations[0].contact?.name).toBe('João Silva');
+    });
+
+    it('updates the avatar so the sidebar picture follows the rename', () => {
+      const state = {
+        ...initialState,
+        conversations: [makeRestConv('553140204020')],
+      };
+
+      const next = conversationsReducer(state, {
+        type: 'UPDATE_CONTACT_IN_CONVERSATIONS',
+        payload: {
+          id: 'contact-1',
+          name: 'João Silva',
+          avatar_url: 'https://cdn.example.com/joao.png',
+        } as Contact,
+      });
+
+      expect(next.conversations[0].contact?.avatar_url).toBe('https://cdn.example.com/joao.png');
+    });
+
+    it('leaves conversations of other contacts untouched', () => {
+      const state = {
+        ...initialState,
+        conversations: [
+          makeConversation({
+            id: 'conv-other',
+            uuid: 'conv-other',
+            contact: { id: 'contact-2', name: 'Maria' },
+            meta: { sender: { id: 'contact-2', name: 'Maria', type: 'contact' } },
+          } as unknown as Partial<ConversationFixture>),
+        ],
+      };
+
+      const next = conversationsReducer(state, {
+        type: 'UPDATE_CONTACT_IN_CONVERSATIONS',
+        payload: { id: 'contact-1', name: 'João Silva' } as Contact,
+      });
+
+      expect(next.conversations[0].contact?.name).toBe('Maria');
     });
   });
 });

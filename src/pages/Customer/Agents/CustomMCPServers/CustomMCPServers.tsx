@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AgentsCustomMCPsTour } from '@/tours';
 import {
@@ -23,6 +24,7 @@ import {
 } from '@/types/ai';
 import { BaseFilter, AppliedFilter, CUSTOM_MCP_SERVER_FILTER_TYPES } from '@/types/core';
 import { buildAppliedFilterChips } from '@/utils/appliedFilterChips';
+import { AgentsTabsLayout } from '@/components/agents';
 import { CustomMCPServerCard } from '@/components/customMcpServers';
 
 import CustomMCPServersHeader from '@/components/customMcpServers/CustomMCPServersHeader';
@@ -64,7 +66,7 @@ const INITIAL_STATE: CustomMcpServersState = {
 };
 
 export default function CustomMCPServers() {
-  const { can, isReady: permissionsReady } = usePermissions();
+  const { can } = usePermissions();
   const { t } = useLanguage('customMcpServers');
   const location = useLocation();
   const navigate = useNavigate();
@@ -88,7 +90,6 @@ export default function CustomMCPServers() {
   activeFiltersRef.current = activeFilters;
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilter[]>([]);
   const [testingServer, setTestingServer] = useState<string | null>(null);
-  const hasLoaded = useRef(false);
   // EVO-1953: debounce the server-side search so typing fires one request after
   // it settles, not one per keystroke.
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -104,8 +105,8 @@ export default function CustomMCPServers() {
   // Load servers
   const loadServers = useCallback(
     async (params?: Partial<ListCustomMcpServersParams>, filtersOverride?: BaseFilter[]) => {
+      // No toast: `AgentsTabsLayout` is already redirecting whoever lacks `read`.
       if (!can('ai_custom_mcp_servers', 'read')) {
-        toast.error(t('permissions.viewDenied'));
         return;
       }
       setState(prev => ({ ...prev, loading: { ...prev.loading, list: true } }));
@@ -155,17 +156,10 @@ export default function CustomMCPServers() {
     [can, t, activeFilters],
   );
 
-  // Initial load
-  useEffect(() => {
-    if (!permissionsReady) {
-      return;
-    }
-
-    if (!hasLoaded.current) {
-      hasLoaded.current = true;
-      loadServers();
-    }
-  }, [permissionsReady, loadServers]);
+  usePermissionGatedLoad({
+    resource: 'ai_custom_mcp_servers',
+    load: loadServers,
+  });
 
   // Handlers
   const handleSearchChange = (query: string) => {
@@ -430,10 +424,12 @@ export default function CustomMCPServers() {
   }
 
   return (
-    <div className="h-full flex flex-col p-4" data-tour="agents-custom-mcps-page">
+    <AgentsTabsLayout tab="customMcpServers">
+    <div className="flex h-full flex-col px-[34px] pb-5" data-tour="agents-custom-mcps-page">
       <AgentsCustomMCPsTour />
-      <div data-tour="agents-custom-mcps-header">
+      <div className="mt-6" data-tour="agents-custom-mcps-header">
         <CustomMCPServersHeader
+          hideTitle
           totalCount={state.meta.pagination.total}
           selectedCount={state.selectedServerIds.length}
           searchValue={state.searchQuery}
@@ -469,7 +465,7 @@ export default function CustomMCPServers() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto" data-tour="agents-custom-mcps-content">
+      <div className="mt-5 flex-1 overflow-auto" data-tour="agents-custom-mcps-content">
         {state.loading.list ? (
           <div className="flex items-center justify-center py-16">
             <div className="text-muted-foreground">{t('loading.servers')}</div>
@@ -586,5 +582,6 @@ export default function CustomMCPServers() {
         onClearFilters={handleClearFilters}
       />
     </div>
+    </AgentsTabsLayout>
   );
 }

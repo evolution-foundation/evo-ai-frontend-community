@@ -15,6 +15,7 @@ import {
   MessageCircle,
   LayoutTemplate,
   Key,
+  KeyRound,
   Tags,
   TestTube,
   Wand,
@@ -42,6 +43,11 @@ export interface MenuItem {
   requireAll?: boolean;
   requiredRoleKey?: string;
   badge?: number;
+  /**
+   * Click target when the item has a badge. Separate from `href`, which
+   * useMenuState#isMenuItemActive compares and which never matches a querystring.
+   */
+  badgeHref?: string;
 }
 
 export interface SubMenuItem {
@@ -210,7 +216,7 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         href: '/settings/teams',
         icon: Clock,
         resource: 'teams',
-        action: 'read',
+        action: 'manage',
       },
       {
         name: t('menu.settings.labels'),
@@ -223,8 +229,13 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         name: t('menu.settings.customAttributes'),
         href: '/settings/attributes',
         icon: Code,
-        resource: 'custom_attribute_definitions',
-        action: 'read',
+        // CRM-166: administrative gate, not `read` — the agent holds the read to
+        // render a contact's attributes and must not reach this Settings screen.
+        permissions: [
+          'custom_attribute_definitions.create',
+          'custom_attribute_definitions.update',
+          'custom_attribute_definitions.delete',
+        ],
       },
       {
         name: t('menu.settings.segments'),
@@ -241,18 +252,32 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
         action: 'read',
       },
       {
+        name: t('menu.settings.aiCredentials'),
+        href: '/settings/ai-credentials',
+        icon: KeyRound,
+        resource: 'ai_api_keys',
+        action: 'read',
+      },
+      {
+        name: t('menu.settings.integrationCredentials'),
+        href: '/settings/integration-credentials',
+        icon: Key,
+        resource: 'ai_integration_credentials',
+        action: 'read',
+      },
+      {
         name: t('menu.settings.messageTemplates'),
         href: '/settings/message-templates',
         icon: LayoutTemplate,
         resource: 'message_templates',
-        action: 'read',
+        action: 'manage',
       },
       {
         name: t('menu.settings.macros'),
         href: '/settings/macros',
         icon: Settings,
         resource: 'macros',
-        action: 'read',
+        action: 'manage',
       },
       {
         name: t('menu.settings.crmForms'),

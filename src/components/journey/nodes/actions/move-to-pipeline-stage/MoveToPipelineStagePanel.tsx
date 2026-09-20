@@ -136,11 +136,12 @@ export function MoveToPipelineStagePanel({
         )}
 
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="move-stage-pipeline" className="text-sidebar-foreground font-medium">
             {t('panels.moveToPipelineStage.pipeline')}
           </Label>
           <Select value={pipelineId} onValueChange={handlePipelineChange} disabled={loading}>
             <SelectTrigger
+              id="move-stage-pipeline"
               className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
               aria-label={t('panels.moveToPipelineStage.pipeline')}
             >
@@ -167,11 +168,12 @@ export function MoveToPipelineStagePanel({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="move-stage-stage" className="text-sidebar-foreground font-medium">
             {t('panels.moveToPipelineStage.stage')}
           </Label>
           <Select value={stageId} onValueChange={setStageId} disabled={!pipelineId || loadingStages}>
             <SelectTrigger
+              id="move-stage-stage"
               className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
               aria-label={t('panels.moveToPipelineStage.stage')}
             >

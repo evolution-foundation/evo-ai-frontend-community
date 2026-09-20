@@ -52,7 +52,7 @@ export const COMMON_ALLOWED = new Set<string>([
   'Flowise', 'Typebot', 'Rasa', 'N8N', 'CSML', 'OpenAI', 'Azure OpenAI',
   'Anthropic', 'Cohere', 'Groq', 'Mistral AI', 'Google', 'Google Translate',
   'Google Calendar', 'Google Sheets', 'Gmail', 'Slack', 'HubSpot', 'GitHub',
-  'Notion', 'Stripe', 'PayPal', 'Shopify', 'Linear', 'Canva', 'Monday.com',
+  'Notion', 'Stripe', 'PayPal', 'Shopify', 'WooCommerce', 'Linear', 'Canva', 'Monday.com',
   'Atlassian', 'Asana', 'Supabase', 'Microsoft Azure', 'Microsoft / Azure',
   'Amazon S3', 'Z-API', 'Notificame', 'Bandwidth', 'BMS', 'LeadSquared',
   'Marketplace', 'Live Chat', 'LINE', 'LinkedIn', 'Twitter', 'Outlook',
@@ -78,7 +78,7 @@ export const COMMON_ALLOWED = new Set<string>([
   // --- sample / masked literals with letters (not caught structurally) ---
   'gpt-4o', 'us-east-1', 'v18.0', 'gmail-topic', 'sms-bandwidth',
   'imap.gmail.com', 'smtp.gmail.com', 'reply.example.com', 'abc123xyz',
-  'v{{version}}', '{{size}} KB', '{{seconds}}s',
+  'v{{version}}',
   // --- language autonyms (shown in their own language regardless of UI locale) ---
   'English', 'Español', 'Français', 'Italiano', 'Português', 'Português (BR)',
   // --- EN file authored with Portuguese values (out-of-scope to fix EN) ---
@@ -110,6 +110,7 @@ export const PER_FILE_ALLOWED: Record<string, Set<string>> = {
   'contacts.json': new Set([
     'Twilio SMS', '+{{count}} pipeline', '+{{count}} pipelines',
     '{{days}}d {{hours}}h', '{{hours}}h {{minutes}}m', '{{minutes}}m {{seconds}}s',
+    '{{seconds}}s',
   ]),
   'customMcpServers.json': new Set([
     'Timeout: {{timeout}}s', 'api, search, database',
@@ -137,10 +138,17 @@ export const PER_FILE_ALLOWED: Record<string, Set<string>> = {
   'marketplace.json': new Set([
     'AI Assistant Agent', 'Customer Support Bot', 'Data Analysis Agent',
   ]),
-  'pipelines.json': new Set(['Euro (EUR)']),
+  // "lead" is current loanword in the product's pt-BR copy — the bare word is
+  // already in COMMON_ALLOWED; the interpolated form needs its own entry.
+  'pipelines.json': new Set(['Euro (EUR)', '{{count}} leads']),
   // 'SKU-001' is a placeholder example code; 'Euro (EUR)' is the currency's own
-  // name in pt-BR (same allowance as pipelines.json above).
-  'products.json': new Set(['SKU-001', 'Euro (EUR)']),
+  // name in pt-BR (same allowance as pipelines.json above). 'Consumer key/secret'
+  // are WooCommerce's own credential-field names (kept as-is in every locale);
+  // 'my-shop.myshopify.com' is a sample domain literal.
+  'products.json': new Set([
+    'SKU-001', 'Euro (EUR)', 'Consumer key', 'Consumer secret',
+    'my-shop.myshopify.com',
+  ]),
   'crmForms.json': new Set([
     'Leads', 'Leads — {{name}}', 'E-mail', 'Pipeline…', 'pipeline…', 'key', 'label',
   ]),
@@ -159,6 +167,9 @@ export const PER_FILE_ALLOWED: Record<string, Set<string>> = {
     // EN value authored in pt-BR at this key (out-of-scope to fix EN)
     'Use o Facebook Embedded Signup para configurar automaticamente seu canal WhatsApp.',
   ]),
+  // Unit suffix, same in pt-BR. Scoped here rather than shared: the value only
+  // occurs in this file, and a global entry would excuse it catalog-wide.
+  'widget.json': new Set(['{{size}} KB']),
 };
 
 /** Allowed-identical set for a given locale file (common ∪ per-file). */

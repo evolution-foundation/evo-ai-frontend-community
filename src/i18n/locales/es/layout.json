@@ -110,6 +110,8 @@
       "labels": "Etiquetas",
       "customAttributes": "Atributos Personalizados",
       "cannedResponses": "Respuestas Rápidas",
+      "aiCredentials": "Credenciales de IA",
+      "integrationCredentials": "Credenciales de integración",
       "messageTemplates": "Plantillas de Mensaje",
       "macros": "Macros",
       "templates": "Plantillas",

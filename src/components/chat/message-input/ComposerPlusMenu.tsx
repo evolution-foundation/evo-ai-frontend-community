@@ -18,6 +18,8 @@ interface ComposerPlusMenuProps {
   onPickMedia: () => void;
   onOpenConversationNote: () => void;
   onSchedule: () => void;
+  /** Agendar exige mensagem já digitada no composer (o modal só lê o conteúdo, não tem campo próprio). */
+  scheduleDisabled?: boolean;
   /** WhatsApp Cloud templates — sem equivalente no protótipo, mantido como 6º item quando disponível. */
   onOpenTemplates?: () => void;
 }
@@ -38,6 +40,7 @@ const ComposerPlusMenu: React.FC<ComposerPlusMenuProps> = ({
   onPickMedia,
   onOpenConversationNote,
   onSchedule,
+  scheduleDisabled = false,
   onOpenTemplates,
 }) => {
   const { t } = useLanguage('chat');
@@ -62,7 +65,16 @@ const ComposerPlusMenu: React.FC<ComposerPlusMenuProps> = ({
     };
   }, [open]);
 
-  const items = [
+  type MenuItem = {
+    key: string;
+    label: string;
+    icon: React.ReactNode;
+    onClick: () => void;
+    disabled?: boolean;
+    disabledTitle?: string;
+  };
+
+  const items: MenuItem[] = [
     {
       key: 'rapidas',
       label: t('messageInput.composerMenu.quickReplies'),
@@ -92,6 +104,8 @@ const ComposerPlusMenu: React.FC<ComposerPlusMenuProps> = ({
       label: t('messageInput.composerMenu.schedule'),
       icon: <CalendarClock className="h-4 w-4" />,
       onClick: onSchedule,
+      disabled: scheduleDisabled,
+      disabledTitle: t('messageInput.composerMenu.scheduleDisabledHint'),
     },
     ...(onOpenTemplates
       ? [
@@ -138,7 +152,9 @@ const ComposerPlusMenu: React.FC<ComposerPlusMenuProps> = ({
           {items.map(item => (
             <div
               key={item.key}
+              title={item.disabled ? item.disabledTitle : undefined}
               onClick={() => {
+                if (item.disabled) return;
                 setOpen(false);
                 item.onClick();
               }}
@@ -148,9 +164,12 @@ const ComposerPlusMenu: React.FC<ComposerPlusMenuProps> = ({
                 gap: 12,
                 padding: '9px 10px',
                 borderRadius: 10,
-                cursor: 'pointer',
+                cursor: item.disabled ? 'not-allowed' : 'pointer',
+                opacity: item.disabled ? 0.5 : 1,
               }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#f4f6f9')}
+              onMouseEnter={e => {
+                if (!item.disabled) e.currentTarget.style.background = '#f4f6f9';
+              }}
               onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
               <span className={ITEM_ICON_BOX}>{item.icon}</span>

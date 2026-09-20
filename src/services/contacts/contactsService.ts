@@ -1,3 +1,5 @@
+import type { AxiosResponse } from 'axios';
+
 import api from '@/services/core/api';
 import { extractData, extractResponse } from '@/utils/apiHelpers';
 import type {
@@ -15,9 +17,70 @@ import type {
   ContactImportResponse,
   ContactExportResponse,
   ContactNote,
+  ContactNoteDeleteResponse,
   ContactConversation,
   ContactableInboxes,
 } from '@/types/contacts';
+
+// POST /contacts nests the contact under `data.contact`, while GET and PATCH put it at
+// the root of `data`. The flat fallback keeps a future backend change from needing a
+// coordinated deploy.
+function unwrapCreatedContact(response: AxiosResponse): Contact {
+  const payload = extractData<Contact | { contact?: Contact }>(response);
+  const nested = (payload as { contact?: Contact })?.contact;
+  return nested ?? (payload as Contact);
+}
+
+// Guards the recursion below: cyclic data would hang the tab instead of raising.
+const MAX_FORM_DEPTH = 8;
+
+function isPlainObject(value: object): boolean {
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+}
+
+// Serializes a value into the bracket keys Rails parses back: `key[]` as an array,
+// `key[sub]` as a hash. Two limits the multipart body cannot express: empty arrays and
+// objects are dropped, and scalars arrive as text (`42` becomes "42", which persists as
+// a string in the free-form custom_attributes jsonb).
+function appendFormValue(formData: FormData, key: string, value: unknown, depth = 0): void {
+  if (value === undefined || value === null) return;
+
+  // File extends Blob; both go raw, never through String().
+  if (value instanceof Blob) {
+    formData.append(key, value);
+    return;
+  }
+
+  if (depth >= MAX_FORM_DEPTH) {
+    throw new Error(`appendFormValue: max depth exceeded at "${key}" (cyclic or malformed data)`);
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach(item => appendFormValue(formData, `${key}[]`, item, depth + 1));
+    return;
+  }
+
+  if (value instanceof Date) {
+    formData.append(key, value.toISOString());
+    return;
+  }
+
+  if (typeof value === 'object') {
+    // Date, Map and friends have no useful entries: descending would drop the value.
+    if (!isPlainObject(value as object)) {
+      formData.append(key, String(value));
+      return;
+    }
+
+    Object.entries(value as Record<string, unknown>).forEach(([subKey, subValue]) =>
+      appendFormValue(formData, `${key}[${subKey}]`, subValue, depth + 1),
+    );
+    return;
+  }
+
+  formData.append(key, String(value));
+}
 
 class ContactsService {
   // List contacts with pagination and filters
@@ -79,23 +142,7 @@ class ContactsService {
       const formData = new FormData();
 
       // Add basic fields
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          if (typeof value === 'object') {
-            // Handle custom_attributes and additional_attributes
-            Object.entries(value).forEach(([subKey, subValue]) => {
-              if (subValue !== undefined && subValue !== null) {
-                formData.append(`${key}[${subKey}]`, String(subValue));
-              }
-            });
-          } else if (Array.isArray(value)) {
-            // Handle labels array
-            value.forEach(item => formData.append(`${key}[]`, String(item)));
-          } else {
-            formData.append(key, String(value));
-          }
-        }
-      });
+      Object.entries(data).forEach(([key, value]) => appendFormValue(formData, key, value));
 
       // Add avatar file
       formData.append('avatar', avatar);
@@ -105,10 +152,10 @@ class ContactsService {
           'Content-Type': 'multipart/form-data',
         },
       });
-      return extractData<Contact>(response);
+      return unwrapCreatedContact(response);
     } else {
       const response = await api.post(`/contacts`, data);
-      return extractData<Contact>(response);
+      return unwrapCreatedContact(response);
     }
   }
 
@@ -119,7 +166,8 @@ class ContactsService {
     if (avatar) {
       const formData = new FormData();
 
-      // Add basic fields
+      // Left as-is, outside CRM-321's scope. Like appendFormValue it drops empty arrays,
+      // so a multipart update cannot clear labels while the JSON branch can.
       Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           if (typeof value === 'object' && !Array.isArray(value)) {
@@ -230,9 +278,9 @@ class ContactsService {
     return extractData<ContactNote>(response);
   }
 
-  async deleteContactNote(contactId: string, noteId: string): Promise<{ message: string }> {
+  async deleteContactNote(contactId: string, noteId: string): Promise<ContactNoteDeleteResponse> {
     const response = await api.delete(`/contacts/${contactId}/notes/${noteId}`);
-    return extractData<{ message: string }>(response);
+    return response.data as ContactNoteDeleteResponse;
   }
 
   // Contact Conversations

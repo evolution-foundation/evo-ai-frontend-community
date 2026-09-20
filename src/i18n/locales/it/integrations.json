@@ -652,7 +652,9 @@
         "configure": "Configura Integrazione",
         "update": "Aggiorna Integrazione",
         "saving": "Salvataggio in corso..."
-      }
+      },
+      "credentialMoved": "La chiave ora si registra in Impostazioni > Credenziali di IA. Qui restano solo gli interruttori delle funzioni.",
+      "goToCredentials": "Vai a Credenziali di IA"
     },
     "settings": {
       "loading": "Caricamento configurazione...",
@@ -675,7 +677,8 @@
         "actions": {
           "edit": "Modifica",
           "remove": "Rimuovi"
-        }
+        },
+        "managedElsewhere": "Gestita in Credenziali di IA"
       },
       "features": {
         "title": "Funzionalità Disponibili",

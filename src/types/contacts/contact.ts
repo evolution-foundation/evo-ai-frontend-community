@@ -276,9 +276,11 @@ export interface ContactsResponse extends PaginatedResponse<Contact> {}
 
 export interface ContactResponse extends StandardResponse<Contact> {}
 
-export interface ContactNotesResponse extends PaginatedResponse<ContactNote> {}
+export interface ContactNotesResponse extends StandardResponse<ContactNote[]> {}
 
-export interface ContactNoteDeleteResponse extends StandardResponse<{ message: string }> {}
+// The delete answers `success_response(data: {}, message: ...)`, so the message
+// is a sibling of `data` (StandardResponse.message), never inside it.
+export interface ContactNoteDeleteResponse extends StandardResponse<Record<string, never>> {}
 
 export interface ContactConversationsResponse extends PaginatedResponse<ContactConversation> {}
 

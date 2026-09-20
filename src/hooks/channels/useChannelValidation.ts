@@ -190,7 +190,11 @@ export const useChannelValidation = () => {
         return validateWebWidget(form);
 
       case 'whatsapp':
-        if (!providerId) return false;
+        // Every other guard in this file toasts before returning false.
+        if (!providerId) {
+          toast.error('Selecione um provedor');
+          return false;
+        }
 
         switch (providerId) {
           case 'twilio':

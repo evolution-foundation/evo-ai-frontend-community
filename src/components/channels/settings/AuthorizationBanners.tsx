@@ -237,7 +237,6 @@ const AuthorizationSuccessBanner: React.FC<{
       fromChannelMeta ||
       null
     ) as string | null;
-    // eslint-disable-next-line no-console
     console.debug('[hubPublicLink debug]', {
       result,
       inbox_root_provider_config: (inbox as any)?.provider_config,

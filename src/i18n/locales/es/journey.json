@@ -537,6 +537,12 @@
         "deleteError": "Error al eliminar variable. Intente nuevamente."
       }
     },
+    "mapping": {
+      "sourcePathLabel": "Ruta de origen",
+      "customPathLabel": "Ruta personalizada",
+      "variableLabel": "Variable de destino",
+      "transformLabel": "Transformación"
+    },
     "customVariables": {
       "empty": {
         "title": "Ninguna variable creada",
@@ -1316,8 +1322,8 @@
       }
     },
     "actions": {
-      "save": "Save",
-      "cancel": "Cancel"
+      "save": "Guardar",
+      "cancel": "Cancelar"
     },
     "trigger": {
       "title": "Configure Trigger",
@@ -1343,8 +1349,8 @@
         "or": "OR"
       },
       "nextCondition": "next condition",
-      "cancel": "Cancel",
-      "save": "Save",
+      "cancel": "Cancelar",
+      "save": "Guardar",
       "tabs": {
         "basic": "Básico",
         "advanced": "Avanzado",
@@ -1414,8 +1420,8 @@
         "timestamp": "Timestamp"
       },
       "buttons": {
-        "cancel": "Cancel",
-        "save": "Save",
+        "cancel": "Cancelar",
+        "save": "Guardar",
         "configureVariable": "Configure the Variable"
       },
       "placeholders": {
@@ -1476,8 +1482,8 @@
       "actions": {
         "addVariant": "Add Variant",
         "distributeEqually": "Distribute Equally",
-        "cancel": "Cancel",
-        "save": "Save"
+        "cancel": "Cancelar",
+        "save": "Guardar"
       },
       "status": {
         "total": "Total",
@@ -1521,8 +1527,8 @@
         "inactive": "Inactive"
       },
       "actions": {
-        "cancel": "Cancel",
-        "save": "Save",
+        "cancel": "Cancelar",
+        "save": "Guardar",
         "configureJourney": "Configure the Journey"
       },
       "messages": {
@@ -1564,8 +1570,8 @@
         "description": "Use variables clicking on the (x) button."
       },
       "actions": {
-        "cancel": "Cancel",
-        "save": "Save",
+        "cancel": "Cancelar",
+        "save": "Guardar",
         "configureFields": "Configure the Fields"
       }
     },
@@ -1605,8 +1611,8 @@
         "description": "Custom attributes allow you to store specific business information in each contact. Use variables clicking on the (x) button."
       },
       "actions": {
-        "cancel": "Cancel",
-        "save": "Save",
+        "cancel": "Cancelar",
+        "save": "Guardar",
         "configureAttribute": "Configure the Attribute"
       },
       "validation": {
@@ -1990,6 +1996,13 @@
       "headersCount": "header(s) personalizado(s)",
       "captureWebhookData": "Capturar Datos del Webhook",
       "urlCopied": "URL del Webhook copiada al portapapeles"
+    }
+  },
+  "sessions": {
+    "viewer": {
+      "actions": {
+        "cancel": "Cancelar"
+      }
     }
   }
 }

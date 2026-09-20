@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { useAuth } from './AuthContext';
 import { useAuthStore } from '@/store/authStore';
 import { permissionsService } from '@/services/permissions';
+import PermissionsLoadFailure from '@/components/permissions/PermissionsLoadFailure';
 import type { ResourceActionsResponse } from '@/types/auth';
 
 interface PermissionsContextValue {
@@ -17,6 +18,7 @@ interface PermissionsContextValue {
   // Estado
   loading: boolean;
   isReady: boolean;
+  loadFailed: boolean;
   error: string | null;
 
   // Métodos utilitários
@@ -26,13 +28,22 @@ interface PermissionsContextValue {
   getPermissionDisplayName: (permission: string) => string;
 }
 
+type FetchStatus = 'pending' | 'loaded' | 'failed';
+
 export const PermissionsContext = createContext<PermissionsContextValue | undefined>(undefined);
 
 interface PermissionsProviderProps {
   children: React.ReactNode;
+  // Whether a failed load replaces the tree with the failure panel (CRM-164).
+  // Default true for the embedded shell, which mounts this provider but not
+  // RouterGuard. The standalone app opts out — see App.tsx.
+  blockOnLoadFailure?: boolean;
 }
 
-export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({ children }) => {
+export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
+  children,
+  blockOnLoadFailure = true,
+}) => {
   const { user } = useAuth();
 
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
@@ -40,76 +51,116 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({ childr
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Tracks whether the permission fetches have completed for the current user.
-  // Starts false so we never report `isReady` true with empty permissions during
-  // the brief render between user appearing and the fetch effect running — that
-  // window used to flash the Unauthorized page after a fresh login.
-  const [userPermsLoaded, setUserPermsLoaded] = useState(false);
-  const [accountPermsLoaded, setAccountPermsLoaded] = useState(false);
+  // Outcome of each permission fetch. Only `loaded` means the list can be
+  // trusted, including a legitimately empty one: `pending` covers the render
+  // before the fetch effect runs, `failed` an empty list that is really a load
+  // error and not a denial (CRM-164).
+  const [userPermsStatus, setUserPermsStatus] = useState<FetchStatus>('pending');
+  const [accountPermsStatus, setAccountPermsStatus] = useState<FetchStatus>('pending');
 
   // Config state
   const [resourceActions, setResourceActions] = useState<ResourceActionsResponse | null>(null);
   const [configLoading, setConfigLoading] = useState(false);
+  const [configStatus, setConfigStatus] = useState<FetchStatus>('pending');
 
-  // Reset loaded flags whenever the logged-in user changes so the next user's
-  // permissions go through the fetch cycle before `isReady` flips back to true.
-  useEffect(() => {
-    setUserPermsLoaded(false);
-    setAccountPermsLoaded(false);
-  }, [user?.id]);
+  // Reset in render, not in an effect: an effect lands one commit after the render
+  // where the user appears, and `isReady` would answer true in that commit over the
+  // previous cycle's lists (CRM-494).
+  const [permsUserId, setPermsUserId] = useState<string | undefined>(user?.id);
+  if (permsUserId !== user?.id) {
+    setPermsUserId(user?.id);
+    setUserPermsStatus('pending');
+    setAccountPermsStatus('pending');
+    setConfigStatus('pending');
+    setUserPermissions([]);
+    setAccountPermissions([]);
+    setError(null);
+  }
 
-  // Load permissions config (metadata)
+  // Load permissions config (metadata). Keyed on the user because the provider
+  // mounts before the session is restored on a reload: with empty deps this gave up
+  // there and never retried, leaving `resourceActions` null for the session (CRM-494).
   useEffect(() => {
+    // `pending` is both the first attempt and the retry signal; a settled status
+    // means this user's catalog is already in hand.
+    if (!user?.id || configStatus !== 'pending') {
+      setConfigLoading(false); // a cancelled leg skips its own `finally`
+      return;
+    }
+
+    let cancelled = false;
 
     const loadConfig = async () => {
-      const isAuthenticated = useAuthStore.getState().isLoggedIn;
-      if (!isAuthenticated) return;
-
       try {
         setConfigLoading(true);
         const config = await permissionsService.getResourceActions();
+        if (cancelled) return;
         setResourceActions(config);
+        setConfigStatus('loaded');
       } catch (err) {
+        if (cancelled) return;
         console.error('Error loading permissions config:', err);
+        setConfigStatus('failed');
       } finally {
-        setConfigLoading(false);
+        if (!cancelled) setConfigLoading(false);
       }
     };
 
     loadConfig();
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, configStatus]);
 
   // Load user permissions
   useEffect(() => {
     if (!user?.id) {
       setUserPermissions([]);
-      setUserPermsLoaded(true);
+      // `pending`, not `loaded`: no request went out. Stamping `loaded` over the
+      // empty list made `isReady` true in the window before the session arrived,
+      // and `can()` answered false for every key there (CRM-494).
+      setUserPermsStatus('pending');
+      setLoading(false); // a cancelled leg no longer clears it in its `finally`
       return;
     }
+
+    // The fetch can outlive the effect. Without this flag an orphaned rejection
+    // would stamp `failed` over a context a newer success already loaded.
+    let cancelled = false;
 
     const loadUserPermissions = async () => {
       try {
         const isAuthenticated = useAuthStore.getState().isLoggedIn;
         if (!isAuthenticated) {
+          if (cancelled) return;
           setUserPermissions([]);
+          setUserPermsStatus('pending'); // see the early return above
           return;
         }
 
         setLoading(true);
         setError(null);
         const permissions = await permissionsService.getUserPermissions();
+        if (cancelled) return;
         setUserPermissions(permissions);
+        setUserPermsStatus('loaded');
       } catch (error) {
+        if (cancelled) return;
         console.error('Erro ao carregar permissões do usuário:', error);
         setError('Erro ao carregar permissões do usuário');
         setUserPermissions([]);
+        setUserPermsStatus('failed');
       } finally {
-        setLoading(false);
-        setUserPermsLoaded(true);
+        if (!cancelled) setLoading(false);
       }
     };
 
     loadUserPermissions();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user?.id]);
 
   // Load account permissions (específicas do account baseadas no AccountUser role)
@@ -118,22 +169,29 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({ childr
     const isAuthenticated = useAuthStore.getState().isLoggedIn;
     if (!isAuthenticated || !user) {
       setAccountPermissions([]);
-      setAccountPermsLoaded(true);
+      setAccountPermsStatus('pending'); // see the user-permissions effect
+      setLoading(false); // see the user-permissions effect
       return;
     }
 
     // ⚡ Proteção: não carregar se já tem permissões (evita recarregar desnecessariamente)
     if (accountPermissions.length > 0) {
-      setAccountPermsLoaded(true);
+      setAccountPermsStatus('loaded');
+      setLoading(false);
       return;
     }
+
+    // See the user-permissions effect.
+    let cancelled = false;
 
     const loadAccountPermissions = async () => {
       try {
         const isAuthenticated = useAuthStore.getState().isLoggedIn;
 
         if (!isAuthenticated) {
+          if (cancelled) return;
           setAccountPermissions([]);
+          setAccountPermsStatus('pending'); // see the user-permissions effect
           return;
         }
 
@@ -141,18 +199,25 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({ childr
         setError(null);
         const permissions = await permissionsService.getAccountPermissions();
 
+        if (cancelled) return;
         setAccountPermissions(permissions);
+        setAccountPermsStatus('loaded');
       } catch (error) {
+        if (cancelled) return;
         console.error('Erro ao carregar permissões do account:', error);
         setError('Erro ao carregar permissões do account');
         setAccountPermissions([]);
+        setAccountPermsStatus('failed');
       } finally {
-        setLoading(false);
-        setAccountPermsLoaded(true);
+        if (!cancelled) setLoading(false);
       }
     };
 
     loadAccountPermissions();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user, accountPermissions.length]);
 
   const createPermission = useCallback((resource: string, action: string): string => {
@@ -176,6 +241,11 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({ childr
     [resourceActions],
   );
 
+  // Data-driven by design: the answer comes only from the granted permission
+  // list. Do NOT add a role short-circuit (e.g. "super_admin sees everything") —
+  // the backend has no such bypass either (its resource gate and /permissions
+  // are row-based), so a UI shortcut would render controls the API then 403s.
+  // Guarded by PermissionsContext.spec.tsx.
   const can = useCallback(
     (resource: string, action: string, type: 'account' | 'user' = 'account'): boolean => {
       const permission = createPermission(resource, action);
@@ -232,36 +302,64 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({ childr
   const refreshPermissions = useCallback(async () => {
     if (!user?.id) return;
 
-    try {
-      setLoading(true);
-      setError(null);
+    // A catalog that failed is otherwise never retried, and `isValidPermission`
+    // stays permissive for the rest of the session.
+    if (configStatus === 'failed') setConfigStatus('pending');
 
-      // Carregar user permissions
-      const userPerms = await permissionsService.getUserPermissions(true);
-      setUserPermissions(userPerms);
+    setLoading(true);
+    setError(null);
 
-      // Carregar account permissions
-      const accountPerms = await permissionsService.getAccountPermissions(true);
-      setAccountPermissions(accountPerms);
-    } catch {
-      setError('Erro ao recarregar permissões');
-    } finally {
-      setLoading(false);
+    // allSettled, not sequential awaits: a rejected user fetch used to skip the
+    // account one, so a retry could never refresh a stale account list. A failed
+    // leg keeps its last list — `isReady` is false either way.
+    const [userResult, accountResult] = await Promise.allSettled([
+      permissionsService.getUserPermissions(true),
+      permissionsService.getAccountPermissions(true),
+    ]);
+
+    if (userResult.status === 'fulfilled') {
+      setUserPermissions(userResult.value);
+      setUserPermsStatus('loaded');
+    } else {
+      console.error('Erro ao recarregar permissões do usuário:', userResult.reason);
+      setUserPermsStatus('failed');
     }
-  }, [user?.id]);
 
-  // isReady: true when user is loaded, config finished, and both permission
-  // fetches completed at least once for the current user. Tracking completion
-  // (rather than just `!loading`) prevents PermissionRoute from evaluating
-  // `can()` against empty arrays during the render window between user
-  // appearing and the fetch effect firing — that flashed Unauthorized after
-  // a fresh login.
+    if (accountResult.status === 'fulfilled') {
+      setAccountPermissions(accountResult.value);
+      setAccountPermsStatus('loaded');
+    } else {
+      console.error('Erro ao recarregar permissões do account:', accountResult.reason);
+      setAccountPermsStatus('failed');
+    }
+
+    if (userResult.status === 'rejected' || accountResult.status === 'rejected') {
+      setError('Erro ao recarregar permissões');
+    }
+
+    setLoading(false);
+  }, [user?.id, configStatus]);
+
+  // True once there is a user, the catalog fetch has settled and BOTH permission
+  // fetches succeeded. Tracking the outcome rather than `!loading` keeps consumers
+  // from evaluating `can()` against an empty array (CRM-164).
+  // `configStatus`, not `configLoading`: a catalog fetch that never started leaves
+  // `configLoading` false, which is the hole the reload window fell through
+  // (CRM-494). A FAILED catalog counts as settled — `isValidPermission` then
+  // accepts any key, but the grant list still decides, and blocking here would
+  // deny every screen on a single catalog blip.
   const isReady = useMemo(() => {
     if (!user) return false;
-    if (configLoading) return false;
+    if (configStatus === 'pending') return false;
     if (loading) return false;
-    return userPermsLoaded && accountPermsLoaded;
-  }, [configLoading, loading, user, userPermsLoaded, accountPermsLoaded]);
+    return userPermsStatus === 'loaded' && accountPermsStatus === 'loaded';
+  }, [configStatus, loading, user, userPermsStatus, accountPermsStatus]);
+
+  // Both must settle first: `loading` is one shared flag that the faster fetch
+  // clears, so reporting on the first rejection flashed the panel mid-boot.
+  const permissionsSettled = userPermsStatus !== 'pending' && accountPermsStatus !== 'pending';
+  const loadFailed =
+    permissionsSettled && (userPermsStatus === 'failed' || accountPermsStatus === 'failed');
 
   const value: PermissionsContextValue = {
     userPermissions,
@@ -271,6 +369,7 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({ childr
     canAll,
     loading: loading || configLoading,
     isReady,
+    loadFailed,
     error,
     refreshPermissions,
     createPermission,
@@ -278,7 +377,11 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({ childr
     getPermissionDisplayName,
   };
 
-  return <PermissionsContext.Provider value={value}>{children}</PermissionsContext.Provider>;
+  return (
+    <PermissionsContext.Provider value={value}>
+      {loadFailed && blockOnLoadFailure ? <PermissionsLoadFailure /> : children}
+    </PermissionsContext.Provider>
+  );
 };
 
 export const usePermissions = (): PermissionsContextValue => {

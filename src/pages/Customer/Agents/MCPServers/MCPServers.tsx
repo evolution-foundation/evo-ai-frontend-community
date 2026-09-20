@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@evoapi/design-system';
 import { useLanguage } from '@/hooks/useLanguage';
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { Grid3X3, List, Server } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 import { MCPServer, MCPServersState, MCPServersListParams } from '@/types/ai';
@@ -38,12 +39,11 @@ const INITIAL_STATE: MCPServersState = {
 
 export default function MCPServers() {
   const { t } = useLanguage('customerMcpServers');
-  const { can, isReady: permissionsReady } = usePermissions();
+  const { can } = usePermissions();
   const [state, setState] = useState<MCPServersState>(INITIAL_STATE);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsServer, setDetailsServer] = useState<MCPServer | null>(null);
-  const hasLoaded = useRef(false);
 
   // Load servers
   const loadServers = useCallback(
@@ -85,17 +85,11 @@ export default function MCPServers() {
     [can, t],
   );
 
-  // Initial load
-  useEffect(() => {
-    if (!permissionsReady) {
-      return;
-    }
-
-    if (!hasLoaded.current) {
-      hasLoaded.current = true;
-      loadServers();
-    }
-  }, [permissionsReady, loadServers]);
+  usePermissionGatedLoad({
+    resource: 'ai_mcp_servers',
+    load: loadServers,
+    onDenied: () => toast.error(t('errors.permissionDenied')),
+  });
 
   // Handlers
   const handleSearchChange = (query: string) => {

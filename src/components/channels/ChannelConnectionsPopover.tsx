@@ -74,9 +74,13 @@ export default function ChannelConnectionsPopover({
                 const isLiveVerified = liveVerifiedIds?.has(id) ?? false;
                 const liveFailed = liveFailedIds?.has(id) ?? false;
                 const lastSync = formatLastSync(inbox.last_sync, currentLanguage);
-                const stateLabel = unmonitored
-                  ? t('overview.inboxState.unmonitored')
-                  : t(`overview.inboxState.${state}`);
+                // A probe-confirmed inbox IS monitored right now, so the stored
+                // "no health source" flag must not label it — that would read as
+                // "Not monitored · Live" on the same line.
+                const stateLabel =
+                  unmonitored && !isLiveVerified
+                    ? t('overview.inboxState.unmonitored')
+                    : t(`overview.inboxState.${state}`);
                 const providerLabel = (
                   inbox.provider ||
                   inbox.channel_type?.replace('Channel::', '') ||
@@ -115,15 +119,15 @@ export default function ChannelConnectionsPopover({
                       <div className="truncate text-sm font-medium text-foreground">
                         {inbox.name}
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Link2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-                        {providerLabel && <span className="truncate">{providerLabel}</span>}
-                        {providerLabel && (
-                          <span className="shrink-0" aria-hidden="true">
-                            ·
-                          </span>
-                        )}
-                        <span className="shrink-0">
+                      <div className="flex items-start gap-1 text-xs text-muted-foreground">
+                        <Link2 className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
+                        {/* One wrapping text flow, not three flex items. This column is
+                            ~190px wide, and in most locales the state label alone is wider
+                            than that — as three items the label could not shrink and ran
+                            under the row's action buttons, taking the provider name with it. */}
+                        <span className="min-w-0 break-words">
+                          {providerLabel && `${providerLabel} · `}
+                          {stateLabel} ·{' '}
                           {isLiveLoading ? (
                             t('overview.inboxState.checking')
                           ) : isLiveVerified ? (
@@ -134,7 +138,7 @@ export default function ChannelConnectionsPopover({
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="cursor-help">
-                                  {stateLabel} · {t('overview.statusMeta.stored')}
+                                  {t('overview.statusMeta.stored')}
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent className="max-w-xs text-xs">

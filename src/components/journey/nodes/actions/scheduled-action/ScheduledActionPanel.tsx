@@ -252,8 +252,8 @@ export function ScheduledActionPanel({
         )}
 
         <div className="space-y-2">
-          <Label>{t('panels.scheduledAction.delayDuration')}</Label>
-          <div className="flex gap-2">
+          <Label id="scheduled-action-delay-label">{t('panels.scheduledAction.delayDuration')}</Label>
+          <div className="flex gap-2" role="group" aria-labelledby="scheduled-action-delay-label">
             <Input
               type="number"
               min="1"
@@ -279,8 +279,9 @@ export function ScheduledActionPanel({
         <Separator />
 
         <div className="space-y-2">
-          <Label>{t('panels.scheduledAction.actionType')}</Label>
+          <Label htmlFor="scheduled-action-type">{t('panels.scheduledAction.actionType')}</Label>
           <select
+            id="scheduled-action-type"
             value={formData.actionType || ''}
             onChange={handleActionTypeChange}
             className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground text-sm"
@@ -302,7 +303,7 @@ export function ScheduledActionPanel({
             <Separator />
             <div className="space-y-3">
               <div className="space-y-2">
-                <Label>{t('panels.scheduledAction.labels.channel')}</Label>
+                <Label htmlFor="scheduled-action-channel">{t('panels.scheduledAction.labels.channel')}</Label>
                 <Select
                   value={formData.actionConfig?.channel || ''}
                   onValueChange={value =>
@@ -310,7 +311,7 @@ export function ScheduledActionPanel({
                   }
                   disabled={loadingInboxes || availableInboxes.length === 0}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger id="scheduled-action-channel">
                     <SelectValue
                       placeholder={
                         loadingInboxes
@@ -346,8 +347,9 @@ export function ScheduledActionPanel({
                 )}
               </div>
               <div className="space-y-2">
-                <Label>{t('panels.scheduledAction.labels.message')}</Label>
+                <Label htmlFor="scheduled-action-message">{t('panels.scheduledAction.labels.message')}</Label>
                 <textarea
+                  id="scheduled-action-message"
                   value={formData.actionConfig?.message || ''}
                   onChange={e =>
                     handleSendMessageChange(formData.actionConfig?.channel || '', e.target.value)
@@ -371,8 +373,9 @@ export function ScheduledActionPanel({
             <Separator />
             <div className="space-y-3">
               <div className="space-y-2">
-                <Label>{t('panels.scheduledAction.labels.webhookUrl')}</Label>
+                <Label htmlFor="scheduled-action-webhook-url">{t('panels.scheduledAction.labels.webhookUrl')}</Label>
                 <Input
+                  id="scheduled-action-webhook-url"
                   type="url"
                   value={formData.actionConfig?.webhook_url || ''}
                   onChange={e =>
@@ -385,8 +388,9 @@ export function ScheduledActionPanel({
                 />
               </div>
               <div className="space-y-2">
-                <Label>{t('panels.scheduledAction.labels.webhookMethod')}</Label>
+                <Label htmlFor="scheduled-action-webhook-method">{t('panels.scheduledAction.labels.webhookMethod')}</Label>
                 <select
+                  id="scheduled-action-webhook-method"
                   value={formData.actionConfig?.webhook_method || 'POST'}
                   onChange={e =>
                     handleWebhookChange(formData.actionConfig?.webhook_url || '', e.target.value)
@@ -407,8 +411,9 @@ export function ScheduledActionPanel({
           <>
             <Separator />
             <div className="space-y-2">
-              <Label>{t('panels.scheduledAction.labels.journeyId')}</Label>
+              <Label htmlFor="scheduled-action-journey-id">{t('panels.scheduledAction.labels.journeyId')}</Label>
               <select
+                id="scheduled-action-journey-id"
                 value={formData.actionConfig?.journey_id || ''}
                 onChange={e => handleTriggerJourneyChange(e.target.value)}
                 className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground text-sm"
@@ -437,8 +442,9 @@ export function ScheduledActionPanel({
             <Separator />
             <div className="space-y-3">
               <div className="space-y-2">
-                <Label>{t('panels.scheduledAction.labels.taskTitle')}</Label>
+                <Label htmlFor="scheduled-action-task-title">{t('panels.scheduledAction.labels.taskTitle')}</Label>
                 <Input
+                  id="scheduled-action-task-title"
                   type="text"
                   value={formData.actionConfig?.task_title || ''}
                   onChange={e =>
@@ -451,8 +457,9 @@ export function ScheduledActionPanel({
                 />
               </div>
               <div className="space-y-2">
-                <Label>{t('panels.scheduledAction.labels.taskDescription')}</Label>
+                <Label htmlFor="scheduled-action-task-description">{t('panels.scheduledAction.labels.taskDescription')}</Label>
                 <textarea
+                  id="scheduled-action-task-description"
                   value={formData.actionConfig?.task_description || ''}
                   onChange={e =>
                     handleCreateTaskChange(formData.actionConfig?.task_title || '', e.target.value)

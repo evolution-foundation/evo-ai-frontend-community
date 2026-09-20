@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { ScheduledActionsTour } from '@/tours';
 import { useLanguage } from '@/hooks/useLanguage';
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { scheduledActionsService } from '@/services/scheduledActions/scheduledActionsService';
 import { ScheduledAction } from '@/types/automation';
 import { ScheduleActionModal } from '@/components/scheduledActions/ScheduleActionModal';
@@ -49,12 +50,11 @@ const INITIAL_STATE: ScheduledActionsState = {
 export default function ScheduledActions() {
   const { t } = useLanguage('contacts');
   const navigate = useNavigate();
-  const { can, isReady: permissionsReady } = usePermissions();
+  const { can } = usePermissions();
   const [state, setState] = useState<ScheduledActionsState>(INITIAL_STATE);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingAction, setEditingAction] = useState<ScheduledAction | null>(null);
   const [, setUpdateTrigger] = useState(0); // Force re-render for countdown updates
-  const hasLoaded = useRef(false);
 
   // Load scheduled actions
   const loadActions = useCallback(
@@ -103,19 +103,11 @@ export default function ScheduledActions() {
     [state.meta.current_page, state.meta.per_page, state.statusFilter, state.searchQuery, t],
   );
 
-  // Initial load
-  useEffect(() => {
-    if (!permissionsReady) return;
-
-    if (!hasLoaded.current) {
-      if (!can('contacts', 'read')) {
-        toast.error('Você não tem permissão para visualizar ações agendadas');
-        return;
-      }
-      hasLoaded.current = true;
-      loadActions();
-    }
-  }, [permissionsReady, can, loadActions]);
+  usePermissionGatedLoad({
+    resource: 'contacts',
+    load: loadActions,
+    onDenied: () => toast.error('Você não tem permissão para visualizar ações agendadas'),
+  });
 
   // Set up interval to update countdown every second
   useEffect(() => {

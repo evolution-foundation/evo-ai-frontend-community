@@ -418,8 +418,7 @@
       "more": "more",
       "createFirst": "Create your first custom MCP server",
       "serversSelected": "{{count}} server(s) selected",
-      "selectServers": "Select Servers",
-      "addSelected": "Add Selected ({{count}})",
+      "saveSelection": "Save selection ({{count}})",
       "save": "Add",
       "cancel": "Cancel"
     },
@@ -553,6 +552,18 @@
     "agentType": "{{type}}",
     "testAI": "Test your AI",
     "profile": {
+      "summary": {
+        "title": "Agent Summary",
+        "type": "Type",
+        "native": "Native",
+        "external": "External",
+        "model": "Model",
+        "createdAt": "Created on",
+        "subAgents": "Sub-agents",
+        "products": "Products",
+        "tipTitle": "Configuration tip",
+        "tipBody": "Fill in the Role and the Goal so the agent better understands its context and answers more accurately."
+      },
       "title": "Personal Information",
       "subtitle": "Configure your agent's basic information",
       "name": "Agent name",
@@ -760,10 +771,15 @@
         "selectTeamPlaceholder": "Select a team",
         "returnOnFinish": "Return when finished",
         "instructions": "Instructions:",
-        "instructionsPlaceholder": "When the client wants to talk about such subject...",
+        "instructionsPlaceholder": "Describe the conditions for transferring the conversation (e.g. when the customer asks to speak to a human)...",
         "addRule": "+ Add transfer rule",
         "modalTitle": "Transfer Rules",
         "modalDescription": "Configure when and how the agent should transfer conversations to humans, other agents, or teams."
+      },
+      "modalFooter": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving..."
       },
       "pipelineRules": {
         "description": "Configure instructions for the agent to manipulate pipelines and assign conversations to specific stages.",
@@ -861,10 +877,10 @@
       "title": "Integrations",
       "subtitle": "Connect your agent to other applications, this allows it to obtain more precise information or schedule meetings for you.",
       "comingSoon": "Coming soon...",
-      "activate": "ACTIVATE",
-      "active": "ACTIVE",
-      "configure": "CONFIGURE",
-      "notAvailable": "NOT AVAILABLE",
+      "activate": "Activate",
+      "active": "Activated",
+      "configure": "Configure",
+      "notAvailable": "Coming soon",
       "elevenlabs": {
         "description": "With ElevenLabs you give your agent the ability to respond to your customers in audio, making it even more humanized.",
         "configTitle": "Configure ElevenLabs",
@@ -1253,6 +1269,7 @@
   },
   "actions": {
     "save": "Save",
+    "close": "Close",
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
@@ -1511,6 +1528,7 @@
   "chat": {
     "newConversation": "New Conversation",
     "searchConversations": "Search conversations...",
+    "conversations": "Conversations",
     "noConversations": "No conversations",
     "loading": "Loading conversation...",
     "chatWithAgent": "Chat with {{name}}",
@@ -1518,7 +1536,7 @@
     "selectConversation": "Select a conversation",
     "chooseOrStart": "Choose an existing conversation or start a new one.",
     "selectOrCreateSession": "Select a conversation or create a new one",
-    "selectSessionMessage": "Choose an existing conversation from the list on the side or click \"New Conversation\" to start.",
+    "selectSessionMessage": "Open the conversations icon to pick an existing one, or click \"+\" to start a new one.",
     "typeMessage": "Type your message...",
     "deleteSession": "Delete Session",
     "deleteSessionConfirm": "Are you sure you want to delete this session? This action cannot be undone.",

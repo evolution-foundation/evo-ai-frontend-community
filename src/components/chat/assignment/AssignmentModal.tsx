@@ -204,16 +204,19 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({
   return (
     <>
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
+      {/* twMerge only replaces within the same modifier, so a bare max-w-* loses to
+          the DialogContent default sm:max-w-lg. And DialogContent is a grid: a child
+          without min-w-0 inflates the track past the modal (CRM-388). */}
+      <DialogContent className="sm:max-w-md overflow-hidden">
+        <DialogHeader className="min-w-0">
           <DialogTitle className="flex items-center gap-2">
             {getIcon()}
             {title}
           </DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogDescription className="break-words">{description}</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 min-w-0">
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -237,10 +240,10 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({
                 if (!option) return null;
 
                 return (
-                  <Badge key={id} variant="secondary" className="flex items-center gap-1">
-                    {option.name}
+                  <Badge key={id} variant="secondary" className="flex items-center gap-1 max-w-[180px]">
+                    <span className="truncate">{option.name}</span>
                     <X
-                      className="h-3 w-3 cursor-pointer hover:text-destructive"
+                      className="h-3 w-3 shrink-0 cursor-pointer hover:text-destructive"
                       onClick={e => {
                         e.stopPropagation();
                         handleToggleSelection(id);
@@ -290,7 +293,7 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="flex-col-reverse sm:flex-row gap-3">
+        <DialogFooter className="flex-col-reverse sm:flex-row gap-3 min-w-0">
           <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
             {t('assignmentModal.cancel')}
           </Button>

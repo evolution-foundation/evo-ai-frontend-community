@@ -1,12 +1,13 @@
 {
   "title": "Roles & Permissions",
-  "description": "Manage roles and their permissions. System roles cannot be deleted, but their permissions can be edited.",
+  "description": "Manage roles and their permissions. System roles cannot be deleted and their permission set is read-only — duplicate one as a custom role to change it.",
   "header": {
     "subtitle": "{{count}} role(s) configured",
     "searchPlaceholder": "Search roles..."
   },
   "addRole": "New Role",
   "editRole": "Edit Role",
+  "viewRole": "View permissions",
   "deleteRole": "Delete Role",
   "backToList": "Back to Roles",
   "savePermissions": "Save Permissions",
@@ -40,6 +41,13 @@
     "others": "Others"
   },
   "detail": {
+    "systemReadOnly": "This is a system role — its permission set is read-only. Use \"Duplicate as custom role\" to get an editable copy with the same permissions.",
+    "duplicate": "Duplicate as custom role",
+    "duplicateSuffix": "(copy)",
+    "duplicateTitle": "Duplicate as custom role",
+    "duplicateDescription": "Creates a custom role with the same permissions as \"{{name}}\". The copy is fully editable.",
+    "duplicateConfirm": "Duplicate",
+    "duplicating": "Duplicating...",
     "permissionsTitle": "Permissions",
     "permissionsDescription": "Check the permissions this role should have. Changes take effect on the user's next session refresh.",
     "permissionsSelected": "permissions selected",
@@ -49,6 +57,7 @@
     "filterPlaceholder": "Search permissions...",
     "nested": {
       "pipelineStages": "Stages",
+      "pipelineItems": "Cards",
       "workingHours": "Working hours"
     },
     "lock": {
@@ -93,6 +102,8 @@
     "deleteError": "Failed to delete role",
     "permissionsSuccess": "Permissions saved successfully",
     "permissionsError": "Failed to save permissions",
+    "duplicateSuccess": "Custom role created with the same permissions",
+    "duplicatePartial": "Role created, but its permissions could not be copied. Set them on the new role.",
     "loadError": "Failed to load roles",
     "systemRoleCannotDelete": "System roles cannot be deleted",
     "roleHasUsers": "Cannot delete a role that has assigned users"

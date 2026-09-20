@@ -1,12 +1,13 @@
 {
   "title": "Profili e Permessi",
-  "description": "Gestisci i profili e i loro permessi. I profili di sistema non possono essere eliminati, ma i loro permessi possono essere modificati.",
+  "description": "Gestisci i profili e i loro permessi. I profili di sistema non possono essere eliminati e il loro set di permessi è di sola lettura — duplicane uno come profilo personalizzato per modificarlo.",
   "header": {
     "subtitle": "{{count}} profilo(i) configurato(i)",
     "searchPlaceholder": "Cerca profili..."
   },
   "addRole": "Nuovo Profilo",
   "editRole": "Modifica Profilo",
+  "viewRole": "Visualizza permessi",
   "deleteRole": "Elimina Profilo",
   "backToList": "Torna ai Profili",
   "savePermissions": "Salva Permessi",
@@ -40,6 +41,13 @@
     "others": "Altri"
   },
   "detail": {
+    "systemReadOnly": "Questo è un profilo di sistema — il set di permessi è di sola lettura. Usa \"Duplica come profilo personalizzato\" per ottenere una copia modificabile con gli stessi permessi.",
+    "duplicate": "Duplica come profilo personalizzato",
+    "duplicateSuffix": "(copia)",
+    "duplicateTitle": "Duplica come profilo personalizzato",
+    "duplicateDescription": "Crea un profilo personalizzato con gli stessi permessi di \"{{name}}\". La copia è completamente modificabile.",
+    "duplicateConfirm": "Duplica",
+    "duplicating": "Duplicazione...",
     "permissionsTitle": "Permessi",
     "permissionsDescription": "Seleziona i permessi che questo profilo deve avere. Le modifiche hanno effetto al prossimo accesso dell'utente.",
     "permissionsSelected": "permessi selezionati",
@@ -49,6 +57,7 @@
     "filterPlaceholder": "Cerca permessi...",
     "nested": {
       "pipelineStages": "Fasi",
+      "pipelineItems": "Schede",
       "workingHours": "Orari di lavoro"
     },
     "lock": {
@@ -93,6 +102,8 @@
     "deleteError": "Errore nell'eliminazione del profilo",
     "permissionsSuccess": "Permessi salvati con successo",
     "permissionsError": "Errore nel salvataggio dei permessi",
+    "duplicateSuccess": "Profilo personalizzato creato con gli stessi permessi",
+    "duplicatePartial": "Profilo creato, ma non è stato possibile copiare i permessi. Impostali sul nuovo profilo.",
     "loadError": "Errore nel caricamento dei profili",
     "systemRoleCannotDelete": "I profili di sistema non possono essere eliminati",
     "roleHasUsers": "Impossibile eliminare un profilo con utenti assegnati"

@@ -24,7 +24,7 @@ export const PERMISSION_DOMAINS: PermissionDomain[] = [
   {
     key: 'crm',
     labelKey: 'domains.crm',
-    resources: ['pipelines', 'pipeline_stages', 'products', 'crm_forms'], // pipeline_stages nested under pipelines (AC6)
+    resources: ['pipelines', 'pipeline_stages', 'pipeline_items', 'products', 'crm_forms'], // pipeline_stages + pipeline_items nested under pipelines (AC6, CRM-178)
   },
   {
     key: 'automation',
@@ -64,6 +64,7 @@ export const PERMISSION_DOMAINS: PermissionDomain[] = [
 // (AC6), never as their own card and never under "Others".
 export const RESOURCE_NESTING: Record<string, string> = {
   pipeline_stages: 'pipelines',
+  pipeline_items: 'pipelines',
   working_hours: 'inboxes',
 };
 
@@ -191,7 +192,13 @@ const READ_ACTIONS = new Set([
 //   users.manage            still being defined; left alone on purpose
 const STANDALONE_ACTIONS: Record<string, Set<string>> = {
   conversations: new Set(['read_all']),
-  users: new Set(['manage']),
+  // CRM-210: standalone on the backend too, so the coarse `users.write` never
+  // implies account takeover and the key stays grantable on its own.
+  users: new Set(['manage', 'reset_password']),
+  // CRM-70 use-vs-manage: Settings-screen management, own row like users.manage.
+  macros: new Set(['manage']),
+  message_templates: new Set(['manage']),
+  teams: new Set(['manage']),
 };
 
 export function isStandaloneAction(resourceKey: string, actionKey: string): boolean {

@@ -50,8 +50,11 @@ export function WebhookBasicConfig({ data, onChange, journeyId }: WebhookBasicCo
     <div className="space-y-4">
       {/* URL do Webhook */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium">{t('panels.sendWebhook.basic.endpointUrl')}</Label>
+        <Label htmlFor="send-webhook-url" className="text-sm font-medium">
+          {t('panels.sendWebhook.basic.endpointUrl')}
+        </Label>
         <VariableInput
+          id="send-webhook-url"
           type="url"
           value={data.webhookUrl || ''}
           onChange={e => handleUrlChange(e.target.value)}
@@ -66,9 +69,14 @@ export function WebhookBasicConfig({ data, onChange, journeyId }: WebhookBasicCo
 
       {/* Método HTTP */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium">{t('panels.sendWebhook.basic.httpMethod')}</Label>
+        <Label htmlFor="send-webhook-method" className="text-sm font-medium">
+          {t('panels.sendWebhook.basic.httpMethod')}
+        </Label>
         <Select value={data.method || 'POST'} onValueChange={handleMethodChange}>
-          <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+          <SelectTrigger
+            id="send-webhook-method"
+            className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-sidebar border-sidebar-border">
@@ -91,8 +99,11 @@ export function WebhookBasicConfig({ data, onChange, journeyId }: WebhookBasicCo
       {/* Configurações avançadas */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('panels.sendWebhook.basic.timeout')}</Label>
+          <Label htmlFor="send-webhook-timeout" className="text-sm font-medium">
+            {t('panels.sendWebhook.basic.timeout')}
+          </Label>
           <Input
+            id="send-webhook-timeout"
             type="number"
             min="1"
             max="300"
@@ -106,8 +117,11 @@ export function WebhookBasicConfig({ data, onChange, journeyId }: WebhookBasicCo
         </div>
 
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('panels.sendWebhook.basic.retryAttempts')}</Label>
+          <Label htmlFor="send-webhook-retries" className="text-sm font-medium">
+            {t('panels.sendWebhook.basic.retryAttempts')}
+          </Label>
           <Input
+            id="send-webhook-retries"
             type="number"
             min="0"
             max="5"

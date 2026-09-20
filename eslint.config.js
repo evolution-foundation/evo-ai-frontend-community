@@ -19,8 +19,16 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      // These two ship as `warn`, and the diff gate runs `--max-warnings=0`,
+      // so they already fail a PR today — promoting them changes no rigour.
+      // What it changes is whether they can be baselined: the suppressions
+      // file only records severity 2 (see `countViolationsByRule` in eslint's
+      // suppressions-service). Left as warnings they stay outside
+      // eslint-suppressions.json and keep failing PRs over pre-existing debt,
+      // which is the failure this gate's baseline exists to stop.
+      'react-hooks/exhaustive-deps': 'error',
       'react-refresh/only-export-components': [
-        'warn',
+        'error',
         { allowConstantExport: true },
       ],
       // The deprecated useUserPermissions hook (unstable `can`, split-brain

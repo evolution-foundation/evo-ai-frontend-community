@@ -7,7 +7,7 @@
   "header": {
     "searchPlaceholder": "Rechercher par nom, SKU ou description",
     "new": "Nouveau produit",
-    "import": "Importer un CSV",
+    "import": "Importer",
     "filters": {
       "kindAll": "Tous les types",
       "statusAll": "Tous les statuts"
@@ -70,7 +70,13 @@
     "uploadHint": "Faites glisser des images ici ou utilisez le bouton ci-dessous.",
     "selectFiles": "Sélectionner des fichiers",
     "existing": "Images existantes",
-    "pending": "En attente de téléchargement"
+    "pending": "En attente de téléchargement",
+    "limits": "Jusqu'à {{max}} images, {{size}} MB chacune.",
+    "rejected": {
+      "invalidType": "\"{{name}}\": format non pris en charge.",
+      "tooLarge": "\"{{name}}\": dépasse {{size}} MB.",
+      "tooMany": "\"{{name}}\": limite de {{max}} images par produit atteinte."
+    }
   },
   "variants": {
     "empty": "Aucune variante. Cliquez sur \"Ajouter une variante\".",
@@ -110,20 +116,23 @@
     "deleteError": "Échec de la suppression du produit"
   },
   "import": {
-    "title": "Importer des produits depuis un CSV",
-    "subtitle": "Téléversez un CSV avec jusqu’à {{max}} lignes. Le fichier est analysé localement, validé selon les règles du catalogue et envoyé en une seule transaction.",
+    "title": "Importer des produits",
+    "subtitle": "Importez votre catalogue depuis un fichier CSV ou directement depuis votre boutique (WooCommerce/Shopify). Les produits sont validés selon les règles du catalogue et enregistrés en une seule transaction.",
     "back": "Retour aux produits",
     "forbidden": "Vous n’avez pas la permission d’importer des produits.",
     "success": "{{count}} produits importés avec succès",
     "tabs": {
-      "upload": "1. Téléversement",
-      "mapping": "2. Mappage",
-      "preview": "3. Aperçu",
-      "done": "4. Terminé"
+      "upload": "Envoi",
+      "mapping": "Correspondance",
+      "preview": "Aperçu",
+      "done": "Terminé",
+      "source": "Source",
+      "credentials": "Identifiants"
     },
     "upload": {
       "hint": "Sélectionnez un CSV UTF-8 avec une ligne d’en-tête. Limite : {{max}} lignes.",
-      "selectFile": "Sélectionner le CSV"
+      "selectFile": "Sélectionner le CSV",
+      "backToSource": "Changer de source d’import"
     },
     "mapping": {
       "file": "{{name}} — {{count}} ligne(s)",
@@ -159,7 +168,11 @@
       "errorsHeading": "{{count}} ligne(s) nécessitent attention",
       "row": "Ligne",
       "sku": "SKU",
-      "errors": "Erreurs"
+      "errors": "Erreurs",
+      "fetched": "{{count}} produits récupérés depuis {{source}}.",
+      "backToCredentials": "Retour aux identifiants",
+      "truncated": "Seuls les {{count}} premiers produits ont été récupérés — la boutique en contient plus que cet import ne peut traiter en une fois.",
+      "variantsDropped": "{{count}} variante(s) n’ont pas été importées — chaque produit devient une seule ligne du catalogue."
     },
     "done": {
       "title": "Importation terminée",
@@ -202,6 +215,60 @@
       "duplicated_within_batch": "dupliqué dans le lot",
       "taken": "est déjà utilisé",
       "invalid_value": "n’est pas une valeur valide"
+    },
+    "source": {
+      "continue": "Continuer",
+      "csv": {
+        "title": "Fichier CSV",
+        "desc": "Téléversez un CSV de votre catalogue."
+      },
+      "woocommerce": {
+        "title": "WooCommerce",
+        "desc": "Connectez via l’API REST (clés ck_/cs_)."
+      },
+      "shopify": {
+        "title": "Shopify",
+        "desc": "Connectez via l’Admin API (jeton d’accès)."
+      }
+    },
+    "credentials": {
+      "back": "Retour",
+      "fetch": "Récupérer les produits",
+      "missing": "Renseignez tous les identifiants.",
+      "noProducts": "Aucun produit trouvé dans la boutique.",
+      "fetchFailed": "Échec de la récupération des produits : {{message}}",
+      "oneTimeNote": "Les identifiants ne servent qu’à cet import et ne sont pas conservés.",
+      "fields": {
+        "store_url": "URL de la boutique",
+        "consumer_key": "Consumer key",
+        "consumer_secret": "Consumer secret",
+        "shop_domain": "Domaine de la boutique",
+        "access_token": "Jeton d’accès"
+      },
+      "placeholders": {
+        "store_url": "https://myshop.com",
+        "consumer_key": "ck_...",
+        "consumer_secret": "cs_...",
+        "shop_domain": "my-shop.myshopify.com",
+        "access_token": "shpat_..."
+      }
+    },
+    "help": {
+      "trigger": "Comment obtenir mes clés ?",
+      "woocommerce": {
+        "title": "Clés de l’API WooCommerce",
+        "step1": "Dans le tableau de bord WordPress, allez dans WooCommerce → Réglages → Avancé → API REST.",
+        "step2": "Cliquez sur « Ajouter une clé » et donnez-lui une description (ex. Evo CRM).",
+        "step3": "Dans Permissions, choisissez « Lecture » et générez la clé.",
+        "step4": "Copiez la Consumer key (ck_...) et la Consumer secret (cs_...) — la secret n’est affichée qu’une fois."
+      },
+      "shopify": {
+        "title": "Jeton de l’Admin API Shopify",
+        "step1": "Dans l’admin Shopify, allez dans Paramètres → Applications et canaux de vente → Développer des applications.",
+        "step2": "Créez une application et, dans la configuration de l’Admin API, accordez le scope read_products.",
+        "step3": "Installez l’application sur la boutique.",
+        "step4": "Copiez le jeton d’accès de l’Admin API (shpat_...) et utilisez le domaine .myshopify.com."
+      }
     }
   },
   "pipelinePanel": {

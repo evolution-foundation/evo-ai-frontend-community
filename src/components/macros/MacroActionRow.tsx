@@ -12,26 +12,20 @@ import {
   Label,
 } from '@evoapi/design-system';
 import { Upload, X } from 'lucide-react';
-import { MACRO_ACTION_TYPES } from '@/types/automation';
+import { MACRO_ACTION_TYPES, MacroAction } from '@/types/automation';
+import type { MacroFormData, MacroFormDataSource, MacroFormOption } from '@/services/macros';
 
 interface ActionRowProps {
-  action: {
-    action_name: string;
-    action_params: any[];
-  };
+  action: MacroAction;
   index: number;
-  options: {
-    inboxes: any[];
-    agents: any[];
-    teams: any[];
-    labels: any[];
-    campaigns: any[];
-  };
-  onUpdate: (index: number, action: any) => void;
+  options: Pick<MacroFormData, 'inboxes' | 'agents' | 'teams' | 'labels' | 'campaigns'>;
+  onUpdate: (index: number, action: MacroAction) => void;
   onRemove: (index: number) => void;
   canRemove: boolean;
   errors: Record<string, string>;
   disabled: boolean;
+  optionsLoading: boolean;
+  failedSources: MacroFormDataSource[];
 }
 
 export default function MacroActionRow({
@@ -43,16 +37,23 @@ export default function MacroActionRow({
   canRemove,
   errors,
   disabled,
+  optionsLoading,
+  failedSources,
 }: ActionRowProps) {
   const { t } = useLanguage('macros');
   const [uploadingFile, setUploadingFile] = useState(false);
 
   const selectedActionConfig = MACRO_ACTION_TYPES.find(a => a.key === action.action_name);
 
-  const handleFieldChange = (field: string, value: any) => {
+  // An empty list renders the placeholder, which owns the message instead. Not
+  // `optionsLoading`: a reopened modal refetches with the old agents pickable.
+  const assignAgentWarningId = `macro-action-${index}-assign-agent-warning`;
+  const showAssignAgentWarning = action.action_name === 'assign_agent' && options.agents.length > 0;
+
+  const handleFieldChange = (field: keyof MacroAction, value: string) => {
     const updated = { ...action, [field]: value };
 
-    // Reset params quando mudar a ação
+    // Reset params when the action changes
     if (field === 'action_name') {
       updated.action_params = [];
     }
@@ -60,7 +61,7 @@ export default function MacroActionRow({
     onUpdate(index, updated);
   };
 
-  const handleParamsChange = (params: any[]) => {
+  const handleParamsChange = (params: MacroAction['action_params']) => {
     onUpdate(index, { ...action, action_params: params });
   };
 
@@ -70,16 +71,35 @@ export default function MacroActionRow({
 
     setUploadingFile(true);
     try {
-      // TODO: Implementar upload real
+      // TODO: real upload
       // const blobId = await macroService.uploadAttachment(file);
-      const blobId = `blob_${Date.now()}`; // Mock para desenvolvimento
+      const blobId = `blob_${Date.now()}`; // Mock, never accepted by the backend
 
       handleParamsChange([blobId]);
     } catch (error) {
-      console.error('Erro ao fazer upload:', error);
+      console.error('Failed to upload the attachment:', error);
     } finally {
       setUploadingFile(false);
     }
+  };
+
+  // An empty list has three causes and the user has to tell them apart: the
+  // fetch is still running, the source answered with an error, or nothing is
+  // registered. Reporting the failed source as "none registered" is the same
+  // lie the empty state was split up to stop telling.
+  const renderPlaceholderItem = (emptyKey: string, source: MacroFormDataSource | null) => {
+    let messageKey = emptyKey;
+    if (optionsLoading) {
+      messageKey = 'actionRow.loadingOptions';
+    } else if (source && failedSources.includes(source)) {
+      messageKey = 'actionRow.loadFailed';
+    }
+
+    return (
+      <SelectItem value="__placeholder__" disabled className="text-sidebar-foreground">
+        {t(messageKey)}
+      </SelectItem>
+    );
   };
 
   const renderActionInput = () => {
@@ -88,16 +108,23 @@ export default function MacroActionRow({
     const { inputType, options: actionOptions } = selectedActionConfig;
 
     switch (inputType) {
-      case 'select':
-        let selectOptions: any[] = [];
+      case 'select': {
+        let selectOptions: MacroFormOption[] = [];
+        let selectEmptyKey = 'actionRow.emptyOptions';
+        // Static option lists cannot fail to load, so they carry no source.
+        let selectSource: MacroFormDataSource | null = null;
 
-        // Determinar opções baseadas na ação
+        // Options depend on the action
         switch (action.action_name) {
           case 'assign_agent':
             selectOptions = options.agents;
+            selectEmptyKey = 'actionRow.emptyAgents';
+            selectSource = 'agents';
             break;
           case 'assign_team':
             selectOptions = options.teams;
+            selectEmptyKey = 'actionRow.emptyTeams';
+            selectSource = 'teams';
             break;
           case 'change_priority':
           case 'change_status':
@@ -110,22 +137,23 @@ export default function MacroActionRow({
         return (
           <Select
             value={action.action_params[0]?.toString() || ''}
-            onValueChange={value => handleParamsChange([parseInt(value) || value])}
+            onValueChange={value => handleParamsChange([value])}
             disabled={disabled}
           >
-            <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+            <SelectTrigger
+              className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+              aria-describedby={showAssignAgentWarning ? assignAgentWarningId : undefined}
+            >
               <SelectValue placeholder={t('actionRow.selectPlaceholder')} />
             </SelectTrigger>
             <SelectContent className="bg-sidebar border-sidebar-border">
               {selectOptions.length === 0 ? (
-                <SelectItem value="loading" disabled className="text-sidebar-foreground">
-                  {t('actionRow.loadingOptions')}
-                </SelectItem>
+                renderPlaceholderItem(selectEmptyKey, selectSource)
               ) : (
                 selectOptions.map(option => (
                   <SelectItem
-                    key={option.value || option.id}
-                    value={(option.value || option.id).toString()}
+                    key={String(option.value || option.id || '')}
+                    value={String(option.value || option.id || '')}
                     className="text-sidebar-foreground"
                   >
                     {option.label || option.name || option.title}
@@ -135,14 +163,19 @@ export default function MacroActionRow({
             </SelectContent>
           </Select>
         );
+      }
 
-      case 'multi_select':
-        let multiSelectOptions: any[] = [];
+      case 'multi_select': {
+        let multiSelectOptions: MacroFormOption[] = [];
+        let multiSelectEmptyKey = 'actionRow.emptyOptions';
+        let multiSelectSource: MacroFormDataSource | null = null;
 
         switch (action.action_name) {
           case 'add_label':
           case 'remove_label':
             multiSelectOptions = options.labels;
+            multiSelectEmptyKey = 'actionRow.emptyLabels';
+            multiSelectSource = 'labels';
             break;
           default:
             multiSelectOptions = actionOptions || [];
@@ -153,9 +186,8 @@ export default function MacroActionRow({
             <Select
               value=""
               onValueChange={value => {
-                const numValue = parseInt(value) || value;
-                if (value && !action.action_params.includes(numValue)) {
-                  handleParamsChange([...action.action_params, numValue]);
+                if (value && !action.action_params.includes(value)) {
+                  handleParamsChange([...action.action_params, value]);
                 }
               }}
               disabled={disabled}
@@ -165,14 +197,12 @@ export default function MacroActionRow({
               </SelectTrigger>
               <SelectContent className="bg-sidebar border-sidebar-border">
                 {multiSelectOptions.length === 0 ? (
-                  <SelectItem value="loading" disabled className="text-sidebar-foreground">
-                    {t('actionRow.loadingOptions')}
-                  </SelectItem>
+                  renderPlaceholderItem(multiSelectEmptyKey, multiSelectSource)
                 ) : (
                   multiSelectOptions.map(option => (
                     <SelectItem
-                      key={option.value || option.id}
-                      value={(option.value || option.id).toString()}
+                      key={String(option.value || option.id || '')}
+                      value={String(option.value || option.id || '')}
                       className="text-sidebar-foreground"
                     >
                       {option.label || option.name || option.title}
@@ -182,16 +212,16 @@ export default function MacroActionRow({
               </SelectContent>
             </Select>
 
-            {/* Valores selecionados */}
+            {/* Selected values */}
             {action.action_params.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {action.action_params.map(paramValue => {
                   const option = multiSelectOptions.find(
-                    o => (o.value || o.id).toString() === paramValue.toString(),
+                    o => String(o.value || o.id || '') === String(paramValue),
                   );
                   return (
                     <div
-                      key={paramValue}
+                      key={String(paramValue)}
                       className="flex items-center gap-1 px-2 py-1 bg-sidebar-accent text-sidebar-foreground rounded text-sm"
                     >
                       {option?.label || option?.name || option?.title || paramValue}
@@ -214,6 +244,7 @@ export default function MacroActionRow({
             )}
           </div>
         );
+      }
 
       case 'textarea':
         return (
@@ -309,9 +340,9 @@ export default function MacroActionRow({
 
   return (
     <div className="p-4 border border-sidebar-border rounded-lg bg-sidebar-accent/30">
-      {/* Layout horizontal com ação e configuração na mesma linha */}
+      {/* Action and its configuration on the same row */}
       <div className="flex items-end gap-4">
-        {/* Ação */}
+        {/* Action */}
         <div className="flex-1 space-y-2">
           <Label className="text-sm text-sidebar-foreground/70">
             {t('modal.form.actionLabel')}
@@ -350,7 +381,7 @@ export default function MacroActionRow({
           )}
         </div>
 
-        {/* Configuração da ação */}
+        {/* Action configuration */}
         {selectedActionConfig && selectedActionConfig.inputType && (
           <div className="flex-1 space-y-2">
             <Label className="text-sm text-sidebar-foreground/70">
@@ -360,7 +391,7 @@ export default function MacroActionRow({
           </div>
         )}
 
-        {/* Botão de remover */}
+        {/* Remove button */}
         {canRemove && (
           <div className="pb-2">
             <Button
@@ -376,6 +407,14 @@ export default function MacroActionRow({
           </div>
         )}
       </div>
+
+      {/* Outside the row: inside it, the extra height would push the bottom
+          aligned column off the baseline the other column keeps. */}
+      {showAssignAgentWarning && (
+        <p id={assignAgentWarningId} className="mt-3 text-sm text-sidebar-foreground/70">
+          {t('actionRow.assignAgentInboxWarning')}
+        </p>
+      )}
     </div>
   );
 }

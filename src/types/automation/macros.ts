@@ -3,6 +3,9 @@ import type { User } from '@/types/users';
 
 export interface MacroAction {
   action_name: string;
+  // Heterogeneous per action_name; narrowing it requires retyping the 5 inputs
+  // of MacroActionRow, which is out of scope here.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   action_params: any[];
 }
 
@@ -27,11 +30,11 @@ export interface MacroFile {
   filename: string;
 }
 
-export interface MacrosResponse extends PaginatedResponse<Macro> {}
+export type MacrosResponse = PaginatedResponse<Macro>;
 
-export interface MacroResponse extends StandardResponse<Macro> {}
+export type MacroResponse = StandardResponse<Macro>;
 
-export interface MacroDeleteResponse extends StandardResponse<{ message: string }> {}
+export type MacroDeleteResponse = StandardResponse<{ message: string }>;
 
 export interface MacroCreateData {
   name: string;
@@ -72,9 +75,8 @@ export interface MacrosState {
     create: boolean;
     update: boolean;
     delete: boolean;
-    execute: boolean;
   };
-  filters: any[];
+  filters: unknown[];
   searchQuery: string;
   sortBy: string;
   sortOrder: 'asc' | 'desc';

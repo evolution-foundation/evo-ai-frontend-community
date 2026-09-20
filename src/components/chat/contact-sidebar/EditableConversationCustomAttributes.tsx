@@ -31,7 +31,6 @@ export default function EditableConversationCustomAttributes({
       onUpdateSuccess={onConversationUpdate}
       translationNamespace="chat"
       translationKeys={{
-        loadError: 'contactSidebar.conversationAttributes.loadError',
         updateSuccess: 'contactSidebar.conversationAttributes.updateSuccess',
         updateError: 'contactSidebar.conversationAttributes.updateError',
         noAttributes: 'contactSidebar.conversationAttributes.noAttributes',

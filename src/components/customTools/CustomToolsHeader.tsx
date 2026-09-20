@@ -15,6 +15,7 @@ interface CustomToolsHeaderProps {
   onClearSelection: () => void;
   activeFilters?: HeaderFilter[];
   showFilters?: boolean;
+  hideTitle?: boolean;
 }
 
 export default function CustomToolsHeader({
@@ -27,6 +28,7 @@ export default function CustomToolsHeader({
   onClearSelection,
   activeFilters = [],
   showFilters = true,
+  hideTitle = false,
 }: CustomToolsHeaderProps) {
   const { t } = useLanguage('customTools');
   const { can, isReady } = usePermissions();
@@ -41,6 +43,7 @@ export default function CustomToolsHeader({
     <BaseHeader
       title={t('header.title')}
       subtitle={t('header.subtitle')}
+      hideTitle={hideTitle}
       totalCount={totalCount}
       selectedCount={selectedCount}
       searchValue={searchValue}

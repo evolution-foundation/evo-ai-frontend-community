@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import PrimaryActionButton from './PrimaryActionButton';
+import { cn } from '@/utils/cn';
 
 export interface HeaderAction {
   label: string;
@@ -38,6 +39,18 @@ export interface HeaderFilter {
 export interface BaseHeaderProps {
   title: string;
   subtitle?: string;
+  /** Suppresses only the rendering of title/subtitle, for screens whose layout
+   *  already owns them (EVO-2231: the Agentes de IA tab container). */
+  hideTitle?: boolean;
+  /** Popover anchored to the "Filters" button. Opt-in: without it the button only
+   *  fires `onFilterClick`. */
+  filterPanel?: ReactNode;
+  /** Badge count for screens whose filters do not become chips. Defaults to chip count. */
+  filterCount?: number;
+  filterButtonClassName?: string;
+  /** `primary` is the canonical green bulk bar (PADRAO-DE-DESIGN §3.14). Opt-in so
+   *  the 30+ screens still on the neutral bar are untouched. */
+  selectionBarTone?: 'default' | 'primary';
   searchValue?: string;
   onSearchChange?: (value: string) => void;
   searchPlaceholder?: string;
@@ -60,6 +73,8 @@ export interface BaseHeaderProps {
 export default function BaseHeader({
   title,
   subtitle,
+  hideTitle = false,
+  selectionBarTone = 'default',
   searchValue,
   onSearchChange,
   searchPlaceholder,
@@ -76,40 +91,49 @@ export default function BaseHeader({
   bulkActions = [],
   className = '',
   children,
+  filterPanel,
+  filterCount,
+  filterButtonClassName,
 }: BaseHeaderProps) {
   const { t } = useLanguage('common');
   const placeholder = searchPlaceholder || t('base.header.searchPlaceholder');
   const hasSelection = selectedCount > 0;
+  const isPrimarySelectionBar = selectionBarTone === 'primary';
   const visibleSecondaryActions = secondaryActions.filter(action => action.show !== false);
   const visibleMoreActions = moreActions.filter(action => action.show !== false);
+  const activeFilterCount = filterCount ?? filters.length;
+  const hasPrimaryAction = !!primaryAction && primaryAction.show !== false;
+  // With no title the top row would hold only the primary button, so it moves down to
+  // the search row, right of the secondary actions.
+  const primaryButton = hasPrimaryAction ? (
+    <div className="flex-shrink-0" data-tour={primaryAction!.dataTour}>
+      <PrimaryActionButton
+        label={primaryAction!.label}
+        icon={primaryAction!.icon}
+        onClick={primaryAction!.onClick}
+        size="sm"
+        variant={primaryAction!.variant || 'default'}
+        className={primaryAction!.className}
+        disabled={primaryAction!.disabled}
+        tooltip={primaryAction!.tooltip}
+      />
+    </div>
+  ) : null;
 
   return (
     <div className={`space-y-4 sm:space-y-6 ${className}`}>
-      <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-start md:justify-between">
-        {/* Title Section */}
-        <div className="flex-1">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight leading-7 sm:leading-8 text-sidebar-foreground mb-1 sm:mb-2">{title}</h1>
-          {subtitle && (
-            <p className="hidden sm:block text-sm leading-5 text-sidebar-foreground/70">{subtitle}</p>
-          )}
-        </div>
-
-        {/* Primary Action */}
-        {primaryAction && primaryAction.show !== false && (
-          <div className="flex-shrink-0" data-tour={primaryAction.dataTour}>
-            <PrimaryActionButton
-              label={primaryAction.label}
-              icon={primaryAction.icon}
-              onClick={primaryAction.onClick}
-              size="sm"
-              variant={primaryAction.variant || 'default'}
-              className={primaryAction.className}
-              disabled={primaryAction.disabled}
-              tooltip={primaryAction.tooltip}
-            />
+      {!hideTitle && (
+        <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="flex-1">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight leading-7 sm:leading-8 text-sidebar-foreground mb-1 sm:mb-2">{title}</h1>
+            {subtitle && (
+              <p className="hidden sm:block text-sm leading-5 text-sidebar-foreground/70">{subtitle}</p>
+            )}
           </div>
-        )}
-      </div>
+
+          {primaryButton}
+        </div>
+      )}
 
       {/* Search and Filter Row */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -128,26 +152,33 @@ export default function BaseHeader({
             </div>
           )}
 
-          {/* Filter Button */}
+          {/* The wrapper anchors `filterPanel`: grouping button + panel is what tells the
+              panel a click on the button is not an outside click. */}
           {showFilters && onFilterClick && (
+            <div className="relative" data-filter-anchor="">
             <Button
               variant="outline"
               size="sm"
               onClick={onFilterClick}
-              className="bg-sidebar border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent whitespace-nowrap"
+              className={cn(
+                'bg-sidebar border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent whitespace-nowrap',
+                filterButtonClassName,
+              )}
               data-tour={filterButtonDataTour}
             >
               <Filter className="h-4 w-4 mr-2" />
               {t('base.header.filters')}
-              {filters.length > 0 && (
+              {activeFilterCount > 0 && (
                 <Badge
                   variant="secondary"
                   className="ml-2 h-5 px-1.5 text-xs bg-sidebar-accent"
                 >
-                  {filters.length}
+                  {activeFilterCount}
                 </Badge>
               )}
             </Button>
+            {filterPanel}
+            </div>
           )}
         </div>
 
@@ -175,7 +206,10 @@ export default function BaseHeader({
                 variant={action.variant || 'outline'}
                 size="sm"
                 onClick={action.onClick}
-                className="bg-sidebar border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent"
+                className={cn(
+                  'bg-sidebar border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent',
+                  action.className,
+                )}
                 data-tour={action.dataTour}
               >
                 {renderIcon()}
@@ -230,14 +264,22 @@ export default function BaseHeader({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+
+          {hideTitle && primaryButton}
         </div>
       </div>
 
       {/* Selection Bar */}
       {hasSelection && (
-        <div className="flex items-center justify-between rounded-lg bg-sidebar-accent/50 border border-sidebar-border px-4 py-2">
+        <div className={isPrimarySelectionBar
+          ? 'flex items-center justify-between rounded-xl border border-primary/30 bg-primary/10 px-[14px] py-[10px]'
+          : 'flex items-center justify-between rounded-lg bg-sidebar-accent/50 border border-sidebar-border px-4 py-2'}
+        >
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-sidebar-foreground">
+            <span className={isPrimarySelectionBar
+              ? 'text-[13.5px] font-bold text-primary'
+              : 'text-sm font-medium text-sidebar-foreground'}
+            >
               {t('base.header.selected', { count: selectedCount })}
             </span>
             {onClearSelection && (
@@ -245,7 +287,9 @@ export default function BaseHeader({
                 variant="ghost"
                 size="sm"
                 onClick={onClearSelection}
-                className="h-7 px-2 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                className={isPrimarySelectionBar
+                  ? 'h-7 px-2 text-primary/80 hover:bg-primary/20 hover:text-primary'
+                  : 'h-7 px-2 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'}
               >
                 <X className="h-3 w-3 mr-1" />
                 {t('base.header.clear')}
@@ -254,13 +298,20 @@ export default function BaseHeader({
           </div>
           {bulkActions.length > 0 && (
             <div className="flex items-center gap-2">
-              {bulkActions.map((action, index) => (
+              {isPrimarySelectionBar && <span className="h-5 w-px bg-primary/30" aria-hidden="true" />}
+              {bulkActions.map((action, index) => {
+                const isDanger = action.variant === 'destructive';
+                return (
                 <Button
                   key={index}
-                  variant={action.variant || 'outline'}
+                  variant={isPrimarySelectionBar ? 'ghost' : action.variant || 'outline'}
                   size="sm"
                   onClick={action.onClick}
-                  className="h-7 bg-sidebar-accent border-sidebar-border text-sidebar-foreground hover:bg-sidebar"
+                  className={isPrimarySelectionBar
+                    ? (isDanger
+                        ? 'h-7 text-destructive hover:bg-destructive/10 hover:text-destructive'
+                        : 'h-7 text-primary hover:bg-primary/20 hover:text-primary')
+                    : 'h-7 bg-sidebar-accent border-sidebar-border text-sidebar-foreground hover:bg-sidebar'}
                 >
                   {action.icon && (typeof action.icon === 'function' ? (
                     (() => {
@@ -274,7 +325,8 @@ export default function BaseHeader({
                   ))}
                   {action.label}
                 </Button>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

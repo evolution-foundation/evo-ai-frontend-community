@@ -485,10 +485,14 @@ export function SendWebhookPanel({
                     <div key={mapping.id} className="p-3 border border-border rounded-lg space-y-3">
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-sm font-medium mb-1">
+                          <label
+                            htmlFor={`send-webhook-response-field-${mapping.id}`}
+                            className="block text-sm font-medium mb-1"
+                          >
                             {t('panels.sendWebhook.test.responseField')}
                           </label>
                           <select
+                            id={`send-webhook-response-field-${mapping.id}`}
                             value={mapping.jsonPath}
                             onChange={e =>
                               updateResponseMapping(mapping.id, { jsonPath: e.target.value })
@@ -504,10 +508,14 @@ export function SendWebhookPanel({
                           </select>
                         </div>
                         <div>
-                          <Label className="text-sm font-medium">
+                          <Label
+                            htmlFor={`send-webhook-variable-name-${mapping.id}`}
+                            className="text-sm font-medium"
+                          >
                             {t('panels.sendWebhook.test.variableName')}
                           </Label>
                           <VariableSelect
+                            id={`send-webhook-variable-name-${mapping.id}`}
                             value={mapping.variableName || ''}
                             onValueChange={variableName => {
                               updateResponseMapping(mapping.id, { variableName });
@@ -520,10 +528,14 @@ export function SendWebhookPanel({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-1">
+                        <label
+                          htmlFor={`send-webhook-description-${mapping.id}`}
+                          className="block text-sm font-medium mb-1"
+                        >
                           {t('panels.sendWebhook.test.description')}
                         </label>
                         <input
+                          id={`send-webhook-description-${mapping.id}`}
                           type="text"
                           value={mapping.description}
                           onChange={e =>

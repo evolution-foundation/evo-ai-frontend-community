@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import {
   Card,
   CardContent,
@@ -33,14 +33,17 @@ import InboxesService from '@/services/channels/inboxesService';
 import { Label as LabelType } from '@/types/settings';
 import { AgentBot, isBotConnectedToInbox, getBotStatusColor } from './helpers/agentBotHelpers';
 import { AgentBotInboxConfiguration, FacebookPost } from '@/types';
+import type { TabSaveHandle } from './tabSave';
 
 interface AgentBotConfigurationFormProps {
   inboxId: string;
+  registerSave?: (handle: TabSaveHandle | null) => void;
   onUpdate?: (success: boolean) => void;
 }
 
 export default function AgentBotConfigurationForm({
   inboxId,
+  registerSave,
   onUpdate,
 }: AgentBotConfigurationFormProps) {
   const { t } = useLanguage('channels');
@@ -400,6 +403,17 @@ export default function AgentBotConfigurationForm({
   const isConnected = isBotConnectedToInbox(agentBots, activeAgentBot?.id);
   const hasSelectedBot = selectedAgentBotId !== null;
   const hasAvailableBots = agentBots.length > 0;
+
+  // Expose the save to the settings sticky footer registry.
+  const canSave = hasSelectedBot && !isUpdating && !isLoading && !isDisconnecting;
+  const registerSaveRef = useRef(registerSave);
+  registerSaveRef.current = registerSave;
+  const handleUpdateRef = useRef(handleUpdateAgentBot);
+  handleUpdateRef.current = handleUpdateAgentBot;
+  useLayoutEffect(() => {
+    registerSaveRef.current?.({ save: () => handleUpdateRef.current(), canSave });
+    return () => registerSaveRef.current?.(null);
+  }, [canSave]);
 
   return (
     <div className="space-y-6">

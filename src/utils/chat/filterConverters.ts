@@ -156,6 +156,13 @@ export const convertFiltersToUrlParams = (
         }
         break;
 
+      // EVO-1963: "Não respondidas" — abertas aguardando resposta do agente.
+      case 'unanswered':
+        if (values.length === 1) {
+          params.unanswered = String(values[0]) === 'true';
+        }
+        break;
+
       case 'is_group':
         if (values.length === 1) {
           params.is_group = String(values[0]) === 'true';

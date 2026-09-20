@@ -15,7 +15,7 @@ import {
   Label,
   Textarea,
 } from '@evoapi/design-system';
-import { Plus, Pencil, Trash2, Loader2, ShieldCheck } from 'lucide-react';
+import { Plus, Eye, Pencil, Trash2, Loader2, ShieldCheck } from 'lucide-react';
 import BaseHeader from '@/components/base/BaseHeader';
 import EmptyState from '@/components/base/EmptyState';
 import { rolesService, type Role } from '@/services/roles/rolesService';
@@ -54,6 +54,12 @@ export default function RolesList() {
   useEffect(() => {
     loadRoles();
   }, [loadRoles]);
+
+  // Picks the row icon: pencil or eye. A system role's detail screen is read-only
+  // whatever the caller holds; for a custom one, either grant reaches an editable
+  // control. The button is the only way in — the row itself does not navigate.
+  const rowIsEditable = (role: Role) =>
+    !role.system && (can('roles', 'update') || can('roles', 'bulk_update_permissions'));
 
   const filtered = roles.filter(r =>
     r.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -179,15 +185,15 @@ export default function RolesList() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
-                        {can('roles', 'update') && (
+                        {can('roles', 'read') && (
                           <Button
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
                             onClick={() => navigate(`/settings/roles/${role.id}`)}
-                            title={t('editRole')}
+                            title={rowIsEditable(role) ? t('editRole') : t('viewRole')}
                           >
-                            <Pencil className="h-4 w-4" />
+                            {rowIsEditable(role) ? <Pencil className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </Button>
                         )}
                         {can('roles', 'delete') && !role.system && (

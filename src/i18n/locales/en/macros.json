@@ -47,12 +47,28 @@
       "create": "Create",
       "update": "Update",
       "saving": "Saving..."
+    },
+    "optionsError": {
+      "title": "Some options could not be loaded",
+      "description": "Failed to load: {{sources}}. Close and reopen the form to try again.",
+      "sources": {
+        "inboxes": "inboxes",
+        "agents": "agents",
+        "teams": "teams",
+        "labels": "labels"
+      }
     }
   },
   "actionRow": {
     "selectPlaceholder": "Select an option",
     "multiSelectPlaceholder": "Select options",
+    "assignAgentInboxWarning": "This assignment only applies to conversations whose inbox has this agent as a member. In the others the action fails, and a failed action marks the whole execution as failed.",
     "loadingOptions": "Loading options...",
+    "loadFailed": "Could not load the options",
+    "emptyTeams": "No teams registered",
+    "emptyAgents": "No agents registered",
+    "emptyLabels": "No labels registered",
+    "emptyOptions": "No options available",
     "textareaPlaceholder": "Enter message or note",
     "textPlaceholder": "Enter value",
     "hoursPlaceholder": "Hours to snooze",
@@ -79,7 +95,6 @@
     },
     "actions": {
       "view": "View",
-      "execute": "Execute",
       "edit": "Edit",
       "delete": "Delete"
     },
@@ -89,7 +104,6 @@
   "actions": {
     "edit": "Edit",
     "delete": "Delete",
-    "execute": "Execute",
     "cancel": "Cancel",
     "save": "Save",
     "confirm": "Confirm"
@@ -103,9 +117,7 @@
     "deleteSuccess": "Macro deleted successfully",
     "deleteError": "Error deleting macro",
     "bulkDeleteSuccess": "{{count}} macro(s) deleted successfully",
-    "bulkDeleteError": "Error deleting macros",
-    "executeSuccess": "Macro \"{{name}}\" executed successfully",
-    "executeError": "Error executing macro"
+    "bulkDeleteError": "Error deleting macros"
   },
   "dialog": {
     "delete": {

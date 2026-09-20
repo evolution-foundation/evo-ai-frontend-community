@@ -15,6 +15,7 @@ interface CustomMCPServersHeaderProps {
   onClearSelection: () => void;
   activeFilters?: HeaderFilter[];
   showFilters?: boolean;
+  hideTitle?: boolean;
 }
 
 export default function CustomMCPServersHeader({
@@ -27,6 +28,7 @@ export default function CustomMCPServersHeader({
   onClearSelection,
   activeFilters = [],
   showFilters = true,
+  hideTitle = false,
 }: CustomMCPServersHeaderProps) {
   const { t } = useLanguage('customMcpServers');
   const { can, isReady } = usePermissions();
@@ -41,6 +43,7 @@ export default function CustomMCPServersHeader({
     <BaseHeader
       title={t('header.title')}
       subtitle={t('header.subtitle')}
+      hideTitle={hideTitle}
       totalCount={totalCount}
       selectedCount={selectedCount}
       searchValue={searchValue}

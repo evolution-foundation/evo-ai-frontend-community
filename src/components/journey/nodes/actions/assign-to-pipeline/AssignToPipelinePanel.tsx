@@ -96,11 +96,12 @@ export function AssignToPipelinePanel({
           </FlowFeedbackBanner>
         )}
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="assign-to-pipeline-select" className="text-sidebar-foreground font-medium">
             {t('panels.assignToPipeline.pipeline')}
           </Label>
           <Select value={pipelineId} onValueChange={setPipelineId} disabled={loading}>
             <SelectTrigger
+              id="assign-to-pipeline-select"
               className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
               aria-label={t('panels.assignToPipeline.pipeline')}
             >

@@ -331,9 +331,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         <div className="mb-1">
           {renderContextMenu(
             <div
-              className={`rounded-lg px-3 py-1.5 ${isDeleted ? 'cursor-default' : 'cursor-pointer'} ${isPrivate
+              className={`rounded-lg px-3 py-1.5 ${isPrivate
                 ? 'bg-orange-50 border border-orange-200 dark:bg-orange-950/20 dark:border-orange-800/50'
-                : 'bg-muted/50 hover:bg-muted/70 border border-border/50'
+                : 'bg-muted/50 border border-border/50'
                 }`}
             >
               {/* Indicador de mensagem privada */}
@@ -472,16 +472,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
         {renderContextMenu(
           <div
-            className={`rounded-lg px-3 py-2 ${isDeleted ? 'cursor-default' : 'cursor-pointer'} ${
+            className={`rounded-lg px-3 py-2 ${
               isOwn ? 'rounded-tr-[4px]' : isThreadReply ? 'rounded-tl-md' : ''
             } ${isPrivate
                 ? 'bg-orange-50 border-2 border-orange-200 border-l-4 border-l-orange-400 dark:bg-orange-950/20 dark:border-orange-800/50 dark:border-l-orange-600'
                 : isFromAgent
-                  ? 'bg-primary text-primary-foreground hover:bg-primary/85'
+                  ? 'bg-primary text-primary-foreground'
                   : isFromBot
                     ? 'bg-purple-600 text-white dark:bg-purple-700'
                     : isOwn
-                      ? 'bg-primary text-primary-foreground hover:bg-primary/85'
+                      ? 'bg-primary text-primary-foreground'
                       : isThreadReply
                         ? 'bg-muted/70 border border-l-2 border-l-primary/40 dark:bg-muted/50' // Estilo mais sutil para replies
                         : 'bg-muted border'

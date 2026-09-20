@@ -79,12 +79,15 @@ const Step5_Review = ({
     return (
       <div className="flex flex-col items-center justify-center h-full px-6 py-12">
         <div className="max-w-md w-full text-center space-y-6">
-          <div className="w-20 h-20 mx-auto bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mb-6 shadow-lg animate-in zoom-in duration-500">
-            <CheckCircle2 className="h-10 w-10 text-white" />
+          {/* The orb carries the whitelabel primary (CRM-451): fill plus paired foreground, so
+              contrast holds for any agency color. The title stays on text-foreground — primary
+              over the page background has no such pairing. "Próximos Passos" is semantic. */}
+          <div className="w-20 h-20 mx-auto bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center mb-6 shadow-lg animate-in zoom-in duration-500">
+            <CheckCircle2 className="h-10 w-10 text-primary-foreground" />
           </div>
 
           <div className="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <h1 className="text-3xl font-bold text-green-600">
+            <h1 className="text-3xl font-bold text-foreground">
               {isEditMode ? 'Campanha Atualizada!' : 'Campanha Criada!'}
             </h1>
             <p className="text-muted-foreground">

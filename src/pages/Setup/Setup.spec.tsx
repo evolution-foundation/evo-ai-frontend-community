@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
+import { toast } from 'sonner';
 import Setup from './Setup';
 import { setupService } from '@/services/setup/setupService';
 import {
@@ -34,8 +35,10 @@ vi.mock('@/components/AppLogo', () => ({
   AppLogo: () => <div data-testid="app-logo">Logo</div>,
 }));
 
+// `warning` is part of this mock, not decoration: without it the degraded path
+// calls undefined and the branch cannot be tested at all.
 vi.mock('sonner', () => ({
-  toast: { success: vi.fn(), info: vi.fn() },
+  toast: { success: vi.fn(), info: vi.fn(), warning: vi.fn() },
 }));
 
 const mockNavigate = vi.fn();
@@ -242,5 +245,107 @@ describe('Setup wizard', () => {
 
     await waitFor(() => expect(setupService.bootstrap).toHaveBeenCalledWith(ACCOUNT));
     expect(screen.queryByTestId('fake-setup-step')).not.toBeInTheDocument();
+  });
+
+  // CRM-262 — the install finished and the admin exists, so this stays on the
+  // success path: 201, no error alert, and the wizard still leaves. What changes
+  // is that "Configuração concluída!" no longer covers a box left without
+  // membership, without its first account and without roles.
+  describe('when the server reports degraded provisioning (CRM-262)', () => {
+    const degraded = (message: string | null, survey_token: string | null = null) => {
+      vi.mocked(setupService.getStatus).mockResolvedValue({
+        status: 'inactive',
+        instance_id: null,
+        extra_setup_steps: false,
+      });
+      vi.mocked(setupService.bootstrap).mockResolvedValue({
+        status: 'degraded',
+        message,
+        survey_token,
+      });
+    };
+
+    const submit = async () => {
+      renderSetup();
+      await waitFor(() => expect(setupService.getStatus).toHaveBeenCalled());
+      fillAccount();
+      fireEvent.click(screen.getByRole('button', { name: 'form.submit.idle' }));
+    };
+
+    it('warns instead of congratulating', async () => {
+      degraded('provisioning did not finish — retries within ~10 minutes');
+      await submit();
+
+      await waitFor(() => expect(toast.warning).toHaveBeenCalled());
+      // The half that actually matters: a warning ADDED next to the success
+      // toast would look right on screen and still tell the operator the
+      // install is fine.
+      expect(toast.success).not.toHaveBeenCalled();
+    });
+
+    it("relays the server's message, which is what says how to recover", async () => {
+      degraded('provisioning did not finish — retries within ~10 minutes');
+      await submit();
+
+      await waitFor(() =>
+        expect(toast.warning).toHaveBeenCalledWith(
+          'degraded.title',
+          expect.objectContaining({
+            description: 'provisioning did not finish — retries within ~10 minutes',
+          }),
+        ),
+      );
+    });
+
+    it('falls back to the local copy when the server sends no message', async () => {
+      degraded(null);
+      await submit();
+
+      await waitFor(() =>
+        expect(toast.warning).toHaveBeenCalledWith(
+          'degraded.title',
+          expect.objectContaining({ description: 'degraded.description' }),
+        ),
+      );
+    });
+
+    it('still finishes the wizard — degraded is not an error', async () => {
+      degraded('anything');
+      await submit();
+
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/login', { replace: true }));
+      // The error alert belongs to a failed install; this one succeeded.
+      expect(screen.queryByText('error.generic')).not.toBeInTheDocument();
+    });
+
+    // The path a real box takes: the server returns the survey_token on the
+    // degraded response too, so the wizard goes to the survey, not to /login.
+    it('still hands off to the survey when the server sends a token', async () => {
+      degraded('anything', 'tok-123');
+      await submit();
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/setup/onboarding', { replace: true }),
+      );
+      expect(sessionStorage.getItem('survey_token')).toBe('tok-123');
+      expect(toast.warning).toHaveBeenCalled();
+    });
+  });
+
+  // The guard for the other direction: a healthy install must not start warning.
+  it('congratulates and does not warn when the server reports ok', async () => {
+    vi.mocked(setupService.getStatus).mockResolvedValue({
+      status: 'inactive',
+      instance_id: null,
+      extra_setup_steps: false,
+    });
+
+    renderSetup();
+    await waitFor(() => expect(setupService.getStatus).toHaveBeenCalled());
+    fillAccount();
+    fireEvent.click(screen.getByRole('button', { name: 'form.submit.idle' }));
+
+    await waitFor(() => expect(toast.success).toHaveBeenCalled());
+    expect(toast.warning).not.toHaveBeenCalled();
   });
 });

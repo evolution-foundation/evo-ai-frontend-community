@@ -20,6 +20,7 @@ import {
 import { MCPServer, MCPServerConfig } from '@/types/ai';
 import { Server, Settings, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { VaultCredentialSelect, useVaultCredentials } from '@/components/ai_agents/shared';
 import { Tool } from '@/types';
 
 interface MCPConfigDialogProps {
@@ -46,8 +47,43 @@ const MCPConfigDialog = ({
   mcpServers = [],
 }: MCPConfigDialogProps) => {
   const { t } = useLanguage('aiAgents');
+  // Gated on `open`: the dialog mounts closed on the agent screens, and an
+  // eager fetch would be one vault listing (a 403 without the grant) per render.
+  const vaultCredentials = useVaultCredentials(open);
   const [selectedServer, setSelectedServer] = useState<MCPServer | null>(null);
   const [mcpEnvironments, setMcpEnvironments] = useState<Record<string, unknown>>({});
+  // EVO-2250 story 2.4 AC7: env var name -> vault credential id.
+  const [credentialRefs, setCredentialRefs] = useState<Record<string, string>>({});
+
+  // Resetting to a FRESH {} on every run of an effect whose deps are unstable
+  // (initialConfig and mcpServers arrive as new objects) re-renders forever.
+  // Keeping the identity when the value is already empty makes the reset a
+  // no-op, which is what it means.
+  const clearCredentialRefs = useCallback(() => {
+    setCredentialRefs(prev => (Object.keys(prev).length === 0 ? prev : {}));
+  }, []);
+
+  // Same reason for the environments map: the effect below depends on props
+  // that arrive as fresh objects, so a reset that always allocates keeps
+  // re-rendering. Pre-existing, and reachable as soon as a test renders this
+  // dialog with inline props.
+  const clearEnvironments = useCallback(() => {
+    setMcpEnvironments(prev => (Object.keys(prev).length === 0 ? prev : {}));
+  }, []);
+
+  // And the selection: setState with the SAME value is a no-op for React, but
+  // `null` here follows the two resets above, so keeping the whole reset path
+  // allocation-free is what actually stops the loop.
+  const clearSelectedServer = useCallback(() => {
+    setSelectedServer(prev => (prev === null ? prev : null));
+  }, []);
+
+  const applyCredentialRefs = useCallback((next?: Record<string, string>) => {
+    setCredentialRefs(prev => {
+      const incoming = next ?? {};
+      return JSON.stringify(prev) === JSON.stringify(incoming) ? prev : incoming;
+    });
+  }, []);
   const [toolIds, setToolIds] = useState<Record<string, string[]>>({});
 
   // Inicializar com configuração existente ou limpar
@@ -59,6 +95,7 @@ const MCPConfigDialog = ({
         if (server) {
           setSelectedServer(server);
           setMcpEnvironments(initialConfig.environments || {});
+          applyCredentialRefs(initialConfig.credential_refs);
 
           setToolIds(prev => {
             if (!prev[server.id]) {
@@ -75,15 +112,27 @@ const MCPConfigDialog = ({
         }
       } else {
         // Modo criação - limpar tudo sempre
-        setSelectedServer(null);
-        setMcpEnvironments({});
+        clearSelectedServer();
+        clearEnvironments();
+        clearCredentialRefs();
       }
     } else {
       // Quando fecha o dialog, sempre limpar o estado para evitar persistência
-      setSelectedServer(null);
-      setMcpEnvironments({});
+      clearSelectedServer();
+      clearEnvironments();
+      clearCredentialRefs();
     }
-  }, [open, initialConfig, availableServers, currentStep, mcpServers]);
+  }, [
+    open,
+    initialConfig,
+    availableServers,
+    currentStep,
+    mcpServers,
+    applyCredentialRefs,
+    clearCredentialRefs,
+    clearEnvironments,
+    clearSelectedServer,
+  ]);
 
   const handleSelectServer = useCallback(
     (serverId: string) => {
@@ -97,6 +146,7 @@ const MCPConfigDialog = ({
           initialEnvironments[key] = '';
         });
         setMcpEnvironments(initialEnvironments);
+        clearCredentialRefs();
 
         // Manter seleções existentes se for o mesmo servidor
         const existingConfig =
@@ -111,8 +161,22 @@ const MCPConfigDialog = ({
         }
       }
     },
-    [availableServers, initialConfig, mcpServers],
+    [availableServers, initialConfig, mcpServers, clearCredentialRefs],
   );
+
+  // A vault reference replaces the inline value for that ONE variable; an
+  // undefined selection drops the entry so the inline value takes over again.
+  const handleCredentialRefChange = useCallback((key: string, credentialId?: string) => {
+    setCredentialRefs(prev => {
+      const next = { ...prev };
+      if (credentialId) {
+        next[key] = credentialId;
+      } else {
+        delete next[key];
+      }
+      return next;
+    });
+  }, []);
 
   const handleEnvChange = useCallback((key: string, value: string) => {
     setMcpEnvironments(prev => ({
@@ -154,12 +218,16 @@ const MCPConfigDialog = ({
       name: selectedServer.name,
       type: selectedServer.config_type,
       environments: mcpEnvironments,
+      // Travels alongside the inline values: the runtime prefers the vault and
+      // falls back to inline, and the API replaces the entry wholesale, so
+      // dropping either half here loses it.
+      credential_refs: credentialRefs,
       tools: selectedTools,
       toolIds: toolIds[selectedServer.id] || [],
     };
 
     onSave(config);
-  }, [selectedServer, mcpEnvironments, toolIds, onSave]);
+  }, [selectedServer, mcpEnvironments, credentialRefs, toolIds, onSave]);
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -176,10 +244,15 @@ const MCPConfigDialog = ({
     }
   };
 
+  // A required variable is satisfied by an inline value OR by a vault
+  // reference (EVO-2250 story 2.4 AC7). Demanding the inline value would leave
+  // the form permanently invalid for exactly the variables the vault exists to
+  // hold, since pointing at a credential is what stops you from typing one.
   const isFormValid =
     selectedServer &&
     Object.entries(selectedServer.environments || {}).every(
-      ([key]) => mcpEnvironments[key]?.toString().trim() !== '',
+      ([key]) =>
+        Boolean(credentialRefs[key]) || (mcpEnvironments[key]?.toString().trim() ?? '') !== '',
     );
 
   return (
@@ -277,6 +350,7 @@ const MCPConfigDialog = ({
                               value={mcpEnvironments[key]?.toString() || ''}
                               onChange={e => handleEnvChange(key, e.target.value)}
                               placeholder={t('dialogs.mcpConfig.enterValue', { key })}
+                              disabled={Boolean(credentialRefs[key])}
                               type={
                                 key.toLowerCase().includes('password') ||
                                 key.toLowerCase().includes('token') ||
@@ -284,6 +358,16 @@ const MCPConfigDialog = ({
                                   ? 'password'
                                   : 'text'
                               }
+                            />
+                            {/* EVO-2250 story 2.4 AC7: point this variable at a
+                                vault credential instead of typing the secret.
+                                The runtime prefers the reference and falls back
+                                to the inline value. */}
+                            <VaultCredentialSelect
+                              id={`env-cred-${key}`}
+                              value={credentialRefs[key]}
+                              onChange={credentialId => handleCredentialRefChange(key, credentialId)}
+                              credentials={vaultCredentials}
                             />
                             {typeof value === 'string' && value !== 'required' && (
                               <p className="text-xs text-muted-foreground">{value}</p>

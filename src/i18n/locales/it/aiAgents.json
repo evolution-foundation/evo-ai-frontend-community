@@ -418,8 +418,7 @@
       "more": "altro",
       "createFirst": "Crea il tuo primo server MCP personalizzato",
       "serversSelected": "{{count}} server selezionato/i",
-      "selectServers": "Seleziona Server",
-      "addSelected": "Aggiungi Selezionati ({{count}})",
+      "saveSelection": "Salva selezione ({{count}})",
       "save": "Aggiungi",
       "cancel": "Annulla"
     },
@@ -544,6 +543,18 @@
     "agentType": "{{type}}",
     "testAI": "Testa la tua IA",
     "profile": {
+      "summary": {
+        "title": "Riepilogo dell'agente",
+        "type": "Tipo",
+        "native": "Nativo",
+        "external": "Esterno",
+        "model": "Modello",
+        "createdAt": "Creato il",
+        "subAgents": "Sotto-agenti",
+        "products": "Prodotti",
+        "tipTitle": "Suggerimento di configurazione",
+        "tipBody": "Compila il Ruolo e l'Obiettivo affinché l'agente comprenda meglio il suo contesto e risponda con maggiore precisione."
+      },
       "title": "Informazioni personali",
       "subtitle": "Configura le informazioni di base del tuo agente",
       "name": "Nome dell'agente",
@@ -749,8 +760,13 @@
         "selectTeamPlaceholder": "Seleziona un team",
         "returnOnFinish": "Restituisci al termine",
         "instructions": "Istruzioni:",
-        "instructionsPlaceholder": "Quando il cliente vuole parlare di tale argomento...",
+        "instructionsPlaceholder": "Descrivi le condizioni per trasferire la conversazione (es: quando il cliente chiede di parlare con un umano)...",
         "addRule": "+ Aggiungi regola di trasferimento"
+      },
+      "modalFooter": {
+        "cancel": "Annulla",
+        "save": "Salva",
+        "saving": "Salvataggio..."
       },
       "pipelineRules": {
         "description": "Configura quando e come l'agente deve spostare le conversazioni tra pipeline e fasi.",
@@ -866,10 +882,10 @@
       "title": "Integrazioni",
       "subtitle": "Collega il tuo agente ad altre applicazioni, questo gli permette di ottenere informazioni più precise o programmare riunioni per te.",
       "comingSoon": "Prossimamente...",
-      "activate": "ATTIVA",
-      "active": "ATTIVO",
-      "configure": "CONFIGURA",
-      "notAvailable": "NON DISPONIBILE",
+      "activate": "Attiva",
+      "active": "Attivato",
+      "configure": "Configura",
+      "notAvailable": "Prossimamente",
       "elevenlabs": {
         "description": "Con ElevenLabs dai al tuo agente la capacità di rispondere ai tuoi clienti in audio, rendendolo ancora più umanizzato."
       },
@@ -1188,6 +1204,7 @@
   },
   "actions": {
     "save": "Salva",
+    "close": "Chiudi",
     "cancel": "Annulla",
     "delete": "Elimina",
     "edit": "Modifica",
@@ -1441,6 +1458,7 @@
   "chat": {
     "newConversation": "Nuova Conversazione",
     "searchConversations": "Cerca conversazioni...",
+    "conversations": "Conversazioni",
     "noConversations": "Nessuna conversazione",
     "loading": "Caricamento conversazione...",
     "chatWithAgent": "Chat con {{name}}",
@@ -1448,7 +1466,7 @@
     "selectConversation": "Seleziona una conversazione",
     "chooseOrStart": "Scegli una conversazione esistente o iniziane una nuova.",
     "selectOrCreateSession": "Seleziona una conversazione o creane una nuova",
-    "selectSessionMessage": "Scegli una conversazione esistente dall'elenco sul lato o fai clic su \"Nuova Conversazione\" per iniziare.",
+    "selectSessionMessage": "Apri l'icona delle conversazioni per sceglierne una esistente o fai clic su \"+\" per iniziarne una nuova.",
     "typeMessage": "Digita il tuo messaggio...",
     "deleteSession": "Elimina Sessione",
     "deleteSessionConfirm": "Sei sicuro di voler eliminare questa sessione? Questa azione non può essere annullata.",

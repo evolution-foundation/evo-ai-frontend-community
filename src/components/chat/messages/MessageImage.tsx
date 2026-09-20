@@ -140,7 +140,7 @@ const MessageImage: React.FC<MessageImageProps> = ({ attachments }) => {
                       e.stopPropagation();
                       openImageModal(attachment);
                     }}
-                    className="bg-white/95 text-black hover:bg-white shadow-lg"
+                    className="bg-white/95 text-black hover:bg-white shadow-lg cursor-pointer"
                   >
                     <ZoomIn className="h-4 w-4" />
                   </Button>
@@ -151,7 +151,7 @@ const MessageImage: React.FC<MessageImageProps> = ({ attachments }) => {
                       e.stopPropagation();
                       await downloadFile(attachment);
                     }}
-                    className="bg-white/95 text-black hover:bg-white shadow-lg"
+                    className="bg-white/95 text-black hover:bg-white shadow-lg cursor-pointer"
                   >
                     <Download className="h-4 w-4" />
                   </Button>

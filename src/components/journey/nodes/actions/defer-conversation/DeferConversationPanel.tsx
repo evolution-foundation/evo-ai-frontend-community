@@ -28,7 +28,7 @@ export function DeferConversationPanel({
   onUpdate,
   onClose,
 }: DeferConversationPanelProps) {
-  const { t } = useLanguage('journey');
+  const { t, currentLanguage } = useLanguage('journey');
   const [snoozeType, setSnoozeType] = useState<'duration' | 'until_date'>(
     data.snooze_type || 'duration',
   );
@@ -88,16 +88,6 @@ export function DeferConversationPanel({
     onClose();
   };
 
-  useEffect(() => {
-    if (formDataOptions.agents.length > 0 || formDataOptions.teams.length > 0) {
-      const updatedData: DeferConversationNodeData = {
-        ...data,
-        formDataOptions,
-      };
-      onUpdate(nodeId, updatedData);
-    }
-  }, [formDataOptions, data, nodeId, onUpdate]);
-
   const isValidDateTime = (dateTimeStr: string) => {
     const date = new Date(dateTimeStr);
     return date > new Date();
@@ -130,7 +120,7 @@ export function DeferConversationPanel({
     >
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="defer-conversation-type" className="text-sidebar-foreground font-medium">
             {t('panels.deferConversation.defermentType')}
           </Label>
           <Select
@@ -138,7 +128,7 @@ export function DeferConversationPanel({
             onValueChange={(value: 'duration' | 'until_date') => setSnoozeType(value)}
             disabled={loading}
           >
-            <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+            <SelectTrigger id="defer-conversation-type" className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-sidebar border-sidebar-border">
@@ -154,10 +144,11 @@ export function DeferConversationPanel({
 
         {snoozeType === 'duration' && (
           <div className="space-y-2">
-            <Label className="text-sidebar-foreground font-medium">
+            <Label htmlFor="defer-conversation-duration" className="text-sidebar-foreground font-medium">
               {t('panels.deferConversation.duration.label')}
             </Label>
             <Input
+              id="defer-conversation-duration"
               type="number"
               value={snoozeDuration}
               onChange={e => setSnoozeDuration(Math.max(1, parseInt(e.target.value) || 1))}
@@ -174,10 +165,11 @@ export function DeferConversationPanel({
 
         {snoozeType === 'until_date' && (
           <div className="space-y-2">
-            <Label className="text-sidebar-foreground font-medium">
+            <Label htmlFor="defer-conversation-until" className="text-sidebar-foreground font-medium">
               {t('panels.deferConversation.dateTime.label')}
             </Label>
             <Input
+              id="defer-conversation-until"
               type="datetime-local"
               value={snoozeUntil}
               onChange={e => setSnoozeUntil(e.target.value)}
@@ -213,8 +205,8 @@ export function DeferConversationPanel({
                 <span
                   dangerouslySetInnerHTML={{
                     __html: t('panels.deferConversation.preview.dateText', {
-                      date: new Date(snoozeUntil).toLocaleDateString('pt-BR'),
-                      time: new Date(snoozeUntil).toLocaleTimeString('pt-BR', {
+                      date: new Date(snoozeUntil).toLocaleDateString(currentLanguage),
+                      time: new Date(snoozeUntil).toLocaleTimeString(currentLanguage, {
                         hour: '2-digit',
                         minute: '2-digit',
                       }),

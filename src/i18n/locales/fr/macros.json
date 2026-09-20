@@ -47,12 +47,28 @@
       "create": "Créer",
       "update": "Mettre à jour",
       "saving": "Enregistrement..."
+    },
+    "optionsError": {
+      "title": "Impossible de charger toutes les options",
+      "description": "Échec du chargement : {{sources}}. Fermez et rouvrez le formulaire pour réessayer.",
+      "sources": {
+        "inboxes": "boîtes de réception",
+        "agents": "agents",
+        "teams": "équipes",
+        "labels": "étiquettes"
+      }
     }
   },
   "actionRow": {
     "selectPlaceholder": "Sélectionnez une option",
     "multiSelectPlaceholder": "Sélectionnez des options",
+    "assignAgentInboxWarning": "Cette attribution ne s'applique qu'aux conversations dont la boîte de réception a cet agent comme membre. Dans les autres l'action échoue, et une action en échec marque toute l'exécution comme échouée.",
     "loadingOptions": "Chargement des options...",
+    "loadFailed": "Impossible de charger les options",
+    "emptyTeams": "Aucune équipe enregistrée",
+    "emptyAgents": "Aucun agent enregistré",
+    "emptyLabels": "Aucune étiquette enregistrée",
+    "emptyOptions": "Aucune option disponible",
     "textareaPlaceholder": "Saisissez le message ou la note",
     "textPlaceholder": "Saisissez la valeur",
     "hoursPlaceholder": "Heures de report",
@@ -81,7 +97,6 @@
     },
     "actions": {
       "view": "Visualiser",
-      "execute": "Exécuter",
       "edit": "Modifier",
       "delete": "Supprimer"
     },
@@ -91,7 +106,6 @@
   "actions": {
     "edit": "Modifier",
     "delete": "Supprimer",
-    "execute": "Exécuter",
     "cancel": "Annuler",
     "save": "Enregistrer",
     "confirm": "Confirmer"
@@ -105,9 +119,7 @@
     "deleteSuccess": "Macro supprimée avec succès",
     "deleteError": "Erreur lors de la suppression de la macro",
     "bulkDeleteSuccess": "{{count}} macro(s) supprimée(s) avec succès",
-    "bulkDeleteError": "Erreur lors de la suppression des macros",
-    "executeSuccess": "Macro \"{{name}}\" exécutée avec succès",
-    "executeError": "Erreur lors de l'exécution de la macro"
+    "bulkDeleteError": "Erreur lors de la suppression des macros"
   },
   "dialog": {
     "delete": {

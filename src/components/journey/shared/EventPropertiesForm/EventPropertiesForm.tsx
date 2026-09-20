@@ -187,12 +187,15 @@ function SchemaDrivenFields({
 }
 
 function FieldSection({ title, children }: { title: string; children: React.ReactNode }) {
+  const labelId = useId();
   return (
     <div className="space-y-3">
-      <Label className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+      <Label id={labelId} className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
         {title}
       </Label>
-      <div className="space-y-2">{children}</div>
+      <div className="space-y-2" role="group" aria-labelledby={labelId}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -392,6 +395,7 @@ function CustomKeyValueEditor({
   className?: string;
   t: (key: string) => string;
 }) {
+  const labelId = useId();
   const [pairs, setPairs] = useState<Pair[]>(() => pairsFromValue(value));
 
   // F5 fix: resync pairs when the value's KEY SET changes upstream (e.g.,
@@ -436,41 +440,46 @@ function CustomKeyValueEditor({
         <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
         <span>{t('propertiesForm.customWarning')}</span>
       </div>
-      <Label className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+      <Label
+        id={labelId}
+        className="text-sm font-medium uppercase tracking-wide text-muted-foreground"
+      >
         {t('propertiesForm.customSectionLabel')}
       </Label>
-      {pairs.map((pair, index) => (
-        <div key={index} className="flex gap-2">
-          <Input
-            placeholder={t('propertiesForm.customKeyPlaceholder')}
-            aria-label={t('propertiesForm.customKeyPlaceholder')}
-            value={pair.key}
-            onChange={(e) => update(index, { key: e.target.value })}
-            disabled={disabled}
-          />
-          <Input
-            placeholder={t('propertiesForm.customValuePlaceholder')}
-            aria-label={t('propertiesForm.customValuePlaceholder')}
-            value={pair.value}
-            onChange={(e) => update(index, { value: e.target.value })}
-            disabled={disabled}
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={() => remove(index)}
-            disabled={disabled}
-            aria-label={t('propertiesForm.customRemoveAriaLabel')}
-          >
-            <X className="h-4 w-4" aria-hidden="true" />
-          </Button>
-        </div>
-      ))}
-      <Button type="button" variant="outline" size="sm" onClick={add} disabled={disabled}>
-        <Plus className="mr-1 h-3 w-3" aria-hidden="true" />
-        {t('propertiesForm.customAddLabel')}
-      </Button>
+      <div className="space-y-3" role="group" aria-labelledby={labelId}>
+        {pairs.map((pair, index) => (
+          <div key={index} className="flex gap-2">
+            <Input
+              placeholder={t('propertiesForm.customKeyPlaceholder')}
+              aria-label={t('propertiesForm.customKeyPlaceholder')}
+              value={pair.key}
+              onChange={(e) => update(index, { key: e.target.value })}
+              disabled={disabled}
+            />
+            <Input
+              placeholder={t('propertiesForm.customValuePlaceholder')}
+              aria-label={t('propertiesForm.customValuePlaceholder')}
+              value={pair.value}
+              onChange={(e) => update(index, { value: e.target.value })}
+              disabled={disabled}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => remove(index)}
+              disabled={disabled}
+              aria-label={t('propertiesForm.customRemoveAriaLabel')}
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </Button>
+          </div>
+        ))}
+        <Button type="button" variant="outline" size="sm" onClick={add} disabled={disabled}>
+          <Plus className="mr-1 h-3 w-3" aria-hidden="true" />
+          {t('propertiesForm.customAddLabel')}
+        </Button>
+      </div>
     </div>
   );
 }

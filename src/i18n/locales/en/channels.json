@@ -1734,22 +1734,14 @@
   },
   "overview": {
     "noIntegrationConfigured": "No integration configured",
-    "tabLabel": "Overview",
     "title": "Channel overview",
     "subtitle": "See every channel type, its status, and how to set it up.",
     "statusLabel": {
       "active": "Active",
       "attention": "Needs attention",
       "error": "Error",
+      "unmonitored": "Not monitored",
       "available": "Available"
-    },
-    "summary": {
-      "active": "{{count}} active",
-      "attention": "{{count}} need attention",
-      "error": "{{count}} with errors",
-      "notConfigured": "Not configured",
-      "connected": "{{count}} connected",
-      "total": "{{count}} connections"
     },
     "drawer": {
       "title": "Connections"
@@ -1757,23 +1749,22 @@
     "inboxState": {
       "connected": "Connected",
       "disconnected": "Disconnected",
-      "pending": "Testing",
+      "pending": "Awaiting confirmation",
       "error": "Error",
       "unknown": "Unknown",
       "unmonitored": "Not monitored",
       "checking": "Checking..."
     },
+    "needsAttention_one": "{{count}} connection needing attention",
+    "needsAttention_other": "{{count}} connections needing attention",
     "liveCheckFailed": "Live check failed — showing the last known state",
-    "moreInboxes": "+{{count}} more inboxes",
     "providersCount": "{{count}} providers",
     "actions": {
-      "add": "Add",
       "manage": "Manage",
-      "howToConfigure": "How to set up",
+      "manageAria": "Manage connections: {{count}} · {{status}}",
       "connect": "Connect",
       "addConnection": "Add connection",
-      "deleteConnection": "Delete connection",
-      "viewAds": "View ads"
+      "deleteConnection": "Delete connection"
     },
     "capabilities": {
       "publishing": "Publishing",
@@ -1785,16 +1776,6 @@
       "stored": "Reported",
       "storedTooltip": "State reported by the configuration, not verified live",
       "lastSync": "Synced {{time}}"
-    },
-    "help": {
-      "website": "Embed a live-chat widget on your website so visitors can talk to your team in real time.",
-      "whatsapp": "Connect WhatsApp through a provider (WhatsApp Cloud, Evolution, Twilio and others) to send and receive messages.",
-      "telegram": "Connect a Telegram bot using its token to receive and reply to messages from Telegram users.",
-      "instagram": "Link your Instagram professional account to handle direct messages from the inbox.",
-      "facebook": "Link a Facebook page to manage Messenger conversations from the inbox.",
-      "sms": "Send and receive SMS through a provider such as Twilio or Bandwidth.",
-      "email": "Connect a mailbox (Gmail or Outlook) to turn emails into conversations.",
-      "api": "Use the channel API to integrate any custom or in-house system."
     }
   }
 }

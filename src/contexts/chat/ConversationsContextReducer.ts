@@ -315,50 +315,56 @@ export function conversationsReducer(
     case 'UPDATE_CONTACT_IN_CONVERSATIONS': {
       const updatedContact = action.payload;
 
-      // Atualiza meta.sender em todas as conversas que usam esse contato
+      const isSameContactId = (id: string | number | null | undefined): boolean =>
+        id !== null && id !== undefined && String(id) === String(updatedContact.id);
+
+      // The conversation list ships `contact` and no `meta` (ConversationSerializer);
+      // only websocket-born conversations carry `meta.sender`. Matching on
+      // `meta.sender` alone skipped every REST-loaded conversation.
+      const belongsToContact = (conv: Conversation): boolean =>
+        isSameContactId(conv.contact?.id) || isSameContactId(conv.meta?.sender?.id);
+
+      // contact.updated omits what it did not resolve, so an empty field means
+      // "keep the current value" — blanking the visible name is the bug itself.
+      const patchContact = (contact: Conversation['contact']): Conversation['contact'] =>
+        contact && isSameContactId(contact.id)
+          ? {
+              ...contact,
+              name: updatedContact.name || contact.name,
+              email: updatedContact.email || contact.email,
+              phone_number: updatedContact.phone_number || contact.phone_number,
+              avatar: updatedContact.avatar || contact.avatar,
+              avatar_url: updatedContact.avatar_url || contact.avatar_url,
+            }
+          : contact;
+
+      const patchMeta = (meta: Conversation['meta']): Conversation['meta'] =>
+        meta?.sender && isSameContactId(meta.sender.id)
+          ? {
+              ...meta,
+              sender: {
+                ...meta.sender,
+                name: updatedContact.name || meta.sender.name,
+                email: updatedContact.email || meta.sender.email,
+                phone_number: updatedContact.phone_number || meta.sender.phone_number,
+                avatar_url: updatedContact.avatar_url || meta.sender.avatar_url,
+              },
+            }
+          : meta;
+
       const updatedConversations = state.conversations
-      .filter(conv => conv !== null && conv !== undefined && conv.id)
-      .map(conv => {
-        const sender = conv.meta?.sender;
-        if (!sender || String(sender.id) !== String(updatedContact.id)) {
-          return conv;
-        }
+        .filter(conv => conv !== null && conv !== undefined && conv.id)
+        .map(conv =>
+          belongsToContact(conv)
+            ? { ...conv, contact: patchContact(conv.contact), meta: patchMeta(conv.meta) }
+            : conv,
+        );
 
-        return {
-          ...conv,
-          meta: {
-            ...conv.meta,
-            sender: {
-              ...sender,
-              name: updatedContact.name,
-              email: updatedContact.email || sender.email,
-              phone_number: updatedContact.phone_number || sender.phone_number,
-              avatar_url: updatedContact.avatar_url || sender.avatar_url,
-            },
-          },
-        };
-      });
-
-      // Atualizar dados da conversa selecionada, se for o mesmo contato
-      let updatedSelectedConversationData = state.selectedConversationData;
-      if(
-        state.selectedConversationData?.meta?.sender &&
-        String(state.selectedConversationData?.meta?.sender.id) === String(updatedContact.id)
-      ) {
-        updatedSelectedConversationData = {
-          ...state.selectedConversationData,
-          meta: {
-            ...state.selectedConversationData.meta,
-            sender: {
-              ...state.selectedConversationData.meta.sender,
-              name: updatedContact.name,
-              email: updatedContact.email || state.selectedConversationData.meta.sender.email,
-              phone_number: updatedContact.phone_number || state.selectedConversationData.meta.sender.phone_number,
-              avatar_url: updatedContact.avatar_url || state.selectedConversationData.meta.sender.avatar_url,
-            },
-          },
-        };
-      }
+      const selected = state.selectedConversationData;
+      const updatedSelectedConversationData =
+        selected && belongsToContact(selected)
+          ? { ...selected, contact: patchContact(selected.contact), meta: patchMeta(selected.meta) }
+          : selected;
 
       return {
         ...state,

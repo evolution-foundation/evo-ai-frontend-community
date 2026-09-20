@@ -671,7 +671,9 @@
         "configure": "Configurar Integración",
         "update": "Actualizar Integración",
         "saving": "Guardando..."
-      }
+      },
+      "credentialMoved": "La clave ahora se registra en Configuración > Credenciales de IA. Aquí quedan solo los interruptores de las funciones.",
+      "goToCredentials": "Ir a Credenciales de IA"
     },
     "settings": {
       "loading": "Cargando configuración...",
@@ -694,7 +696,8 @@
         "actions": {
           "edit": "Editar",
           "remove": "Eliminar"
-        }
+        },
+        "managedElsewhere": "Gestionada en Credenciales de IA"
       },
       "features": {
         "title": "Recursos Disponibles",

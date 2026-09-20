@@ -105,14 +105,20 @@ export function WaitHybridConfig({ data, onChange, journeyId }: WaitHybridConfig
     <div className="space-y-4">
       {/* Tempo Máximo de Espera (obrigatório) */}
       <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/30">
-        <Label className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-3 block">
+        <Label
+          id="wait-hybrid-max-label"
+          className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-3 block"
+        >
           {t('panels.waitComponents.hybrid.maxWaitTimeLabel')}
         </Label>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3" role="group" aria-labelledby="wait-hybrid-max-label">
           <div className="space-y-2">
-            <Label className="text-xs">{t('panels.waitComponents.hybrid.timeLabel')}</Label>
+            <Label htmlFor="wait-hybrid-max-time" className="text-xs">
+              {t('panels.waitComponents.hybrid.timeLabel')}
+            </Label>
             <VariableInput
+              id="wait-hybrid-max-time"
               type="number"
               min="1"
               value={data.maxWaitTime?.toString() || '1'}
@@ -126,9 +132,14 @@ export function WaitHybridConfig({ data, onChange, journeyId }: WaitHybridConfig
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs">{t('panels.waitComponents.hybrid.unitLabel')}</Label>
+            <Label htmlFor="wait-hybrid-max-unit" className="text-xs">
+              {t('panels.waitComponents.hybrid.unitLabel')}
+            </Label>
             <Select value={data.maxWaitUnit || 'hours'} onValueChange={handleMaxWaitUnitChange}>
-              <SelectTrigger className="bg-sidebar border-sidebar-border text-sidebar-foreground">
+              <SelectTrigger
+                id="wait-hybrid-max-unit"
+                className="bg-sidebar border-sidebar-border text-sidebar-foreground"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-sidebar border-sidebar-border">
@@ -149,13 +160,15 @@ export function WaitHybridConfig({ data, onChange, journeyId }: WaitHybridConfig
 
       {/* Condição ou Evento */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium">
+        <Label id="wait-hybrid-stop-label" className="text-sm font-medium">
           {t('panels.waitComponents.hybrid.stopConditionLabel')}
         </Label>
 
         <Tabs
           value={triggerType}
           onValueChange={(value: string) => handleTriggerTypeChange(value as 'event' | 'condition')}
+          role="group"
+          aria-labelledby="wait-hybrid-stop-label"
         >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="event">{t('panels.waitComponents.hybrid.tabs.event')}</TabsTrigger>

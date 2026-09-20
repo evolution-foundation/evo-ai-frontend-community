@@ -1,12 +1,13 @@
 {
   "title": "Perfis e Permissões",
-  "description": "Gerencie perfis e suas permissões. Perfis do sistema não podem ser excluídos, mas suas permissões podem ser editadas.",
+  "description": "Gerencie perfis e suas permissões. Perfis do sistema não podem ser excluídos e seu conjunto de permissões é somente leitura — duplique um como perfil personalizado para alterá-lo.",
   "header": {
     "subtitle": "{{count}} perfil(is) configurado(s)",
     "searchPlaceholder": "Buscar perfis..."
   },
   "addRole": "Novo Perfil",
   "editRole": "Editar Perfil",
+  "viewRole": "Ver permissões",
   "deleteRole": "Excluir Perfil",
   "backToList": "Voltar para Perfis",
   "savePermissions": "Salvar Permissões",
@@ -40,6 +41,13 @@
     "others": "Outros"
   },
   "detail": {
+    "systemReadOnly": "Este é um perfil de sistema — o conjunto de permissões é somente leitura. Use \"Duplicar como perfil personalizado\" para obter uma cópia editável com as mesmas permissões.",
+    "duplicate": "Duplicar como perfil personalizado",
+    "duplicateSuffix": "(cópia)",
+    "duplicateTitle": "Duplicar como perfil personalizado",
+    "duplicateDescription": "Cria um perfil personalizado com as mesmas permissões de \"{{name}}\". A cópia é totalmente editável.",
+    "duplicateConfirm": "Duplicar",
+    "duplicating": "Duplicando...",
     "permissionsTitle": "Permissões",
     "permissionsDescription": "Marque as permissões que este perfil deve ter. As alterações entram em vigor no próximo acesso do usuário.",
     "permissionsSelected": "permissões selecionadas",
@@ -49,6 +57,7 @@
     "filterPlaceholder": "Procurar permissões...",
     "nested": {
       "pipelineStages": "Etapas",
+      "pipelineItems": "Cards",
       "workingHours": "Horário de funcionamento"
     },
     "lock": {
@@ -93,6 +102,8 @@
     "deleteError": "Falha ao excluir perfil",
     "permissionsSuccess": "Permissões salvas com sucesso",
     "permissionsError": "Falha ao salvar permissões",
+    "duplicateSuccess": "Perfil personalizado criado com as mesmas permissões",
+    "duplicatePartial": "Perfil criado, mas não foi possível copiar as permissões. Configure-as no novo perfil.",
     "loadError": "Falha ao carregar perfis",
     "systemRoleCannotDelete": "Perfis do sistema não podem ser excluídos",
     "roleHasUsers": "Não é possível excluir um perfil com usuários atribuídos"

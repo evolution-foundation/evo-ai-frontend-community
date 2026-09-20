@@ -108,11 +108,12 @@ export function SendCannedResponsePanel({
           </FlowFeedbackBanner>
         )}
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="send-canned-response-select" className="text-sidebar-foreground font-medium">
             {t('panels.sendCannedResponse.response')}
           </Label>
           <Select value={cannedResponseId} onValueChange={setCannedResponseId} disabled={loading}>
             <SelectTrigger
+              id="send-canned-response-select"
               className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
               aria-label={t('panels.sendCannedResponse.response')}
             >

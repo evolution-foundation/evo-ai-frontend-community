@@ -16,12 +16,56 @@ import {
   Textarea,
   Switch,
 } from '@evoapi/design-system';
-import { Plus, X, Settings, Pencil, Check, Loader2 } from 'lucide-react';
+import { Plus, X, Settings, Pencil, Check, Loader2, AlertTriangle } from 'lucide-react';
 import { customAttributesService } from '@/services/customAttributes/customAttributesService';
 import { CustomAttributeDefinition, AttributeModel } from '@/types/settings';
+import EmptyState from '@/components/base/EmptyState';
 import { toast } from 'sonner';
 
 export type CustomAttributesMode = 'form' | 'editable';
+
+/**
+ * CRM-166: both modes report a failed definitions load with the same three strings
+ * and the same retry. `compact` is the sidebar shape; the default is the full-width
+ * EmptyState used inside the contact edit form.
+ */
+function LoadFailurePanel({ compact, onRetry }: { compact?: boolean; onRetry: () => void }) {
+  const { t: tCommon } = useLanguage('common');
+  const title = tCommon('customAttributes.loadFailed.title');
+  const description = tCommon('customAttributes.loadFailed.description');
+  const retryLabel = tCommon('customAttributes.loadFailed.retry');
+
+  if (compact) {
+    return (
+      <div className="space-y-2 py-4 text-center" data-testid="custom-attributes-load-failed">
+        <AlertTriangle className="mx-auto h-4 w-4 text-muted-foreground" />
+        <p className="text-xs font-medium text-foreground">{title}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={onRetry}
+          className="h-6 px-2 text-xs"
+        >
+          {retryLabel}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div data-testid="custom-attributes-load-failed">
+      <EmptyState
+        icon={AlertTriangle}
+        title={title}
+        description={description}
+        action={{ label: retryLabel, onClick: onRetry, variant: 'outline' }}
+        className="py-8"
+      />
+    </div>
+  );
+}
 
 export interface CustomAttributesFormProps {
   /** The attribute model type (e.g., 'pipeline_item_attribute', 'contact_attribute') */
@@ -42,7 +86,6 @@ export interface CustomAttributesFormProps {
   translationNamespace?: string;
   /** Translation keys for messages (used in 'editable' mode) */
   translationKeys?: {
-    loadError?: string;
     updateSuccess?: string;
     updateError?: string;
     noAttributes?: string;
@@ -72,6 +115,8 @@ export default function CustomAttributesForm({
   const { t } = useLanguage(translationNamespace || defaultTranslationNamespace);
   const [definedAttributes, setDefinedAttributes] = useState<CustomAttributeDefinition[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
   const [newAttributeKey, setNewAttributeKey] = useState('');
   const [newAttributeValue, setNewAttributeValue] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
@@ -90,27 +135,40 @@ export default function CustomAttributesForm({
     return value;
   };
 
-  // Load defined custom attributes for the specified model
+  // CRM-166: the catch only toasted and left `definedAttributes` at [], so a failed
+  // load was indistinguishable from an empty catalog. Nothing aborts the request, so
+  // `cancelled` is what keeps a late response from writing state the component has
+  // moved on from — unmount (collapsing the sidebar section mid-flight) above all.
+  // Not StrictMode: main.tsx renders <App /> unwrapped, on purpose.
   useEffect(() => {
-    const loadDefinedAttributes = async () => {
-      setLoading(true);
-      try {
-        const response = await customAttributesService.getCustomAttributes(attributeModel);
-        setDefinedAttributes(response.data);
-      } catch (error) {
-        if (mode === 'editable') {
-          const errorKey = translationKeys.loadError || 'contactSidebar.customAttributes.loadError';
-          toast.error(t(errorKey));
-        } else {
-          console.error('Error loading custom attributes:', error);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
+    let cancelled = false;
+    setLoading(true);
 
-    loadDefinedAttributes();
-  }, [attributeModel, mode, t, translationKeys.loadError]);
+    customAttributesService
+      .getCustomAttributes(attributeModel)
+      .then(response => {
+        if (cancelled) return;
+        setDefinedAttributes(response.data);
+        setLoadFailed(false);
+      })
+      .catch(error => {
+        if (cancelled) return;
+        console.error('Error loading custom attributes:', error);
+        setLoadFailed(true);
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [attributeModel, reloadToken]);
+
+  const retryLoadDefinedAttributes = () => {
+    setReloadToken(token => token + 1);
+  };
 
   // Form mode handlers
   const handleAddAttribute = () => {
@@ -407,6 +465,7 @@ export default function CustomAttributesForm({
                 disabled={saving}
               />
               <Button
+                type="button"
                 size="sm"
                 variant="ghost"
                 onClick={handleSave}
@@ -420,6 +479,7 @@ export default function CustomAttributesForm({
                 )}
               </Button>
               <Button
+                type="button"
                 size="sm"
                 variant="ghost"
                 onClick={handleCancelEdit}
@@ -447,6 +507,7 @@ export default function CustomAttributesForm({
                 disabled={saving}
               />
               <Button
+                type="button"
                 size="sm"
                 variant="ghost"
                 onClick={handleSave}
@@ -460,6 +521,7 @@ export default function CustomAttributesForm({
                 )}
               </Button>
               <Button
+                type="button"
                 size="sm"
                 variant="ghost"
                 onClick={handleCancelEdit}
@@ -487,6 +549,7 @@ export default function CustomAttributesForm({
                 </SelectContent>
               </Select>
               <Button
+                type="button"
                 size="sm"
                 variant="ghost"
                 onClick={handleSave}
@@ -500,6 +563,7 @@ export default function CustomAttributesForm({
                 )}
               </Button>
               <Button
+                type="button"
                 size="sm"
                 variant="ghost"
                 onClick={handleCancelEdit}
@@ -522,6 +586,7 @@ export default function CustomAttributesForm({
                 disabled={saving}
               />
               <Button
+                type="button"
                 size="sm"
                 variant="ghost"
                 onClick={handleSave}
@@ -535,6 +600,7 @@ export default function CustomAttributesForm({
                 )}
               </Button>
               <Button
+                type="button"
                 size="sm"
                 variant="ghost"
                 onClick={handleCancelEdit}
@@ -573,6 +639,7 @@ export default function CustomAttributesForm({
           {value || <span className="text-muted-foreground">--</span>}
         </span>
         <Button
+          type="button"
           size="sm"
           variant="ghost"
           onClick={() => handleStartEdit(key, rawValue)}
@@ -597,6 +664,10 @@ export default function CustomAttributesForm({
           <Loader2 className="h-4 w-4 animate-spin mx-auto text-muted-foreground" />
         </div>
       );
+    }
+
+    if (loadFailed) {
+      return <LoadFailurePanel compact onRetry={retryLoadDefinedAttributes} />;
     }
 
     if (definedAttributes.length === 0) {
@@ -629,6 +700,10 @@ export default function CustomAttributesForm({
         <div className="text-center py-4">
           <div className="text-sm text-muted-foreground">{t('loading')}</div>
         </div>
+      )}
+
+      {loadFailed && !loading && (
+        <LoadFailurePanel onRetry={retryLoadDefinedAttributes} />
       )}
 
       {/* Defined Custom Attributes */}
@@ -712,6 +787,7 @@ export default function CustomAttributesForm({
                       </div>
                       {!disabled && (
                         <Button
+                          type="button"
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRemoveAttribute(key)}
@@ -758,6 +834,7 @@ export default function CustomAttributesForm({
                 </div>
                 <div className="flex gap-2">
                   <Button
+                    type="button"
                     size="sm"
                     onClick={handleAddAttribute}
                     disabled={!newAttributeKey.trim() || !newAttributeValue.trim()}
@@ -765,6 +842,7 @@ export default function CustomAttributesForm({
                     {t('actions.add')}
                   </Button>
                   <Button
+                    type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => {
@@ -780,6 +858,7 @@ export default function CustomAttributesForm({
             </Card>
           ) : (
             <Button
+              type="button"
               variant="outline"
               size="sm"
               onClick={() => setShowAddForm(true)}
@@ -796,7 +875,8 @@ export default function CustomAttributesForm({
       {definedAttributes.length === 0 &&
         attributeEntries.length === 0 &&
         !showAddForm &&
-        !loading && (
+        !loading &&
+        !loadFailed && (
           <div className="text-center py-6 text-muted-foreground">
             <Settings className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">{t('empty.title')}</p>

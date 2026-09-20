@@ -257,4 +257,31 @@ describe('journey i18n parity (EVO-1260)', () => {
     const leaks = findLeaks(en, ptBR, JOURNEY_ALLOWED_IDENTICAL);
     expect(leaks).toEqual([]);
   });
+
+  // Every EN leaf labelled exactly "Save" or "Cancel". Discovered, not listed,
+  // so a newly orphaned pair is covered without editing this file.
+  const saveCancelKeys = flatten(en).filter((k) => {
+    const v = getAtPath(en, k);
+    return v === 'Save' || v === 'Cancel';
+  });
+
+  // Reworded EN copy empties the set and passes the cases below vacuously.
+  it('discovers the Save/Cancel keys it guards', () => {
+    expect(saveCancelKeys.length).toBeGreaterThan(0);
+  });
+
+  it.each([
+    ['pt', pt],
+    ['es', es],
+    ['fr', fr],
+    ['it', itLocale],
+  ])('%s translates every Save/Cancel key', (_name, locale) => {
+    // An absent key renders the EN literal via fallbackLng, so it leaks the
+    // same as a key holding the EN value.
+    const leaks = saveCancelKeys.filter((k) => {
+      const v = getAtPath(locale, k);
+      return v === undefined || v === getAtPath(en, k);
+    });
+    expect(leaks).toEqual([]);
+  });
 });

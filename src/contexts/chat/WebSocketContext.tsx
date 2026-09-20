@@ -2,7 +2,7 @@ import React, { createContext, useContext, useReducer, useCallback, useEffect } 
 import { toast } from 'sonner';
 import { useWebSocket } from '@/hooks/chat/useWebSocket';
 import { useAuth } from '@/contexts/AuthContext';
-import { Message, Conversation, MessageSender, MessageTypeValue, Attachment } from '@/types/chat/api';
+import { Message, Conversation, Contact, MessageSender, MessageTypeValue, Attachment } from '@/types/chat/api';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   MessageCreatedEvent,
@@ -13,8 +13,10 @@ import {
   TypingEvent,
   PresenceUpdateEvent,
   ConversationReadEvent,
+  ContactUpdatedEvent,
 } from '@/services/chat/websocket/ChatActionCableConnector';
 import { normalizeToUnixSeconds } from '@/utils/time/timeHelpers';
+import { mapEventLabels } from '@/contexts/chat/eventLabels';
 
 /**
  * Converte file_type do formato WebSocket (número ou string) para o formato esperado pelo frontend
@@ -186,6 +188,7 @@ interface WebSocketHandlers {
   onConversationStatusChanged?: (conversationId: string, status: Conversation['status'], updatedAt?: string) => void;
   onConversationRead?: (conversationId: string, unreadCount: number) => void;
   onConversationLastActivity?: (conversationId: string, lastActivityAt: string) => void;
+  onContactUpdated?: (contact: Contact) => void;
 }
 
 interface WebSocketContextValue {
@@ -436,15 +439,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
                 avatar_url: undefined,
                 provider: data.meta.provider || '',
               },
-              labels: data.labels.map((labelId: string) => ({
-                id: labelId,
-                title: '',
-                description: '',
-                color: '#000000',
-                show_on_sidebar: false,
-                created_at: data.created_at,
-                updated_at: data.updated_at,
-              })),
+              labels: mapEventLabels(data.labels_data, data.labels, data.created_at, data.updated_at),
               unread_count: data.unread_count,
               messages: [], // Será carregado quando selecionado
               // Grupos: o serializer/preset do chip filtra por is_group; sem popular
@@ -523,7 +518,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
               }
             : undefined;
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const updatedConversation: Partial<Conversation> & { id: string } = {
             id: String(data.id),
             ...(data.display_id != null && { display_id: String(data.display_id) }),
@@ -583,29 +577,8 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
                   },
                 }
               : data.meta.team === null ? { team: null } : {}),
-            ...(data.labels && {
-              labels: data.labels.map((label: string | Record<string, unknown>) => {
-                if (typeof label === 'string') {
-                  return {
-                    id: label,
-                    title: label,
-                    description: '',
-                    color: '',
-                    show_on_sidebar: false,
-                    created_at: data.created_at,
-                    updated_at: data.updated_at,
-                  };
-                }
-                return {
-                  id: String(label.id),
-                  title: String(label.title || ''),
-                  description: String(label.description || ''),
-                  color: String(label.color || ''),
-                  show_on_sidebar: Boolean(label.show_on_sidebar),
-                  created_at: String(label.created_at || data.created_at),
-                  updated_at: String(label.updated_at || data.updated_at),
-                };
-              }),
+            ...((data.labels_data || data.labels) && {
+              labels: mapEventLabels(data.labels_data, data.labels, data.created_at, data.updated_at),
             }),
             ...(data.custom_attributes != null && Object.keys(data.custom_attributes).length > 0 && {
               custom_attributes: data.custom_attributes,
@@ -637,6 +610,26 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
             data.status,
             data.updated_at,
           );
+        }, []),
+
+        // Without this handler the connector's contact.updated registration was a
+        // no-op, so a resolved/renamed contact only landed after a REST refresh.
+        onContactUpdated: useCallback((data: ContactUpdatedEvent) => {
+          if (!data?.id) {
+            return;
+          }
+
+          const contact: Contact = {
+            id: String(data.id),
+            name: data.name ?? '',
+            email: data.email ?? null,
+            phone_number: data.phone_number ?? null,
+            avatar_url: data.thumbnail ?? null,
+            custom_attributes: data.custom_attributes ?? {},
+            additional_attributes: data.additional_attributes ?? {},
+          };
+
+          handlersRef.current.onContactUpdated?.(contact);
         }, []),
 
         onTypingOn: useCallback((data: TypingEvent) => {

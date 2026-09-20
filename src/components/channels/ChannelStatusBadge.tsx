@@ -12,6 +12,8 @@ const dotClasses: Record<ChannelHealthStatus, string> = {
   active: 'bg-emerald-500',
   attention: 'bg-amber-500',
   error: 'bg-red-500',
+  // Neutral on purpose: the state is not known, so the dot must not read as healthy.
+  unmonitored: 'bg-muted-foreground/40',
   available: 'bg-sidebar-foreground/30',
 };
 

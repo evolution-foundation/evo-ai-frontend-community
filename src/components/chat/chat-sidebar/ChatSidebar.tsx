@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, type CSSProperties } from 'react';
 import { Button } from '@evoapi/design-system/button';
 import { Checkbox } from '@evoapi/design-system/checkbox';
 import { Input } from '@evoapi/design-system/input';
@@ -638,9 +638,9 @@ const ChatSidebar = ({
       data-tour="chat-sidebar"
       className={`
         ${mobileView === 'list' ? 'flex' : 'hidden'} md:flex
-        w-full ${width == null ? 'md:w-96' : 'md:shrink-0'} border-r bg-card/50 flex-col h-full
+        w-full ${width == null ? 'md:w-96' : 'md:w-[var(--chat-sidebar-width)] md:shrink-0'} border-r bg-card/50 flex-col h-full
       `}
-      style={width != null ? { width: `${width}px` } : undefined}
+      style={width != null ? ({ '--chat-sidebar-width': `${width}px` } as CSSProperties) : undefined}
     >
       {/* Search and Filter Header */}
       <div className="p-4 border-b space-y-3">

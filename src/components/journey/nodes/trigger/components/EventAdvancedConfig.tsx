@@ -37,16 +37,18 @@ export function EventAdvancedConfig({
     <>
       <Separator />
       <div className="space-y-3">
-        <Label className="text-sm font-medium">
+        <Label id="event-trigger-capture-label" className="text-sm font-medium">
           {t('triggerComponents.event.captureEventData')}
         </Label>
-        <VariableMapping
-          mappings={variableMappings}
-          onMappingsChange={onVariableMappingsChange}
-          paths={paths}
-          journeyId={journeyId}
-          className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border"
-        />
+        <div role="group" aria-labelledby="event-trigger-capture-label">
+          <VariableMapping
+            mappings={variableMappings}
+            onMappingsChange={onVariableMappingsChange}
+            paths={paths}
+            journeyId={journeyId}
+            className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border"
+          />
+        </div>
       </div>
     </>
   );

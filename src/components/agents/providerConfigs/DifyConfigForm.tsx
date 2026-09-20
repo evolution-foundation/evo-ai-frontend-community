@@ -12,6 +12,10 @@ interface DifyConfigFormProps {
   onChange: (config: DifyConfig) => void;
   errors?: Record<string, string>;
   disabled?: boolean;
+  /** EVO-2250 story 2.7: the inline secret retired behind the migration
+   * guard. Only the secret input locks; address fields stay editable. */
+  secretRetired?: boolean;
+  secretRetiredHint?: string;
 }
 
 export const DifyConfigForm = ({
@@ -19,6 +23,8 @@ export const DifyConfigForm = ({
   onChange,
   errors = {},
   disabled = false,
+  secretRetired = false,
+  secretRetiredHint,
 }: DifyConfigFormProps) => {
   const { t } = useLanguage('aiAgents');
   
@@ -45,10 +51,13 @@ export const DifyConfigForm = ({
           value={config.apiKey || ''}
           onChange={(e) => onChange({ ...config, apiKey: e.target.value })}
           placeholder="app-..."
-          disabled={disabled}
+          disabled={disabled || secretRetired}
         />
         {errors.apiKey && (
           <p className="text-xs text-red-600">{errors.apiKey}</p>
+        )}
+        {secretRetired && secretRetiredHint && (
+          <p className="text-xs text-muted-foreground">{secretRetiredHint}</p>
         )}
       </div>
       <div className="space-y-2">

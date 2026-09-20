@@ -58,6 +58,14 @@ export const extractBackendErrorMessage = (error: any): string => {
     }
   }
 
+  // CRM-116: the core-service (Go) answers `{ success:false, error:{ code, message } }`,
+  // which neither branch above matches — so every core refusal fell through to
+  // axios's generic "Request failed with status code N". Same read as
+  // services/agents/customToolsService.ts.
+  if (error?.response?.data?.error?.message) {
+    return error.response.data.error.message;
+  }
+
   // Fallback para outros tipos de erro
   if (error?.response?.data?.message) {
     return error.response.data.message;
