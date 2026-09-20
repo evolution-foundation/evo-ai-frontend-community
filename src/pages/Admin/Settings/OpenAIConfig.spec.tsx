@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
-import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import OpenAIConfig from './OpenAIConfig';
 
@@ -113,10 +113,32 @@ describe('OpenAIConfig', () => {
     expect(screen.getByText('openai.description')).toBeInTheDocument();
   });
 
-  it('renders connection settings card', async () => {
+  it('renders one card per AI feature instead of grouping by field type', async () => {
     await renderAndWait();
 
-    expect(screen.getByText('openai.connection.cardTitle')).toBeInTheDocument();
+    expect(screen.getByText('openai.cards.inboxAssist')).toBeInTheDocument();
+    expect(screen.getByText('openai.cards.audioTranscription')).toBeInTheDocument();
+    expect(screen.getByText('openai.cards.knowledgeEmbedding')).toBeInTheDocument();
+    expect(screen.getByText('openai.cards.memoryCompression')).toBeInTheDocument();
+
+    // The old type-grouped card titles must be gone.
+    expect(screen.queryByText('openai.connection.cardTitle')).not.toBeInTheDocument();
+    expect(screen.queryByText('openai.sections.aiFeatureModels')).not.toBeInTheDocument();
+  });
+
+  it('renders the inbox-assist prompt fields inside the same card as its model and credential', async () => {
+    await renderAndWait();
+
+    const inboxAssistCard = screen.getByText('openai.cards.inboxAssist').closest('[data-slot="card"]');
+    expect(inboxAssistCard).not.toBeNull();
+    expect(within(inboxAssistCard as HTMLElement).getByLabelText('openai.connection.fields.model')).toBeInTheDocument();
+    expect(within(inboxAssistCard as HTMLElement).getByLabelText('openai.credentialSelect.inboxAssist')).toBeInTheDocument();
+    expect(within(inboxAssistCard as HTMLElement).getByText('openai.prompts.fields.OPENAI_PROMPT_REPLY')).toBeInTheDocument();
+  });
+
+  it('renders the model field and no leftover connection-only fields', async () => {
+    await renderAndWait();
+
     expect(screen.getByLabelText('openai.connection.fields.model')).toBeInTheDocument();
     // EVO-2250: the credential moved to Settings > AI Credentials. The
     // "go there manually" banner was later removed once the inline
@@ -135,7 +157,7 @@ describe('OpenAIConfig', () => {
   it('renders all 9 prompt textarea fields', async () => {
     await renderAndWait();
 
-    expect(screen.getByText('openai.prompts.cardTitle')).toBeInTheDocument();
+    expect(screen.getByText('openai.cards.inboxAssist')).toBeInTheDocument();
 
     const promptKeys = [
       'OPENAI_PROMPT_REPLY', 'OPENAI_PROMPT_SUMMARY', 'OPENAI_PROMPT_REPHRASE',
@@ -199,7 +221,6 @@ describe('OpenAIConfig', () => {
     expect(
       screen.getByLabelText('openai.fields.audioTranscriptionModel'),
     ).toBeInTheDocument();
-    expect(screen.getByText('openai.sections.aiFeatureModels')).toBeInTheDocument();
   });
 
   it('calls saveConfig with the model-override fields on form submit', async () => {

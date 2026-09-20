@@ -298,6 +298,12 @@
   "openai": {
     "title": "AI Settings",
     "description": "Configure the OpenAI API connection, which credential and model each AI feature uses, and the prompt templates used for reply suggestions, summaries, and text transformations.",
+    "cards": {
+      "inboxAssist": "Inbox Assist",
+      "audioTranscription": "Audio Transcription",
+      "knowledgeEmbedding": "Knowledge Embedding",
+      "memoryCompression": "Memory Compression"
+    },
     "connection": {
       "cardTitle": "Connection Settings",
       "fields": {

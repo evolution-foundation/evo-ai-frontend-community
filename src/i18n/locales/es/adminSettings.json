@@ -292,6 +292,12 @@
   "openai": {
     "title": "Configuracion de IA",
     "description": "Configure la conexion con la API de OpenAI, que credencial y modelo usa cada funcion de IA, y las plantillas de prompts usadas para sugerencias de respuesta, resumenes y transformaciones de texto.",
+    "cards": {
+      "inboxAssist": "Asistencia de Bandeja",
+      "audioTranscription": "Transcripcion de Audio",
+      "knowledgeEmbedding": "Embedding de Conocimiento",
+      "memoryCompression": "Compresion de Memoria"
+    },
     "connection": {
       "cardTitle": "Configuracion de Conexion",
       "fields": {
