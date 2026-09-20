@@ -86,6 +86,18 @@ const ANTHROPIC_KEY: ApiKey = {
   updated_at: '2026-07-01T00:00:00Z',
 };
 
+const GROQ_KEY: ApiKey = {
+  id: 'key-groq',
+  name: 'Groq rapido',
+  provider: 'groq',
+  key_hint: 'aa77',
+  openai_compatible: false,
+  scope: 'account',
+  is_active: false,
+  created_at: '2026-07-01T00:00:00Z',
+  updated_at: '2026-07-01T00:00:00Z',
+};
+
 const INSTALLATION_KEY: ApiKey = {
   id: 'key-installation',
   name: 'Chave da casa',
@@ -257,6 +269,21 @@ describe('AiCredentials — incompatible provider warning (AC7)', () => {
 
     await screen.findByLabelText('form.labels.key');
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('shows the chat-completions warning, not the AI-Agents-only one, for groq', async () => {
+    // groq is chat-completions-compatible (Task 3): it serves inbox assist and
+    // memory compression too, so the dialog must not claim "AI Agents only".
+    mockRegistry([OPENAI_KEY, ANTHROPIC_KEY, GROQ_KEY]);
+    const user = userEvent.setup();
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getAllByLabelText('actions.edit')[2]);
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('form.chatCompletionsWarning');
+    expect(alert).not.toHaveTextContent('form.incompatibleWarning');
   });
 });
 

@@ -26,6 +26,7 @@ import {
   CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS_LIST,
   KNOWN_PROVIDER_BASE_URLS,
   OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  isChatCompletionsCompatible,
   isOpenAICompatible,
   maskKey,
   resolveCredentialState,
@@ -264,10 +265,18 @@ export default function AiCredentials() {
     [],
   );
 
-  const draftIsIncompatible = useMemo(
-    () => Boolean(draft.provider) && !isOpenAICompatible(draft.provider),
-    [draft.provider],
-  );
+  // Three outcomes for the create/edit dialog's compatibility notice, mirroring
+  // FILTERED_FEATURES above: narrow OpenAI-compatible providers serve every
+  // feature (no warning), chat-completions-compatible providers (groq,
+  // deepseek, together_ai, fireworks_ai) serve AI Agents plus the two
+  // chat-completions features but not the OpenAI-shaped ones, and everything
+  // else is AI-Agents-only.
+  const draftCompatibilityWarning = useMemo(() => {
+    if (!draft.provider || isOpenAICompatible(draft.provider)) {
+      return null;
+    }
+    return isChatCompletionsCompatible(draft.provider) ? 'chatCompletions' : 'agentsOnly';
+  }, [draft.provider]);
 
   const openCreateForm = (scope: ApiKeyScope = 'account') => {
     setDraft({ ...EMPTY_DRAFT, scope });
@@ -682,10 +691,12 @@ export default function AiCredentials() {
               />
             </div>
 
-            {draftIsIncompatible && (
+            {draftCompatibilityWarning && (
               <p role="alert" className="flex gap-2 text-sm text-amber-600">
                 <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-                {t('form.incompatibleWarning', { provider: providerLabel(draft.provider) })}
+                {draftCompatibilityWarning === 'chatCompletions'
+                  ? t('form.chatCompletionsWarning', { provider: providerLabel(draft.provider) })
+                  : t('form.incompatibleWarning', { provider: providerLabel(draft.provider) })}
               </p>
             )}
           </div>
