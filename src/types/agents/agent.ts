@@ -139,6 +139,8 @@ export interface ApiKey {
   key_hint?: string;
   /** Providers speaking the OpenAI protocol serve every AI feature. */
   openai_compatible?: boolean;
+  /** Speaks the OpenAI chat-completions protocol specifically — a superset of openai_compatible. */
+  chat_completions_compatible?: boolean;
   /** Which link of the resolution chain the credential belongs to. */
   scope?: ApiKeyScope;
   /** AI features this credential is restricted to; empty/absent means unrestricted. */

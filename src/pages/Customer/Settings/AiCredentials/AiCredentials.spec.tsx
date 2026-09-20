@@ -843,9 +843,15 @@ describe('AiCredentials — base_url round trip (ALTO 7)', () => {
 
     await user.type(await screen.findByLabelText('form.labels.name'), 'Gateway');
     await user.type(screen.getByLabelText('form.labels.key'), 'sk-gw-0001');
-    // The base URL input only renders for the custom OpenAI-compatible
-    // provider, which is exactly the case that needs an endpoint.
-    expect(screen.queryByLabelText('form.labels.baseUrl')).not.toBeInTheDocument();
+    // The base URL input is visible for every provider, not just the custom
+    // OpenAI-compatible one — an admin may point any provider at a proxy.
+    await user.type(screen.getByLabelText('form.labels.baseUrl'), 'https://gw.example.com/v1');
+    await user.click(screen.getByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'OpenAI' }));
+    await user.click(screen.getByText('actions.save'));
+
+    await waitFor(() => expect(createApiKey).toHaveBeenCalled());
+    expect(createApiKey.mock.calls[0][0]).toMatchObject({ base_url: 'https://gw.example.com/v1' });
   });
 
   it('renders the stored endpoint when editing a credential that has one', async () => {
@@ -881,6 +887,78 @@ describe('AiCredentials — base_url round trip (ALTO 7)', () => {
     // This fails if the endpoint ever stops travelling: the backend replaces
     // what it receives, so a dropped base_url is a lost endpoint.
     expect(payload.base_url).toBe('https://gw.example.com/v1');
+  });
+});
+
+// Restores the ability to point any provider at a proxy, regional endpoint or
+// self-hosted gateway, and auto-fills the known chat-only providers' hosts so
+// an admin never has to type them by hand.
+describe('AiCredentials — base URL always visible with known-provider auto-fill', () => {
+  it('shows the base URL field for every provider, not just Custom', async () => {
+    const user = userEvent.setup();
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+
+    await user.click(await screen.findByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'OpenAI' }));
+
+    expect(screen.getByLabelText('form.labels.baseUrl')).toBeInTheDocument();
+  });
+
+  it('keeps a manually-typed base URL when switching to a provider with no known default', async () => {
+    const user = userEvent.setup();
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+
+    await user.click(await screen.findByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'Custom (OpenAI-compatible)' }));
+    await user.type(screen.getByLabelText('form.labels.baseUrl'), 'https://my-proxy.example.com/v1');
+
+    await user.click(screen.getByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'Anthropic' }));
+
+    expect(screen.getByLabelText('form.labels.baseUrl')).toHaveValue('https://my-proxy.example.com/v1');
+  });
+
+  it('auto-fills the base URL when a known chat-completions-compatible provider is selected', async () => {
+    const user = userEvent.setup();
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+
+    await user.click(await screen.findByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'Groq' }));
+
+    expect(screen.getByLabelText('form.labels.baseUrl')).toHaveValue('https://api.groq.com/openai/v1');
+  });
+
+  it('lets the admin override the auto-filled base URL', async () => {
+    const user = userEvent.setup();
+    createApiKey.mockResolvedValue(OPENAI_KEY);
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+
+    await user.type(await screen.findByLabelText('form.labels.name'), 'Groq override');
+    await user.click(screen.getByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'Groq' }));
+
+    const baseUrlInput = screen.getByLabelText('form.labels.baseUrl');
+    await user.clear(baseUrlInput);
+    await user.type(baseUrlInput, 'https://my-groq-proxy.example.com/v1');
+    await user.type(screen.getByLabelText('form.labels.key'), 'sk-groq-0001');
+    await user.click(screen.getByText('actions.save'));
+
+    await waitFor(() => expect(createApiKey).toHaveBeenCalled());
+    expect(createApiKey).toHaveBeenCalledWith(
+      expect.objectContaining({ base_url: 'https://my-groq-proxy.example.com/v1' }),
+    );
   });
 });
 

@@ -25,10 +25,17 @@ import { adminConfigService } from '@/services/admin/adminConfigService';
 import { extractError } from '@/utils/apiHelpers';
 import type { AdminConfigData } from '@/types/admin/adminConfig';
 import { listApiKeys } from '@/services/agents';
-import { isOpenAICompatible } from '@/constants/aiProviders';
+import { isChatCompletionsCompatible, isOpenAICompatible } from '@/constants/aiProviders';
 import type { ApiKey } from '@/types/agents';
 
 const AUTOMATIC_CREDENTIAL = 'automatic';
+
+// inbox_assist and memory_compression build chat-completions requests, so any
+// chat-completions-compatible provider can serve them; the other consumers
+// (audio transcription, knowledge embedding) build OpenAI-shaped
+// embeddings/transcription requests and need the narrower OpenAI-compatible
+// set. Mirrors the same distinction in Ai::ConsumerCompatibility.
+const CHAT_CONSUMERS = new Set(['inbox_assist', 'memory_compression']);
 
 // --- Schema factory with i18n ---
 
@@ -145,7 +152,7 @@ export default function OpenAIConfig() {
   const loadCredentials = useCallback(async () => {
     try {
       const keys = await listApiKeys(1, 100, { active: true });
-      setCredentials(keys.filter(k => k.openai_compatible ?? isOpenAICompatible(k.provider)));
+      setCredentials(keys);
       setCredentialsError(false);
     } catch (error) {
       // Non-fatal to the rest of the page — the dropdowns still work, just
@@ -164,7 +171,13 @@ export default function OpenAIConfig() {
   }, [loadConfig, loadCredentials]);
 
   const eligibleCredentials = (consumerKey: string) =>
-    credentials.filter(c => !c.allowed_consumers?.length || c.allowed_consumers.includes(consumerKey));
+    credentials.filter(c => {
+      const providerOk = CHAT_CONSUMERS.has(consumerKey)
+        ? (c.chat_completions_compatible ?? isChatCompletionsCompatible(c.provider))
+        : (c.openai_compatible ?? isOpenAICompatible(c.provider));
+      const restrictionOk = !c.allowed_consumers?.length || c.allowed_consumers.includes(consumerKey);
+      return providerOk && restrictionOk;
+    });
 
   const modelOverrideField = (
     fieldName: 'KNOWLEDGE_EMBEDDING_MODEL' | 'MEMORY_COMPRESSION_MODEL' | 'OPENAI_AUDIO_TRANSCRIPTION_MODEL',

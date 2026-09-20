@@ -307,4 +307,52 @@ describe('OpenAIConfig', () => {
       }));
     });
   });
+
+  // Task 1/2 widened chat-completions-eligible providers beyond
+  // OPENAI_COMPATIBLE_PROVIDERS: groq speaks chat completions but not
+  // OpenAI-shaped embeddings, so it must appear for inbox assist/memory
+  // compression but not for knowledge embedding/audio transcription.
+  it('offers a Groq credential for Inbox Assist but not for Knowledge Embedding (chat-only provider)', async () => {
+    mockListApiKeys.mockResolvedValue([
+      ...CREDENTIALS,
+      {
+        id: 'cred-groq',
+        name: 'Groq Fast',
+        provider: 'groq',
+        chat_completions_compatible: true,
+        openai_compatible: false,
+        is_active: true,
+        allowed_consumers: [],
+      },
+    ]);
+    await renderAndWait();
+
+    fireEvent.click(screen.getByLabelText('openai.credentialSelect.inboxAssist'));
+    expect(await screen.findByRole('option', { name: /Groq Fast/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('openai.credentialSelect.knowledgeEmbedding'));
+    expect(screen.queryByRole('option', { name: /Groq Fast/i })).not.toBeInTheDocument();
+  });
+
+  it('offers an OpenRouter credential for Knowledge Embedding and Audio Transcription too', async () => {
+    mockListApiKeys.mockResolvedValue([
+      ...CREDENTIALS,
+      {
+        id: 'cred-openrouter',
+        name: 'OpenRouter Prod',
+        provider: 'openrouter',
+        chat_completions_compatible: true,
+        openai_compatible: true,
+        is_active: true,
+        allowed_consumers: [],
+      },
+    ]);
+    await renderAndWait();
+
+    fireEvent.click(screen.getByLabelText('openai.credentialSelect.knowledgeEmbedding'));
+    expect(await screen.findByRole('option', { name: /OpenRouter Prod/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('openai.credentialSelect.audioTranscription'));
+    expect(await screen.findByRole('option', { name: /OpenRouter Prod/i })).toBeInTheDocument();
+  });
 });

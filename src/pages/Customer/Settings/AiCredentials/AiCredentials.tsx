@@ -24,7 +24,9 @@ import EmptyState from '@/components/base/EmptyState';
 import {
   AI_CONSUMERS,
   AI_PROVIDERS,
-  CUSTOM_OPENAI_PROVIDER,
+  CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS_LIST,
+  KNOWN_PROVIDER_BASE_URLS,
+  OPENAI_COMPATIBLE_PROVIDERS_LIST,
   isOpenAICompatible,
   maskKey,
   resolveCredentialState,
@@ -59,16 +61,42 @@ const EMPTY_DRAFT: CredentialDraft = {
   allowed_consumers: [],
 };
 
-// AI Agents reaches every provider; the other six build OpenAI-shaped
-// requests, so they resolve with the compatibility filter plus their own
-// consumer key (mirrors Ai::ConsumerCompatibility).
-const OPENAI_ONLY_FEATURES: { key: string; consumerKey: string }[] = [
-  { key: 'inboxAssist', consumerKey: 'inbox_assist' },
-  { key: 'audioTranscription', consumerKey: 'audio_transcription' },
-  { key: 'labelSuggestion', consumerKey: 'label_suggestion' },
-  { key: 'moderation', consumerKey: 'moderation' },
-  { key: 'knowledgeEmbedding', consumerKey: 'knowledge_embedding' },
-  { key: 'memoryCompression', consumerKey: 'memory_compression' },
+// AI Agents reaches every provider. Inbox assist and memory compression build
+// chat-completions requests, so any chat-completions-compatible provider can
+// serve them; the other three build OpenAI-shaped embeddings/transcription
+// requests and need the narrower set. Each resolves with its own consumer key
+// too (mirrors Ai::ConsumerCompatibility).
+const FILTERED_FEATURES: { key: string; consumerKey: string; acceptedProviders: readonly string[] }[] = [
+  {
+    key: 'inboxAssist',
+    consumerKey: 'inbox_assist',
+    acceptedProviders: CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'audioTranscription',
+    consumerKey: 'audio_transcription',
+    acceptedProviders: OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'labelSuggestion',
+    consumerKey: 'label_suggestion',
+    acceptedProviders: OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'moderation',
+    consumerKey: 'moderation',
+    acceptedProviders: OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'knowledgeEmbedding',
+    consumerKey: 'knowledge_embedding',
+    acceptedProviders: OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'memoryCompression',
+    consumerKey: 'memory_compression',
+    acceptedProviders: CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS_LIST,
+  },
 ];
 
 export default function AiCredentials() {
@@ -140,10 +168,10 @@ export default function AiCredentials() {
         key: 'aiAgents',
         resolution: resolveCredentialState(credentials, { legacyActive, consumerKey: 'ai_agents' }),
       },
-      ...OPENAI_ONLY_FEATURES.map(({ key, consumerKey }) => ({
+      ...FILTERED_FEATURES.map(({ key, consumerKey, acceptedProviders }) => ({
         key,
         resolution: resolveCredentialState(credentials, {
-          openAICompatibleOnly: true,
+          acceptedProviders,
           legacyActive,
           consumerKey,
         }),
@@ -614,7 +642,7 @@ export default function AiCredentials() {
                   setDraft({
                     ...draft,
                     provider: value,
-                    ...(value !== CUSTOM_OPENAI_PROVIDER ? { base_url: '' } : {}),
+                    base_url: KNOWN_PROVIDER_BASE_URLS[value] ?? draft.base_url,
                   })
                 }
               >
@@ -631,17 +659,16 @@ export default function AiCredentials() {
               </Select>
             </div>
 
-            {draft.provider === CUSTOM_OPENAI_PROVIDER && (
-              <div className="grid gap-2">
-                <Label htmlFor="credential-base-url">{t('form.labels.baseUrl')}</Label>
-                <Input
-                  id="credential-base-url"
-                  value={draft.base_url}
-                  placeholder="https://api.example.com/v1"
-                  onChange={event => setDraft({ ...draft, base_url: event.target.value })}
-                />
-              </div>
-            )}
+            <div className="grid gap-2">
+              <Label htmlFor="credential-base-url">{t('form.labels.baseUrl')}</Label>
+              <Input
+                id="credential-base-url"
+                value={draft.base_url}
+                placeholder="https://api.example.com/v1"
+                onChange={event => setDraft({ ...draft, base_url: event.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">{t('form.hints.baseUrl')}</p>
+            </div>
 
             <div className="grid gap-2">
               <Label htmlFor="credential-key">{t('form.labels.key')}</Label>
