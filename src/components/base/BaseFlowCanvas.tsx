@@ -31,22 +31,21 @@ import BaseDefaultEdge from './BaseDefaultEdge';
 import { cn, getHelperLines, createMiniMapNodeColors } from '@/lib/utils';
 import { flowTokens } from '@/components/journey/_ui/tokens';
 
-// Edge types padrão
+// Default edge types
 const defaultEdgeTypes = {
   default: BaseDefaultEdge,
   'base-default': BaseDefaultEdge,
 };
 
-// Tipos base para configuração do canvas
 export interface BaseFlowCanvasProps {
-  // Dados do flow
+  // Flow data
   initialNodes?: Node[];
   initialEdges?: Edge[];
 
-  // Configurações do canvas
+  // Canvas config
   nodeTypes: Record<string, React.ComponentType<any>>;
 
-  // Callbacks essenciais
+  // Core callbacks
   onNodesChange?: (changes: NodeChange[]) => void;
   onEdgesChange?: (changes: any[]) => void;
   onConnect?: OnConnect;
@@ -55,32 +54,32 @@ export interface BaseFlowCanvasProps {
   onDrop?: (event: React.DragEvent) => void;
   onFlowDataChange?: (nodes: Node[], edges: Edge[]) => void;
 
-  // 🆕 Callback estendido com variables (compatibilidade com automação)
+  // Extended callback carrying the flow variables
   onFlowDataChangeExtended?: (flowData: { nodes: Node[]; edges: Edge[]; variables: any[] }) => void;
-  flowVariables?: any[]; // Variables do flow para compatibilidade
+  flowVariables?: any[];
 
-  // Configurações visuais
+  // Visual config
   showMiniMap?: boolean;
   showControls?: boolean;
   showBackground?: boolean;
   backgroundVariant?: 'dots' | 'lines' | 'cross';
 
-  // Painel lateral
+  // Side panel
   NodePanelComponent?: React.ComponentType<{ onClose: () => void }>;
   showNodePanelByDefault?: boolean;
 
-  // Configurações adicionais
+  // Extra config
   connectionMode?: ConnectionMode;
   snapToGrid?: boolean;
   snapGrid?: [number, number];
 
-  // Cores do MiniMap por tipo de node
+  // MiniMap colors keyed by node type
   miniMapNodeColors?: Record<string, string>;
 
-  // Renderização de painéis customizados
+  // Custom panel rendering
   renderCustomPanels?: () => React.ReactNode;
 
-  // Componentes customizados
+  // Custom components
   ContextMenuComponent?: React.ComponentType<{
     x: number;
     y: number;
@@ -93,7 +92,7 @@ export interface BaseFlowCanvasProps {
     vertical?: number;
   }>;
 
-  // Configurações de helper lines
+  // Helper line config
   enableHelperLines?: boolean;
   helperLinesConfig?: {
     strokeColor?: string;
@@ -102,15 +101,15 @@ export interface BaseFlowCanvasProps {
     opacity?: number;
   };
 
-  // 🆕 Helper lines customizado (compatibilidade com automação)
+  // Use the custom snap instead of xyflow's own change handler
   customHelperLines?: boolean;
 
-  // Classes CSS customizadas
+  // Custom CSS classes
   className?: string;
   canvasClassName?: string;
   style?: React.CSSProperties;
 
-  // 🆕 Sistema de painéis de configuração (compatibilidade com automação)
+  // Config panel system
   configPanelSystem?: boolean;
   renderConfigPanel?: (
     nodeType: string,
@@ -120,7 +119,7 @@ export interface BaseFlowCanvasProps {
     onClose: () => void,
   ) => React.ReactNode;
 
-  // 🆕 Configurações específicas do ReactFlow (compatibilidade com automação)
+  // ReactFlow overrides
   reactFlowProps?: {
     minZoom?: number;
     maxZoom?: number;
@@ -173,9 +172,27 @@ export function BaseFlowCanvas({
   const { screenToFlowPosition } = useReactFlow();
   const { type, setPointerEvents, setType } = useDnD();
 
-  // Estados do canvas
-  const [nodes, setNodes, onNodesChangeInternal] = useNodesState(initialNodes);
+  // Canvas state
+  const [nodes, setNodesState] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChangeInternal] = useEdgesState(initialEdges);
+
+  // Synchronous mirror of `nodes`: inside one React batch the closure still
+  // holds the pre-batch value, so a payload built from it undoes the changes
+  // the batch already applied.
+  const nodesRef = useRef(nodes);
+
+  // Single writer for node state, keeping the mirror and React state in step.
+  // Payloads read `nodesRef.current`; `nodes` is for rendering only.
+  const commitNodes = useCallback(
+    (update: Node[] | ((current: Node[]) => Node[])): Node[] => {
+      const next = typeof update === 'function' ? update(nodesRef.current) : update;
+      nodesRef.current = next;
+      setNodesState(next);
+      return next;
+    },
+    [setNodesState],
+  );
+
   const [showNodePanel, setShowNodePanel] = useState(showNodePanelByDefault);
 
   // Context menu
@@ -186,72 +203,64 @@ export function BaseFlowCanvas({
     nodeId?: string;
   }>({ show: false, x: 0, y: 0 });
 
-  // Helper lines para snap visual
+  // Helper lines for visual snapping
   const [helperLineHorizontal, setHelperLineHorizontal] = useState<number | undefined>(undefined);
   const [helperLineVertical, setHelperLineVertical] = useState<number | undefined>(undefined);
 
-  // 🆕 Estados para sistema de painéis de configuração
+  // Config panel state
   const [showConfigPanel, setShowConfigPanel] = useState(false);
   const [configNodeData, setConfigNodeData] = useState<any>(null);
   const [configPanelType, setConfigPanelType] = useState<string>('');
 
-  // 🆕 Custom onNodesChange com helper lines customizado
-  const customApplyNodeChanges = useCallback(
-    (changes: NodeChange[], nodes: Node[]): Node[] => {
+  // Helper line side effect only, kept out of the state updater so it runs
+  // once per batch.
+  const applyHelperLineSnap = useCallback(
+    (changes: NodeChange[], nodes: Node[]) => {
+      if (!customHelperLines) {
+        return;
+      }
+
       // Reset helper lines
       setHelperLineHorizontal(undefined);
       setHelperLineVertical(undefined);
 
-      // Se helper lines customizado está habilitado
-      if (customHelperLines) {
-        // Se single node sendo arrastado
-        if (
-          changes.length === 1 &&
-          changes[0].type === 'position' &&
-          changes[0].dragging &&
-          changes[0].position
-        ) {
-          const helperLines = getHelperLines(changes[0], nodes);
+      // Single node being dragged
+      if (
+        changes.length === 1 &&
+        changes[0].type === 'position' &&
+        changes[0].dragging &&
+        changes[0].position
+      ) {
+        const helperLines = getHelperLines(changes[0], nodes);
 
-          // Snap to helper line position
-          changes[0].position.x = helperLines.snapPosition.x ?? changes[0].position.x;
-          changes[0].position.y = helperLines.snapPosition.y ?? changes[0].position.y;
+        // Snap to helper line position
+        changes[0].position.x = helperLines.snapPosition.x ?? changes[0].position.x;
+        changes[0].position.y = helperLines.snapPosition.y ?? changes[0].position.y;
 
-          // Set helper lines for display
-          setHelperLineHorizontal(helperLines.horizontal);
-          setHelperLineVertical(helperLines.vertical);
-        }
+        // Set helper lines for display
+        setHelperLineHorizontal(helperLines.horizontal);
+        setHelperLineVertical(helperLines.vertical);
       }
-
-      return applyNodeChanges(changes, nodes);
     },
     [customHelperLines],
   );
 
-  // Handlers de mudanças
+  // Change handlers
   const handleNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      // Usar custom apply se helper lines customizado está habilitado
-      if (customHelperLines) {
-        setNodes(nodes => customApplyNodeChanges(changes, nodes));
-      } else {
-        onNodesChangeInternal(changes);
-      }
+      // Mutates changes[0].position for the snap; must run once per batch.
+      applyHelperLineSnap(changes, nodesRef.current);
+
+      const updatedNodes = commitNodes(current => applyNodeChanges(changes, current));
 
       if (onNodesChange) {
         onNodesChange(changes);
       }
 
-      // Notificar mudanças no flow
-      const updatedNodes = customHelperLines
-        ? customApplyNodeChanges(changes, nodes)
-        : applyNodeChanges(changes, nodes);
-
       if (onFlowDataChange) {
         onFlowDataChange(updatedNodes, edges);
       }
 
-      // 🆕 Callback estendido com variables
       if (onFlowDataChangeExtended) {
         onFlowDataChangeExtended({
           nodes: updatedNodes,
@@ -261,15 +270,13 @@ export function BaseFlowCanvas({
       }
     },
     [
-      onNodesChangeInternal,
+      commitNodes,
       onNodesChange,
       onFlowDataChange,
       onFlowDataChangeExtended,
-      nodes,
       edges,
       flowVariables,
-      customHelperLines,
-      customApplyNodeChanges,
+      applyHelperLineSnap,
     ],
   );
 
@@ -277,23 +284,18 @@ export function BaseFlowCanvas({
     (changes: EdgeChange[]) => {
       onEdgesChangeInternal(changes);
 
-      // EVO-1573: real edge edits (add/remove/replace) must propagate to
-      // the editor store so the snapshot includes them on the next save;
-      // pre-fix, only handleNodesChange notified the store, which silently
-      // dropped fresh connections and deletes when no node was moved
-      // afterwards. Selection-type changes are volatile UI state and
-      // would mark the journey dirty without a real edit — the store
-      // already strips volatile fields for nodes (stripVolatileNodeFields)
-      // but has no equivalent for edges, so filter at the source here.
+      // Selection is volatile UI state: propagating it would mark the journey
+      // dirty without a real edit. Nodes are stripped downstream, edges are
+      // not, so filter here.
       const persistChanges = changes.filter(c => c.type !== 'select');
       if (persistChanges.length > 0) {
         const updatedEdges = applyEdgeChanges(persistChanges, edges);
         if (onFlowDataChange) {
-          onFlowDataChange(nodes, updatedEdges);
+          onFlowDataChange(nodesRef.current, updatedEdges);
         }
         if (onFlowDataChangeExtended) {
           onFlowDataChangeExtended({
-            nodes,
+            nodes: nodesRef.current,
             edges: updatedEdges,
             variables: flowVariables,
           });
@@ -309,7 +311,6 @@ export function BaseFlowCanvas({
       onEdgesChange,
       onFlowDataChange,
       onFlowDataChangeExtended,
-      nodes,
       edges,
       flowVariables,
     ],
@@ -318,21 +319,16 @@ export function BaseFlowCanvas({
   const handleConnect = useCallback(
     (connection: Parameters<OnConnect>[0]) => {
       const edge = { ...connection, animated: true, type: 'default' };
-      // EVO-1573: compute the updated edges from the closure and call
-      // setEdges with the bare value (NOT a functional updater) so the
-      // setter stays pure. React 18 StrictMode runs functional updaters
-      // twice to surface impurity — embedding side effects in the
-      // updater would fire onFlowDataChange twice per connection in dev.
-      // Match the shape of handleEdgesChange: state set first, side
-      // effects fired after.
+      // Bare value, not a functional updater: the side effects fire after the
+      // state write, matching handleEdgesChange.
       const updatedEdges = addEdge(edge, edges);
       setEdges(updatedEdges);
       if (onFlowDataChange) {
-        onFlowDataChange(nodes, updatedEdges);
+        onFlowDataChange(nodesRef.current, updatedEdges);
       }
       if (onFlowDataChangeExtended) {
         onFlowDataChangeExtended({
-          nodes,
+          nodes: nodesRef.current,
           edges: updatedEdges,
           variables: flowVariables,
         });
@@ -347,7 +343,6 @@ export function BaseFlowCanvas({
       onConnect,
       onFlowDataChange,
       onFlowDataChangeExtended,
-      nodes,
       flowVariables,
     ],
   );
@@ -374,7 +369,7 @@ export function BaseFlowCanvas({
       if (onDrop) {
         onDrop(event);
       } else {
-        // Comportamento padrão de drop com auto-seleção
+        // Default drop behaviour, with auto-select
         const newNodeId = `${type}-${Date.now()}`;
         const newNode: Node = {
           id: newNodeId,
@@ -383,14 +378,9 @@ export function BaseFlowCanvas({
           data: { label: `${type} node` },
         };
 
-        // EVO-1643: drops bypass xyflow's NodeChange path, so the new node
-        // reached canvas state via setNodes but never the editor store — on
-        // save the snapshot kept only the trigger and dropped every action
-        // node. Mirror the EVO-1573 edge fix: set the bare value and fire the
-        // store callbacks after (keep setNodes pure so StrictMode's
-        // double-invoke can't double-notify).
-        const updatedNodes = nodes.concat(newNode);
-        setNodes(updatedNodes);
+        // Drops bypass xyflow's NodeChange path, so this is the only place the
+        // store hears about the new node: commit first, notify after.
+        const updatedNodes = commitNodes(current => current.concat(newNode));
         if (onFlowDataChange) {
           onFlowDataChange(updatedNodes, edges);
         }
@@ -402,16 +392,16 @@ export function BaseFlowCanvas({
           });
         }
         
-        // Limpar o type do DnD context para sair do modo de drag
+        // Leave drag mode
         setType(null);
         
-        // Selecionar o novo node após um pequeno delay para garantir que foi adicionado
+        // Select the new node once it has been added
         setTimeout(() => {
-          setNodes(nds => 
-            nds.map(node => ({ 
-              ...node, 
-              selected: node.id === newNodeId 
-            }))
+          commitNodes(current =>
+            current.map(node => ({
+              ...node,
+              selected: node.id === newNodeId,
+            })),
           );
         }, 10);
       }
@@ -420,9 +410,8 @@ export function BaseFlowCanvas({
       type,
       screenToFlowPosition,
       onDrop,
-      setNodes,
+      commitNodes,
       setType,
-      nodes,
       edges,
       onFlowDataChange,
       onFlowDataChangeExtended,
@@ -443,7 +432,7 @@ export function BaseFlowCanvas({
 
   const handlePaneClick = useCallback(() => {
     setContextMenu({ show: false, x: 0, y: 0 });
-    // 🆕 Fechar painel de configuração também
+    // Close the config panel too
     if (configPanelSystem) {
       setShowConfigPanel(false);
       setConfigNodeData(null);
@@ -451,7 +440,7 @@ export function BaseFlowCanvas({
     }
   }, [configPanelSystem]);
 
-  // 🆕 Handler para click em node (sistema de painéis de configuração)
+  // Node click handler for the config panel system
   const handleNodeClickInternal = useCallback(
     (event: React.MouseEvent, node: Node) => {
       if (configPanelSystem) {
@@ -461,7 +450,6 @@ export function BaseFlowCanvas({
         setShowConfigPanel(true);
       }
 
-      // Callback original
       if (onNodeClick) {
         onNodeClick(event, node);
       }
@@ -469,26 +457,14 @@ export function BaseFlowCanvas({
     [configPanelSystem, onNodeClick],
   );
 
-  // 🆕 Função para atualizar node (sistema de painéis de configuração).
-  // Config-panel updates bypass xyflow's NodeChange path because they mutate
-  // `node.data` directly via `setNodes`. The parent's `onFlowDataChange`
-  // listener would otherwise never see the edit, so the journey editor's
-  // dirty/autosave/IDB pipeline would stay clean despite a real change in
-  // a panel field. Wire the callbacks here so the data path matches what
-  // `handleNodesChange` does for canvas-level edits.
-  //
-  // IMPORTANT: side effects (onFlowDataChange / onFlowDataChangeExtended)
-  // run AFTER setNodes returns, NOT inside the updater callback. Updaters
-  // must be pure — React (and StrictMode in particular) double-invokes
-  // them in dev to surface non-idempotency, which would cause the store
-  // notifications to fire twice. This mirrors the pattern used by
-  // `handleNodesChange` above.
+  // Config panel edits mutate `node.data` outside xyflow's NodeChange path, so
+  // this is the only place the store hears about them. Side effects run after
+  // commitNodes returns, never inside the updater it receives.
   const updateNode = useCallback(
     (nodeId: string, newData: any) => {
-      const updated = nodes.map(node =>
-        node.id === nodeId ? { ...node, data: newData } : node,
+      const updated = commitNodes(current =>
+        current.map(node => (node.id === nodeId ? { ...node, data: newData } : node)),
       );
-      setNodes(updated);
       if (onFlowDataChange) {
         onFlowDataChange(updated, edges);
       }
@@ -500,10 +476,10 @@ export function BaseFlowCanvas({
         });
       }
     },
-    [nodes, setNodes, onFlowDataChange, onFlowDataChangeExtended, edges, flowVariables],
+    [commitNodes, onFlowDataChange, onFlowDataChangeExtended, edges, flowVariables],
   );
 
-  // Controle de conexões
+  // Connection lifecycle
   const handleConnectStart = useCallback(() => {
     setPointerEvents('auto');
   }, [setPointerEvents]);
@@ -512,47 +488,47 @@ export function BaseFlowCanvas({
     setPointerEvents('none');
   }, [setPointerEvents]);
 
-  // Cores padrão do MiniMap usando utilitário
   const defaultMiniMapColors = createMiniMapNodeColors(miniMapNodeColors);
 
-  // 🆕 Configurações do ReactFlow com defaults e customizações
+  // ReactFlow config: defaults plus caller overrides
   const finalReactFlowProps = {
-    // Defaults padrão
+    // Defaults
     minZoom: 0.1,
     maxZoom: 10,
     fitView: false,
     defaultViewport: { x: 0, y: 0, zoom: 1 },
     elevateEdgesOnSelect: true,
     elevateNodesOnSelect: true,
-    // Customizações do usuário
+    // Caller overrides
     ...reactFlowProps,
   };
 
-  // EVO-1643: every mutation that bypasses xyflow's change pipeline must
-  // notify the editor store, otherwise the change is lost on the next save
-  // (same class as the drop fix). Compute the bare value, set it, fire the
-  // store callbacks after — never inside the updater (StrictMode purity).
+  // Edge deletion bypasses xyflow's change pipeline, so notify the store here
+  // or the next save loses it.
   const handleDeleteEdge = useCallback(
     (id: string) => {
       const updatedEdges = edges.filter(edge => edge.id !== id);
       setEdges(updatedEdges);
       if (onFlowDataChange) {
-        onFlowDataChange(nodes, updatedEdges);
+        onFlowDataChange(nodesRef.current, updatedEdges);
       }
       if (onFlowDataChangeExtended) {
-        onFlowDataChangeExtended({ nodes, edges: updatedEdges, variables: flowVariables });
+        onFlowDataChangeExtended({
+          nodes: nodesRef.current,
+          edges: updatedEdges,
+          variables: flowVariables,
+        });
       }
     },
-    [edges, setEdges, nodes, onFlowDataChange, onFlowDataChangeExtended, flowVariables],
+    [edges, setEdges, onFlowDataChange, onFlowDataChangeExtended, flowVariables],
   );
 
   const handleDeleteNode = useCallback(
     (nodeId: string) => {
-      const updatedNodes = nodes.filter(node => node.id !== nodeId);
       const updatedEdges = edges.filter(
         edge => edge.source !== nodeId && edge.target !== nodeId,
       );
-      setNodes(updatedNodes);
+      const updatedNodes = commitNodes(current => current.filter(node => node.id !== nodeId));
       setEdges(updatedEdges);
       if (onFlowDataChange) {
         onFlowDataChange(updatedNodes, updatedEdges);
@@ -565,12 +541,12 @@ export function BaseFlowCanvas({
         });
       }
     },
-    [nodes, edges, setNodes, setEdges, onFlowDataChange, onFlowDataChangeExtended, flowVariables],
+    [edges, commitNodes, setEdges, onFlowDataChange, onFlowDataChangeExtended, flowVariables],
   );
 
   const handleDuplicateNode = useCallback(
     (nodeId: string) => {
-      const original = nodes.find(node => node.id === nodeId);
+      const original = nodesRef.current.find(node => node.id === nodeId);
       if (!original) return;
       const copy: Node = {
         ...original,
@@ -579,8 +555,7 @@ export function BaseFlowCanvas({
         selected: false,
         dragging: false,
       };
-      const updatedNodes = nodes.concat(copy);
-      setNodes(updatedNodes);
+      const updatedNodes = commitNodes(current => current.concat(copy));
       if (onFlowDataChange) {
         onFlowDataChange(updatedNodes, edges);
       }
@@ -588,7 +563,7 @@ export function BaseFlowCanvas({
         onFlowDataChangeExtended({ nodes: updatedNodes, edges, variables: flowVariables });
       }
     },
-    [nodes, edges, setNodes, onFlowDataChange, onFlowDataChangeExtended, flowVariables],
+    [edges, commitNodes, onFlowDataChange, onFlowDataChangeExtended, flowVariables],
   );
 
   return (
@@ -597,9 +572,8 @@ export function BaseFlowCanvas({
       ref={reactFlowWrapper}
       style={style}
     >
-      {/* colorMode="light": editor de Jornada é SEMPRE light. Isso pinta a chrome do React
-          Flow (Controls/zoom + MiniMap) clara e evita que o RF injete .dark no .react-flow
-          (o que re-escurecia os cards dentro do wrapper .light do shell). */}
+      {/* colorMode="light" keeps the ReactFlow chrome light and stops RF from
+          injecting .dark into .react-flow, which would darken the cards. */}
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -630,7 +604,7 @@ export function BaseFlowCanvas({
         zoomOnDoubleClick={false}
         selectNodesOnDrag={false}
         connectionLineType={ConnectionLineType.Bezier}
-        // 🆕 Props customizáveis
+        // Caller overrides
         {...finalReactFlowProps}
         fitViewOptions={{
           padding: 0.1,
@@ -685,7 +659,7 @@ export function BaseFlowCanvas({
           />
         )}
 
-        {/* Botão do painel de nodes */}
+        {/* Node panel toggle */}
         {NodePanelComponent && (
           <Panel position="top-right">
             <Button
@@ -703,7 +677,7 @@ export function BaseFlowCanvas({
           </Panel>
         )}
 
-        {/* Painel de nodes */}
+        {/* Node panel */}
         {NodePanelComponent && showNodePanel && (
           <Panel position="top-right" className="mt-12">
             <NodePanelComponent onClose={() => setShowNodePanel(false)} />
@@ -722,7 +696,7 @@ export function BaseFlowCanvas({
             />
           ))}
 
-        {/* Painéis customizados */}
+        {/* Custom panels */}
         {renderCustomPanels && renderCustomPanels()}
       </ReactFlow>
 

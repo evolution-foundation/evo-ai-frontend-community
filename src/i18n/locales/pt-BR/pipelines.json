@@ -46,6 +46,7 @@
     "updateError": "Erro ao atualizar pipeline",
     "deleteSuccess": "Pipeline deletado com sucesso",
     "deleteError": "Erro ao deletar pipeline",
+    "deleteBlockedActiveItems": "Este pipeline ainda tem itens ativos e não pode ser excluído. Remova os itens do pipeline primeiro.",
     "duplicateSuccess": "Pipeline duplicado com sucesso",
     "duplicateError": "Erro ao duplicar pipeline",
     "activateSuccess": "Pipeline ativado com sucesso",
@@ -202,6 +203,7 @@
     "namePlaceholder": "Ex: Leads Qualificados",
     "descriptionLabel": "Descrição",
     "descriptionPlaceholder": "Descreva o propósito desta etapa...",
+    "characterCount": "{{current}}/{{max}} caracteres",
     "color": "Cor da Etapa",
     "colorSelected": "Cor selecionada",
     "stageType": "Tipo de Etapa",
@@ -417,6 +419,7 @@
       "minutes": "minutos",
       "hour": "hora",
       "hours": "horas",
+      "days": "dias",
       "base": {
         "no_customer_reply": "Cliente sem responder",
         "stage_stagnation": "Parado na etapa"
@@ -437,7 +440,11 @@
       "send_direct_message": "Mensagem direta",
       "send_template": "Enviar template",
       "finalize": "Finalizar atendimento"
-    }
+    },
+    "templatePending": "Aguardando aprovação da Meta",
+    "templatesPendingHint": "Seus templates ainda aguardam aprovação da Meta.",
+    "noTemplatesHint": "Nenhum template criado ainda.",
+    "manageTemplates": "Abrir Modelos de Mensagem"
   },
   "editStage": {
     "title": "Editar Etapa",
@@ -658,7 +665,8 @@
       "deletePipeline": "Deletar Pipeline",
       "private": "Privado",
       "noDescription": "Sem descrição",
-      "captureForms": "Formulários de Captura"
+      "captureForms": "Formulários de Captura",
+      "purchaseWebhook": "Webhook de compra"
     },
     "stage": {
       "addStage": "Adicionar Etapa",
@@ -848,6 +856,25 @@
     }
   },
   "dialog": {
+      "deactivatePipeline": {
+      "lookupFailed": "Não foi possível verificar o que depende deste pipeline. Desativar mesmo assim?",
+      "draft": "rascunho",
+      "viaRoutingRule": "por regra de roteamento",
+      "namesRedacted": "{{count}} formulário no total — você não tem permissão para ver os nomes.",
+      "namesRedacted_plural": "{{count}} formulários no total — você não tem permissão para ver os nomes.",
+          "title": "Desativar pipeline",
+          "description": "\"{{name}}\" vai sumir de todos os seletores de pipeline. O que já está dentro dele permanece onde está.",
+          "checking": "Verificando o que depende deste pipeline…",
+          "formsHeading": "{{count}} formulário de captura envia leads para cá:",
+          "formsHeading_plural": "{{count}} formulários de captura enviam leads para cá:",
+          "noForms": "Nenhum formulário de captura alimenta este pipeline.",
+          "draftsHeading": "{{count}} formulário em rascunho aponta para este pipeline (ainda não capta):",
+          "draftsHeading_plural": "{{count}} formulários em rascunho apontam para este pipeline (ainda não captam):",
+          "published": "publicado",
+          "partialWarning": "Apenas formulários de captura foram verificados. Automações e jornadas não foram consultadas.",
+          "cancel": "Cancelar",
+          "confirm": "Desativar"
+      },
     "deletePipeline": {
       "title": "Deletar Pipeline",
       "description": "Tem certeza de que deseja deletar este pipeline? Esta ação não pode ser desfeita e afetará todos os dados relacionados.",
@@ -855,6 +882,28 @@
       "delete": "Deletar Pipeline",
       "deleting": "Deletando..."
     }
+  },
+  "purchaseWebhook": {
+    "title": "Webhook de compra",
+    "subtitle": "Compra aprovada numa plataforma de pagamento vira lead neste funil: {{pipeline}}",
+    "platform": "Plataforma de pagamento",
+    "platformPlaceholder": "Escolha a plataforma",
+    "loadingPlatforms": "Carregando plataformas...",
+    "notConfigured": "sem credencial salva",
+    "credentialsHint": "As credenciais das plataformas ficam na tela de Integrações do CRM.",
+    "destinationRequired": "A credencial desta plataforma é pública — configure o \"Segredo de destino da URL\" nas Integrações do CRM antes de gerar.",
+    "product": "Produto (opcional)",
+    "productPlaceholder": "Rotula os leads desta URL com este produto; vazio = usa o da plataforma",
+    "generate": "Gerar URL",
+    "urlWhitelabel": "URL no domínio da sua marca",
+    "urlGlobal": "URL do webhook",
+    "copy": "Copiar",
+    "copiedShort": "Copiado",
+    "copied": "URL copiada",
+    "copyError": "Falha ao copiar — copie a URL manualmente",
+    "regenerateHint": "Cole no painel da plataforma como destino do webhook de compra aprovada. Ao trocar a credencial ou o segredo de destino, gere e registre de novo.",
+    "loadError": "Falha ao carregar as plataformas",
+    "mintError": "Falha ao gerar a URL"
   },
   "captureForms": {
     "title": "Formulários de Captura",

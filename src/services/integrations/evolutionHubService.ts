@@ -47,7 +47,51 @@ export interface HubChannel {
   created_at?: string;
 }
 
+/** GET /integrations/evolution_hub/connect_info response shape. */
+export interface HubConnectInfo {
+  channel_id?: string;
+  channel_type?: string;
+  status?: string;
+  can_connect?: boolean;
+  connection_url?: string;
+  meta_app_id?: string;
+  meta_config_id?: string;
+  meta_scopes?: string[];
+  byo_config_missing?: boolean;
+}
+
+export interface HubWhatsappSignup {
+  phone_number_id: string;
+  waba_id: string;
+  /** Optional on the Hub (omitempty); Meta does not always return them. */
+  business_id?: string;
+  auth_code?: string;
+  /** Required by the Hub's MetaConnectRequest binding. */
+  connection_mode: string;
+}
+
 class EvolutionHubService {
+  async getConnectInfo(inboxId: string | number): Promise<HubConnectInfo> {
+    const response = await api.get(
+      `/integrations/evolution_hub/connect_info?inbox_id=${encodeURIComponent(String(inboxId))}`,
+    );
+    return extractData<HubConnectInfo>(response);
+  }
+
+  async connectWhatsapp(inboxId: string | number, signup: HubWhatsappSignup): Promise<void> {
+    await api.post('/integrations/evolution_hub/whatsapp_connect', { inbox_id: inboxId, ...signup });
+  }
+
+  /**
+   * Discards the inbox of a connection that never completed. The Hub channel is
+   * created BEFORE Meta's OAuth, so cancelling without this leaves an orphan
+   * burning plan quota. The route lives under the inbox resource because the
+   * inbox is what it deletes; the backend refuses a channel that already came up.
+   */
+  async abortConnection(inboxId: string | number): Promise<void> {
+    await api.delete(`/inboxes/${encodeURIComponent(String(inboxId))}/hub_connection`);
+  }
+
   async getPlan(): Promise<HubPlan> {
     const response = await api.get('/integrations/evolution_hub/plan');
     return extractData<HubPlan>(response);

@@ -4,7 +4,6 @@ Scoped design layer for the Flow Builder (React Flow / Journey screen). Delivers
 
 **Card:** EVO-1253
 **Scope:** tokens, bridge components, Storybook stories, namespace + Button + Typography + Spacing contracts. **NOT** node modals (owned by EVO-1264).
-**Architecture doc:** [`docs/architecture/flow-builder-design-system/architecture.md`](../../../../docs/architecture/flow-builder-design-system/architecture.md) (sibling PRD: [`prd.md`](../../../../docs/architecture/flow-builder-design-system/prd.md))
 
 ---
 
@@ -12,7 +11,6 @@ Scoped design layer for the Flow Builder (React Flow / Journey screen). Delivers
 
 | File / Folder | Owner | Purpose |
 |---|---|---|
-| `FlowNode/` | EVO-1253 | Bridge component for any node body (5 categories + 4 action subtypes) |
 | `FlowCategoryBadge/` | EVO-1253 | Pill badge for category labels (5 variants) |
 | `FlowFeedbackBanner/` | EVO-1253 | Inline alert (info / warn / error / success) for use inside panels |
 | `index.ts` | EVO-1253 | Top-level barrel — re-exports everything |
@@ -127,27 +125,12 @@ All tokens use the structured naming `--color-flow-<surface>-<role>`. Roles are 
 
 ## Bridge API reference
 
-### `<FlowNode>`
-
-```tsx
-import { FlowNode } from '@/components/journey/_ui';
-
-// 4 simple categories
-<FlowNode variant="trigger">Trigger node body</FlowNode>
-<FlowNode variant="condition">…</FlowNode>
-<FlowNode variant="control">…</FlowNode>
-<FlowNode variant="exit">…</FlowNode>
-
-// Action with subtype (TS narrows: subtype is REQUIRED when variant="action")
-<FlowNode variant="action" subtype="message">Send message</FlowNode>
-<FlowNode variant="action" subtype="webhook">…</FlowNode>
-<FlowNode variant="action" subtype="label">…</FlowNode>
-<FlowNode variant="action" subtype="pipeline">…</FlowNode>
-```
-
-**Props:** discriminated union of `variant` + (`subtype` when `variant="action"`), plus all `HTMLAttributes<HTMLDivElement>`. Forwards ref.
-
-**Composition rule:** consumer `className` is appended last so it can override layout, never colour. Use the token classes for colour.
+> `<FlowNode>` (EVO-1253's bridge for a generic node body) shipped but was never
+> adopted — every node under `journey/nodes/` still hand-copies its own header
+> markup instead of using it. Removed as dead code; `FlowActionSubtype` moved
+> into `FlowCategoryBadge.tsx`, its only real consumer. If the 27-node header
+> duplication ever gets tackled, that's a fresh component, not a resurrection
+> of this one.
 
 ### `<FlowCategoryBadge>`
 
@@ -161,7 +144,7 @@ import { FlowCategoryBadge } from '@/components/journey/_ui';
 <FlowCategoryBadge variant="exit">Exit</FlowCategoryBadge>
 ```
 
-**Props:** `variant: 'trigger' | 'action' | 'condition' | 'control' | 'exit'` + `HTMLAttributes<HTMLSpanElement>`. The `action` variant uses the `message` subtype colour as the canonical category swatch (single colour per category — subtype distinction lives in `<FlowNode>`).
+**Props:** `variant: 'trigger' | 'action' | 'condition' | 'control' | 'exit'` + `HTMLAttributes<HTMLSpanElement>`. The `action` variant uses the `message` subtype colour as the canonical category swatch (single colour per category — `subtype` narrows which one).
 
 ### `<FlowFeedbackBanner>`
 
@@ -247,7 +230,6 @@ pnpm storybook
 Story coverage:
 
 - **Flow Builder / Tokens / Overview** — every `--color-flow-*` swatch grouped by surface.
-- **Flow Builder / FlowNode** — every variant + every action subtype, plus an `AllVariantsMatrix`.
 - **Flow Builder / FlowCategoryBadge** — every variant + every action subtype, plus `AllVariantsRow`.
 - **Flow Builder / FlowFeedbackBanner** — every variant, plus a `Stack`.
 
@@ -313,7 +295,7 @@ These Epic 10 cards consume tokens / bridges from this directory:
 |---|---|---|
 | EVO-1264 [10.11] NodeConfigModal | `--color-flow-panel-*` tokens | ✅ Delivered. Lives at `src/components/journey/shared/NodeConfigModal/` with 3 variants (simple / tabs / disclosure). Consumes `Dialog`, `Tabs`, `Collapsible`, `Button` from `@evoapi/design-system` + flow-panel chrome tokens. See sibling story tree "Flow Builder / NodeConfigModal" in Storybook. |
 | EVO-1274 [10.4] Refazer modais | Wraps EVO-1264's `<NodeConfigModal>`, uses `<FlowFeedbackBanner>` for inline alerts | Application work — does not declare new tokens. Formally unblocked since EVO-1264 landed. |
-| EVO-1271 [10.6] Trigger Event UX | Uses `<FlowNode variant="trigger">` + tokens | Plus its own dependency EVO-1261 (event manifesto). |
+| EVO-1271 [10.6] Trigger Event UX | Tokens only now | Was going to use `<FlowNode variant="trigger">`; that bridge was removed as dead code (never adopted). Plus its own dependency EVO-1261 (event manifesto). |
 | EVO-1270 [10.21] Light mode | All token light variants | Audits the rest of the Flow Builder and applies light-mode tokens to existing surfaces. |
 | EVO-1269 [10.20] Header refactor | `--color-flow-panel-header-bg`, `--color-flow-panel-divider` + Button contract | ✅ Delivered. Lives at `src/components/journey/shared/JourneyEditorHeader/` — 3-zone layout, ESC shortcut, responsive kebab below 1024px. See sibling story tree "Flow Builder / JourneyEditorHeader" in Storybook. |
 | EVO-1268 [10.2] Palette redesign | `--color-flow-palette-*` tokens + `<FlowCategoryBadge>` | Applies tokens to the existing palette panel. |

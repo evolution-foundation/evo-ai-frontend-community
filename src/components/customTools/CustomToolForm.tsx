@@ -25,6 +25,10 @@ import {
   KeyValueEditor,
   AdvancedJsonCollapse,
   TestRequestButton,
+  CredentialRefsEditor,
+  mergeRetiredHeaders,
+  splitAuthHeaders,
+  useVaultMigrationState,
 } from '@/components/ai_agents/shared';
 
 
@@ -42,6 +46,7 @@ interface FormData {
   method: string;
   endpoint: string;
   headers: Record<string, unknown>;
+  credential_refs: Record<string, string>;
   path_params: Record<string, unknown>;
   query_params: Record<string, unknown>;
   body_params: Record<string, unknown>;
@@ -59,6 +64,7 @@ const initialFormData: FormData = {
   method: 'GET',
   endpoint: '',
   headers: {},
+  credential_refs: {},
   path_params: {},
   query_params: {},
   body_params: {},
@@ -80,6 +86,12 @@ export default function CustomToolForm({
   onCancel,
 }: CustomToolFormProps) {
   const { t } = useLanguage('customTools');
+  const { t: tVault } = useLanguage('integrationCredentials');
+  // Story 2.7: with the consumer retired, inline auth headers become read-only
+  // pointers to the vault. Guard failure reads as not retired: nothing is
+  // removed from a broken installation.
+  const migrationState = useVaultMigrationState();
+  const headersRetired = Boolean(migrationState.retired.custom_tools);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [valuesJson, setValuesJson] = useState('{}');
   const [errorHandlingJson, setErrorHandlingJson] = useState('{}');
@@ -97,6 +109,7 @@ export default function CustomToolForm({
         method: tool.method || 'GET',
         endpoint: tool.endpoint || '',
         headers: (tool.headers as Record<string, unknown>) || {},
+        credential_refs: tool.credential_refs || {},
         path_params: (tool.path_params as Record<string, unknown>) || {},
         query_params: (tool.query_params as Record<string, unknown>) || {},
         body_params: (tool.body_params as Record<string, unknown>) || {},
@@ -271,6 +284,7 @@ export default function CustomToolForm({
       method: formData.method,
       endpoint: formData.endpoint.trim(),
       headers: formData.headers,
+      credential_refs: formData.credential_refs,
       path_params: formData.path_params,
       query_params: formData.query_params,
       body_params: formData.body_params,
@@ -377,15 +391,65 @@ export default function CustomToolForm({
             {errors.endpoint && <p className="text-sm text-destructive">{errors.endpoint}</p>}
           </div>
 
-          <KeyValueEditor
-            id="headers"
-            label={t('form.fields.headers.labelKv')}
-            value={formData.headers}
-            onChange={handleKvChange('headers')}
+          {headersRetired ? (
+            // Retired: the auth entries the form received stay read-only AND
+            // stay in the payload untouched — the update replaces the stored
+            // object wholesale, so dropping them here would erase the migrated
+            // secret through the UI (the 1.6 modal bug, negative-proof tested).
+            <div className="space-y-2">
+              {Object.keys(splitAuthHeaders(formData.headers).auth).map(name => (
+                <div
+                  key={name}
+                  className="flex items-center gap-2 text-sm border rounded-md px-3 py-2"
+                >
+                  <span className="font-mono">{name}</span>
+                  <span className="font-mono text-muted-foreground">••••</span>
+                  <span className="text-xs text-muted-foreground ml-auto">
+                    {tVault('retirement.managedByVault')}
+                  </span>
+                </div>
+              ))}
+              <p className="text-xs text-muted-foreground">
+                {tVault('retirement.authHeadersLocked')}
+              </p>
+              <KeyValueEditor
+                id="headers"
+                label={t('form.fields.headers.labelKv')}
+                value={splitAuthHeaders(formData.headers).others}
+                onChange={next =>
+                  setFormData(prev => ({
+                    ...prev,
+                    headers: mergeRetiredHeaders(prev.headers, next as Record<string, unknown>),
+                  }))
+                }
+                disabled={loading}
+                hint={t('form.fields.headers.hint')}
+                keyPlaceholder={t('form.fields.headers.keyPlaceholder')}
+                valuePlaceholder={t('form.fields.headers.valuePlaceholder')}
+              />
+            </div>
+          ) : (
+            <KeyValueEditor
+              id="headers"
+              label={t('form.fields.headers.labelKv')}
+              value={formData.headers}
+              onChange={handleKvChange('headers')}
+              disabled={loading}
+              hint={t('form.fields.headers.hint')}
+              keyPlaceholder={t('form.fields.headers.keyPlaceholder')}
+              valuePlaceholder={t('form.fields.headers.valuePlaceholder')}
+            />
+          )}
+
+          {/* Vault-backed auth headers (EVO-2250 story 2.4): each entry maps
+              one header name to one vault credential — inline headers above
+              keep working as the fallback until story 2.7. */}
+          <CredentialRefsEditor
+            id="credential_refs"
+            value={formData.credential_refs}
+            onChange={refs => setFormData(prev => ({ ...prev, credential_refs: refs }))}
             disabled={loading}
-            hint={t('form.fields.headers.hint')}
             keyPlaceholder={t('form.fields.headers.keyPlaceholder')}
-            valuePlaceholder={t('form.fields.headers.valuePlaceholder')}
           />
 
           {showBodyParams && (

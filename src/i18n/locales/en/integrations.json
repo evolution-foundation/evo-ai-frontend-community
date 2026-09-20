@@ -676,7 +676,9 @@
         "configure": "Configure Integration",
         "update": "Update Integration",
         "saving": "Saving..."
-      }
+      },
+      "credentialMoved": "The key is now registered under Settings > AI Credentials. This screen only carries the feature toggles.",
+      "goToCredentials": "Go to AI Credentials"
     },
     "settings": {
       "loading": "Loading configuration...",
@@ -699,7 +701,8 @@
         "actions": {
           "edit": "Edit",
           "remove": "Remove"
-        }
+        },
+        "managedElsewhere": "Managed in AI Credentials"
       },
       "features": {
         "title": "Available Features",

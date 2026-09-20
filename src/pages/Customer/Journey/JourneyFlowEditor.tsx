@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { journeyService } from '@/services';
 import type { Journey } from '@/types/automation';
 import { useLanguage } from '@/hooks/useLanguage';
+import { usePermissions } from '@/contexts/PermissionsContext';
 import { validateJourney } from '@/utils/journeyFlowValidation';
 import { JourneyValidationProvider } from '@/contexts/JourneyValidationContext';
 import { buildFlowTriggers } from './journeyFlowTriggers';
@@ -174,6 +175,10 @@ function JourneyFlowEditor() {
   const hasUnsavedChanges = status !== 'idle';
   const relativeNow = useRelativeTime(lastSavedAt);
   const [showSessionsViewer, setShowSessionsViewer] = useState(false);
+  // EVO-2191: /journeys/:id/sessions* is gated by journeys.manage_sessions on the
+  // CRM proxy, so the entry point is withheld instead of opening a viewer that 403s.
+  const { can, isReady: permissionsReady } = usePermissions();
+  const canManageSessions = permissionsReady && can('journeys', 'manage_sessions');
 
   // Node types mapping para Journey
   const nodeTypes = useMemo(
@@ -856,7 +861,7 @@ function JourneyFlowEditor() {
         backLabel={t('flowEditor.back')}
         title={t('flowEditor.title', { name: journey.name })}
         subtitle={journey.description || undefined}
-        onViewSessions={() => setShowSessionsViewer(true)}
+        onViewSessions={canManageSessions ? () => setShowSessionsViewer(true) : undefined}
         viewSessionsLabel={t('flowEditor.viewSessions')}
         environmentSlot={<EnvironmentManager journeyId={id} />}
         onSave={saveChanges}
@@ -1018,7 +1023,7 @@ function JourneyFlowEditor() {
             <span>
               {journey.createdAt
                 ? t('flowEditor.createdAt', {
-                  date: new Date(journey.createdAt).toLocaleString('pt-BR'),
+                  date: new Date(journey.createdAt).toLocaleString(currentLanguage),
                 })
                 : t('flowEditor.invalidDate')}
             </span>

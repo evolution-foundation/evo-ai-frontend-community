@@ -119,7 +119,7 @@ export function TransferJourneyPanel({
         )}
 
         <div className="space-y-2">
-          <Label className="text-sm font-medium">
+          <Label htmlFor="transfer-journey-select" className="text-sm font-medium">
             {t('panels.transferJourney.destinationJourney')}
           </Label>
 
@@ -143,7 +143,7 @@ export function TransferJourneyPanel({
           ) : (
             <>
               <Select value={formData.targetJourneyId} onValueChange={handleJourneyChange}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="transfer-journey-select" className="w-full">
                   <SelectValue placeholder={t('panels.transferJourney.chooseJourney')} />
                 </SelectTrigger>
                 <SelectContent>

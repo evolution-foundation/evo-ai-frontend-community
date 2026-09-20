@@ -28,8 +28,9 @@ export const useNotificationWebSocket = (callbacks: NotificationWebSocketProps) 
     const wsProtocol = apiUrl.includes('https') ? 'wss:' : 'ws:';
     const wsUrl = apiUrl.replace(/^https?:/, wsProtocol);
 
-    const accessToken = useAuthStore.getState().accessToken;
-    const token = accessToken || '';
+    // Same resolver as the HTTP header: a stale in-memory token opens a cable the
+    // server rejects.
+    const token = useAuthStore.getState().getAccessToken() || '';
 
     return `${wsUrl}/cable?token=${token}`;
   };

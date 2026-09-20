@@ -1655,22 +1655,14 @@
   },
   "overview": {
     "noIntegrationConfigured": "Ninguna integración configurada",
-    "tabLabel": "Resumen",
     "title": "Resumen de canales",
     "subtitle": "Mira todos los tipos de canal, su estado y cómo configurarlos.",
     "statusLabel": {
       "active": "Activo",
       "attention": "Requiere atención",
       "error": "Con error",
+      "unmonitored": "Sin monitoreo",
       "available": "Disponible"
-    },
-    "summary": {
-      "active": "{{count}} activo(s)",
-      "attention": "{{count}} con atención",
-      "error": "{{count}} con error",
-      "notConfigured": "No configurado",
-      "connected": "{{count}} conectada(s)",
-      "total": "{{count}} conexiones"
     },
     "drawer": {
       "title": "Conexiones"
@@ -1678,23 +1670,22 @@
     "inboxState": {
       "connected": "Conectado",
       "disconnected": "Desconectado",
-      "pending": "En prueba",
+      "pending": "Esperando confirmación",
       "error": "Error",
       "unknown": "Desconocido",
       "unmonitored": "Sin monitoreo",
       "checking": "Verificando..."
     },
+    "needsAttention_one": "{{count}} conexión que necesita atención",
+    "needsAttention_other": "{{count}} conexiones que necesitan atención",
     "liveCheckFailed": "La verificación en vivo falló — mostrando el último estado conocido",
-    "moreInboxes": "+{{count}} bandejas más",
     "providersCount": "{{count}} proveedores",
     "actions": {
-      "add": "Agregar",
       "manage": "Gestionar",
-      "howToConfigure": "Cómo configurar",
+      "manageAria": "Gestionar conexiones: {{count}} · {{status}}",
       "connect": "Conectar",
       "addConnection": "Agregar conexión",
-      "deleteConnection": "Eliminar conexión",
-      "viewAds": "Ver anuncios"
+      "deleteConnection": "Eliminar conexión"
     },
     "capabilities": {
       "publishing": "Publicación",
@@ -1706,16 +1697,6 @@
       "stored": "Informado",
       "storedTooltip": "Estado informado por la configuración, no verificado en vivo",
       "lastSync": "Sincronizado {{time}}"
-    },
-    "help": {
-      "website": "Inserta un widget de chat en vivo en tu sitio web para hablar con los visitantes en tiempo real.",
-      "whatsapp": "Conecta WhatsApp mediante un proveedor (WhatsApp Cloud, Evolution, Twilio y otros) para enviar y recibir mensajes.",
-      "telegram": "Conecta un bot de Telegram con su token para recibir y responder mensajes.",
-      "instagram": "Vincula tu cuenta profesional de Instagram para gestionar mensajes directos desde la bandeja.",
-      "facebook": "Vincula una página de Facebook para gestionar conversaciones de Messenger desde la bandeja.",
-      "sms": "Envía y recibe SMS mediante un proveedor como Twilio o Bandwidth.",
-      "email": "Conecta un buzón (Gmail u Outlook) para convertir correos en conversaciones.",
-      "api": "Usa la API de canales para integrar cualquier sistema propio o personalizado."
     }
   }
 }

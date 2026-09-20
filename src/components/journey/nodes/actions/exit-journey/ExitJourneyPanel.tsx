@@ -84,9 +84,9 @@ export function ExitJourneyPanel({ nodeId, data, onUpdate, onClose }: ExitJourne
         </FlowFeedbackBanner>
 
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('panels.exitJourney.reasonLabel')}</Label>
+          <Label htmlFor="exit-journey-reason" className="text-sm font-medium">{t('panels.exitJourney.reasonLabel')}</Label>
           <Select value={selectedReason} onValueChange={setSelectedReason}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger id="exit-journey-reason" className="w-full">
               <SelectValue placeholder={t('panels.exitJourney.reasonPlaceholder')} />
             </SelectTrigger>
             <SelectContent>
@@ -103,10 +103,11 @@ export function ExitJourneyPanel({ nodeId, data, onUpdate, onClose }: ExitJourne
 
         {selectedReason === CUSTOM && (
           <div className="space-y-2">
-            <Label className="text-sm font-medium">
+            <Label htmlFor="exit-journey-custom-reason" className="text-sm font-medium">
               {t('panels.exitJourney.customReasonLabel')}
             </Label>
             <Input
+              id="exit-journey-custom-reason"
               value={customReason}
               onChange={e => setCustomReason(e.target.value)}
               placeholder={t('panels.exitJourney.customReasonPlaceholder')}
@@ -115,8 +116,9 @@ export function ExitJourneyPanel({ nodeId, data, onUpdate, onClose }: ExitJourne
         )}
 
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('panels.exitJourney.messageLabel')}</Label>
+          <Label htmlFor="exit-journey-message" className="text-sm font-medium">{t('panels.exitJourney.messageLabel')}</Label>
           <Textarea
+            id="exit-journey-message"
             value={exitMessage}
             onChange={e => setExitMessage(e.target.value)}
             placeholder={t('panels.exitJourney.messagePlaceholder')}

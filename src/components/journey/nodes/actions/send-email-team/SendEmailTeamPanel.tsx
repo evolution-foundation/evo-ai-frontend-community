@@ -76,16 +76,6 @@ export function SendEmailTeamPanel({ nodeId, data, onUpdate, onClose }: SendEmai
     onClose();
   };
 
-  useEffect(() => {
-    if (formDataOptions.teams.length > 0) {
-      const updatedData: SendEmailTeamNodeData = {
-        ...data,
-        formDataOptions,
-      };
-      onUpdate(nodeId, updatedData);
-    }
-  }, [formDataOptions, data, nodeId, onUpdate]);
-
   const getCharacterCount = () => message.length;
 
   const getCharacterCountColor = () => {
@@ -116,7 +106,7 @@ export function SendEmailTeamPanel({ nodeId, data, onUpdate, onClose }: SendEmai
     >
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label id="send-email-team-teams-label" className="text-sidebar-foreground font-medium">
             {t('panels.sendEmailTeam.teams')}
           </Label>
 
@@ -125,7 +115,11 @@ export function SendEmailTeamPanel({ nodeId, data, onUpdate, onClose }: SendEmai
               {t('panels.sendEmailTeam.loadingTeams')}
             </div>
           ) : (
-            <div className="space-y-2 max-h-48 overflow-y-auto">
+            <div
+              className="space-y-2 max-h-48 overflow-y-auto"
+              role="group"
+              aria-labelledby="send-email-team-teams-label"
+            >
               {formDataOptions.teams.length === 0 ? (
                 <p className="text-sm text-sidebar-foreground/60">
                   {t('panels.sendEmailTeam.noTeamsFound')}
@@ -160,10 +154,11 @@ export function SendEmailTeamPanel({ nodeId, data, onUpdate, onClose }: SendEmai
         </div>
 
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="send-email-team-message" className="text-sidebar-foreground font-medium">
             {t('panels.sendEmailTeam.messageLabel')}
           </Label>
           <Textarea
+            id="send-email-team-message"
             value={message}
             onChange={e => setMessage(e.target.value)}
             placeholder={t('panels.sendEmailTeam.messagePlaceholder')}

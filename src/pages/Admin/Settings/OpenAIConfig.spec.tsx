@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import OpenAIConfig from './OpenAIConfig';
 
 // Radix UI Switch uses ResizeObserver internally
@@ -59,7 +60,7 @@ const EMPTY_CONFIG: Record<string, unknown> = {
 async function renderAndWait(mockData: Record<string, unknown> = EMPTY_CONFIG) {
   mockGetConfig.mockImplementation(() => Promise.resolve(mockData));
   await act(async () => {
-    render(<OpenAIConfig />);
+    render(<OpenAIConfig />, { wrapper: MemoryRouter });
   });
 }
 
@@ -70,7 +71,7 @@ describe('OpenAIConfig', () => {
 
   it('renders loading spinner before data loads', () => {
     mockGetConfig.mockReturnValue(new Promise(() => {}));
-    const { container } = render(<OpenAIConfig />);
+    const { container } = render(<OpenAIConfig />, { wrapper: MemoryRouter });
     expect(container.querySelector('.animate-spin')).toBeInTheDocument();
   });
 
@@ -92,8 +93,10 @@ describe('OpenAIConfig', () => {
 
     expect(screen.getByText('openai.connection.cardTitle')).toBeInTheDocument();
     expect(screen.getByLabelText('openai.connection.fields.apiUrl')).toBeInTheDocument();
-    expect(screen.getByLabelText('openai.connection.fields.apiSecret')).toBeInTheDocument();
     expect(screen.getByLabelText('openai.connection.fields.model')).toBeInTheDocument();
+    // EVO-2250: the credential moved to Settings > AI Credentials.
+    expect(screen.queryByLabelText('openai.connection.fields.apiSecret')).not.toBeInTheDocument();
+    expect(screen.getByText('openai.connection.credentialMoved')).toBeInTheDocument();
   });
 
   it('renders audio transcription toggle', async () => {
@@ -119,25 +122,8 @@ describe('OpenAIConfig', () => {
     }
 
     const textareas = screen.getAllByRole('textbox');
-    // 3 connection inputs (apiUrl, apiSecret, model) + 9 prompt textareas = 12
-    // But apiSecret is type="password" so not counted as textbox
-    // So: 2 inputs + 9 textareas = 11 textboxes
+    // 2 connection inputs (apiUrl, model) + 9 prompt textareas.
     expect(textareas.length).toBeGreaterThanOrEqual(9);
-  });
-
-  it('shows secret configured status for masked secret', async () => {
-    await renderAndWait({
-      ...EMPTY_CONFIG,
-      OPENAI_API_SECRET: '••••masked',
-    });
-
-    expect(screen.getByText('openai.secretConfigured')).toBeInTheDocument();
-  });
-
-  it('shows secret not configured when secret is empty', async () => {
-    await renderAndWait();
-
-    expect(screen.getByText('openai.secretNotConfigured')).toBeInTheDocument();
   });
 
   it('calls saveConfig with openai on form submit', async () => {
@@ -164,24 +150,17 @@ describe('OpenAIConfig', () => {
     });
   });
 
-  it('sends null for unmodified secret on save', async () => {
-    await renderAndWait({
-      ...EMPTY_CONFIG,
-      OPENAI_API_SECRET: '••••masked',
-    });
-    mockSaveConfig.mockResolvedValue({
-      ...EMPTY_CONFIG,
-      OPENAI_API_SECRET: '••••masked',
-    });
+  it('never sends the retired credential field on save (EVO-2250)', async () => {
+    await renderAndWait();
+    mockSaveConfig.mockResolvedValue(EMPTY_CONFIG);
 
     await act(async () => {
       fireEvent.click(screen.getByText('openai.save'));
     });
 
     await waitFor(() => {
-      expect(mockSaveConfig).toHaveBeenCalledWith('openai', expect.objectContaining({
-        OPENAI_API_SECRET: null,
-      }));
+      const [, payload] = mockSaveConfig.mock.calls[0];
+      expect(payload).not.toHaveProperty('OPENAI_API_SECRET');
     });
   });
 });

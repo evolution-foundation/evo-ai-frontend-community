@@ -6,6 +6,7 @@ import {
 import {
   ExternalLink,
   Plus,
+  Server,
   X,
 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -15,20 +16,28 @@ interface CustomMCPServersSectionProps {
   customMCPServerIds: string[];
   onCustomMCPServersChange: (serverIds: string[]) => void;
   isReadOnly?: boolean;
+  /** Set when the caller already exposes its own "add custom MCP" button for the list. */
+  showAddButton?: boolean;
+  hideCreateNew?: boolean;
+  /** Points the empty-state CTA at the caller's picker instead of the local dialog. */
+  onAdd?: () => void;
 }
 
 const CustomMCPServersSection = ({
   customMCPServerIds,
   onCustomMCPServersChange,
   isReadOnly = false,
+  showAddButton = true,
+  hideCreateNew = false,
+  onAdd,
 }: CustomMCPServersSectionProps) => {
   const { t } = useLanguage('aiAgents');
   const [showCustomMCPDialog, setShowCustomMCPDialog] = useState(false);
 
+  // The picker opens with the current selection checked, so what it returns is the
+  // whole selection; merging would make unchecking a no-op.
   const handleAddCustomMCPServers = (serverIds: string[]) => {
-    const existingIds = customMCPServerIds;
-    const newIds = serverIds.filter(id => !existingIds.includes(id));
-    onCustomMCPServersChange([...customMCPServerIds, ...newIds]);
+    onCustomMCPServersChange(serverIds);
   };
 
   const handleRemoveCustomMCPServer = (serverId: string) => {
@@ -60,11 +69,13 @@ const CustomMCPServersSection = ({
                       {t('tools.mcpServers.externallyManaged')}
                     </p>
                   </div>
+                  {/* Removing does not depend on `showAddButton`, which only hides add CTAs. */}
                   {!isReadOnly && (
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleRemoveCustomMCPServer(serverId)}
+                      aria-label={t('actions.remove') || 'Remover'}
                       className="text-destructive hover:text-destructive/80"
                     >
                       <X className="h-4 w-4" />
@@ -73,7 +84,7 @@ const CustomMCPServersSection = ({
                 </div>
               ))}
 
-              {!isReadOnly && (
+              {!isReadOnly && showAddButton && (
                 <Button
                   type="button"
                   variant="outline"
@@ -87,33 +98,36 @@ const CustomMCPServersSection = ({
               )}
             </div>
           ) : (
-            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-dashed">
-              <div>
-                <p className="font-medium">{t('tools.mcpServers.noCustomConfigured')}</p>
-                <p className="text-sm text-muted-foreground">
-                  {t('tools.mcpServers.connectFromManagement')}
-                </p>
-              </div>
+            <div className="flex flex-col items-center rounded-[12px] border border-dashed border-border px-6 py-12 text-center">
+              <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-[12px] bg-primary/10">
+                <Server className="h-6 w-6 text-primary" />
+              </span>
+              <p className="text-[15px] font-bold text-foreground">
+                {t('tools.mcpServers.noCustomConfigured')}
+              </p>
+              <p className="mt-1 max-w-md text-[13px] leading-[1.5] text-muted-foreground">
+                {t('tools.mcpServers.connectFromManagement')}
+              </p>
+              {/* Same: an empty state with no action would be a dead end. */}
               {!isReadOnly && (
                 <Button
                   type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowCustomMCPDialog(true)}
+                  onClick={() => (onAdd ? onAdd() : setShowCustomMCPDialog(true))}
+                  className="mt-5 h-auto gap-2 rounded-[9px] bg-primary px-5 py-[10px] text-sm font-semibold text-primary-foreground hover:bg-primary/85"
                 >
-                  <Plus className="h-4 w-4 mr-1" />
-                  {t('tools.mcpServers.add')}
+                  <Plus className="h-4 w-4" />
+                  {t('customMCPServers.add') || 'Adicionar Custom MCP'}
                 </Button>
               )}
             </div>
           )}
 
-      {/* Modal de Seleção de MCPs Personalizados */}
       <CustomMCPDialog
         open={showCustomMCPDialog}
         onOpenChange={setShowCustomMCPDialog}
         onSave={handleAddCustomMCPServers}
         initialSelectedIds={customMCPServerIds}
+        hideCreateNew={hideCreateNew}
       />
     </div>
   );

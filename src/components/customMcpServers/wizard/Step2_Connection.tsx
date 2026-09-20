@@ -1,12 +1,21 @@
 import { useState } from 'react';
 import { Input, Label, Button } from '@evoapi/design-system';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { ArrowRight, ArrowLeft, PlugZap, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
-import { KeyValueEditor } from '@/components/ai_agents/shared';
+import {
+  CredentialRefsEditor,
+  KeyValueEditor,
+  mergeRetiredHeaders,
+  splitAuthHeaders,
+  useVaultMigrationState,
+} from '@/components/ai_agents/shared';
+import { testCustomMcpServerConnection } from '@/services/agents/customMcpServerService';
+import type { McpTestResult } from '@/types/ai';
 
 export interface Step2Data {
   url: string;
   headers: Record<string, unknown>;
+  credential_refs: Record<string, string>;
 }
 
 interface Step2Props {
@@ -18,21 +27,59 @@ interface Step2Props {
 
 export default function Step2_Connection({ data, onChange, onNext, onBack }: Step2Props) {
   const { t } = useLanguage('customMcpServers');
+  const { t: tVault } = useLanguage('integrationCredentials');
+  // Story 2.7: retired inline auth headers become read-only, but ALWAYS stay
+  // in the payload — the backend replaces the stored object wholesale.
+  const migrationState = useVaultMigrationState();
+  const headersRetired = Boolean(migrationState.retired.custom_mcp_servers);
   const [error, setError] = useState('');
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState<McpTestResult | null>(null);
+  const [testError, setTestError] = useState('');
 
-  const handleNext = () => {
+  // EVO-1739: tag the result with what it was run against and show it only while those
+  // still match — covers both editing after a test and a reply landing too late.
+  const [testedKey, setTestedKey] = useState<string | null>(null);
+  const connectionKey = `${data.url} ${JSON.stringify(data.headers ?? {})}`;
+  const resultIsCurrent = testedKey === connectionKey;
+
+  const validateUrl = (): boolean => {
     if (!data.url || !data.url.trim()) {
       setError(t('form.validation.urlRequired'));
-      return;
+      return false;
     }
     try {
       new URL(data.url);
     } catch {
       setError(t('form.validation.urlInvalid'));
-      return;
+      return false;
     }
     setError('');
-    onNext();
+    return true;
+  };
+
+  const handleNext = () => {
+    if (validateUrl()) onNext();
+  };
+
+  // EVO-1739: test-before-save — hit the stateless endpoint with the typed url/headers
+  // and surface the MCP handshake result (discovered tool count / error).
+  const handleTest = async () => {
+    if (!validateUrl()) return;
+    const key = connectionKey;
+    setTesting(true);
+    setTestResult(null);
+    setTestError('');
+    try {
+      const res = await testCustomMcpServerConnection(data.url.trim(), data.headers);
+      setTestResult(res.test_result);
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } }; message?: string };
+      setTestError(err?.response?.data?.message || err?.message || t('wizard.test.fail'));
+    } finally {
+      setTestedKey(key);
+      setTesting(false);
+    }
   };
 
   return (
@@ -54,13 +101,97 @@ export default function Step2_Connection({ data, onChange, onNext, onBack }: Ste
           </div>
 
           <div className="pt-2">
-            <KeyValueEditor
-              id="headers"
-              label={t('form.labels.headers')}
-              value={data.headers}
-              onChange={next => onChange({ ...data, headers: next })}
-              hint={t('form.hints.headers')}
+            {headersRetired ? (
+              <div className="space-y-2">
+                {Object.keys(splitAuthHeaders(data.headers).auth).map(name => (
+                  <div
+                    key={name}
+                    className="flex items-center gap-2 text-sm border rounded-md px-3 py-2"
+                  >
+                    <span className="font-mono">{name}</span>
+                    <span className="font-mono text-muted-foreground">••••</span>
+                    <span className="text-xs text-muted-foreground ml-auto">
+                      {tVault('retirement.managedByVault')}
+                    </span>
+                  </div>
+                ))}
+                <p className="text-xs text-muted-foreground">
+                  {tVault('retirement.authHeadersLocked')}
+                </p>
+                <KeyValueEditor
+                  id="headers"
+                  label={t('form.labels.headers')}
+                  value={splitAuthHeaders(data.headers).others}
+                  onChange={next =>
+                    onChange({
+                      ...data,
+                      headers: mergeRetiredHeaders(data.headers, next as Record<string, unknown>),
+                    })
+                  }
+                  hint={t('form.hints.headers')}
+                />
+              </div>
+            ) : (
+              <KeyValueEditor
+                id="headers"
+                label={t('form.labels.headers')}
+                value={data.headers}
+                onChange={next => onChange({ ...data, headers: next })}
+                hint={t('form.hints.headers')}
+              />
+            )}
+          </div>
+
+          {/* Vault-backed auth headers (EVO-2250 story 2.4): one credential
+              per header name; inline headers above stay as the fallback. */}
+          <div className="pt-2">
+            <CredentialRefsEditor
+              id="credential_refs"
+              value={data.credential_refs}
+              onChange={refs => onChange({ ...data, credential_refs: refs })}
             />
+          </div>
+
+          {/* EVO-1739: test the connection before saving. */}
+          <div className="pt-2 space-y-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="gap-2"
+              onClick={handleTest}
+              disabled={testing || !data.url}
+            >
+              {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlugZap className="h-4 w-4" />}
+              {testing ? t('wizard.test.testing') : t('wizard.test.button')}
+            </Button>
+
+            {resultIsCurrent && testResult && (
+              <div
+                className={`flex items-start gap-2 rounded-md border p-3 text-sm ${
+                  testResult.success
+                    ? 'border-green-500/40 bg-green-500/5 text-green-700'
+                    : 'border-red-500/40 bg-red-500/5 text-red-700'
+                }`}
+              >
+                {testResult.success ? (
+                  <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                ) : (
+                  <XCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                )}
+                <span>
+                  {testResult.success
+                    ? t('wizard.test.ok', { count: testResult.tools_count ?? 0 })
+                    : testResult.message || testResult.error || t('wizard.test.fail')}
+                </span>
+              </div>
+            )}
+
+            {resultIsCurrent && testError && (
+              <div className="flex items-start gap-2 rounded-md border border-red-500/40 bg-red-500/5 p-3 text-sm text-red-700">
+                <XCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <span>{testError}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

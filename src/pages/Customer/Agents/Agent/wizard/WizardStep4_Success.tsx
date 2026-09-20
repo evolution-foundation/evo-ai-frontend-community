@@ -74,7 +74,7 @@ const WizardStep4_Success = ({ agentId, agentName, onFinish }: WizardStep4Props)
 
           <Card
             className="cursor-pointer transition-all hover:shadow-lg hover:border-primary group"
-            onClick={() => navigate('/agents/tools')}
+            onClick={() => navigate('/agents/custom-tools')}
           >
             <CardContent className="p-3.5">
               <div className="flex items-center gap-3">

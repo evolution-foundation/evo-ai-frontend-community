@@ -8,8 +8,8 @@ const meta: Meta<typeof FlowCategoryBadge> = {
     docs: {
       description: {
         component:
-          'Pill badge labelling a node category. Mirrors `<FlowNode>`s discriminated ' +
-          'union: `variant` covers the 5 structural categories; when `variant="action"`, ' +
+          'Pill badge labelling a node category. `variant` covers the 5 structural ' +
+          'categories; when `variant="action"`, ' +
           'a `subtype` is required so the badge colour matches the specific action node.',
       },
     },

@@ -194,9 +194,9 @@ export function WaitPanel({ nodeId, data, onUpdate, onClose, journeyId }: WaitPa
     >
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">{t('panels.wait.waitType')}</Label>
+          <Label htmlFor="wait-type-select" className="text-sidebar-foreground font-medium">{t('panels.wait.waitType')}</Label>
           <Select value={formData.waitType} onValueChange={handleWaitTypeChange}>
-            <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+            <SelectTrigger id="wait-type-select" className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-sidebar border-sidebar-border">
@@ -223,10 +223,12 @@ export function WaitPanel({ nodeId, data, onUpdate, onClose, journeyId }: WaitPa
         </div>
 
         <div className="space-y-4">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label id="wait-config-label" className="text-sidebar-foreground font-medium">
             {t('panels.wait.configuration')} - {currentOption.label}
           </Label>
-          {renderConfigurationSection()}
+          <div role="group" aria-labelledby="wait-config-label">
+            {renderConfigurationSection()}
+          </div>
         </div>
       </div>
     </NodeConfigModal>

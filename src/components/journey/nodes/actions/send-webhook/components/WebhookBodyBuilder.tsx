@@ -36,14 +36,16 @@ export function WebhookBodyBuilder({ fields, bodyType, onChange, journeyId }: We
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Label className="text-sm font-medium">{t('panels.sendWebhook.body.bodyContent')}</Label>
+        <Label id="send-webhook-body-fields-label" className="text-sm font-medium">
+          {t('panels.sendWebhook.body.bodyContent')}
+        </Label>
         <Button variant="outline" size="sm" onClick={addField}>
           <Plus className="w-4 h-4 mr-1" />
           {t('panels.sendWebhook.body.builder.addField')}
         </Button>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-3" role="group" aria-labelledby="send-webhook-body-fields-label">
         {fields.length === 0 ? (
           <div className="p-4 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 dark:bg-gray-950/20 text-center">
             <p className="text-sm text-gray-500">{t('panels.sendWebhook.body.builder.noFields')}</p>
@@ -54,8 +56,11 @@ export function WebhookBodyBuilder({ fields, bodyType, onChange, journeyId }: We
               <div className="grid grid-cols-12 gap-3 items-end">
                 {/* Key */}
                 <div className={showTypeColumn ? 'col-span-4' : 'col-span-5'}>
-                  <Label className="text-xs">{t('panels.sendWebhook.body.builder.keyLabel')}</Label>
+                  <Label htmlFor={`send-webhook-body-key-${field.id}`} className="text-xs">
+                    {t('panels.sendWebhook.body.builder.keyLabel')}
+                  </Label>
                   <VariableInput
+                    id={`send-webhook-body-key-${field.id}`}
                     value={field.key}
                     onChange={e => updateField(field.id, { key: e.target.value })}
                     placeholder={t('panels.sendWebhook.body.builder.keyPlaceholder')}
@@ -66,8 +71,11 @@ export function WebhookBodyBuilder({ fields, bodyType, onChange, journeyId }: We
 
                 {/* Value */}
                 <div className={showTypeColumn ? 'col-span-4' : 'col-span-6'}>
-                  <Label className="text-xs">{t('panels.sendWebhook.body.builder.valueLabel')}</Label>
+                  <Label htmlFor={`send-webhook-body-value-${field.id}`} className="text-xs">
+                    {t('panels.sendWebhook.body.builder.valueLabel')}
+                  </Label>
                   <VariableInput
+                    id={`send-webhook-body-value-${field.id}`}
                     value={field.value}
                     onChange={e => updateField(field.id, { value: e.target.value })}
                     placeholder={t('panels.sendWebhook.body.builder.valuePlaceholder')}
@@ -79,12 +87,17 @@ export function WebhookBodyBuilder({ fields, bodyType, onChange, journeyId }: We
                 {/* Type (JSON only) */}
                 {showTypeColumn && (
                   <div className="col-span-3">
-                    <Label className="text-xs">{t('panels.sendWebhook.body.builder.typeLabel')}</Label>
+                    <Label htmlFor={`send-webhook-body-type-${field.id}`} className="text-xs">
+                      {t('panels.sendWebhook.body.builder.typeLabel')}
+                    </Label>
                     <Select
                       value={field.type}
                       onValueChange={(value: WebhookBodyValueType) => updateField(field.id, { type: value })}
                     >
-                      <SelectTrigger className="bg-sidebar border-sidebar-border text-sidebar-foreground">
+                      <SelectTrigger
+                        id={`send-webhook-body-type-${field.id}`}
+                        className="bg-sidebar border-sidebar-border text-sidebar-foreground"
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-sidebar border-sidebar-border">

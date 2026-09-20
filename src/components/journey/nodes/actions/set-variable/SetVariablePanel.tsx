@@ -158,6 +158,7 @@ export function SetVariablePanel({
       case 'decrease':
         return (
           <VariableInput
+            id="set-variable-value"
             type="number"
             min="1"
             value={formData.value || '1'}
@@ -174,6 +175,7 @@ export function SetVariablePanel({
       default:
         return (
           <VariableInput
+            id="set-variable-value"
             value={formData.value || ''}
             onChange={e => setFormData(prev => ({ ...prev, value: e.target.value }))}
             placeholder={t('panels.setVariable.placeholders.customValue')}
@@ -235,8 +237,9 @@ export function SetVariablePanel({
         )}
 
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('panels.setVariable.variable')}</Label>
+          <Label htmlFor="set-variable-name" className="text-sm font-medium">{t('panels.setVariable.variable')}</Label>
           <VariableSelect
+            id="set-variable-name"
             value={formData.variableName || ''}
             onValueChange={value => setFormData(prev => ({ ...prev, variableName: value }))}
             journeyId={journeyId}
@@ -252,7 +255,7 @@ export function SetVariablePanel({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('panels.setVariable.operation')}</Label>
+          <Label htmlFor="set-variable-operation" className="text-sm font-medium">{t('panels.setVariable.operation')}</Label>
           <Select
             value={formData.operation || 'set'}
             onValueChange={value =>
@@ -262,7 +265,7 @@ export function SetVariablePanel({
               }))
             }
           >
-            <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+            <SelectTrigger id="set-variable-operation" className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
               <SelectValue placeholder={t('panels.setVariable.placeholders.selectOperation')} />
             </SelectTrigger>
             <SelectContent className="bg-sidebar border-sidebar-border max-h-[400px]">
@@ -363,7 +366,7 @@ export function SetVariablePanel({
 
         {selectedOperation?.needsValue && (
           <div className="space-y-2">
-            <Label className="text-sm font-medium">
+            <Label htmlFor="set-variable-value" className="text-sm font-medium">
               {formData.operation === 'increase' || formData.operation === 'decrease'
                 ? t('panels.setVariable.amount')
                 : t('panels.setVariable.value')}
@@ -377,12 +380,12 @@ export function SetVariablePanel({
 
         {selectedOperation?.needsCategory && (
           <div className="space-y-2">
-            <Label className="text-sm font-medium">{t('panels.setVariable.idCategory')}</Label>
+            <Label htmlFor="set-variable-category" className="text-sm font-medium">{t('panels.setVariable.idCategory')}</Label>
             <Select
               value={formData.category || ''}
               onValueChange={value => setFormData(prev => ({ ...prev, category: value }))}
             >
-              <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+              <SelectTrigger id="set-variable-category" className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
                 <SelectValue placeholder={t('panels.setVariable.placeholders.selectIdCategory')} />
               </SelectTrigger>
               <SelectContent className="bg-sidebar border-sidebar-border">

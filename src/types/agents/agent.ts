@@ -130,16 +130,25 @@ export interface ApiKey {
   name: string;
   provider: string;
   base_url?: string;
+  /** Last characters of the key. The API never returns the key itself. */
+  key_hint?: string;
+  /** Providers speaking the OpenAI protocol serve every AI feature. */
+  openai_compatible?: boolean;
+  /** Which link of the resolution chain the credential belongs to. */
+  scope?: ApiKeyScope;
   created_at: string;
   updated_at: string;
   is_active: boolean;
 }
+
+export type ApiKeyScope = 'installation' | 'account';
 
 export interface ApiKeyCreate {
   name: string;
   provider: string;
   key_value?: string;
   base_url?: string;
+  scope?: ApiKeyScope;
 }
 
 export interface ApiKeyUpdate {
@@ -148,6 +157,68 @@ export interface ApiKeyUpdate {
   key_value?: string;
   base_url?: string;
   is_active?: boolean;
+  scope?: ApiKeyScope;
+}
+
+// ============================================
+// Integration Credentials (vault)
+// ============================================
+
+/** A `static` credential holds its (encrypted) value in the vault; an `oauth`
+ * one is a reference to the store that owns the token and never has a value. */
+export type IntegrationCredentialKind = 'static' | 'oauth';
+
+/** Display state of an OAuth connection, derived by the backend from the
+ * owner store at listing time — never from a copy kept in the vault. */
+// The owner store records no refresh failure: a failed renewal only reaches
+// the log, and at least one provider returns the stale token on error. A guessed
+// 'refresh_failed' badge would send someone reconnecting a healthy integration,
+// so the backend never emits one (EVO-2250 story 2.5).
+export type OauthConnectionStatus = 'connected' | 'expiring' | 'expired';
+
+export interface IntegrationCredential {
+  id: string;
+  name: string;
+  provider: string;
+  kind: IntegrationCredentialKind;
+  /** Last characters of the value. The API never returns the value itself. */
+  value_hint?: string;
+  value_format?: 'scalar' | 'composite';
+  scope?: ApiKeyScope;
+  owner_store?: string;
+  owner_ref?: string;
+  imported_from?: string;
+  /** Consumers pointing at this credential, filled as stories 2.3/2.4 land. */
+  referenced_by?: string[];
+  /** OAuth rows only: mirrored metadata read live from the owner store. */
+  connection_status?: OauthConnectionStatus;
+  connection_expires_at?: string;
+  agent_id?: string;
+  agent_name?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IntegrationCredentialCreate {
+  name: string;
+  provider: string;
+  value: string;
+  kind: IntegrationCredentialKind;
+  scope?: ApiKeyScope;
+}
+
+export interface IntegrationCredentialUpdate {
+  name?: string;
+  provider?: string;
+  /** Omitted to keep the stored value: never send it blank. */
+  value?: string;
+  is_active?: boolean;
+  scope?: ApiKeyScope;
+}
+
+export interface IntegrationCredentialDeleteResponse {
+  message: string;
 }
 
 // ============================================

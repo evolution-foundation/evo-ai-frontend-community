@@ -13,12 +13,14 @@ vi.mock('@/services/agents/customToolsService', () => ({
   createCustomTool: vi.fn(),
 }));
 
-vi.mock('@/components/customTools/CustomToolForm', () => ({
-  default: ({ onCancel }: { onCancel: () => void }) => (
-    <div data-testid="custom-tool-form">
-      <button onClick={onCancel}>cancel-form</button>
-    </div>
-  ),
+// EVO-1738: the agent-builder create path now renders the guided wizard.
+vi.mock('@/components/customTools/CustomToolWizardModal', () => ({
+  default: ({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) =>
+    open ? (
+      <div data-testid="custom-tool-wizard">
+        <button onClick={() => onOpenChange(false)}>close-wizard</button>
+      </div>
+    ) : null,
 }));
 
 vi.mock('sonner', () => ({
@@ -50,7 +52,7 @@ describe('CustomToolsSelectionDialog', () => {
     });
   });
 
-  it('opens inline create sub-dialog without closing selection dialog when header button is clicked', async () => {
+  it('opens the create wizard without closing the selection dialog when header button is clicked', async () => {
     const onOpenChange = vi.fn();
     render(<CustomToolsSelectionDialog {...makeProps({ onOpenChange })} />);
 
@@ -62,12 +64,12 @@ describe('CustomToolsSelectionDialog', () => {
     const createButtons = screen.getAllByText('tools.customTools.create');
     fireEvent.click(createButtons[0].closest('button')!);
 
-    // Inline form should appear without closing the parent dialog
-    expect(screen.getByTestId('custom-tool-form')).toBeTruthy();
+    // The wizard should appear without closing the parent selection dialog
+    expect(screen.getByTestId('custom-tool-wizard')).toBeTruthy();
     expect(onOpenChange).not.toHaveBeenCalled();
   });
 
-  it('closes the create sub-dialog when form is cancelled, keeping selection dialog open', async () => {
+  it('closes the create wizard when dismissed, keeping the selection dialog open', async () => {
     render(<CustomToolsSelectionDialog {...makeProps()} />);
 
     await waitFor(() => {
@@ -76,14 +78,14 @@ describe('CustomToolsSelectionDialog', () => {
 
     const createButtons = screen.getAllByText('tools.customTools.create');
     fireEvent.click(createButtons[0].closest('button')!);
-    expect(screen.getByTestId('custom-tool-form')).toBeTruthy();
+    expect(screen.getByTestId('custom-tool-wizard')).toBeTruthy();
 
-    // Cancel the form
-    fireEvent.click(screen.getByText('cancel-form'));
+    // Close the wizard
+    fireEvent.click(screen.getByText('close-wizard'));
 
-    // Form should be gone
+    // Wizard should be gone
     await waitFor(() => {
-      expect(screen.queryByTestId('custom-tool-form')).toBeNull();
+      expect(screen.queryByTestId('custom-tool-wizard')).toBeNull();
     });
   });
 });

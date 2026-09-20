@@ -63,10 +63,11 @@ export function WaitTimeConfig({ data, onChange, journeyId }: WaitTimeConfigProp
     <div className="space-y-4">
       {/* Duração */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium">
+        <Label htmlFor="wait-time-duration" className="text-sm font-medium">
           {t('panels.waitComponents.time.durationLabel')}
         </Label>
         <VariableInput
+          id="wait-time-duration"
           type="number"
           min="1"
           value={data.duration?.toString() || '1'}
@@ -85,11 +86,14 @@ export function WaitTimeConfig({ data, onChange, journeyId }: WaitTimeConfigProp
 
       {/* Unidade de Tempo */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium">
+        <Label htmlFor="wait-time-unit" className="text-sm font-medium">
           {t('panels.waitComponents.time.timeUnitLabel')}
         </Label>
         <Select value={data.timeUnit || 'minutes'} onValueChange={handleTimeUnitChange}>
-          <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+          <SelectTrigger
+            id="wait-time-unit"
+            className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground"
+          >
             <SelectValue placeholder={t('panels.waitComponents.time.timeUnitPlaceholder')} />
           </SelectTrigger>
           <SelectContent className="bg-sidebar border-sidebar-border">

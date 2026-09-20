@@ -82,7 +82,9 @@ export interface UsersState {
   };
   filters: BaseFilter[]; // UserFilter type from users-filters
   searchQuery: string;
-  sortBy: string;
+  // Restricted to what the backend sorts by: a dead column would come back
+  // silently in the default order.
+  sortBy: NonNullable<UsersListParams['sort']>;
   sortOrder: 'asc' | 'desc';
 }
 

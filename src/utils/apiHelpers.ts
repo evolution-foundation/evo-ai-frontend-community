@@ -108,6 +108,50 @@ export function extractError(error: any): ErrorInfo {
 }
 
 /**
+ * The backend's message from the error envelope, or undefined if it has none —
+ * so each caller keeps its own localized fallback instead of a raw HTTP status text.
+ * 5xx bodies are skipped: those messages are written for whoever operates the API,
+ * not for the person on screen.
+ * @param error - Value caught from a rejected request
+ * @returns The server-authored message, or undefined
+ */
+export function apiErrorMessage(error: unknown): string | undefined {
+  if (!error || typeof error !== 'object') return undefined;
+
+  const response = (error as { response?: { status?: number; data?: unknown } }).response;
+  if (typeof response?.status === 'number' && response.status >= 500) return undefined;
+
+  const data = response?.data;
+  if (!data || typeof data !== 'object') return undefined;
+
+  // Read the envelope directly instead of going through extractError, which
+  // substitutes English defaults of its own ('An error occurred') for the shapes
+  // that carry a code but no message — those must fall through to the caller.
+  const body = data as { error?: { message?: unknown } | string | null; message?: unknown };
+  const candidates = [
+    typeof body.error === 'string' ? body.error : body.error?.message,
+    body.message,
+  ];
+
+  return candidates.find((value): value is string => typeof value === 'string' && value.trim() !== '');
+}
+
+/**
+ * The backend's error code from the envelope (`{ error: { code } }`), or undefined.
+ * Unlike apiErrorMessage this does not skip 5xx: a code such as ERR_UNDEFINED_COLUMN
+ * is exactly what a 500 needs to surface so the person on screen can report it.
+ * @param error - Value caught from a rejected request
+ * @returns The machine-readable code, or undefined
+ */
+export function apiErrorCode(error: unknown): string | undefined {
+  if (!error || typeof error !== 'object') return undefined;
+  const data = (error as { response?: { data?: unknown } }).response?.data;
+  if (!data || typeof data !== 'object') return undefined;
+  const code = (data as { error?: { code?: unknown } | null }).error?.code;
+  return typeof code === 'string' && code.trim() !== '' ? code : undefined;
+}
+
+/**
  * Extract success message from response
  * @param response - Axios response object
  * @returns Success message or undefined

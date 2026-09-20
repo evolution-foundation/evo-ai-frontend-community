@@ -47,12 +47,28 @@
       "create": "Crea",
       "update": "Aggiorna",
       "saving": "Salvataggio..."
+    },
+    "optionsError": {
+      "title": "Non è stato possibile caricare tutte le opzioni",
+      "description": "Errore nel caricamento: {{sources}}. Chiudi e riapri il modulo per riprovare.",
+      "sources": {
+        "inboxes": "caselle di posta",
+        "agents": "agenti",
+        "teams": "team",
+        "labels": "etichette"
+      }
     }
   },
   "actionRow": {
     "selectPlaceholder": "Seleziona un'opzione",
     "multiSelectPlaceholder": "Seleziona opzioni",
+    "assignAgentInboxWarning": "Questa assegnazione si applica solo alle conversazioni la cui casella di posta ha questo agente come membro. Nelle altre l'azione fallisce, e un'azione fallita segna l'intera esecuzione come fallita.",
     "loadingOptions": "Caricamento opzioni...",
+    "loadFailed": "Non è stato possibile caricare le opzioni",
+    "emptyTeams": "Nessun team registrato",
+    "emptyAgents": "Nessun agente registrato",
+    "emptyLabels": "Nessuna etichetta registrata",
+    "emptyOptions": "Nessuna opzione disponibile",
     "textareaPlaceholder": "Inserisci il messaggio o la nota",
     "textPlaceholder": "Inserisci il valore",
     "hoursPlaceholder": "Ore per il posticipo",
@@ -81,7 +97,6 @@
     },
     "actions": {
       "view": "Visualizza",
-      "execute": "Esegui",
       "edit": "Modifica",
       "delete": "Elimina"
     },
@@ -91,7 +106,6 @@
   "actions": {
     "edit": "Modifica",
     "delete": "Elimina",
-    "execute": "Esegui",
     "cancel": "Annulla",
     "save": "Salva",
     "confirm": "Conferma"
@@ -105,9 +119,7 @@
     "deleteSuccess": "Macro eliminata con successo",
     "deleteError": "Errore nell'eliminazione della macro",
     "bulkDeleteSuccess": "{{count}} macro eliminate con successo",
-    "bulkDeleteError": "Errore nell'eliminazione delle macro",
-    "executeSuccess": "Macro \"{{name}}\" eseguita con successo",
-    "executeError": "Errore nell'esecuzione della macro"
+    "bulkDeleteError": "Errore nell'eliminazione delle macro"
   },
   "dialog": {
     "delete": {

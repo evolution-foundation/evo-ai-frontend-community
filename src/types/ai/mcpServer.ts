@@ -29,6 +29,11 @@ export interface MCPServerConfig {
   name: string;
   type: string;
   environments: Record<string, unknown>;
+  /** EVO-2250 story 2.4 AC7: env var name -> vault credential id. A MAP, like
+   * the header refs of tools and remote MCPs: one credential is one secret, so
+   * two secret env vars are two credentials. The inline value in
+   * `environments` stays as the fallback until story 2.7 retires it. */
+  credential_refs?: Record<string, string>;
   tools: McpServerToolConfig[];
   toolIds?: string[];
 }

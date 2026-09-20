@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useCallback, useMemo, useRef } from 'react';
 import { toast } from 'sonner';
 import { usePersistence } from '@/hooks/chat/usePersistence';
+import { useContactUpdatedReconciler } from '@/hooks/chat/useContactUpdatedReconciler';
 import { MessagesProvider, useMessages as useMessagesOriginal } from '@/contexts/chat/MessagesContext';
 import { ConversationsProvider } from '@/contexts/chat/ConversationsContext';
 import { useConversations as useConversationsOriginal } from '@/hooks/chat/useConversations';
@@ -20,6 +21,7 @@ import {
 import { ConversationsContextValue } from '@/types/chat/conversations';
 import { useAppDataStore } from '@/store/appDataStore';
 import { useAuth } from '@/contexts/AuthContext';
+import { isAdminRole } from '@/constants/roles';
 import { playNotificationSound, getAudioSettings } from '@/utils/audioNotificationUtils';
 import { normalizeToUnixSeconds } from '@/utils/time/timeHelpers';
 import { doesConversationMatchFilters } from '@/utils/chat/conversationMatch';
@@ -58,6 +60,17 @@ function useChatIntegration() {
   const processedMessageIdsRef = useRef<Set<string>>(new Set());
   const activeFiltersRef = useRef<ConversationFilter[]>(filters.state.activeFilters);
   const attachmentReloadTimersRef = useRef<Record<string, number>>({});
+  const account = useAppDataStore(state => state.account);
+  // A session the server masks too reads the same values from REST as from the
+  // frame. Unknown role refetches: the cost is a request, the risk is the bug.
+  const roleKey = currentUser?.role?.key;
+  const sessionIsMasked = !!roleKey && !isAdminRole(roleKey);
+  const reconcileContactUpdated = useContactUpdatedReconciler({
+    conversations: conversations.state.conversations,
+    selectedConversationData: conversations.state.selectedConversationData,
+    refetchEnabled: account?.settings?.mask_contact_pii === true && !sessionIsMasked,
+    apply: conversations.updateContactInConversations,
+  });
   useEffect(() => {
     activeFiltersRef.current = filters.state.activeFilters;
   }, [filters.state.activeFilters]);
@@ -480,7 +493,9 @@ function useChatIntegration() {
           }
         }
 
-        // Preservar labels existentes quando WS envia dados incompletos (sem título ou cor)
+        // Keep the labels on screen when the WS payload is incomplete (no title or colour).
+        // With labels_data the colour always arrives, so this now only guards against a
+        // backend older than CRM-155. An empty list still passes: a removal has to reflect.
         const existingLabels = existingConversation?.labels || [];
         const incomingLabels = conversation.labels || [];
         const incomingLabelsComplete =
@@ -566,8 +581,17 @@ function useChatIntegration() {
       onConversationLastActivity: (conversationId: string, lastActivityAt: string) => {
         conversations.updateConversationLastActivity(conversationId, lastActivityAt);
       },
+
+      onContactUpdated: reconcileContactUpdated,
     });
-  }, [websocket, messages, conversations, currentUser, shouldReloadMessageForMissingImageData]);
+  }, [
+    websocket,
+    messages,
+    conversations,
+    currentUser,
+    shouldReloadMessageForMissingImageData,
+    reconcileContactUpdated,
+  ]);
 
   // Integrated actions
   const loadConversationsWithFilters = useCallback(

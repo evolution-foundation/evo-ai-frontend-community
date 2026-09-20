@@ -119,9 +119,9 @@ export function UpdateContactPanel({
         )}
 
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('panels.updateContact.fieldToUpdate')}</Label>
+          <Label htmlFor="update-contact-field" className="text-sm font-medium">{t('panels.updateContact.fieldToUpdate')}</Label>
           <Select value={formData.fieldToUpdate || ''} onValueChange={handleFieldChange}>
-            <SelectTrigger className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
+            <SelectTrigger id="update-contact-field" className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground">
               <SelectValue placeholder={t('panels.updateContact.selectFieldPlaceholder')} />
             </SelectTrigger>
             <SelectContent className="bg-sidebar border-sidebar-border">
@@ -142,8 +142,9 @@ export function UpdateContactPanel({
 
         {formData.fieldToUpdate && (
           <div className="space-y-2">
-            <Label className="text-sm font-medium">{t('panels.updateContact.newValue')}</Label>
+            <Label htmlFor="update-contact-new-value" className="text-sm font-medium">{t('panels.updateContact.newValue')}</Label>
             <VariableInput
+              id="update-contact-new-value"
               type={
                 formData.fieldToUpdate === 'email'
                   ? 'email'

@@ -1,3 +1,4 @@
+import type { AxiosResponse } from 'axios';
 import api from '@/services/core/api';
 import { extractData, extractResponse } from '@/utils/apiHelpers';
 import authApi from '@/services/core/apiAuth';
@@ -11,6 +12,28 @@ import type {
   MacroExecuteData,
   MacrosListParams,
 } from '@/types/automation';
+
+export type MacroFormDataSource = 'inboxes' | 'agents' | 'teams' | 'labels';
+
+// The four endpoints answer with different shapes (id/value for the key, and
+// name/title/label for the text), so the picker reads whichever is present.
+export interface MacroFormOption {
+  id?: string;
+  value?: string | number;
+  name?: string;
+  title?: string;
+  label?: string;
+}
+
+export interface MacroFormData {
+  inboxes: MacroFormOption[];
+  agents: MacroFormOption[];
+  teams: MacroFormOption[];
+  labels: MacroFormOption[];
+  campaigns: MacroFormOption[];
+  customAttributes: MacroFormOption[];
+  failedSources: MacroFormDataSource[];
+}
 
 class MacrosService {
   // List macros with optional parameters
@@ -57,56 +80,53 @@ class MacrosService {
     return this.getMacros(searchParams);
   }
 
-  async getFormData(): Promise<{
-    inboxes: any[];
-    agents: any[];
-    teams: any[];
-    labels: any[];
-    campaigns: any[];
-    customAttributes: any[];
-  }> {
-    try {
-      // Buscar dados necessários para o formulário em paralelo
-      const [inboxesRes, agentsRes, teamsRes, labelsRes] = await Promise.allSettled([
-        api.get('/inboxes'),
-        authApi.get('/users'),
-        api.get('/teams'),
-        api.get('/labels'),
-      ]);
+  async getFormData(): Promise<MacroFormData> {
+    const [inboxesRes, agentsRes, teamsRes, labelsRes] = await Promise.allSettled([
+      api.get('/inboxes'),
+      authApi.get('/users'),
+      api.get('/teams'),
+      api.get('/labels'),
+    ]);
 
-      const getResultData = (result: PromiseSettledResult<any>, isAuthService = false): any[] => {
-        if (result.status === 'fulfilled') {
-          if (isAuthService) {
-            // Auth services return {data, meta} structure
-            const response = extractResponse(result.value);
-            return (response.data as any[]) || [];
-          }
-          const data = extractData(result.value);
-          return Array.isArray(data) ? data : [];
-        }
+    const failedSources: MacroFormDataSource[] = [];
+
+    // An empty list from a 403/500 is indistinguishable from a genuinely empty
+    // one, so the failing source has to be reported instead of swallowed.
+    const getResultData = (
+      source: MacroFormDataSource,
+      result: PromiseSettledResult<AxiosResponse>,
+      isAuthService = false,
+    ): MacroFormOption[] => {
+      if (result.status === 'rejected') {
+        console.error(`Failed to load ${source} for the macro form:`, result.reason);
+        failedSources.push(source);
         return [];
-      };
+      }
 
-      return {
-        inboxes: getResultData(inboxesRes),
-        agents: getResultData(agentsRes, true), // true = isAuthService
-        teams: getResultData(teamsRes),
-        labels: getResultData(labelsRes),
-        campaigns: [],
-        customAttributes: [], // TODO: Implementar busca de custom attributes se necessário
-      };
-    } catch (error: any) {
-      console.error('Erro ao buscar dados do formulário:', error);
-      // Retornar dados vazios em caso de erro para não quebrar o formulário
-      return {
-        inboxes: [],
-        agents: [],
-        teams: [],
-        labels: [],
-        campaigns: [],
-        customAttributes: [],
-      };
-    }
+      try {
+        if (isAuthService) {
+          // Auth services return {data, meta} structure
+          const response = extractResponse<MacroFormOption>(result.value);
+          return response.data || [];
+        }
+        const data = extractData<MacroFormOption[]>(result.value);
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error(`Failed to parse ${source} for the macro form:`, error);
+        failedSources.push(source);
+        return [];
+      }
+    };
+
+    return {
+      inboxes: getResultData('inboxes', inboxesRes),
+      agents: getResultData('agents', agentsRes, true),
+      teams: getResultData('teams', teamsRes),
+      labels: getResultData('labels', labelsRes),
+      campaigns: [],
+      customAttributes: [], // TODO: fetch custom attributes if they are ever needed
+      failedSources,
+    };
   }
 }
 

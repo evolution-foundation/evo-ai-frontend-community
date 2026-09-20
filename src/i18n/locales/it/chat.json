@@ -79,7 +79,8 @@
     "messageList": {
       "loadingConversation": "Caricamento conversazione...",
       "loadingPrevious": "Caricamento messaggi precedenti...",
-      "conversationStart": "Inizio della conversazione"
+      "conversationStart": "Inizio della conversazione",
+      "newMessage": "Nuovo messaggio"
     },
     "messageLocation": {
       "sharedLocation": "Posizione condivisa",
@@ -90,10 +91,11 @@
       "statusUnavailableDescription": "Il messaggio è stato inviato, ma non siamo riusciti a confermare lo stato di consegna.",
       "checkChannelConfig": "Verifica la configurazione del canale",
       "webhookIssue": "Il webhook potrebbe essere obsoleto o inattivo.",
+      "messageNotSent": "Il messaggio non è stato inviato",
       "deliveryStatusUnavailable": "Stato di consegna non disponibile - Clicca per maggiori dettagli",
       "statusUnavailableText": "Stato non disponibile",
-      "retryInDevelopment": "Funzionalità di nuovo tentativo in sviluppo",
-      "sendFailed": "Invio fallito - Clicca per riprovare",
+      "sendFailedText": "Invio fallito",
+      "sendFailed": "Invio fallito - Clicca per vedere il motivo",
       "tryAgain": "Riprova"
     },
     "replyPreview": {
@@ -313,6 +315,7 @@
     },
     "openConversation": "Apri Conversazione",
     "closeConversation": "Chiudi conversazione",
+    "backToConversations": "Torna alle conversazioni",
     "phoneNumber": "Numero di telefono",
     "openContactPanel": "Apri dettagli contatto",
     "closeContactPanel": "Chiudi dettagli contatto"
@@ -324,6 +327,7 @@
       "pending": "In sospeso",
       "resolved": "Completate",
       "unread": "Non lette",
+      "unanswered": "Senza risposta",
       "groups": "Gruppi"
     },
     "searchPlaceholder": "Cerca conversazioni...",
@@ -749,7 +753,8 @@
       "documents": "Documenti",
       "media": "Foto e Video",
       "conversationNote": "Note della Conversazione",
-      "schedule": "Pianifica"
+      "schedule": "Pianifica Messaggio",
+      "scheduleDisabledHint": "Scrivi un messaggio per poterlo pianificare"
     },
     "macros": {
       "tooltip": "Macro",
@@ -758,7 +763,7 @@
     "schedule": {
       "title": "Pianifica messaggio",
       "messagePreview": "Messaggio",
-      "emptyMessage": "Digita un messaggio nel composer prima di pianificare.",
+      "emptyMessage": "Nessun messaggio digitato da pianificare.",
       "dateTime": "Data e ora",
       "note": "Osservazione",
       "notePlaceholder": "Nota interna (opzionale)",
@@ -1001,10 +1006,12 @@
     "moveError": "Errore nello spostamento nella fase",
     "removeError": "Errore nella rimozione dal pipeline"
   },
+  "unansweredBadge": {
+    "menuAriaLabel_one": "{{count}} conversazione in attesa di una tua risposta",
+    "menuAriaLabel_other": "{{count}} conversazioni in attesa di una tua risposta"
+  },
   "unreadBadge": {
     "ariaLabel_one": "{{count}} messaggio non letto",
-    "ariaLabel_other": "{{count}} messaggi non letti",
-    "menuAriaLabel_one": "{{count}} conversazione non letta",
-    "menuAriaLabel_other": "{{count}} conversazioni non lette"
+    "ariaLabel_other": "{{count}} messaggi non letti"
   }
 }

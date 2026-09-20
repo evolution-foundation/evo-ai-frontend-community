@@ -110,6 +110,8 @@
       "labels": "Etichette",
       "customAttributes": "Attributi Personalizzati",
       "cannedResponses": "Risposte Predefinite",
+      "aiCredentials": "Credenziali di IA",
+      "integrationCredentials": "Credenziali di integrazione",
       "messageTemplates": "Modelli di Messaggio",
       "macros": "Macro",
       "templates": "Modelli",

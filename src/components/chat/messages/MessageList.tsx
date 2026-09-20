@@ -126,6 +126,10 @@ const MessageList: React.FC<MessageListProps> = ({
   const { t } = useLanguage('chat');
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isNearBottom, setIsNearBottom] = useState(true);
+  const isNearBottomRef = useRef(true);
+  const [hasNewMessage, setHasNewMessage] = useState(false);
+  const lastSettledRef = useRef<{ id: string; timestamp: number } | null>(null);
+  const lastPendingIdRef = useRef<string | null>(null);
   const conversationIdRef = useRef<string | null>(null);
   const hasInitialScrolled = useRef(false);
   const lastLoadTime = useRef(0); // ✅ Throttle do carregamento
@@ -178,7 +182,11 @@ const MessageList: React.FC<MessageListProps> = ({
       // 🧹 Reset scroll height ref
       scrollHeightRef.current = 0;
 
+      isNearBottomRef.current = true;
+      lastSettledRef.current = null;
+      lastPendingIdRef.current = null;
       setIsNearBottom(true);
+      setHasNewMessage(false);
     }
   }, [currentConversationId, isInitialLoading, messages.length]); // ✅ Incluir dependência necessária para lint
 
@@ -247,30 +255,64 @@ const MessageList: React.FC<MessageListProps> = ({
     }
   }, [isLoadingMore]);
 
-  // 🚀 STEP 4: Auto-scroll quando uma nova mensagem OUTGOING é enviada
-  const lastMessageRef = useRef<Message | null>(null);
+  // 🚀 STEP 4: auto-scroll on new messages. The user's own optimistic send
+  // (status 'progress', sorted last) always scrolls. A new settled message at
+  // the end — incoming, bot or another agent — scrolls only when the view is
+  // already near the bottom; otherwise it turns on the new-message indicator
+  // (system events don't). Detection uses the newest settled message plus its
+  // timestamp, so an in-flight send tail, a history load or a deletion of the
+  // newest message never counts as an arrival.
   useEffect(() => {
     if (messages.length === 0 || !hasInitialScrolled.current) return;
 
-    const lastMessage = messages[messages.length - 1];
-
-    // Auto-scroll quando usuário envia mensagem
-    if (
-      lastMessage &&
-      lastMessageRef.current?.id !== lastMessage.id &&
-      lastMessage.message_type === MESSAGE_TYPE.OUTGOING
-    ) {
+    const scrollToEnd = () => {
       const container = scrollRef.current;
       if (container) {
         requestAnimationFrame(() => {
           const targetScrollTop = container.scrollHeight - container.clientHeight;
           container.scrollTop = Math.max(0, targetScrollTop);
+          isNearBottomRef.current = true;
           setIsNearBottom(true);
         });
       }
+      setHasNewMessage(false);
+    };
+
+    const lastMessage = messages[messages.length - 1];
+    const isOwnPendingSend =
+      lastMessage.message_type === MESSAGE_TYPE.OUTGOING && lastMessage.status === 'progress';
+
+    if (isOwnPendingSend && lastPendingIdRef.current !== lastMessage.id) {
+      lastPendingIdRef.current = lastMessage.id;
+      scrollToEnd();
     }
 
-    lastMessageRef.current = lastMessage;
+    let lastSettled: Message | null = null;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].status !== 'progress') {
+        lastSettled = messages[i];
+        break;
+      }
+    }
+    if (!lastSettled) return;
+
+    const previous = lastSettledRef.current;
+    const settledTimestamp = normalizeMessageTimestamp(lastSettled);
+    lastSettledRef.current = { id: lastSettled.id, timestamp: settledTimestamp };
+
+    if (!previous || previous.id === lastSettled.id || settledTimestamp < previous.timestamp) {
+      return;
+    }
+
+    const isSystemEvent =
+      lastSettled.message_type === MESSAGE_TYPE.ACTIVITY ||
+      lastSettled.message_type === MESSAGE_TYPE.TEMPLATE;
+
+    if (isNearBottomRef.current) {
+      scrollToEnd();
+    } else if (!isSystemEvent) {
+      setHasNewMessage(true);
+    }
   }, [messages]);
 
   // ✅ HANDLE SCROLL: Carregamento automático como WhatsApp/Telegram
@@ -280,7 +322,11 @@ const MessageList: React.FC<MessageListProps> = ({
       const nearBottom = scrollHeight - scrollTop - clientHeight < 100;
       const nearTop = scrollTop < 100; // Próximo ao topo
 
+      isNearBottomRef.current = nearBottom;
       setIsNearBottom(nearBottom);
+      if (nearBottom) {
+        setHasNewMessage(false);
+      }
 
       // 🚀 SCROLL INFINITO: Carregar mais quando chega perto do topo (como WhatsApp)
       if (nearTop && hasMoreMessages && !isLoadingMore && hasInitialScrolled.current) {
@@ -303,7 +349,9 @@ const MessageList: React.FC<MessageListProps> = ({
         top: container.scrollHeight,
         behavior: 'smooth',
       });
+      isNearBottomRef.current = true;
       setIsNearBottom(true);
+      setHasNewMessage(false);
     }
   }, []);
 
@@ -609,16 +657,36 @@ const MessageList: React.FC<MessageListProps> = ({
         </div>
       </div>
 
-      {/* Botão voltar ao final */}
+      {/* Botão voltar ao final / indicador de mensagem nova */}
       {!isNearBottom && (
-        <div className="absolute bottom-4 right-4 z-10">
+        <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+          {hasNewMessage && (
+            <Badge
+              variant="default"
+              role="button"
+              tabIndex={0}
+              className="cursor-pointer shadow-lg"
+              onClick={scrollToBottom}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  scrollToBottom();
+                }
+              }}
+            >
+              {t('messages.messageList.newMessage')}
+            </Badge>
+          )}
           <Button
             size="icon"
             variant="secondary"
-            className="rounded-full shadow-lg border bg-background/95 backdrop-blur-sm hover:bg-accent"
+            className="relative rounded-full shadow-lg border bg-background/95 backdrop-blur-sm hover:bg-accent"
             onClick={scrollToBottom}
           >
             <ChevronDown className="h-4 w-4" />
+            {hasNewMessage && (
+              <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-primary" />
+            )}
           </Button>
         </div>
       )}

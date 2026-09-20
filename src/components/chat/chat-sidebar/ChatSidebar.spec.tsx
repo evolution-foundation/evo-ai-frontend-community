@@ -631,3 +631,27 @@ describe('ChatSidebar scroll pagination (EVO-1407)', () => {
     expect(loadMore).not.toHaveBeenCalled();
   });
 });
+
+// jsdom does not evaluate media queries, so this locks the mechanism instead:
+// the resize width must never reach the element as a raw inline width, which is
+// what overrode w-full and left the list desktop-sized on mobile (EVO-2234).
+describe('ChatSidebar responsive width (EVO-2234)', () => {
+  it('keeps the resize width desktop-only, as a CSS var instead of an inline width', () => {
+    render(<ChatSidebar {...defaultProps} width={420} />);
+
+    const root = document.querySelector<HTMLElement>('[data-tour="chat-sidebar"]')!;
+    expect(root.style.width).toBe('');
+    expect(root.style.getPropertyValue('--chat-sidebar-width')).toBe('420px');
+    expect(root.className).toContain('w-full');
+    expect(root.className).toContain('md:w-[var(--chat-sidebar-width)]');
+  });
+
+  it('falls back to the fixed desktop width when no resize width is set', () => {
+    render(<ChatSidebar {...defaultProps} />);
+
+    const root = document.querySelector<HTMLElement>('[data-tour="chat-sidebar"]')!;
+    expect(root.style.width).toBe('');
+    expect(root.className).toContain('w-full');
+    expect(root.className).toContain('md:w-96');
+  });
+});

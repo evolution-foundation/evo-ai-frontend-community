@@ -12,6 +12,10 @@ interface N8NConfigFormProps {
   onChange: (config: N8NConfig) => void;
   errors?: Record<string, string>;
   disabled?: boolean;
+  /** EVO-2250 story 2.7: the inline secret retired behind the migration
+   * guard. Only the secret input locks; address fields stay editable. */
+  secretRetired?: boolean;
+  secretRetiredHint?: string;
 }
 
 export const N8NConfigForm = ({
@@ -19,6 +23,8 @@ export const N8NConfigForm = ({
   onChange,
   errors = {},
   disabled = false,
+  secretRetired = false,
+  secretRetiredHint,
 }: N8NConfigFormProps) => {
   const { t } = useLanguage('aiAgents');
   
@@ -44,7 +50,7 @@ export const N8NConfigForm = ({
             id="n8n_basicAuthUser"
             value={config.basicAuthUser || ''}
             onChange={(e) => onChange({ ...config, basicAuthUser: e.target.value })}
-            disabled={disabled}
+            disabled={disabled || secretRetired}
           />
         </div>
         <div className="space-y-2">
@@ -54,9 +60,12 @@ export const N8NConfigForm = ({
             type="password"
             value={config.basicAuthPass || ''}
             onChange={(e) => onChange({ ...config, basicAuthPass: e.target.value })}
-            disabled={disabled}
+            disabled={disabled || secretRetired}
           />
-        </div>
+          {secretRetired && secretRetiredHint && (
+          <p className="text-xs text-muted-foreground">{secretRetiredHint}</p>
+        )}
+      </div>
       </div>
     </>
   );

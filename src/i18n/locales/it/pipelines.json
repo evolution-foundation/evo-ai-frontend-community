@@ -46,6 +46,7 @@
     "updateError": "Errore nell'aggiornamento della pipeline",
     "deleteSuccess": "Pipeline eliminata con successo",
     "deleteError": "Errore nell'eliminazione della pipeline",
+    "deleteBlockedActiveItems": "Questa pipeline ha ancora elementi attivi e non può essere eliminata. Rimuovi prima gli elementi dalla pipeline.",
     "duplicateSuccess": "Pipeline duplicata con successo",
     "duplicateError": "Errore nella duplicazione della pipeline",
     "activateSuccess": "Pipeline attivata con successo",
@@ -169,6 +170,7 @@
     "namePlaceholder": "Es: Lead Qualificati",
     "descriptionLabel": "Descrizione",
     "descriptionPlaceholder": "Descrivi lo scopo di questa fase...",
+    "characterCount": "{{current}}/{{max}} caratteri",
     "color": "Colore della Fase",
     "colorSelected": "Colore selezionato",
     "stageType": "Tipo di Fase",
@@ -361,23 +363,49 @@
     "selectAgent": "Seleziona agente...",
     "selectPipeline": "Seleziona pipeline...",
     "selectLabel": "Seleziona etichetta...",
+    "selectAgentBot": "Seleziona agente di IA...",
+    "selectTemplate": "Seleziona modello...",
     "noOtherStages": "Nessun'altra fase disponibile",
     "noOtherPipelines": "Nessun'altra pipeline disponibile",
     "noStagesInPipeline": "Nessuna fase nella pipeline selezionata",
     "noAgents": "Nessun agente disponibile",
+    "noAgentBots": "Nessun agente di IA disponibile",
+    "noTemplates": "Nessun modello disponibile",
     "anyLabel": "Qualsiasi etichetta",
     "noLabels": "Nessuna etichetta disponibile",
+    "aiMessagePlaceholder": "Cosa deve dire l'agente? (facoltativo)",
+    "directMessagePlaceholder": "Messaggio da inviare...",
+    "finalizeMessagePlaceholder": "Messaggio di chiusura (facoltativo)...",
     "triggers": {
       "label_added": "Etichetta aggiunta",
       "conversation_status_changed": "Stato conversazione modificato",
-      "custom_attribute_updated": "Attributo personalizzato aggiornato"
+      "custom_attribute_updated": "Attributo personalizzato aggiornato",
+      "inactivity": "Per inattività"
     },
     "actions": {
       "move_to_stage": "Sposta alla fase",
       "move_to_pipeline": "Sposta in un'altra pipeline",
       "assign_agent": "Assegna agente",
-      "apply_label": "Applica etichetta"
-    }
+      "apply_label": "Applica etichetta",
+      "send_ai_message": "Messaggio tramite agente di IA",
+      "send_direct_message": "Messaggio diretto",
+      "send_template": "Invia modello",
+      "finalize": "Termina conversazione"
+    },
+    "inactivity": {
+      "minutes": "minuti",
+      "hour": "ora",
+      "hours": "ore",
+      "days": "giorni",
+      "base": {
+        "no_customer_reply": "Cliente senza risposta",
+        "stage_stagnation": "Fermo nella fase"
+      }
+    },
+    "templatePending": "In attesa di approvazione da Meta",
+    "templatesPendingHint": "I tuoi template sono ancora in attesa di approvazione da Meta.",
+    "noTemplatesHint": "Nessun template creato finora.",
+    "manageTemplates": "Apri Modelli di Messaggio"
   },
   "editStage": {
     "title": "Modifica Fase",
@@ -595,7 +623,8 @@
       "deletePipeline": "Elimina Pipeline",
       "private": "Privato",
       "noDescription": "Nessuna descrizione",
-      "captureForms": "Moduli di acquisizione"
+      "captureForms": "Moduli di acquisizione",
+      "purchaseWebhook": "Webhook di acquisto"
     },
     "stage": {
       "addStage": "Aggiungi Fase",
@@ -782,6 +811,25 @@
     }
   },
   "dialog": {
+      "deactivatePipeline": {
+      "lookupFailed": "Non è stato possibile verificare cosa dipende da questa pipeline. Disattivare comunque?",
+      "draft": "bozza",
+      "viaRoutingRule": "tramite regola di instradamento",
+      "namesRedacted": "{{count}} modulo in totale — non hai il permesso di vedere i nomi.",
+      "namesRedacted_plural": "{{count}} moduli in totale — non hai il permesso di vedere i nomi.",
+          "title": "Disattiva pipeline",
+          "description": "\"{{name}}\" sparirà da tutti i selettori di pipeline. Ciò che è già al suo interno resta dov'è.",
+          "checking": "Verifica di cosa dipende da questa pipeline…",
+          "formsHeading": "{{count}} modulo di acquisizione invia lead qui:",
+          "formsHeading_plural": "{{count}} moduli di acquisizione inviano lead qui:",
+          "noForms": "Nessun modulo di acquisizione alimenta questa pipeline.",
+          "draftsHeading": "{{count}} modulo in bozza punta a questa pipeline (non ancora in acquisizione):",
+          "draftsHeading_plural": "{{count}} moduli in bozza puntano a questa pipeline (non ancora in acquisizione):",
+          "published": "pubblicato",
+          "partialWarning": "Sono stati verificati solo i moduli di acquisizione. Automazioni e journey non sono stati consultati.",
+          "cancel": "Annulla",
+          "confirm": "Disattiva"
+      },
     "deletePipeline": {
       "title": "Elimina Pipeline",
       "description": "Sei sicuro di voler eliminare questa pipeline? Questa azione non può essere annullata e influenzerà tutti i dati correlati.",
@@ -789,6 +837,28 @@
       "delete": "Elimina Pipeline",
       "deleting": "Eliminazione..."
     }
+  },
+  "purchaseWebhook": {
+    "title": "Webhook di acquisto",
+    "subtitle": "Un acquisto approvato su una piattaforma di pagamento diventa un lead in questa pipeline: {{pipeline}}",
+    "platform": "Piattaforma di pagamento",
+    "platformPlaceholder": "Scegli la piattaforma",
+    "loadingPlatforms": "Caricamento piattaforme...",
+    "notConfigured": "nessuna credenziale salvata",
+    "credentialsHint": "Le credenziali delle piattaforme si trovano nella schermata Integrazioni del CRM.",
+    "destinationRequired": "La credenziale di questa piattaforma è pubblica — configura prima il \"Segreto di destinazione dell'URL\" nelle Integrazioni del CRM.",
+    "product": "Prodotto (opzionale)",
+    "productPlaceholder": "Etichetta i lead di questo URL con questo prodotto; vuoto = quello della piattaforma",
+    "generate": "Genera URL",
+    "urlWhitelabel": "URL sul dominio del tuo brand",
+    "urlGlobal": "URL del webhook",
+    "copy": "Copia",
+    "copiedShort": "Copiato",
+    "copied": "URL copiata",
+    "copyError": "Copia non riuscita — copia l'URL a mano",
+    "regenerateHint": "Incollala nel pannello della piattaforma come destinazione del webhook di acquisto approvato. Se cambi la credenziale o il segreto di destinazione, genera e registra di nuovo.",
+    "loadError": "Errore nel caricamento delle piattaforme",
+    "mintError": "Errore nella generazione dell'URL"
   },
   "captureForms": {
     "title": "Moduli di acquisizione",

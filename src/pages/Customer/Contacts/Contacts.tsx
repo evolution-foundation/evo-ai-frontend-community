@@ -624,9 +624,14 @@ export default function Contacts() {
       loadContacts();
     } catch (error: unknown) {
       console.error('Error importing contacts:', error);
-      const errorMessage =
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        t('messages.importError');
+      // `error` is an object in the community envelope and a string in the
+      // self-hosted overlay ({ error: "...", code }); vendor/crm serves both.
+      const data = (error as {
+        response?: { data?: { error?: { message?: string } | string; message?: string } };
+      })?.response?.data;
+      const backendMessage =
+        typeof data?.error === 'string' ? data.error : data?.error?.message;
+      const errorMessage = backendMessage || data?.message || t('messages.importError');
       toast.error(errorMessage);
     } finally {
       setState(prev => ({ ...prev, loading: { ...prev.loading, import: false } }));

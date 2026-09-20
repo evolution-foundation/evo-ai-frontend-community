@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { SettingsLabelsTour } from '@/tours';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ import EmptyState from '@/components/base/EmptyState';
 
 import { labelsService } from '@/services/contacts/labelsService';
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { Label, LabelsState, LabelFormData } from '@/types/settings';
 
 import LabelsHeader from '@/components/labels/LabelsHeader';
@@ -49,14 +50,13 @@ const INITIAL_STATE: LabelsState = {
 
 export default function Labels() {
   const { t } = useLanguage('labels');
-  const { can, isReady: permissionsReady } = usePermissions();
+  const { can } = usePermissions();
   const [state, setState] = useState<LabelsState>(INITIAL_STATE);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [labelToDelete, setLabelToDelete] = useState<Label | null>(null);
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [labelModalOpen, setLabelModalOpen] = useState(false);
   const [editingLabel, setEditingLabel] = useState<Label | null>(null);
-  const hasLoaded = useRef(false);
 
   // Load labels
   const loadLabels = useCallback(async () => {
@@ -87,18 +87,11 @@ export default function Labels() {
     }
   }, [can, t]);
 
-  // Initial load
-  useEffect(() => {
-    if (!permissionsReady) {
-      return;
-    }
-
-    if (!hasLoaded.current) {
-      hasLoaded.current = true;
-      loadLabels();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permissionsReady]);
+  usePermissionGatedLoad({
+    resource: 'labels',
+    load: loadLabels,
+    onDenied: () => toast.error(t('messages.permissionDenied.read')),
+  });
 
   // Handlers
   const handleSearchChange = (query: string) => {
@@ -242,22 +235,16 @@ export default function Labels() {
     try {
       if (editingLabel) {
         // Update existing label
-        const response = await labelsService.updateLabel(editingLabel.id, data);
+        await labelsService.updateLabel(editingLabel.id, data);
         toast.success(t('messages.updateSuccess'));
-
-        // Update the specific label in the list
-        const updatedLabel = response.data;
-        setState(prev => ({
-          ...prev,
-          labels: prev.labels.map(label => (label.id === editingLabel.id ? updatedLabel : label)),
-        }));
       } else {
         // Create new label
         await labelsService.createLabel(data);
         toast.success(t('messages.createSuccess'));
       }
 
-      // Refresh the entire list for new labels
+      // Refresh the whole list: loadLabels() flips loading.list, so patching a
+      // single row here would never paint.
       loadLabels();
 
       // Close modal and clear editing state

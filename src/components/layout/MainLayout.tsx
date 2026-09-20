@@ -24,6 +24,7 @@ import { useMenuState } from '@/hooks/useMenuState';
 import { useDashboardApps } from '@/hooks/useDashboardApps';
 import { injectDashboardAppsIntoMenu } from '@/utils/injectDashboardApps';
 import { WelcomeTourModal } from '@/components/WelcomeTourModal';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -140,7 +141,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
         {/* Main Content */}
         <main className="flex-1 min-h-0 overflow-auto bg-background transition-colors duration-150 ease-in-out">
-          <div className="h-full">{children}</div>
+          {/* Keyed by path so a crashed page does not keep the fallback up after navigating away */}
+          <div className="h-full">
+            <ErrorBoundary key={pathname}>{children}</ErrorBoundary>
+          </div>
         </main>
 
       </div>

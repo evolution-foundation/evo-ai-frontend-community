@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { SessionsViewer } from './SessionsViewer';
 
 vi.mock('@/services', () => ({
@@ -166,5 +166,162 @@ describe('SessionsViewer — defensive stats handling', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('sessions-stats-grid')).toBeNull();
     });
+  });
+});
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>(r => {
+    resolve = r;
+  });
+  return { promise, resolve };
+}
+
+function makeSession(id: string) {
+  return {
+    id,
+    journeyId: 'journey-1',
+    contactId: 'contact-00000000',
+    accountId: 'acc-1',
+    status: 'active' as const,
+    variables: {},
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    retryCount: 0,
+    maxRetries: 0,
+    executionLogs: [],
+  };
+}
+
+// The contact search used to fire getJourneySessions on every keystroke, and
+// a slower response for an earlier keystroke could resolve after a faster one
+// and clobber the list with stale data. These tests fail against the pre-fix
+// implementation (immediate fetch on every change, no isStale guard).
+describe('SessionsViewer — search debounce and stale-response guard', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('waits for a pause in typing before querying, instead of one request per keystroke', async () => {
+    vi.mocked(journeyService.getJourneySessions).mockResolvedValue({
+      data: { sessions: [], total: 0 },
+    } as never);
+    vi.mocked(journeyService.getJourneySessionStats).mockResolvedValue({
+      data: { total: 0 },
+    } as never);
+
+    render(<SessionsViewer {...baseProps} />);
+    await act(async () => {
+      await vi.runOnlyPendingTimersAsync();
+    });
+    vi.mocked(journeyService.getJourneySessions).mockClear();
+
+    const input = screen.getByPlaceholderText('sessions.viewer.filters.searchPlaceholder');
+    fireEvent.change(input, { target: { value: 'j' } });
+    fireEvent.change(input, { target: { value: 'jo' } });
+    fireEvent.change(input, { target: { value: 'joh' } });
+
+    // Still inside the debounce window — nothing fired yet.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(399);
+    });
+    expect(journeyService.getJourneySessions).not.toHaveBeenCalled();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+
+    expect(journeyService.getJourneySessions).toHaveBeenCalledTimes(1);
+    expect(journeyService.getJourneySessions).toHaveBeenCalledWith(
+      'journey-1',
+      expect.objectContaining({ contactId: 'joh' }),
+    );
+  });
+
+  it('discards a stale response that resolves after a newer one (race guard)', async () => {
+    vi.mocked(journeyService.getJourneySessionStats).mockResolvedValue({
+      data: { total: 0 },
+    } as never);
+
+    const first = deferred<{ data: { sessions: unknown[]; total: number } }>();
+    const second = deferred<{ data: { sessions: unknown[]; total: number } }>();
+    vi.mocked(journeyService.getJourneySessions)
+      .mockReturnValueOnce(first.promise as never)
+      .mockReturnValueOnce(second.promise as never);
+
+    render(<SessionsViewer {...baseProps} />);
+    // Initial mount fetch is now in flight (bound to `first`).
+
+    const input = screen.getByPlaceholderText('sessions.viewer.filters.searchPlaceholder');
+    fireEvent.change(input, { target: { value: 'ana' } });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+    // Debounced search fetch is now in flight too (bound to `second`).
+
+    // Resolve out of order: the newer (search) request finishes first...
+    await act(async () => {
+      second.resolve({ data: { sessions: [makeSession('newer-session')], total: 1 } });
+    });
+    // ...then the older (initial) request finishes late.
+    await act(async () => {
+      first.resolve({ data: { sessions: [makeSession('older-session')], total: 1 } });
+    });
+
+    expect(screen.getByText('newer-se')).toBeTruthy();
+    expect(screen.queryByText('older-se')).toBeNull();
+  });
+
+  it('does not refetch stats when the search filter changes — only the session list', async () => {
+    vi.mocked(journeyService.getJourneySessions).mockResolvedValue({
+      data: { sessions: [], total: 0 },
+    } as never);
+    vi.mocked(journeyService.getJourneySessionStats).mockResolvedValue({
+      data: { total: 0 },
+    } as never);
+
+    render(<SessionsViewer {...baseProps} />);
+    await act(async () => {
+      await vi.runOnlyPendingTimersAsync();
+    });
+    expect(journeyService.getJourneySessionStats).toHaveBeenCalledTimes(1);
+    vi.mocked(journeyService.getJourneySessionStats).mockClear();
+
+    const input = screen.getByPlaceholderText('sessions.viewer.filters.searchPlaceholder');
+    fireEvent.change(input, { target: { value: 'maria' } });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+
+    expect(journeyService.getJourneySessionStats).not.toHaveBeenCalled();
+  });
+});
+
+describe('SessionsViewer — load effects survive re-render', () => {
+  it('does not refetch when the component re-renders with the same props', async () => {
+    vi.mocked(journeyService.getJourneySessions).mockResolvedValue({
+      data: { sessions: [], total: 0 },
+    } as never);
+    vi.mocked(journeyService.getJourneySessionStats).mockResolvedValue({
+      data: { total: 0 },
+    } as never);
+
+    const { rerender } = render(<SessionsViewer {...baseProps} />);
+    await waitFor(() => {
+      expect(journeyService.getJourneySessions).toHaveBeenCalledTimes(1);
+      expect(journeyService.getJourneySessionStats).toHaveBeenCalledTimes(1);
+    });
+
+    await act(async () => {
+      rerender(<SessionsViewer {...baseProps} />);
+      rerender(<SessionsViewer {...baseProps} />);
+    });
+
+    expect(journeyService.getJourneySessions).toHaveBeenCalledTimes(1);
+    expect(journeyService.getJourneySessionStats).toHaveBeenCalledTimes(1);
   });
 });

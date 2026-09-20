@@ -225,18 +225,7 @@ export default function SegmentConditionEditor({
       }
       case 'Label': {
         const node = condition as LabelNode;
-        // Para manter compatibilidade, verificar se labelId é um UUID (formato antigo) ou nome (formato novo)
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          node.labelId,
-        );
-        if (isUUID) {
-          // Formato antigo com UUID - precisamos encontrar o nome da label
-          // Por enquanto, usar o UUID e converter depois que as labels carregarem
-          setSelectedLabelId(node.labelId);
-        } else {
-          // Formato novo com nome da label
-          setSelectedLabelId(node.labelId);
-        }
+        setSelectedLabelId(node.labelId);
         setLabelConditionType(node.condition);
         loadLabels(); // Load labels when editing
         break;
@@ -254,25 +243,18 @@ export default function SegmentConditionEditor({
     setInitialized(true);
   }, [condition, initialized, loadCustomAttributes, loadLabels]);
 
-  // Convert UUID labelId to label name after labels are loaded (for backward compatibility)
+  // labelId is the Label UUID — the CRM emits it in `contact.label.*` traits and evo-flow
+  // matches on it (CRM-215). Definitions saved by the old editor carry the label TITLE;
+  // migrate them to the id once labels load, so they start matching on the next save.
   useEffect(() => {
-    if (selectedConditionType === 'Label' && selectedLabelId && availableLabels.length > 0) {
-      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        selectedLabelId,
-      );
-      if (isUUID) {
-        // Find label by ID and update to use name instead
-        const label = availableLabels.find(l => l.id === selectedLabelId);
-        if (label) {
-          setSelectedLabelId(label.title);
-          // Update the condition to use the label name
-          const node = localCondition as LabelNode;
-          const updatedCondition = { ...node, labelId: label.title };
-          setLocalCondition(updatedCondition);
-          onUpdate(index, updatedCondition);
-        }
-      }
-    }
+    if (selectedConditionType !== 'Label' || !selectedLabelId || availableLabels.length === 0) return;
+    if (availableLabels.some(l => l.id === selectedLabelId)) return;
+    const label = availableLabels.find(l => l.title === selectedLabelId);
+    if (!label) return;
+    setSelectedLabelId(label.id);
+    const updatedCondition = { ...(localCondition as LabelNode), labelId: label.id };
+    setLocalCondition(updatedCondition);
+    onUpdate(index, updatedCondition);
   }, [selectedConditionType, selectedLabelId, availableLabels, localCondition, index, onUpdate]);
 
   const handleConditionTypeChange = (value: string) => {

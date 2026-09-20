@@ -46,6 +46,7 @@
     "updateError": "Error updating pipeline",
     "deleteSuccess": "Pipeline deleted successfully",
     "deleteError": "Error deleting pipeline",
+    "deleteBlockedActiveItems": "This pipeline still has active items and cannot be deleted. Remove the items from the pipeline first.",
     "duplicateSuccess": "Pipeline duplicated successfully",
     "duplicateError": "Error duplicating pipeline",
     "activateSuccess": "Pipeline activated successfully",
@@ -202,6 +203,7 @@
     "namePlaceholder": "Ex: Leads Qualified",
     "descriptionLabel": "Description",
     "descriptionPlaceholder": "Describe the purpose of this stage...",
+    "characterCount": "{{current}}/{{max}} characters",
     "color": "Stage Color",
     "colorSelected": "Selected Color",
     "stageType": "Stage Type",
@@ -417,6 +419,7 @@
       "minutes": "minutes",
       "hour": "hour",
       "hours": "hours",
+      "days": "days",
       "base": {
         "no_customer_reply": "Customer not replying",
         "stage_stagnation": "Stuck in stage"
@@ -437,7 +440,11 @@
       "send_direct_message": "Direct message",
       "send_template": "Send template",
       "finalize": "End conversation"
-    }
+    },
+    "templatePending": "Awaiting Meta approval",
+    "templatesPendingHint": "Your templates are still awaiting Meta approval.",
+    "noTemplatesHint": "No templates created yet.",
+    "manageTemplates": "Open Message Templates"
   },
   "editStage": {
     "title": "Edit Stage",
@@ -658,7 +665,8 @@
       "deletePipeline": "Delete Pipeline",
       "private": "Private",
       "noDescription": "No description",
-      "captureForms": "Capture Forms"
+      "captureForms": "Capture Forms",
+      "purchaseWebhook": "Purchase webhook"
     },
     "stage": {
       "addStage": "Add Stage",
@@ -847,6 +855,25 @@
     }
   },
   "dialog": {
+      "deactivatePipeline": {
+      "lookupFailed": "We could not check what depends on this pipeline. Deactivate anyway?",
+      "draft": "draft",
+      "viaRoutingRule": "via routing rule",
+      "namesRedacted": "{{count}} form in total — you do not have permission to see their names.",
+      "namesRedacted_plural": "{{count}} forms in total — you do not have permission to see their names.",
+          "title": "Deactivate pipeline",
+          "description": "\"{{name}}\" will be hidden from every pipeline picker. Anything already inside it stays where it is.",
+          "checking": "Checking what depends on this pipeline…",
+          "formsHeading": "{{count}} capture form sends leads here:",
+          "formsHeading_plural": "{{count}} capture forms send leads here:",
+          "noForms": "No capture form feeds this pipeline.",
+          "draftsHeading": "{{count}} draft form targets this pipeline (not capturing yet):",
+          "draftsHeading_plural": "{{count}} draft forms target this pipeline (not capturing yet):",
+          "published": "published",
+          "partialWarning": "Only capture forms were checked. Automations and journeys were not inspected.",
+          "cancel": "Cancel",
+          "confirm": "Deactivate"
+      },
     "deletePipeline": {
       "title": "Delete Pipeline",
       "description": "Are you sure you want to delete this pipeline? This action cannot be undone and will affect all related data.",
@@ -854,6 +881,28 @@
       "delete": "Delete Pipeline",
       "deleting": "Deleting..."
     }
+  },
+  "purchaseWebhook": {
+    "title": "Purchase webhook",
+    "subtitle": "An approved purchase on a payment platform becomes a lead in this pipeline: {{pipeline}}",
+    "platform": "Payment platform",
+    "platformPlaceholder": "Pick the platform",
+    "loadingPlatforms": "Loading platforms...",
+    "notConfigured": "no credential saved",
+    "credentialsHint": "Platform credentials live on the CRM Integrations screen.",
+    "destinationRequired": "This platform's credential is public — configure the \"URL destination secret\" on the CRM Integrations screen first.",
+    "product": "Product (optional)",
+    "productPlaceholder": "Labels this URL's leads with this product; empty = the platform's own",
+    "generate": "Generate URL",
+    "urlWhitelabel": "URL on your brand's domain",
+    "urlGlobal": "Webhook URL",
+    "copy": "Copy",
+    "copiedShort": "Copied",
+    "copied": "URL copied",
+    "copyError": "Could not copy — copy the URL by hand",
+    "regenerateHint": "Paste it in the platform's panel as the approved-purchase webhook destination. If you change the credential or the destination secret, generate and register it again.",
+    "loadError": "Failed to load the platforms",
+    "mintError": "Failed to generate the URL"
   },
   "captureForms": {
     "title": "Capture Forms",

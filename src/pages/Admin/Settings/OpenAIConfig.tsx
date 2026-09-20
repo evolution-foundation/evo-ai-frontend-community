@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,8 +15,9 @@ import {
   Textarea,
 } from '@evoapi/design-system';
 import { toast } from 'sonner';
-import { Loader2, Lock, LockOpen, X } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { AI_CREDENTIALS_ROUTE } from '@/components/ApiKeysModal';
 import { adminConfigService } from '@/services/admin/adminConfigService';
 import { extractError } from '@/utils/apiHelpers';
 import type { AdminConfigData } from '@/types/admin/adminConfig';
@@ -25,8 +27,7 @@ import type { AdminConfigData } from '@/types/admin/adminConfig';
 function createOpenAISchema(_t: (key: string) => string) {
   return z.object({
     OPENAI_API_URL: z.string().optional(),
-    OPENAI_API_SECRET: z.string().optional().nullable(),
-    OPENAI_MODEL: z.string().optional(),
+      OPENAI_MODEL: z.string().optional(),
     OPENAI_ENABLE_AUDIO_TRANSCRIPTION: z.union([z.boolean(), z.string()]).optional(),
     OPENAI_PROMPT_REPLY: z.string().optional(),
     OPENAI_PROMPT_SUMMARY: z.string().optional(),
@@ -44,7 +45,6 @@ type OpenAIFormData = z.infer<ReturnType<typeof createOpenAISchema>>;
 
 const DEFAULTS: OpenAIFormData = {
   OPENAI_API_URL: '',
-  OPENAI_API_SECRET: null,
   OPENAI_MODEL: '',
   OPENAI_ENABLE_AUDIO_TRANSCRIPTION: false,
   OPENAI_PROMPT_REPLY: '',
@@ -58,7 +58,9 @@ const DEFAULTS: OpenAIFormData = {
   OPENAI_PROMPT_SIMPLIFY: '',
 };
 
-const SECRET_FIELDS = ['OPENAI_API_SECRET'];
+// The AI credential moved to Settings > AI Credentials (EVO-2250). With no
+// secret left on this screen, the masking machinery it required went with it —
+// URL, model, toggle and the nine prompts are plain config.
 
 const PROMPT_FIELDS = [
   'OPENAI_PROMPT_REPLY',
@@ -72,10 +74,6 @@ const PROMPT_FIELDS = [
   'OPENAI_PROMPT_SIMPLIFY',
 ] as const;
 
-function isSecretMasked(value: unknown): boolean {
-  return typeof value === 'string' && value.includes('••••');
-}
-
 function toBool(value: unknown): boolean {
   if (typeof value === 'boolean') return value;
   if (typeof value === 'string') return value === 'true';
@@ -85,21 +83,16 @@ function toBool(value: unknown): boolean {
 function buildFormValues(data: Record<string, unknown>): OpenAIFormData {
   const formValues: Record<string, unknown> = { ...DEFAULTS };
   for (const [key, value] of Object.entries(data)) {
-    if (SECRET_FIELDS.includes(key)) {
-      formValues[key] = isSecretMasked(value) ? '' : (value ?? '');
-    } else {
-      formValues[key] = value ?? formValues[key] ?? '';
-    }
+    formValues[key] = value ?? formValues[key] ?? '';
   }
   return formValues as OpenAIFormData;
 }
 
 export default function OpenAIConfig() {
   const { t } = useLanguage('adminSettings');
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [secretModified, setSecretModified] = useState<Record<string, boolean>>({});
-  const [secretConfigured, setSecretConfigured] = useState<Record<string, boolean>>({});
 
   const openaiSchema = useMemo(() => createOpenAISchema(t), [t]);
 
@@ -107,7 +100,6 @@ export default function OpenAIConfig() {
     register,
     handleSubmit,
     reset,
-    setValue,
     control,
     formState: { errors },
   } = useForm<OpenAIFormData>({
@@ -115,20 +107,10 @@ export default function OpenAIConfig() {
     defaultValues: DEFAULTS,
   });
 
-  const updateSecretStatus = (data: Record<string, unknown>) => {
-    const configured: Record<string, boolean> = {};
-    for (const key of SECRET_FIELDS) {
-      configured[key] = isSecretMasked(data[key]);
-    }
-    setSecretConfigured(configured);
-    setSecretModified({});
-  };
-
   const loadConfig = useCallback(async () => {
     setLoading(true);
     try {
       const data = await adminConfigService.getConfig('openai');
-      updateSecretStatus(data);
       reset(buildFormValues(data));
     } catch (error) {
       toast.error(t('openai.messages.loadError'));
@@ -144,21 +126,9 @@ export default function OpenAIConfig() {
   const onSubmit = async (formData: OpenAIFormData) => {
     setSaving(true);
     try {
-      const payload: Record<string, unknown> = {};
-      for (const [key, value] of Object.entries(formData)) {
-        if (SECRET_FIELDS.includes(key)) {
-          if (!secretModified[key] || value === '') {
-            payload[key] = null;
-          } else {
-            payload[key] = value;
-          }
-        } else {
-          payload[key] = value;
-        }
-      }
+      const payload: Record<string, unknown> = { ...formData };
 
       const data = await adminConfigService.saveConfig('openai', payload as AdminConfigData);
-      updateSecretStatus(data);
       reset(buildFormValues(data));
 
       toast.success(t('openai.messages.saveSuccess'));
@@ -172,57 +142,6 @@ export default function OpenAIConfig() {
     }
   };
 
-  const handleSecretChange = (fieldName: string, value: string) => {
-    setSecretModified((prev) => ({ ...prev, [fieldName]: value.length > 0 }));
-  };
-
-  const handleClearSecret = (fieldName: string) => {
-    setValue(fieldName as keyof OpenAIFormData, '');
-    setSecretModified((prev) => ({ ...prev, [fieldName]: true }));
-  };
-
-  const renderSecretField = (fieldName: string, label: string, placeholder: string) => (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <Label htmlFor={fieldName}>{label}</Label>
-        {!secretModified[fieldName] && (
-          secretConfigured[fieldName] ? (
-            <span className="inline-flex items-center gap-1 text-xs text-green-600">
-              <Lock className="h-3 w-3" />
-              {t('openai.secretConfigured')}
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 text-xs text-sidebar-foreground/50">
-              <LockOpen className="h-3 w-3" />
-              {t('openai.secretNotConfigured')}
-            </span>
-          )
-        )}
-      </div>
-      <div className="relative">
-        <Input
-          id={fieldName}
-          type="password"
-          autoComplete="off"
-          placeholder={placeholder}
-          {...register(fieldName as keyof OpenAIFormData, {
-            onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleSecretChange(fieldName, e.target.value),
-          })}
-        />
-        {secretConfigured[fieldName] && !secretModified[fieldName] && (
-          <button
-            type="button"
-            onClick={() => handleClearSecret(fieldName)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-sidebar-accent text-sidebar-foreground/50 hover:text-sidebar-foreground"
-            title={t('openai.clearSecret')}
-            aria-label={t('openai.clearSecret')}
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        )}
-      </div>
-    </div>
-  );
 
   if (loading) {
     return (
@@ -258,7 +177,17 @@ export default function OpenAIConfig() {
               )}
             </div>
 
-            {renderSecretField('OPENAI_API_SECRET', t('openai.connection.fields.apiSecret'), t('openai.connection.placeholders.apiSecret'))}
+            <div className="rounded-lg border p-3 space-y-1">
+              <p className="text-sm">{t('openai.connection.credentialMoved')}</p>
+              <Button
+                type="button"
+                variant="link"
+                className="px-0 h-auto text-sm"
+                onClick={() => navigate(AI_CREDENTIALS_ROUTE)}
+              >
+                {t('openai.connection.goToCredentials')}
+              </Button>
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="OPENAI_MODEL">{t('openai.connection.fields.model')}</Label>

@@ -145,8 +145,9 @@ export function SplitPanel({ nodeId, data, onUpdate, onClose }: SplitPanelProps)
     <div key={variant.id} className="p-4 border border-border rounded-lg bg-sidebar-accent/10 space-y-3">
       <div className="grid grid-cols-12 gap-3 items-end">
         <div className="col-span-4">
-          <Label className="text-xs">{t('panels.split.variants.name')}</Label>
+          <Label htmlFor={`split-variant-name-${variant.id}`} className="text-xs">{t('panels.split.variants.name')}</Label>
           <Input
+            id={`split-variant-name-${variant.id}`}
             value={variant.name}
             onChange={e => updateVariant(variant.id, { name: e.target.value })}
             placeholder={t('panels.split.placeholders.variantName')}
@@ -155,12 +156,12 @@ export function SplitPanel({ nodeId, data, onUpdate, onClose }: SplitPanelProps)
         </div>
 
         <div className="col-span-3">
-          <Label className="text-xs">{t('panels.split.variants.color')}</Label>
+          <Label htmlFor={`split-variant-color-${variant.id}`} className="text-xs">{t('panels.split.variants.color')}</Label>
           <Select
             value={variant.color}
             onValueChange={value => updateVariant(variant.id, { color: value })}
           >
-            <SelectTrigger className="bg-sidebar border-sidebar-border text-sidebar-foreground">
+            <SelectTrigger id={`split-variant-color-${variant.id}`} className="bg-sidebar border-sidebar-border text-sidebar-foreground">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-sidebar border-sidebar-border">
@@ -178,8 +179,9 @@ export function SplitPanel({ nodeId, data, onUpdate, onClose }: SplitPanelProps)
         </div>
 
         <div className="col-span-3">
-          <Label className="text-xs">{t('panels.split.variants.percentage')}</Label>
+          <Label htmlFor={`split-variant-percentage-${variant.id}`} className="text-xs">{t('panels.split.variants.percentage')}</Label>
           <Input
+            id={`split-variant-percentage-${variant.id}`}
             type="number"
             min="0"
             max="100"
@@ -218,7 +220,7 @@ export function SplitPanel({ nodeId, data, onUpdate, onClose }: SplitPanelProps)
       contentClassName="max-w-3xl"
     >
       <div className="space-y-4">
-        <Label className="text-sidebar-foreground font-medium">
+        <Label id="split-variants-label" className="text-sidebar-foreground font-medium">
           {t('panels.split.configuration')}
         </Label>
 
@@ -232,7 +234,7 @@ export function SplitPanel({ nodeId, data, onUpdate, onClose }: SplitPanelProps)
           </Button>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3" role="group" aria-labelledby="split-variants-label">
           {formData.variants && formData.variants.length > 0 ? (
             formData.variants.map(variant => renderVariant(variant))
           ) : (

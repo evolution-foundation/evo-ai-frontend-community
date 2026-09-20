@@ -418,8 +418,7 @@
       "more": "mais",
       "createFirst": "Crie seu primeiro servidor MCP personalizado",
       "serversSelected": "{{count}} servidor(s) selecionado(s)",
-      "selectServers": "Selecionar Servidores",
-      "addSelected": "Adicionar Selecionados ({{count}})",
+      "saveSelection": "Salvar seleção ({{count}})",
       "save": "Adicionar",
       "cancel": "Cancelar"
     },
@@ -553,6 +552,18 @@
     "agentType": "{{type}}",
     "testAI": "Teste sua IA",
     "profile": {
+      "summary": {
+        "title": "Resumo do Agente",
+        "type": "Tipo",
+        "native": "Nativo",
+        "external": "Externo",
+        "model": "Modelo",
+        "createdAt": "Criado em",
+        "subAgents": "Sub-agentes",
+        "products": "Produtos",
+        "tipTitle": "Dica de configuração",
+        "tipBody": "Preencha o Papel e o Objetivo para que o agente entenda melhor seu contexto e responda com mais precisão."
+      },
       "title": "Informações pessoais",
       "subtitle": "Configure as informações básicas do seu agente",
       "name": "Nome do agente",
@@ -760,10 +771,15 @@
         "selectTeamPlaceholder": "Selecione um time",
         "returnOnFinish": "Devolver ao finalizar",
         "instructions": "Instruções:",
-        "instructionsPlaceholder": "Quando o cliente quiser falar sobre tal assunto...",
+        "instructionsPlaceholder": "Descreva as condições para transferir o atendimento (ex: quando o cliente pedir para falar com um humano)...",
         "addRule": "Adicionar regra de transferência",
         "modalTitle": "Regras de Transferência",
         "modalDescription": "Configure quando e como o agente deve transferir conversas para humanos ou times."
+      },
+      "modalFooter": {
+        "cancel": "Cancelar",
+        "save": "Salvar",
+        "saving": "Salvando..."
       },
       "pipelineRules": {
         "description": "Configure instruções para o agente manipular pipelines e atribuir conversas a estágios específicos.",
@@ -861,10 +877,10 @@
       "title": "Integrações",
       "subtitle": "Conecte o seu agente a outros aplicativos, isso permite que ele obtenha informações mais precisas ou agende reuniões para você.",
       "comingSoon": "Em breve...",
-      "activate": "ATIVAR",
-      "active": "ATIVO",
-      "configure": "CONFIGURAR",
-      "notAvailable": "NÃO DISPONÍVEL",
+      "activate": "Ativar",
+      "active": "Ativado",
+      "configure": "Configurar",
+      "notAvailable": "Em breve",
       "elevenlabs": {
         "description": "Com ElevenLabs você da a capacidade do seu agente responder seus clientes em áudio, tornando ainda mais humanizado.",
         "configTitle": "Configurar ElevenLabs",
@@ -1253,6 +1269,7 @@
   },
   "actions": {
     "save": "Salvar",
+    "close": "Fechar",
     "cancel": "Cancelar",
     "delete": "Excluir",
     "edit": "Editar",
@@ -1511,6 +1528,7 @@
   "chat": {
     "newConversation": "Nova Conversa",
     "searchConversations": "Buscar conversas...",
+    "conversations": "Conversas",
     "noConversations": "Nenhuma conversa",
     "loading": "Carregando conversa...",
     "chatWithAgent": "Chat com {{name}}",
@@ -1518,7 +1536,7 @@
     "selectConversation": "Selecione uma conversa",
     "chooseOrStart": "Escolha uma conversa existente ou inicie uma nova.",
     "selectOrCreateSession": "Selecione uma conversa ou crie uma nova",
-    "selectSessionMessage": "Escolha uma conversa existente na lista ao lado ou clique em \"Nova Conversa\" para começar.",
+    "selectSessionMessage": "Abra o ícone de conversas para escolher uma existente ou clique em \"+\" para começar uma nova.",
     "typeMessage": "Digite sua mensagem...",
     "deleteSession": "Deletar Sessão",
     "deleteSessionConfirm": "Tem certeza que deseja deletar esta sessão? Esta ação não pode ser desfeita.",

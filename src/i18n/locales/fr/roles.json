@@ -1,12 +1,13 @@
 {
   "title": "Profils et Permissions",
-  "description": "Gérez les profils et leurs permissions. Les profils système ne peuvent pas être supprimés, mais leurs permissions peuvent être modifiées.",
+  "description": "Gérez les profils et leurs permissions. Les profils système ne peuvent pas être supprimés et leur ensemble de permissions est en lecture seule — dupliquez-en un en tant que profil personnalisé pour le modifier.",
   "header": {
     "subtitle": "{{count}} profil(s) configuré(s)",
     "searchPlaceholder": "Rechercher des profils..."
   },
   "addRole": "Nouveau Profil",
   "editRole": "Modifier le Profil",
+  "viewRole": "Voir les permissions",
   "deleteRole": "Supprimer le Profil",
   "backToList": "Retour aux Profils",
   "savePermissions": "Enregistrer les Permissions",
@@ -40,6 +41,13 @@
     "others": "Autres"
   },
   "detail": {
+    "systemReadOnly": "Ceci est un profil système — son ensemble de permissions est en lecture seule. Utilisez « Dupliquer en profil personnalisé » pour obtenir une copie modifiable avec les mêmes permissions.",
+    "duplicate": "Dupliquer en profil personnalisé",
+    "duplicateSuffix": "(copie)",
+    "duplicateTitle": "Dupliquer en profil personnalisé",
+    "duplicateDescription": "Crée un profil personnalisé avec les mêmes permissions que « {{name}} ». La copie est entièrement modifiable.",
+    "duplicateConfirm": "Dupliquer",
+    "duplicating": "Duplication...",
     "permissionsTitle": "Permissions",
     "permissionsDescription": "Cochez les permissions que ce profil doit avoir. Les modifications prennent effet à la prochaine connexion de l'utilisateur.",
     "permissionsSelected": "permissions sélectionnées",
@@ -49,6 +57,7 @@
     "filterPlaceholder": "Rechercher des permissions...",
     "nested": {
       "pipelineStages": "Étapes",
+      "pipelineItems": "Cartes",
       "workingHours": "Heures d'ouverture"
     },
     "lock": {
@@ -93,6 +102,8 @@
     "deleteError": "Échec de la suppression du profil",
     "permissionsSuccess": "Permissions enregistrées avec succès",
     "permissionsError": "Échec de l'enregistrement des permissions",
+    "duplicateSuccess": "Profil personnalisé créé avec les mêmes permissions",
+    "duplicatePartial": "Profil créé, mais ses permissions n'ont pas pu être copiées. Définissez-les sur le nouveau profil.",
     "loadError": "Échec du chargement des profils",
     "systemRoleCannotDelete": "Les profils système ne peuvent pas être supprimés",
     "roleHasUsers": "Impossible de supprimer un profil avec des utilisateurs assignés"

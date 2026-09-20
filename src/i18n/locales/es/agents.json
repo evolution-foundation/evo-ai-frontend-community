@@ -121,7 +121,17 @@
   "table": {
     "actions": "Acciones",
     "emptyMessage": "Ningún agente de IA encontrado",
-    "clickToView": "💡 Haz clic en un agente de IA para ver detalles o abrir la Tarjeta de Agente"
+    "clickToView": "💡 Haz clic en un agente de IA para ver detalles o abrir la Tarjeta de Agente",
+    "selectAll": "Seleccionar todos",
+    "noResults": "Ningún agente de IA coincide con los filtros actuales.",
+    "types": {
+      "llm": "Nativo",
+      "external": "Externo",
+      "a2a": "A2A",
+      "sequential": "Agente Secuencial",
+      "parallel": "Agente Paralelo",
+      "loop": "Agente Loop"
+    }
   },
   "dropdown": {
     "testA2A": "Probar A2A",
@@ -151,7 +161,17 @@
     "deleting": "Eliminando...",
     "success": "¡Agente de IA \"{{name}}\" eliminado con éxito!"
   },
-  "bulkDelete": "Funcionalidad de eliminación masiva en desarrollo",
+  "bulkDeleteDialog": {
+    "title": "Eliminar Agentes de IA",
+    "description_one": "¿Estás seguro de que deseas eliminar {{count}} agente de IA? Esta acción no se puede deshacer.",
+    "description_other": "¿Estás seguro de que deseas eliminar {{count}} agentes de IA? Esta acción no se puede deshacer.",
+    "cancel": "Cancelar",
+    "confirm": "Eliminar",
+    "deleting": "Eliminando...",
+    "success_one": "¡{{count}} agente de IA eliminado con éxito!",
+    "success_other": "¡{{count}} agentes de IA eliminados con éxito!",
+    "partialError": "{{failed}} de {{total}} agentes de IA no se pudieron eliminar"
+  },
   "testA2A": "Funcionalidad de prueba A2A en desarrollo",
   "moveToFolder": "Funcionalidad de mover a carpeta en desarrollo",
   "exportJSON": "Funcionalidad de exportar JSON en desarrollo",
@@ -174,6 +194,37 @@
         "saveConfig": "GUARDAR CONFIGURACIÓN",
         "disconnect": "Desconectar"
       }
+    }
+  },
+  "container": {
+    "tabs": {
+      "agents": "Agentes de IA",
+      "customTools": "Herramientas Personalizadas",
+      "customMcpServers": "MCPs Personalizados"
+    },
+    "noAccess": {
+      "title": "Sin acceso a esta área",
+      "description": "No tienes permiso para ver Agentes de IA, Herramientas Personalizadas ni MCPs Personalizados. Solicita acceso a un administrador."
+    },
+    "subtitles": {
+      "agents": "Gestiona tus agentes de IA",
+      "customTools": "Gestiona tus herramientas personalizadas",
+      "customMcpServers": "Gestiona tus servidores MCP personalizados"
+    }
+  },
+  "filters": {
+    "title": "Filtros",
+    "clear": "Limpiar filtros",
+    "empty": "Ninguna opción disponible",
+    "close": "Cerrar filtros",
+    "sections": {
+      "type": "Tipo",
+      "model": "Modelo"
+    },
+    "types": {
+      "native": "Nativo",
+      "external": "Externo",
+      "advanced": "Avanzado"
     }
   }
 }

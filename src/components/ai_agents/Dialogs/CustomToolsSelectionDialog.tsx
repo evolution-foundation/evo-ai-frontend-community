@@ -15,7 +15,7 @@ import { Search, Code, Tag, Plus, ExternalLink } from 'lucide-react';
 import { listCustomTools, createCustomTool } from '@/services/agents/customToolsService';
 import { CustomTool, CustomToolFormData } from '@/types/ai';
 import { useLanguage } from '@/hooks/useLanguage';
-import CustomToolForm from '@/components/customTools/CustomToolForm';
+import CustomToolWizardModal from '@/components/customTools/CustomToolWizardModal';
 import { toast } from 'sonner';
 
 interface CustomToolsSelectionDialogProps {
@@ -308,23 +308,14 @@ const CustomToolsSelectionDialog = ({
         </DialogContent>
       </Dialog>
 
-      {/* Inline create tool sub-dialog — preserves wizard state */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5 text-purple-500" />
-              {t('tools.customTools.create')}
-            </DialogTitle>
-          </DialogHeader>
-          <CustomToolForm
-            mode="create"
-            loading={isCreatingTool}
-            onSubmit={handleCreateTool}
-            onCancel={() => setShowCreateDialog(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* EVO-1738: the agent-builder create path now uses the guided wizard
+          (n8n-style) instead of the old sectioned form. */}
+      <CustomToolWizardModal
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        loading={isCreatingTool}
+        onSubmit={handleCreateTool}
+      />
     </>
   );
 };

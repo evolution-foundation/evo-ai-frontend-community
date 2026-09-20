@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
+import { toast } from 'sonner';
 import { useChannelSubmission } from './useChannelSubmission';
 import InboxesService from '@/services/channels/inboxesService';
 import EvolutionService from '@/services/channels/evolutionService';
@@ -137,5 +138,53 @@ describe('useChannelSubmission.submitCreate', () => {
       instance_uuid: 'uuid-1',
       instance_token: 'tok-1',
     });
+  });
+
+  it('confirms the creation on screen', async () => {
+    await submit('api', 'api', { name: 'api-inbox', webhook_url: 'https://hook' });
+
+    expect(toast.success).toHaveBeenCalledWith('Canal criado com sucesso');
+  });
+
+  it('shows the reason the backend gave for refusing the create', async () => {
+    createChannelMock.mockRejectedValue({
+      response: {
+        status: 422,
+        data: {
+          success: false,
+          error: {
+            code: 'QUOTA_EXCEEDED',
+            message: 'Limite do plano excedido (5/5) para channels',
+          },
+        },
+      },
+      message: 'Request failed with status code 422',
+    } as never);
+
+    await submit('api', 'api', { name: 'api-inbox', webhook_url: 'https://hook' });
+
+    expect(toast.error).toHaveBeenCalledWith('Limite do plano excedido (5/5) para channels');
+  });
+
+  it('falls back to its own message when the failure carries no envelope', async () => {
+    createChannelMock.mockRejectedValue(new Error('Network Error') as never);
+
+    await submit('api', 'api', { name: 'api-inbox', webhook_url: 'https://hook' });
+
+    expect(toast.error).toHaveBeenCalledWith('Network Error');
+  });
+
+  // An envelope with a code and no message must fall THROUGH, not pick up the
+  // English default extractError would have supplied for that shape.
+  it('does not invent a message when the envelope carries none', async () => {
+    createChannelMock.mockRejectedValue({
+      response: { status: 422, data: { success: false, error: { code: 'QUOTA_EXCEEDED' } } },
+      message: 'Request failed with status code 422',
+    } as never);
+
+    await submit('api', 'api', { name: 'api-inbox', webhook_url: 'https://hook' });
+
+    expect(toast.error).not.toHaveBeenCalledWith('An error occurred');
+    expect(toast.error).toHaveBeenCalledWith('Request failed with status code 422');
   });
 });

@@ -57,6 +57,10 @@
     "title": "Configurazione completata!",
     "description": "Ora puoi accedere con le tue credenziali."
   },
+  "degraded": {
+    "title": "Configurazione completata, con un elemento in sospeso",
+    "description": "L'installazione è terminata, ma il provisioning dell'account non è stato completato. Riprova automaticamente entro ~10 minuti."
+  },
   "error": {
     "generic": "Si è verificato un errore durante la configurazione. Riprova.",
     "alreadySetup": "Questa istanza è già stata configurata."

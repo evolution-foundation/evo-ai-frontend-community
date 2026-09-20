@@ -121,7 +121,17 @@
   "table": {
     "actions": "Actions",
     "emptyMessage": "No AI agent found",
-    "clickToView": "💡 Click on an AI agent to view details or open the Agent Card"
+    "clickToView": "💡 Click on an AI agent to view details or open the Agent Card",
+    "selectAll": "Select all",
+    "noResults": "No AI agent matches the current filters.",
+    "types": {
+      "llm": "Native",
+      "external": "External",
+      "a2a": "A2A",
+      "sequential": "Sequential Agent",
+      "parallel": "Parallel Agent",
+      "loop": "Loop Agent"
+    }
   },
   "dropdown": {
     "testA2A": "Test A2A",
@@ -151,7 +161,17 @@
     "deleting": "Deleting...",
     "success": "AI agent \"{{name}}\" deleted successfully!"
   },
-  "bulkDelete": "Bulk Delete",
+  "bulkDeleteDialog": {
+    "title": "Delete AI Agents",
+    "description_one": "Are you sure you want to delete {{count}} AI agent? This action cannot be undone.",
+    "description_other": "Are you sure you want to delete {{count}} AI agents? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete",
+    "deleting": "Deleting...",
+    "success_one": "{{count}} AI agent deleted successfully!",
+    "success_other": "{{count}} AI agents deleted successfully!",
+    "partialError": "{{failed}} of {{total}} AI agents could not be deleted"
+  },
   "testA2A": "Test A2A",
   "moveToFolder": "Move to folder",
   "exportJSON": "Export JSON",
@@ -174,6 +194,37 @@
         "saveConfig": "SAVE SETTINGS",
         "disconnect": "Disconnect"
       }
+    }
+  },
+  "container": {
+    "tabs": {
+      "agents": "AI Agents",
+      "customTools": "Custom Tools",
+      "customMcpServers": "Custom MCPs"
+    },
+    "noAccess": {
+      "title": "No access to this area",
+      "description": "You do not have permission to view AI Agents, Custom Tools or Custom MCPs. Ask an administrator for access."
+    },
+    "subtitles": {
+      "agents": "Manage your AI agents",
+      "customTools": "Manage your custom tools",
+      "customMcpServers": "Manage your custom MCP servers"
+    }
+  },
+  "filters": {
+    "title": "Filters",
+    "clear": "Clear filters",
+    "empty": "No option available",
+    "close": "Close filters",
+    "sections": {
+      "type": "Type",
+      "model": "Model"
+    },
+    "types": {
+      "native": "Native",
+      "external": "External",
+      "advanced": "Advanced"
     }
   }
 }

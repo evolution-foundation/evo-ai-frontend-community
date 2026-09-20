@@ -1,4 +1,4 @@
-import type { PaginatedResponse, StandardResponse, PaginationMeta } from '@/types/core';
+import type { PaginatedResponse, PaginationMeta } from '@/types/core';
 
 export interface Label {
   id: string;
@@ -19,10 +19,6 @@ export interface LabelFormData {
 }
 
 export interface LabelsResponse extends PaginatedResponse<Label> {}
-
-export interface LabelResponse extends StandardResponse<Label> {}
-
-export interface LabelDeleteResponse extends StandardResponse<{ message: string }> {}
 
 export interface LabelsState {
   labels: Label[];

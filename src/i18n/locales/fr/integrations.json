@@ -652,7 +652,9 @@
         "configure": "Configurer l'intégration",
         "update": "Mettre à jour l'intégration",
         "saving": "Enregistrement..."
-      }
+      },
+      "credentialMoved": "La clé est désormais enregistrée dans Paramètres > Identifiants d'IA. Cet écran ne porte que les interrupteurs des fonctions.",
+      "goToCredentials": "Aller aux Identifiants d'IA"
     },
     "settings": {
       "loading": "Chargement de la configuration...",
@@ -675,7 +677,8 @@
         "actions": {
           "edit": "Modifier",
           "remove": "Supprimer"
-        }
+        },
+        "managedElsewhere": "Gérée dans Identifiants d'IA"
       },
       "features": {
         "title": "Fonctionnalités disponibles",

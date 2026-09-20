@@ -29,14 +29,16 @@ export default function MenuItem({
 }: MenuItemProps) {
   const { t } = useTranslation('chat');
   const hasSubItems = item.subItems && item.subItems.length > 0;
+  // The menu badge counts conversations awaiting a reply, not unread ones.
   const badgeAriaLabel =
     item.badge && item.badge > 0
-      ? t('unreadBadge.menuAriaLabel', { count: item.badge })
+      ? t('unansweredBadge.menuAriaLabel', { count: item.badge })
       : undefined;
+  const linkTarget = item.badgeHref ?? item.href;
 
   const menuItem = (
     <Link
-      to={hasSubItems && !mobile && item.href === '#' ? '#' : item.href}
+      to={hasSubItems && !mobile && item.href === '#' ? '#' : linkTarget}
       onClick={onClick}
       className={cn(
         'relative flex items-center gap-3 px-3 py-2.5 rounded-md transition-all group',

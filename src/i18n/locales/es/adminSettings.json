@@ -304,7 +304,9 @@
         "apiUrl": "https://api.openai.com/v1",
         "apiSecret": "Ingrese la nueva clave de API",
         "model": "gpt-4o"
-      }
+      },
+      "credentialMoved": "La credencial de IA ahora está en Configuración > Credenciales de IA.",
+      "goToCredentials": "Ir a Credenciales de IA"
     },
     "prompts": {
       "cardTitle": "Plantillas de Prompts de IA",

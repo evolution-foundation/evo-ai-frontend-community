@@ -182,7 +182,7 @@ export default function MessageTemplates() {
       goToEmailEditor(scope.inbox);
       return;
     }
-    if (!can('message_templates', 'create')) {
+    if (!can('message_templates', 'manage')) {
       toast.error(t('messages.permissionDenied.create'));
       return;
     }
@@ -198,7 +198,7 @@ export default function MessageTemplates() {
       goToEmailEditor(scope.inbox, template.id);
       return;
     }
-    if (!can('message_templates', 'update')) {
+    if (!can('message_templates', 'manage')) {
       toast.error(t('messages.permissionDenied.update'));
       return;
     }
@@ -346,7 +346,7 @@ export default function MessageTemplates() {
       icon: <Eye className="h-4 w-4" />,
       onClick: setPreviewTarget,
     },
-    ...(can('message_templates', 'update')
+    ...(can('message_templates', 'manage')
       ? [
           {
             label: t('table.edit'),
@@ -389,7 +389,7 @@ export default function MessageTemplates() {
               {t('actions.sync')}
             </Button>
           )}
-          {can('message_templates', 'create') && (
+          {can('message_templates', 'manage') && (
             <Button onClick={openCreate}>
               <Plus className="w-4 h-4 mr-2" />
               {t('newTemplate')}
@@ -440,7 +440,7 @@ export default function MessageTemplates() {
         emptyTitle={t('emptyState.title')}
         emptyDescription={debouncedSearch ? t('emptyState.searchEmpty') : t('emptyState.description')}
         emptyAction={
-          can('message_templates', 'create')
+          can('message_templates', 'manage')
             ? { label: t('newTemplate'), onClick: openCreate }
             : undefined
         }

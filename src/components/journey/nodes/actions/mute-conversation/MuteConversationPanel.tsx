@@ -59,16 +59,6 @@ export function MuteConversationPanel({
     onClose();
   };
 
-  useEffect(() => {
-    if (formDataOptions.agents.length > 0 || formDataOptions.teams.length > 0) {
-      const updatedData: MuteConversationNodeData = {
-        ...data,
-        formDataOptions,
-      };
-      onUpdate(nodeId, updatedData);
-    }
-  }, [formDataOptions, data, nodeId, onUpdate]);
-
   return (
     <NodeConfigModal
       open
@@ -77,7 +67,8 @@ export function MuteConversationPanel({
       icon={<VolumeX className="h-5 w-5 text-flow-node-control-fg" />}
       onCancel={onClose}
       onSave={handleSave}
-      dirty={!loading}
+      // No editable field: there is never anything to save.
+      dirty={false}
       loading={loading}
       saveLabel={t('panels.actions.save')}
       cancelLabel={t('panels.actions.cancel')}

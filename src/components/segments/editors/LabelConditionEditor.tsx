@@ -77,7 +77,7 @@ export default function LabelConditionEditor({
               </div>
             )}
             {availableLabels.map((label) => (
-              <SelectItem key={label.id} value={label.title}>
+              <SelectItem key={label.id} value={label.id}>
                 {label.title}
               </SelectItem>
             ))}

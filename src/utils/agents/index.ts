@@ -1,7 +1,2 @@
-/**
- * Agent Utils
- *
- * Utilitários relacionados a agentes
- */
-
+export * from './agentTypeLabel';
 export * from './agentTypeValidation';

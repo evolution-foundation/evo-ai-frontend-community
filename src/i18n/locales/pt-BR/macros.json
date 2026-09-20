@@ -47,12 +47,28 @@
       "create": "Criar",
       "update": "Atualizar",
       "saving": "Salvando..."
+    },
+    "optionsError": {
+      "title": "Não foi possível carregar todas as opções",
+      "description": "Falha ao carregar: {{sources}}. Feche e reabra o formulário para tentar novamente.",
+      "sources": {
+        "inboxes": "caixas de entrada",
+        "agents": "agentes",
+        "teams": "equipes",
+        "labels": "etiquetas"
+      }
     }
   },
   "actionRow": {
     "selectPlaceholder": "Selecione uma opção",
     "multiSelectPlaceholder": "Selecione opções",
+    "assignAgentInboxWarning": "Esta atribuição só se aplica às conversas cuja caixa de entrada tem este agente como membro. Nas demais a ação falha, e uma ação que falha marca a execução inteira como falha.",
     "loadingOptions": "Carregando opções...",
+    "loadFailed": "Não foi possível carregar as opções",
+    "emptyTeams": "Nenhuma equipe cadastrada",
+    "emptyAgents": "Nenhum agente cadastrado",
+    "emptyLabels": "Nenhuma etiqueta cadastrada",
+    "emptyOptions": "Nenhuma opção disponível",
     "textareaPlaceholder": "Digite a mensagem ou nota",
     "textPlaceholder": "Digite o valor",
     "hoursPlaceholder": "Horas para adiamento",
@@ -81,7 +97,6 @@
     },
     "actions": {
       "view": "Visualizar",
-      "execute": "Executar",
       "edit": "Editar",
       "delete": "Deletar"
     },
@@ -91,7 +106,6 @@
   "actions": {
     "edit": "Editar",
     "delete": "Deletar",
-    "execute": "Executar",
     "cancel": "Cancelar",
     "save": "Salvar",
     "confirm": "Confirmar"
@@ -105,9 +119,7 @@
     "deleteSuccess": "Macro deletada com sucesso",
     "deleteError": "Erro ao deletar macro",
     "bulkDeleteSuccess": "{{count}} macro(s) deletada(s) com sucesso",
-    "bulkDeleteError": "Erro ao deletar macros",
-    "executeSuccess": "Macro \"{{name}}\" executada com sucesso",
-    "executeError": "Erro ao executar macro"
+    "bulkDeleteError": "Erro ao deletar macros"
   },
   "dialog": {
     "delete": {

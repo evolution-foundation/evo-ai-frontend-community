@@ -53,7 +53,7 @@ export function AddLabelNode({ selected, data, id }: AddLabelNodeProps) {
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-medium text-foreground truncate">
-              Adicionar Etiqueta
+              {t('flowEditor.nodes.addLabel.name')}
             </h3>
           </div>
           <div className="flex-shrink-0">

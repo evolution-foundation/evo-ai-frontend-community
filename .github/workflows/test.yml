@@ -1,0 +1,309 @@
+# EVO-2062 — Run the Vitest suite on every PR.
+#
+# Why this exists: the repository shipped 170+ spec files but no workflow ever
+# executed them, so a guard like "can() must stay data-driven, no role
+# short-circuit" was documentation, not enforcement — the very regression it
+# was written to catch could be merged green. The suite runs here so it bites.
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [develop, main]
+
+jobs:
+  vitest:
+    name: Vitest
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc -b
+
+      # Scoped, opt-in list: a spec earns a line here when it guards a behaviour
+      # we do not want silently reverted, is fully mocked, and runs fast.
+      #   - PermissionsContext / RoleDetail (EVO-2062): can() stays data-driven,
+      #     system roles stay read-only, and duplicating one keeps its permissions.
+      #   - RolesList: the row icon keeps matching what the detail screen allows.
+      #   - campaignsService (EVO-1838): the campaign endpoints keep their
+      #     bare-body fallback when the backend skips the response envelope.
+      #   - Users (EVO-1947): a list reload keeps carrying the search term and
+      #     the chosen sort — dropping either serves a differently ordered page.
+      #   - apiHelpers / useChannelSubmission / useChannelValidation (CRM-114):
+      #     a refused channel create keeps showing the message the backend wrote
+      #     (the plan-quota 422 envelope) instead of the axios status text, and
+      #     no validation guard returns false without saying why.
+      #   - Journey FE tech-debt (CRM-68): the six action panels stay free of
+      #     the auto-persist-on-load effect, AssignBotPanel keeps a typed
+      #     onUpdate contract, EnvironmentManager surfaces validation via
+      #     toast (not window.alert), BaseFlowCanvas dedupes its node-change
+      #     apply call, SessionsViewer debounces search and keeps stats
+      #     isolated from filters, and the locale-driven date/i18n specs
+      #     guard against hardcoded pt-BR creeping back in.
+      #   - Journey subcomponent labels: every <Label> that names a single
+      #     control resolves through getByLabelText, and the ones that cover
+      #     a set (webhook headers) expose a named group.
+      #   - MessageList (CRM-165): a message arriving with the view at the
+      #     bottom keeps auto-scrolling (even while an own send is still in
+      #     flight), reading history is never hijacked — bot replies included —
+      #     and the new-message indicator only fires for real messages.
+      #   - ContactNotesCard (CRM-177): the notes list keeps reading the standard
+      #     `{ success, data, meta }` envelope. Reading it wrong is invisible —
+      #     the card shows its empty state with the notes in the database, which
+      #     the person on screen reports as "the note did not save".
+      #   - eventLabels (CRM-155): a conversation event prefers labels_data over
+      #     the title-only labels field, and an empty labels_data still yields an
+      #     empty list. Losing either brings back the label that only shows up
+      #     after F5, since the ChatContext guard rejects a colourless label.
+      #   - rbac-render-gates (CRM-150): every write control stays hidden when
+      #     can() denies and renders when it grants. The paired positive case is
+      #     what keeps the negative ones honest — a control that stopped
+      #     rendering for everyone would satisfy the denial assertions too.
+      #   - permissions service (CRM-164): a fetch with no cache to serve must
+      #     reject, not resolve to []. The context spec mocks the service away,
+      #     so these are the only examples guarding it.
+      #   - RouterGuard (CRM-164): the load-failure panel, and the path split
+      #     that keeps public pages reachable for a logged-in visitor.
+      #   - CustomAttributesForm (CRM-166): a failed definitions fetch is reported
+      #     as a failure with a retry, not as "no attributes". Asserted against the
+      #     genuine empty state, which is what keeps the failure cases honest.
+      #   - menuItems (CRM-166): the Settings entries gated on an administrative
+      #     key stay gated on it — Atributos Personalizados above all, whose read
+      #     the agent now holds. Also covers the EVO-1938/CRM-70 gates already there.
+      #   - MacroActionRow (CRM-162): the assign_agent warning renders whenever
+      #     there is an agent list to pick from — a reopened modal refetching over
+      #     the previous one included — and never on the other select actions.
+      #     Also guards the aria wiring from the select to the warning.
+      #   - Setup wizard (CRM-262): a degraded provisioning answer warns instead of
+      #     congratulating, and an ok one still congratulates without warning. The
+      #     paired direction is what keeps it honest — a warning ADDED next to the
+      #     success toast would look right on screen and still tell the operator
+      #     the install is fine.
+      #   - i18n-parity (CRM-162): en and pt-BR keep the same key set, catalog-wide.
+      #   - _lib/parity (CRM-484): the guard's own rules. A clean catalog keeps
+      #     i18n-parity green even with the rule broken; only this spec notices.
+      #   - macros-parity (CRM-162): es, fr, it and pt are covered nowhere else, so
+      #     macros.json is checked against en across all six. A key added to one
+      #     locale only is invisible until someone on another reads the raw key.
+      #   - contactsService.createContact / labelsService (CRM-321, CRM-381): the
+      #     writes keep resolving to the unwrapped payload; re-declaring the envelope
+      #     makes the caller unwrap twice and blank the page.
+      #   - AiCredentials / IntegrationCredentials (CRM-413): the scope privilege
+      #     stays ON TOP of the resource grant per verb, and a CREATE keeps
+      #     carrying its scope. Both are gates the server also enforces, so a
+      #     revert here only shows up as a 403 in the user's face.
+      #   - contact.updated reconciliation (CRM-447): with masking on, the
+      #     account-wide broadcast is masked for every audience while REST
+      #     unmasks per request, so the frame is reconciled against REST before
+      #     it reaches the store. Guards the gates that keep that affordable,
+      #     plus the socket-to-reducer hop no unit spec reaches.
+      #   - ConversationsContext reducer (CRM-445): the contact patch keeps
+      #     reading an empty field as "keep the current value" and keeps matching
+      #     REST-loaded conversations, which carry `contact` and no `meta.sender`.
+      #   - ModelSelector (CRM-482): the pinned model catalogue keeps its shape,
+      #     drops an id on the end-of-service date the provider published, and
+      #     keeps rendering a value the list no longer offers. None of the three
+      #     was gated before — the shape guard shipped with CRM-442 and never ran
+      #     here. The bedrock lifecycle spec stays out: it reaches the network.
+      # The whole list runs in ~40s and is deterministic.
+      #
+      # Running the whole suite here was tried and reverted: 160 jsdom files in
+      # forked workers take ~30min on the runner and flake on worker OOM (the
+      # per-file test time is only ~50s — the rest is fork+jsdom churn and
+      # unmocked-network timeouts). Booting real CI for the full suite needs
+      # that perf/mocking debt fixed first; tracked as an EVO-2062 follow-up.
+      # Enforcing this card's guard does not have to wait on it.
+      - name: Vitest
+        run: |
+          npx vitest run --reporter=basic \
+            src/contexts/PermissionsContext.spec.tsx \
+            src/services/permissions.spec.ts \
+            src/guards/RouterGuard.spec.tsx \
+            src/pages/Admin/Roles/RoleDetail.spec.tsx \
+            src/pages/Admin/Roles/RolesList.spec.tsx \
+            src/services/campaigns/campaignsService.spec.ts \
+            src/pages/Customer/Settings/Users/Users.spec.tsx \
+            src/utils/apiHelpers.spec.ts \
+            src/hooks/channels/useChannelSubmission.spec.ts \
+            src/hooks/channels/useChannelValidation.spec.ts \
+            src/utils/channelStatus.spec.ts \
+            src/components/channels/ChannelTypeHub.spec.tsx \
+            src/components/inbox/HubConnectButton.spec.tsx \
+            src/components/journey/environment-manager/EnvironmentManager.spec.tsx \
+            src/components/journey/nodes/actions/add-label/AddLabelNode.spec.tsx \
+            src/components/journey/nodes/actions/assign-bot/AssignBotPanel.spec.tsx \
+            src/components/journey/nodes/actions/change-priority/ChangePriorityPanel.spec.tsx \
+            src/components/journey/nodes/actions/defer-conversation/DeferConversationNode.spec.tsx \
+            src/components/journey/nodes/actions/defer-conversation/DeferConversationPanel.spec.tsx \
+            src/components/journey/nodes/actions/mute-conversation/MuteConversationPanel.spec.tsx \
+            src/components/journey/nodes/actions/resolve-conversation/ResolveConversationPanel.spec.tsx \
+            src/components/journey/nodes/actions/send-email-team/SendEmailTeamPanel.spec.tsx \
+            src/components/journey/nodes/actions/send-message/SendMessageNode.spec.tsx \
+            src/components/journey/nodes/actions/send-message/components/SendMessageContent.spec.tsx \
+            src/components/journey/nodes/actions/send-transcript/SendTranscriptPanel.spec.tsx \
+            src/lib/dateFnsLocale.spec.ts \
+            src/components/base/BaseFlowCanvas.spec.tsx \
+            src/components/journey/SessionsViewer.spec.tsx \
+            src/components/journey/nodes/trigger/components/WebhookConfiguration.spec.tsx \
+            src/components/journey/nodes/actions/wait/components/WaitTimeConfig.spec.tsx \
+            src/components/journey/nodes/actions/send-webhook/components/WebhookBasicConfig.spec.tsx \
+            src/components/journey/nodes/actions/send-webhook/components/WebhookHeadersConfig.spec.tsx \
+            src/components/journey/nodes/actions/send-message/components/SendMessageAttachments.spec.tsx \
+            src/components/journey/environment-manager/VariableMapping.spec.tsx \
+            src/components/chat/messages/MessageList.spec.tsx \
+            src/contexts/chat/eventLabels.spec.ts \
+            src/components/contacts/ContactNotesCard.spec.tsx \
+            src/components/rbac-render-gates.spec.tsx \
+            src/components/customAttributes/CustomAttributesForm.spec.tsx \
+            src/components/layout/config/menuItems.spec.ts \
+            src/components/macros/MacroActionRow.spec.tsx \
+            src/pages/Setup/Setup.spec.tsx \
+            src/i18n/locales/_lib/parity.spec.ts \
+            src/i18n/locales/i18n-parity.spec.ts \
+            src/i18n/locales/macros-parity.spec.ts \
+            src/services/contacts/contactsService.createContact.spec.ts \
+            src/services/contacts/labelsService.spec.ts \
+            src/pages/Customer/Settings/AiCredentials/AiCredentials.spec.tsx \
+            src/pages/Customer/Settings/IntegrationCredentials/IntegrationCredentials.spec.tsx \
+            src/hooks/chat/useContactUpdatedReconciler.spec.tsx \
+            src/contexts/chat/ChatContext.contactUpdated.spec.tsx \
+            src/contexts/chat/ConversationsContext.spec.tsx \
+            src/components/ai_agents/__tests__/ModelSelector.availableModels.spec.ts \
+            src/components/ai_agents/__tests__/ModelSelector.retirement.spec.ts \
+            src/components/ai_agents/__tests__/ModelSelector.retiredValue.spec.tsx
+
+  # Lint gate scoped to the files the PR touched.
+  eslint:
+    name: ESLint (diff)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The base commit has to be in the clone for the diff below to resolve.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ACMR skips deletions (nothing left to lint) and takes the new path on a
+      # rename. Only .ts/.tsx: they are what eslint.config.js covers.
+      #
+      # Uses base.ref (not base.sha) purely as defensive hardening against a
+      # PR pointed at the wrong base branch (e.g. opened against `main` by
+      # accident — the repo's default — instead of `develop`, which is the
+      # actual root cause of this gate flooding PRs with unrelated errors).
+      # base.ref re-resolves the base's live tip on every run, whereas
+      # base.sha is a frozen snapshot from the PR-open event — but this is
+      # NOT a fix for that root cause by itself: pointed at the wrong branch,
+      # base.ref just diffs against the wrong branch's live tip instead of a
+      # frozen wrong commit. Same flood, moving target.
+      #
+      # eslint lints whole FILES, not diff lines, so touching a file with
+      # pre-existing debt used to fail the PR over errors it did not write
+      # (CRM-175: 8 of 12 red runs on a correct base). eslint-suppressions.json
+      # is the baseline that fixes that — it records the debt per file per
+      # rule, and eslint applies it automatically when the file is present, no
+      # flag needed. Only new violations are reported.
+      #
+      # --prune-suppressions is what keeps the gate from failing a PR that
+      # IMPROVES a file: with fewer violations than the baseline records,
+      # eslint exits 2 ("There are suppressions left that do not occur
+      # anymore"). Pruning clears the leftover before the comparison. It does
+      # not weaken the gate — eslint prunes, reloads, and only then applies, so
+      # a new violation is still reported. It only prunes the files this run
+      # actually linted, so the rest of the baseline is untouched.
+      - name: ESLint on changed files
+        id: eslint_gate
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          # A git failure inside the process substitution below is swallowed by
+          # mapfile and would pass the gate with an empty file list. Make sure
+          # the base resolves before trusting the diff — don't let `set -e`
+          # swallow a fetch failure before this check can report it.
+          git fetch --no-tags origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF" || true
+          if ! git rev-parse -q --verify "origin/$BASE_REF^{commit}" >/dev/null; then
+            echo "Base ref origin/$BASE_REF not found in the clone — refusing to skip the lint gate." >&2
+            exit 1
+          fi
+          # merge-base == HEAD means this ref is already fully contained in
+          # the base (e.g. a stale re-run after the PR merged) — the three-dot
+          # diff below is then always empty by construction, not because
+          # nothing changed. Label that explicitly instead of letting it read
+          # as an ordinary clean "nothing to lint".
+          merge_base=$(git merge-base "origin/$BASE_REF" HEAD)
+          if [ "$merge_base" = "$(git rev-parse HEAD)" ]; then
+            echo "HEAD is already an ancestor of origin/$BASE_REF (merge-base == HEAD) — likely a stale re-run after this ref merged. Skipping: nothing left to diff, not evidence the code is clean."
+            exit 0
+          fi
+          mapfile -d '' -t files < <(
+            git diff --name-only -z --diff-filter=ACMR "origin/$BASE_REF"...HEAD -- '*.ts' '*.tsx'
+          )
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No .ts/.tsx file changed — nothing to lint."
+            exit 0
+          fi
+          printf 'Linting %d changed file(s):\n' "${#files[@]}"
+          printf '  %s\n' "${files[@]}"
+          # Tells the next step that eslint actually ran. Without it, an early
+          # exit above (or a failure before this step) leaves the baseline
+          # untouched, and "unchanged" would be read as "this PR paid no debt"
+          # when nothing was ever compared.
+          echo "linted=true" >> "$GITHUB_OUTPUT"
+          npx eslint --no-warn-ignored --max-warnings=0 --prune-suppressions "${files[@]}"
+
+      # The prune above rewrites eslint-suppressions.json inside the runner,
+      # and the runner is thrown away — so the committed baseline never shrinks
+      # on its own. What the rewrite does give us is a precise diff: whatever
+      # changed here is exactly the pre-existing debt THIS PR paid. Surface it
+      # as a notice, never as a failure. Failing here would put the gate back
+      # to red-on-a-good-PR, which is the failure the baseline exists to stop.
+      - name: Baseline shrank — remind to commit it
+        if: ${{ !cancelled() }}
+        env:
+          GATE_LINTED: ${{ steps.eslint_gate.outputs.linted }}
+        run: |
+          if [ "$GATE_LINTED" != "true" ]; then
+            echo "ESLint did not run (nothing to lint, or the job failed before it) — no baseline comparison to make."
+            exit 0
+          fi
+          if git diff --quiet -- eslint-suppressions.json; then
+            echo "Baseline unchanged — this PR paid no pre-existing lint debt."
+            exit 0
+          fi
+          git --no-pager diff --stat -- eslint-suppressions.json
+          echo "::notice title=Lint baseline shrank::This PR fixed pre-existing lint errors. Run 'npx eslint --prune-suppressions .' and commit eslint-suppressions.json so the baseline shrinks with it. Optional — nothing is blocked if you skip it."
+          {
+            echo "### Lint baseline shrank"
+            echo
+            echo "This PR fixed lint errors that were already in the files it touched."
+            echo "The gate pruned \`eslint-suppressions.json\` inside the runner, but that copy is discarded."
+            echo
+            echo "To make the shrink permanent:"
+            echo
+            echo '```bash'
+            echo "npx eslint --prune-suppressions ."
+            echo "git add eslint-suppressions.json"
+            echo '```'
+            echo
+            echo "Optional — nothing is blocked if you skip it."
+          } >> "$GITHUB_STEP_SUMMARY"

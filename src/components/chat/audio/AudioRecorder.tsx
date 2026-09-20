@@ -104,7 +104,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   }
 
   return (
-    <div className={`flex items-center justify-end gap-3 px-4 py-3 ${className}`}>
+    <div className={`flex items-center gap-3 px-4 py-3 md:justify-end ${className}`}>
       {/* Cancelar (lixeira) */}
       <button
         type="button"
@@ -122,9 +122,11 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
         <span className="text-sm font-mono text-foreground tabular-nums">{formatDuration(duration)}</span>
       </div>
 
-      {/* Waveform reativo — largura fixa (não flex-1: tudo fica agrupado à
-          direita, colado nos outros controles, como o WhatsApp) */}
-      <div className="flex-shrink-0 flex items-center gap-[3px] h-8 w-40">
+      {/* Reactive waveform — fills the row on mobile (EVO-2234); on desktop stays a
+          fixed w-40 hugged to the right with the other controls, WhatsApp-style.
+          overflow-hidden: the bars are flex-shrink-0 (32 * 2px + 31 * 3px = 157px min),
+          so under ~333px of viewport they would spill over the send button. */}
+      <div className="flex-1 min-w-0 md:flex-none md:w-40 flex items-center justify-between md:justify-normal gap-[3px] h-8 overflow-hidden">
         {levels.map((level, i) => (
           <div
             key={i}

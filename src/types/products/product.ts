@@ -1,4 +1,4 @@
-import type { PaginatedResponse, StandardResponse, PaginationMeta } from '@/types/core';
+import type { PaginatedResponse, PaginationMeta } from '@/types/core';
 
 export type ProductKind = 'physical' | 'digital';
 export type ProductStatus = 'active' | 'inactive' | 'draft';
@@ -103,6 +103,8 @@ export interface ProductBulkItem {
   stock_quantity?: number;
   labels?: string[];
   metadata?: Record<string, unknown>;
+  /** EVO-2226: remote image URLs; downloaded + attached server-side on import. */
+  image_urls?: string[];
 }
 
 export interface ProductBulkPayload {
@@ -135,9 +137,50 @@ export interface ProductBulkDryRunResponse {
   meta: { created: number; updated: number; skipped: number; errors: number };
 }
 
+/* ---------- Remote import (EVO-1785 Phase 2 — Shopify / WooCommerce) ---------- */
+
+export type ProductImportSource = 'woocommerce' | 'shopify';
+
+export interface ProductImportCredentials {
+  store_url?: string;
+  consumer_key?: string;
+  consumer_secret?: string;
+  shop_domain?: string;
+  access_token?: string;
+}
+
+/**
+ * As returned by `POST /products/import_fetch`: ProductBulkItem's shape, except numeric
+ * fields may arrive as strings (the store's raw JSON).
+ */
+export interface FetchedProductItem {
+  name: string;
+  kind?: ProductKind;
+  slug?: string;
+  description?: string;
+  sku?: string;
+  default_price?: string | number;
+  currency?: ProductCurrency;
+  purchase_url?: string;
+  status?: ProductStatus;
+  stock_quantity?: number;
+  labels?: string[];
+  image_urls?: string[];
+}
+
+export interface ProductImportFetchResponse {
+  data: { items: FetchedProductItem[] };
+  meta: {
+    source: string;
+    count: number;
+    /** The walk stopped on a budget, so the store holds more than came back. */
+    truncated?: boolean;
+    /** Variants the fetch could not carry: /products/bulk creates one row per product. */
+    variants_dropped?: number;
+  };
+}
+
 export interface ProductsResponse extends PaginatedResponse<Product> {}
-export interface ProductResponse extends StandardResponse<Product> {}
-export interface ProductDeleteResponse extends StandardResponse<{ id: string }> {}
 
 export interface PipelineItemProductLink {
   id: string;

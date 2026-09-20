@@ -169,8 +169,11 @@ export function EventBasicConfig({
 
         {/* Nome do evento */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{t('triggerComponents.event.eventName')}</Label>
+          <Label htmlFor="event-trigger-name" className="text-sm font-medium">
+            {t('triggerComponents.event.eventName')}
+          </Label>
           <EventSelector
+            id="event-trigger-name"
             value={selectorValue || undefined}
             onChange={handleSelectorChange}
             className="bg-sidebar border-sidebar-border text-sidebar-foreground"
@@ -200,14 +203,19 @@ export function EventBasicConfig({
 
         {/* Propriedades do evento */}
         <div className="space-y-3">
-          <Label className="text-sidebar-foreground font-medium text-sm">
+          <Label
+            id="event-trigger-properties-label"
+            className="text-sidebar-foreground font-medium text-sm"
+          >
             {t('triggerComponents.event.eventProperties')}
           </Label>
-          <EventPropertiesForm
-            eventName={formEventName}
-            value={record}
-            onChange={handlePropertiesRecordChange}
-          />
+          <div role="group" aria-labelledby="event-trigger-properties-label">
+            <EventPropertiesForm
+              eventName={formEventName}
+              value={record}
+              onChange={handlePropertiesRecordChange}
+            />
+          </div>
         </div>
       </div>
 

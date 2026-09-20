@@ -75,16 +75,6 @@ export function ChangePriorityPanel({ nodeId, data, onUpdate, onClose }: ChangeP
     onClose();
   };
 
-  useEffect(() => {
-    if (formDataOptions.priorities.length > 0) {
-      const updatedData: ChangePriorityNodeData = {
-        ...data,
-        formDataOptions,
-      };
-      onUpdate(nodeId, updatedData);
-    }
-  }, [formDataOptions, data, nodeId, onUpdate]);
-
   const getPriorityIcon = (value: string) => {
     const icons: { [key: string]: string } = {
       low: '🔵',
@@ -113,11 +103,11 @@ export function ChangePriorityPanel({ nodeId, data, onUpdate, onClose }: ChangeP
     >
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label className="text-sidebar-foreground font-medium">
+          <Label htmlFor="change-priority-select" className="text-sidebar-foreground font-medium">
             {t('panels.changePriority.newPriority')}
           </Label>
           <Select value={priority} onValueChange={setPriority} disabled={loading}>
-            <SelectTrigger className="bg-sidebar border-sidebar-border text-sidebar-foreground">
+            <SelectTrigger id="change-priority-select" className="bg-sidebar border-sidebar-border text-sidebar-foreground">
               <SelectValue placeholder={t('panels.changePriority.selectPriority')} />
             </SelectTrigger>
             <SelectContent>

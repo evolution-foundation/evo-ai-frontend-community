@@ -151,7 +151,7 @@ export function SendMessageNode({ selected, data, id }: SendMessageNodeProps) {
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-medium text-foreground truncate">
-              Enviar Mensagem
+              {t('flowEditor.nodes.sendMessage.name')}
             </h3>
           </div>
           <div className="flex-shrink-0">

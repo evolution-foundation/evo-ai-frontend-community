@@ -90,6 +90,20 @@ class UsersService {
     return extractData<{ message: string }>(response);
   }
 
+  // CRM-210: admin sets another user's password. Revokes the target's login
+  // sessions — see evo-auth-service-community UsersController#set_password.
+  async setPassword(
+    userId: string,
+    password: string,
+    passwordConfirmation: string
+  ): Promise<{ success: boolean; revoked_sessions: number }> {
+    const response = await apiAuth.post(`/users/${userId}/set_password`, {
+      password,
+      password_confirmation: passwordConfirmation,
+    });
+    return extractData<{ success: boolean; revoked_sessions: number }>(response);
+  }
+
   // Bulk invite users
   async bulkInvite(params: BulkInviteParams): Promise<BulkInviteResponse> {
     const response = await apiAuth.post('/users/bulk_create', params);
