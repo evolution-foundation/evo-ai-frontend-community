@@ -300,13 +300,11 @@
     "connection": {
       "cardTitle": "Definicoes de Ligacao",
       "fields": {
-        "apiUrl": "URL da API",
         "apiSecret": "Chave de API",
         "model": "Modelo",
         "audioTranscription": "Ativar Transcricao de Audio"
       },
       "placeholders": {
-        "apiUrl": "https://api.openai.com/v1",
         "apiSecret": "Introduza a nova chave de API",
         "model": "gpt-4o"
       },

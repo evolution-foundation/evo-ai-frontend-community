@@ -67,7 +67,6 @@ vi.mock('@/utils/apiHelpers', () => ({
 }));
 
 const EMPTY_CONFIG: Record<string, unknown> = {
-  OPENAI_API_URL: '',
   OPENAI_API_SECRET: null,
   OPENAI_MODEL: '',
   OPENAI_ENABLE_AUDIO_TRANSCRIPTION: false,
@@ -118,7 +117,6 @@ describe('OpenAIConfig', () => {
     await renderAndWait();
 
     expect(screen.getByText('openai.connection.cardTitle')).toBeInTheDocument();
-    expect(screen.getByLabelText('openai.connection.fields.apiUrl')).toBeInTheDocument();
     expect(screen.getByLabelText('openai.connection.fields.model')).toBeInTheDocument();
     // EVO-2250: the credential moved to Settings > AI Credentials. The
     // "go there manually" banner was later removed once the inline
@@ -150,19 +148,17 @@ describe('OpenAIConfig', () => {
     }
 
     const textareas = screen.getAllByRole('textbox');
-    // 2 connection inputs (apiUrl, model) + 9 prompt textareas.
+    // 1 connection input (model) + 9 prompt textareas.
     expect(textareas.length).toBeGreaterThanOrEqual(9);
   });
 
   it('calls saveConfig with openai on form submit', async () => {
     await renderAndWait({
       ...EMPTY_CONFIG,
-      OPENAI_API_URL: 'https://api.openai.com/v1',
       OPENAI_MODEL: 'gpt-4o',
     });
     mockSaveConfig.mockResolvedValue({
       ...EMPTY_CONFIG,
-      OPENAI_API_URL: 'https://api.openai.com/v1',
       OPENAI_MODEL: 'gpt-4o',
     });
 
@@ -172,7 +168,6 @@ describe('OpenAIConfig', () => {
 
     await waitFor(() => {
       expect(mockSaveConfig).toHaveBeenCalledWith('openai', expect.objectContaining({
-        OPENAI_API_URL: 'https://api.openai.com/v1',
         OPENAI_MODEL: 'gpt-4o',
       }));
     });

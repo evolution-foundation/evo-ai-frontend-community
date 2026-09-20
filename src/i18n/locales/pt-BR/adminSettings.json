@@ -301,13 +301,11 @@
     "connection": {
       "cardTitle": "Configuracoes de Conexao",
       "fields": {
-        "apiUrl": "URL da API",
         "apiSecret": "Chave de API",
         "model": "Modelo",
         "audioTranscription": "Habilitar Transcricao de Audio"
       },
       "placeholders": {
-        "apiUrl": "https://api.openai.com/v1",
         "apiSecret": "Insira a nova chave de API",
         "model": "gpt-4o"
       },

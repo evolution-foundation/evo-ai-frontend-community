@@ -295,13 +295,11 @@
     "connection": {
       "cardTitle": "Configuracion de Conexion",
       "fields": {
-        "apiUrl": "URL de la API",
         "apiSecret": "Clave de API",
         "model": "Modelo",
         "audioTranscription": "Habilitar Transcripcion de Audio"
       },
       "placeholders": {
-        "apiUrl": "https://api.openai.com/v1",
         "apiSecret": "Ingrese la nueva clave de API",
         "model": "gpt-4o"
       },

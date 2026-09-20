@@ -41,8 +41,7 @@ const CHAT_CONSUMERS = new Set(['inbox_assist', 'memory_compression']);
 
 function createOpenAISchema(_t: (key: string) => string) {
   return z.object({
-    OPENAI_API_URL: z.string().optional(),
-      OPENAI_MODEL: z.string().optional(),
+    OPENAI_MODEL: z.string().optional(),
     OPENAI_ENABLE_AUDIO_TRANSCRIPTION: z.union([z.boolean(), z.string()]).optional(),
     OPENAI_AUDIO_TRANSCRIPTION_MODEL: z.string().optional(),
     KNOWLEDGE_EMBEDDING_MODEL: z.string().optional(),
@@ -66,7 +65,6 @@ function createOpenAISchema(_t: (key: string) => string) {
 type OpenAIFormData = z.infer<ReturnType<typeof createOpenAISchema>>;
 
 const DEFAULTS: OpenAIFormData = {
-  OPENAI_API_URL: '',
   OPENAI_MODEL: '',
   OPENAI_ENABLE_AUDIO_TRANSCRIPTION: false,
   OPENAI_AUDIO_TRANSCRIPTION_MODEL: '',
@@ -275,18 +273,6 @@ export default function OpenAIConfig() {
             <CardTitle className="text-base">{t('openai.connection.cardTitle')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="OPENAI_API_URL">{t('openai.connection.fields.apiUrl')}</Label>
-              <Input
-                id="OPENAI_API_URL"
-                placeholder={t('openai.connection.placeholders.apiUrl')}
-                {...register('OPENAI_API_URL')}
-              />
-              {errors.OPENAI_API_URL && (
-                <p className="text-xs text-destructive">{errors.OPENAI_API_URL.message}</p>
-              )}
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="OPENAI_MODEL">{t('openai.connection.fields.model')}</Label>
               <Input
