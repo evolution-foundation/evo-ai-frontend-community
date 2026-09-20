@@ -3,7 +3,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { toast } from 'sonner';
 import AiCredentials from './AiCredentials';
-import { AI_CONSUMERS, maskKey } from '@/constants/aiProviders';
+import { maskKey } from '@/constants/aiProviders';
 import type { ApiKey } from '@/types/agents';
 import type { ListApiKeysOptions } from '@/services/agents/agentService';
 
@@ -702,48 +702,24 @@ describe('AiCredentials — creating (AC2)', () => {
   });
 });
 
-// Story 1.5: restrict a credential to specific AI features instead of letting
-// it serve every compatible feature automatically.
-describe('AiCredentials — restricting a credential to specific features', () => {
-  it('renders a checkbox for every canonical AI consumer in the create form', async () => {
+// Per direct product decision, the "restrict to specific features" checkbox
+// group is no longer offered in the UI — every credential resolves
+// automatically to whichever compatible features need it. The backend
+// allowed_consumers column stays dormant (see docs/superpowers/sdd plan
+// 2026-09-20-ai-chat-provider-expansion, task 4).
+describe('AiCredentials — no restrict-to-specific-features UI', () => {
+  it('does not render the restrict-to-specific-features checkbox group', async () => {
     const user = userEvent.setup();
     render(<AiCredentials />);
 
     await findAccountRow();
     await user.click(screen.getByText('actions.add'));
-    const dialog = within(await screen.findByRole('dialog'));
+    await screen.findByRole('dialog');
 
-    for (const consumer of AI_CONSUMERS) {
-      expect(
-        await dialog.findByText(new RegExp(`^consumers\\.${consumer.labelKey.split('.').pop()!}$`)),
-      ).toBeInTheDocument();
-    }
+    expect(screen.queryByText('form.labels.allowedConsumers')).not.toBeInTheDocument();
   });
 
-  it('sends the checked consumers in the create payload', async () => {
-    const user = userEvent.setup();
-    createApiKey.mockResolvedValue(OPENAI_KEY);
-    render(<AiCredentials />);
-
-    await findAccountRow();
-    await user.click(screen.getByText('actions.add'));
-    const dialog = within(await screen.findByRole('dialog'));
-
-    await user.type(await dialog.findByLabelText('form.labels.name'), 'Nova');
-    await user.click(dialog.getByLabelText('form.labels.provider'));
-    await user.click(await screen.findByRole('option', { name: 'OpenAI' }));
-    await user.type(dialog.getByLabelText('form.labels.key'), 'sk-scoped-0001');
-    await user.click(dialog.getByText('consumers.knowledgeEmbedding'));
-    await user.click(dialog.getByText('consumers.memoryCompression'));
-    await user.click(dialog.getByText('actions.save'));
-
-    await waitFor(() => expect(createApiKey).toHaveBeenCalled());
-    expect(createApiKey).toHaveBeenCalledWith(
-      expect.objectContaining({ allowed_consumers: ['knowledge_embedding', 'memory_compression'] }),
-    );
-  });
-
-  it('sends an empty allowed_consumers array when nothing is checked, preserving unrestricted behavior', async () => {
+  it('always sends an empty allowed_consumers array on create, since there is no UI to set it', async () => {
     const user = userEvent.setup();
     createApiKey.mockResolvedValue(OPENAI_KEY);
     render(<AiCredentials />);

@@ -22,7 +22,6 @@ import {
 import { AlertTriangle, Edit, Key, Loader2, Plus, Trash2 } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 import {
-  AI_CONSUMERS,
   AI_PROVIDERS,
   CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS_LIST,
   KNOWN_PROVIDER_BASE_URLS,
@@ -689,30 +688,6 @@ export default function AiCredentials() {
                 {t('form.incompatibleWarning', { provider: providerLabel(draft.provider) })}
               </p>
             )}
-
-            <div className="space-y-1.5">
-              <Label>{t('form.labels.allowedConsumers')}</Label>
-              <p className="text-xs text-muted-foreground">{t('form.hints.allowedConsumers')}</p>
-              <div className="space-y-2">
-                {AI_CONSUMERS.map(consumer => (
-                  <label key={consumer.key} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={draft.allowed_consumers.includes(consumer.key)}
-                      onChange={event =>
-                        setDraft(prev => ({
-                          ...prev,
-                          allowed_consumers: event.target.checked
-                            ? [...prev.allowed_consumers, consumer.key]
-                            : prev.allowed_consumers.filter(key => key !== consumer.key),
-                        }))
-                      }
-                    />
-                    {t(consumer.labelKey)}
-                  </label>
-                ))}
-              </div>
-            </div>
           </div>
 
           <DialogFooter>

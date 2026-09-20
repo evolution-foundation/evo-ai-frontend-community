@@ -91,25 +91,6 @@ export const SCOPE_CHAIN: ApiKeyScope[] = ['installation', 'account'];
 
 export type ApiKeyScope = 'installation' | 'account';
 
-// Mirrors Ai::ConsumerCompatibility::CONSUMERS keys in the CRM — the single
-// source of truth for what a "consumer" is called. Keep this list and that
-// Ruby hash in lockstep; a key added there with no entry here is invisible
-// on this screen (exactly the gap that motivated this plan).
-export interface AiConsumer {
-  key: string;
-  labelKey: string;
-}
-
-export const AI_CONSUMERS: AiConsumer[] = [
-  { key: 'ai_agents', labelKey: 'consumers.aiAgents' },
-  { key: 'inbox_assist', labelKey: 'consumers.inboxAssist' },
-  { key: 'audio_transcription', labelKey: 'consumers.audioTranscription' },
-  { key: 'label_suggestion', labelKey: 'consumers.labelSuggestion' },
-  { key: 'moderation', labelKey: 'consumers.moderation' },
-  { key: 'knowledge_embedding', labelKey: 'consumers.knowledgeEmbedding' },
-  { key: 'memory_compression', labelKey: 'consumers.memoryCompression' },
-];
-
 interface ResolvableCredential {
   provider: string;
   scope?: ApiKeyScope;
