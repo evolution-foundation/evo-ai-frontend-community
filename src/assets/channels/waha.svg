@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="14" fill="#4A9782"/>
+  <path d="M32 12c-9.94 0-18 7.4-18 16.5 0 4.02 1.6 7.7 4.26 10.55L16 52l13.5-3.6c.8.1 1.6.15 2.5.15 9.94 0 18-7.4 18-16.5S41.94 12 32 12z" fill="#FFFFFF"/>
+  <text x="32" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#4A9782">WAHA</text>
+</svg>

@@ -175,6 +175,10 @@
         "name": "Evolution Go",
         "description": "API WhatsApp Evolution Go - rendimiento optimizado"
       },
+      "waha": {
+        "name": "WAHA",
+        "description": "API HTTP de WhatsApp autoalojada (WAHA)"
+      },
       "notificame": {
         "name": "Notificame",
         "description": "Proveedor WhatsApp brasileño"

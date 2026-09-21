@@ -146,6 +146,36 @@ export const useChannelValidation = () => {
     return true;
   };
 
+  const validateWaha = (form: FormData) => {
+    if (!getStr(form, 'name').trim()) {
+      toast.error('Nome do canal é obrigatório');
+      return false;
+    }
+    if (!getStr(form, 'base_url').trim()) {
+      toast.error('Base URL é obrigatório');
+      return false;
+    }
+    if (!getStr(form, 'api_key').trim()) {
+      toast.error('API Key é obrigatório');
+      return false;
+    }
+    if (!getStr(form, 'session_name').trim()) {
+      toast.error('Session name é obrigatório');
+      return false;
+    }
+    if (!getStr(form, 'phone_number').trim()) {
+      toast.error('Telefone é obrigatório');
+      return false;
+    }
+    // Validate phone number format (E.164)
+    const phonePattern = /^\+[1-9]\d{1,14}$/;
+    if (!phonePattern.test(getStr(form, 'phone_number'))) {
+      toast.error('Telefone deve estar no formato internacional (+5511999999999)');
+      return false;
+    }
+    return true;
+  };
+
   const validateZapi = (form: FormData) => {
     if (!getStr(form, 'name').trim()) {
       toast.error('Nome do canal é obrigatório');
@@ -207,6 +237,8 @@ export const useChannelValidation = () => {
             return validateEvolutionGo(form, config?.hasEvolutionGoConfig ?? false);
           case 'zapi':
             return validateZapi(form);
+          case 'waha':
+            return validateWaha(form);
           default:
             return true;
         }
@@ -223,6 +255,7 @@ export const useChannelValidation = () => {
     validateEvolution,
     validateEvolutionGo,
     validateZapi,
+    validateWaha,
     validateByChannelAndProvider,
     getStr,
   };

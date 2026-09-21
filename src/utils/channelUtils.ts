@@ -78,6 +78,7 @@ const PROVIDER_TRANSLATIONS: Record<string, string> = {
   'whatsapp_cloud': 'WhatsApp Cloud',
   'evolution': 'Evolution API',
   'evolution_go': 'Evolution Go',
+  'waha': 'WAHA',
   'notificame': 'Notificame',
   'twilio': 'Twilio',
   'google': 'Gmail',
