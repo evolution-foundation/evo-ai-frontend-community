@@ -5,6 +5,7 @@ import { actionRegistry } from './actionRegistry';
 export * from './conditionTypeRegistry';
 export * from './conditionAttributeRegistry';
 export * from './actionRegistry';
+export * from './conversationBoundActions';
 
 // Authoritative trigger list for the CRM automation engine (snake_case, its
 // own domain — distinct from evo-flow's EvoFlow::EVENT_NAMES). This stays the

@@ -73,6 +73,7 @@
         "label": "Actions",
         "addRow": "Ajouter une action",
         "empty": "Ajoutez au moins une action.",
+        "noConversationNotice": "Si la carte n'a pas de conversation, ces actions ne seront pas exécutées : {{actions}}. Sur les cartes créées à partir d'une conversation, elles s'exécutent normalement.",
         "send_message": "Envoyer un message",
         "send_canned_response": "Envoyer une réponse prédéfinie",
         "send_template": "Envoyer un modèle",
