@@ -14,7 +14,7 @@ on:
 jobs:
   vitest:
     name: Vitest
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, X64, Linux, bellosoft]
 
     steps:
       - uses: actions/checkout@v4
@@ -186,7 +186,7 @@ jobs:
   eslint:
     name: ESLint (diff)
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, X64, Linux, bellosoft]
     permissions:
       contents: read
 
