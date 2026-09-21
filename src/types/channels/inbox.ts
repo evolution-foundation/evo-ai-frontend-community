@@ -303,6 +303,21 @@ export interface WhatsappZapiPayload {
   };
 }
 
+export interface WhatsappWahaPayload {
+  name: string;
+  display_name?: string;
+  channel: {
+    type: 'whatsapp';
+    provider: 'waha';
+    phone_number: string;
+    provider_config?: {
+      base_url?: string;
+      api_key?: string;
+      session_name?: string;
+    };
+  };
+}
+
 export interface SmsTwilioPayload {
   name: string;
   display_name?: string;
@@ -348,6 +363,7 @@ export type ChannelPayload =
   | WhatsappTwilioPayload
   | WhatsappNotificamePayload
   | WhatsappZapiPayload
+  | WhatsappWahaPayload
   | SmsTwilioPayload
   | SmsBandwidthPayload;
 
@@ -612,6 +628,22 @@ export interface EvolutionGoAuthorizationResponse {
   qrcode?: string;
   error?: string;
   reused?: boolean;
+}
+
+// ============================================
+// WAHA Service Types
+// ============================================
+
+export interface WahaConnectionParams {
+  baseUrl: string;
+  apiKey: string;
+  sessionName: string;
+  phoneNumber: string;
+}
+
+export interface WahaAuthorizationResponse {
+  id: string;
+  session_name: string;
 }
 
 // ============================================
