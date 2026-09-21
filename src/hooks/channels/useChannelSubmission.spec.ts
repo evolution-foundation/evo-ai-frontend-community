@@ -5,6 +5,7 @@ import { useChannelSubmission } from './useChannelSubmission';
 import InboxesService from '@/services/channels/inboxesService';
 import EvolutionService from '@/services/channels/evolutionService';
 import EvolutionGoService from '@/services/channels/evolutionGoService';
+import WahaService from '@/services/channels/wahaService';
 
 const { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }));
 vi.mock('react-router-dom', () => ({ useNavigate: () => navigateMock }));
@@ -44,6 +45,9 @@ vi.mock('@/services/channels/twilioService', () => ({
 }));
 vi.mock('@/services/channels/notificameService', () => ({
   default: { verifyConnection: vi.fn().mockResolvedValue({ success: true }) },
+}));
+vi.mock('@/services/channels/wahaService', () => ({
+  default: { verifyConnection: vi.fn() },
 }));
 
 const createChannelMock = vi.mocked(InboxesService.createChannel);
@@ -153,6 +157,50 @@ describe('useChannelSubmission.submitCreate', () => {
     });
   });
 
+  it('builds the WhatsApp WAHA payload after verifying the connection', async () => {
+    vi.mocked(WahaService.verifyConnection).mockResolvedValue({
+      id: 'inbox-waha-1',
+      session_name: 'default',
+    } as never);
+
+    const payload = await submit('whatsapp', 'waha', {
+      name: 'waha-1',
+      phone_number: '+5511999999999',
+      base_url: 'https://waha.example.com',
+      api_key: 'waha-key',
+      session_name: 'default',
+    });
+
+    expect(WahaService.verifyConnection).toHaveBeenCalledWith({
+      baseUrl: 'https://waha.example.com',
+      apiKey: 'waha-key',
+      sessionName: 'default',
+      phoneNumber: '+5511999999999',
+    });
+    expect(payload.channel.type).toBe('whatsapp');
+    expect(payload.channel.provider).toBe('waha');
+    expect(payload.channel.provider_config).toMatchObject({
+      base_url: 'https://waha.example.com',
+      api_key: 'waha-key',
+      session_name: 'default',
+    });
+  });
+
+  it('does not create the channel when WAHA verification fails', async () => {
+    vi.mocked(WahaService.verifyConnection).mockRejectedValue(new Error('WAHA unreachable'));
+
+    await submit('whatsapp', 'waha', {
+      name: 'waha-1',
+      phone_number: '+5511999999999',
+      base_url: 'https://waha.example.com',
+      api_key: 'waha-key',
+      session_name: 'default',
+    });
+
+    expect(createChannelMock).not.toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalledWith('WAHA unreachable');
+  });
+
   it('confirms the creation on screen', async () => {
     await submit('api', 'api', { name: 'api-inbox', webhook_url: 'https://hook' });
 
@@ -199,6 +247,58 @@ describe('useChannelSubmission.submitCreate', () => {
 
     expect(toast.error).not.toHaveBeenCalledWith('An error occurred');
     expect(toast.error).toHaveBeenCalledWith('Request failed with status code 422');
+  });
+});
+
+describe('useChannelSubmission.testConnection — waha', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const wahaForm = {
+    base_url: 'https://waha.example.com',
+    api_key: 'waha-key',
+    session_name: 'default',
+    phone_number: '+5511999999999',
+  };
+
+  const testWahaConnection = async () => {
+    const { result } = renderHook(() => useChannelSubmission(wahaForm as never));
+    await act(async () => {
+      await result.current.testConnection(
+        { id: 'whatsapp', name: 'whatsapp', type: 'whatsapp' } as never,
+        { id: 'waha', name: 'waha' } as never,
+        wahaForm as never,
+        {} as never,
+      );
+    });
+  };
+
+  it('shows a success toast when WahaService.verifyConnection resolves', async () => {
+    vi.mocked(WahaService.verifyConnection).mockResolvedValue({
+      id: 'inbox-waha-1',
+      session_name: 'default',
+    } as never);
+
+    await testWahaConnection();
+
+    expect(WahaService.verifyConnection).toHaveBeenCalledWith({
+      baseUrl: 'https://waha.example.com',
+      apiKey: 'waha-key',
+      sessionName: 'default',
+      phoneNumber: '+5511999999999',
+    });
+    expect(toast.success).toHaveBeenCalledWith('Conexão verificada com sucesso');
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it('shows an error toast when WahaService.verifyConnection rejects', async () => {
+    vi.mocked(WahaService.verifyConnection).mockRejectedValue(new Error('WAHA unreachable'));
+
+    await testWahaConnection();
+
+    expect(toast.error).toHaveBeenCalledWith('WAHA unreachable');
+    expect(toast.success).not.toHaveBeenCalled();
   });
 });
 
