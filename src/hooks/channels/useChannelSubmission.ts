@@ -727,9 +727,15 @@ export const useChannelSubmission = (form?: FormData) => {
               },
             } as WhatsappEvolutionGoPayload;
           } else if (selectedProvider.id === 'waha') {
-            // verify connection first
+            // verify connection first -- this call is also what generates and
+            // registers this session's webhook_hmac_key on the backend/WAHA
+            // side, so its response must be captured and threaded into
+            // provider_config below (not persisted anywhere else, since the
+            // /waha/authorization#create endpoint is verify-only and never
+            // creates a Channel::Whatsapp itself).
+            let wahaVerification;
             try {
-              await WahaService.verifyConnection({
+              wahaVerification = await WahaService.verifyConnection({
                 baseUrl: getStr(form, 'base_url'),
                 apiKey: getStr(form, 'api_key'),
                 sessionName: getStr(form, 'session_name'),
@@ -751,6 +757,7 @@ export const useChannelSubmission = (form?: FormData) => {
                   base_url: getStr(form, 'base_url'),
                   api_key: getStr(form, 'api_key'),
                   session_name: getStr(form, 'session_name'),
+                  webhook_hmac_key: wahaVerification?.webhook_hmac_key,
                 },
               },
             } as WhatsappWahaPayload;

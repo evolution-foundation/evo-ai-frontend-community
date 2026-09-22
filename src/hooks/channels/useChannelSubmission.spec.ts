@@ -161,6 +161,7 @@ describe('useChannelSubmission.submitCreate', () => {
     vi.mocked(WahaService.verifyConnection).mockResolvedValue({
       id: 'inbox-waha-1',
       session_name: 'default',
+      webhook_hmac_key: 'a'.repeat(64),
     } as never);
 
     const payload = await submit('whatsapp', 'waha', {
@@ -179,10 +180,15 @@ describe('useChannelSubmission.submitCreate', () => {
     });
     expect(payload.channel.type).toBe('whatsapp');
     expect(payload.channel.provider).toBe('waha');
+    // webhook_hmac_key must be carried from the verifyConnection response into
+    // provider_config, so the backend can verify inbound WAHA webhooks for the
+    // channel that gets persisted from this payload (security fix: WAHA
+    // webhooks previously had no authentication at all).
     expect(payload.channel.provider_config).toMatchObject({
       base_url: 'https://waha.example.com',
       api_key: 'waha-key',
       session_name: 'default',
+      webhook_hmac_key: 'a'.repeat(64),
     });
   });
 
