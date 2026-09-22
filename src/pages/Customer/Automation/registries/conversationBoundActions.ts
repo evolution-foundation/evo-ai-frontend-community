@@ -19,8 +19,9 @@ interface ActionLike {
   action_params?: unknown;
 }
 
-// A model not chosen yet says nothing: the row is still being filled in.
-function targetsConversationAttribute(params: unknown): boolean {
+// Conversation and pipeline-item attributes both resolve through the conversation;
+// only contact ones do not. A blank model says nothing - the row is unfinished.
+function targetsNonContactAttribute(params: unknown): boolean {
   const first = Array.isArray(params) ? params[0] : undefined;
   if (typeof first !== 'object' || first === null) return false;
   const model = (first as { custom_attribute_model?: unknown }).custom_attribute_model;
@@ -31,7 +32,7 @@ function requiresConversation(action: ActionLike): boolean {
   const name = action.action_name as AutomationActionType | undefined;
   if (!name) return false;
   if (!CONTACT_NATIVE_ACTIONS.includes(name)) return true;
-  return name === 'update_custom_attribute' && targetsConversationAttribute(action.action_params);
+  return name === 'update_custom_attribute' && targetsNonContactAttribute(action.action_params);
 }
 
 /** Action names of this rule that are skipped when the card has no conversation. */

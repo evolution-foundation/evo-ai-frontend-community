@@ -39,6 +39,16 @@ describe('actionsSkippedWithoutConversation', () => {
     ]);
   });
 
+  it('flags a pipeline-item attribute: the backend writes it through the conversation', () => {
+    const onPipelineItem = {
+      action_name: 'update_custom_attribute',
+      action_params: [{ custom_attribute_key: 'deal', custom_attribute_model: 'pipeline_item_attribute' }],
+    };
+    expect(actionsSkippedWithoutConversation('pipeline_stage_updated', [onPipelineItem])).toEqual([
+      'update_custom_attribute',
+    ]);
+  });
+
   it('does not flag an attribute action whose model is not chosen yet', () => {
     const blank = {
       action_name: 'update_custom_attribute',
