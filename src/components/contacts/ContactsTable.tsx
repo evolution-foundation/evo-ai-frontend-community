@@ -140,7 +140,11 @@ export default function ContactsTable({
       align: 'center',
       width: 'w-10',
       // Blocked contacts keep the button rendered but disabled: hiding it left the
-      // column blank with nothing saying why the action was gone.
+      // column blank with nothing saying why the action was gone. The reason is the
+      // `status` column right beside it, which already renders the blocked badge —
+      // a tooltip here would be inert anyway, since the design-system button carries
+      // `disabled:pointer-events-none`. `aria-label` keeps the action named for a
+      // screen reader, which `title` alone stopped doing once the icon is disabled.
       render: contact => (
         <Button
           variant="ghost"
@@ -151,11 +155,8 @@ export default function ContactsTable({
             e.stopPropagation();
             onStartConversation(contact);
           }}
-          title={
-            contact.blocked
-              ? t('form.fields.blocked.description.blocked')
-              : t('table.actions.startConversation')
-          }
+          aria-label={t('table.actions.startConversation')}
+          title={t('table.actions.startConversation')}
         >
           <MessageSquare className="h-4 w-4" />
         </Button>

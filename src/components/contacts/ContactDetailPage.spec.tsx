@@ -45,7 +45,7 @@ describe('ContactDetailPage — start conversation on a blocked contact', () => 
 
     expect(startButton()).toBeEnabled();
     expect(
-      screen.queryByText('form.fields.blocked.description.blocked'),
+      screen.queryByText('form.fields.blocked.label.blocked'),
     ).not.toBeInTheDocument();
 
     await userEvent.click(startButton());
@@ -58,15 +58,23 @@ describe('ContactDetailPage — start conversation on a blocked contact', () => 
     const { onStartConversation } = renderPage(true);
 
     expect(startButton()).toBeDisabled();
-    expect(startButton()).toHaveAttribute(
-      'title',
-      'form.fields.blocked.description.blocked',
-    );
     expect(
-      screen.getByText('form.fields.blocked.description.blocked'),
+      screen.getByText('form.fields.blocked.label.blocked'),
     ).toBeInTheDocument();
 
     await userEvent.click(startButton());
     expect(onStartConversation).not.toHaveBeenCalled();
+  });
+
+  // The state label says "Blocked contact" and stops there. The field
+  // description — "cannot start conversations nor receive messages" — is not
+  // used here on purpose: the API creates the conversation and sends the
+  // outgoing message, so putting it next to this button states a falsehood.
+  it('does not claim the contact cannot receive messages', () => {
+    renderPage(true);
+
+    expect(
+      screen.queryByText('form.fields.blocked.description.blocked'),
+    ).not.toBeInTheDocument();
   });
 });
