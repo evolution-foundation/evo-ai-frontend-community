@@ -46,14 +46,28 @@ export default function ContactDetailPage({
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {contact && (
-            <Button
-              size="sm"
-              onClick={() => onStartConversation(contact)}
-              disabled={contact.blocked}
-            >
-              <MessageSquare className="h-4 w-4 mr-2" />
-              {t('details.actions.startConversation')}
-            </Button>
+            <>
+              {/* The button is disabled on purpose for blocked contacts. Without this
+                  hint the click is swallowed with no error and no console entry. */}
+              {contact.blocked && (
+                <span className="text-xs text-muted-foreground hidden sm:inline">
+                  {t('form.fields.blocked.description.blocked')}
+                </span>
+              )}
+              <Button
+                size="sm"
+                onClick={() => onStartConversation(contact)}
+                disabled={contact.blocked}
+                title={
+                  contact.blocked
+                    ? t('form.fields.blocked.description.blocked')
+                    : undefined
+                }
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                {t('details.actions.startConversation')}
+              </Button>
+            </>
           )}
           <Button variant="ghost" size="sm" onClick={onClose} aria-label={t('details.page.close')}>
             <X className="h-4 w-4" />

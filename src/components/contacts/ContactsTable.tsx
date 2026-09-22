@@ -139,21 +139,27 @@ export default function ContactsTable({
       sortable: false,
       align: 'center',
       width: 'w-10',
-      render: contact =>
-        !contact.blocked ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
-            onClick={e => {
-              e.stopPropagation();
-              onStartConversation(contact);
-            }}
-            title={t('table.actions.startConversation')}
-          >
-            <MessageSquare className="h-4 w-4" />
-          </Button>
-        ) : null,
+      // Blocked contacts keep the button rendered but disabled: hiding it left the
+      // column blank with nothing saying why the action was gone.
+      render: contact => (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+          disabled={contact.blocked}
+          onClick={e => {
+            e.stopPropagation();
+            onStartConversation(contact);
+          }}
+          title={
+            contact.blocked
+              ? t('form.fields.blocked.description.blocked')
+              : t('table.actions.startConversation')
+          }
+        >
+          <MessageSquare className="h-4 w-4" />
+        </Button>
+      ),
     },
   ];
 
