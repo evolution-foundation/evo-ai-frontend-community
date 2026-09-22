@@ -73,13 +73,13 @@ const makeInbox = (overrides: Partial<Inbox> = {}): Inbox =>
     ...overrides,
   }) as Inbox;
 
-const makeConversation = (inboxId = 'inbox-1') =>
+const makeConversation = (inboxId = 'inbox-1', provider = 'evolution') =>
   ({
     id: 'conv-1',
     inbox_id: inboxId,
     can_reply: true,
     meta: {},
-    inbox: { id: inboxId, channel_type: 'Channel::Whatsapp', provider: 'evolution' },
+    inbox: { id: inboxId, channel_type: 'Channel::Whatsapp', provider },
   }) as never;
 
 const ARCHIVED_BANNER_TEXT =
@@ -125,6 +125,25 @@ describe('ChatArea archived-inbox read-only banner', () => {
       'data-placeholder',
       'messageInput.archivedPlaceholder',
     );
+  });
+
+  // WAHA is self-hosted/session-based like Evolution: it reports its session
+  // state through provider_connection, so a disconnected WAHA channel must get
+  // the same "connect the number" banner instead of silently accepting sends.
+  it('shows the disconnected banner for a WAHA channel whose session is closed', () => {
+    mockInboxes = [
+      makeInbox({
+        provider: 'waha',
+        provider_connection: { connection: 'close' },
+      } as never),
+    ];
+
+    render(
+      <ChatArea {...baseProps} selectedConversation={makeConversation('inbox-1', 'waha')} />,
+    );
+
+    expect(screen.getByTestId('restriction-banner')).toBeInTheDocument();
+    expect(screen.getByTestId('message-input')).toHaveAttribute('data-disabled', 'true');
   });
 
   it('takes the archived message over the disconnected one when both apply', () => {
