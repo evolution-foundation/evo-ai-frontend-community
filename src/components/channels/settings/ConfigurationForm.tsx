@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { EvolutionApiService, ZapiService } from '@/services/channels/channelConfigurationService';
 import InboxesService from '@/services/channels/inboxesService';
+import WahaWhatsAppConfig from './WahaWhatsAppConfig';
 import { useGlobalConfig } from '@/contexts/GlobalConfigContext';
 
 interface ConfigurationFormProps {
@@ -2662,6 +2663,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ inbox, onUpdate }
   const isEvolutionChannel = inbox.provider === 'evolution';
   const isEvolutionGoChannel = inbox.provider === 'evolution_go';
   const isZapiChannel = inbox.provider === 'zapi';
+  const isWahaChannel = inbox.provider === 'waha';
   const isEmailChannel = channelType === 'Channel::Email';
   const isTwilioChannel = channelType === 'Channel::TwilioSms';
 
@@ -2679,14 +2681,14 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ inbox, onUpdate }
     return <APIChannelConfig inbox={inbox} onUpdate={handleUpdate} />;
   }
 
-  // WhatsApp Evolution
-  if (isWhatsAppChannel && isEvolutionChannel) {
+  // WhatsApp Evolution / Evolution Go (same screen, provider-specific branches inside)
+  if (isWhatsAppChannel && (isEvolutionChannel || isEvolutionGoChannel)) {
     return <EvolutionWhatsAppConfig inbox={inbox} onUpdate={handleUpdate} />;
   }
 
-  // WhatsApp Evolution Go
-  if (isWhatsAppChannel && isEvolutionGoChannel) {
-    return <EvolutionWhatsAppConfig inbox={inbox} onUpdate={handleUpdate} />;
+  // WhatsApp WAHA
+  if (isWhatsAppChannel && isWahaChannel) {
+    return <WahaWhatsAppConfig inbox={inbox} onUpdate={handleUpdate} />;
   }
 
   // WhatsApp Z-API

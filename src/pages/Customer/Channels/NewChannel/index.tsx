@@ -460,7 +460,7 @@ export default function NewChannel({ initialChannelId, onExit }: NewChannelProps
     return !!(
       selectedChannel?.type === 'whatsapp' &&
       selectedProvider &&
-      ['twilio', 'notificame', 'evolution', 'evolution_go'].includes(selectedProvider.id)
+      ['twilio', 'notificame', 'evolution', 'evolution_go', 'waha'].includes(selectedProvider.id)
     );
   };
 
