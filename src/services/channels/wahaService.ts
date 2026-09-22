@@ -1,6 +1,11 @@
 import api from '@/services/core/api';
 import { extractData } from '@/utils/apiHelpers';
-import type { WahaConnectionParams, WahaAuthorizationResponse } from '@/types/channels/inbox';
+import type {
+  WahaConnectionParams,
+  WahaAuthorizationResponse,
+  WahaQrCodeResponse,
+  WahaLogoutResponse,
+} from '@/types/channels/inbox';
 
 /**
  * WAHA WhatsApp provider service
@@ -8,8 +13,9 @@ import type { WahaConnectionParams, WahaAuthorizationResponse } from '@/types/ch
  */
 const WahaService = {
   /**
-   * Verify WAHA connection by posting authorization params
-   * Returns the authorization response with inbox ID and session name
+   * Verify WAHA connection by posting authorization params.
+   * Returns the session name, the WAHA session status and the per-channel
+   * webhook_hmac_key that must be threaded into the channel's provider_config.
    */
   async verifyConnection(params: WahaConnectionParams): Promise<WahaAuthorizationResponse> {
     const requestData = {
@@ -25,19 +31,19 @@ const WahaService = {
   },
 
   /**
-   * Fetch QR code for a WAHA inbox
+   * Fetch the pairing QR code for a WAHA inbox, as a data URL.
    */
-  async getQRCode(inboxId: string) {
+  async getQRCode(inboxId: string): Promise<WahaQrCodeResponse> {
     const response = await api.get(`/waha/qrcodes/${inboxId}`);
-    return extractData<any>(response);
+    return extractData<WahaQrCodeResponse>(response);
   },
 
   /**
-   * Logout from a WAHA session
+   * Logout from a WAHA session (logs out and stops the remote session).
    */
-  async logout(inboxId: string) {
+  async logout(inboxId: string): Promise<WahaLogoutResponse> {
     const response = await api.delete('/waha/authorization/logout', { params: { id: inboxId } });
-    return extractData<any>(response);
+    return extractData<WahaLogoutResponse>(response);
   },
 };
 

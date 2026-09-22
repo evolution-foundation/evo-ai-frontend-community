@@ -22,7 +22,9 @@ describe('WahaService', () => {
 
   it('verifyConnection posts to /waha/authorization with the expected body', async () => {
     const postMock = vi.mocked(api.post);
-    postMock.mockResolvedValue({ data: { id: '1', session_name: 'default' } } as never);
+    postMock.mockResolvedValue({
+      data: { session_name: 'default', status: 'SCAN_QR_CODE', webhook_hmac_key: 'hmac-key' },
+    } as never);
 
     const result = await WahaService.verifyConnection({
       baseUrl: 'https://waha.example.com',
@@ -39,7 +41,11 @@ describe('WahaService', () => {
         phone_number: '+5511999999999',
       },
     });
-    expect(result).toEqual({ id: '1', session_name: 'default' });
+    expect(result).toEqual({
+      session_name: 'default',
+      status: 'SCAN_QR_CODE',
+      webhook_hmac_key: 'hmac-key',
+    });
   });
 
   it('getQRCode fetches the QR for an inbox', async () => {

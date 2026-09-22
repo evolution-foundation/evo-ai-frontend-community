@@ -159,8 +159,8 @@ describe('useChannelSubmission.submitCreate', () => {
 
   it('builds the WhatsApp WAHA payload after verifying the connection', async () => {
     vi.mocked(WahaService.verifyConnection).mockResolvedValue({
-      id: 'inbox-waha-1',
       session_name: 'default',
+      status: 'SCAN_QR_CODE',
       webhook_hmac_key: 'a'.repeat(64),
     } as never);
 
@@ -282,8 +282,8 @@ describe('useChannelSubmission.testConnection — waha', () => {
 
   it('shows a success toast when WahaService.verifyConnection resolves', async () => {
     vi.mocked(WahaService.verifyConnection).mockResolvedValue({
-      id: 'inbox-waha-1',
       session_name: 'default',
+      status: 'SCAN_QR_CODE',
     } as never);
 
     await testWahaConnection();
