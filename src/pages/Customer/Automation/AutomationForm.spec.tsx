@@ -47,6 +47,10 @@ vi.mock('@/services/channels/messageTemplatesService', () => ({
   },
 }));
 
+vi.mock('sonner', () => ({
+  toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
+}));
+
 function renderForm(mode: 'create' | 'edit', initialPath = '/automation/new') {
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
@@ -165,6 +169,89 @@ describe('AutomationForm', () => {
     // Conditions are empty (optional) and all required fields are valid → enabled.
     await waitFor(() => {
       expect(submit.disabled).toBe(false);
+    });
+  });
+
+  describe('actions that need a conversation on a stage-entry rule', () => {
+    const stageEntryRule = (actions: unknown[]) =>
+      ({
+        id: 'rule-1',
+        name: 'Stage entry',
+        description: '',
+        event_name: 'pipeline_stage_updated',
+        active: true,
+        mode: 'simple',
+        conditions: [],
+        actions,
+      }) as never;
+
+    it('warns, naming the action, that it will not run on a card without a conversation', async () => {
+      const { automationService } = await import('@/services/automation/automationService');
+      vi.mocked(automationService.getAutomation).mockResolvedValue(
+        stageEntryRule([{ action_name: 'send_message', action_params: ['hi'] }]),
+      );
+
+      renderForm('edit', '/automation/rule-1/edit');
+
+      const notice = await screen.findByRole('status');
+      expect(notice.textContent).toMatch(/form\.fields\.actions\.noConversationNotice/);
+    });
+
+    it('stays quiet when every action runs on the contact', async () => {
+      const { automationService } = await import('@/services/automation/automationService');
+      vi.mocked(automationService.getAutomation).mockResolvedValue(
+        stageEntryRule([{ action_name: 'add_label', action_params: ['vip'] }]),
+      );
+
+      const { container } = renderForm('edit', '/automation/rule-1/edit');
+      await waitFor(() => {
+        expect((container.querySelector('input#name') as HTMLInputElement | null)?.value).toBe('Stage entry');
+      });
+
+      expect(screen.queryByRole('status')).toBeNull();
+    });
+
+    it('stays quiet on an event that always has a conversation', async () => {
+      const { automationService } = await import('@/services/automation/automationService');
+      vi.mocked(automationService.getAutomation).mockResolvedValue({
+        id: 'rule-1',
+        name: 'On conversation',
+        description: '',
+        event_name: 'conversation_created',
+        active: true,
+        mode: 'simple',
+        conditions: [],
+        actions: [{ action_name: 'send_message', action_params: ['hi'] }],
+      } as never);
+
+      const { container } = renderForm('edit', '/automation/rule-1/edit');
+      await waitFor(() => {
+        expect((container.querySelector('input#name') as HTMLInputElement | null)?.value).toBe('On conversation');
+      });
+
+      expect(screen.queryByRole('status')).toBeNull();
+    });
+
+    it('repeats the warning in a toast when the rule is saved', async () => {
+      const { automationService } = await import('@/services/automation/automationService');
+      const { toast } = await import('sonner');
+      vi.mocked(automationService.getAutomation).mockResolvedValue(
+        stageEntryRule([{ action_name: 'send_message', action_params: ['hi'] }]),
+      );
+      vi.mocked(automationService.updateAutomation).mockResolvedValue({} as never);
+
+      renderForm('edit', '/automation/rule-1/edit');
+      await screen.findByRole('status');
+
+      const submit = screen.getByRole('button', { name: /form\.buttons\.(save|update)/ }) as HTMLButtonElement;
+      await waitFor(() => expect(submit.disabled).toBe(false));
+      fireEvent.click(submit);
+
+      await waitFor(() => {
+        expect(toast.warning).toHaveBeenCalledWith(
+          expect.stringMatching(/form\.fields\.actions\.noConversationNotice/),
+        );
+      });
     });
   });
 

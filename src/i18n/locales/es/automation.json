@@ -73,6 +73,7 @@
         "label": "Acciones",
         "addRow": "Agregar acción",
         "empty": "Agrega al menos una acción.",
+        "noConversationNotice": "Si la tarjeta no tiene una conversación, estas acciones no se ejecutarán: {{actions}}. En las tarjetas creadas a partir de una conversación, se ejecutan con normalidad.",
         "send_message": "Enviar mensaje",
         "send_canned_response": "Enviar respuesta predefinida",
         "send_template": "Enviar plantilla",

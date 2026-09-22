@@ -1,9 +1,11 @@
-import { useFieldArray, type Control } from 'react-hook-form';
+import { useFieldArray, useWatch, type Control } from 'react-hook-form';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Button } from '@evoapi/design-system';
-import { Plus } from 'lucide-react';
+import { AlertTriangle, Plus } from 'lucide-react';
 import {
   type AutomationRuleFormData,
+  actionRegistry,
+  actionsSkippedWithoutConversation,
   getDefaultActionForName,
 } from '@/pages/Customer/Automation/registries';
 import type { AutomationFormData } from '@/hooks/automation/useAutomationFormData';
@@ -21,6 +23,10 @@ export default function ActionsBuilder({ control, formData }: Props) {
     control,
     name: 'actions',
   });
+
+  const eventName = useWatch({ control, name: 'event_name' });
+  const actions = useWatch({ control, name: 'actions' });
+  const skippedWithoutConversation = actionsSkippedWithoutConversation(eventName, actions);
 
   const handleActionChange = (index: number, actionName: AutomationActionType) => {
     update(index, getDefaultActionForName(actionName));
@@ -55,6 +61,21 @@ export default function ActionsBuilder({ control, formData }: Props) {
               onActionChange={handleActionChange}
             />
           ))}
+        </div>
+      )}
+      {skippedWithoutConversation.length > 0 && (
+        <div
+          role="status"
+          className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800/30 dark:bg-amber-950/20 dark:text-amber-200"
+        >
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <p>
+            {t('form.fields.actions.noConversationNotice', {
+              actions: skippedWithoutConversation
+                .map((name) => t(actionRegistry[name].i18nKey))
+                .join(', '),
+            })}
+          </p>
         </div>
       )}
     </div>

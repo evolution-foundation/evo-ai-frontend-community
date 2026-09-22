@@ -73,6 +73,7 @@
         "label": "Actions",
         "addRow": "Add action",
         "empty": "Add at least one action.",
+        "noConversationNotice": "If the card has no conversation, these actions will not run: {{actions}}. On cards created from a conversation, they run as usual.",
         "send_message": "Send message",
         "send_canned_response": "Send canned response",
         "send_template": "Send template",

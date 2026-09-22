@@ -17,6 +17,8 @@ import {
 import { ArrowLeft } from 'lucide-react';
 import { automationService } from '@/services/automation/automationService';
 import {
+  actionRegistry,
+  actionsSkippedWithoutConversation,
   automationRuleSchema,
   type AutomationRuleFormData,
 } from '@/pages/Customer/Automation/registries';
@@ -115,6 +117,14 @@ export default function AutomationForm({ mode }: Props) {
       } else if (id) {
         await automationService.updateAutomation(id, { ...payload, id });
         toast.success(t('messages.updateSuccess'));
+      }
+      const skipped = actionsSkippedWithoutConversation(data.event_name, data.actions);
+      if (skipped.length > 0) {
+        toast.warning(
+          t('form.fields.actions.noConversationNotice', {
+            actions: skipped.map((name) => t(actionRegistry[name].i18nKey)).join(', '),
+          }),
+        );
       }
       navigate('/automation');
     } catch (error) {

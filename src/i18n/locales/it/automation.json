@@ -73,6 +73,7 @@
         "label": "Azioni",
         "addRow": "Aggiungi azione",
         "empty": "Aggiungi almeno un'azione.",
+        "noConversationNotice": "Se la scheda non ha una conversazione, queste azioni non verranno eseguite: {{actions}}. Nelle schede create da una conversazione vengono eseguite normalmente.",
         "send_message": "Invia messaggio",
         "send_canned_response": "Invia risposta predefinita",
         "send_template": "Invia template",

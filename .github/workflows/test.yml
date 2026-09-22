@@ -167,6 +167,8 @@ jobs:
           npx vitest run --reporter=basic \
             src/components/pipelines/StageAutomationRules.spec.tsx \
             src/pages/Customer/Automation/registries/conditionAttributeRegistry.spec.ts \
+            src/pages/Customer/Automation/registries/conversationBoundActions.spec.ts \
+            src/pages/Customer/Automation/AutomationForm.spec.tsx \
             src/components/automation/ConditionRow.spec.tsx \
             src/hooks/automation/useAutomationFormData.spec.ts \
             src/contexts/PermissionsContext.spec.tsx \
