@@ -89,7 +89,7 @@ jobs:
       #     paired direction is what keeps it honest — a warning ADDED next to the
       #     success toast would look right on screen and still tell the operator
       #     the install is fine.
-      #   - i18n-parity (CRM-162, CRM-671): pt-BR and es carry every en key, catalog-wide.
+      #   - i18n-parity (CRM-162, CRM-671): pt-BR and es carry every en key, and es every pt-BR key, catalog-wide.
       #   - _lib/parity (CRM-484): the guard's own rules. A clean catalog keeps
       #     i18n-parity green even with the rule broken; only this spec notices.
       #   - macros-parity (CRM-162): fr, it and pt are covered nowhere else, so

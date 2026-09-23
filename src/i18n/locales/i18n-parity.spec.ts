@@ -14,7 +14,7 @@ import {
  *  - pt-BR string values are non-empty;
  *  - no English leakage (pt-BR === EN) outside the allowlist.
  *
- * es must also carry every EN key (CRM-671): pt-BR, en and es are the locales
+ * es must also carry every EN and pt-BR key (CRM-671): pt-BR, en and es are the locales
  * the product ships, so a key missing in es fails CI like one missing in pt-BR.
  * fr/it/pt are not enforced.
  *
@@ -74,6 +74,11 @@ describe('i18n catalog parity (EVO-1430)', () => {
 
     it('es contains every EN key', () => {
       expect(missingKeys(en, es)).toEqual([]);
+    });
+
+    // pt-BR carries orphan keys EN lacks; es must not drop those either.
+    it('es contains every pt-BR key', () => {
+      expect(missingKeys((ptByFile.get(file) ?? {}) as LocaleModule, es)).toEqual([]);
     });
 
     it('es has no empty string values', () => {
