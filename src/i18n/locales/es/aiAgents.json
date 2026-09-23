@@ -50,7 +50,7 @@
   "basicInfo": {
     "title": "Información Básica",
     "name": "Nombre del Agente de IA",
-    "namePlaceholder": "Digite el nombre del agente de IA",
+    "namePlaceholder": "Ingrese el nombre del agente de IA",
     "description": "Descripción",
     "descriptionPlaceholder": "Describa el propósito y funcionalidades del agente de IA",
     "type": "Tipo de Agente de IA",
@@ -159,7 +159,7 @@
     "availableAgents": "Agentes Disponibles",
     "selectToAdd": "Seleccione agentes para agregar como sub-agentes",
     "searchAgents": "Buscar Agentes",
-    "searchPlaceholder": "Digite el nombre del agente...",
+    "searchPlaceholder": "Ingrese el nombre del agente...",
     "loadingAgents": "Cargando agentes...",
     "loadError": "Error al cargar agentes disponibles",
     "noAgentsFound": "Ningún agente encontrado",
@@ -358,7 +358,7 @@
     "knowledgeTags": "Etiquetas de Conocimiento",
     "knowledgeTagsDescription": "Especifique etiquetas para filtrar el conocimiento relevante",
     "addTag": "Agregar Etiqueta",
-    "tagPlaceholder": "Digite una etiqueta...",
+    "tagPlaceholder": "Ingrese una etiqueta...",
     "sources": "Fuentes",
     "addSource": "Agregar Fuente",
     "sourceTypes": {
@@ -464,7 +464,7 @@
       "requiredFields": "Campos Obligatorios",
       "optionalFields": "Campos Opcionales",
       "selectField": "Seleccione {{field}}",
-      "enterField": "Digite {{field}}",
+      "enterField": "Ingrese {{field}}",
       "enabled": "Habilitado",
       "disabled": "Deshabilitado",
       "saveChanges": "Guardar Cambios",
@@ -472,7 +472,7 @@
       "configuredTools": "Herramientas Configuradas ({{count}})",
       "configured": "Configurada",
       "searchTools": "Buscar Herramientas",
-      "searchPlaceholder": "Digite para buscar herramientas...",
+      "searchPlaceholder": "Escriba para buscar herramientas...",
       "filterByCategory": "Filtrar por Categoría",
       "allCategories": "Todas las categorías",
       "tryAgain": "Intentar Nuevamente",
@@ -529,6 +529,7 @@
   "edit": {
     "menu": {
       "profile": "Perfil",
+      "task": "Tarea",
       "subAgents": "Sub Agentes",
       "configuration": "Configuración",
       "knowledge": "Conocimiento",
@@ -790,6 +791,7 @@
       "contactEditRules": {
         "description": "Permite que el agente edite información de contacto durante la conversación. Configure qué campos pueden ser alterados y cuándo debe ocurrir.",
         "enableEditing": "Permitir edición de contactos",
+        "enableEditingDescription": "Permite que el agente modifique la información del contacto",
         "editableFields": "Campos editables",
         "selectAll": "Seleccionar todos",
         "deselectAll": "Deseleccionar todos",
@@ -797,17 +799,22 @@
         "additionalFields": "Campos Adicionales",
         "fieldsSelected": "campos seleccionados",
         "instructions": "Instrucciones",
-        "instructionsPlaceholder": "Ej: Actualice el nombre del contacto cuando se presente. Agregue el email cuando el cliente lo proporcione. Actualice la ciudad cuando el cliente mencione su ubicación..."
+        "instructionsDescription": "Defina cuándo y cómo el agente debe editar la información del contacto",
+        "instructionsPlaceholder": "Ej: Actualice el nombre del contacto cuando se presente. Agregue el email cuando el cliente lo proporcione. Actualice la ciudad cuando el cliente mencione su ubicación...",
+        "tip": "Consejo:",
+        "tipContent": "Sea específico sobre cuándo debe editarse cada campo"
       },
       "pipelineAutomation": {
         "description": "Descripción de la Tarea",
         "addPipeline": "Agregar Pipeline",
+        "whenToMove": "¿Cuándo mover a esta etapa?",
         "selectPipeline": "Seleccione el pipeline",
         "selectPipelinePlaceholder": "Seleccione un pipeline para automatizar",
         "removePipeline": "Remover Pipeline",
         "noPipelines": "No hay pipelines configurados",
         "addPipelineToStart": "Agregue un pipeline para comenzar a configurar automatizaciones",
         "stageAutomations": "Automatizaciones de Etapa",
+        "addStage": "Agregar Etapa",
         "noStagesSelected": "Seleccione un pipeline para ver las etapas disponibles",
         "addStageAutomation": "Agregar Etapa",
         "selectStage": "Seleccione la etapa",
@@ -816,6 +823,7 @@
         "instructionsPlaceholder": "Ej: Cuando la conversación llegue a esta etapa, el agente debe...",
         "createTasks": "Crear Tareas Automáticamente",
         "taskTitle": "Título de la Tarea",
+        "noStagesConfigured": "No hay etapas configuradas. Agregue etapas para crear automatizaciones.",
         "taskTitlePlaceholder": "Ej: Hacer llamada de seguimiento",
         "taskType": "Tipo de Tarea",
         "taskTypes": {
@@ -837,8 +845,10 @@
         "dueDaysPlaceholder": "Ej: 2",
         "descriptionPlaceholder": "Detalles sobre qué debe hacerse...",
         "addTask": "Agregar Tarea",
+        "noTasks": "No hay tareas configuradas",
         "removeTask": "Remover Tarea",
         "notifyTeam": "Notificar al equipo cuando llegue a esta etapa",
+        "autoTasks": "Tareas Automáticas",
         "removeStageAutomation": "Remover Etapa"
       }
     },
@@ -871,7 +881,11 @@
         "selectPlaceholder": "O seleccione una etiqueta...",
         "noMoreTags": "No hay etiquetas disponibles"
       },
-      "comingSoon": "Próximamente..."
+      "comingSoon": "Próximamente...",
+      "loadKnowledge": {
+        "label": "Cargar Conocimiento",
+        "description": "Permite que el agente acceda y utilice conocimiento de la base de conocimiento"
+      }
     },
     "tools": {
       "title": "Herramientas",
@@ -887,7 +901,23 @@
       "configure": "Configurar",
       "notAvailable": "Próximamente",
       "elevenlabs": {
-        "description": "Con ElevenLabs le das a tu agente la capacidad de responder a tus clientes en audio, haciéndolo aún más humanizado."
+        "description": "Con ElevenLabs le das a tu agente la capacidad de responder a tus clientes en audio, haciéndolo aún más humanizado.",
+        "configTitle": "Configurar ElevenLabs",
+        "apiKey": "API Key",
+        "apiKeyPlaceholder": "Ingrese su API Key de ElevenLabs",
+        "whenToRespond": "Cuándo responder en audio:",
+        "whenToRespondDescription": "Defina cuándo el agente enviará respuestas en audio.",
+        "whenClientAsksInAudio": "Cuando el cliente pregunte en audio",
+        "alwaysRespondInAudio": "Responder siempre en audio",
+        "voiceSelection": "Qué voz usar:",
+        "voiceSelectionDescription": "Elija la voz que desea usar en las respuestas del agente.",
+        "selectVoice": "Seleccione una voz",
+        "loadingVoices": "Cargando voces...",
+        "errorLoadingVoices": "Error al cargar las voces",
+        "stability": "Estabilidad:",
+        "similarity": "Similitud:",
+        "applyConfig": "APLICAR CONFIGURACIÓN",
+        "deactivate": "Desactivar integración"
       },
       "googleCalendar": {
         "description": "Con Google Calendar tu agente será capaz de programar reuniones, crear enlaces de llamada y enviar invitaciones.",
@@ -1034,13 +1064,41 @@
         "deactivate": "Desactivar integración"
       },
       "github": {
-        "description": "Integra tu agente con GitHub para acceder a repositorios e información de código."
+        "description": "Integra tu agente con GitHub para acceder a repositorios e información de código.",
+        "configTitle": "Configurar GitHub",
+        "connectTitle": "Conectar con GitHub",
+        "connectDescription": "Conecte su cuenta de GitHub para permitir que el agente acceda a repositorios e información de código",
+        "connectButton": "Conectar con GitHub",
+        "connecting": "Conectando...",
+        "connected": "Conectado",
+        "connectedAs": "Conectado como",
+        "connectedDescription": "Su cuenta de GitHub está conectada y el agente puede acceder a sus repositorios.",
+        "toolsTitle": "Herramientas Disponibles",
+        "toolsDescription": "Seleccione qué herramientas de GitHub puede usar el agente",
+        "selectAll": "Seleccionar todas",
+        "noTools": "No hay herramientas disponibles",
+        "saveConfig": "GUARDAR CONFIGURACIÓN",
+        "disconnect": "Desconectar"
       },
       "gmail": {
         "description": "Conecta tu agente a Gmail para enviar y recibir correos electrónicos automáticamente."
       },
       "hubspot": {
-        "description": "Integra tu agente con HubSpot para gestionar contactos y oportunidades de negocio."
+        "description": "Integra tu agente con HubSpot para gestionar contactos y oportunidades de negocio.",
+        "configTitle": "Configurar HubSpot",
+        "connectTitle": "Conectar con HubSpot",
+        "connectDescription": "Conecte su cuenta de HubSpot para permitir que el agente acceda a contactos, empresas y otra información",
+        "connectButton": "Conectar con HubSpot",
+        "connecting": "Conectando...",
+        "connected": "Conectado",
+        "connectedAs": "Conectado como",
+        "connectedDescription": "Su cuenta de HubSpot está conectada y el agente puede acceder a contactos, empresas y otra información.",
+        "toolsTitle": "Herramientas Disponibles",
+        "toolsDescription": "Seleccione qué herramientas de HubSpot puede usar el agente",
+        "selectAll": "Seleccionar todas",
+        "noTools": "No hay herramientas disponibles",
+        "saveConfig": "GUARDAR CONFIGURACIÓN",
+        "disconnect": "Desconectar"
       },
       "notion": {
         "description": "Con Notion tu agente podrá acceder a páginas, bases de datos y contenido de Notion.",
@@ -1194,6 +1252,21 @@
         "noTools": "No hay herramientas disponibles",
         "saveConfig": "GUARDAR CONFIGURACIONES",
         "disconnect": "Desconectar"
+      },
+      "googleSheets": {
+        "description": "Permite crear, leer, actualizar y gestionar hojas de cálculo de Google Sheets.",
+        "configTitle": "Configurar Google Sheets",
+        "connectTitle": "Conectar con Google Sheets",
+        "connectDescription": "Permita que el agente acceda, cree y gestione hojas de cálculo de Google Sheets",
+        "email": "Correo de Google",
+        "connectButton": "Conectar con Google",
+        "connecting": "Conectando...",
+        "selectSpreadsheet": "Hoja de cálculo",
+        "saveConfig": "APLICAR CONFIGURACIÓN",
+        "disconnect": "Desconectar"
+      },
+      "googleDrive": {
+        "description": "Permite que el agente acceda, busque y gestione archivos en Google Drive."
       }
     },
     "mcpServers": {
@@ -1219,6 +1292,10 @@
       "saving": "Guardando...",
       "saveSuccess": "Productos actualizados",
       "saveError": "Error al actualizar productos"
+    },
+    "task": {
+      "title": "Configuración de Tarea",
+      "subtitle": "Configure la tarea que ejecutará este agente"
     }
   },
   "actions": {
@@ -1501,6 +1578,9 @@
     "checkingIntegrations": "Verificando integraciones disponibles...",
     "subtitle": "Configure servidores MCP (Model Context Protocol) para expandir las capacidades del agente",
     "comingSoon": "Próximamente",
+    "enabled": "Activo",
+    "enable": "ACTIVAR",
+    "configure": "Configurar",
     "github": {
       "description": "Integración con repositorios, issues, pull requests y acciones de GitHub."
     },
@@ -1530,6 +1610,24 @@
     },
     "supabase": {
       "description": "Accede y gestiona proyectos, bases de datos y APIs Supabase."
+    },
+    "googleDrive": {
+      "description": "Permite que el agente acceda, busque y gestione archivos en Google Drive."
+    },
+    "gmail": {
+      "description": "Conecte el agente a Gmail para leer, enviar y gestionar correos automáticamente."
+    },
+    "googleCalendar": {
+      "description": "Permite programar eventos, verificar disponibilidad y gestionar calendarios."
+    },
+    "hubspot": {
+      "description": "Sincronice contactos, deals y actividades con HubSpot CRM."
+    },
+    "booking": {
+      "description": "Busque y reserve alojamientos a través de la API de Booking.com."
+    },
+    "slack": {
+      "description": "Envíe mensajes, cree canales y gestione workspaces de Slack."
     }
   },
   "integrations": {

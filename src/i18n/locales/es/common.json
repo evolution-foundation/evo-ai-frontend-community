@@ -9,6 +9,12 @@
       "is_not_present": "No presente"
     }
   },
+  "loading": "Cargando...",
+  "error": "Error",
+  "success": "Éxito",
+  "created": "Creado correctamente",
+  "updated": "Actualizado correctamente",
+  "deleted": "Eliminado correctamente",
   "base": {
     "noResults": {
       "title": "Sin resultados",
@@ -66,8 +72,8 @@
       "or": "O",
       "selectDate": "Seleccionar fecha",
       "selectOption": "Seleccionar opción",
-      "enterNumber": "Digite un número",
-      "enterValue": "Digite el valor"
+      "enterNumber": "Ingrese un número",
+      "enterValue": "Ingrese el valor"
     },
     "form": {
       "required": "{{field}} es obligatorio",
@@ -143,11 +149,15 @@
     }
   },
   "cancel": "Cancelar",
+  "save": "Guardar",
+  "create": "Crear",
+  "update": "Actualizar",
   "delete": "Eliminar",
   "close": "Cerrar",
   "table": {
     "inUse": "En uso"
   },
+  "noResultsFound": "No se encontraron resultados",
   "validation": {
     "required": "Este campo es obligatorio"
   },

@@ -8,7 +8,7 @@
   "configureImap": "Configure su email vía IMAP/SMTP",
   "emailFrom": "E-mail de {{provider}}",
   "oauthDescription": "Haga clic en el botón Iniciar sesión con {{provider}} para comenzar. Se le solicitará aceptar los permisos solicitados, será redirigido de vuelta al panel.",
-  "emailPlaceholder": "Digite la dirección de correo electrónico",
+  "emailPlaceholder": "Ingrese la dirección de correo electrónico",
   "connecting": "Conectando...",
   "signInWith": "Iniciar sesión con {{provider}}",
   "emailChannel": "Canal de Email",
@@ -46,7 +46,7 @@
     }
   },
   "validation": {
-    "emailRequired": "Digite la dirección de email",
+    "emailRequired": "Ingrese la dirección de email",
     "nameRequired": "El nombre del inbox es obligatorio",
     "fillAllFields": "Complete todos los campos obligatorios"
   },

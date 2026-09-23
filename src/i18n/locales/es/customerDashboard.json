@@ -93,6 +93,12 @@
     "agents": {
       "title": "Rendimiento de Agentes",
       "subtitle": "Métricas de rendimiento individual de agentes",
+      "humanTitle": "Rendimiento de los Agentes",
+      "humanSubtitle": "Rendimiento del equipo humano en el período filtrado",
+      "aiTitle": "Rendimiento de los Agentes de IA",
+      "aiSubtitle": "Volumen y participación de los agentes de IA en las respuestas",
+      "aiMessages": "mensajes de IA",
+      "aiEmpty": "Sin mensajes de IA en el período seleccionado.",
       "conversations": "conversaciones",
       "avgTime": "Tiempo Medio",
       "satisfaction": "Satisfacción"

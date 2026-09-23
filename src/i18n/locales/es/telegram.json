@@ -21,7 +21,7 @@
   "instructions": {
     "title": "Cómo Crear un Bot en Telegram",
     "step1": "1. Inicie una conversación con @BotFather en Telegram",
-    "step2": "2. Digite /newbot y siga las instrucciones para crear su bot",
+    "step2": "2. Ingrese /newbot y siga las instrucciones para crear su bot",
     "step3": "3. Defina un nombre para su bot (ej: \"Mi Bot de Soporte\")",
     "step4": "4. Defina un username que termine con \"bot\" (ej: \"mi_bot_soporte\")",
     "step5": "5. Copie el token que BotFather proporcionará",

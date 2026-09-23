@@ -63,7 +63,7 @@
       },
       "content": {
         "label": "Contenido",
-        "placeholder": "Digite el contenido de la respuesta rápida...",
+        "placeholder": "Ingrese el contenido de la respuesta rápida...",
         "hint": "Contenido de la respuesta que será enviada automáticamente."
       }
     },

@@ -162,7 +162,13 @@
       "loadError": "Error al cargar la configuracion de inicio de sesion social"
     },
     "save": "Guardar Configuracion",
-    "saving": "Guardando..."
+    "saving": "Guardando...",
+    "callbackUrl": {
+      "label": "URI de redirección OAuth (regístrela en la consola del proveedor)",
+      "hint": "Agregue esta URL exacta a las URIs de redirección autorizadas de su app OAuth — debe coincidir exactamente (https, sin barra al final).",
+      "copy": "Copiar URL de callback",
+      "copied": "URL de callback copiada"
+    }
   },
   "channels": {
     "email": {
@@ -531,7 +537,13 @@
     "removing": "Eliminando...",
     "removeSuccess": "Configuración eliminada",
     "removeError": "No se pudo eliminar la configuración",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "callbackUrl": {
+      "label": "URI de redirección OAuth (regístrela en la consola del proveedor)",
+      "hint": "Agregue esta URL exacta a las URIs de redirección autorizadas de su app OAuth — debe coincidir exactamente (https, sin barra al final).",
+      "copy": "Copiar URL de callback",
+      "copied": "URL de callback copiada"
+    }
   },
   "inboundEmail": {
     "title": "Correo entrante (recibir como conversaciones)",

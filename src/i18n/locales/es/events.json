@@ -215,7 +215,7 @@
       "help": "Solo se dispara para mensajes enviados con esta plantilla."
     },
     "url": {
-      "label": "URL clicada",
+      "label": "URL en la que se hizo clic",
       "help": "La URL exacta en la que hizo clic el contacto."
     },
     "provider": {

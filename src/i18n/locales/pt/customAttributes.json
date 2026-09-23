@@ -11,6 +11,44 @@
     "contact": "Contatos",
     "pipeline_attribute": "Pipeline"
   },
+  "attributeTypeOptions": {
+    "text": {
+      "label": "Texto",
+      "description": "Campo de texto simples"
+    },
+    "number": {
+      "label": "Número",
+      "description": "Campo numérico"
+    },
+    "currency": {
+      "label": "Moeda",
+      "description": "Valor monetário"
+    },
+    "percent": {
+      "label": "Porcentagem",
+      "description": "Valor percentual"
+    },
+    "link": {
+      "label": "Link",
+      "description": "URL ou link"
+    },
+    "date": {
+      "label": "Data",
+      "description": "Campo de data"
+    },
+    "datetime": {
+      "label": "Data e Hora",
+      "description": "Campo de data e hora"
+    },
+    "list": {
+      "label": "Lista",
+      "description": "Seleção de opções predefinidas"
+    },
+    "checkbox": {
+      "label": "Caixa de seleção",
+      "description": "Verdadeiro ou falso"
+    }
+  },
   "header": {
     "title": "Atributos Personalizados",
     "subtitle": "{{count}} atributo(s) {{tabName}} no total",
@@ -216,7 +254,13 @@
     "deleteSuccess": "Atributo personalizado deletado com sucesso",
     "deleteError": "Erro ao deletar atributo personalizado",
     "bulkDeleteSuccess": "{{count}} atributo(s) personalizado(s) deletado(s) com sucesso",
-    "bulkDeleteError": "Erro ao deletar atributos personalizados"
+    "bulkDeleteError": "Erro ao deletar atributos personalizados",
+    "permissionDenied": {
+      "read": "Você não tem permissão para visualizar atributos personalizados",
+      "create": "Você não tem permissão para criar atributos personalizados",
+      "update": "Você não tem permissão para editar atributos personalizados",
+      "delete": "Você não tem permissão para excluir atributos personalizados"
+    }
   },
   "dialog": {
     "delete": {

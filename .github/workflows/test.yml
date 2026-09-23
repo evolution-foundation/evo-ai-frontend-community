@@ -89,10 +89,10 @@ jobs:
       #     paired direction is what keeps it honest — a warning ADDED next to the
       #     success toast would look right on screen and still tell the operator
       #     the install is fine.
-      #   - i18n-parity (CRM-162): en and pt-BR keep the same key set, catalog-wide.
+      #   - i18n-parity (CRM-162, CRM-671): pt-BR and es carry every en key, catalog-wide.
       #   - _lib/parity (CRM-484): the guard's own rules. A clean catalog keeps
       #     i18n-parity green even with the rule broken; only this spec notices.
-      #   - macros-parity (CRM-162): es, fr, it and pt are covered nowhere else, so
+      #   - macros-parity (CRM-162): fr, it and pt are covered nowhere else, so
       #     macros.json is checked against en across all six. A key added to one
       #     locale only is invisible until someone on another reads the raw key.
       #   - contactsService.createContact / labelsService (CRM-321, CRM-381): the
@@ -131,7 +131,7 @@ jobs:
       #     page instead of the endpoint default. A new catalog key that misses one
       #     of these only shows up as a raw key in the user's face. journey-parity
       #     is the ONLY guard for the six-locale event-switch keys (i18n-parity
-      #     skips journey.json), and EventBasicConfig owns the switch notice/Undo.
+      #     covers journey.json for es only), and EventBasicConfig owns the switch notice/Undo.
       #   - Step4 distribution window (CRM-479): every hour row states the number it
       #     persists, and 9 stays selectable. The "10 Horas" row shipped bound to 9, and
       #     dropping 9 now would blank the trigger on campaigns that hold it — Radix shows

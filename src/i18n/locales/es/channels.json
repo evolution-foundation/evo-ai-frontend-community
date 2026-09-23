@@ -7,12 +7,14 @@
     "notAvailable": "N/A"
   },
   "card": {
-    "channelId": "Canal ID",
-    "type": "Tipo"
+    "channelId": "ID del canal",
+    "type": "Tipo",
+    "displayName": "Nombre para mostrar"
   },
   "table": {
     "channels": "Canales",
     "id": "ID",
+    "displayName": "Nombre para mostrar",
     "empty": {
       "title": "Ningún canal encontrado",
       "description": "Cree un nuevo canal para comenzar a recibir mensajes de sus clientes."
@@ -315,7 +317,10 @@
       "name": {
         "websiteLabel": "Nombre del Canal",
         "channelLabel": "Nombre del Canal",
-        "placeholder": "Digite el nombre del canal"
+        "placeholder": "Ingrese el nombre del canal",
+        "websitePlaceholder": "Ej: mi-sitio-web",
+        "channelPlaceholder": "Ej: whatsapp-soporte",
+        "helpText": "Identificador único (solo letras minúsculas, números y guiones)"
       },
       "whatsappProvider": {
         "label": "Proveedor WhatsApp"
@@ -341,6 +346,11 @@
         "placeholder": "La URL del webhook se generará después de crear el canal",
         "copied": "¡Webhook URL copiado al portapapeles!",
         "noUrl": "No hay URL de webhook disponible para copiar"
+      },
+      "displayName": {
+        "label": "Nombre para mostrar",
+        "placeholder": "Ej: WhatsApp Soporte",
+        "helpText": "Nombre amigable que se muestra en las interfaces"
       }
     },
     "collaborators": {
@@ -349,6 +359,8 @@
         "description": "Gestione los agentes humanos que pueden atender conversaciones en este canal",
         "selectedCount": "{{count}} Agente seleccionado",
         "selectedCount_other": "{{count}} Agentes seleccionados",
+        "total": "total",
+        "loading": "Cargando agentes...",
         "noAgentsSelected": "Ningún Agente seleccionado",
         "allAgentsSelected": "Todos los Agentes seleccionados",
         "buttons": {
@@ -361,6 +373,10 @@
         "roles": {
           "agent": "Agente",
           "administrator": "Administrador"
+        },
+        "noAgents": {
+          "title": "No se encontraron agentes",
+          "description": "No hay agentes disponibles en este momento. Agregue agentes primero."
         }
       },
       "status": {
@@ -385,7 +401,7 @@
         "maxLimit": {
           "title": "Límite Máximo de Conversaciones",
           "label": "Máximo de conversaciones por Agente",
-          "placeholder": "Digite el número máximo",
+          "placeholder": "Ingrese el número máximo",
           "help": "Número máximo de conversaciones que un Agente puede tener simultáneamente"
         },
         "buttons": {
@@ -601,7 +617,8 @@
       "useTabUpdate": "Usa el botón de actualización dentro de la pestaña actual",
       "avatarDeleteError": "Error al eliminar avatar",
       "senderUpdateError": "Error al actualizar configuraciones de remitente",
-      "configUpdateError": "Error al actualizar configuración"
+      "configUpdateError": "Error al actualizar configuración",
+      "loadLabelsError": "Error al cargar las etiquetas"
     },
     "info": {
       "tabSpecificSave": "Usa la acción de actualización dentro de esta pestaña."
@@ -617,6 +634,7 @@
         "editTemplate": "Editar Plantilla",
         "cancel": "Cancelar"
       },
+      "newTemplate": "Nueva plantilla de mensaje",
       "table": {
         "name": "Nombre",
         "category": "Categoría",
@@ -1155,7 +1173,7 @@
       },
       "message": {
         "label": "Mensaje de Saludo",
-        "placeholder": "Digite aquí el mensaje de bienvenida..."
+        "placeholder": "Ingrese aquí el mensaje de bienvenida..."
       },
       "useTemplate": {
         "label": "Usar plantilla global",
@@ -1233,7 +1251,7 @@
         "change": "Cambiar nombre de la empresa",
         "current": "Nombre actual: {{businessName}}",
         "label": "Nombre de la Empresa",
-        "placeholder": "Digite el nombre de su empresa",
+        "placeholder": "Ingrese el nombre de su empresa",
         "save": "Guardar"
       }
     },
@@ -1266,15 +1284,15 @@
       "standardFields": {
         "email": {
           "label": "Email",
-          "placeholder": "Digite su email"
+          "placeholder": "Ingrese su email"
         },
         "fullName": {
           "label": "Nombre Completo",
-          "placeholder": "Digite su nombre completo"
+          "placeholder": "Ingrese su nombre completo"
         },
         "phoneNumber": {
           "label": "Número de Teléfono",
-          "placeholder": "Digite su teléfono"
+          "placeholder": "Ingrese su teléfono"
         }
       },
       "fieldTypes": {
@@ -1378,7 +1396,7 @@
       },
       "websiteName": {
         "label": "Nombre del Sitio Web",
-        "placeholder": "Digite el nombre de su sitio web (ej: Acme Inc)"
+        "placeholder": "Ingrese el nombre de su sitio web (ej: Acme Inc)"
       },
       "welcomeHeading": {
         "label": "Título de Bienvenida",
@@ -1642,6 +1660,67 @@
     "general": {
       "success": {
         "channelCreated": "Canal creado con éxito"
+      }
+    },
+    "moderation": {
+      "title": "Moderación de comentarios",
+      "description": "Revise y modere los comentarios de Facebook que requieren aprobación",
+      "filters": {
+        "status": "Estado",
+        "type": "Tipo",
+        "all": "Todos",
+        "pending": "Pendiente",
+        "approved": "Aprobado",
+        "rejected": "Rechazado",
+        "allTypes": "Todos los tipos"
+      },
+      "types": {
+        "explicitWords": "Palabras explícitas",
+        "offensiveSentiment": "Sentimiento ofensivo",
+        "responseApproval": "Aprobación de respuesta"
+      },
+      "status": {
+        "pending": "Pendiente",
+        "approved": "Aprobado",
+        "rejected": "Rechazado"
+      },
+      "actions": {
+        "approve": "Aprobar",
+        "reject": "Rechazar",
+        "regenerate": "Regenerar respuesta",
+        "deleteComment": "Eliminar comentario",
+        "blockUser": "Bloquear usuario",
+        "sendResponse": "Enviar respuesta"
+      },
+      "commentId": "ID del comentario",
+      "conversation": "Conversación",
+      "originalComment": "Comentario original",
+      "generatedResponse": "Respuesta generada",
+      "rejectionReason": "Motivo del rechazo",
+      "rejectionReasonLabel": "Motivo del rechazo (opcional)",
+      "rejectionReasonPlaceholder": "Ingrese el motivo del rechazo...",
+      "approvedBy": "Aprobado por {{name}} el {{date}}",
+      "rejectedBy": "Rechazado por {{name}} el {{date}}",
+      "totalCount": "Total: {{count}}",
+      "empty": {
+        "title": "No se encontraron moderaciones",
+        "description": "No hay solicitudes de moderación que coincidan con sus filtros."
+      },
+      "pagination": {
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "page": "Página {{current}} de {{total}}"
+      },
+      "success": {
+        "approved": "Moderación aprobada correctamente",
+        "rejected": "Moderación rechazada correctamente",
+        "regenerated": "Respuesta regenerada correctamente"
+      },
+      "errors": {
+        "loadError": "Error al cargar las moderaciones",
+        "approveError": "Error al aprobar la moderación",
+        "rejectError": "Error al rechazar la moderación",
+        "regenerateError": "Error al regenerar la respuesta"
       }
     }
   },

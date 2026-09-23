@@ -216,7 +216,13 @@
     "deleteSuccess": "Attributo personalizzato eliminato con successo",
     "deleteError": "Errore durante l'eliminazione dell'attributo personalizzato",
     "bulkDeleteSuccess": "{{count}} attributo/i personalizzato/i eliminato/i con successo",
-    "bulkDeleteError": "Errore durante l'eliminazione degli attributi personalizzati"
+    "bulkDeleteError": "Errore durante l'eliminazione degli attributi personalizzati",
+    "permissionDenied": {
+      "read": "Non hai il permesso di visualizzare gli attributi personalizzati",
+      "create": "Non hai il permesso di creare attributi personalizzati",
+      "update": "Non hai il permesso di modificare gli attributi personalizzati",
+      "delete": "Non hai il permesso di eliminare gli attributi personalizzati"
+    }
   },
   "dialog": {
     "delete": {

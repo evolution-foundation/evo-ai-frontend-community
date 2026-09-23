@@ -161,7 +161,13 @@
     },
     "pageTitle": "Creando un nuevo Pipeline",
     "back": "Volver",
-    "newStageColor": "Color de la etapa"
+    "newStageColor": "Color de la etapa",
+    "teamSelection": {
+      "label": "Equipos",
+      "placeholder": "Seleccione los equipos...",
+      "required": "Seleccione al menos un equipo",
+      "noTeams": "No hay equipos disponibles"
+    }
   },
   "createStage": {
     "title": "Crear Nueva Etapa",
@@ -263,7 +269,7 @@
     "currency": "Moneda",
     "currencies": {
       "brl": "Real Brasileño (BRL)",
-      "usd": "Dólar Americano (USD)",
+      "usd": "Dólar estadounidense (USD)",
       "eur": "Euro (EUR)"
     },
     "services": "Servicios",
@@ -303,7 +309,7 @@
     "currency": "Moneda",
     "currencies": {
       "brl": "Real Brasileño (BRL)",
-      "usd": "Dólar Americano (USD)",
+      "usd": "Dólar estadounidense (USD)",
       "eur": "Euro (EUR)"
     },
     "services": "Servicios",
@@ -347,7 +353,13 @@
     "pipelineActive": "Pipeline activo",
     "cancel": "Cancelar",
     "saving": "Guardando...",
-    "save": "Guardar Cambios"
+    "save": "Guardar Cambios",
+    "teamSelection": {
+      "label": "Equipos",
+      "placeholder": "Seleccione los equipos...",
+      "required": "Seleccione al menos un equipo",
+      "noTeams": "No hay equipos disponibles"
+    }
   },
   "stageAutomation": {
     "title": "Reglas de Automatización",
@@ -620,6 +632,7 @@
       "conversations": "Leads",
       "stages": "Etapas",
       "totalValue": "Valor Total",
+      "addItem": "Agregar Ítem",
       "addConversation": "Agregar Conversación",
       "editPipeline": "Editar Pipeline",
       "reorderStages": "Reordenar Etapas",
@@ -636,7 +649,7 @@
       "deleteStage": "Eliminar Etapa",
       "noConversations": "Ninguna conversación en esta etapa",
       "noStages": "Ninguna etapa encontrada para este pipeline",
-      "totalValue": "R$ {{value}}"
+      "totalValue": "{{value}}"
     },
     "item": {
       "unknownUser": "Usuario Desconocido",
@@ -661,6 +674,7 @@
     "conversation": {
       "unknownUser": "Usuario Desconocido",
       "editConversation": "Editar Conversación",
+      "editItem": "Editar Ítem",
       "removeFromPipeline": "Remover del Pipeline",
       "noInbox": "Sin Inbox",
       "status": {
@@ -674,6 +688,8 @@
       "system": "Sistema"
     },
     "messages": {
+      "itemMoved": "Ítem movido correctamente",
+      "itemMoveError": "Error al mover el ítem",
       "conversationMoved": "Conversación movida con éxito",
       "conversationMoveError": "Error al mover conversación",
       "loadDataError": "Error al cargar datos del pipeline",
@@ -706,6 +722,8 @@
   "tasks": {
     "title": "Tareas",
     "newTask": "Nueva Tarea",
+    "subtasks": "Subtareas",
+    "subtask": "subtarea",
     "createFirstTask": "Crear Primera Tarea",
     "noTasks": "No se encontraron tareas",
     "pending": "Pendientes",
@@ -882,5 +900,32 @@
     "loadError": "Error al cargar formularios",
     "saveError": "Error al guardar formulario",
     "deleteError": "Error al eliminar formulario"
+  },
+  "addItem": {
+    "title": "Agregar Ítem al Pipeline",
+    "description": "Seleccione un ítem disponible para agregar al pipeline.",
+    "selectStage": "Seleccionar Etapa",
+    "chooseStage": "Elija una etapa",
+    "itemType": "Tipo de Ítem",
+    "chooseItemType": "Elija el tipo de ítem",
+    "itemTypes": {
+      "conversation": "Conversación",
+      "contact": "Contacto"
+    },
+    "searchItems": "Buscar Ítems",
+    "searchPlaceholder": "Buscar por nombre, email, teléfono o ID...",
+    "availableItems": "Ítems Disponibles",
+    "noItemsFound": "No se encontró ningún ítem",
+    "noItemsAvailable": "No hay ítems disponibles",
+    "notes": "Observaciones (opcional)",
+    "notesPlaceholder": "Agregue observaciones sobre este ítem en el pipeline...",
+    "unknownUser": "Usuario Desconocido",
+    "loading": "Cargando...",
+    "adding": "Agregando...",
+    "add": "Agregar Ítem",
+    "cancel": "Cancelar",
+    "success": "Ítem agregado correctamente al pipeline",
+    "error": "Error al agregar el ítem al pipeline",
+    "loadError": "Error al cargar los ítems disponibles"
   }
 }

@@ -254,7 +254,13 @@
     "deleteSuccess": "Custom attribute deleted successfully",
     "deleteError": "Error deleting custom attribute",
     "bulkDeleteSuccess": "{{count}} custom attribute(s) deleted successfully",
-    "bulkDeleteError": "Error deleting custom attributes"
+    "bulkDeleteError": "Error deleting custom attributes",
+    "permissionDenied": {
+      "read": "You don't have permission to view custom attributes",
+      "create": "You don't have permission to create custom attributes",
+      "update": "You don't have permission to edit custom attributes",
+      "delete": "You don't have permission to delete custom attributes"
+    }
   },
   "dialog": {
     "delete": {

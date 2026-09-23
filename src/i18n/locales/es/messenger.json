@@ -15,15 +15,30 @@
   "channelNamePlaceholder": "Canal Messenger",
   "creating": "Creando...",
   "createChannel": "Crear canal",
+  "loadingFacebookSDK": "Cargando Facebook SDK...",
   "validation": {
     "pageRequired": "Seleccione una página de Facebook",
     "nameRequired": "El nombre del canal es obligatorio"
   },
+  "connectWithFacebook": "Conectar con Facebook",
+  "connectWithFacebookDescription": "Conecte su página de Facebook para comenzar a usar Messenger",
+  "redirectToAuthorize": "Será redirigido para autorizar la aplicación",
+  "mustBePageAdmin": "Asegúrese de ser administrador de la página",
+  "connectingToFacebook": "Conectando con Facebook...",
+  "fetchingPages": "Buscando páginas de Facebook...",
+  "tryAgain": "Intentar de Nuevo",
   "errors": {
     "sdkNotLoaded": "Facebook SDK no cargado",
     "authNotCompleted": "Autorización de Facebook no completada",
     "fetchPagesError": "Falla al buscar páginas",
-    "createChannelError": "Falla al crear canal"
+    "createChannelError": "Falla al crear canal",
+    "facebookNotConfigured": "Facebook no configurado",
+    "facebookConfigMessage": "La variable de entorno FB_APP_ID no ha sido configurada.",
+    "appNotAuthorized": "Necesita autorizar la aplicación para continuar",
+    "loginCancelled": "Inicio de sesión cancelado o error de autenticación",
+    "connectionError": "Error de Conexión",
+    "noPagesAvailable": "No Hay Páginas Disponibles",
+    "noPagesAvailableMessage": "Todas sus páginas ya están conectadas o no tiene permiso para administrarlas."
   },
   "success": {
     "created": "¡Canal Messenger creado con éxito!"

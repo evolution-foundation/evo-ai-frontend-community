@@ -10,8 +10,8 @@
     "bulkDelete": "Eliminar Seleccionados",
     "clearSelection": "Limpiar Selección",
     "selected": "{{count}} seleccionado(s)",
-    "recomputeAll": "Recomputar Todos",
-    "recomputing": "Recomputando...",
+    "recomputeAll": "Recalcular Todos",
+    "recomputing": "Recalculando...",
     "delete": "Eliminar"
   },
   "empty": {
@@ -37,7 +37,7 @@
   "actions": {
     "edit": "Editar",
     "delete": "Eliminar",
-    "recompute": "Recomputar",
+    "recompute": "Recalcular",
     "viewContactIds": "Ver IDs",
     "cancel": "Cancelar",
     "save": "Guardar",
@@ -48,7 +48,11 @@
     "copyJson": "Copiar JSON",
     "close": "Cerrar",
     "viewIds": "Ver IDs",
-    "pause": "Pausar"
+    "pause": "Pausar",
+    "preview": "Vista previa",
+    "previewing": "Generando vista previa…",
+    "form": "Formulario",
+    "canvas": "Canvas"
   },
   "preview": {
     "result_one": "{{count}} contacto coincide con este segmento.",
@@ -180,7 +184,7 @@
     "selectProperty": "Seleccionar propiedad",
     "operator": "Operador",
     "value": "Valor",
-    "valuePlaceholder": "Digite un valor",
+    "valuePlaceholder": "Ingrese un valor",
     "categories": {
       "basicInfo": "Información Básica",
       "metadata": "Metadatos",
@@ -238,7 +242,7 @@
     "selectAttribute": "Seleccione un atributo",
     "operator": "Operador",
     "value": "Valor",
-    "valuePlaceholder": "Digite un valor",
+    "valuePlaceholder": "Ingrese un valor",
     "loading": "Cargando atributos...",
     "noAttributesFound": "Ningún atributo personalizado registrado"
   },
@@ -307,14 +311,14 @@
       "formSubmitted": "Formulario Enviado",
       "productPurchased": "Producto Comprado",
       "emailOpened": "Email Abierto",
-      "linkClicked": "Link Clicado"
+      "linkClicked": "Clic en Enlace"
     },
     "channelEvents": {
       "email": {
         "label": "Evento de Email",
         "messageSent": "Email Enviado",
         "emailOpened": "Email Abierto",
-        "emailClicked": "Email Clicado",
+        "emailClicked": "Clic en Email",
         "emailBounced": "Email Devuelto",
         "emailDelivered": "Email Entregado",
         "templateIdLabel": "Template ID (opcional)",
@@ -349,9 +353,9 @@
       "percentageIncluded": "Porcentaje Incluido"
     },
     "manualUpload": {
-      "title": "Upload Manual de Segmento",
+      "title": "Carga Manual de Segmento",
       "description": "Suba un archivo CSV con los IDs de los usuarios",
-      "uploadButton": "📁 Upload CSV",
+      "uploadButton": "📁 Subir CSV",
       "format": "Formato: Una columna con user_id"
     }
   }

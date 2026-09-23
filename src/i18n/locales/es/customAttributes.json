@@ -68,7 +68,7 @@
       },
       "listValues": {
         "label": "Valores de la lista",
-        "placeholder": "Digite un valor y presione Enter",
+        "placeholder": "Ingrese un valor y presione Enter",
         "required": true,
         "errors": {
           "required": "La lista debe tener al menos un valor"
@@ -175,11 +175,11 @@
     }
   },
   "placeholders": {
-    "text": "Digite {{name}}",
-    "number": "Digite {{name}}",
+    "text": "Ingrese {{name}}",
+    "number": "Ingrese {{name}}",
     "link": "https://ejemplo.com",
     "select": "Seleccione {{name}}",
-    "textarea": "Digite {{name}}"
+    "textarea": "Ingrese {{name}}"
   },
   "actions": {
     "add": "Agregar",
@@ -216,7 +216,13 @@
     "deleteSuccess": "Atributo personalizado eliminado con éxito",
     "deleteError": "Error al eliminar atributo personalizado",
     "bulkDeleteSuccess": "{{count}} atributo(s) personalizado(s) eliminado(s) con éxito",
-    "bulkDeleteError": "Error al eliminar atributos personalizados"
+    "bulkDeleteError": "Error al eliminar atributos personalizados",
+    "permissionDenied": {
+      "read": "No tiene permiso para visualizar atributos personalizados",
+      "create": "No tiene permiso para crear atributos personalizados",
+      "update": "No tiene permiso para editar atributos personalizados",
+      "delete": "No tiene permiso para eliminar atributos personalizados"
+    }
   },
   "dialog": {
     "delete": {
@@ -232,6 +238,44 @@
       "cancel": "Cancelar",
       "confirm": "Eliminar Todos",
       "deleting": "Eliminando..."
+    }
+  },
+  "attributeTypeOptions": {
+    "text": {
+      "label": "Texto",
+      "description": "Campo de texto simple"
+    },
+    "number": {
+      "label": "Número",
+      "description": "Campo numérico"
+    },
+    "currency": {
+      "label": "Moneda",
+      "description": "Valor monetario"
+    },
+    "percent": {
+      "label": "Porcentaje",
+      "description": "Valor porcentual"
+    },
+    "link": {
+      "label": "Enlace",
+      "description": "URL o enlace"
+    },
+    "date": {
+      "label": "Fecha",
+      "description": "Campo de fecha"
+    },
+    "datetime": {
+      "label": "Fecha y Hora",
+      "description": "Campo de fecha y hora"
+    },
+    "list": {
+      "label": "Lista",
+      "description": "Selección entre opciones predefinidas"
+    },
+    "checkbox": {
+      "label": "Casilla de verificación",
+      "description": "Verdadero o falso"
     }
   }
 }

@@ -8,8 +8,11 @@
     "readRate": "Tasa de Lectura",
     "created": "Creado",
     "actions": {
+      "start": "Iniciar campaña",
       "pause": "Pausar campaña",
       "resume": "Reanudar campaña",
+      "cancel": "Cancelar campaña",
+      "stop": "Cancelar campaña",
       "viewDetails": "Ver detalles",
       "viewStats": "Ver estadísticas",
       "duplicate": "Duplicar",
@@ -51,8 +54,12 @@
     "deleteError": "Error al eliminar campaña",
     "pauseSuccess": "Campaña pausada con éxito",
     "pauseError": "Error al pausar campaña",
+    "startSuccess": "Campaña iniciada correctamente",
+    "startError": "Error al iniciar la campaña",
     "resumeSuccess": "Campaña reanudada con éxito",
     "resumeError": "Error al reanudar campaña",
+    "stopSuccess": "Campaña cancelada correctamente",
+    "stopError": "Error al cancelar la campaña",
     "duplicateSuccess": "Campaña duplicada con éxito",
     "duplicateError": "Error al duplicar campaña",
     "bulkDeleteSuccess": "{{count}} campaña(s) eliminada(s) con éxito",
@@ -61,10 +68,13 @@
     "bulkPauseError": "Error al pausar campañas",
     "bulkResumeSuccess": "{{count}} campaña(s) reanudada(s) con éxito",
     "bulkResumeError": "Error al reanudar campañas",
+    "detailsError": "Error al cargar los detalles de la campaña",
     "viewDetailsInDevelopment": "Detalles de campaña en desarrollo",
     "noPermissionToCreate": "No tiene permiso para crear campañas",
     "editInDevelopment": "Edición de campañas en desarrollo",
     "statsInDevelopment": "Estadísticas de campañas en desarrollo",
+    "statsError": "Error al cargar las estadísticas de la campaña",
+    "editValidationError": "El título y el nombre de la campaña son obligatorios",
     "bulkDuplicateInDevelopment": "Duplicación masiva de campañas en desarrollo",
     "filtersInDevelopment": "Filtros de campañas en desarrollo",
     "invalidDate": "Fecha inválida"
@@ -83,6 +93,51 @@
       "confirm": "Eliminar Todas",
       "cancel": "Cancelar",
       "deleting": "Eliminando..."
+    },
+    "editCampaign": {
+      "title": "Editar Campaña",
+      "description": "Actualice los datos básicos de la campaña.",
+      "fields": {
+        "title": "Título",
+        "name": "Nombre interno",
+        "description": "Descripción"
+      },
+      "confirm": "Guardar cambios",
+      "cancel": "Cancelar",
+      "saving": "Guardando..."
+    },
+    "stats": {
+      "title": "Estadísticas de la Campaña",
+      "description": "Resumen de rendimiento de la campaña \"{{name}}\".",
+      "descriptionEmpty": "Resumen de rendimiento de la campaña.",
+      "loading": "Cargando estadísticas...",
+      "totalSent": "Total enviado",
+      "totalDelivered": "Total entregado",
+      "totalRead": "Total leído",
+      "totalErrors": "Total de errores",
+      "deliveryRate": "Tasa de entrega",
+      "readRate": "Tasa de lectura",
+      "actions": {
+        "start": "Iniciar",
+        "pause": "Pausar",
+        "cancel": "Cancelar"
+      },
+      "close": "Cerrar"
+    },
+    "details": {
+      "title": "Detalles de la Campaña",
+      "description": "Datos de la campaña \"{{name}}\".",
+      "descriptionEmpty": "Datos de la campaña.",
+      "loading": "Cargando detalles...",
+      "fields": {
+        "title": "Título",
+        "name": "Nombre interno",
+        "description": "Descripción",
+        "status": "Estado",
+        "channel": "Canal"
+      },
+      "edit": "Editar",
+      "close": "Cerrar"
     }
   },
   "status": {
@@ -111,7 +166,8 @@
       "contacts": "Contactos",
       "delivery": "Entrega",
       "engagement": "Interacción",
-      "created": "Creado"
+      "created": "Creado",
+      "quickActions": "Acciones rápidas"
     },
     "sent": "enviados",
     "delivered": "entregados",
