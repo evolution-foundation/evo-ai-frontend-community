@@ -211,6 +211,7 @@ jobs:
             src/contexts/chat/eventLabels.spec.ts \
             src/components/contacts/ContactNotesCard.spec.tsx \
             src/components/contacts/ContactDetailPage.spec.tsx \
+            src/components/contacts/ContactsTable.spec.tsx \
             src/components/rbac-render-gates.spec.tsx \
             src/components/customAttributes/CustomAttributesForm.spec.tsx \
             src/components/layout/config/menuItems.spec.ts \
