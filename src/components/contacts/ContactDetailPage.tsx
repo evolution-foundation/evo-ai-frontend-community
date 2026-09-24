@@ -46,14 +46,23 @@ export default function ContactDetailPage({
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {contact && (
-            <Button
-              size="sm"
-              onClick={() => onStartConversation(contact)}
-              disabled={contact.blocked}
-            >
-              <MessageSquare className="h-4 w-4 mr-2" />
-              {t('details.actions.startConversation')}
-            </Button>
+            <>
+              {/* The state label, not the field description: the description claims the
+                  contact cannot receive messages, which the API does not enforce. */}
+              {contact.blocked && (
+                <span className="text-xs text-muted-foreground">
+                  {t('form.fields.blocked.label.blocked')}
+                </span>
+              )}
+              <Button
+                size="sm"
+                onClick={() => onStartConversation(contact)}
+                disabled={contact.blocked}
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                {t('details.actions.startConversation')}
+              </Button>
+            </>
           )}
           <Button variant="ghost" size="sm" onClick={onClose} aria-label={t('details.page.close')}>
             <X className="h-4 w-4" />

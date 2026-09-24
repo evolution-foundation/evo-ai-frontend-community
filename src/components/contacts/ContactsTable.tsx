@@ -139,21 +139,24 @@ export default function ContactsTable({
       sortable: false,
       align: 'center',
       width: 'w-10',
-      render: contact =>
-        !contact.blocked ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
-            onClick={e => {
-              e.stopPropagation();
-              onStartConversation(contact);
-            }}
-            title={t('table.actions.startConversation')}
-          >
-            <MessageSquare className="h-4 w-4" />
-          </Button>
-        ) : null,
+      // Disabled, not hidden, for blocked contacts: the reason is the status badge in the
+      // same row. A tooltip would never fire (`disabled:pointer-events-none`).
+      render: contact => (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+          disabled={contact.blocked}
+          onClick={e => {
+            e.stopPropagation();
+            onStartConversation(contact);
+          }}
+          aria-label={t('table.actions.startConversation')}
+          title={t('table.actions.startConversation')}
+        >
+          <MessageSquare className="h-4 w-4" />
+        </Button>
+      ),
     },
   ];
 
