@@ -47,6 +47,21 @@ export interface StagesResponse extends PaginatedResponse<PipelineStage> {}
 
 export interface ItemsResponse extends PaginatedResponse<PipelineItem> {}
 
+// GET /pipelines/:id/pipeline_items is always paged (per_page defaults to 50, max 100).
+export interface PipelineItemsParams {
+  page?: number;
+  per_page?: number;
+  stage_id?: string;
+  view?: 'card';
+  search?: string;
+  assignee_id?: string;
+  conversation_status?: string;
+  priority?: string; // comma-separated conversation priorities
+  label?: string;
+  entered_after?: string; // ISO 8601
+  entered_before?: string; // ISO 8601
+}
+
 export interface PipelineItemResponse extends StandardResponse<PipelineItem> {}
 
 export interface AvailableConversationsResponse extends StandardResponse<ConversationForModal[]> {}
@@ -114,6 +129,8 @@ export interface PipelineStage {
   item_count?: number;
   conversations_count?: number;
   total_value?: number; // Sum of services value of the stage's items (list payload)
+  active_item_count?: number; // Open cards only, what the board shows
+  active_total_value?: number; // Services value of the open cards
   items?: PipelineItem[]; // Items already included in the stage
   created_at: string | number;
   updated_at: string | number;

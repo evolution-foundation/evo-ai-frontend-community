@@ -663,6 +663,7 @@
       "editStage": "Editar Etapa",
       "deleteStage": "Deletar Etapa",
       "noConversations": "Nenhuma conversa nesta etapa",
+      "loadMore": "Carregar mais",
       "noStages": "Nenhuma etapa encontrada para este pipeline",
       "totalValue": "R$ {{value}}"
     },

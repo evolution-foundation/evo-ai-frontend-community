@@ -9,6 +9,7 @@ import type {
   UpdatePipelineData,
   CreateStageData,
   PipelineItem,
+  PipelineItemsParams,
   MovePipelineItemData,
   PipelineStage,
   PipelineStats,
@@ -32,9 +33,10 @@ class PipelinesService {
     return extractResponse<Pipeline>(response) as PipelinesResponse;
   }
 
-  // Get single pipeline
-  async getPipeline(pipelineId: string): Promise<Pipeline> {
-    const response = await api.get(`/pipelines/${pipelineId}`);
+  // Get single pipeline. include_items: false returns the stages and their counters
+  // without the cards, which the board then pages per stage with getPipelineItems.
+  async getPipeline(pipelineId: string, params?: { include_items?: boolean }): Promise<Pipeline> {
+    const response = await api.get(`/pipelines/${pipelineId}`, { params });
     return extractData<Pipeline>(response);
   }
 
@@ -154,10 +156,7 @@ class PipelinesService {
   }
 
   // Get items in a pipeline
-  async getPipelineItems(
-    pipelineId: string,
-    params?: { page?: number; per_page?: number; stage_id?: string },
-  ): Promise<ItemsResponse> {
+  async getPipelineItems(pipelineId: string, params?: PipelineItemsParams): Promise<ItemsResponse> {
     const response = await api.get(`/pipelines/${pipelineId}/pipeline_items`, {
       params,
     });

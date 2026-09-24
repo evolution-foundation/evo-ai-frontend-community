@@ -675,6 +675,7 @@
       "editStage": "Edit Stage",
       "deleteStage": "Delete Stage",
       "noConversations": "No conversation in this stage",
+      "loadMore": "Load more",
       "noStages": "No stage found for this pipeline",
       "totalValue": "{{value}}"
     },

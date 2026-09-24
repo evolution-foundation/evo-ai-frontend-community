@@ -633,6 +633,7 @@
       "editStage": "Modifica Fase",
       "deleteStage": "Elimina Fase",
       "noConversations": "Nessuna conversazione in questa fase",
+      "loadMore": "Carica altri",
       "noStages": "Nessuna fase trovata per questa pipeline",
       "totalValue": "€ {{value}}"
     },
