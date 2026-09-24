@@ -281,3 +281,57 @@ describe('usePipelineBoardColumns rollback after a newer load', () => {
     expect(result.current.columns.s2.items.map(i => i.id)).toEqual(['s2-maria']);
   });
 });
+
+describe('usePipelineBoardColumns paging after a move', () => {
+  // Offset paging over a list per stage, like the API.
+  let server: Record<string, string[]>;
+
+  beforeEach(() => {
+    getPipelineItems.mockReset();
+    server = { s1: Array.from({ length: 60 }, (_, i) => `c${i + 1}`), s2: [] };
+    getPipelineItems.mockImplementation((_id: string, params: PipelineItemsParams) => {
+      const all = server[params.stage_id!];
+      const start = ((params.page ?? 1) - 1) * BOARD_PAGE_SIZE;
+      const items = all.slice(start, start + BOARD_PAGE_SIZE).map(id => card(id, params.stage_id!));
+      return Promise.resolve(
+        page(items, { total: all.length, hasNext: start + BOARD_PAGE_SIZE < all.length }),
+      );
+    });
+  });
+
+  const loadAll = async (result: { current: ReturnType<typeof usePipelineBoardColumns> }) => {
+    while (result.current.columns.s1.hasMore) {
+      const before = result.current.columns.s1;
+      act(() => result.current.loadMore('s1'));
+      await waitFor(() => expect(result.current.columns.s1).not.toBe(before));
+      await waitFor(() => expect(result.current.columns.s1.loading).toBe(false));
+    }
+  };
+
+  it('does not skip the card that slid onto the loaded page after a move out', async () => {
+    const { result } = renderHook(() => usePipelineBoardColumns('p1', ['s1', 's2'], {}));
+    await waitFor(() => expect(result.current.columns.s1?.loading).toBe(false));
+
+    act(() => {
+      result.current.moveItem(card('c3', 's1'), 's2');
+    });
+    server = { s1: server.s1.filter(id => id !== 'c3'), s2: ['c3'] };
+    await loadAll(result);
+
+    expect([...result.current.columns.s1.items.map(i => i.id)].sort()).toEqual([...server.s1].sort());
+  });
+
+  it('does not bring the moved card back while the server has not applied the move', async () => {
+    const { result } = renderHook(() => usePipelineBoardColumns('p1', ['s1', 's2'], {}));
+    await waitFor(() => expect(result.current.columns.s1?.loading).toBe(false));
+
+    act(() => {
+      result.current.moveItem(card('c3', 's1'), 's2');
+    });
+    await loadAll(result);
+
+    expect(result.current.columns.s1.items.map(i => i.id)).not.toContain('c3');
+    expect(result.current.columns.s2.items.map(i => i.id)).toEqual(['c3']);
+    expect(result.current.columns.s1.items).toHaveLength(59);
+  });
+});

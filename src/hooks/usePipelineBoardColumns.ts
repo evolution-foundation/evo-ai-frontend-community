@@ -72,6 +72,9 @@ export function usePipelineBoardColumns(
   const requestSeq = useRef<Record<string, number>>({});
   // Bumped each time a page lands in a column, so a late rollback can tell its snapshot is stale.
   const landed = useRef<Record<string, number>>({});
+  // Cards moved out of a column since its last page landed. Each one shifts the server's
+  // page boundaries back, so the next page would skip the card that slid onto this one.
+  const movedOut = useRef<Record<string, number>>({});
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
   const filtersRef = useRef(filters);
@@ -81,7 +84,7 @@ export function usePipelineBoardColumns(
   const filterKey = JSON.stringify(filters);
 
   const fetchPage = useCallback(
-    async (stageId: string, page: number) => {
+    async (stageId: string, page: number, append = page > 1) => {
       if (!pipelineId) return;
       const seq = (requestSeq.current[stageId] ?? 0) + 1;
       requestSeq.current[stageId] = seq;
@@ -100,16 +103,21 @@ export function usePipelineBoardColumns(
         });
         if (requestSeq.current[stageId] !== seq) return;
         landed.current[stageId] = (landed.current[stageId] ?? 0) + 1;
+        movedOut.current[stageId] = 0;
 
         const pagination = response.meta?.pagination;
         setColumns(prev => {
           const current = prev[stageId] ?? emptyColumn();
-          const known = page > 1 ? new Set(current.items.map(item => item.id)) : new Set<string>();
+          // Appending skips any card already on the board, including one whose move to
+          // another column the server has not applied yet.
+          const known = append
+            ? new Set(Object.values(prev).flatMap(column => column.items.map(item => item.id)))
+            : new Set<string>();
           const incoming = (response.data ?? []).filter(item => !known.has(item.id));
           return {
             ...prev,
             [stageId]: {
-              items: page > 1 ? [...current.items, ...incoming] : incoming,
+              items: append ? [...current.items, ...incoming] : incoming,
               page,
               hasMore: Boolean(pagination?.has_next_page),
               total: pagination?.total ?? incoming.length,
@@ -149,7 +157,8 @@ export function usePipelineBoardColumns(
     (stageId: string) => {
       const column = columnsRef.current[stageId];
       if (!column || column.loading || !column.hasMore) return;
-      fetchPage(stageId, column.page + 1);
+      const shifted = (movedOut.current[stageId] ?? 0) > 0;
+      fetchPage(stageId, shifted ? column.page : column.page + 1, true);
     },
     [fetchPage],
   );
@@ -165,6 +174,7 @@ export function usePipelineBoardColumns(
         [toStageId]: columnsRef.current[toStageId],
       };
       const landedAtMove = [fromStageId, toStageId].map(id => landed.current[id] ?? 0);
+      movedOut.current[fromStageId] = (movedOut.current[fromStageId] ?? 0) + 1;
 
       setColumns(prev => {
         const from = prev[fromStageId];
