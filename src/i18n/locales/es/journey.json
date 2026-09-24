@@ -143,7 +143,7 @@
           "field": "campo",
           "fields": "campos",
           "applied": "aplicada",
-          "removed": "removida",
+          "removed": "eliminada",
           "configureLabel": "Configure la etiqueta",
           "configureAttribute": "Configure el atributo",
           "configureWebhook": "Configure el webhook",
@@ -189,7 +189,7 @@
           "maxPrefix": "Máx: {{duration}} {{unit}}",
           "withFilters": "con filtros",
           "applied": "aplicada",
-          "removed": "removida",
+          "removed": "eliminada",
           "otherwiseAfter": "De lo contrario después de {{time}}{{unit}}",
           "after": "Después de {{time}} {{unit}}"
         },
@@ -301,7 +301,7 @@
         "configured": "Añade la etiqueta \"{{labelName}}\" al contacto"
       },
       "removeLabel": {
-        "name": "Remover Etiqueta",
+        "name": "Quitar Etiqueta",
         "description": "Remueve una etiqueta del contacto",
         "configure": "Configure la etiqueta para remover del contacto",
         "configured": "Remueve la etiqueta \"{{labelName}}\" del contacto"
@@ -365,6 +365,18 @@
       "changePriority": {
         "name": "Cambiar Prioridad",
         "description": "Cambia la prioridad de atención de la conversación"
+      },
+      "moveToPipelineStage": {
+        "name": "Mover a Etapa del Pipeline",
+        "description": "Mueve la conversación a una etapa específica del pipeline",
+        "moveTo": "Mover conversación a",
+        "noStageSelected": "Ninguna etapa seleccionada"
+      },
+      "createPipelineTask": {
+        "name": "Crear Tarea en el Pipeline",
+        "description": "Crea una tarea en el ítem del pipeline de la conversación",
+        "willCreate": "Crear tarea",
+        "noTitle": "Sin título definido"
       }
     },
     "categories": {
@@ -482,6 +494,10 @@
         "currentStep": "Paso Actual",
         "startDateDescription": "Fecha de inicio de la jornada",
         "currentStepDescription": "Paso actual de la jornada"
+      },
+      "conversation": {
+        "pipelineStageId": "Etapa del pipeline",
+        "pipelineStageIdDescription": "Etapa actual del pipeline de la conversación"
       }
     },
     "categories": {
@@ -489,6 +505,7 @@
       "event": "Evento",
       "webhook": "Webhook",
       "journey": "Jornada",
+      "conversation": "Conversación",
       "contactAttributes": "Atributos del Contacto",
       "others": "Otros"
     },
@@ -562,7 +579,7 @@
     "deleteDialog": {
       "title": "Confirmar Eliminación",
       "description": "¿Está seguro de que desea remover la variable {{name}}? Esta acción no se puede deshacer.",
-      "confirm": "Remover",
+      "confirm": "Eliminar",
       "cancel": "Cancelar"
     },
     "footer": {
@@ -629,13 +646,13 @@
       "title": "Configure Mute Conversation",
       "loadDataError": "Error loading form data:",
       "whatHappens": "What happens when the conversation is muted:",
-      "noNotifications": "The conversation will no longer send notifications to agents",
+      "noNotifications": "La conversación dejará de enviar notificaciones a los agentes",
       "messagesKeepComing": "New messages will continue to arrive normally",
       "mutedStatus": "The muted status will appear in the interface",
       "agentsCanUnmute": "Agents can unmute manually at any time",
       "whenToUse": "When to use:",
       "automatedConversations": "Automated conversations that don't need attention",
-      "reduceNoise": "Reduce noise notifications for agents",
+      "reduceNoise": "Reducir las notificaciones innecesarias para los agentes",
       "fullAutomation": "Full automation process",
       "testing": "Testing cases or debugging",
       "important": "Important:",
@@ -833,7 +850,7 @@
       },
       "basic": {
         "endpointUrl": "Endpoint URL *",
-        "urlPlaceholder": "https://api.exemplo.com/webhook",
+        "urlPlaceholder": "https://api.ejemplo.com/webhook",
         "urlDescription": "URL complete of the endpoint that will receive the data. Use variables clicking the button (x).",
         "httpMethod": "HTTP Method",
         "methods": {
@@ -1099,7 +1116,8 @@
         "eventProperties": "Event properties",
         "systemCurrentTime": "Current time",
         "systemCurrentDay": "Day of the week",
-        "systemCurrentDate": "Current date"
+        "systemCurrentDate": "Current date",
+        "conversationPipelineStage": "Etapa del pipeline"
       },
       "operators": {
         "equals": "Equals",
@@ -1169,7 +1187,8 @@
         "clickToCreateFirst": "Click on \"Add Path\" to create your first conditional path"
       },
       "placeholders": {
-        "selectVariable": "Seleccionar variable..."
+        "selectVariable": "Seleccionar variable...",
+        "selectStage": "Seleccione una etapa..."
       }
     },
     "deferConversation": {
@@ -1245,7 +1264,7 @@
       "whatHappens": "What happens when the conversation is resolved:",
       "conversationMarked": "The conversation is marked with status \"Resolved\"",
       "automaticallyArchived": "Automatically archived from the active conversations list",
-      "stopsNotifications": "Stop generating notifications for agents",
+      "stopsNotifications": "Dejar de generar notificaciones para los agentes",
       "availableInHistory": "Available in history for consultation",
       "newMessagesReopen": "New messages from the customer reopen the conversation",
       "whenToUse": "When to use:",
@@ -1557,7 +1576,7 @@
         "identifier": "Identifier"
       },
       "placeholders": {
-        "name": "Ex: João Silva",
+        "name": "Ej.: Juan Pérez",
         "email": "Ex: joao@example.com",
         "phone_number": "Ex: +1234567890",
         "identifier": "Ex: ID-12345"
@@ -1774,6 +1793,20 @@
         "noChannelsConfigured": "No hay canales de mensajería configurados. Por favor, configure primero un canal de WhatsApp, SMS, Email o Telegram en la configuración de Canales.",
         "noChannelsConfiguredInline": "Sin canales configurados"
       }
+    },
+    "moveToPipelineStage": {
+      "title": "Configurar Mover a Etapa del Pipeline",
+      "loadDataError": "Error al cargar los pipelines:",
+      "loadStagesError": "Error al cargar las etapas:",
+      "pipeline": "Pipeline",
+      "stage": "Etapa",
+      "loadingPipelines": "Cargando pipelines...",
+      "loadingStages": "Cargando etapas...",
+      "selectPipeline": "Seleccione un pipeline",
+      "selectStage": "Seleccione una etapa",
+      "noStagesFound": "No se encontraron etapas en este pipeline.",
+      "conversationWillMove": "La conversación se moverá a la etapa",
+      "loadErrorBanner": "No se pudieron cargar los pipelines. Verifica tu conexión y reabre este node."
     }
   },
   "triggerComponents": {
@@ -1934,7 +1967,7 @@
       "labelAction": "Acción de la Etiqueta",
       "selectAction": "Seleccione la acción",
       "applied": "Aplicada",
-      "removed": "Removida",
+      "removed": "Eliminada",
       "whenApplied": "Cuando la etiqueta sea aplicada al contacto",
       "whenRemoved": "Cuando la etiqueta sea removida del contacto",
       "label": "Etiqueta",
@@ -2004,9 +2037,68 @@
     }
   },
   "sessions": {
+    "viewButton": "Ver Sesiones",
     "viewer": {
+      "title": "Sesiones de la Jornada",
+      "subtitle": "Gestionar sesiones activas e históricas",
       "actions": {
-        "cancel": "Cancelar"
+        "cancel": "Cancelar",
+        "delete": "Eliminar",
+        "viewDetails": "Ver Detalles",
+        "confirmCancel": "¿Está seguro de que desea cancelar esta sesión?",
+        "confirmDelete": "¿Está seguro de que desea eliminar esta sesión?"
+      },
+      "stats": {
+        "total": "Total",
+        "active": "Activas",
+        "waiting": "En espera",
+        "paused": "Pausadas",
+        "completed": "Completadas",
+        "failed": "Fallidas",
+        "cancelled": "Canceladas"
+      },
+      "filters": {
+        "allStatus": "Todos los estados",
+        "searchPlaceholder": "Buscar por Contact ID...",
+        "refresh": "Actualizar"
+      },
+      "status": {
+        "active": "Activa",
+        "waiting": "En espera",
+        "paused": "Pausada",
+        "completed": "Completada",
+        "failed": "Fallida",
+        "cancelled": "Cancelada"
+      },
+      "list": {
+        "contact": "Contacto",
+        "currentNode": "Node Actual",
+        "logs": "Logs",
+        "retries": "Reintentos",
+        "noSessions": "No se encontraron sesiones",
+        "loading": "Cargando sesiones..."
+      },
+      "details": {
+        "title": "Detalles de la Sesión",
+        "sessionId": "ID de la Sesión",
+        "contactId": "ID del Contacto",
+        "status": "Estado",
+        "executionLogs": "Logs de Ejecución",
+        "variables": "Variables",
+        "noLogs": "Sin logs de ejecución",
+        "noVariables": "No hay variables definidas"
+      },
+      "pagination": {
+        "showing": "Mostrando {{from}} a {{to}} de {{total}} sesiones",
+        "previous": "Anterior",
+        "next": "Siguiente"
+      },
+      "messages": {
+        "cancelSuccess": "Sesión cancelada correctamente",
+        "cancelError": "Error al cancelar la sesión",
+        "deleteSuccess": "Sesión eliminada correctamente",
+        "deleteError": "Error al eliminar la sesión",
+        "loadError": "Error al cargar las sesiones de la jornada"
       }
     }
   }

@@ -229,7 +229,7 @@
         "description": "Encuéntrelo en su cuenta Notificame"
       },
       "channelId": {
-        "title": "Canal ID",
+        "title": "ID del Canal",
         "description": "ID del canal en Notificame"
       },
       "phone": {
@@ -400,7 +400,7 @@
         "description": "Arquitectura robusta y estable"
       },
       "features": {
-        "title": "Recursos",
+        "title": "Funcionalidades",
         "description": "Recursos avanzados y personalizaciones"
       },
       "uuidToken": {

@@ -17,7 +17,7 @@
     },
     "webhookUrl": {
       "label": "Webhook URL",
-      "placeholder": "https://sua-api.com/webhook",
+      "placeholder": "https://su-api.com/webhook",
       "helpText": "URL donde los eventos serán enviados"
     }
   },

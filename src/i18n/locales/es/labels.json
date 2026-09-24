@@ -31,8 +31,8 @@
       "showOnSidebar": "Mostrar en la barra lateral"
     },
     "placeholders": {
-      "name": "Digite el nombre de la etiqueta",
-      "description": "Digite una descripción (opcional)",
+      "name": "Ingrese el nombre de la etiqueta",
+      "description": "Ingrese una descripción (opcional)",
       "color": "#1f93ff"
     },
     "hints": {

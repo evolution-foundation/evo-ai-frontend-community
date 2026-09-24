@@ -75,7 +75,7 @@
     "attach": "Adjuntar archivo"
   },
   "input": {
-    "placeholder": "Digite su mensaje...",
+    "placeholder": "Ingrese su mensaje...",
     "replyingTo": "Respondiendo a"
   },
   "errors": {

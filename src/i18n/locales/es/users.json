@@ -134,7 +134,7 @@
     "resultTitle": "Resultado de las Invitaciones",
     "howToUse": {
       "title": "Cómo usar:",
-      "step1": "Digite o pegue una lista de emails",
+      "step1": "Escriba o pegue una lista de emails",
       "step2": "Un email por línea o separados por coma",
       "step3": "Los emails duplicados serán automáticamente removidos",
       "step4": "Los agentes recibirán un email de invitación para crear su cuenta"
@@ -158,7 +158,7 @@
       "finish": "Finalizar"
     },
     "messages": {
-      "enterEmail": "Digite al menos un email",
+      "enterEmail": "Ingrese al menos un email",
       "noValidEmail": "Ningún email válido encontrado",
       "allSuccess": "{{count}} invitación(es) enviada(s) con éxito",
       "partialSuccess": "{{successCount}} invitación(es) enviada(s), {{failedCount}} falló(fallaron)",

@@ -30,6 +30,8 @@
     "conversations": "conversaciones",
     "company": "empresa",
     "companies": "empresas",
+    "person": "contacto",
+    "persons": "contactos",
     "employee": "contacto",
     "sections": {
       "basicInfo": "Información Básica",
@@ -38,6 +40,7 @@
       "description": "Descripción",
       "timeline": "Línea de Tiempo",
       "linkedCompanies": "Empresas Vinculadas",
+      "linkedPersons": "Contactos Vinculados",
       "socialProfiles": "Redes Sociales"
     },
     "fields": {
@@ -59,6 +62,12 @@
       "notes": "Notas del contacto no implementadas aún.",
       "attributes": "Atributos personalizados no implementados aún."
     },
+    "searchCompanies": "Buscar empresas...",
+    "searchPersons": "Buscar contactos...",
+    "noCompanies": "No hay empresas vinculadas",
+    "noCompaniesFound": "No se encontraron empresas",
+    "noPersons": "No hay contactos vinculados",
+    "noPersonsFound": "No se encontraron contactos",
     "errors": {
       "invalidDate": "Fecha inválida"
     },
@@ -141,22 +150,22 @@
       },
       "firstName": {
         "label": "Primer Nombre",
-        "placeholder": "Digite el primer nombre",
+        "placeholder": "Ingrese el primer nombre",
         "required": true
       },
       "lastName": {
         "label": "Apellido",
-        "placeholder": "Digite el apellido"
+        "placeholder": "Ingrese el apellido"
       },
       "companyName": {
         "label": "Razón Social",
-        "placeholder": "Digite la razón social de la empresa"
+        "placeholder": "Ingrese la razón social de la empresa"
       },
       "taxId": {
         "labelPerson": "NIF / DNI",
         "labelCompany": "CIF / NIF",
-        "placeholderPerson": "Digite el DNI o NIF",
-        "placeholderCompany": "Digite el CIF de la empresa"
+        "placeholderPerson": "Ingrese el DNI o NIF",
+        "placeholderCompany": "Ingrese el CIF de la empresa"
       },
       "website": {
         "label": "Sitio Web",
@@ -495,7 +504,7 @@
       },
       "message": {
         "label": "Mensaje",
-        "placeholder": "Digite su mensaje...",
+        "placeholder": "Ingrese su mensaje...",
         "characters": "{{count}}/1000 caracteres"
       }
     },

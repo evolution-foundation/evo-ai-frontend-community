@@ -69,7 +69,7 @@
       "buttons": {
         "authorize": "Autorizar",
         "authorizing": "Autorizando...",
-        "deny": "Negar",
+        "deny": "Denegar",
         "goToLogin": "Ir a Login"
       },
       "footer": {

@@ -94,7 +94,13 @@
     "deleteSuccess": "Risposta rapida eliminata con successo",
     "deleteError": "Errore nell'eliminazione della risposta rapida",
     "bulkDeleteSuccess": "{{count}} risposta/e automatica/he eliminata/e con successo",
-    "bulkDeleteError": "Errore nell'eliminazione delle risposte automatiche"
+    "bulkDeleteError": "Errore nell'eliminazione delle risposte automatiche",
+    "permissionDenied": {
+      "read": "Non hai il permesso di visualizzare le risposte rapide",
+      "create": "Non hai il permesso di creare risposte rapide",
+      "update": "Non hai il permesso di modificare le risposte rapide",
+      "delete": "Non hai il permesso di eliminare le risposte rapide"
+    }
   },
   "dialog": {
     "delete": {

@@ -43,7 +43,7 @@
     },
     "supportEmail": {
       "label": "Correo electrónico de asistencia",
-      "placeholder": "suporte@exemplo.com"
+      "placeholder": "soporte@ejemplo.com"
     },
     "autoResolveTime": {
       "label": "Tiempo para la resolución automática (minutos)",

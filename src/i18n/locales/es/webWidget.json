@@ -1,5 +1,5 @@
 {
-  "title": "Canal Website",
+  "title": "Canal de Sitio Web",
   "description": "Conecte su sitio con un widget de chat en vivo",
   "basicInfo": {
     "title": "Información Básica",
@@ -15,6 +15,8 @@
     "autoDescription": "Enviar automáticamente un mensaje de saludo cuando los clientes inician una conversación"
   },
   "fields": {
+    "displayName": "Nombre para Mostrar",
+    "displayNamePlaceholder": "Soporte WhatsApp",
     "channelName": "Nombre del Canal",
     "channelNamePlaceholder": "Website",
     "websiteUrl": "Website URL",

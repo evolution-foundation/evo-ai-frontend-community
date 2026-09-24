@@ -10,7 +10,8 @@
       "downloadStarted": "Descarga iniciada",
       "audioFallback": "Audio",
       "playbackError": "Error al reproducir audio",
-      "playbackErrorDescription": "No se pudo reproducir este archivo de audio"
+      "playbackErrorDescription": "No se pudo reproducir este archivo de audio",
+      "transcription": "Transcripción"
     },
     "messageBubble": {
       "contextMenu": {
@@ -295,6 +296,10 @@
       "priorityMedium": "Prioridad Media",
       "priorityLow": "Prioridad Baja",
       "removePriority": "Quitar Prioridad",
+      "pinConversation": "Fijar conversación",
+      "unpinConversation": "Desfijar conversación",
+      "archiveConversation": "Archivar conversación",
+      "unarchiveConversation": "Desarchivar conversación",
       "assignAgent": "Asignar Agente",
       "assignTeam": "Asignar Equipo",
       "assignTag": "Asignar Etiqueta",
@@ -411,6 +416,14 @@
         "channel": "Canal:",
         "assigned": "Asignado:",
         "assignedTo": "Agente #{{id}}"
+      },
+      "conversationAttributes": {
+        "title": "Atributos de la Conversación",
+        "description": "Atributos personalizados editables"
+      },
+      "contactAttributes": {
+        "title": "Atributos del Contacto",
+        "description": "Atributos personalizados editables"
       }
     },
     "contactHeader": {
@@ -503,6 +516,8 @@
       "actions": "acciones",
       "executeSuccess": "Macro \"{{name}}\" ejecutada con éxito",
       "executeError": "Error al ejecutar macro \"{{name}}\"",
+      "executePartialError": "Macro \"{{name}}\" ejecutada con fallas",
+      "executeQueued": "Macro \"{{name}}\" en cola — esperando webhook",
       "dialog": {
         "title": "Ejecutar Macro",
         "description": "¿Está seguro de que desea ejecutar la macro {{name}}? Esta acción aplicará {{count}} {{actionLabel}} en esta conversación.",
@@ -608,7 +623,13 @@
         "markAsPending": "Error al marcar como pendiente",
         "assignAgent": "Error al asignar Agente",
         "assignTeam": "Error al asignar equipo",
-        "assignLabels": "Error al asignar etiquetas"
+        "assignLabels": "Error al asignar etiquetas",
+        "pinConversation": "Error al fijar la conversación",
+        "archiveConversation": "Error al archivar la conversación",
+        "pinNotSupported": "Acción de fijar no disponible",
+        "pinNotSupportedDescription": "El contrato de backend para fijar conversaciones no está disponible.",
+        "archiveNotSupported": "Acción de archivar no disponible",
+        "archiveNotSupportedDescription": "El contrato de backend para archivar conversaciones no está disponible."
       },
       "success": {
         "statusChanged": "Estado cambiado a: {{status}}",
@@ -623,7 +644,11 @@
         "agentRemoved": "Agente removido con éxito",
         "teamAssigned": "Equipo asignado con éxito",
         "teamRemoved": "Equipo removido con éxito",
-        "labelsAssigned": "Etiquetas asignadas con éxito"
+        "labelsAssigned": "Etiquetas asignadas con éxito",
+        "pinned": "Conversación fijada con éxito",
+        "unpinned": "Conversación desfijada con éxito",
+        "archived": "Conversación archivada con éxito",
+        "unarchived": "Conversación desarchivada con éxito"
       },
       "statusNames": {
         "open": "Abierta",
@@ -781,6 +806,9 @@
         "dateTimeFuture": "La fecha y la hora deben ser en el futuro",
         "messageRequired": "Escribe un mensaje antes de programar"
       }
+    },
+    "cannedResponses": {
+      "tooltip": "Respuestas Rápidas (o escribe /)"
     }
   },
   "conversationsFilter": {
@@ -810,6 +838,7 @@
       "last_activity_at": "Última Actividad",
       "priority": "Prioridad",
       "pipeline_id": "Pipeline",
+      "contact_id": "Contacto",
       "assignee_id": "Usuarios"
     },
     "popover": {
@@ -848,6 +877,12 @@
         "sms": "SMS",
         "twilio": "Twilio SMS",
         "twitter": "Twitter"
+      }
+    },
+    "errors": {
+      "assigneeMeNoSession": {
+        "title": "Filtro 'Mis conversaciones' no aplicado",
+        "description": "Tu sesión expiró. Inicia sesión nuevamente para usar este filtro."
       }
     }
   },
@@ -900,6 +935,11 @@
     "mediumPriority": "Prioridad media",
     "highPriority": "Prioridad alta",
     "removePriority": "Quitar prioridad",
+    "management": "Gestión",
+    "pinConversation": "Fijar conversación",
+    "unpinConversation": "Desfijar conversación",
+    "archiveConversation": "Archivar conversación",
+    "unarchiveConversation": "Desarchivar conversación",
     "assignment": "Asignación",
     "assignAgent": "Asignar Agente",
     "assignTeam": "Asignar equipo",
@@ -1018,5 +1058,21 @@
   "unreadBadge": {
     "ariaLabel_one": "{{count}} mensaje no leído",
     "ariaLabel_other": "{{count}} mensajes no leídos"
+  },
+  "globalSearch": {
+    "ariaLabel": "Búsqueda global",
+    "loading": "Buscando...",
+    "error": "Error al buscar. Intenta de nuevo.",
+    "noResults": "No se encontraron resultados",
+    "emptyHint": "Escribe para buscar conversaciones, contactos y mensajes",
+    "typeMoreHint": "Escribe al menos 2 caracteres",
+    "sections": {
+      "conversations": "Conversaciones",
+      "contacts": "Contactos",
+      "messages": "Mensajes",
+      "conversationsEmpty": "No se encontraron conversaciones",
+      "contactsEmpty": "No se encontraron contactos",
+      "messagesEmpty": "No se encontraron mensajes"
+    }
   }
 }

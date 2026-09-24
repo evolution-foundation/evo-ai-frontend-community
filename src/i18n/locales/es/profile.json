@@ -36,9 +36,9 @@
         "currentPassword": "Contraseña Actual",
         "newPassword": "Nueva Contraseña",
         "confirmPassword": "Confirmar Contraseña",
-        "currentPlaceholder": "Digite su contraseña actual",
-        "newPlaceholder": "Digite su nueva contraseña",
-        "confirmPlaceholder": "Digite su contraseña nuevamente"
+        "currentPlaceholder": "Ingrese su contraseña actual",
+        "newPlaceholder": "Ingrese su nueva contraseña",
+        "confirmPlaceholder": "Ingrese su contraseña nuevamente"
       },
       "actions": {
         "changePassword": "Cambiar Contraseña",
@@ -48,6 +48,20 @@
         "allFields": "Todos los campos son obligatorios",
         "mismatch": "Las contraseñas no coinciden",
         "minLength": "La contraseña debe tener al menos 6 caracteres"
+      },
+      "errors": {
+        "too_short": "La contraseña debe tener al menos 8 caracteres",
+        "missing_uppercase": "Debe incluir al menos una letra mayúscula (A-Z)",
+        "missing_lowercase": "Debe incluir al menos una letra minúscula (a-z)",
+        "missing_number": "Debe incluir al menos un número (0-9)",
+        "missing_special_char": "Debe incluir al menos un carácter especial (!@#$...)"
+      },
+      "rules": {
+        "minLength": "Al menos 8 caracteres",
+        "uppercase": "Al menos una letra mayúscula (A-Z)",
+        "lowercase": "Al menos una letra minúscula (a-z)",
+        "number": "Al menos un número (0-9)",
+        "specialChar": "Al menos un carácter especial (!@#$...)"
       }
     },
     "accessToken": {
@@ -72,7 +86,7 @@
         "title": "Tamaño de la Fuente",
         "description": "Ajuste el tamaño del texto del panel según su preferencia.",
         "options": {
-          "smallest": "Menor",
+          "smallest": "Más pequeño",
           "small": "Pequeño",
           "default": "Predeterminado",
           "large": "Grande",
@@ -179,7 +193,7 @@
         "pending": "Configuración pendiente"
       },
       "methods": {
-        "totp": "App Autenticador",
+        "totp": "Aplicación de autenticación",
         "email": "Email"
       },
       "setup": {
@@ -195,7 +209,7 @@
           "description": "Reciba códigos de verificación por email"
         },
         "currentPassword": "Contraseña Actual",
-        "currentPasswordPlaceholder": "Digite su contraseña actual",
+        "currentPasswordPlaceholder": "Ingrese su contraseña actual",
         "actions": {
           "cancel": "Cancelar",
           "continue": "Continuar",
@@ -216,8 +230,8 @@
       },
       "verify": {
         "title": "Verificar Configuración",
-        "descriptionTotp": "Digite el código de 6 dígitos de su aplicación autenticadora.",
-        "descriptionEmail": "Digite el código de 6 dígitos enviado a su email.",
+        "descriptionTotp": "Ingrese el código de 6 dígitos de su aplicación autenticadora.",
+        "descriptionEmail": "Ingrese el código de 6 dígitos enviado a su email.",
         "codeLabel": "Código de Verificación",
         "codePlaceholder": "000000",
         "resendEmail": "Reenviar Código",
@@ -232,7 +246,7 @@
         }
       },
       "backupCodes": {
-        "title": "Códigos de Backup",
+        "title": "Códigos de respaldo",
         "description": "Guarde estos códigos en un lugar seguro. Cada código puede ser usado solo una vez para iniciar sesión en caso de que pierda acceso a su dispositivo.",
         "warning": "¡Estos códigos no se mostrarán nuevamente. Asegúrese de guardarlos ahora!",
         "copyAll": "Copiar Todos los Códigos",
@@ -246,7 +260,7 @@
         "description": "¿Está seguro de que desea desactivar? Su cuenta quedará menos segura.",
         "warning": "Remover la autenticación de dos factores hará su cuenta más vulnerable a accesos no autorizados.",
         "passwordLabel": "Confirme su contraseña",
-        "passwordPlaceholder": "Digite su contraseña",
+        "passwordPlaceholder": "Ingrese su contraseña",
         "actions": {
           "cancel": "Cancelar",
           "disable": "Desactivar",
@@ -285,7 +299,9 @@
       "fileSizeError": "La imagen debe tener como máximo 5MB",
       "fileInfo": "JPG, PNG o GIF. Máximo 5MB.",
       "photoRemoved": "Foto eliminada con éxito",
-      "photoRemoveError": "Error al eliminar foto"
+      "photoRemoveError": "Error al eliminar foto",
+      "photoUpdated": "Foto actualizada correctamente",
+      "uploadError": "Error al subir la foto"
     },
     "dangerZone": {
       "title": "Zona de Peligro",
@@ -297,9 +313,9 @@
         "confirmTitle": "Confirmar Eliminación de la Cuenta",
         "confirmDescription": "Esta acción es irreversible y eliminará permanentemente su cuenta.",
         "permanentWarning": "Todos sus datos, conversaciones y configuraciones se perderán para siempre.",
-        "emailConfirmText": "Para confirmar, digite su email:",
+        "emailConfirmText": "Para confirmar, ingrese su email:",
         "emailLabel": "Confirmar Email",
-        "emailPlaceholder": "Digite su email para confirmar",
+        "emailPlaceholder": "Ingrese su email para confirmar",
         "emailMismatch": "El email no coincide",
         "cancel": "Cancelar",
         "confirmButton": "Eliminar Cuenta",

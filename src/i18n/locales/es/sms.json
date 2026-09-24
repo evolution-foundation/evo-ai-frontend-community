@@ -111,6 +111,11 @@
         "applicationIdInfo": "ID de la aplicación configurada en Bandwidth",
         "accountIdInfo": "ID de la cuenta en Bandwidth"
       }
+    },
+    "name": {
+      "label": "Nombre del Canal",
+      "placeholder": "SMS {{provider}}",
+      "required": true
     }
   },
   "providers": {

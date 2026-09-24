@@ -26,7 +26,7 @@
       "name": "Ej: OpenAI Producción",
       "provider": "Seleccione un proveedor",
       "keyNew": "Pegue su clave API aquí",
-      "keyEdit": "Digite nueva clave (deje vacío para mantener actual)"
+      "keyEdit": "Ingrese nueva clave (deje vacío para mantener actual)"
     }
   },
   "actions": {

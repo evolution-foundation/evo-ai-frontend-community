@@ -185,7 +185,7 @@
         "apiKey": {
           "label": "Clave de la API BMS",
           "placeholder": "Inserte su clave de la API BMS",
-          "hint": "Digite su clave de la API de Brius Message System",
+          "hint": "Ingrese su clave de la API de Brius Message System",
           "required": "API Key es obligatoria"
         },
         "contactSync": {
@@ -277,8 +277,8 @@
     "ipPoolDescription": "Pool de IPs para envío de emails. Predeterminado: evoapicloud",
     "senderEmailDescription": "Email que aparecerá como remitente en los emails enviados",
     "placeholders": {
-      "apiKey": "Digite la API Key de BMS",
-      "ipPool": "Digite el IP Pool de BMS",
+      "apiKey": "Ingrese la API Key de BMS",
+      "ipPool": "Ingrese el IP Pool de BMS",
       "senderEmail": "Ej: Evolution <contacto@evoapicloud.com>"
     }
   },
@@ -648,9 +648,14 @@
         "apiKey": {
           "label": "Clave de la API OpenAI",
           "placeholder": "sk-...",
-          "hint": "Digite su clave de la API de OpenAI para configurar la integración",
+          "hint": "Ingrese su clave de la API de OpenAI para configurar la integración",
           "required": "API Key es obligatoria",
           "invalid": "API Key debe comenzar con \"sk-\""
+        },
+        "enableAudioTranscription": {
+          "label": "Habilitar transcripción de audio",
+          "description": "Transcribir automáticamente los mensajes de audio recibidos usando la API Whisper de OpenAI",
+          "hint": "Cuando está habilitado, todos los mensajes de audio recibidos se transcribirán automáticamente y se mostrarán junto al reproductor de audio"
         }
       },
       "features": {
@@ -749,8 +754,8 @@
     },
     "placeholders": {
       "apiUrl": "URL de la API de OpenAI",
-      "apiKey": "Digite la API Key de OpenAI",
-      "model": "Digite el Modelo de OpenAI",
+      "apiKey": "Ingrese la API Key de OpenAI",
+      "model": "Ingrese el Modelo de OpenAI",
       "reply": "Prompt para sugerencia de respuesta",
       "summary": "Prompt para resumen de la conversación",
       "rephrase": "Prompt para reformular texto",
@@ -825,8 +830,8 @@
     "clientId": "Slack Client ID",
     "clientSecret": "Slack Client Secret",
     "placeholders": {
-      "clientId": "Digite el Client ID de Slack",
-      "clientSecret": "Digite el Client Secret de Slack"
+      "clientId": "Ingrese el Client ID de Slack",
+      "clientSecret": "Ingrese el Client Secret de Slack"
     }
   },
   "webhooks": {
@@ -928,7 +933,7 @@
           "description": "Cuando un item de pipeline se marca como completado"
         },
         "pipeline_item.cancelled": {
-          "name": "Item de Pipeline Cancelado",
+          "name": "Ítem de pipeline cancelado",
           "description": "Cuando un item de pipeline se elimina de un pipeline"
         },
         "pipeline_task.created": {
@@ -1052,10 +1057,10 @@
     "verifyToken": "Webhook Verify Token",
     "apiVersion": "Facebook API Version",
     "placeholders": {
-      "appId": "Digite el App ID de Facebook",
-      "appSecret": "Digite el App Secret",
-      "verifyToken": "Digite el Webhook Verify Token",
-      "apiVersion": "Digite la versión de la API de Facebook"
+      "appId": "Ingrese el App ID de Facebook",
+      "appSecret": "Ingrese el App Secret",
+      "verifyToken": "Ingrese el Webhook Verify Token",
+      "apiVersion": "Ingrese la versión de la API de Facebook"
     }
   },
   "whatsapp": {
@@ -1067,11 +1072,11 @@
     "verifyToken": "Webhook Verify Token",
     "apiVersion": "WhatsApp API Version",
     "placeholders": {
-      "appId": "Digite el App ID de WhatsApp",
-      "appSecret": "Digite el App Secret",
-      "configId": "Digite el Config ID de WhatsApp",
-      "verifyToken": "Digite el Webhook Verify Token",
-      "apiVersion": "Digite la versión de la API de WhatsApp"
+      "appId": "Ingrese el App ID de WhatsApp",
+      "appSecret": "Ingrese el App Secret",
+      "configId": "Ingrese el Config ID de WhatsApp",
+      "verifyToken": "Ingrese el Webhook Verify Token",
+      "apiVersion": "Ingrese la versión de la API de WhatsApp"
     }
   },
   "instagram": {
@@ -1088,8 +1093,8 @@
     "placeholders": {
       "appId": "ID de la cuenta de Instagram Business",
       "appSecret": "Access Token de Instagram",
-      "verifyToken": "Digite el Verify Token",
-      "apiVersion": "Digite la versión de la API de Instagram",
+      "verifyToken": "Ingrese el Verify Token",
+      "apiVersion": "Ingrese la versión de la API de Instagram",
       "redirectUri": "Ej: https://su-dominio.com/instagram/callback"
     }
   },
@@ -1100,7 +1105,7 @@
     "adminToken": "Evolution Admin Token",
     "placeholders": {
       "apiUrl": "URL de la API de Evolution",
-      "adminToken": "Digite el Admin Token"
+      "adminToken": "Ingrese el Admin Token"
     }
   },
   "evolutionGo": {
@@ -1112,9 +1117,9 @@
     "instanceToken": "Instance Token",
     "placeholders": {
       "apiUrl": "URL de la API de Evolution Go",
-      "adminToken": "Digite el Admin Token",
-      "instanceId": "Digite el Instance ID",
-      "instanceToken": "Digite el Instance Token"
+      "adminToken": "Ingrese el Admin Token",
+      "instanceId": "Ingrese el Instance ID",
+      "instanceToken": "Ingrese el Instance Token"
     }
   },
   "linear": {
@@ -1129,8 +1134,8 @@
     "redirectUriDescription": "URL del FRONTEND donde Linear redirigirá después de la autenticación para integración general. Configure esta URL exacta en la configuración de la aplicación OAuth de Linear.",
     "mcpRedirectUriDescription": "URL del FRONTEND donde Linear redirigirá después de la autenticación para integración MCP. Configure esta URL exacta en la configuración de la aplicación OAuth de Linear.",
     "placeholders": {
-      "clientId": "Digite el Client ID de Linear",
-      "clientSecret": "Digite el Client Secret de Linear",
+      "clientId": "Ingrese el Client ID de Linear",
+      "clientSecret": "Ingrese el Client Secret de Linear",
       "redirectUri": "Ej: https://su-dominio.com/app/accounts/{id}/settings/integrations/linear",
       "mcpRedirectUri": "Ej: https://su-dominio.com/linear/callback"
     }
@@ -1141,8 +1146,8 @@
     "clientId": "Shopify Client ID",
     "clientSecret": "Shopify Client Secret",
     "placeholders": {
-      "clientId": "Digite el Client ID de Shopify",
-      "clientSecret": "Digite el Client Secret de Shopify"
+      "clientId": "Ingrese el Client ID de Shopify",
+      "clientSecret": "Ingrese el Client Secret de Shopify"
     }
   },
   "googleOAuth": {
@@ -1157,8 +1162,8 @@
     "gmailPubsubTopic": "Gmail Pub/Sub Topic",
     "gmailPubsubTopicDescription": "Nombre del tópico Pub/Sub de Gmail para recibir notificaciones de email",
     "placeholders": {
-      "clientId": "Digite el Client ID de Google",
-      "clientSecret": "Digite el Client Secret de Google",
+      "clientId": "Ingrese el Client ID de Google",
+      "clientSecret": "Ingrese el Client Secret de Google",
       "callbackUrl": "Ej: https://su-dominio.com/auth/google/callback",
       "gcpProjectId": "su-project-id",
       "gmailPubsubTopic": "gmail-topic"
@@ -1170,8 +1175,8 @@
     "appId": "Azure App ID",
     "appSecret": "Azure App Secret",
     "placeholders": {
-      "appId": "Digite el App ID de Azure",
-      "appSecret": "Digite el App Secret de Azure"
+      "appId": "Ingrese el App ID de Azure",
+      "appSecret": "Ingrese el App Secret de Azure"
     }
   },
   "hubspot": {
@@ -1179,11 +1184,19 @@
     "description": "Integración CRM completa con sincronización de contactos y deals",
     "clientId": "HubSpot Client ID",
     "clientSecret": "HubSpot Client Secret",
+    "redirectUri": "Redirect URI",
+    "mcpRedirectUri": "MCP Redirect URI",
+    "clientIdDescription": "Client ID de su aplicación OAuth de HubSpot",
+    "clientSecretDescription": "Client Secret de su aplicación OAuth de HubSpot",
+    "redirectUriDescription": "URL del FRONTEND donde HubSpot redirigirá después de la autenticación. Configure esta URL exacta en la configuración de su HubSpot OAuth App.",
+    "mcpRedirectUriDescription": "Redirect URI de MCP para el servidor MCP de HubSpot. Configure esta URL exacta en la configuración de su HubSpot OAuth App.",
     "callbackUrl": "Callback URL",
     "callbackUrlDescription": "Configure esta URL como Redirect URI en su app HubSpot",
     "placeholders": {
-      "clientId": "Digite el Client ID de HubSpot",
-      "clientSecret": "Digite el Client Secret de HubSpot"
+      "clientId": "Ingrese el Client ID de HubSpot",
+      "clientSecret": "Ingrese el Client Secret de HubSpot",
+      "redirectUri": "Ej: https://su-dominio.com/hubspot/callback",
+      "mcpRedirectUri": "Ej: https://su-dominio.com/hubspot/mcp/callback"
     }
   },
   "github": {
@@ -1196,8 +1209,8 @@
     "clientSecretDescription": "Client Secret de la aplicación OAuth de GitHub",
     "redirectUriDescription": "URL del FRONTEND donde GitHub redirigirá después de la autenticación. Configure esta URL exacta en la configuración de su GitHub OAuth App.",
     "placeholders": {
-      "clientId": "Digite el Client ID de GitHub",
-      "clientSecret": "Digite el Client Secret de GitHub",
+      "clientId": "Ingrese el Client ID de GitHub",
+      "clientSecret": "Ingrese el Client Secret de GitHub",
       "redirectUri": "Ej: https://su-dominio.com/github/callback"
     }
   },
@@ -1211,8 +1224,8 @@
     "clientSecretDescription": "Client Secret de la aplicación OAuth de Notion",
     "redirectUriDescription": "URL del FRONTEND donde Notion redirigirá después de la autenticación. Configure esta URL exacta en la configuración de su Notion OAuth App.",
     "placeholders": {
-      "clientId": "Digite el Client ID de Notion",
-      "clientSecret": "Digite el Client Secret de Notion",
+      "clientId": "Ingrese el Client ID de Notion",
+      "clientSecret": "Ingrese el Client Secret de Notion",
       "redirectUri": "Ej: https://su-dominio.com/notion/callback"
     }
   },
@@ -1298,5 +1311,44 @@
   "email": {
     "name": "Email",
     "description": "Soporte vía email integrado"
+  },
+  "googleCalendar": {
+    "name": "Google Calendar",
+    "description": "Integración OAuth con Google Calendar para agentes",
+    "clientId": "Google Calendar Client ID",
+    "clientSecret": "Google Calendar Client Secret",
+    "redirectUri": "Redirect URI",
+    "clientIdDescription": "Client ID de su aplicación OAuth de Google Calendar",
+    "clientSecretDescription": "Client Secret de su aplicación OAuth de Google Calendar",
+    "redirectUriDescription": "URL del FRONTEND donde Google redirigirá después de la autenticación de Calendar. Configure esta URL exacta en Google Cloud Console.",
+    "placeholders": {
+      "clientId": "Ingrese el Client ID de Google Calendar",
+      "clientSecret": "Ingrese el Client Secret de Google Calendar",
+      "redirectUri": "Ej: https://su-dominio.com/google-calendar/callback"
+    }
+  },
+  "googleSheets": {
+    "name": "Google Sheets",
+    "description": "Integración OAuth con Google Sheets para agentes",
+    "clientId": "Google Sheets Client ID",
+    "clientSecret": "Google Sheets Client Secret",
+    "redirectUri": "Redirect URI",
+    "clientIdDescription": "Client ID de su aplicación OAuth de Google Sheets",
+    "clientSecretDescription": "Client Secret de su aplicación OAuth de Google Sheets",
+    "redirectUriDescription": "URL del FRONTEND donde Google redirigirá después de la autenticación de Sheets. Configure esta URL exacta en Google Cloud Console.",
+    "placeholders": {
+      "clientId": "Ingrese el Client ID de Google Sheets",
+      "clientSecret": "Ingrese el Client Secret de Google Sheets",
+      "redirectUri": "Ej: https://su-dominio.com/google-sheets/callback"
+    }
+  },
+  "monday": {
+    "name": "Monday.com",
+    "description": "Autenticación OAuth con Monday.com para integración MCP",
+    "redirectUri": "Redirect URI",
+    "redirectUriDescription": "URL del FRONTEND donde Monday.com redirigirá después de la autenticación. Configure esta URL exacta en la configuración de su Monday.com OAuth App.",
+    "placeholders": {
+      "redirectUri": "Ej: https://su-dominio.com/monday/callback"
+    }
   }
 }

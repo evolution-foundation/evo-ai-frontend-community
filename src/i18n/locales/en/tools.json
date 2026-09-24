@@ -70,5 +70,8 @@
   },
   "messages": {
     "loadError": "Error loading tools"
+  },
+  "errors": {
+    "permissionDenied": "You don't have permission to view system tools"
   }
 }

@@ -254,7 +254,13 @@
     "deleteSuccess": "Atributo personalizado deletado com sucesso",
     "deleteError": "Erro ao deletar atributo personalizado",
     "bulkDeleteSuccess": "{{count}} atributo(s) personalizado(s) deletado(s) com sucesso",
-    "bulkDeleteError": "Erro ao deletar atributos personalizados"
+    "bulkDeleteError": "Erro ao deletar atributos personalizados",
+    "permissionDenied": {
+      "read": "Você não tem permissão para visualizar atributos personalizados",
+      "create": "Você não tem permissão para criar atributos personalizados",
+      "update": "Você não tem permissão para editar atributos personalizados",
+      "delete": "Você não tem permissão para excluir atributos personalizados"
+    }
   },
   "dialog": {
     "delete": {

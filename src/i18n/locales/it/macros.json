@@ -119,7 +119,13 @@
     "deleteSuccess": "Macro eliminata con successo",
     "deleteError": "Errore nell'eliminazione della macro",
     "bulkDeleteSuccess": "{{count}} macro eliminate con successo",
-    "bulkDeleteError": "Errore nell'eliminazione delle macro"
+    "bulkDeleteError": "Errore nell'eliminazione delle macro",
+    "permissionDenied": {
+      "read": "Non hai il permesso di visualizzare le macro",
+      "create": "Non hai il permesso di creare macro",
+      "update": "Non hai il permesso di modificare le macro",
+      "delete": "Non hai il permesso di eliminare le macro"
+    }
   },
   "dialog": {
     "delete": {

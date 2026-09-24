@@ -14,6 +14,10 @@ import {
  *  - pt-BR string values are non-empty;
  *  - no English leakage (pt-BR === EN) outside the allowlist.
  *
+ * es must also carry every EN and pt-BR key (CRM-671): pt-BR, en and es are the locales
+ * the product ships, so a key missing in es fails CI like one missing in pt-BR.
+ * fr/it/pt are not enforced.
+ *
  * Pre-existing pt-BR-only orphan keys (extras absent from EN) are reported as
  * a non-failing console warning: they predate this card, are invisible to
  * users, and fixing them would require touching EN (out of scope).
@@ -29,13 +33,17 @@ const ptModules = import.meta.glob<LocaleModule>('./pt-BR/*.json', {
   eager: true,
   import: 'default',
 });
+const esModules = import.meta.glob<LocaleModule>('./es/*.json', {
+  eager: true,
+  import: 'default',
+});
 
 function basename(path: string): string {
   return path.slice(path.lastIndexOf('/') + 1);
 }
 
 // journey.json has dedicated coverage in journey-parity.spec.ts (EVO-1260),
-// which owns its own allowlist. Skip it here to keep a single source of truth.
+// which owns its own allowlist. Skip it in the pt-BR checks to keep a single source of truth.
 const COVERED_ELSEWHERE = new Set(['journey.json']);
 
 const enByFile = new Map<string, LocaleModule>();
@@ -44,12 +52,38 @@ for (const [path, mod] of Object.entries(enModules)) enByFile.set(basename(path)
 const ptByFile = new Map<string, LocaleModule>();
 for (const [path, mod] of Object.entries(ptModules)) ptByFile.set(basename(path), mod);
 
+const esByFile = new Map<string, LocaleModule>();
+for (const [path, mod] of Object.entries(esModules)) esByFile.set(basename(path), mod);
+
 const files = [...enByFile.keys()].filter((f) => !COVERED_ELSEWHERE.has(f)).sort();
 
 describe('i18n catalog parity (EVO-1430)', () => {
   it('every EN locale file has a pt-BR counterpart', () => {
     const missingFiles = files.filter((f) => !ptByFile.has(f));
     expect(missingFiles).toEqual([]);
+  });
+
+  it('every EN locale file has an es counterpart', () => {
+    expect([...enByFile.keys()].filter((f) => !esByFile.has(f))).toEqual([]);
+  });
+
+  // journey.json included: journey-parity.spec.ts only pins a key subset for es.
+  describe.each([...enByFile.keys()].sort())('es/%s', (file) => {
+    const en = enByFile.get(file) as LocaleModule;
+    const es = (esByFile.get(file) ?? {}) as LocaleModule;
+
+    it('es contains every EN key', () => {
+      expect(missingKeys(en, es)).toEqual([]);
+    });
+
+    // pt-BR carries orphan keys EN lacks; es must not drop those either.
+    it('es contains every pt-BR key', () => {
+      expect(missingKeys((ptByFile.get(file) ?? {}) as LocaleModule, es)).toEqual([]);
+    });
+
+    it('es has no empty string values', () => {
+      expect(emptyValueKeys(es)).toEqual([]);
+    });
   });
 
   describe.each(files)('%s', (file) => {

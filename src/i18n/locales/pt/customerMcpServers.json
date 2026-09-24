@@ -2,7 +2,8 @@
   "title": "Servidores MCP",
   "errors": {
     "accountNotFound": "Account ID not available",
-    "loadError": "Erro ao carregar servidores MCP"
+    "loadError": "Erro ao carregar servidores MCP",
+    "permissionDenied": "Você não tem permissão para visualizar os servidores MCP"
   },
   "loading": {
     "servers": "Carregando servidores MCP..."
