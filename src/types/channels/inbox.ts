@@ -544,6 +544,7 @@ export interface WhatsappChannel {
 // ============================================
 
 export interface EvolutionConnectionParams {
+  mode?: 'test' | 'create';
   apiUrl: string;
   adminToken: string;
   instanceName: string;

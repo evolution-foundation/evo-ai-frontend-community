@@ -183,6 +183,7 @@ jobs:
             src/utils/templateVariables.spec.ts \
             src/components/channels/settings/TemplateFormModal.spec.tsx \
             src/hooks/channels/useChannelSubmission.spec.ts \
+            src/services/channels/evolutionService.spec.ts \
             src/hooks/channels/useChannelValidation.spec.ts \
             src/hooks/channels/useLiveChannelStatus.spec.ts \
             src/utils/channelStatus.spec.ts \
