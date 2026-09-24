@@ -52,8 +52,7 @@ describe('ContactDetailPage — start conversation on a blocked contact', () => 
     expect(onStartConversation).toHaveBeenCalledTimes(1);
   });
 
-  // CRM-662: the click was already swallowed by `disabled`, with no error and
-  // nothing in the console. What was missing is the reason being on screen.
+  // `disabled` already swallowed the click silently; the reason has to be on screen.
   it('disables the action AND states why when the contact is blocked', async () => {
     const { onStartConversation } = renderPage(true);
 
@@ -66,10 +65,8 @@ describe('ContactDetailPage — start conversation on a blocked contact', () => 
     expect(onStartConversation).not.toHaveBeenCalled();
   });
 
-  // The state label says "Blocked contact" and stops there. The field
-  // description — "cannot start conversations nor receive messages" — is not
-  // used here on purpose: the API creates the conversation and sends the
-  // outgoing message, so putting it next to this button states a falsehood.
+  // The field description claims the contact cannot receive messages, which the
+  // API does not enforce.
   it('does not claim the contact cannot receive messages', () => {
     renderPage(true);
 

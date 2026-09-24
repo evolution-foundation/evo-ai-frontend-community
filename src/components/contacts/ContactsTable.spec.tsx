@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import ContactsTable from './ContactsTable';
@@ -16,8 +16,8 @@ vi.mock('@/hooks/useContactPiiMasking', () => ({
   }),
 }));
 
-// Badges pull their own data and none of them gate the action under test.
-vi.mock('./ContactStatusBadge', () => ({ default: () => <span>status</span> }));
+// Badges pull their own data and none of them gate the action under test. The
+// status badge stays real: it is the reason shown for a disabled action.
 vi.mock('./ContactTagsList', () => ({ default: () => null }));
 vi.mock('./ContactTypeBadge', () => ({ default: () => null }));
 vi.mock('./ContactPipelinesBadge', () => ({ default: () => null }));
@@ -49,10 +49,6 @@ const renderTable = (contacts: Contact[]) => {
 const startButtons = () =>
   screen.getAllByRole('button', { name: 'table.actions.startConversation' });
 
-// CRM-661/662: this column is the half of the card that already shipped wrong
-// once — the button used to be hidden for blocked contacts, leaving an empty
-// cell with nothing saying why, and the first fix hung the reason on a `title`
-// that a disabled button never shows.
 describe('ContactsTable — start conversation column', () => {
   it('renders the action for every contact, blocked or not', () => {
     renderTable([contact(false), contact(true)]);
@@ -71,6 +67,15 @@ describe('ContactsTable — start conversation column', () => {
     expect(onStartConversation).not.toHaveBeenCalled();
   });
 
+  it('shows the blocked badge in the same row as the disabled action', () => {
+    renderTable([contact(false), contact(true)]);
+
+    const [open, blocked] = startButtons().map(b => within(b.closest('tr')!));
+    expect(blocked.getByText('base.status.blocked')).toBeInTheDocument();
+    expect(open.queryByText('base.status.blocked')).not.toBeInTheDocument();
+    expect(open.getByText('base.status.active')).toBeInTheDocument();
+  });
+
   it('keeps the action working for a contact that is not blocked', async () => {
     const { onStartConversation } = renderTable([contact(false)]);
 
@@ -81,10 +86,8 @@ describe('ContactsTable — start conversation column', () => {
     expect(onStartConversation).toHaveBeenCalledTimes(1);
   });
 
-  // The accessible name has to stay the ACTION. An earlier version put the
-  // blocked reason in `title`, which is what a screen reader reads for an
-  // icon-only button — it announced the reason and stopped saying which
-  // control it was.
+  // Icon-only button: the explicit aria-label pins its name to the action,
+  // whatever `title` says.
   it('names the action for a screen reader even when disabled', () => {
     renderTable([contact(true)]);
 

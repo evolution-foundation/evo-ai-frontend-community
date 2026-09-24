@@ -47,13 +47,8 @@ export default function ContactDetailPage({
         <div className="flex items-center gap-2 shrink-0">
           {contact && (
             <>
-              {/* Blocked contacts get the button disabled on purpose; without this the
-                  click is swallowed with no error and nothing in the console, which is
-                  the report.
-                  The STATE label, not the field description: the description claims the
-                  contact "cannot start conversations nor receive messages" and the API
-                  does both (Conversation only forces status: :resolved on create). It
-                  also fits the header — the description pushes the contact name out. */}
+              {/* The state label, not the field description: the description claims the
+                  contact cannot receive messages, which the API does not enforce. */}
               {contact.blocked && (
                 <span className="text-xs text-muted-foreground">
                   {t('form.fields.blocked.label.blocked')}

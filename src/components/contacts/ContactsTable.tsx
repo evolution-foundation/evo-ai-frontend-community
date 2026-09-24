@@ -139,12 +139,8 @@ export default function ContactsTable({
       sortable: false,
       align: 'center',
       width: 'w-10',
-      // Blocked contacts keep the button rendered but disabled: hiding it left the
-      // column blank with nothing saying why the action was gone. The reason is the
-      // `status` column right beside it, which already renders the blocked badge —
-      // a tooltip here would be inert anyway, since the design-system button carries
-      // `disabled:pointer-events-none`. `aria-label` keeps the action named for a
-      // screen reader, which `title` alone stopped doing once the icon is disabled.
+      // Disabled, not hidden, for blocked contacts: the reason is the status badge in the
+      // same row. A tooltip would never fire (`disabled:pointer-events-none`).
       render: contact => (
         <Button
           variant="ghost"
