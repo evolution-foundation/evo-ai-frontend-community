@@ -70,5 +70,8 @@
   },
   "messages": {
     "loadError": "Erro ao carregar ferramentas"
+  },
+  "errors": {
+    "permissionDenied": "Você não tem permissão para visualizar as ferramentas do sistema"
   }
 }

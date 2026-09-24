@@ -70,5 +70,8 @@
   },
   "messages": {
     "loadError": "Errore durante il caricamento degli strumenti"
+  },
+  "errors": {
+    "permissionDenied": "Non hai il permesso di visualizzare gli strumenti di sistema"
   }
 }
