@@ -245,3 +245,39 @@ describe('usePipelineBoardColumns edge cases', () => {
     expect(result.current.columns).not.toHaveProperty('s2');
   });
 });
+
+describe('usePipelineBoardColumns rollback after a newer load', () => {
+  beforeEach(() => {
+    getPipelineItems.mockReset();
+  });
+
+  it('does not bring back cards of the previous filter when a move fails late', async () => {
+    getPipelineItems.mockImplementation((_id: string, params: PipelineItemsParams) =>
+      Promise.resolve(
+        page([card(`${params.stage_id}-${params.search ?? 'all'}`, params.stage_id!)]),
+      ),
+    );
+    const { result, rerender } = renderHook(
+      ({ f }) => usePipelineBoardColumns('p1', ['s1', 's2'], f),
+      {
+        initialProps: { f: {} as PipelineItemsParams },
+      },
+    );
+    await waitFor(() => expect(result.current.columns.s2?.loading).toBe(false));
+
+    let rollback: () => void = () => {};
+    act(() => {
+      rollback = result.current.moveItem(result.current.columns.s1.items[0], 's2');
+    });
+    rerender({ f: { search: 'maria' } });
+    await waitFor(() => expect(result.current.columns.s1?.items[0]?.id).toBe('s1-maria'));
+
+    await act(async () => {
+      rollback();
+    });
+
+    await waitFor(() => expect(result.current.columns.s1.loading).toBe(false));
+    expect(result.current.columns.s1.items.map(i => i.id)).toEqual(['s1-maria']);
+    expect(result.current.columns.s2.items.map(i => i.id)).toEqual(['s2-maria']);
+  });
+});

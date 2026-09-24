@@ -70,6 +70,8 @@ export function usePipelineBoardColumns(
   const columnsRef = useRef(columns);
   columnsRef.current = columns;
   const requestSeq = useRef<Record<string, number>>({});
+  // Bumped each time a page lands in a column, so a late rollback can tell its snapshot is stale.
+  const landed = useRef<Record<string, number>>({});
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
   const filtersRef = useRef(filters);
@@ -97,6 +99,7 @@ export function usePipelineBoardColumns(
           page,
         });
         if (requestSeq.current[stageId] !== seq) return;
+        landed.current[stageId] = (landed.current[stageId] ?? 0) + 1;
 
         const pagination = response.meta?.pagination;
         setColumns(prev => {
@@ -151,42 +154,56 @@ export function usePipelineBoardColumns(
     [fetchPage],
   );
 
-  // Moves the card between columns right away; the returned function puts both
-  // columns back if the server refuses the move.
-  const moveItem = useCallback((item: PipelineItem, toStageId: string) => {
-    const fromStageId = item.stage_id;
-    const snapshot = {
-      [fromStageId]: columnsRef.current[fromStageId],
-      [toStageId]: columnsRef.current[toStageId],
-    };
-
-    setColumns(prev => {
-      const from = prev[fromStageId];
-      const to = prev[toStageId];
-      if (!from || !to) return prev;
-      const moved = { ...item, stage_id: toStageId, pipeline_stage_id: toStageId };
-      return {
-        ...prev,
-        [fromStageId]: {
-          ...from,
-          items: from.items.filter(i => i.id !== item.id),
-          total: Math.max(from.total - 1, 0),
-        },
-        [toStageId]: {
-          ...to,
-          items: [moved, ...to.items.filter(i => i.id !== item.id)],
-          total: to.total + 1,
-        },
+  // Moves the card between columns right away; the returned function undoes it if the
+  // server refuses the move. When a page landed in either column since then (filter
+  // change, reload, next page), the snapshot is stale, so both columns are refetched.
+  const moveItem = useCallback(
+    (item: PipelineItem, toStageId: string) => {
+      const fromStageId = item.stage_id;
+      const snapshot = {
+        [fromStageId]: columnsRef.current[fromStageId],
+        [toStageId]: columnsRef.current[toStageId],
       };
-    });
+      const landedAtMove = [fromStageId, toStageId].map(id => landed.current[id] ?? 0);
 
-    return () =>
       setColumns(prev => {
-        const restored = { ...prev };
-        for (const [id, column] of Object.entries(snapshot)) if (column) restored[id] = column;
-        return restored;
+        const from = prev[fromStageId];
+        const to = prev[toStageId];
+        if (!from || !to) return prev;
+        const moved = { ...item, stage_id: toStageId, pipeline_stage_id: toStageId };
+        return {
+          ...prev,
+          [fromStageId]: {
+            ...from,
+            items: from.items.filter(i => i.id !== item.id),
+            total: Math.max(from.total - 1, 0),
+          },
+          [toStageId]: {
+            ...to,
+            items: [moved, ...to.items.filter(i => i.id !== item.id)],
+            total: to.total + 1,
+          },
+        };
       });
-  }, []);
+
+      return () => {
+        const stale = [fromStageId, toStageId].some(
+          (id, i) => (landed.current[id] ?? 0) !== landedAtMove[i],
+        );
+        if (stale) {
+          fetchPage(fromStageId, 1);
+          fetchPage(toStageId, 1);
+          return;
+        }
+        setColumns(prev => {
+          const restored = { ...prev };
+          for (const [id, column] of Object.entries(snapshot)) if (column) restored[id] = column;
+          return restored;
+        });
+      };
+    },
+    [fetchPage],
+  );
 
   return { columns, loadMore, reload, moveItem };
 }
