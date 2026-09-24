@@ -175,3 +175,73 @@ describe('usePipelineBoardColumns', () => {
     expect(result.current.columns.s2.items.map(i => i.id)).toEqual(['c']);
   });
 });
+
+describe('usePipelineBoardColumns edge cases', () => {
+  beforeEach(() => {
+    getPipelineItems.mockReset();
+  });
+
+  it('does not ask for another page when the stage has no more or is still loading', async () => {
+    let release: (value: unknown) => void = () => {};
+    getPipelineItems.mockImplementation((_id: string, params: PipelineItemsParams) =>
+      params.stage_id === 's1'
+        ? Promise.resolve(page([card('a', 's1')], { hasNext: false }))
+        : new Promise(resolve => {
+            release = resolve;
+          }),
+    );
+
+    const { result } = renderHook(() => usePipelineBoardColumns('p1', ['s1', 's2'], {}));
+    await waitFor(() => expect(result.current.columns.s1?.loading).toBe(false));
+
+    act(() => {
+      result.current.loadMore('s1');
+      result.current.loadMore('s2');
+    });
+
+    expect(getPipelineItems).toHaveBeenCalledTimes(2);
+    await act(async () => release(page([card('b', 's2')], { hasNext: true })));
+  });
+
+  it('reports a failed page and stops the spinner', async () => {
+    const onError = vi.fn();
+    getPipelineItems.mockRejectedValue(new Error('boom'));
+
+    const { result } = renderHook(() => usePipelineBoardColumns('p1', ['s1'], {}, onError));
+
+    await waitFor(() => expect(result.current.columns.s1?.loading).toBe(false));
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(result.current.columns.s1.items).toEqual([]);
+  });
+
+  it('reloads only the stages it is given', async () => {
+    getPipelineItems.mockImplementation((_id: string, params: PipelineItemsParams) =>
+      Promise.resolve(page([card(`${params.stage_id}-a`, params.stage_id!)])),
+    );
+    const { result } = renderHook(() => usePipelineBoardColumns('p1', ['s1', 's2'], {}));
+    await waitFor(() => expect(result.current.columns.s2?.loading).toBe(false));
+    getPipelineItems.mockClear();
+
+    await act(async () => {
+      await result.current.reload(['s2']);
+    });
+
+    expect(getPipelineItems).toHaveBeenCalledTimes(1);
+    expect(getPipelineItems.mock.calls[0][1]).toMatchObject({ stage_id: 's2', page: 1 });
+  });
+
+  it('loads a stage that appears and drops one that goes away', async () => {
+    getPipelineItems.mockImplementation((_id: string, params: PipelineItemsParams) =>
+      Promise.resolve(page([card(`${params.stage_id}-a`, params.stage_id!)])),
+    );
+    const { result, rerender } = renderHook(({ ids }) => usePipelineBoardColumns('p1', ids, {}), {
+      initialProps: { ids: ['s1', 's2'] },
+    });
+    await waitFor(() => expect(result.current.columns.s2?.loading).toBe(false));
+
+    rerender({ ids: ['s1', 's3'] });
+
+    await waitFor(() => expect(result.current.columns.s3?.items[0]?.id).toBe('s3-a'));
+    expect(result.current.columns).not.toHaveProperty('s2');
+  });
+});
