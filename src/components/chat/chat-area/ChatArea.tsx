@@ -422,6 +422,7 @@ const ChatArea = ({
           inboxId={selectedConversation?.inbox_id || ''}
           channelType={selectedConversation?.inbox?.channel_type || ''}
           channelProvider={channelProvider}
+          forceAgentSignature={selectedConversation?.inbox?.force_agent_signature || false}
         />
       </div>
     </div>

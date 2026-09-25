@@ -1616,6 +1616,10 @@
         }
       }
     },
+    "forceAgentSignature": {
+      "label": "Forçar assinatura do atendente",
+      "description": "Quando ativado, toda mensagem enviada por um atendente humano neste canal recebe automaticamente o nome dele — sem opção de desativar por mensagem."
+    },
     "defaultConversationStatus": {
       "title": "Status Padrão da Conversa",
       "description": "Defina o status inicial para novas conversas neste canal",
