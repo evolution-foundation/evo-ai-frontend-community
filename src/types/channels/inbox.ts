@@ -67,6 +67,9 @@ export interface Inbox {
   // Sender settings
   sender_name_type?: string;
   business_name?: string;
+  // When true, every outgoing human-agent message on this inbox gets the
+  // agent's display-name signature applied automatically (no composer toggle).
+  force_agent_signature?: boolean;
   // Webhook
   webhook_url?: string;
   // Help center

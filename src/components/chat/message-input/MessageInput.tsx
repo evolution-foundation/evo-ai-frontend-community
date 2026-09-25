@@ -74,6 +74,8 @@ interface MessageInputProps {
   inboxId: string;
   channelType?: string;
   channelProvider?: string;
+  /** Inbox#force_agent_signature — when true, the signature is applied server-side on every message and the manual toggle is hidden. */
+  forceAgentSignature?: boolean;
 }
 
 const MessageInput: React.FC<MessageInputProps> = ({
@@ -88,9 +90,12 @@ const MessageInput: React.FC<MessageInputProps> = ({
   inboxId,
   channelType,
   channelProvider,
+  forceAgentSignature = false,
 }) => {
   const { t } = useLanguage('chat');
   const { user } = useAuth();
+
+  const isEmail = channelType === 'Channel::Email';
 
   // Detectar se é WhatsApp Cloud (apenas Cloud, não baileys/evolution/evolution_go)
   // Usado para features específicas da Cloud API (templates, etc.)
@@ -388,8 +393,12 @@ const MessageInput: React.FC<MessageInputProps> = ({
       return;
     }
 
-    if (hasSignature) {
-      currentMessage = appendSignatureIfEnabled(currentMessage);
+    // forceAgentSignature only hides the toggle button — isSignatureEnabled can
+    // still be true from a previous, non-forced inbox (localStorage-persisted),
+    // so this guard is what actually stops the client from double-signing on
+    // top of the server-side apply_human_agent_signature callback.
+    if (hasSignature && !forceAgentSignature) {
+      currentMessage = appendSignatureIfEnabled(currentMessage, isEmail);
     }
 
     setIsSending(true);
@@ -756,7 +765,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             )}
 
             {/* Message Signature (extra do CRM, sem equivalente no protótipo — mantido) */}
-            {hasSignature && !isPendingConversation && (
+            {hasSignature && !isPendingConversation && !forceAgentSignature && (
               <div className="relative group flex-shrink-0">
                 <Button
                   variant="ghost"

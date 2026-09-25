@@ -37,6 +37,7 @@ import {
   SenderSettingsForm,
   AuthorizationBanners,
   LockToSingleConversationForm,
+  ForceAgentSignatureForm,
   DefaultConversationStatusForm,
   CollaboratorsForm,
   BusinessHoursForm,
@@ -98,6 +99,7 @@ interface ChannelSettingsData {
   continuity_via_email: boolean;
   lock_to_single_conversation: boolean;
   default_conversation_status?: string | null;
+  force_agent_signature: boolean;
 
   // Sender settings
   sender_name_type: string;
@@ -348,6 +350,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
     allow_messages_after_resolved: true,
     continuity_via_email: true,
     lock_to_single_conversation: false,
+    force_agent_signature: false,
     sender_name_type: 'friendly',
     business_name: '',
     website_url: '',
@@ -466,6 +469,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
         allow_messages_after_resolved: data.allow_messages_after_resolved !== false,
         continuity_via_email: data.continuity_via_email !== false,
         lock_to_single_conversation: data.lock_to_single_conversation === true,
+        force_agent_signature: data.force_agent_signature === true,
         default_conversation_status: data.default_conversation_status || null,
         sender_name_type: data.sender_name_type || 'friendly',
         business_name: data.business_name || '',
@@ -499,6 +503,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
         greeting_message_template_id: formData.greeting_message_template_id || null,
         portal_id: formData.portal_id || null,
         lock_to_single_conversation: formData.lock_to_single_conversation,
+        force_agent_signature: formData.force_agent_signature,
         default_conversation_status: formData.default_conversation_status || null,
         sender_name_type: formData.sender_name_type,
         business_name: formData.business_name || null,
@@ -710,6 +715,16 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
                     </CardContent>
                   </Card>
                 )}
+
+                {/* Force Agent Signature */}
+                <Card>
+                  <CardContent className="p-6">
+                    <ForceAgentSignatureForm
+                      formData={formData}
+                      onFormChange={handleFormChange}
+                    />
+                  </CardContent>
+                </Card>
 
                 {/* Default Conversation Status */}
                 <Card>

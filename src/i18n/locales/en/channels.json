@@ -1616,6 +1616,10 @@
         }
       }
     },
+    "forceAgentSignature": {
+      "label": "Force agent signature",
+      "description": "When enabled, every message a human agent sends on this channel automatically gets their name added — no per-message opt-out."
+    },
     "defaultConversationStatus": {
       "title": "Default Conversation Status",
       "description": "Set the initial status for new conversations in this channel",
