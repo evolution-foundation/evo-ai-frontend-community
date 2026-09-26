@@ -268,7 +268,8 @@
       "whatsappMessage": "You can only reply to this conversation using a message template due to",
       "cannotReply": "You cannot reply because",
       "linkText": "24-hour messaging window restrictions",
-      "zapiDisconnected": "WhatsApp disconnected. Connect the number to send messages."
+      "zapiDisconnected": "WhatsApp disconnected. Connect the number to send messages.",
+      "inboxArchived": "This channel has been archived. Reactivate it or move the conversation to another channel to continue."
     },
     "noteBanner": {
       "title": "Attendance note",
@@ -322,6 +323,7 @@
     "closeConversation": "Close conversation",
     "backToConversations": "Back to conversations",
     "phoneNumber": "Phone number",
+    "assignedTo": "Assigned to",
     "openContactPanel": "Open contact details",
     "closeContactPanel": "Close contact details"
   },
@@ -701,6 +703,7 @@
     },
     "pendingPlaceholder": "Click Open to reply",
     "restrictedPlaceholder": "Cannot send messages due to 24-hour messaging window",
+    "archivedPlaceholder": "Archived channel — cannot send messages",
     "defaultPlaceholder": "Type your message...",
     "noteComposer": {
       "helper": "Save important notes on the conversation so other users can see them later.",
@@ -1066,5 +1069,16 @@
   "unreadBadge": {
     "ariaLabel_one": "{{count}} unread message",
     "ariaLabel_other": "{{count}} unread messages"
+  },
+  "moveChannel": {
+    "action": "Change channel",
+    "modalTitle": "Move conversation to a different channel",
+    "modalDescription": "Choose another channel to continue this conversation on.",
+    "noEligibleTargets": "No eligible channel to move this conversation to.",
+    "confirm": "Move conversation",
+    "cancel": "Cancel",
+    "movedToast": "Conversation moved to {{inboxName}}",
+    "errorIneligible": "This conversation can't be moved to that channel.",
+    "errorGeneric": "Something went wrong moving this conversation. Please try again."
   }
 }

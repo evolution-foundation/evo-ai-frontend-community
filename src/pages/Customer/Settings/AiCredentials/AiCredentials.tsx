@@ -23,7 +23,10 @@ import { AlertTriangle, Edit, Key, Loader2, Plus, Trash2 } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 import {
   AI_PROVIDERS,
-  CUSTOM_OPENAI_PROVIDER,
+  CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS_LIST,
+  KNOWN_PROVIDER_BASE_URLS,
+  OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  isChatCompletionsCompatible,
   isOpenAICompatible,
   maskKey,
   resolveCredentialState,
@@ -46,6 +49,7 @@ interface CredentialDraft {
   key_value: string;
   base_url: string;
   scope: ApiKeyScope;
+  allowed_consumers: string[];
 }
 
 const EMPTY_DRAFT: CredentialDraft = {
@@ -54,7 +58,46 @@ const EMPTY_DRAFT: CredentialDraft = {
   key_value: '',
   base_url: '',
   scope: 'account',
+  allowed_consumers: [],
 };
+
+// AI Agents reaches every provider. Inbox assist and memory compression build
+// chat-completions requests, so any chat-completions-compatible provider can
+// serve them; the other three build OpenAI-shaped embeddings/transcription
+// requests and need the narrower set. Each resolves with its own consumer key
+// too (mirrors Ai::ConsumerCompatibility).
+const FILTERED_FEATURES: { key: string; consumerKey: string; acceptedProviders: readonly string[] }[] = [
+  {
+    key: 'inboxAssist',
+    consumerKey: 'inbox_assist',
+    acceptedProviders: CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'audioTranscription',
+    consumerKey: 'audio_transcription',
+    acceptedProviders: OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'labelSuggestion',
+    consumerKey: 'label_suggestion',
+    acceptedProviders: OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'moderation',
+    consumerKey: 'moderation',
+    acceptedProviders: OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'knowledgeEmbedding',
+    consumerKey: 'knowledge_embedding',
+    acceptedProviders: OPENAI_COMPATIBLE_PROVIDERS_LIST,
+  },
+  {
+    key: 'memoryCompression',
+    consumerKey: 'memory_compression',
+    acceptedProviders: CHAT_COMPLETIONS_COMPATIBLE_PROVIDERS_LIST,
+  },
+];
 
 export default function AiCredentials() {
   const { t } = useLanguage('aiCredentials');
@@ -119,20 +162,23 @@ export default function AiCredentials() {
   const listPending = loading;
   const signalPending = legacyFallbackActive === 'pending';
 
-  const featuresInUse = useMemo(() => {
-    const openAIOnly = resolveCredentialState(credentials, {
-      openAICompatibleOnly: true,
-      legacyActive,
-    });
-
-    return [
-      { key: 'aiAgents', resolution: resolveCredentialState(credentials, { legacyActive }) },
-      { key: 'inboxAssist', resolution: openAIOnly },
-      { key: 'audioTranscription', resolution: openAIOnly },
-      { key: 'labelSuggestion', resolution: openAIOnly },
-      { key: 'moderation', resolution: openAIOnly },
-    ];
-  }, [credentials, legacyActive]);
+  const featuresInUse = useMemo(
+    () => [
+      {
+        key: 'aiAgents',
+        resolution: resolveCredentialState(credentials, { legacyActive, consumerKey: 'ai_agents' }),
+      },
+      ...FILTERED_FEATURES.map(({ key, consumerKey, acceptedProviders }) => ({
+        key,
+        resolution: resolveCredentialState(credentials, {
+          acceptedProviders,
+          legacyActive,
+          consumerKey,
+        }),
+      })),
+    ],
+    [credentials, legacyActive],
+  );
 
   const loadCredentials = useCallback(async () => {
     if (!canRead) {
@@ -219,10 +265,18 @@ export default function AiCredentials() {
     [],
   );
 
-  const draftIsIncompatible = useMemo(
-    () => Boolean(draft.provider) && !isOpenAICompatible(draft.provider),
-    [draft.provider],
-  );
+  // Three outcomes for the create/edit dialog's compatibility notice, mirroring
+  // FILTERED_FEATURES above: narrow OpenAI-compatible providers serve every
+  // feature (no warning), chat-completions-compatible providers (groq,
+  // deepseek, together_ai, fireworks_ai) serve AI Agents plus the two
+  // chat-completions features but not the OpenAI-shaped ones, and everything
+  // else is AI-Agents-only.
+  const draftCompatibilityWarning = useMemo(() => {
+    if (!draft.provider || isOpenAICompatible(draft.provider)) {
+      return null;
+    }
+    return isChatCompletionsCompatible(draft.provider) ? 'chatCompletions' : 'agentsOnly';
+  }, [draft.provider]);
 
   const openCreateForm = (scope: ApiKeyScope = 'account') => {
     setDraft({ ...EMPTY_DRAFT, scope });
@@ -237,6 +291,7 @@ export default function AiCredentials() {
       key_value: '',
       base_url: credential.base_url ?? '',
       scope: credential.scope ?? 'account',
+      allowed_consumers: credential.allowed_consumers ?? [],
     });
     setFormOpen(true);
   };
@@ -264,6 +319,7 @@ export default function AiCredentials() {
           provider: draft.provider,
           base_url: draft.base_url || undefined,
           scope: draft.scope,
+          allowed_consumers: draft.allowed_consumers,
         };
         // An empty field keeps the stored key: never send a blank key_value.
         if (draft.key_value.trim()) {
@@ -279,6 +335,7 @@ export default function AiCredentials() {
           key_value: draft.key_value,
           base_url: draft.base_url || undefined,
           scope: draft.scope,
+          allowed_consumers: draft.allowed_consumers,
         };
 
         await createApiKey(payload);
@@ -593,7 +650,7 @@ export default function AiCredentials() {
                   setDraft({
                     ...draft,
                     provider: value,
-                    ...(value !== CUSTOM_OPENAI_PROVIDER ? { base_url: '' } : {}),
+                    base_url: KNOWN_PROVIDER_BASE_URLS[value] ?? draft.base_url,
                   })
                 }
               >
@@ -610,17 +667,16 @@ export default function AiCredentials() {
               </Select>
             </div>
 
-            {draft.provider === CUSTOM_OPENAI_PROVIDER && (
-              <div className="grid gap-2">
-                <Label htmlFor="credential-base-url">{t('form.labels.baseUrl')}</Label>
-                <Input
-                  id="credential-base-url"
-                  value={draft.base_url}
-                  placeholder="https://api.example.com/v1"
-                  onChange={event => setDraft({ ...draft, base_url: event.target.value })}
-                />
-              </div>
-            )}
+            <div className="grid gap-2">
+              <Label htmlFor="credential-base-url">{t('form.labels.baseUrl')}</Label>
+              <Input
+                id="credential-base-url"
+                value={draft.base_url}
+                placeholder="https://api.example.com/v1"
+                onChange={event => setDraft({ ...draft, base_url: event.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">{t('form.hints.baseUrl')}</p>
+            </div>
 
             <div className="grid gap-2">
               <Label htmlFor="credential-key">{t('form.labels.key')}</Label>
@@ -635,10 +691,12 @@ export default function AiCredentials() {
               />
             </div>
 
-            {draftIsIncompatible && (
+            {draftCompatibilityWarning && (
               <p role="alert" className="flex gap-2 text-sm text-amber-600">
                 <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-                {t('form.incompatibleWarning', { provider: providerLabel(draft.provider) })}
+                {draftCompatibilityWarning === 'chatCompletions'
+                  ? t('form.chatCompletionsWarning', { provider: providerLabel(draft.provider) })
+                  : t('form.incompatibleWarning', { provider: providerLabel(draft.provider) })}
               </p>
             )}
           </div>

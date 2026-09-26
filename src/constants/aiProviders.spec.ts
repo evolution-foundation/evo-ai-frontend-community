@@ -50,7 +50,7 @@ describe('resolveCredential — mirrors the Ruby resolver', () => {
     const usable = credential({ name: 'usavel', created_at: '2026-07-02T00:00:00Z' });
 
     expect(
-      resolveCredential([inactive, anthropic, usable], { openAICompatibleOnly: true })?.name,
+      resolveCredential([inactive, anthropic, usable], { acceptedProviders: ['openai'] })?.name,
     ).toBe('usavel');
   });
 

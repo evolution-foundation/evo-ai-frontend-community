@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { usersService } from '@/services/users';
 import type { User } from '@/types/users';
+import { fetchAllPages } from '@/utils/apiHelpers';
 
 export function useAccountUsers() {
   const [users, setUsers] = useState<User[]>([]);
@@ -12,14 +13,8 @@ export function useAccountUsers() {
     setError(null);
 
     try {
-      const response = await usersService.getUsers();
-
-      if (response.data) {
-        // Normalizar dados
-        const userData = Array.isArray(response.data) ? response.data : [];
-
-        setUsers(userData);
-      }
+      const userData = await fetchAllPages(page => usersService.getUsers({ page }));
+      setUsers(userData);
     } catch (err) {
       console.error('Error loading account users:', err);
       setError(err instanceof Error ? err.message : 'Erro ao carregar usuários');

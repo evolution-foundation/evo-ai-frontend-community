@@ -33,11 +33,11 @@
       "options": ["Jamais utilisé", "Utilisé, mais difficile", "J'ai de l'expérience CRM", "Je migre depuis un autre système"]
     },
     "goal": {
-      "label": "Quel est votre principal objectif avec Evo CRM ?",
+      "label": "Quel est votre principal objectif avec AutomaLead ?",
       "options": ["Organiser le service client", "Automatiser avec l'IA", "Faire évoluer l'équipe", "Centraliser les canaux", "Suivre les métriques"]
     },
     "submit": {
-      "idle": "Commencer à utiliser Evo CRM",
+      "idle": "Commencer à utiliser AutomaLead",
       "loading": "Enregistrement..."
     },
     "footer": "Prend moins d'1 minute · Vous pouvez modifier cela plus tard dans les paramètres"
@@ -73,7 +73,7 @@
         "label": "Email",
         "helper": "C'est l'email utilisé pour créer votre compte"
       },
-      "support_email": { 
+      "support_email": {
         "label": "Email de Support",
         "helper": "Ceci est l'email de support de votre compte",
         "errors": {

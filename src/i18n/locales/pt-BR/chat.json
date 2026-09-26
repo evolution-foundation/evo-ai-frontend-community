@@ -268,7 +268,8 @@
       "whatsappMessage": "Você só pode responder a esta conversa usando um modelo de mensagem devido a",
       "cannotReply": "Você não pode responder porque",
       "linkText": "Restrições de janela de mensagem de 24 horas",
-      "zapiDisconnected": "WhatsApp desconectado. Conecte o número para enviar mensagens."
+      "zapiDisconnected": "WhatsApp desconectado. Conecte o número para enviar mensagens.",
+      "inboxArchived": "Este canal foi arquivado. Reative-o ou mova a conversa para outro canal para continuar."
     },
     "noteBanner": {
       "title": "Nota do atendimento",
@@ -322,6 +323,7 @@
     "closeConversation": "Fechar conversa",
     "backToConversations": "Voltar para as conversas",
     "phoneNumber": "Número de telefone",
+    "assignedTo": "Atribuído a",
     "openContactPanel": "Abrir detalhes do contato",
     "closeContactPanel": "Fechar detalhes do contato"
   },
@@ -701,6 +703,7 @@
     },
     "pendingPlaceholder": "Clique em Abrir para responder",
     "restrictedPlaceholder": "Não é possível enviar mensagens devido à janela de mensagem de 24 horas",
+    "archivedPlaceholder": "Canal arquivado — não é possível enviar mensagens",
     "defaultPlaceholder": "Digite sua mensagem...",
     "noteComposer": {
       "helper": "Salve notas importantes na conversa para que outros usuários possam ver no futuro.",
@@ -1069,5 +1072,16 @@
   "unreadBadge": {
     "ariaLabel_one": "{{count}} mensagem não lida",
     "ariaLabel_other": "{{count}} mensagens não lidas"
+  },
+  "moveChannel": {
+    "action": "Mudar canal",
+    "modalTitle": "Mover conversa para outro canal",
+    "modalDescription": "Escolha outro canal para continuar esta conversa.",
+    "noEligibleTargets": "Nenhum canal elegível para mover esta conversa.",
+    "confirm": "Mover conversa",
+    "cancel": "Cancelar",
+    "movedToast": "Conversa movida para {{inboxName}}",
+    "errorIneligible": "Esta conversa não pode ser movida para esse canal.",
+    "errorGeneric": "Ocorreu um erro ao mover esta conversa. Tente novamente."
   }
 }

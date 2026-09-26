@@ -76,6 +76,7 @@
     "noItemsAvailable": "No item available",
     "notes": "Observations (optional)",
     "notesPlaceholder": "Add observations about this item in the pipeline...",
+    "customAttributes": "Custom Attributes",
     "unknownUser": "Unknown User",
     "loading": "Loading...",
     "adding": "Adding...",
@@ -401,20 +402,44 @@
     "labelNamePlaceholder": "Label name...",
     "selectStage": "Select stage...",
     "selectAgent": "Select agent...",
+    "selectTeam": "Select team...",
+    "selectPriority": "Select priority...",
+    "selectStatus": "Select status...",
     "selectPipeline": "Select pipeline...",
     "selectLabel": "Select label...",
     "selectAgentBot": "Select AI agent...",
     "selectTemplate": "Select template...",
+    "taskTitlePlaceholder": "Title for the task to be created...",
+    "selectCannedResponse": "Select a canned response...",
+    "selectCustomAttribute": "Select a custom attribute...",
     "noOtherStages": "No other stages available",
     "noOtherPipelines": "No other pipelines available",
     "noStagesInPipeline": "No stages in the selected pipeline",
     "noAgents": "No agents available",
+    "noTeams": "No teams available",
     "noAgentBots": "No AI agents available",
     "noTemplates": "No templates available",
     "noLabels": "No labels available",
+    "noCannedResponses": "No canned responses available",
+    "noCustomAttributes": "No custom attributes available",
+    "priorities": {
+      "urgent": "Urgent",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low",
+      "none": "None"
+    },
+    "customAttributeModels": {
+      "conversation_attribute": "Conversation",
+      "contact_attribute": "Contact",
+      "pipeline_item_attribute": "Pipeline card"
+    },
     "aiMessagePlaceholder": "What should the agent say? (optional)",
     "directMessagePlaceholder": "Message to send...",
     "finalizeMessagePlaceholder": "Closing message (optional)...",
+    "emailToTeamMessagePlaceholder": "Email message...",
+    "emailTranscriptPlaceholder": "email1@ex.com, email2@ex.com",
+    "customAttributeValuePlaceholder": "Value...",
     "inactivity": {
       "minutes": "minutes",
       "hour": "hour",
@@ -423,7 +448,9 @@
       "base": {
         "no_customer_reply": "Customer not replying",
         "stage_stagnation": "Stuck in stage"
-      }
+      },
+      "day": "day",
+      "days": "days"
     },
     "triggers": {
       "label_added": "Label added",
@@ -435,16 +462,47 @@
       "move_to_stage": "Move to stage",
       "move_to_pipeline": "Move to another pipeline",
       "assign_agent": "Assign agent",
+      "assign_team": "Assign team",
       "apply_label": "Apply label",
+      "remove_label": "Remove label",
+      "change_priority": "Change priority",
+      "change_status": "Change status",
       "send_ai_message": "Message via AI agent",
       "send_direct_message": "Direct message",
       "send_template": "Send template",
-      "finalize": "End conversation"
+      "finalize": "End conversation",
+      "send_webhook_event": "Trigger webhook",
+      "create_pipeline_task": "Create task on card",
+      "send_canned_response": "Send canned response",
+      "send_email_to_team": "Send email to team",
+      "send_email_transcript": "Send conversation transcript by email",
+      "update_custom_attribute": "Update custom attribute"
     },
     "templatePending": "Awaiting Meta approval",
     "templatesPendingHint": "Your templates are still awaiting Meta approval.",
     "noTemplatesHint": "No templates created yet.",
-    "manageTemplates": "Open Message Templates"
+    "manageTemplates": "Open Message Templates",
+    "templateSourceLabels": {
+      "generic": "Generic",
+      "email": "Email",
+      "whatsapp": "WhatsApp"
+    },
+    "variableMapping": {
+      "label": "Variables",
+      "choosePath": "Choose a field...",
+      "fallbackPlaceholder": "Fallback if empty (optional)",
+      "fields": {
+        "contact_name": "Contact name",
+        "contact_email": "Contact email",
+        "contact_phone_number": "Contact phone",
+        "contact_identifier": "Contact identifier",
+        "conversation_display_id": "Conversation number",
+        "conversation_status": "Conversation status",
+        "pipeline_pipeline_stage_name": "Stage name",
+        "pipeline_pipeline_name": "Pipeline name",
+        "pipeline_entered_at": "Entered stage at"
+      }
+    }
   },
   "editStage": {
     "title": "Edit Stage",

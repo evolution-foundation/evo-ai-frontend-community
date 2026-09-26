@@ -130,6 +130,17 @@
     "success": "Email salvata con successo!",
     "error": "Errore nel salvataggio dell'email. Riprova."
   },
+  "csat": {
+    "success": "Grazie per il tuo feedback!",
+    "error": "Errore nell'invio della valutazione. Riprova.",
+    "ratings": {
+      "1": "Scarso",
+      "2": "Sufficiente",
+      "3": "Nella media",
+      "4": "Buono",
+      "5": "Eccellente"
+    }
+  },
   "preChatForm": {
     "message": "Messaggio",
     "messagePlaceholder": "Scrivi il tuo messaggio qui...",

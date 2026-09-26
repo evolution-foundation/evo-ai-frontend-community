@@ -25,6 +25,7 @@ import { conversationAPI } from '@/services/conversations';
 import MessageTemplateService from '@/services/channels/messageTemplatesService';
 import { MessageTemplate } from '@/types/channels/inbox';
 import { ConversationCreateData } from '@/types/chat/api';
+import { isWhatsAppFreeTextProvider } from '@/utils/channelUtils';
 import {
   getStatusBadgeKey,
   hasUnsupportedFormat,
@@ -107,9 +108,10 @@ export default function StartConversationModal({
   // Check if it's WhatsApp Cloud (requires template)
   const isWhatsAppCloud = useMemo(() => {
     if (!isWhatsAppInbox) return false;
-    const provider = (selectedInbox?.channel.provider as string)?.toLowerCase();
-    // WhatsApp Cloud providers (not baileys, evolution, evolution_go)
-    return !provider || !['baileys', 'evolution', 'evolution_go'].includes(provider);
+    // Cloud API providers are everything that is not a self-hosted/session
+    // provider (baileys, evolution, evolution_go, waha) — only they require an
+    // approved template.
+    return !isWhatsAppFreeTextProvider(selectedInbox?.channel.provider as string | undefined);
   }, [isWhatsAppInbox, selectedInbox]);
 
   const loadAvailableInboxes = useCallback(async () => {

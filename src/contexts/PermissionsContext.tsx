@@ -45,6 +45,12 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
   blockOnLoadFailure = true,
 }) => {
   const { user } = useAuth();
+  // CRM-494 turned the trusted-empty stamps into `pending`; this closes the
+  // OTHER half of the F5 race: the legs read isLoggedIn through a NON-reactive
+  // useAuthStore.getState() snapshot, so when hydration flipped it nothing
+  // re-ran and the legs stayed `pending` forever. Subscribing makes the flip
+  // re-run the fetch effects.
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
 
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
   const [accountPermissions, setAccountPermissions] = useState<string[]>([]);
@@ -125,20 +131,19 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
       return;
     }
 
+    // Store not hydrated yet (hard refresh inside the embed): unknown, so the
+    // leg stays `pending`; the isLoggedIn dep re-runs this effect on the flip.
+    if (!isLoggedIn) {
+      setUserPermsStatus('pending');
+      return;
+    }
+
     // The fetch can outlive the effect. Without this flag an orphaned rejection
     // would stamp `failed` over a context a newer success already loaded.
     let cancelled = false;
 
     const loadUserPermissions = async () => {
       try {
-        const isAuthenticated = useAuthStore.getState().isLoggedIn;
-        if (!isAuthenticated) {
-          if (cancelled) return;
-          setUserPermissions([]);
-          setUserPermsStatus('pending'); // see the early return above
-          return;
-        }
-
         setLoading(true);
         setError(null);
         const permissions = await permissionsService.getUserPermissions();
@@ -161,16 +166,15 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [user?.id]);
+  }, [user?.id, isLoggedIn]);
 
   // Load account permissions (específicas do account baseadas no AccountUser role)
   useEffect(() => {
-    // Verificar autenticação primeiro - precisa ter user também
-    const isAuthenticated = useAuthStore.getState().isLoggedIn;
-    if (!isAuthenticated || !user) {
+    // Precisa ter user E a store hidratada; ver a perna de user-permissions.
+    if (!isLoggedIn || !user) {
       setAccountPermissions([]);
-      setAccountPermsStatus('pending'); // see the user-permissions effect
-      setLoading(false); // see the user-permissions effect
+      setAccountPermsStatus('pending');
+      setLoading(false);
       return;
     }
 
@@ -186,15 +190,6 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
 
     const loadAccountPermissions = async () => {
       try {
-        const isAuthenticated = useAuthStore.getState().isLoggedIn;
-
-        if (!isAuthenticated) {
-          if (cancelled) return;
-          setAccountPermissions([]);
-          setAccountPermsStatus('pending'); // see the user-permissions effect
-          return;
-        }
-
         setLoading(true);
         setError(null);
         const permissions = await permissionsService.getAccountPermissions();
@@ -218,7 +213,7 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [user, accountPermissions.length]);
+  }, [user, accountPermissions.length, isLoggedIn]);
 
   const createPermission = useCallback((resource: string, action: string): string => {
     return `${resource}.${action}`;

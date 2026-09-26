@@ -111,6 +111,7 @@
         "remove": "Remove action",
         "selectActionFirst": "Select an action to configure",
         "noParams": "No parameters required",
+        "invalid": "This action is missing required information.",
         "params": {
           "send_message": "Message content",
           "send_canned_response": "Pick a canned response",

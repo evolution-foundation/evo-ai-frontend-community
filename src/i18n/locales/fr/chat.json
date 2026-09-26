@@ -267,7 +267,8 @@
       "whatsappMessage": "Vous ne pouvez répondre à cette conversation qu'en utilisant un modèle de message en raison de",
       "cannotReply": "Vous ne pouvez pas répondre car",
       "linkText": "Restrictions de fenêtre de messagerie de 24 heures",
-      "zapiDisconnected": "WhatsApp déconnecté. Connectez le numéro pour envoyer des messages."
+      "zapiDisconnected": "WhatsApp déconnecté. Connectez le numéro pour envoyer des messages.",
+      "inboxArchived": "Ce canal a été archivé. Réactivez-le ou déplacez la conversation vers un autre canal pour continuer."
     },
     "noteBanner": {
       "title": "Note de suivi",
@@ -317,6 +318,7 @@
     "closeConversation": "Fermer la conversation",
     "backToConversations": "Retour aux conversations",
     "phoneNumber": "Numéro de téléphone",
+    "assignedTo": "Attribué à",
     "openContactPanel": "Ouvrir les détails du contact",
     "closeContactPanel": "Fermer les détails du contact"
   },
@@ -676,6 +678,7 @@
     },
     "pendingPlaceholder": "Cliquez sur Ouvrir pour répondre",
     "restrictedPlaceholder": "Impossible d'envoyer des messages en raison de la fenêtre de messagerie de 24 heures",
+    "archivedPlaceholder": "Canal archivé — impossible d'envoyer des messages",
     "defaultPlaceholder": "Tapez votre message...",
     "noteComposer": {
       "helper": "Enregistrez des notes importantes sur la conversation afin que d'autres utilisateurs puissent les consulter plus tard.",
@@ -1013,5 +1016,16 @@
   "unreadBadge": {
     "ariaLabel_one": "{{count}} message non lu",
     "ariaLabel_other": "{{count}} messages non lus"
+  },
+  "moveChannel": {
+    "action": "Change channel",
+    "modalTitle": "Move conversation to a different channel",
+    "modalDescription": "Choose another channel to continue this conversation on.",
+    "noEligibleTargets": "No eligible channel to move this conversation to.",
+    "confirm": "Move conversation",
+    "cancel": "Cancel",
+    "movedToast": "Conversation moved to {{inboxName}}",
+    "errorIneligible": "This conversation can't be moved to that channel.",
+    "errorGeneric": "Something went wrong moving this conversation. Please try again."
   }
 }

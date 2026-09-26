@@ -131,6 +131,17 @@ export const useChannelForm = () => {
         }));
         break;
 
+      case 'waha':
+        setForm(prev => ({
+          ...prev,
+          name: prev.name || 'WhatsApp WAHA',
+          base_url: prev.base_url || '',
+          api_key: prev.api_key || '',
+          session_name: prev.session_name || '',
+          phone_number: prev.phone_number || '',
+        }));
+        break;
+
       case 'twilio':
         if (selectedChannel?.type === 'whatsapp') {
           setForm(prev => ({

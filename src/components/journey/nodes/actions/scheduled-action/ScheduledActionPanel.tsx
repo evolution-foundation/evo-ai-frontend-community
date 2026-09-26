@@ -15,6 +15,7 @@ import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { useLanguage } from '@/hooks/useLanguage';
 import { journeyService } from '@/services/journeys';
 import InboxesService from '@/services/channels/inboxesService';
+import { fetchAllPages } from '@/utils/apiHelpers';
 import type { Journey } from '@/types/automation';
 import type { Inbox } from '@/types/channels/inbox';
 import { ScheduledActionNodeData } from './ScheduledActionNode';
@@ -107,8 +108,7 @@ export function ScheduledActionPanel({
     const fetchInboxes = async () => {
       setLoadingInboxes(true);
       try {
-        const response = await InboxesService.list();
-        const inboxes = response.data || [];
+        const inboxes = await fetchAllPages(page => InboxesService.list({ page }));
 
         const messagingInboxes = inboxes.filter(inbox => {
           const channelType = inbox.channel_type;

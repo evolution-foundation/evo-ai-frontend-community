@@ -4,6 +4,7 @@ export { default as WebWidgetAdvancedForm } from './WebWidgetAdvancedForm';
 export { default as SenderSettingsForm } from './SenderSettingsForm';
 export { default as AuthorizationBanners } from './AuthorizationBanners';
 export { default as LockToSingleConversationForm } from './LockToSingleConversationForm';
+export { default as ForceAgentSignatureForm } from './ForceAgentSignatureForm';
 export { default as CollaboratorsForm } from './CollaboratorsForm';
 export { default as BusinessHoursForm } from './BusinessHoursForm';
 export { default as CSATForm } from './CSATForm';

@@ -177,6 +177,10 @@
         "name": "Evolution Go",
         "description": "WhatsApp Evolution Go API - optimized performance"
       },
+      "waha": {
+        "name": "WAHA",
+        "description": "Self-hosted WhatsApp HTTP API (WAHA)"
+      },
       "notificame": {
         "name": "Notificame",
         "description": "Brazilian WhatsApp provider"
@@ -1616,6 +1620,10 @@
         }
       }
     },
+    "forceAgentSignature": {
+      "label": "Force agent signature",
+      "description": "When enabled, every message a human agent sends on this channel automatically gets their name added — no per-message opt-out."
+    },
     "defaultConversationStatus": {
       "title": "Default Conversation Status",
       "description": "Set the initial status for new conversations in this channel",
@@ -1764,7 +1772,17 @@
       "manageAria": "Manage connections: {{count}} · {{status}}",
       "connect": "Connect",
       "addConnection": "Add connection",
-      "deleteConnection": "Delete connection"
+      "deleteConnection": "Delete connection",
+      "reactivate": "Reactivate"
+    },
+    "archived": {
+      "badge": "Archived",
+      "confirmTitle": "Reconnect this number?",
+      "confirmDescription": "An archived channel with this phone number already exists. Either option keeps its full conversation history — reactivate resumes the same connection, or create a new one if you want to switch providers.",
+      "confirmReactivate": "Reactivate existing channel",
+      "confirmCreateNew": "Create a new channel instead",
+      "reactivated": "{{name}} reactivated",
+      "reactivateFailed": "Failed to reactivate channel"
     },
     "capabilities": {
       "publishing": "Publishing",

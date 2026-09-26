@@ -20,6 +20,7 @@ import { Banner, ConversationNoteBanner } from '../banner';
 import PendingResponseBanner from '../banner/PendingResponseBanner';
 
 import type { Message, Conversation } from '@/types/chat/api';
+import { isWhatsAppFreeTextProvider } from '@/utils/channelUtils';
 
 interface PostData {
   id?: string;
@@ -198,7 +199,7 @@ const ChatArea = ({
     const shouldRefreshProviderConnection =
       isWhatsAppChannel &&
       channelProvider &&
-      ['zapi', 'evolution', 'evolution_go'].includes(channelProvider.toLowerCase()) &&
+      ['zapi', 'evolution', 'evolution_go', 'waha'].includes(channelProvider.toLowerCase()) &&
       inbox &&
       !(inbox as any)?.provider_connection;
 
@@ -228,9 +229,7 @@ const ChatArea = ({
   ]);
 
   const isWhatsAppFreeTextChannel =
-    isWhatsAppChannel &&
-    channelProvider &&
-    ['baileys', 'evolution', 'evolution_go'].includes(channelProvider.toLowerCase());
+    isWhatsAppChannel && isWhatsAppFreeTextProvider(channelProvider);
 
   // Verificar status de conexão do Z-API e Evolution
   // Buscar provider_connection do meta ou inbox
@@ -240,18 +239,34 @@ const ChatArea = ({
   const isEvolutionChannel =
     isWhatsAppChannel &&
     ['evolution', 'evolution_go'].includes(channelProvider?.toLowerCase() || '');
+  // WAHA is self-hosted/session-based like Evolution: it reports connection
+  // state through provider_connection too, so it gets the same banner.
+  const isWahaChannel = isWhatsAppChannel && channelProvider?.toLowerCase() === 'waha';
   const isDisconnected =
-    (isZapiChannel || isEvolutionChannel) &&
+    (isZapiChannel || isEvolutionChannel || isWahaChannel) &&
     ['close', 'disconnected', 'logged_out'].includes(providerConnection?.connection || '');
+
+  // Archived inboxes never accept new outbound messages either — conversations
+  // under them are kept read-only (history stays visible, composer disabled)
+  // until the user reactivates the channel or moves the conversation elsewhere.
+  const isArchivedInbox = !!inbox?.archived_at;
 
   // Determinar se deve mostrar restrições
   const hasMessagingWindowRestriction =
     isWhatsAppChannel || isInstagramChannel || isMessengerChannel;
   const shouldShowRestrictionBanner =
-    (!canReply && hasMessagingWindowRestriction && !isWhatsAppFreeTextChannel) || isDisconnected;
+    (!canReply && hasMessagingWindowRestriction && !isWhatsAppFreeTextChannel) ||
+    isDisconnected ||
+    isArchivedInbox;
 
   // Mensagem do banner quando não pode responder
   const getBannerMessage = () => {
+    if (isArchivedInbox) {
+      return t(
+        'chatArea.banner.inboxArchived',
+        'Este canal foi arquivado. Reative-o ou mova a conversa para outro canal para continuar.',
+      );
+    }
     if (isDisconnected) {
       const errorMessage = providerConnection?.error || '';
       return (
@@ -271,10 +286,14 @@ const ChatArea = ({
     return t('chatArea.banner.cannotReply');
   };
 
+  // Nenhum desses casos tem link de política de janela de 24 horas relevante:
+  // canal arquivado, provider de sessão desconectado, ou provider self-hosted
+  // (Z-API/Evolution/WAHA), que não possuem janela de 24 horas.
+  const hasNoWindowPolicyLink =
+    isArchivedInbox || isDisconnected || isZapiChannel || isEvolutionChannel || isWahaChannel;
+
   const getBannerLinkText = () => {
-    // Não mostrar texto do link quando Z-API/Evolution está desconectado ou é canal free text
-    // Esses providers não têm restrições de janela de 24 horas, apenas precisam estar conectados
-    if (isDisconnected || isZapiChannel || isEvolutionChannel) {
+    if (hasNoWindowPolicyLink) {
       return undefined;
     }
     return t('chatArea.banner.linkText');
@@ -283,9 +302,10 @@ const ChatArea = ({
   // Links externos para políticas de janela de mensagem
   // Não mostrar link quando Z-API/Evolution está desconectado (apenas aviso de desconexão)
   const getBannerLink = () => {
-    // Se Z-API/Evolution está desconectado, não mostrar link de restrições de 24 horas
-    // Esses providers não têm restrições de janela de 24 horas, apenas precisam estar conectados
-    if (isDisconnected || isZapiChannel || isEvolutionChannel) {
+    // Se Z-API/Evolution/WAHA está desconectado ou o canal foi arquivado, não mostrar
+    // link de restrições de 24 horas — esses providers não têm restrições de janela de
+    // 24 horas, apenas precisam estar conectados (ou reativados).
+    if (hasNoWindowPolicyLink) {
       return undefined;
     }
     if (isWhatsAppChannel && !isWhatsAppFreeTextChannel) {
@@ -407,10 +427,12 @@ const ChatArea = ({
           onSendMessage={handleSendMessage}
           placeholder={
             isPendingConversation
-              ? t('chatArea.messageInput.pendingPlaceholder')
+              ? t('messageInput.pendingPlaceholder')
+              : isArchivedInbox
+              ? t('messageInput.archivedPlaceholder')
               : shouldShowRestrictionBanner
-              ? t('chatArea.messageInput.restrictedPlaceholder')
-              : t('chatArea.messageInput.defaultPlaceholder')
+              ? t('messageInput.restrictedPlaceholder')
+              : t('messageInput.defaultPlaceholder')
           }
           isDisabled={shouldShowRestrictionBanner}
           isPendingConversation={isPendingConversation}
@@ -422,6 +444,7 @@ const ChatArea = ({
           inboxId={selectedConversation?.inbox_id || ''}
           channelType={selectedConversation?.inbox?.channel_type || ''}
           channelProvider={channelProvider}
+          forceAgentSignature={selectedConversation?.inbox?.force_agent_signature || false}
         />
       </div>
     </div>

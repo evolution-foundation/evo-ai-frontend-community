@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
 const h = vi.hoisted(() => ({
-  inboxes: [] as Array<{ id: string; name: string; channel_type: string; provider?: string }>,
+  inboxes: [] as Array<{ id: string; name: string; channel_type: string; provider?: string; archived_at?: string | null }>,
   navigate: vi.fn(),
   globalService: {
     getTemplates: vi.fn(),
@@ -117,6 +117,7 @@ beforeEach(() => {
   h.inboxes = [
     { id: 'wa-1', name: 'WhatsApp Cloud', channel_type: 'Channel::Whatsapp', provider: 'whatsapp_cloud' },
     { id: 'em-1', name: 'Email Inbox', channel_type: 'Channel::Email' },
+    { id: 'ev-1', name: 'Evolution API', channel_type: 'Channel::Whatsapp', provider: 'evolution' },
   ];
   h.globalService.getTemplates.mockResolvedValue(stdResponse);
   h.channelService.getTemplates.mockResolvedValue(stdResponse);
@@ -126,6 +127,15 @@ beforeEach(() => {
 });
 
 describe('MessageTemplates (unified screen)', () => {
+  it('excludes archived inboxes from the scope picker, since you cannot send new templates through them', async () => {
+    h.inboxes.push({ id: 'archived-1', name: 'Old Number', channel_type: 'Channel::Whatsapp', archived_at: '2026-01-01T00:00:00Z' });
+    render(<MessageTemplates />);
+    await screen.findByText('welcome');
+
+    expect(screen.queryByText('Old Number')).not.toBeInTheDocument();
+    expect(screen.getByText('WhatsApp Cloud')).toBeInTheDocument();
+  });
+
   it('defaults to Global scope and lists channel-less templates (no inbox arg)', async () => {
     render(<MessageTemplates />);
     expect(await screen.findByText('welcome')).toBeInTheDocument();
@@ -163,6 +173,20 @@ describe('MessageTemplates (unified screen)', () => {
     const syncBtn = await screen.findByText('actions.sync');
     fireEvent.click(syncBtn);
     await waitFor(() => expect(h.channelService.syncTemplates).toHaveBeenCalledWith('wa-1'));
+  });
+
+  // Regression: shares the 'Channel::Whatsapp' channel_type with whatsapp_cloud,
+  // but evolution has no real Meta approval workflow. The sync button and the
+  // approved/pending/rejected badge must not show for it (status.active instead).
+  it('hides the Meta sync button and shows local active/inactive for a non-Meta WhatsApp provider', async () => {
+    render(<MessageTemplates />);
+    await screen.findByText('welcome');
+    fireEvent.change(screen.getByTestId('ds-select'), { target: { value: 'ev-1' } });
+    await waitFor(() =>
+      expect(h.channelService.getTemplates).toHaveBeenCalledWith('ev-1', expect.objectContaining({ page: 1 })),
+    );
+    expect(screen.queryByText('actions.sync')).not.toBeInTheDocument();
+    expect(await screen.findByText('status.active')).toBeInTheDocument();
   });
 
   it('routes New to the EmailTemplateEditor for an email inbox (no inline modal)', async () => {

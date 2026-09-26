@@ -22,6 +22,7 @@ export interface BehaviorSettings {
   allowContactEdit: boolean;
   allowManageLabels: boolean;
   allowProductSales: boolean;
+  allowTransferToNamedPerson: boolean;
   timezone: string;
   sendAsReply: boolean;
 }

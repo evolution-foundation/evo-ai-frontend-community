@@ -1544,6 +1544,7 @@ export default function PipelineKanban() {
           open={showAddItemModal}
           onOpenChange={setShowAddItemModal}
           pipelineId={pipeline.id}
+          pipeline={pipeline}
           stages={stages}
           preselectedStage={selectedStageForItem}
           onItemAdded={handleItemAdded}

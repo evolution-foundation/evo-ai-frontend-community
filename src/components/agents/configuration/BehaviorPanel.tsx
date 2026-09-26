@@ -11,6 +11,7 @@ import {
 import {
   Settings,
   UserRound,
+  UserSearch,
   Bell,
   Globe,
   GitBranch,
@@ -75,6 +76,37 @@ export const BehaviorPanel = ({
           }
         />
       </div>
+
+      {behaviorSettings.transferToHuman && (
+        <div className="flex items-center justify-between gap-4 border-t border-border py-[18px] first:border-t-0">
+          <div className="flex items-start gap-3 flex-1">
+            <UserSearch className="h-5 w-5 text-blue-400 mt-0.5" />
+            <div className="flex-1">
+              <Label
+                htmlFor="allow-transfer-to-named-person"
+                className="font-medium cursor-pointer"
+              >
+                {t('edit.configuration.behavior.allowTransferToNamedPerson') ||
+                  'Permitir transferir para pessoa específica'}
+              </Label>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t('edit.configuration.behavior.allowTransferToNamedPersonDescription') ||
+                  'Quando o cliente pedir por uma pessoa pelo nome, o agente confirma e transfere direto para ela (fora das regras de departamento acima)'}
+              </p>
+            </div>
+          </div>
+          <AgentToggle
+            id="allow-transfer-to-named-person"
+            checked={behaviorSettings.allowTransferToNamedPerson}
+            onCheckedChange={checked =>
+              onBehaviorSettingsChange({
+                ...behaviorSettings,
+                allowTransferToNamedPerson: checked,
+              })
+            }
+          />
+        </div>
+      )}
 
       <div className="flex items-center justify-between gap-4 border-t border-border py-[18px] first:border-t-0">
         <div className="flex items-start gap-3 flex-1">

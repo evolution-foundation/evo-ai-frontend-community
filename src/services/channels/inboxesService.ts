@@ -34,8 +34,8 @@ const appendFormDataValue = (formData: FormData, key: string, value: unknown): v
 // Inbox service aligned with Evolution API
 // Only endpoints needed for the Channels page are implemented initially.
 const InboxesService = {
-  async list(): Promise<InboxesResponse> {
-    const response = await api.get('/inboxes');
+  async list(params?: { page?: number; pageSize?: number }): Promise<InboxesResponse> {
+    const response = await api.get('/inboxes', { params });
     return extractResponse<Inbox>(response) as InboxesResponse;
   },
 
@@ -127,6 +127,23 @@ const InboxesService = {
       params: { limit },
     });
     return extractData(response);
+  },
+
+  async reactivate(id: string): Promise<Inbox> {
+    const response = await api.post(`/inboxes/${id}/reactivate`);
+    return extractData<Inbox>(response);
+  },
+
+  async checkArchivedMatch(phoneNumber: string): Promise<{ inbox_id: string } | null> {
+    const response = await api.get('/inboxes/archived_whatsapp_match', {
+      params: { phone_number: phoneNumber },
+    });
+    return extractData<{ inbox_id: string } | null>(response);
+  },
+
+  async replaceArchivedChannel(inboxId: string, channel: Record<string, unknown>): Promise<Inbox> {
+    const response = await api.post(`/inboxes/${inboxId}/replace_archived_channel`, { channel });
+    return extractData<Inbox>(response);
   },
 };
 

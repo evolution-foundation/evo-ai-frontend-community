@@ -7,6 +7,7 @@ import { getBrandIcon, getBrandColor } from '@/components/BrandIcon';
 import iconWhatsappCloud from '@/assets/channels/whatsapp-cloud.svg';
 import iconEvolutionApi from '@/assets/channels/evolution-api.png';
 import iconEvolutionGo from '@/assets/channels/evolution-go.png';
+import iconWaha from '@/assets/channels/waha.svg';
 import iconNotificame from '@/assets/channels/notificame.png';
 import iconZapi from '@/assets/channels/zapi.png';
 import iconTwilio from '@/assets/channels/twilio.png';
@@ -126,6 +127,9 @@ function getChannelIconSrc(channelType?: string, provider?: string): string | un
       }
       if (prov === 'evolution_go') {
         return iconEvolutionGo;
+      }
+      if (prov === 'waha') {
+        return iconWaha;
       }
       if (prov === 'notificame') {
         return iconNotificame;

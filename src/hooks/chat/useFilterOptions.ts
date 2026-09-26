@@ -4,6 +4,7 @@ import chatService from '@/services/chat/chatService';
 import { contactsService } from '@/services/contacts/contactsService';
 import { labelsService } from '@/services/contacts/labelsService';
 import usersService from '@/services/users/usersService';
+import { fetchAllPages } from '@/utils/apiHelpers';
 import { Inbox } from '@/types/channels/inbox';
 import type { Pipeline, Team } from '@/types/chat/api';
 import type { Contact } from '@/types/contacts/contact';
@@ -67,19 +68,19 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
           teamsResponse,
           usersResponse,
         ] = await Promise.allSettled([
-          InboxesService.list(),
+          fetchAllPages(page => InboxesService.list({ page })),
           chatService.getAvailablePipelines(),
           contactsService.getContacts({ per_page: 100, sort: 'last_activity_at', order: 'desc' }),
-          labelsService.getLabels({ per_page: 200 }),
+          fetchAllPages(page => labelsService.getLabels({ page })),
           chatService.getAvailableTeams(),
-          usersService.getUsers({ per_page: 100 }),
+          fetchAllPages(page => usersService.getUsers({ page })),
         ]);
 
         // ✅ Processar inboxes
         const inboxes: Array<{ label: string; value: string }> = [];
         if (inboxesResponse.status === 'fulfilled') {
           inboxes.push(
-            ...inboxesResponse.value.data.map((inbox: Inbox) => {
+            ...inboxesResponse.value.map((inbox: Inbox) => {
               // Extrair o nome do tipo do canal (ex: "Channel::Whatsapp" -> "WhatsApp")
               const channelTypeName =
                 inbox.channel_type?.split('::')[1] || inbox.channel_type || 'Unknown';
@@ -124,7 +125,7 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
 
         const labels: FilterOption[] = [];
         if (labelsResponse.status === 'fulfilled') {
-          const labelsData = labelsResponse.value?.data ?? [];
+          const labelsData = labelsResponse.value ?? [];
           if (Array.isArray(labelsData)) {
             // Value = label.title to match filter_service#tag_filter_query, which
             // compares against tags.name. Using label.id (UUID) here would never hit.
@@ -156,7 +157,7 @@ export const useFilterOptions = (params: UseFilterOptionsParams = {}): FilterOpt
 
         const users: FilterOption[] = [];
         if (usersResponse.status === 'fulfilled') {
-          const usersData = usersResponse.value?.data ?? [];
+          const usersData = usersResponse.value ?? [];
           if (Array.isArray(usersData)) {
             users.push(
               ...usersData.map((user: User) => ({

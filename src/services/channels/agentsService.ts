@@ -1,5 +1,5 @@
 import authApi from '@/services/core/apiAuth';
-import { extractData } from '@/utils/apiHelpers';
+import { extractData, extractResponse, fetchAllPages } from '@/utils/apiHelpers';
 import type { AgentChannel } from '@/types/channels/inbox';
 import type { AgentDeleteResponse } from '@/types/agents';
 import type { UsersUserResponse } from '@/types/users';
@@ -9,24 +9,17 @@ const AgentsService = {
   /**
    * Get all agents for an account
    * Endpoint: GET /api/v1/users
+   *
+   * A plain GET here (no page param) only returned the backend's default
+   * page (20 users), silently truncating the Channel/WhatsApp Settings >
+   * Collaborators picker for any account with more than 20 users. Walks
+   * every page instead — see fetchAllPages.
    */
   async getAll(): Promise<AgentChannel[]> {
     try {
-      const response = await authApi.get('/users');
-      const data = extractData<{ users?: AgentChannel[] } | AgentChannel[]>(response);
-
-      // Handle different response structures
-      // For auth-service response: { users: [...] } or direct array
-      if (Array.isArray(data)) {
-        return data;
-      }
-
-      if (data && typeof data === 'object' && 'users' in data && Array.isArray(data.users)) {
-        return data.users;
-      }
-
-      console.warn('AgentsService.getAll: Unexpected response structure:', data);
-      return [];
+      return await fetchAllPages<AgentChannel>(page =>
+        authApi.get('/users', { params: { page } }).then(extractResponse<AgentChannel>),
+      );
     } catch (error) {
       console.error('AgentsService.getAll error:', error);
       return []; // Return empty array on error

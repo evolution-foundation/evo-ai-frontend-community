@@ -32,9 +32,12 @@ export const useMessageSignature = () => {
     return signature;
   }, [user]);
 
-  // Anexar assinatura ao conteúdo da mensagem se estiver habilitada
+  // Anexar assinatura ao conteúdo da mensagem se estiver habilitada.
+  // Email mantém o formato tradicional (assinatura no final, texto puro).
+  // Canais de chat usam o mesmo padrão do agente de IA: negrito, dois
+  // pontos, no início da mensagem.
   const appendSignatureIfEnabled = useCallback(
-    (content: string) => {
+    (content: string, isEmail = false) => {
       if (!isSignatureEnabled) {
         return content;
       }
@@ -44,16 +47,23 @@ export const useMessageSignature = () => {
         return content;
       }
 
-      if (content.trim().endsWith(signature.trim())) {
+      const isHtml = /<[a-z][\s\S]*>/i.test(content);
+
+      if (isEmail) {
+        if (content.trim().endsWith(signature.trim())) {
+          return content;
+        }
+
+        return isHtml ? `${content}<p><br></p><p>${signature}</p>` : `${content}\n\n${signature}`;
+      }
+
+      const htmlPrefix = `<p><strong>${signature}:</strong></p>`;
+      const plainPrefix = `*${signature}:*\n`;
+      if (content.startsWith(isHtml ? htmlPrefix : plainPrefix)) {
         return content;
       }
 
-      const isHtml = /<[a-z][\s\S]*>/i.test(content);
-      if (isHtml) {
-        return `${content}<p><br></p><p>${signature}</p>`;
-      }
-
-      return `${content}\n\n${signature}`;
+      return isHtml ? `${htmlPrefix}${content}` : `${plainPrefix}${content}`;
     },
     [isSignatureEnabled, getSignature],
   );

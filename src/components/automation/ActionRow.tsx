@@ -1,4 +1,4 @@
-import { Controller, type Control, useWatch } from 'react-hook-form';
+import { Controller, type Control, useWatch, useFormState } from 'react-hook-form';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   Select,
@@ -48,41 +48,52 @@ export default function ActionRow({
 }: Props) {
   const { t } = useLanguage('automation');
   const actionName = useWatch({ control, name: `actions.${index}.action_name` });
+  const { errors } = useFormState({ control, name: 'actions' });
+  const actionError = errors.actions?.[index];
 
   return (
     <div className="flex items-start gap-2 p-3 border rounded-md">
-      <div className="flex-1 grid grid-cols-2 gap-2">
-        <Controller
-          control={control}
-          name={`actions.${index}.action_name`}
-          render={({ field }) => (
-            <Select
-              value={field.value ?? ''}
-              onValueChange={(value) => {
-                onActionChange(index, value as AutomationActionType);
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t('form.fields.actionRow.action')} />
-              </SelectTrigger>
-              <SelectContent>
-                {ALL_ACTION_NAMES.map((name) => (
-                  <SelectItem key={name} value={name}>
-                    {t(actionRegistry[name].i18nKey)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
+      <div className="flex-1 space-y-1">
+        <div className="grid grid-cols-2 gap-2">
+          <Controller
+            control={control}
+            name={`actions.${index}.action_name`}
+            render={({ field }) => (
+              <Select
+                value={field.value ?? ''}
+                onValueChange={(value) => {
+                  // Reselecting the same action (e.g. reconfirming the dropdown
+                  // without actually changing it) must not reset action_params
+                  // back to empty defaults — only a real type change should.
+                  if (value === (field.value ?? '')) return;
+                  onActionChange(index, value as AutomationActionType);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t('form.fields.actionRow.action')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {ALL_ACTION_NAMES.map((name) => (
+                    <SelectItem key={name} value={name}>
+                      {t(actionRegistry[name].i18nKey)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
 
-        <ActionParamsRenderer
-          control={control}
-          index={index}
-          actionName={actionName as AutomationActionType | undefined}
-          formData={formData}
-          t={t}
-        />
+          <ActionParamsRenderer
+            control={control}
+            index={index}
+            actionName={actionName as AutomationActionType | undefined}
+            formData={formData}
+            t={t}
+          />
+        </div>
+        {actionError && (
+          <p className="text-xs text-red-500">{t('form.fields.actionRow.invalid')}</p>
+        )}
       </div>
       <Button
         type="button"

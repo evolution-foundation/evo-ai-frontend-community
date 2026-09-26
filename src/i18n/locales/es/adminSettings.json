@@ -4,7 +4,7 @@
     "email": "Correo electronico",
     "storage": "Almacenamiento",
     "channels": "Canales",
-    "openai": "OpenAI",
+    "openai": "Configuracion de IA",
     "integrations": "Integraciones",
     "evolutionHub": "Evo Hub"
   },
@@ -290,18 +290,22 @@
     }
   },
   "openai": {
-    "title": "Configuracion de OpenAI",
-    "description": "Configure la conexion con la API de OpenAI y las plantillas de prompts de IA usadas para sugerencias de respuesta, resumenes y transformaciones de texto.",
+    "title": "Configuracion de IA",
+    "description": "Configure la conexion con la API de OpenAI, que credencial y modelo usa cada funcion de IA, y las plantillas de prompts usadas para sugerencias de respuesta, resumenes y transformaciones de texto.",
+    "cards": {
+      "inboxAssist": "Asistencia de Bandeja",
+      "audioTranscription": "Transcripcion de Audio",
+      "knowledgeEmbedding": "Embedding de Conocimiento",
+      "memoryCompression": "Compresion de Memoria"
+    },
     "connection": {
       "cardTitle": "Configuracion de Conexion",
       "fields": {
-        "apiUrl": "URL de la API",
         "apiSecret": "Clave de API",
         "model": "Modelo",
         "audioTranscription": "Habilitar Transcripcion de Audio"
       },
       "placeholders": {
-        "apiUrl": "https://api.openai.com/v1",
         "apiSecret": "Ingrese la nueva clave de API",
         "model": "gpt-4o"
       },
@@ -333,13 +337,34 @@
         "OPENAI_PROMPT_SIMPLIFY": "Ingrese el prompt para simplificar texto..."
       }
     },
+    "fields": {
+      "knowledgeEmbeddingModel": "Modelo de Embedding de Conocimiento",
+      "memoryCompressionModel": "Modelo de Compresion de Memoria",
+      "audioTranscriptionModel": "Modelo de Transcripcion de Audio"
+    },
+    "hints": {
+      "knowledgeEmbeddingModel": "Modelo utilizado para generar embeddings de los documentos de la base de conocimiento. Deje en blanco para usar el valor predeterminado (text-embedding-3-small).",
+      "memoryCompressionModel": "Modelo utilizado para resumir la memoria de conversacion del agente. Deje en blanco para usar el valor predeterminado (gpt-4o-mini).",
+      "audioTranscriptionModel": "Modelo utilizado para transcribir mensajes de voz. Deje en blanco para usar el valor predeterminado (whisper-1)."
+    },
+    "sections": {
+      "aiFeatureModels": "Modelos de Funciones de IA"
+    },
+    "credentialSelect": {
+      "automatic": "Automatico (predeterminado)",
+      "loadError": "No se pudo cargar la lista de credenciales. Los menus abajo solo ofreceran \"Automatico\" hasta que esto se solucione.",
+      "inboxAssist": "Credencial para Asistencia de Bandeja",
+      "audioTranscription": "Credencial para Transcripcion de Audio",
+      "knowledgeEmbedding": "Credencial para Embedding de Conocimiento",
+      "memoryCompression": "Credencial para Compresion de Memoria"
+    },
     "secretConfigured": "Configurado",
     "secretNotConfigured": "No configurado",
     "clearSecret": "Borrar valor guardado",
     "messages": {
-      "saveSuccess": "Configuracion de OpenAI guardada con exito",
-      "saveError": "Error al guardar la configuracion de OpenAI",
-      "loadError": "Error al cargar la configuracion de OpenAI"
+      "saveSuccess": "Configuracion de IA guardada con exito",
+      "saveError": "Error al guardar la configuracion de IA",
+      "loadError": "Error al cargar la configuracion de IA"
     },
     "save": "Guardar Configuracion",
     "saving": "Guardando..."

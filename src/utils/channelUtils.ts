@@ -73,11 +73,34 @@ export function isPresenceCapableChannel(channelType?: string | null): boolean {
   return PRESENCE_CAPABLE_CHANNEL_TYPES.has(channelType);
 }
 
+// Self-hosted / session-based WhatsApp providers: they pair a real phone
+// number over a WhatsApp Web session, so they have neither the Cloud API's
+// 24-hour messaging window nor its approved-template requirement. Everything
+// else (whatsapp_cloud, twilio, notificame, ...) goes through the WhatsApp
+// Business API and does have those restrictions.
+const WHATSAPP_FREE_TEXT_PROVIDERS = new Set<string>([
+  'baileys',
+  'evolution',
+  'evolution_go',
+  'waha',
+]);
+
+/**
+ * True when the WhatsApp provider sends free text (no approved template and no
+ * 24-hour window). Unknown/absent providers are treated as Cloud API, i.e. the
+ * restricted default.
+ */
+export function isWhatsAppFreeTextProvider(provider?: string | null): boolean {
+  if (!provider) return false;
+  return WHATSAPP_FREE_TEXT_PROVIDERS.has(provider.toLowerCase());
+}
+
 // Provider-specific translations for detailed display
 const PROVIDER_TRANSLATIONS: Record<string, string> = {
   'whatsapp_cloud': 'WhatsApp Cloud',
   'evolution': 'Evolution API',
   'evolution_go': 'Evolution Go',
+  'waha': 'WAHA',
   'notificame': 'Notificame',
   'twilio': 'Twilio',
   'google': 'Gmail',

@@ -9,6 +9,14 @@ import { CustomTool, MCPServerConfig } from '@/types/ai';
 import { Agent } from '@/types';
 import { supportsSubAgents, supportsToolBlocks } from './agentTabs';
 
+interface AdvancedSettingsData {
+  load_memory: boolean;
+  preload_memory: boolean;
+  planner: boolean;
+  load_knowledge: boolean;
+  knowledge_tags: string[];
+}
+
 interface AgentToolsAccordionProps {
   agentId: string;
   agentType?: string;
@@ -19,8 +27,12 @@ interface AgentToolsAccordionProps {
   agentTools: string[];
   agentToolsData: Agent[];
   customTools: { http_tools: CustomTool[] };
+  advancedSettings: AdvancedSettingsData;
   onAgentToolsChange: (agentTools: string[], agentToolsData?: Agent[]) => void;
   onCustomToolsChange: (customTools: { http_tools: CustomTool[] }) => void;
+  onAdvancedSettingsChange: (settings: AdvancedSettingsData) => void;
+  knowledgeBaseId?: string;
+  onKnowledgeBaseChange?: (knowledgeBaseId: string) => void;
 
   integrations: Record<string, unknown>;
   onIntegrationsChange: (integrations: Record<string, unknown>) => void;
@@ -39,8 +51,12 @@ const AgentToolsAccordion = ({
   agentTools,
   agentToolsData,
   customTools,
+  advancedSettings,
   onAgentToolsChange,
   onCustomToolsChange,
+  onAdvancedSettingsChange,
+  knowledgeBaseId,
+  onKnowledgeBaseChange,
   integrations,
   onIntegrationsChange,
   mcpServers,
@@ -100,8 +116,12 @@ const AgentToolsAccordion = ({
                 agentTools={agentTools}
                 agentToolsData={agentToolsData}
                 customTools={customTools}
+                advancedSettings={advancedSettings}
                 onAgentToolsChange={onAgentToolsChange}
                 onCustomToolsChange={onCustomToolsChange}
+                onAdvancedSettingsChange={onAdvancedSettingsChange}
+                knowledgeBaseId={knowledgeBaseId}
+                onKnowledgeBaseChange={onKnowledgeBaseChange}
                 editingAgentId={agentId}
                 folderId={undefined}
               />

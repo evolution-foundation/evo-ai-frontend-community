@@ -176,6 +176,42 @@ describe('buildChannelTypeStatuses', () => {
     ]);
     expect(result.reduce((sum, r) => sum + r.total, 0)).toBe(0);
   });
+
+  // Archiving a channel disconnects its provider, which otherwise reads as a
+  // connection error — but the point of archiving is that the user already
+  // knows it's gone, not that it needs attention. An archived inbox stays
+  // visible (greyed out, via the per-row "Arquivado" badge) instead of being
+  // hidden, but it must not drag the type into a red "Com erro" state.
+  it('excludes an archived inbox from error/attention/active counts, even though it is still listed', () => {
+    const result = buildChannelTypeStatuses(types, [
+      inbox({
+        id: 'w1',
+        channel_type: 'Channel::Whatsapp',
+        connection_state: 'disconnected',
+        archived_at: '2026-01-01T00:00:00Z',
+      }),
+    ]);
+    const whatsapp = result.find(r => r.type.type === 'whatsapp')!;
+
+    expect(whatsapp.total).toBe(1);
+    expect(whatsapp.inboxStates).toHaveLength(1);
+    expect(whatsapp).toMatchObject({ activeCount: 0, attentionCount: 0, errorCount: 0, status: 'active' });
+  });
+
+  it('lets a real error on a sibling inbox still flag the type, even with an archived one present', () => {
+    const result = buildChannelTypeStatuses(types, [
+      inbox({
+        id: 'w1',
+        channel_type: 'Channel::Whatsapp',
+        connection_state: 'disconnected',
+        archived_at: '2026-01-01T00:00:00Z',
+      }),
+      inbox({ id: 'w2', channel_type: 'Channel::Whatsapp', connection_state: 'disconnected' }),
+    ]);
+    const whatsapp = result.find(r => r.type.type === 'whatsapp')!;
+
+    expect(whatsapp).toMatchObject({ total: 2, errorCount: 1, status: 'error' });
+  });
 });
 
 describe('formatLastSync', () => {

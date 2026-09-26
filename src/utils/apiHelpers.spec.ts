@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { apiErrorCode, apiErrorMessage } from './apiHelpers';
+import { describe, it, expect, vi } from 'vitest';
+import { apiErrorCode, apiErrorMessage, fetchAllPages } from './apiHelpers';
 
 // Mirrors app/controllers/concerns/api_response_helper.rb#error_response.
 function rejection(data: unknown, status = 422) {
@@ -47,6 +47,52 @@ describe('apiErrorMessage', () => {
 
   it.each([null, undefined, 'boom', 42])('returns undefined without throwing for %p', value => {
     expect(apiErrorMessage(value)).toBeUndefined();
+  });
+});
+
+describe('fetchAllPages', () => {
+  it('stops after one page when the response says there is no next page', async () => {
+    const fetchPage = vi.fn().mockResolvedValue({
+      data: [{ id: 1 }, { id: 2 }],
+      meta: { pagination: { page: 1, page_size: 20, total: 2, total_pages: 1, has_next_page: false } },
+    });
+
+    const result = await fetchAllPages(fetchPage);
+
+    expect(result).toEqual([{ id: 1 }, { id: 2 }]);
+    expect(fetchPage).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps requesting subsequent pages until has_next_page is false, concatenating every page', async () => {
+    const fetchPage = vi.fn(async (page: number) => ({
+      data: [{ id: page }],
+      meta: {
+        pagination: {
+          page,
+          page_size: 1,
+          total: 3,
+          total_pages: 3,
+          has_next_page: page < 3,
+        },
+      },
+    }));
+
+    const result = await fetchAllPages(fetchPage);
+
+    expect(result).toEqual([{ id: 1 }, { id: 2 }, { id: 3 }]);
+    expect(fetchPage).toHaveBeenCalledTimes(3);
+    expect(fetchPage).toHaveBeenNthCalledWith(1, 1);
+    expect(fetchPage).toHaveBeenNthCalledWith(2, 2);
+    expect(fetchPage).toHaveBeenNthCalledWith(3, 3);
+  });
+
+  it('stops after one page when the response carries no pagination meta at all', async () => {
+    const fetchPage = vi.fn().mockResolvedValue({ data: [{ id: 1 }], meta: {} });
+
+    const result = await fetchAllPages(fetchPage);
+
+    expect(result).toEqual([{ id: 1 }]);
+    expect(fetchPage).toHaveBeenCalledTimes(1);
   });
 });
 

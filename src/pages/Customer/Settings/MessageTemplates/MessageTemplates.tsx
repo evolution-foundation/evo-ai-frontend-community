@@ -67,6 +67,8 @@ export default function MessageTemplates() {
   const { can, isReady: permissionsReady } = usePermissions();
 
   const inboxes = useAppDataStore(state => state.inboxes);
+  // Archived inboxes can't send new messages, so they aren't valid template scopes.
+  const activeInboxes = useMemo(() => inboxes.filter(inbox => !inbox.archived_at), [inboxes]);
   const fetchInboxes = useAppDataStore(state => state.fetchInboxes);
 
   const [scope, setScope] = useState<Scope>({ kind: 'global' });
@@ -164,7 +166,7 @@ export default function MessageTemplates() {
     if (value === 'global') {
       setScope({ kind: 'global' });
     } else {
-      const inbox = inboxes.find(i => String(i.id) === value);
+      const inbox = activeInboxes.find(i => String(i.id) === value);
       if (inbox) setScope({ kind: 'inbox', inbox });
     }
     setPage(1);
@@ -274,13 +276,18 @@ export default function MessageTemplates() {
     }
   };
 
-  const canSync = scope.kind === 'inbox' && supportsTemplateSync(scope.inbox.channel_type);
+  // Only whatsapp_cloud has a real Meta approval workflow: sync-with-Meta and the
+  // approved/pending/rejected badge both depend on it. Every other scope (global,
+  // or an inbox on evolution/evolution_go/notificame/zapi/etc., none of which have
+  // a real approval concept) falls back to local active/inactive and no sync.
+  const whatsAppCloudInbox = scope.kind === 'inbox' && scope.inbox.provider === 'whatsapp_cloud' ? scope.inbox : null;
+  const canSync = whatsAppCloudInbox !== null && supportsTemplateSync(whatsAppCloudInbox.channel_type);
 
   const handleSync = async () => {
-    if (scope.kind !== 'inbox') return;
+    if (whatsAppCloudInbox === null) return;
     setIsSyncing(true);
     try {
-      await MessageTemplateService.syncTemplates(scope.inbox.id);
+      await MessageTemplateService.syncTemplates(whatsAppCloudInbox.id);
       toast.success(t('messages.syncSuccess'));
       await loadTemplates();
     } catch (e) {
@@ -290,9 +297,8 @@ export default function MessageTemplates() {
     }
   };
 
-  // Inbox scope → Meta approval status badge; Global scope → local active/inactive.
   const statusBadge = (template: MessageTemplate) => {
-    if (scope.kind === 'inbox') {
+    if (whatsAppCloudInbox !== null) {
       const key = getStatusBadgeKey(template);
       return (
         <Badge className={STATUS_STYLE[key] ?? STATUS_STYLE.unknown}>{t(`status.${key}`)}</Badge>
@@ -300,7 +306,7 @@ export default function MessageTemplates() {
     }
     const isActive = template.active !== false;
     return (
-      <Badge className={isActive ? 'bg-green-600 text-white' : 'bg-gray-500 text-white'}>
+      <Badge className={isActive ? STATUS_STYLE.approved : STATUS_STYLE.inactive}>
         {t(`status.${isActive ? 'active' : 'inactive'}`)}
       </Badge>
     );
@@ -410,7 +416,7 @@ export default function MessageTemplates() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="global">{t('scope.global')}</SelectItem>
-              {inboxes.map(inbox => (
+              {activeInboxes.map(inbox => (
                 <SelectItem key={inbox.id} value={String(inbox.id)}>
                   {inbox.name}
                 </SelectItem>

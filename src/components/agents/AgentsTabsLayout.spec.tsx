@@ -34,10 +34,11 @@ const TAB_LABELS = {
   agents: 'container.tabs.agents',
   customTools: 'container.tabs.customTools',
   customMcpServers: 'container.tabs.customMcpServers',
+  knowledge: 'container.tabs.knowledge',
 };
 
 const renderLayout = (
-  tab: 'agents' | 'customTools' | 'customMcpServers' = 'agents',
+  tab: 'agents' | 'customTools' | 'customMcpServers' | 'knowledge' = 'agents',
   pathname = '/agents/list',
 ) =>
   render(
@@ -77,12 +78,13 @@ describe('resolveFirstAllowedTab', () => {
 });
 
 describe('AgentsTabsLayout', () => {
-  it('renders the 3 tabs in the canonical order', () => {
+  it('renders the 4 tabs in the canonical order', () => {
     renderLayout();
     expect(screen.getAllByRole('tab').map(tab => tab.textContent)).toEqual([
       TAB_LABELS.agents,
       TAB_LABELS.customTools,
       TAB_LABELS.customMcpServers,
+      TAB_LABELS.knowledge,
     ]);
     expect(screen.getByText('conteudo-da-aba')).toBeTruthy();
   });
@@ -92,7 +94,8 @@ describe('AgentsTabsLayout', () => {
     allowedResources = ['ai_agents', 'ai_custom_mcp_servers'];
     renderLayout();
     expect(screen.queryByText(TAB_LABELS.customTools)).toBeNull();
-    expect(screen.getAllByRole('tab')).toHaveLength(2);
+    // `knowledge` shares the `ai_agents` resource with `agents`, so it stays visible here.
+    expect(screen.getAllByRole('tab')).toHaveLength(3);
   });
 
   // A fixed "Agentes de IA" title on top of Ferramentas/MCPs lies about where you are.
@@ -104,6 +107,7 @@ describe('AgentsTabsLayout', () => {
       'container.tabs.customMcpServers',
       'container.subtitles.customMcpServers',
     ],
+    ['knowledge', 'container.tabs.knowledge', 'container.subtitles.knowledge'],
   ] as const)('titles the page after the %s tab, not after the screen', (tab, title, subtitle) => {
     renderLayout(tab, `/agents/${tab}`);
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(title);

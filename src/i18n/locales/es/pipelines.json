@@ -361,21 +361,45 @@
     "labelNamePlaceholder": "Nombre de la etiqueta...",
     "selectStage": "Seleccionar etapa...",
     "selectAgent": "Seleccionar agente...",
+    "selectTeam": "Seleccionar equipo...",
+    "selectPriority": "Seleccionar prioridad...",
+    "selectStatus": "Seleccionar estado...",
     "selectPipeline": "Seleccionar pipeline...",
     "selectLabel": "Seleccionar etiqueta...",
+    "taskTitlePlaceholder": "Título de la tarea a crear...",
     "noOtherStages": "No hay otras etapas disponibles",
     "noOtherPipelines": "No hay otros pipelines disponibles",
     "noStagesInPipeline": "No hay etapas en el pipeline seleccionado",
     "noAgents": "No hay agentes disponibles",
+    "noTeams": "No hay equipos disponibles",
     "anyLabel": "Cualquier etiqueta",
     "noLabels": "No hay etiquetas disponibles",
     "selectAgentBot": "Seleccionar agente de IA...",
     "selectTemplate": "Seleccionar plantilla...",
+    "selectCannedResponse": "Seleccionar una respuesta rápida...",
+    "selectCustomAttribute": "Seleccionar un atributo personalizado...",
     "noAgentBots": "No hay agentes de IA disponibles",
     "noTemplates": "No hay plantillas disponibles",
+    "noCannedResponses": "No hay respuestas rápidas disponibles",
+    "noCustomAttributes": "No hay atributos personalizados disponibles",
+    "priorities": {
+      "urgent": "Urgente",
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja",
+      "none": "Ninguna"
+    },
+    "customAttributeModels": {
+      "conversation_attribute": "Conversación",
+      "contact_attribute": "Contacto",
+      "pipeline_item_attribute": "Tarjeta del pipeline"
+    },
     "aiMessagePlaceholder": "¿Qué debe decir el agente? (opcional)",
     "directMessagePlaceholder": "Mensaje a enviar...",
     "finalizeMessagePlaceholder": "Mensaje de cierre (opcional)...",
+    "emailToTeamMessagePlaceholder": "Mensaje del correo...",
+    "emailTranscriptPlaceholder": "correo1@ej.com, correo2@ej.com",
+    "customAttributeValuePlaceholder": "Valor...",
     "inactivity": {
       "minutes": "minutos",
       "hour": "hora",
@@ -384,7 +408,9 @@
       "base": {
         "no_customer_reply": "Cliente sin responder",
         "stage_stagnation": "Detenido en la etapa"
-      }
+      },
+      "day": "día",
+      "days": "días"
     },
     "triggers": {
       "label_added": "Etiqueta agregada",
@@ -396,16 +422,47 @@
       "move_to_stage": "Mover a etapa",
       "move_to_pipeline": "Mover a otro pipeline",
       "assign_agent": "Asignar agente",
+      "assign_team": "Asignar equipo",
       "apply_label": "Aplicar etiqueta",
+      "remove_label": "Quitar etiqueta",
+      "change_priority": "Cambiar prioridad",
+      "change_status": "Cambiar estado",
       "send_ai_message": "Mensaje vía agente de IA",
       "send_direct_message": "Mensaje directo",
       "send_template": "Enviar plantilla",
-      "finalize": "Finalizar atención"
+      "finalize": "Finalizar atención",
+      "send_webhook_event": "Disparar webhook",
+      "create_pipeline_task": "Crear tarea en la tarjeta",
+      "send_canned_response": "Enviar respuesta rápida",
+      "send_email_to_team": "Enviar correo al equipo",
+      "send_email_transcript": "Enviar transcripción por correo",
+      "update_custom_attribute": "Actualizar atributo personalizado"
     },
     "templatePending": "Esperando la aprobación de Meta",
     "templatesPendingHint": "Tus plantillas aún esperan la aprobación de Meta.",
     "noTemplatesHint": "Aún no hay plantillas creadas.",
-    "manageTemplates": "Abrir Plantillas de Mensaje"
+    "manageTemplates": "Abrir Plantillas de Mensaje",
+    "templateSourceLabels": {
+      "generic": "Genérico",
+      "email": "Correo",
+      "whatsapp": "WhatsApp"
+    },
+    "variableMapping": {
+      "label": "Variables",
+      "choosePath": "Elige un campo...",
+      "fallbackPlaceholder": "Valor por defecto si está vacío (opcional)",
+      "fields": {
+        "contact_name": "Nombre del contacto",
+        "contact_email": "Correo del contacto",
+        "contact_phone_number": "Teléfono del contacto",
+        "contact_identifier": "Identificador del contacto",
+        "conversation_display_id": "Número de conversación",
+        "conversation_status": "Estado de la conversación",
+        "pipeline_pipeline_stage_name": "Nombre de la etapa",
+        "pipeline_pipeline_name": "Nombre del pipeline",
+        "pipeline_entered_at": "Entró en la etapa"
+      }
+    }
   },
   "editStage": {
     "title": "Editar Etapa",

@@ -73,8 +73,8 @@
     "collapse": "Recolher barra lateral",
     "closeSubmenu": "Fechar submenu",
     "footer": {
-      "brand": "Evo CRM",
-      "copyright": "© {{year}} Evolution Foundation. All rights reserved.",
+      "brand": "AutomaLead",
+      "copyright": "© {{year}} AutomaLead All rights reserved.",
       "documentation": "Documentação",
       "support": "Preciso de suporte"
     }

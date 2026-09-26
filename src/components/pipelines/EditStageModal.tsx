@@ -27,8 +27,13 @@ import type { Label as ConversationLabel } from '@/types/settings/labels';
 import { labelsService } from '@/services/contacts/labelsService';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import agentBotsService from '@/services/channels/agentBotsService';
-import globalMessageTemplatesService from '@/services/messageTemplates/globalMessageTemplatesService';
-import type { AgentBotOption, MessageTemplateOption } from './StageAutomationRules';
+import { fetchCombinedTemplateOptions } from '@/services/messageTemplates/combinedTemplateOptions';
+import TeamsService from '@/services/teams/teamsService';
+import type { Team } from '@/types/users';
+import { cannedResponsesService } from '@/services/cannedResponses/cannedResponsesService';
+import { customAttributesService } from '@/services/customAttributes/customAttributesService';
+import type { CustomAttributeDefinition } from '@/types/settings';
+import type { AgentBotOption, MessageTemplateOption, CannedResponseOption } from './StageAutomationRules';
 import { LocalAttributeDefinition, LocalAttributeDefinitionPayload } from '@/types/pipelines/localAttributeDefinition';
 import PipelineStageCustomAttributes from './PipelineStageCustomAttributes';
 import StageAutomationRules, { type PipelineWithStages } from './StageAutomationRules';
@@ -91,6 +96,13 @@ export default function EditStageModal({
   const [pipelinesWithStages, setPipelinesWithStages] = useState<PipelineWithStages[]>([]);
   const [agentBots, setAgentBots] = useState<AgentBotOption[]>([]);
   const [messageTemplates, setMessageTemplates] = useState<MessageTemplateOption[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [cannedResponses, setCannedResponses] = useState<CannedResponseOption[]>([]);
+  // Named apart from the existing `customAttributes` state above (which holds
+  // this stage's own attribute VALUES, keyed by attribute key) — this instead
+  // holds every custom attribute DEFINITION, for the update_custom_attribute
+  // stage-automation action's picker.
+  const [customAttributeDefinitions, setCustomAttributeDefinitions] = useState<CustomAttributeDefinition[]>([]);
 
   const stageColors = getStageColors(t);
 
@@ -107,13 +119,52 @@ export default function EditStageModal({
         if (cancelled) return;
         setLabels([]);
       });
+
+    TeamsService
+      .getTeams({ per_page: 100 })
+      .then(res => {
+        if (cancelled) return;
+        setTeams(res.data ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setTeams([]);
+      });
+
+    cannedResponsesService
+      .getCannedResponses()
+      .then(res => {
+        if (cancelled) return;
+        const list = res.data ?? [];
+        setCannedResponses(
+          list.map(c => ({
+            id: c.id,
+            name: c.short_code ? `/${c.short_code}` : (c.content ?? String(c.id)).slice(0, 60),
+          })),
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setCannedResponses([]);
+      });
+
+    customAttributesService
+      .getCustomAttributes()
+      .then(res => {
+        if (cancelled) return;
+        setCustomAttributeDefinitions(res.data ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setCustomAttributeDefinitions([]);
+      });
+
     return () => {
       cancelled = true;
     };
   }, [open]);
 
-  // Agent bots (for send_ai_message) and channel-less templates (for
-  // send_template). These are the real AgentBot records, not human assignees.
+  // Agent bots (for send_ai_message) and the combined template list — both
+  // channel-less (generic/email) and per-inbox WhatsApp Cloud templates —
+  // for send_template. Agent bots are the real AgentBot records, not human
+  // assignees.
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
@@ -128,18 +179,9 @@ export default function EditStageModal({
         if (!cancelled) setAgentBots([]);
       });
 
-    globalMessageTemplatesService
-      .getTemplates()
-      .then(res => {
-        if (cancelled) return;
-        setMessageTemplates(
-          (res.data ?? []).map(tpl => ({
-            id: String(tpl.id),
-            name: tpl.name,
-            language: tpl.language,
-            status: tpl.status,
-          })),
-        );
+    fetchCombinedTemplateOptions()
+      .then(options => {
+        if (!cancelled) setMessageTemplates(options);
       })
       .catch(() => {
         if (!cancelled) setMessageTemplates([]);
@@ -407,6 +449,9 @@ export default function EditStageModal({
               pipelines={pipelinesWithStages}
               agentBots={agentBots}
               messageTemplates={messageTemplates}
+              teams={teams}
+              cannedResponses={cannedResponses}
+              customAttributes={customAttributeDefinitions}
             />
           </TabsContent>
 

@@ -20,6 +20,7 @@ import { Contact, ContactsState, ContactsListParams, ContactFormData } from '@/t
 import { BaseFilter, AppliedFilter, CONTACT_FILTER_TYPES } from '@/types/core';
 import { useContactFilterOptions } from '@/hooks/contacts/useContactFilterOptions';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
+import { apiErrorMessage } from '@/utils/apiHelpers';
 
 import ContactsHeader from '@/components/contacts/ContactsHeader';
 import ContactsTable from '@/components/contacts/ContactsTable';
@@ -768,7 +769,10 @@ export default function Contacts() {
       }
     } catch (error) {
       console.error('Error saving contact:', error);
-      toast.error(editingContactId ? t('messages.updateError') : t('messages.createError'));
+      toast.error(
+        apiErrorMessage(error) ||
+          (editingContactId ? t('messages.updateError') : t('messages.createError')),
+      );
     } finally {
       setFormLoading(false);
     }

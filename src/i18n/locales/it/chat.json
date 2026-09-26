@@ -267,7 +267,8 @@
       "whatsappMessage": "Puoi rispondere a questa conversazione solo usando un modello di messaggio a causa di",
       "cannotReply": "Non puoi rispondere perché",
       "linkText": "Restrizioni della finestra di messaggistica di 24 ore",
-      "zapiDisconnected": "WhatsApp disconnesso. Connetti il numero per inviare messaggi."
+      "zapiDisconnected": "WhatsApp disconnesso. Connetti il numero per inviare messaggi.",
+      "inboxArchived": "Questo canale è stato archiviato. Riattivalo o sposta la conversazione su un altro canale per continuare."
     },
     "noteBanner": {
       "title": "Nota dell'assistenza",
@@ -317,6 +318,7 @@
     "closeConversation": "Chiudi conversazione",
     "backToConversations": "Torna alle conversazioni",
     "phoneNumber": "Numero di telefono",
+    "assignedTo": "Assegnato a",
     "openContactPanel": "Apri dettagli contatto",
     "closeContactPanel": "Chiudi dettagli contatto"
   },
@@ -676,6 +678,7 @@
     },
     "pendingPlaceholder": "Clicca su Apri per rispondere",
     "restrictedPlaceholder": "Impossibile inviare messaggi a causa della finestra di messaggistica di 24 ore",
+    "archivedPlaceholder": "Canale archiviato — impossibile inviare messaggi",
     "defaultPlaceholder": "Digita il tuo messaggio...",
     "noteComposer": {
       "helper": "Salva note importanti sulla conversazione in modo che altri utenti possano vederle in futuro.",
@@ -1013,5 +1016,16 @@
   "unreadBadge": {
     "ariaLabel_one": "{{count}} messaggio non letto",
     "ariaLabel_other": "{{count}} messaggi non letti"
+  },
+  "moveChannel": {
+    "action": "Change channel",
+    "modalTitle": "Move conversation to a different channel",
+    "modalDescription": "Choose another channel to continue this conversation on.",
+    "noEligibleTargets": "No eligible channel to move this conversation to.",
+    "confirm": "Move conversation",
+    "cancel": "Cancel",
+    "movedToast": "Conversation moved to {{inboxName}}",
+    "errorIneligible": "This conversation can't be moved to that channel.",
+    "errorGeneric": "Something went wrong moving this conversation. Please try again."
   }
 }

@@ -86,6 +86,18 @@ const ANTHROPIC_KEY: ApiKey = {
   updated_at: '2026-07-01T00:00:00Z',
 };
 
+const GROQ_KEY: ApiKey = {
+  id: 'key-groq',
+  name: 'Groq rapido',
+  provider: 'groq',
+  key_hint: 'aa77',
+  openai_compatible: false,
+  scope: 'account',
+  is_active: false,
+  created_at: '2026-07-01T00:00:00Z',
+  updated_at: '2026-07-01T00:00:00Z',
+};
+
 const INSTALLATION_KEY: ApiKey = {
   id: 'key-installation',
   name: 'Chave da casa',
@@ -257,6 +269,21 @@ describe('AiCredentials — incompatible provider warning (AC7)', () => {
 
     await screen.findByLabelText('form.labels.key');
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('shows the chat-completions warning, not the AI-Agents-only one, for groq', async () => {
+    // groq is chat-completions-compatible (Task 3): it serves inbox assist and
+    // memory compression too, so the dialog must not claim "AI Agents only".
+    mockRegistry([OPENAI_KEY, ANTHROPIC_KEY, GROQ_KEY]);
+    const user = userEvent.setup();
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getAllByLabelText('actions.edit')[2]);
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('form.chatCompletionsWarning');
+    expect(alert).not.toHaveTextContent('form.incompatibleWarning');
   });
 });
 
@@ -597,14 +624,20 @@ describe('AiCredentials — in-use panel (1.2 AC9)', () => {
     await waitFor(() => expect(panel).toHaveTextContent('inUse.legacy'));
   });
 
-  it('lists the five AI features of the CRM (1.4 completes the panel)', async () => {
+  it('lists the seven AI features of the CRM (1.4 completes the panel)', async () => {
     mockRegistry([OPENAI_KEY]);
     render(<AiCredentials />);
 
     const panel = await screen.findByLabelText('inUse.title');
-    ['aiAgents', 'inboxAssist', 'audioTranscription', 'labelSuggestion', 'moderation'].forEach(
-      feature => expect(panel).toHaveTextContent(`inUse.features.${feature}`),
-    );
+    [
+      'aiAgents',
+      'inboxAssist',
+      'audioTranscription',
+      'labelSuggestion',
+      'moderation',
+      'knowledgeEmbedding',
+      'memoryCompression',
+    ].forEach(feature => expect(panel).toHaveTextContent(`inUse.features.${feature}`));
   });
 
   // 1.4 AC7: an Anthropic account credential serves Agents but none of the four
@@ -696,6 +729,42 @@ describe('AiCredentials — creating (AC2)', () => {
   });
 });
 
+// Per direct product decision, the "restrict to specific features" checkbox
+// group is no longer offered in the UI — every credential resolves
+// automatically to whichever compatible features need it. The backend
+// allowed_consumers column stays dormant (see docs/superpowers/sdd plan
+// 2026-09-20-ai-chat-provider-expansion, task 4).
+describe('AiCredentials — no restrict-to-specific-features UI', () => {
+  it('does not render the restrict-to-specific-features checkbox group', async () => {
+    const user = userEvent.setup();
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+    await screen.findByRole('dialog');
+
+    expect(screen.queryByText('form.labels.allowedConsumers')).not.toBeInTheDocument();
+  });
+
+  it('always sends an empty allowed_consumers array on create, since there is no UI to set it', async () => {
+    const user = userEvent.setup();
+    createApiKey.mockResolvedValue(OPENAI_KEY);
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+
+    await user.type(await screen.findByLabelText('form.labels.name'), 'Nova');
+    await user.click(screen.getByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'OpenAI' }));
+    await user.type(screen.getByLabelText('form.labels.key'), 'sk-unrestricted-0001');
+    await user.click(screen.getByText('actions.save'));
+
+    await waitFor(() => expect(createApiKey).toHaveBeenCalled());
+    expect(createApiKey).toHaveBeenCalledWith(expect.objectContaining({ allowed_consumers: [] }));
+  });
+});
+
 // The API answers a 500 with a machine-readable code (e.g. ERR_UNDEFINED_COLUMN when
 // the schema is behind the binary). The toast must carry that code instead of the
 // bare "failed to save", or the person on screen has nothing to report.
@@ -777,9 +846,15 @@ describe('AiCredentials — base_url round trip (ALTO 7)', () => {
 
     await user.type(await screen.findByLabelText('form.labels.name'), 'Gateway');
     await user.type(screen.getByLabelText('form.labels.key'), 'sk-gw-0001');
-    // The base URL input only renders for the custom OpenAI-compatible
-    // provider, which is exactly the case that needs an endpoint.
-    expect(screen.queryByLabelText('form.labels.baseUrl')).not.toBeInTheDocument();
+    // The base URL input is visible for every provider, not just the custom
+    // OpenAI-compatible one — an admin may point any provider at a proxy.
+    await user.type(screen.getByLabelText('form.labels.baseUrl'), 'https://gw.example.com/v1');
+    await user.click(screen.getByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'OpenAI' }));
+    await user.click(screen.getByText('actions.save'));
+
+    await waitFor(() => expect(createApiKey).toHaveBeenCalled());
+    expect(createApiKey.mock.calls[0][0]).toMatchObject({ base_url: 'https://gw.example.com/v1' });
   });
 
   it('renders the stored endpoint when editing a credential that has one', async () => {
@@ -815,6 +890,78 @@ describe('AiCredentials — base_url round trip (ALTO 7)', () => {
     // This fails if the endpoint ever stops travelling: the backend replaces
     // what it receives, so a dropped base_url is a lost endpoint.
     expect(payload.base_url).toBe('https://gw.example.com/v1');
+  });
+});
+
+// Restores the ability to point any provider at a proxy, regional endpoint or
+// self-hosted gateway, and auto-fills the known chat-only providers' hosts so
+// an admin never has to type them by hand.
+describe('AiCredentials — base URL always visible with known-provider auto-fill', () => {
+  it('shows the base URL field for every provider, not just Custom', async () => {
+    const user = userEvent.setup();
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+
+    await user.click(await screen.findByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'OpenAI' }));
+
+    expect(screen.getByLabelText('form.labels.baseUrl')).toBeInTheDocument();
+  });
+
+  it('keeps a manually-typed base URL when switching to a provider with no known default', async () => {
+    const user = userEvent.setup();
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+
+    await user.click(await screen.findByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'Custom (OpenAI-compatible)' }));
+    await user.type(screen.getByLabelText('form.labels.baseUrl'), 'https://my-proxy.example.com/v1');
+
+    await user.click(screen.getByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'Anthropic' }));
+
+    expect(screen.getByLabelText('form.labels.baseUrl')).toHaveValue('https://my-proxy.example.com/v1');
+  });
+
+  it('auto-fills the base URL when a known chat-completions-compatible provider is selected', async () => {
+    const user = userEvent.setup();
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+
+    await user.click(await screen.findByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'Groq' }));
+
+    expect(screen.getByLabelText('form.labels.baseUrl')).toHaveValue('https://api.groq.com/openai/v1');
+  });
+
+  it('lets the admin override the auto-filled base URL', async () => {
+    const user = userEvent.setup();
+    createApiKey.mockResolvedValue(OPENAI_KEY);
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+
+    await user.type(await screen.findByLabelText('form.labels.name'), 'Groq override');
+    await user.click(screen.getByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'Groq' }));
+
+    const baseUrlInput = screen.getByLabelText('form.labels.baseUrl');
+    await user.clear(baseUrlInput);
+    await user.type(baseUrlInput, 'https://my-groq-proxy.example.com/v1');
+    await user.type(screen.getByLabelText('form.labels.key'), 'sk-groq-0001');
+    await user.click(screen.getByText('actions.save'));
+
+    await waitFor(() => expect(createApiKey).toHaveBeenCalled());
+    expect(createApiKey).toHaveBeenCalledWith(
+      expect.objectContaining({ base_url: 'https://my-groq-proxy.example.com/v1' }),
+    );
   });
 });
 

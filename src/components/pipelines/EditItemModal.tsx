@@ -238,7 +238,10 @@ export default function EditItemModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[620px] w-full max-h-[92vh] p-0 gap-0 rounded-[18px] overflow-hidden">
+      <DialogContent
+        className="max-w-[620px] w-full max-h-[92vh] p-0 gap-0 rounded-[18px] overflow-hidden"
+        showCloseButton={false}
+      >
         <DialogTitle className="sr-only">{t('editItem.title')}</DialogTitle>
 
         {/* Custom header */}

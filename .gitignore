@@ -53,3 +53,6 @@ yarn.lock
 /e2e/playwright-report/
 /playwright-report/
 /test-results/
+
+# Git worktrees (isolated workspaces for subagent-driven development)
+.worktrees/

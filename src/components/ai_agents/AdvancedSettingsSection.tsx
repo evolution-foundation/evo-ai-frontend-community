@@ -1,9 +1,10 @@
-import { useCallback } from 'react';
-import { Badge, Card, CardContent, CardHeader, Switch, Label } from '@evoapi/design-system';
-import { Settings, Brain, Zap } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { Badge, Card, CardContent, CardHeader, Switch, Label, Input, Button } from '@evoapi/design-system';
+import { Settings, Brain, Zap, BookOpen, X, Plus } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 
 import CollapsibleHeader from './CollapsibleHeader';
+import { useKnowledgeBases } from '@/hooks/useKnowledgeBases';
 
 interface AdvancedSettingsData {
   load_memory: boolean;
@@ -19,6 +20,16 @@ interface AdvancedSettingsSectionProps {
   onToggle: () => void;
   onAdvancedSettingsChange: (data: AdvancedSettingsData) => void;
   isReadOnly?: boolean;
+  /**
+   * The currently attached knowledge base id (Phase 1 CRUD resource), if any.
+   * This is intentionally separate from `data`/`onAdvancedSettingsChange`:
+   * attachment is a relationship to a knowledge base resource, not an agent
+   * config field, so it is persisted via the dedicated attach/detach endpoint
+   * (`POST`/`DELETE /api/v1/ai_agents/:id/knowledge_base`) rather than being
+   * bundled into the agent's saved config payload.
+   */
+  knowledgeBaseId?: string;
+  onKnowledgeBaseChange?: (knowledgeBaseId: string) => void;
 }
 
 const AdvancedSettingsSection = ({
@@ -27,9 +38,12 @@ const AdvancedSettingsSection = ({
   onToggle,
   onAdvancedSettingsChange,
   isReadOnly = false,
+  knowledgeBaseId,
+  onKnowledgeBaseChange,
 }: AdvancedSettingsSectionProps) => {
   const { t } = useLanguage('aiAgents');
-  // const [knowledgeTagInput, setKnowledgeTagInput] = useState('');
+  const [knowledgeTagInput, setKnowledgeTagInput] = useState('');
+  const { knowledgeBases, loading: loadingKnowledgeBases } = useKnowledgeBases();
 
   const handleAdvancedConfigChange = useCallback(
     (field: keyof AdvancedSettingsData, value: boolean | string[]) => {
@@ -41,31 +55,31 @@ const AdvancedSettingsSection = ({
     [data, onAdvancedSettingsChange],
   );
 
-  // const handleAddKnowledgeTag = useCallback(() => {
-  //   const trimmedTag = knowledgeTagInput.trim();
-  //   if (trimmedTag && !data.knowledge_tags.includes(trimmedTag)) {
-  //     handleAdvancedConfigChange('knowledge_tags', [...data.knowledge_tags, trimmedTag]);
-  //     setKnowledgeTagInput('');
-  //   }
-  // }, [knowledgeTagInput, data.knowledge_tags, handleAdvancedConfigChange]);
+  const handleAddKnowledgeTag = useCallback(() => {
+    const trimmedTag = knowledgeTagInput.trim();
+    if (trimmedTag && !data.knowledge_tags.includes(trimmedTag)) {
+      handleAdvancedConfigChange('knowledge_tags', [...data.knowledge_tags, trimmedTag]);
+      setKnowledgeTagInput('');
+    }
+  }, [knowledgeTagInput, data.knowledge_tags, handleAdvancedConfigChange]);
 
-  // const handleRemoveKnowledgeTag = useCallback(
-  //   (tagToRemove: string) => {
-  //     const updatedTags = data.knowledge_tags.filter(tag => tag !== tagToRemove);
-  //     handleAdvancedConfigChange('knowledge_tags', updatedTags);
-  //   },
-  //   [data.knowledge_tags, handleAdvancedConfigChange],
-  // );
+  const handleRemoveKnowledgeTag = useCallback(
+    (tagToRemove: string) => {
+      const updatedTags = data.knowledge_tags.filter(tag => tag !== tagToRemove);
+      handleAdvancedConfigChange('knowledge_tags', updatedTags);
+    },
+    [data.knowledge_tags, handleAdvancedConfigChange],
+  );
 
-  // const handleKeyPress = useCallback(
-  //   (e: React.KeyboardEvent) => {
-  //     if (e.key === 'Enter') {
-  //       e.preventDefault();
-  //       handleAddKnowledgeTag();
-  //     }
-  //   },
-  //   [handleAddKnowledgeTag],
-  // );
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAddKnowledgeTag();
+      }
+    },
+    [handleAddKnowledgeTag],
+  );
 
   return (
     <Card>
@@ -174,7 +188,7 @@ const AdvancedSettingsSection = ({
           </div>
 
           {/* Load Knowledge */}
-          {/* <div className="flex items-start justify-between p-4 bg-muted/30 rounded-lg border">
+          <div className="flex items-start justify-between p-4 bg-muted/30 rounded-lg border">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <BookOpen className="h-5 w-5 text-green-500" />
@@ -205,6 +219,24 @@ const AdvancedSettingsSection = ({
 
               {data.load_knowledge && (
                 <div className="mt-4 p-3 bg-muted/50 rounded-md border border-dashed">
+                  <Label htmlFor="knowledge-base-select" className="text-sm font-medium mb-2 block">
+                    {t('knowledge.selectKnowledgeBase')}
+                  </Label>
+                  <select
+                    id="knowledge-base-select"
+                    value={knowledgeBaseId ?? ''}
+                    onChange={e => onKnowledgeBaseChange?.(e.target.value)}
+                    disabled={isReadOnly || loadingKnowledgeBases || !onKnowledgeBaseChange}
+                    className="mb-3 w-full rounded-md border bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="">{t('knowledge.selectKnowledgeBasePlaceholder')}</option>
+                    {knowledgeBases.map(kb => (
+                      <option key={kb.id} value={kb.id}>
+                        {kb.name}
+                      </option>
+                    ))}
+                  </select>
+
                   <Label className="text-sm font-medium mb-2 block">
                     {t('knowledge.knowledgeTags')}
                   </Label>
@@ -256,7 +288,7 @@ const AdvancedSettingsSection = ({
                 </div>
               )}
             </div>
-          </div> */}
+          </div>
         </CardContent>
       )}
     </Card>

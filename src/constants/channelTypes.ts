@@ -44,6 +44,11 @@ export const getChannelTypes = (): ChannelType[] => [
         popular: true,
       },
       {
+        id: 'waha',
+        name: i18n.t('channels:newChannel.providers.waha.name'),
+        description: i18n.t('channels:newChannel.providers.waha.description'),
+      },
+      {
         id: 'notificame',
         name: i18n.t('channels:newChannel.providers.notificame.name'),
         description: i18n.t('channels:newChannel.providers.notificame.description'),

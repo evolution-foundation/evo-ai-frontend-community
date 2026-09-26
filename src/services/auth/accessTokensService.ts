@@ -1,11 +1,27 @@
 import apiAuth from '@/services/core/apiAuth';
 import { extractData, extractResponse } from '@/utils/apiHelpers';
+
 import type {
   AccessToken,
   AccessTokenFormData,
   AccessTokensResponse,
   AccessTokenResponse,
 } from '@/types/auth';
+
+// When embedded, the host persists the active account under this key (same
+// channel as `access_token`). The auth binds a new token to that account so API
+// calls made with it resolve their account without any further header. A
+// standalone install has no host and no header; the auth keeps its fallback.
+const ACTIVE_ACCOUNT_KEY = 'evo_active_tenant_id';
+
+export const activeAccountHeaders = (): Record<string, string> => {
+  try {
+    const accountId = localStorage.getItem(ACTIVE_ACCOUNT_KEY);
+    return accountId ? { 'X-Evo-Tenant-Id': accountId } : {};
+  } catch {
+    return {};
+  }
+};
 
 /**
  * Get all Access Tokens for an account
@@ -35,9 +51,11 @@ export const getAccessToken = async (id: string): Promise<AccessTokenResponse> =
 export const createAccessToken = async (
   data: AccessTokenFormData,
 ): Promise<AccessTokenResponse> => {
-  const response = await apiAuth.post('/access_tokens', {
-    access_token: data,
-  });
+  const response = await apiAuth.post(
+    '/access_tokens',
+    { access_token: data },
+    { headers: activeAccountHeaders() },
+  );
   return extractData<any>(response);
 };
 

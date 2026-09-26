@@ -18,6 +18,7 @@ export { default as WebWidgetAdvancedForm } from './settings/WebWidgetAdvancedFo
 export { default as SenderSettingsForm } from './settings/SenderSettingsForm';
 export { default as AuthorizationBanners } from './settings/AuthorizationBanners';
 export { default as LockToSingleConversationForm } from './settings/LockToSingleConversationForm';
+export { default as ForceAgentSignatureForm } from './settings/ForceAgentSignatureForm';
 export { default as DefaultConversationStatusForm } from './settings/DefaultConversationStatusForm';
 export { default as CollaboratorsForm } from './settings/CollaboratorsForm';
 export { default as BusinessHoursForm } from './settings/BusinessHoursForm';

@@ -10,6 +10,7 @@ import {
   SelectValue,
   Input,
   Textarea,
+  Checkbox,
 } from '@evoapi/design-system';
 import { PlusIcon, TrashIcon } from 'lucide-react';
 import type {
@@ -21,10 +22,29 @@ import type {
 } from '@/types/analytics/pipelines';
 import type { PipelineStage } from '@/types/analytics';
 import type { Label } from '@/types/settings/labels';
+import type { MessageTemplateOption } from '@/services/messageTemplates/combinedTemplateOptions';
+import type { Team } from '@/types/users';
+import type { CustomAttributeDefinition } from '@/types/settings';
 
 interface Agent {
   id: string;
   name: string;
+}
+
+const TEMPLATE_PLACEHOLDER_PATTERN = /(\{\{[^{}]+\}\})/g;
+
+// Highlights {{1}}, {{var}}, etc. so the user can tell, at a glance, which
+// word in the template body each mapping field below is replacing.
+function renderTemplateContentWithHighlightedPlaceholders(content: string) {
+  return content.split(TEMPLATE_PLACEHOLDER_PATTERN).map((part, i) =>
+    part.startsWith('{{') ? (
+      <strong key={i} className="text-foreground font-semibold">
+        {part}
+      </strong>
+    ) : (
+      <span key={i}>{part}</span>
+    ),
+  );
 }
 
 // Minimal shapes the picker needs — the parent modal passes these in (agent
@@ -34,14 +54,17 @@ export interface AgentBotOption {
   name: string;
 }
 
-export interface MessageTemplateOption {
-  id: string;
+// Minimal shape for the send_canned_response picker — the parent modal
+// computes the display name (short_code preview vs. content preview), the
+// same way useAutomationFormData does for the canvas/account-level automation.
+export interface CannedResponseOption {
+  id: string | number;
   name: string;
-  language?: string;
-  /** Provider approval status (WhatsApp Cloud): 'PENDING' renders disabled with a
-   *  "waiting for Meta approval" note instead of vanishing into "no templates". */
-  status?: string;
 }
+
+// Re-exported for back-compat with existing imports of this component's
+// module — the canonical definition lives with the fetch/merge logic.
+export type { MessageTemplateOption };
 
 export interface PipelineWithStages {
   id: string;
@@ -61,6 +84,9 @@ interface StageAutomationRulesProps {
   pipelines?: PipelineWithStages[];
   agentBots?: AgentBotOption[];
   messageTemplates?: MessageTemplateOption[];
+  teams?: Team[];
+  cannedResponses?: CannedResponseOption[];
+  customAttributes?: CustomAttributeDefinition[];
 }
 
 function newRuleId() {
@@ -77,7 +103,18 @@ const makeEmptyRule = (): StageAutomationRule => ({
 });
 
 const CONVERSATION_STATUSES = ['open', 'resolved', 'pending', 'snoozed'] as const;
-const INACTIVITY_MINUTES = [2, 5, 10, 15, 30, 60, 120, 240, 480, 720, 1440, 2880, 4320] as const;
+const CONVERSATION_PRIORITIES = ['urgent', 'high', 'medium', 'low', 'none'] as const;
+// Custom attribute models that map to a concrete record at automation-run
+// time (mirrors ActionRow.tsx's UPDATABLE_ATTRIBUTE_MODELS) — pipeline /
+// pipeline_stage attributes are config-level and have no per-run record.
+const UPDATABLE_ATTRIBUTE_MODELS = [
+  'conversation_attribute',
+  'contact_attribute',
+  'pipeline_item_attribute',
+] as const;
+const INACTIVITY_MINUTES = [
+  2, 5, 10, 15, 30, 60, 120, 240, 480, 720, 1440, 2880, 4320, 10080, 20160, 43200,
+] as const;
 const DEFAULT_INACTIVITY_MINUTES = 5;
 const INACTIVITY_BASES: InactivityBase[] = ['no_customer_reply', 'stage_stagnation'];
 const MINUTES_PER_DAY = 1440;
@@ -86,6 +123,82 @@ const DAY_LABEL_FROM_MINUTES = 7 * MINUTES_PER_DAY;
 
 const ANY_VALUE_SENTINEL = '__any__';
 const PLACEHOLDER_SENTINEL = '__placeholder__';
+
+// EVO: curated field paths for the send_template variable-mapping picker —
+// mirrors SOURCE_FIELD_PATHS in the canvas/flow SendMessageContent, which
+// every path here must stay resolvable against (the backend allowlists the
+// same set for action_variables).
+const VARIABLE_MAPPING_PATHS = [
+  'contact.name',
+  'contact.email',
+  'contact.phone_number',
+  'contact.identifier',
+  'conversation.display_id',
+  'conversation.status',
+  'pipeline.pipeline_stage.name',
+  'pipeline.pipeline.name',
+  'pipeline.entered_at',
+] as const;
+
+// A stale send_template variable mapping is keyed by placeholder position
+// ("1", "2"...), which is coincidental across templates — template A's {{1}}
+// meaning contact.name says nothing about template B's {{1}}. Spread this
+// into the patch whenever the selected template (or the action itself)
+// changes, so a new/different template never inherits the old mapping.
+const CLEAR_TEMPLATE_VARIABLES: Pick<StageAutomationRule, 'action_variables' | 'action_variable_fallbacks'> = {
+  action_variables: undefined,
+  action_variable_fallbacks: undefined,
+};
+
+// A generic/email template has no known channel — labeled plainly. A
+// WhatsApp Cloud template is bound to one inbox, so the label also carries
+// the inbox name (several inboxes may share a template name).
+function templateOptionLabel(tpl: MessageTemplateOption, t: (key: string) => string): string {
+  const sourceLabel = t(`stageAutomation.templateSourceLabels.${tpl.source ?? 'generic'}`);
+  const inboxPart = tpl.inboxName ? ` · ${tpl.inboxName}` : '';
+  return `${sourceLabel}${inboxPart}: ${tpl.name}`;
+}
+
+// send_email_to_team's action_value is a JSON string of
+// {"team_ids": [...], "message": "..."}; parse defensively since a hand-edited
+// or legacy rule may carry something else.
+interface EmailToTeamValue {
+  teamIds: string[];
+  message: string;
+}
+
+function parseEmailToTeamValue(value: string): EmailToTeamValue {
+  try {
+    const parsed = JSON.parse(value || '{}');
+    return {
+      teamIds: Array.isArray(parsed?.team_ids) ? parsed.team_ids.map(String) : [],
+      message: typeof parsed?.message === 'string' ? parsed.message : '',
+    };
+  } catch {
+    return { teamIds: [], message: '' };
+  }
+}
+
+// update_custom_attribute's action_value is a JSON string of
+// {"custom_attribute_key", "custom_attribute_model", "custom_attribute_value"}.
+interface CustomAttributeActionValue {
+  key: string;
+  model: string;
+  value: string;
+}
+
+function parseCustomAttributeValue(value: string): CustomAttributeActionValue {
+  try {
+    const parsed = JSON.parse(value || '{}');
+    return {
+      key: typeof parsed?.custom_attribute_key === 'string' ? parsed.custom_attribute_key : '',
+      model: typeof parsed?.custom_attribute_model === 'string' ? parsed.custom_attribute_model : '',
+      value: typeof parsed?.custom_attribute_value === 'string' ? parsed.custom_attribute_value : '',
+    };
+  } catch {
+    return { key: '', model: '', value: '' };
+  }
+}
 
 // trigger_value is an object for the inactivity trigger, a string otherwise.
 function asInactivityValue(value: StageAutomationRule['trigger_value']): InactivityTriggerValue {
@@ -131,6 +244,9 @@ export default function StageAutomationRules({
   pipelines = [],
   agentBots = [],
   messageTemplates = [],
+  teams = [],
+  cannedResponses = [],
+  customAttributes = [],
 }: StageAutomationRulesProps) {
   const { t } = useLanguage('pipelines');
   const navigate = useNavigate();
@@ -426,7 +542,32 @@ export default function StageAutomationRules({
       );
     }
 
-    if (rule.action === 'apply_label') {
+    if (rule.action === 'assign_team') {
+      return (
+        <Select
+          value={rule.action_value || ''}
+          onValueChange={v => updateRule(index, { action_value: v })}
+          disabled={disabled}
+        >
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder={t('stageAutomation.selectTeam') || 'Selecione uma equipe'} />
+          </SelectTrigger>
+          <SelectContent>
+            {teams.length === 0 ? (
+              <SelectItem value={PLACEHOLDER_SENTINEL} disabled>{t('stageAutomation.noTeams') || 'Nenhuma equipe disponível'}</SelectItem>
+            ) : (
+              teams.map(tm => (
+                <SelectItem key={tm.id} value={String(tm.id)}>
+                  {tm.name}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    if (rule.action === 'apply_label' || rule.action === 'remove_label') {
       return (
         <Select
           value={rule.action_value || ''}
@@ -456,6 +597,219 @@ export default function StageAutomationRules({
             )}
           </SelectContent>
         </Select>
+      );
+    }
+
+    if (rule.action === 'change_priority') {
+      return (
+        <Select
+          value={rule.action_value || ''}
+          onValueChange={v => updateRule(index, { action_value: v })}
+          disabled={disabled}
+        >
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder={t('stageAutomation.selectPriority') || 'Selecione a prioridade'} />
+          </SelectTrigger>
+          <SelectContent>
+            {CONVERSATION_PRIORITIES.map(p => (
+              <SelectItem key={p} value={p}>
+                {t(`stageAutomation.priorities.${p}`) || p}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    if (rule.action === 'change_status') {
+      return (
+        <Select
+          value={rule.action_value || ''}
+          onValueChange={v => updateRule(index, { action_value: v })}
+          disabled={disabled}
+        >
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder={t('stageAutomation.selectStatus') || 'Selecione o status'} />
+          </SelectTrigger>
+          <SelectContent>
+            {CONVERSATION_STATUSES.map(s => (
+              <SelectItem key={s} value={s}>
+                {t(`kanban.search.status.${s}`) || s}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    if (rule.action === 'send_webhook_event') {
+      return (
+        <Input
+          className="flex-1"
+          placeholder="https://seu-endpoint.com/webhook"
+          value={rule.action_value}
+          onChange={e => updateRule(index, { action_value: e.target.value })}
+          disabled={disabled}
+        />
+      );
+    }
+
+    if (rule.action === 'create_pipeline_task') {
+      return (
+        <Input
+          className="flex-1"
+          placeholder={t('stageAutomation.taskTitlePlaceholder') || 'Título da tarefa...'}
+          value={rule.action_value}
+          onChange={e => updateRule(index, { action_value: e.target.value })}
+          disabled={disabled}
+        />
+      );
+    }
+
+    if (rule.action === 'send_canned_response') {
+      return (
+        <Select
+          value={rule.action_value || ''}
+          onValueChange={v => updateRule(index, { action_value: v })}
+          disabled={disabled}
+        >
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder={t('stageAutomation.selectCannedResponse') || 'Selecione uma resposta pronta'} />
+          </SelectTrigger>
+          <SelectContent>
+            {cannedResponses.length === 0 ? (
+              <SelectItem value={PLACEHOLDER_SENTINEL} disabled>
+                {t('stageAutomation.noCannedResponses') || 'Nenhuma resposta pronta disponível'}
+              </SelectItem>
+            ) : (
+              cannedResponses.map(c => (
+                <SelectItem key={c.id} value={String(c.id)}>
+                  {c.name}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    if (rule.action === 'send_email_to_team') {
+      const { teamIds, message } = parseEmailToTeamValue(rule.action_value);
+      const toggleTeam = (id: string) => {
+        const nextIds = teamIds.includes(id) ? teamIds.filter(t => t !== id) : [...teamIds, id];
+        updateRule(index, { action_value: JSON.stringify({ team_ids: nextIds, message }) });
+      };
+      return (
+        <div className="flex-1 space-y-2">
+          <div className="space-y-1 max-h-32 overflow-y-auto rounded-md border p-2">
+            {teams.length === 0 ? (
+              <p className="text-xs text-muted-foreground">{t('stageAutomation.noTeams')}</p>
+            ) : (
+              teams.map(tm => {
+                const id = String(tm.id);
+                return (
+                  <label key={id} className="flex items-center gap-2 text-sm cursor-pointer">
+                    <Checkbox
+                      checked={teamIds.includes(id)}
+                      onCheckedChange={() => toggleTeam(id)}
+                      disabled={disabled}
+                    />
+                    {tm.name}
+                  </label>
+                );
+              })
+            )}
+          </div>
+          <Textarea
+            rows={2}
+            placeholder={t('stageAutomation.emailToTeamMessagePlaceholder') || 'Mensagem do e-mail...'}
+            value={message}
+            onChange={e =>
+              updateRule(index, { action_value: JSON.stringify({ team_ids: teamIds, message: e.target.value }) })
+            }
+            disabled={disabled}
+          />
+        </div>
+      );
+    }
+
+    if (rule.action === 'send_email_transcript') {
+      return (
+        <Input
+          className="flex-1"
+          placeholder={t('stageAutomation.emailTranscriptPlaceholder') || 'email1@ex.com, email2@ex.com'}
+          value={rule.action_value}
+          onChange={e => updateRule(index, { action_value: e.target.value })}
+          disabled={disabled}
+        />
+      );
+    }
+
+    if (rule.action === 'update_custom_attribute') {
+      const { key: selectedKey, model: selectedModel, value: attributeValue } = parseCustomAttributeValue(
+        rule.action_value,
+      );
+      const options = customAttributes.filter(attr =>
+        (UPDATABLE_ATTRIBUTE_MODELS as readonly string[]).includes(attr.attribute_model),
+      );
+      const composite = selectedKey && selectedModel ? `${selectedModel}::${selectedKey}` : '';
+
+      const pickAttribute = (value: string) => {
+        const sep = value.indexOf('::');
+        if (sep === -1) return;
+        const model = value.slice(0, sep);
+        const key = value.slice(sep + 2);
+        updateRule(index, {
+          action_value: JSON.stringify({
+            custom_attribute_key: key,
+            custom_attribute_model: model,
+            custom_attribute_value: '',
+          }),
+        });
+      };
+
+      const setAttributeValue = (value: string) => {
+        updateRule(index, {
+          action_value: JSON.stringify({
+            custom_attribute_key: selectedKey,
+            custom_attribute_model: selectedModel,
+            custom_attribute_value: value,
+          }),
+        });
+      };
+
+      return (
+        <div className="flex-1 space-y-2">
+          <Select value={composite} onValueChange={pickAttribute} disabled={disabled}>
+            <SelectTrigger>
+              <SelectValue placeholder={t('stageAutomation.selectCustomAttribute') || 'Selecione um atributo'} />
+            </SelectTrigger>
+            <SelectContent>
+              {options.length === 0 ? (
+                <SelectItem value={PLACEHOLDER_SENTINEL} disabled>
+                  {t('stageAutomation.noCustomAttributes') || 'Nenhum atributo disponível'}
+                </SelectItem>
+              ) : (
+                options.map(attr => (
+                  <SelectItem
+                    key={`${attr.attribute_model}::${attr.attribute_key}`}
+                    value={`${attr.attribute_model}::${attr.attribute_key}`}
+                  >
+                    {`${attr.attribute_display_name} · ${t(`stageAutomation.customAttributeModels.${attr.attribute_model}`)}`}
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+          {composite && (
+            <Input
+              placeholder={t('stageAutomation.customAttributeValuePlaceholder') || 'Valor...'}
+              value={attributeValue}
+              onChange={e => setAttributeValue(e.target.value)}
+              disabled={disabled}
+            />
+          )}
+        </div>
       );
     }
 
@@ -522,11 +876,31 @@ export default function StageAutomationRules({
       const pendingOnly =
         messageTemplates.length > 0 && messageTemplates.every(tpl => tpl.status === 'PENDING');
       const showHint = messageTemplates.length === 0 || pendingOnly;
+      const selectedTemplate = messageTemplates.find(tpl => tpl.id === rule.action_value);
+      const placeholders = selectedTemplate?.placeholders ?? [];
+      const actionVariables = rule.action_variables ?? {};
+      const actionVariableFallbacks = rule.action_variable_fallbacks ?? {};
+
+      // "{{path}}" is embedded literally into the stored value — the backend
+      // resolves it at send time; an empty selection clears the key instead
+      // of writing a broken "{{}}" token.
+      const setVariablePath = (key: string, path: string) => {
+        updateRule(index, {
+          action_variables: { ...actionVariables, [key]: path ? `{{${path}}}` : '' },
+        });
+      };
+
+      const setVariableFallback = (key: string, fallback: string) => {
+        updateRule(index, {
+          action_variable_fallbacks: { ...actionVariableFallbacks, [key]: fallback },
+        });
+      };
+
       return (
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 space-y-3">
           <Select
             value={rule.action_value || ''}
-            onValueChange={v => updateRule(index, { action_value: v })}
+            onValueChange={v => updateRule(index, { action_value: v, ...CLEAR_TEMPLATE_VARIABLES })}
             disabled={disabled}
           >
             <SelectTrigger className="w-full">
@@ -540,7 +914,7 @@ export default function StageAutomationRules({
               ) : (
                 messageTemplates.map(tpl => (
                   <SelectItem key={tpl.id} value={tpl.id} disabled={tpl.status === 'PENDING'}>
-                    {tpl.name}
+                    {templateOptionLabel(tpl, t)}
                     {tpl.language ? ` (${tpl.language})` : ''}
                     {tpl.status === 'PENDING' ? ` (${t('stageAutomation.templatePending')})` : ''}
                   </SelectItem>
@@ -549,7 +923,7 @@ export default function StageAutomationRules({
             </SelectContent>
           </Select>
           {showHint && (
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {pendingOnly
                 ? t('stageAutomation.templatesPendingHint')
                 : t('stageAutomation.noTemplatesHint')}{' '}
@@ -561,6 +935,48 @@ export default function StageAutomationRules({
                 {t('stageAutomation.manageTemplates')}
               </button>
             </p>
+          )}
+          {placeholders.length > 0 && (
+            <div className="space-y-2 border-t pt-2">
+              <p className="text-xs text-muted-foreground font-medium">
+                {t('stageAutomation.variableMapping.label')}
+              </p>
+              {selectedTemplate?.content && (
+                <p className="text-xs text-muted-foreground bg-muted/50 rounded-md p-2 whitespace-pre-wrap">
+                  {renderTemplateContentWithHighlightedPlaceholders(selectedTemplate.content)}
+                </p>
+              )}
+              {placeholders.map(key => {
+                const path = (actionVariables[key] ?? '').replace(/^\{\{|\}\}$/g, '');
+                return (
+                  <div key={key} className="flex gap-2">
+                    <Select
+                      value={path}
+                      onValueChange={v => setVariablePath(key, v)}
+                      disabled={disabled}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder={t('stageAutomation.variableMapping.choosePath')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {VARIABLE_MAPPING_PATHS.map(p => (
+                          <SelectItem key={p} value={p}>
+                            {t(`stageAutomation.variableMapping.fields.${p.replace(/\./g, '_')}`)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      className="flex-1"
+                      placeholder={t('stageAutomation.variableMapping.fallbackPlaceholder')}
+                      value={actionVariableFallbacks[key] ?? ''}
+                      onChange={e => setVariableFallback(key, e.target.value)}
+                      disabled={disabled}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
       );
@@ -644,7 +1060,13 @@ export default function StageAutomationRules({
               <div className="flex gap-2">
                 <Select
                   value={rule.action}
-                  onValueChange={v => updateRule(index, { action: v as StageAutomationAction, action_value: '' })}
+                  onValueChange={v =>
+                    updateRule(index, {
+                      action: v as StageAutomationAction,
+                      action_value: '',
+                      ...CLEAR_TEMPLATE_VARIABLES,
+                    })
+                  }
                   disabled={disabled}
                 >
                   <SelectTrigger className="w-[200px]">
@@ -654,11 +1076,21 @@ export default function StageAutomationRules({
                     <SelectItem value="move_to_stage">{t('stageAutomation.actions.move_to_stage')}</SelectItem>
                     <SelectItem value="move_to_pipeline">{t('stageAutomation.actions.move_to_pipeline')}</SelectItem>
                     <SelectItem value="assign_agent">{t('stageAutomation.actions.assign_agent')}</SelectItem>
+                    <SelectItem value="assign_team">{t('stageAutomation.actions.assign_team') || 'Atribuir equipe'}</SelectItem>
                     <SelectItem value="apply_label">{t('stageAutomation.actions.apply_label')}</SelectItem>
+                    <SelectItem value="remove_label">{t('stageAutomation.actions.remove_label') || 'Remover etiqueta'}</SelectItem>
+                    <SelectItem value="change_priority">{t('stageAutomation.actions.change_priority') || 'Alterar prioridade'}</SelectItem>
+                    <SelectItem value="change_status">{t('stageAutomation.actions.change_status') || 'Alterar status'}</SelectItem>
                     <SelectItem value="send_ai_message">{t('stageAutomation.actions.send_ai_message')}</SelectItem>
                     <SelectItem value="send_direct_message">{t('stageAutomation.actions.send_direct_message')}</SelectItem>
                     <SelectItem value="send_template">{t('stageAutomation.actions.send_template')}</SelectItem>
                     <SelectItem value="finalize">{t('stageAutomation.actions.finalize')}</SelectItem>
+                    <SelectItem value="send_webhook_event">{t('stageAutomation.actions.send_webhook_event') || 'Disparar webhook'}</SelectItem>
+                    <SelectItem value="create_pipeline_task">{t('stageAutomation.actions.create_pipeline_task') || 'Criar tarefa no card'}</SelectItem>
+                    <SelectItem value="send_canned_response">{t('stageAutomation.actions.send_canned_response') || 'Enviar resposta pronta'}</SelectItem>
+                    <SelectItem value="send_email_to_team">{t('stageAutomation.actions.send_email_to_team') || 'Enviar e-mail para equipe'}</SelectItem>
+                    <SelectItem value="send_email_transcript">{t('stageAutomation.actions.send_email_transcript') || 'Enviar transcrição por e-mail'}</SelectItem>
+                    <SelectItem value="update_custom_attribute">{t('stageAutomation.actions.update_custom_attribute') || 'Atualizar atributo personalizado'}</SelectItem>
                   </SelectContent>
                 </Select>
                 {renderActionValue(rule, index)}

@@ -5,6 +5,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { CampaignChannelType } from '@/types/campaigns';
 import InboxesService from '@/services/channels/inboxesService';
 import MessageTemplateService from '@/services/channels/messageTemplatesService';
+import { fetchAllPages } from '@/utils/apiHelpers';
 import type { Inbox } from '@/types/channels/inbox';
 import type { MessageTemplate } from '@/types/channels/inbox';
 
@@ -31,8 +32,8 @@ const Step3_Content = ({ data, onChange, onNext, onBack }: Step3Props) => {
   useEffect(() => {
     const fetchInboxes = async () => {
       try {
-        const response = await InboxesService.list();
-        setInboxes(response.data || []);
+        const inboxes = await fetchAllPages(page => InboxesService.list({ page }));
+        setInboxes(inboxes);
       } catch (error) {
         console.error('Error fetching inboxes:', error);
         setInboxes([]);

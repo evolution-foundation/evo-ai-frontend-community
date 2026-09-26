@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import NewChannel from './index';
 
 // NewChannel is a heavy orchestrator (channel form hook, submission hook, tours,
@@ -18,6 +18,8 @@ const { h, cap } = vi.hoisted(() => {
     goBack: vi.fn(() => false),
     testConnection: vi.fn(),
     submitCreate: vi.fn(),
+    confirmReactivate: vi.fn(),
+    confirmCreateNew: vi.fn(),
   };
   const state: Record<string, unknown> = {
     selectedChannel: null,
@@ -31,6 +33,7 @@ const { h, cap } = vi.hoisted(() => {
     canEmailGoogle: true,
     canEmailMicrosoft: true,
     config: { evolutionHubEnabled: false },
+    archivedMatch: null as { inboxId: string } | null,
     ...fns,
   };
   const cap: { ps: any; breadcrumbOnBack: (() => void) | null } = {
@@ -42,7 +45,10 @@ const { h, cap } = vi.hoisted(() => {
 
 const navigateMock = vi.fn();
 
-vi.mock('react-router-dom', () => ({ useNavigate: () => navigateMock }));
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => navigateMock,
+  useLocation: () => ({ state: null }),
+}));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() } }));
 vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({ t: (key: string) => key, currentLanguage: 'en' }),
@@ -56,6 +62,9 @@ vi.mock('@/hooks/channels', () => ({
     testConnection: h.fns.testConnection,
     submitCreate: h.fns.submitCreate,
     healthCheckPassed: null,
+    archivedMatch: h.state.archivedMatch,
+    confirmReactivate: h.fns.confirmReactivate,
+    confirmCreateNew: h.fns.confirmCreateNew,
   }),
 }));
 
@@ -144,6 +153,7 @@ const resetState = () => {
     canEmailGoogle: true,
     canEmailMicrosoft: true,
     config: { evolutionHubEnabled: false },
+    archivedMatch: null,
   });
 };
 
@@ -218,5 +228,39 @@ describe('NewChannel (EVO-2093)', () => {
     h.state.selectedProvider = { id: 'facebook', name: 'Facebook' };
     render(<NewChannel />);
     expect(screen.queryByTestId('form-footer')).toBeNull();
+  });
+
+  describe('archived match confirmation (EVO-2159)', () => {
+    it('offers to reactivate an archived channel when submitCreate finds a phone number match', async () => {
+      h.state.archivedMatch = { inboxId: 'archived-1' };
+      render(<NewChannel />);
+
+      expect(await screen.findByText('overview.archived.confirmTitle')).toBeInTheDocument();
+      expect(screen.getByText('overview.archived.confirmDescription')).toBeInTheDocument();
+    });
+
+    it('does not show the confirmation when there is no archived match', () => {
+      render(<NewChannel />);
+      expect(screen.queryByText('overview.archived.confirmTitle')).toBeNull();
+    });
+
+    it('calls confirmReactivate (not submitCreate again) when "Reactivate" is clicked', () => {
+      h.state.archivedMatch = { inboxId: 'archived-1' };
+      render(<NewChannel />);
+
+      fireEvent.click(screen.getByText('overview.archived.confirmReactivate'));
+
+      expect(h.fns.confirmReactivate).toHaveBeenCalled();
+      expect(h.fns.submitCreate).not.toHaveBeenCalled();
+    });
+
+    it('calls confirmCreateNew (continuing the original creation flow) when "Create new" is clicked', () => {
+      h.state.archivedMatch = { inboxId: 'archived-1' };
+      render(<NewChannel />);
+
+      fireEvent.click(screen.getByText('overview.archived.confirmCreateNew'));
+
+      expect(h.fns.confirmCreateNew).toHaveBeenCalled();
+    });
   });
 });

@@ -9,6 +9,7 @@ import TeamsService from '@/services/teams/teamsService';
 import InboxesService from '@/services/channels/inboxesService';
 import { usersService } from '@/services/users';
 import { customerDashboardService } from '@/services/dashboard/customerDashboardService';
+import { fetchAllPages } from '@/utils/apiHelpers';
 import type { CustomerDashboardParams, CustomerDashboardResponse } from '@/types/analytics/dashboard';
 import DashboardFiltersDialog from './components/DashboardFiltersDialog';
 import DashboardMetricsSection from './components/DashboardMetricsSection';
@@ -120,17 +121,17 @@ const CustomerDashboardPage = () => {
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
-        const [pipelinesResponse, teamsResponse, inboxesResponse, usersResponse] = await Promise.all([
+        const [pipelinesResponse, teamsResponse, inboxes, users] = await Promise.all([
           pipelinesService.getPipelines({ page: 1, per_page: 100, sort: 'name', order: 'asc' }),
           TeamsService.getTeams({ page: 1, per_page: 100, sort: 'name', order: 'asc' }),
-          InboxesService.list(),
-          usersService.getUsers({ page: 1, per_page: 100, sort: 'name', order: 'asc' }),
+          fetchAllPages(page => InboxesService.list({ page })),
+          fetchAllPages(page => usersService.getUsers({ page, sort: 'name', order: 'asc' })),
         ]);
 
         setPipelines((pipelinesResponse.data || []).map(item => ({ id: item.id, name: item.name })));
         setTeams((teamsResponse.data || []).map(item => ({ id: item.id, name: item.name })));
-        setInboxes((inboxesResponse.data || []).map(item => ({ id: item.id, name: item.name })));
-        setUsers((usersResponse.data || []).map(item => ({ id: item.id, name: item.available_name || item.name })));
+        setInboxes(inboxes.map(item => ({ id: item.id, name: item.name })));
+        setUsers(users.map(item => ({ id: item.id, name: item.available_name || item.name })));
       } catch (err) {
         console.error('Error loading dashboard filter options:', err);
       }

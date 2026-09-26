@@ -18,11 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@evoapi/design-system';
-import { Search, User, Phone, Mail, MessageSquare } from 'lucide-react';
-import { ConversationForModal, PipelineStage } from '@/types/analytics';
+import { Search, User, Phone, Mail, MessageSquare, Boxes } from 'lucide-react';
+import { ConversationForModal, Pipeline, PipelineStage } from '@/types/analytics';
 import { pipelinesService } from '@/services/pipelines';
 import { toast } from 'sonner';
 import { Contact } from '@/types/contacts';
+import PipelineItemCustomAttributes from './PipelineItemCustomAttributes';
 
 interface Item {
   id: string;
@@ -57,6 +58,7 @@ interface AddItemModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   pipelineId: string;
+  pipeline?: Pipeline | null;
   stages: PipelineStage[];
   preselectedStage?: PipelineStage | null;
   onItemAdded: () => void;
@@ -66,6 +68,7 @@ export default function AddItemModal({
   open,
   onOpenChange,
   pipelineId,
+  pipeline,
   stages,
   preselectedStage,
   onItemAdded,
@@ -76,6 +79,7 @@ export default function AddItemModal({
   const [itemType, setItemType] = useState<'conversation' | 'contact'>('conversation');
   const [searchQuery, setSearchQuery] = useState('');
   const [notes, setNotes] = useState('');
+  const [customAttributes, setCustomAttributes] = useState<Record<string, unknown>>({});
   const [availableItems, setAvailableItems] = useState<Item[]>([]);
   const [isLoadingItems, setIsLoadingItems] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -87,6 +91,7 @@ export default function AddItemModal({
       setSelectedItem(null);
       setSearchQuery('');
       setNotes('');
+      setCustomAttributes({});
       setItemType('conversation');
 
       // Pre-select stage
@@ -149,7 +154,7 @@ export default function AddItemModal({
         item_id: selectedItem.id,
         type: itemType,
         pipeline_stage_id: selectedStage.id,
-        custom_fields: {},
+        custom_fields: customAttributes,
         notes: notes,
       });
 
@@ -233,6 +238,7 @@ export default function AddItemModal({
                 setSelectedItem(null);
                 setSearchQuery('');
                 setNotes('');
+                setCustomAttributes({});
               }}
             >
               <SelectTrigger>
@@ -363,6 +369,25 @@ export default function AddItemModal({
               rows={3}
             />
           </div>
+
+          {/* Custom Attributes */}
+          {selectedStage && (
+            <div className="grid gap-2">
+              <Label className="flex items-center gap-2">
+                <Boxes className="w-4 h-4" />
+                {t('addItem.customAttributes')}
+              </Label>
+              <PipelineItemCustomAttributes
+                attributes={customAttributes}
+                onAttributesChange={setCustomAttributes}
+                pipelineId={pipelineId}
+                stageId={selectedStage.id}
+                itemId="new"
+                pipelineCustomFields={pipeline?.custom_fields}
+                stageCustomFields={selectedStage.custom_fields}
+              />
+            </div>
+          )}
         </div>
 
         <DialogFooter className="flex-shrink-0 mt-4">

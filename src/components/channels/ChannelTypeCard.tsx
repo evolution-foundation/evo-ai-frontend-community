@@ -32,6 +32,8 @@ interface ChannelTypeCardProps {
   onOpenInbox: (inbox: Inbox) => void;
   /** Delete a single connection. Permission gating lives in the handler. */
   onDelete: (inbox: Inbox) => void;
+  /** Reactivate an archived connection. */
+  onReactivate: (inbox: Inbox) => void;
   liveVerifiedIds?: Set<string>;
   liveLoadingIds?: Set<string>;
   liveFailedIds?: Set<string>;
@@ -44,6 +46,7 @@ export default function ChannelTypeCard({
   onAdd,
   onOpenInbox,
   onDelete,
+  onReactivate,
   liveVerifiedIds,
   liveLoadingIds,
   liveFailedIds,
@@ -117,6 +120,7 @@ export default function ChannelTypeCard({
               onAdd={onAdd}
               onOpenInbox={onOpenInbox}
               onDelete={onDelete}
+              onReactivate={onReactivate}
               liveVerifiedIds={liveVerifiedIds}
               liveLoadingIds={liveLoadingIds}
               liveFailedIds={liveFailedIds}
