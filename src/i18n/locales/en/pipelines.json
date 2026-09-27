@@ -298,7 +298,8 @@
     "currencies": {
       "brl": "Brazilian Real (BRL)",
       "usd": "US Dollar (USD)",
-      "eur": "Euro (EUR)"
+      "eur": "Euro (EUR)",
+      "gbp": "British Pound (GBP)"
     },
     "services": "Services",
     "addService": "Add Service",
@@ -338,7 +339,8 @@
     "currencies": {
       "brl": "Real (BRL)",
       "usd": "Dollar Americano (USD)",
-      "eur": "Euro (EUR)"
+      "eur": "Euro (EUR)",
+      "gbp": "British Pound (GBP)"
     },
     "services": "Services",
     "addService": "Add Service",

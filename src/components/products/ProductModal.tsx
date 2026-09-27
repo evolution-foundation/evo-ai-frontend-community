@@ -47,7 +47,7 @@ interface Props {
 
 const KINDS: ProductKind[] = ['physical', 'digital'];
 const STATUSES: ProductStatus[] = ['active', 'inactive', 'draft'];
-const CURRENCIES: ProductCurrency[] = ['BRL', 'USD', 'EUR'];
+const CURRENCIES: ProductCurrency[] = ['BRL', 'USD', 'EUR', 'GBP'];
 const URL_REGEX = /^https?:\/\/.+/i;
 
 // Kept in step with Products::ImagePolicy on the API side.

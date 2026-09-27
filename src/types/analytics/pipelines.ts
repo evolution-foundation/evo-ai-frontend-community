@@ -500,7 +500,7 @@ export interface PipelineServiceDefinition {
   pipeline_id: string;
   name: string;
   default_value: number;
-  currency: 'BRL' | 'USD' | 'EUR';
+  currency: 'BRL' | 'USD' | 'EUR' | 'GBP';
   description?: string;
   active: boolean;
   formatted_default_value: string;
@@ -511,14 +511,14 @@ export interface PipelineServiceDefinition {
 export interface CreateServiceDefinitionData {
   name: string;
   default_value: number;
-  currency: 'BRL' | 'USD' | 'EUR';
+  currency: 'BRL' | 'USD' | 'EUR' | 'GBP';
   description?: string;
 }
 
 export interface UpdateServiceDefinitionData {
   name?: string;
   default_value?: number;
-  currency?: 'BRL' | 'USD' | 'EUR';
+  currency?: 'BRL' | 'USD' | 'EUR' | 'GBP';
   description?: string;
   active?: boolean;
 }

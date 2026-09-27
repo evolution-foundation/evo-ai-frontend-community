@@ -207,7 +207,7 @@
       "too_long": "é longo demais",
       "invalid_kind": "deve ser físico ou digital",
       "invalid_status": "deve ser ativo, inativo ou rascunho",
-      "invalid_currency": "deve ser BRL, USD ou EUR",
+      "invalid_currency": "deve ser BRL, USD, EUR ou GBP",
       "must_be_non_negative": "deve ser maior ou igual a zero",
       "must_be_integer": "deve ser um número inteiro",
       "invalid_url": "deve ser uma URL http(s) válida",
@@ -292,7 +292,8 @@
   "currency": {
     "BRL": "Real (BRL)",
     "USD": "Dólar (USD)",
-    "EUR": "Euro (EUR)"
+    "EUR": "Euro (EUR)",
+    "GBP": "Libra Esterlina (GBP)"
   },
   "validation": {
     "nameRequired": "Nome é obrigatório",
