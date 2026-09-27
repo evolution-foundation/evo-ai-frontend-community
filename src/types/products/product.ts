@@ -2,7 +2,7 @@ import type { PaginatedResponse, PaginationMeta } from '@/types/core';
 
 export type ProductKind = 'physical' | 'digital';
 export type ProductStatus = 'active' | 'inactive' | 'draft';
-export type ProductCurrency = 'BRL' | 'USD' | 'EUR';
+export type ProductCurrency = 'BRL' | 'USD' | 'EUR' | 'GBP';
 
 export interface ProductVariant {
   id: string;
