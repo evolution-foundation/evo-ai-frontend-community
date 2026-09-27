@@ -355,6 +355,7 @@ export default function EditItemModal({
                         <SelectItem value="BRL">{t('editItem.currencies.brl')}</SelectItem>
                         <SelectItem value="USD">{t('editItem.currencies.usd')}</SelectItem>
                         <SelectItem value="EUR">{t('editItem.currencies.eur')}</SelectItem>
+                        <SelectItem value="GBP">{t('editItem.currencies.gbp')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

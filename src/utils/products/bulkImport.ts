@@ -13,7 +13,7 @@ import type { ProductCurrency, ProductKind, ProductStatus } from '@/types/produc
 export const MAX_BULK_ROWS = 500; // mirrors Products::BulkImporter::MAX_ITEMS
 export const PRODUCT_KINDS: ProductKind[] = ['physical', 'digital'];
 export const PRODUCT_STATUSES: ProductStatus[] = ['active', 'inactive', 'draft'];
-export const PRODUCT_CURRENCIES: ProductCurrency[] = ['BRL', 'USD', 'EUR'];
+export const PRODUCT_CURRENCIES: ProductCurrency[] = ['BRL', 'USD', 'EUR', 'GBP'];
 
 /** Fields the bulk endpoint accepts on each item. */
 export const BULK_FIELDS = [

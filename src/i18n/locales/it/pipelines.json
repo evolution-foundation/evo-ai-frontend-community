@@ -264,7 +264,8 @@
     "currencies": {
       "brl": "Real Brasiliano (BRL)",
       "usd": "Dollaro Americano (USD)",
-      "eur": "Euro (EUR)"
+      "eur": "Euro (EUR)",
+      "gbp": "Sterlina Britannica (GBP)"
     },
     "services": "Servizi",
     "addService": "Aggiungi Servizio",
@@ -304,7 +305,8 @@
     "currencies": {
       "brl": "Real Brasiliano (BRL)",
       "usd": "Dollaro Americano (USD)",
-      "eur": "Euro (EUR)"
+      "eur": "Euro (EUR)",
+      "gbp": "Sterlina Britannica (GBP)"
     },
     "services": "Servizi",
     "addService": "Aggiungi Servizio",
