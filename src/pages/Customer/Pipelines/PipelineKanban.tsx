@@ -12,6 +12,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   Input,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from '@evoapi/design-system';
 import { Popover, PopoverContent, PopoverTrigger } from '@evoapi/design-system/popover';
 import {
@@ -1433,9 +1437,24 @@ export default function PipelineKanban() {
                                 </span>
                               )}
                               {extraLabelsCount > 0 && (
-                                <span className="inline-flex items-center text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground">
-                                  +{extraLabelsCount}
-                                </span>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="inline-flex items-center text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground cursor-help">
+                                        +{extraLabelsCount}
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="px-3 py-2 bg-popover border border-border shadow-lg rounded-lg max-w-xs">
+                                      <div className="space-y-1">
+                                        {itemLabels.slice(1).map((label, index) => (
+                                          <div key={`${label.title}-${index}`} className="text-xs text-foreground">
+                                            {label.title}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               )}
                               {pBucket && (
                                 <span
