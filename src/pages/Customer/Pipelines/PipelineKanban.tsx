@@ -1275,7 +1275,9 @@ export default function PipelineKanban() {
                     >
                       {stageItems.map(item => {
                         const pBucket = priorityBucket(item.conversation?.priority);
-                        const firstLabel = item.conversation?.labels?.[0]?.title;
+                        const itemLabels = item.conversation?.labels ?? [];
+                        const firstLabel = itemLabels[0]?.title;
+                        const extraLabelsCount = itemLabels.length - 1;
                         const moveTargets = stages.filter(s => s.id !== item.stage_id);
                         return (
                         <div
@@ -1423,11 +1425,16 @@ export default function PipelineKanban() {
                           )}
 
                           {/* Footer: tag + priority + status */}
-                          {(firstLabel || item.conversation?.status || pBucket) && (
+                          {(firstLabel || extraLabelsCount > 0 || item.conversation?.status || pBucket) && (
                             <div className="flex items-center gap-1.5 flex-wrap mb-2">
                               {firstLabel && (
                                 <span className="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-md bg-muted text-muted-foreground max-w-[120px] truncate">
                                   {firstLabel}
+                                </span>
+                              )}
+                              {extraLabelsCount > 0 && (
+                                <span className="inline-flex items-center text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground">
+                                  +{extraLabelsCount}
                                 </span>
                               )}
                               {pBucket && (
