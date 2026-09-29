@@ -65,6 +65,7 @@ import ReorderStagesModal from '@/components/pipelines/ReorderStagesModal';
 import PipelineCaptureFormsModal from '@/components/pipelines/PipelineCaptureFormsModal';
 import PipelinePurchaseWebhookModal from '@/components/pipelines/PipelinePurchaseWebhookModal';
 import { ScheduleActionModal } from '@/components/scheduledActions';
+import { moveItemBetweenStages } from './pipelineKanbanHelpers';
 
 // Status/priority badge styles use the design system's semantic Tailwind classes
 // (same palette Chat/Contacts use), with dark-mode variants — NOT arbitrary hex.
@@ -156,6 +157,10 @@ export default function PipelineKanban() {
   const [allPipelines, setAllPipelines] = useState<Pipeline[]>([]);
   const [draggedItem, setDraggedItem] = useState<PipelineItem | null>(null);
   const isDraggingRef = useRef(false);
+  // Item ids with a moveItem request in flight — a second move for the same
+  // card is ignored until the first settles, so a failed rollback always
+  // restores the stage the card was actually in before that first request.
+  const pendingMoveItemIds = useRef(new Set<string>());
   const suppressClickUntilRef = useRef(0);
 
   // Modal states
@@ -256,18 +261,30 @@ export default function PipelineKanban() {
 
     // Capture before async operations
     const movedItem = draggedItem;
+    const fromStageId = movedItem.stage_id;
     const willBeHidden = hasActiveFilters && filterItems([movedItem]).length === 0;
+
+    // Ignore drops on a card that already has a move in flight, so an
+    // overlapping second move can't race the first one's rollback.
+    if (pendingMoveItemIds.current.has(movedItem.id)) {
+      setDraggedItem(null);
+      return;
+    }
+    pendingMoveItemIds.current.add(movedItem.id);
+
+    // Optimistic local update — patches just the two affected stages instead of
+    // reloading the whole pipeline (that reload flips `loading=true`, which
+    // unmounts and re-renders the entire board on every card move).
+    setStages(prev => moveItemBetweenStages(prev, movedItem.id, fromStageId, targetStageId));
 
     try {
       await pipelinesService.moveItem({
         item_id: movedItem.id,
         pipeline_id: pipelineId!,
-        from_stage_id: movedItem.stage_id,
+        from_stage_id: fromStageId,
         to_stage_id: targetStageId,
       });
 
-      // Reload pipeline data to reflect changes
-      await loadPipelineData();
       toast.success(t('kanban.messages.itemMoved'));
       if (willBeHidden) {
         toast.info(t('kanban.messages.itemHiddenByFilter'), {
@@ -277,7 +294,10 @@ export default function PipelineKanban() {
     } catch (error) {
       console.error('Error moving item:', error);
       toast.error(t('kanban.messages.itemMoveError'));
+      // Roll back the optimistic move since the server rejected it.
+      setStages(prev => moveItemBetweenStages(prev, movedItem.id, targetStageId, fromStageId));
     } finally {
+      pendingMoveItemIds.current.delete(movedItem.id);
       setDraggedItem(null);
       isDraggingRef.current = false;
       suppressClickUntilRef.current = Date.now() + 200;
@@ -516,18 +536,27 @@ export default function PipelineKanban() {
   // moveItem path; both call pipelinesService.moveItem then reload).
   const moveItemToStage = async (item: PipelineItem, targetStageId: string) => {
     if (!pipelineId || item.stage_id === targetStageId) return;
+    if (pendingMoveItemIds.current.has(item.id)) return;
+
+    const fromStageId = item.stage_id;
+    pendingMoveItemIds.current.add(item.id);
+
+    setStages(prev => moveItemBetweenStages(prev, item.id, fromStageId, targetStageId));
+
     try {
       await pipelinesService.moveItem({
         item_id: item.id,
         pipeline_id: pipelineId,
-        from_stage_id: item.stage_id,
+        from_stage_id: fromStageId,
         to_stage_id: targetStageId,
       });
-      await loadPipelineData();
       toast.success(t('kanban.messages.itemMoved'));
     } catch (error) {
       console.error('Error moving item:', error);
       toast.error(t('kanban.messages.itemMoveError'));
+      setStages(prev => moveItemBetweenStages(prev, item.id, targetStageId, fromStageId));
+    } finally {
+      pendingMoveItemIds.current.delete(item.id);
     }
   };
 
