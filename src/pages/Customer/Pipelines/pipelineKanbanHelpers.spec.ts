@@ -65,4 +65,12 @@ describe('moveItemBetweenStages', () => {
 
     expect(result).toEqual(stages);
   });
+
+  it('leaves stages untouched when the target stage no longer exists', () => {
+    const stages = makeStages();
+
+    const result = moveItemBetweenStages(stages, 'item-1', 'stage-a', 'deleted-stage');
+
+    expect(result).toEqual(stages);
+  });
 });

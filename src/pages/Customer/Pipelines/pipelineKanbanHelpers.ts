@@ -10,8 +10,9 @@ export function moveItemBetweenStages(
   toStageId: string,
 ): PipelineStage[] {
   const sourceStage = stages.find(s => s.id === fromStageId);
+  const targetStage = stages.find(s => s.id === toStageId);
   const movedItem = sourceStage?.items?.find(i => i.id === itemId);
-  if (!movedItem) return stages;
+  if (!movedItem || !targetStage) return stages;
 
   return stages.map(stage => {
     if (stage.id === fromStageId) {
