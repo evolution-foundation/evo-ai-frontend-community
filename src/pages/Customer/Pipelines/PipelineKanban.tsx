@@ -713,7 +713,10 @@ export default function PipelineKanban() {
   const handleAssignTags = (item: PipelineItem) => {
     setItemToAssignTags(item);
     setShowAssignTagsModal(true);
-    fetchLabels();
+    fetchLabels().catch(error => {
+      console.error('Error fetching labels:', error);
+      toast.error(t('kanban.messages.loadDataError'));
+    });
   };
 
   const closeAssignTagsModal = () => {
