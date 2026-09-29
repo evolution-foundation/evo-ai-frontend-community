@@ -221,8 +221,13 @@ export default function EditItemModal({
     if (item.type === 'conversation' && item.conversation) return item.conversation.display_id;
     return item.id;
   };
+  const getContactId = () => {
+    if (item.type === 'contact' || !item.conversation) return item.contact?.id;
+    return item.conversation?.contact?.id;
+  };
 
   const displayName = getItemDisplayName();
+  const contactId = getContactId();
   const currentStage = stages.find(s => String(s.id) === String(selectedStageId));
 
   // Tab pill: active = primary-tinted; inactive = subtle muted.
@@ -251,7 +256,20 @@ export default function EditItemModal({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-foreground truncate">{displayName}</h2>
+              <h2 className="text-lg font-bold text-foreground truncate">
+                {contactId ? (
+                  <a
+                    href={`/contacts/${contactId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-foreground hover:text-primary hover:underline"
+                  >
+                    {displayName}
+                  </a>
+                ) : (
+                  displayName
+                )}
+              </h2>
               <span className="text-[13px] text-muted-foreground shrink-0">#{getItemDisplayId()}</span>
             </div>
             {currentStage && (
