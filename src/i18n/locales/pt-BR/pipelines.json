@@ -683,6 +683,13 @@
       "scheduleAction": "Agendar Ação",
       "scheduleActionComingSoon": "Em breve",
       "scheduleActionTooltip": "Esta funcionalidade está em desenvolvimento e estará disponível em breve.",
+      "assignTag": "Atribuir etiqueta",
+      "assignTagsModal": {
+        "title": "Atribuir Etiquetas",
+        "description": "Selecione etiquetas para a conversa com {{name}}",
+        "contactFallback": "este contato",
+        "searchPlaceholder": "Buscar etiquetas..."
+      },
       "removeFromPipeline": "Remover do Pipeline",
       "noInbox": "Sem Inbox",
       "status": {
@@ -738,7 +745,9 @@
       "conversationUpdated": "Item atualizado com sucesso",
       "conversationUpdateError": "Erro ao atualizar item",
       "itemHiddenByFilter": "Card movido — pode estar oculto pelos filtros ativos",
-      "newItemMayBeHidden": "Card adicionado — pode estar oculto pelos filtros ativos"
+      "newItemMayBeHidden": "Card adicionado — pode estar oculto pelos filtros ativos",
+      "tagsAssigned": "Etiquetas atualizadas com sucesso",
+      "tagsAssignError": "Erro ao atualizar etiquetas"
     },
     "tasks": {
       "pending": "pendentes",
