@@ -641,6 +641,13 @@
       "scheduleAction": "Programmare Azione",
       "scheduleActionComingSoon": "Prossimamente",
       "scheduleActionTooltip": "Questa funzionalità è in fase di sviluppo e sarà disponibile a breve.",
+      "assignTag": "Assegna etichetta",
+      "assignTagsModal": {
+        "title": "Assegna Etichette",
+        "description": "Seleziona le etichette per la conversazione con {{name}}",
+        "contactFallback": "questo contatto",
+        "searchPlaceholder": "Cerca etichette..."
+      },
       "removeFromPipeline": "Rimuovi dalla Pipeline",
       "noInbox": "Senza Inbox",
       "status": {
@@ -693,7 +700,9 @@
       "conversationUpdated": "Elemento aggiornato con successo",
       "conversationUpdateError": "Errore nell'aggiornamento dell'elemento",
       "itemHiddenByFilter": "Scheda spostata — potrebbe essere nascosta dai filtri attivi",
-      "newItemMayBeHidden": "Scheda aggiunta — potrebbe essere nascosta dai filtri attivi"
+      "newItemMayBeHidden": "Scheda aggiunta — potrebbe essere nascosta dai filtri attivi",
+      "tagsAssigned": "Etichette aggiornate con successo",
+      "tagsAssignError": "Errore nell'aggiornamento delle etichette"
     },
     "tasks": {
       "pending": "in sospeso",

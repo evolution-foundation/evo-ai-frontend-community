@@ -41,6 +41,7 @@ import {
   MessageSquare,
   FileText,
   Link2,
+  Tag,
 } from 'lucide-react';
 
 import { pipelinesService } from '@/services/pipelines';
@@ -65,6 +66,9 @@ import ReorderStagesModal from '@/components/pipelines/ReorderStagesModal';
 import PipelineCaptureFormsModal from '@/components/pipelines/PipelineCaptureFormsModal';
 import PipelinePurchaseWebhookModal from '@/components/pipelines/PipelinePurchaseWebhookModal';
 import { ScheduleActionModal } from '@/components/scheduledActions';
+import AssignmentModal from '@/components/chat/assignment/AssignmentModal';
+import type { AssignmentOption } from '@/components/chat/assignment';
+import { conversationAPI } from '@/services/conversations/conversationService';
 
 // Status/priority badge styles use the design system's semantic Tailwind classes
 // (same palette Chat/Contacts use), with dark-mode variants — NOT arbitrary hex.
@@ -144,7 +148,7 @@ export default function PipelineKanban() {
     };
   }, []);
 
-  const { agents, fetchAgents } = useAppDataStore();
+  const { agents, fetchAgents, labels, fetchLabels } = useAppDataStore();
 
   useEffect(() => {
     fetchAgents();
@@ -189,6 +193,9 @@ export default function PipelineKanban() {
   const scheduleActionContactId =
     selectedConversationForSchedule?.conversation?.contact?.id ??
     selectedConversationForSchedule?.contact?.id;
+  const [showAssignTagsModal, setShowAssignTagsModal] = useState(false);
+  const [itemToAssignTags, setItemToAssignTags] = useState<PipelineItem | null>(null);
+  const [isAssigningTags, setIsAssigningTags] = useState(false);
 
   // Load pipeline data
   const loadPipelineData = useCallback(async () => {
@@ -700,6 +707,48 @@ export default function PipelineKanban() {
       setIsEditingItem(false);
     }
   };
+
+  // Tag/label assignment — reuses the same AssignmentModal conversations use,
+  // since labels live on the conversation, not the pipeline item.
+  const handleAssignTags = (item: PipelineItem) => {
+    setItemToAssignTags(item);
+    setShowAssignTagsModal(true);
+    fetchLabels();
+  };
+
+  const closeAssignTagsModal = () => {
+    setShowAssignTagsModal(false);
+    setItemToAssignTags(null);
+  };
+
+  const handleConfirmAssignTags = async (selectedIds: string[]) => {
+    const conversationId = itemToAssignTags?.conversation?.id;
+    if (!conversationId) return;
+
+    setIsAssigningTags(true);
+    try {
+      await conversationAPI.addLabels(String(conversationId), selectedIds);
+      toast.success(t('kanban.messages.tagsAssigned'));
+      closeAssignTagsModal();
+      await loadPipelineData();
+    } catch (error) {
+      console.error('Error assigning tags:', error);
+      toast.error(t('kanban.messages.tagsAssignError'));
+    } finally {
+      setIsAssigningTags(false);
+    }
+  };
+
+  const assignTagsOptions: AssignmentOption[] = useMemo(
+    () =>
+      labels.map(label => ({
+        id: label.id,
+        name: label.title,
+        description: label.description,
+        color: label.color,
+      })),
+    [labels],
+  );
 
   // Stage management handlers
   const handleEditStage = (stage: PipelineStage) => {
@@ -1353,6 +1402,12 @@ export default function PipelineKanban() {
                                   <CalendarClock className="h-4 w-4 mr-2" />
                                   {t('kanban.item.scheduleAction')}
                                 </DropdownMenuItem>
+                                {item.conversation?.id && (
+                                  <DropdownMenuItem onClick={() => handleAssignTags(item)}>
+                                    <Tag className="h-4 w-4 mr-2" />
+                                    {t('kanban.item.assignTag')}
+                                  </DropdownMenuItem>
+                                )}
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem className="text-destructive" onClick={() => handleRemoveItem(item)}>
                                   <Trash2 className="h-4 w-4 mr-2" />
@@ -1626,6 +1681,25 @@ export default function PipelineKanban() {
             setSelectedConversationForSchedule(null);
           }}
           contactId={scheduleActionContactId}
+        />
+      )}
+
+      {/* Assign Tags Modal — same AssignmentModal used in conversations, type="label" */}
+      {itemToAssignTags && (
+        <AssignmentModal
+          isOpen={showAssignTagsModal}
+          onClose={closeAssignTagsModal}
+          onConfirm={handleConfirmAssignTags}
+          type="label"
+          title={t('kanban.item.assignTagsModal.title')}
+          description={t('kanban.item.assignTagsModal.description', {
+            name: itemToAssignTags.contact?.name || t('kanban.item.assignTagsModal.contactFallback'),
+          })}
+          options={assignTagsOptions}
+          currentSelection={(itemToAssignTags.conversation?.labels ?? []).map(l => String(l.id))}
+          multiSelect
+          isLoading={isAssigningTags}
+          searchPlaceholder={t('kanban.item.assignTagsModal.searchPlaceholder')}
         />
       )}
 

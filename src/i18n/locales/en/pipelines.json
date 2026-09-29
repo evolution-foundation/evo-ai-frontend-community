@@ -683,6 +683,13 @@
       "scheduleAction": "Schedule Action",
       "scheduleActionComingSoon": "Coming soon",
       "scheduleActionTooltip": "This feature is under development and will be available soon.",
+      "assignTag": "Assign tag",
+      "assignTagsModal": {
+        "title": "Assign Tags",
+        "description": "Select tags for the conversation with {{name}}",
+        "contactFallback": "this contact",
+        "searchPlaceholder": "Search tags..."
+      },
       "removeFromPipeline": "Remove from Pipeline",
       "noInbox": "No Inbox",
       "status": {
@@ -737,7 +744,9 @@
       "conversationUpdated": "Item updated successfully",
       "conversationUpdateError": "Error updating item",
       "itemHiddenByFilter": "Card moved — it may be hidden by the active filters",
-      "newItemMayBeHidden": "Card added — it may be hidden by the active filters"
+      "newItemMayBeHidden": "Card added — it may be hidden by the active filters",
+      "tagsAssigned": "Tags updated successfully",
+      "tagsAssignError": "Error updating tags"
     },
     "tasks": {
       "pending": "pending",

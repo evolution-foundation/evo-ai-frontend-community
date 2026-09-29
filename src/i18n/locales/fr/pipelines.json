@@ -644,6 +644,13 @@
       "scheduleAction": "Planifier l'Action",
       "scheduleActionComingSoon": "Bientôt",
       "scheduleActionTooltip": "Cette fonctionnalité est en développement et sera disponible prochainement.",
+      "assignTag": "Attribuer une étiquette",
+      "assignTagsModal": {
+        "title": "Attribuer des Étiquettes",
+        "description": "Sélectionnez des étiquettes pour la conversation avec {{name}}",
+        "contactFallback": "ce contact",
+        "searchPlaceholder": "Rechercher des étiquettes..."
+      },
       "removeFromPipeline": "Retirer du Pipeline",
       "noInbox": "Sans Boîte de réception",
       "status": {
@@ -696,7 +703,9 @@
       "conversationUpdated": "Élément mis à jour avec succès",
       "conversationUpdateError": "Erreur lors de la mise à jour de l'élément",
       "itemHiddenByFilter": "Carte déplacée — elle peut être masquée par les filtres actifs",
-      "newItemMayBeHidden": "Carte ajoutée — elle peut être masquée par les filtres actifs"
+      "newItemMayBeHidden": "Carte ajoutée — elle peut être masquée par les filtres actifs",
+      "tagsAssigned": "Étiquettes mises à jour avec succès",
+      "tagsAssignError": "Erreur lors de la mise à jour des étiquettes"
     },
     "tasks": {
       "pending": "en attente",
