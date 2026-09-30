@@ -12,6 +12,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   Input,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from '@evoapi/design-system';
 import { Popover, PopoverContent, PopoverTrigger } from '@evoapi/design-system/popover';
 import {
@@ -1275,7 +1279,10 @@ export default function PipelineKanban() {
                     >
                       {stageItems.map(item => {
                         const pBucket = priorityBucket(item.conversation?.priority);
-                        const firstLabel = item.conversation?.labels?.[0]?.title;
+                        const itemLabels = item.conversation?.labels ?? [];
+                        const firstLabel = itemLabels[0];
+                        const hiddenLabels = itemLabels.slice(1);
+                        const extraLabelsCount = hiddenLabels.length;
                         const moveTargets = stages.filter(s => s.id !== item.stage_id);
                         return (
                         <div
@@ -1423,12 +1430,42 @@ export default function PipelineKanban() {
                           )}
 
                           {/* Footer: tag + priority + status */}
-                          {(firstLabel || item.conversation?.status || pBucket) && (
+                          {(firstLabel || extraLabelsCount > 0 || item.conversation?.status || pBucket) && (
                             <div className="flex items-center gap-1.5 flex-wrap mb-2">
                               {firstLabel && (
-                                <span className="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-md bg-muted text-muted-foreground max-w-[120px] truncate">
-                                  {firstLabel}
-                                </span>
+                                <div
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium rounded-full text-white max-w-[120px]"
+                                  style={{ backgroundColor: firstLabel.color || '#1f93ff' }}
+                                  title={firstLabel.title}
+                                >
+                                  <Tag className="w-2.5 h-2.5 shrink-0" />
+                                  <span className="truncate">{firstLabel.title}</span>
+                                </div>
+                              )}
+                              {extraLabelsCount > 0 && (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="inline-flex items-center px-2 py-0.5 text-[11px] font-medium rounded-full bg-gray-400 text-white cursor-help">
+                                        +{extraLabelsCount}
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="px-3 py-2 bg-popover border border-border shadow-lg rounded-lg max-w-xs">
+                                      <div className="flex flex-wrap gap-1.5">
+                                        {hiddenLabels.map((label, index) => (
+                                          <div
+                                            key={`${label.title}-${index}`}
+                                            className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md text-white shadow-sm"
+                                            style={{ backgroundColor: label.color || '#1f93ff' }}
+                                          >
+                                            <Tag className="w-3 h-3" />
+                                            <span>{label.title}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               )}
                               {pBucket && (
                                 <span
