@@ -10,7 +10,7 @@ vi.mock('@/hooks/useLanguage', () => ({
 }));
 
 describe('WebWidgetAdvancedForm locale selector', () => {
-  it('sends null when account default is selected', () => {
+  it("sends null when the visitor's browser language is selected", () => {
     const onFormChange = vi.fn();
 
     render(
