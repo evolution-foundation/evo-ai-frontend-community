@@ -75,7 +75,7 @@ interface ConsumerInUse {
   name: string;
   /** Client-side join mode: resolved to names against the loaded list. */
   credentialIds?: string[];
-  /** Server mode (AC10): consumers aggregated by the backend. */
+  /** Server mode: consumers aggregated by the backend. */
   consumers?: (IntegrationCredentialHolder | string)[];
 }
 
