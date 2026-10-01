@@ -954,7 +954,9 @@ describe('IntegrationCredentials — holders are labelled in the interface langu
       .map(item => item.textContent);
   };
 
-  it.each([
+  const inUsePanel = () => screen.getByLabelText(translate('inUse.title'));
+
+  const TRANSLATED: [string, string[]][] = [
     [
       'en',
       [
@@ -995,7 +997,65 @@ describe('IntegrationCredentials — holders are labelled in the interface langu
         'Strumento Busca [Authorization]',
       ],
     ],
-  ])('lists the 409 holders item by item in %s', async (language, expected) => {
+  ];
+
+  it.each(TRANSLATED)(
+    'lists the in-use panel consumers item by item in %s',
+    async (language, expected) => {
+      locale = language;
+      listIntegrationCredentials.mockResolvedValue([
+        { ...DIFY_CREDENTIAL, referenced_by: LABELS, holders: HOLDERS },
+      ]);
+      render(<IntegrationCredentials />);
+
+      await findAccountRow();
+      const panel = inUsePanel();
+      await waitFor(() => expect(within(panel).getByText(expected.join(', '))).toBeInTheDocument());
+      expect(panel).not.toHaveTextContent('Ferramenta');
+    },
+  );
+
+  it('gives a consumer the same label in the panel and in the delete dialog in pt-BR', async () => {
+    locale = 'pt-BR';
+    listIntegrationCredentials.mockResolvedValue([
+      {
+        ...DIFY_CREDENTIAL,
+        referenced_by: ['MCP Zendesk [token]'],
+        holders: [{ kind: 'mcp', name: 'Zendesk', key: 'token' }],
+      },
+    ]);
+    await openDelete();
+
+    expect(within(inUsePanel()).getByText('Servidor MCP Zendesk [token]')).toBeInTheDocument();
+    expect(await screen.findByRole('alert')).toHaveTextContent('Servidor MCP Zendesk [token].');
+  });
+
+  it.each([
+    ['a server that sends no holders', undefined],
+    ['a holder that cannot be labelled', [{ kind: 'webhook', name: 'Busca' }]],
+    ['an empty holder list', []],
+  ])('keeps the referenced_by strings in the panel for %s', async (_label, holders) => {
+    locale = 'en';
+    listIntegrationCredentials.mockResolvedValue([
+      {
+        ...DIFY_CREDENTIAL,
+        referenced_by: ['Ferramenta Busca [Authorization]', 'Bot de canal (whatsapp)'],
+        holders,
+      },
+    ]);
+    render(<IntegrationCredentials />);
+
+    await findAccountRow();
+    const panel = inUsePanel();
+    await waitFor(() =>
+      expect(
+        within(panel).getByText('Ferramenta Busca [Authorization], Bot de canal (whatsapp)'),
+      ).toBeInTheDocument(),
+    );
+    expect(panel).not.toHaveTextContent(translate('inUse.empty'));
+  });
+
+  it.each(TRANSLATED)('lists the 409 holders item by item in %s', async (language, expected) => {
     locale = language;
     deleteIntegrationCredential.mockRejectedValue(
       conflictWith({ consumers: LABELS, holders: HOLDERS }),
@@ -1200,6 +1260,37 @@ describe('IntegrationCredentials — holders are labelled in the interface langu
       if (!language.startsWith('pt')) {
         expect(alert).not.toHaveTextContent('Ferramenta ');
       }
+    });
+
+    it.each(LANGUAGES)('names all 60 holders in the in-use panel in %s', async language => {
+      locale = language;
+      listIntegrationCredentials.mockResolvedValue([
+        { ...DIFY_CREDENTIAL, referenced_by: CORE_STRINGS, holders: VOLUME },
+      ]);
+      render(<IntegrationCredentials />);
+
+      await findAccountRow();
+      const panel = inUsePanel();
+      await waitFor(() =>
+        expect(within(panel).getByText(labelsIn(language).join(', '))).toBeInTheDocument(),
+      );
+    });
+
+    it('falls back to all 60 listing strings in the panel when one holder in the middle cannot be labelled', async () => {
+      locale = 'en';
+      const broken = VOLUME.map((holder, i) =>
+        i === 30 ? { ...holder, kind: 'webhook' } : holder,
+      );
+      listIntegrationCredentials.mockResolvedValue([
+        { ...DIFY_CREDENTIAL, referenced_by: CORE_STRINGS, holders: broken },
+      ]);
+      render(<IntegrationCredentials />);
+
+      await findAccountRow();
+      const panel = inUsePanel();
+      await waitFor(() =>
+        expect(within(panel).getByText(CORE_STRINGS.join(', '))).toBeInTheDocument(),
+      );
     });
 
     it('falls back to all 60 strings when one holder in the middle cannot be labelled', async () => {
