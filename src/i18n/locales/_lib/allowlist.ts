@@ -81,8 +81,6 @@ export const COMMON_ALLOWED = new Set<string>([
   'v{{version}}',
   // --- language autonyms (shown in their own language regardless of UI locale) ---
   'English', 'Español', 'Français', 'Italiano', 'Português', 'Português (BR)',
-  // --- EN file authored with Portuguese values (out-of-scope to fix EN) ---
-  'Nome', 'Valor', 'ou', 'Ver IDs',
 ]);
 
 export const PER_FILE_ALLOWED: Record<string, Set<string>> = {
@@ -174,8 +172,6 @@ export const PER_FILE_ALLOWED: Record<string, Set<string>> = {
     'WhatsApp Cloud', 'Evolution API', 'Evolution API V2', 'Evolution Go',
     'Evolution Go API', 'WhatsApp via Notificame', 'WhatsApp via Z-API',
     'WhatsApp via Twilio', 'Account SID', 'Auth Token',
-    // EN value authored in pt-BR at this key (out-of-scope to fix EN)
-    'Use o Facebook Embedded Signup para configurar automaticamente seu canal WhatsApp.',
   ]),
   // Unit suffix, same in pt-BR. Scoped here rather than shared: the value only
   // occurs in this file, and a global entry would excuse it catalog-wide.
@@ -188,3 +184,15 @@ export function allowedFor(file: string): Set<string> {
   if (!perFile) return COMMON_ALLOWED;
   return new Set([...COMMON_ALLOWED, ...perFile]);
 }
+
+/**
+ * en/es keys whose value is Portuguese on purpose, by key so a new leak with the same
+ * text is still caught: language names shown in their own language, and a city name.
+ */
+const LANGUAGE_NAME_KEYS = new Set(['language.portuguese', 'language.french']);
+export const PORTUGUESE_ALLOWED_KEYS: Record<string, Set<string>> = {
+  'auth.json': new Set(['language.selector.portuguese', 'language.selector.french']),
+  'onboarding.json': LANGUAGE_NAME_KEYS,
+  'setup.json': LANGUAGE_NAME_KEYS,
+  'contacts.json': new Set(['form.fields.city.placeholder']),
+};

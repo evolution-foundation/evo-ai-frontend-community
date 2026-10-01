@@ -528,7 +528,7 @@
   "pipelinesTable": {
     "loading": "Loading pipelines...",
     "columns": {
-      "name": "Nome",
+      "name": "Name",
       "type": "Type",
       "status": "Status",
       "conversations": "Conversations",

@@ -248,9 +248,6 @@ describe('journey i18n parity (EVO-1260)', () => {
     'Webhook {{method}}', 'Basic auth: {{username}}', 'Timeout: {{timeout}}s',
     // sample literals used as placeholders in form fields
     'X-API-Key', 'Content-Type', 'application/json',
-    // EN file already contains the Portuguese word "Valor" at this key
-    // (apparently authored in pt-first); pt-BR matches by coincidence.
-    'Valor',
   ]);
 
   it('pt-BR has no English leakage (pt-BR !== EN except for whitelisted tech terms)', () => {
