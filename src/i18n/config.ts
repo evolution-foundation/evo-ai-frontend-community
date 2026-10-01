@@ -390,6 +390,10 @@ const detectLanguage = (): Locale => {
   if (browserLang === 'pt') {
     return 'pt';
   }
+  // pt-PT, pt-AO, ...: pt-BR, not pt, because the pt catalog is missing keys.
+  if (browserLang.startsWith('pt-')) {
+    return 'pt-BR';
+  }
   if (browserLang === 'fr' || browserLang.startsWith('fr-')) {
     return 'fr';
   }
