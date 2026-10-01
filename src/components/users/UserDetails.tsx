@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { User } from '@/types/users';
 import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/lib/dateFnsLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface UserDetailsProps {
@@ -41,7 +41,7 @@ export default function UserDetails({
   user,
   onEdit,
 }: UserDetailsProps) {
-  const { t } = useLanguage('users');
+  const { t, currentLanguage } = useLanguage('users');
 
   const getInitials = (name: string) =>
     name
@@ -222,7 +222,7 @@ export default function UserDetails({
                       <span className="font-mono">
                         {formatDistanceToNow(new Date(user.created_at), {
                           addSuffix: true,
-                          locale: ptBR,
+                          locale: getDateFnsLocale(currentLanguage),
                         })}
                       </span>
                     </div>
@@ -233,7 +233,7 @@ export default function UserDetails({
                       <span className="font-mono">
                         {formatDistanceToNow(new Date(user.updated_at), {
                           addSuffix: true,
-                          locale: ptBR,
+                          locale: getDateFnsLocale(currentLanguage),
                         })}
                       </span>
                     </div>
