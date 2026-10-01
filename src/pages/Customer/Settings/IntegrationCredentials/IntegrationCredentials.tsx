@@ -75,9 +75,15 @@ interface ConsumerInUse {
   name: string;
   /** Client-side join mode: resolved to names against the loaded list. */
   credentialIds?: string[];
-  /** Server mode (AC10): consumer names aggregated by the backend. */
-  consumerNames?: string[];
+  /** Server mode: consumers aggregated by the backend. */
+  consumers?: (IntegrationCredentialHolder | string)[];
 }
+
+// An empty list is not an answer either: `referenced_by` may still name someone.
+const usableHolders = (value: unknown) => {
+  const holders = parseHolders(value);
+  return holders && holders.length > 0 ? holders : null;
+};
 
 export default function IntegrationCredentials() {
   const { t } = useLanguage('integrationCredentials');
@@ -201,13 +207,13 @@ export default function IntegrationCredentials() {
       if (list.some(credential => Array.isArray(credential.referenced_by))) {
         setConsumersInUse(
           list
-            .filter(credential => (credential.referenced_by?.length ?? 0) > 0)
             .map(credential => ({
               key: `credential-${credential.id}`,
               kind: 'credential' as const,
               name: credential.name,
-              consumerNames: credential.referenced_by ?? [],
-            })),
+              consumers: usableHolders(credential.holders) ?? credential.referenced_by ?? [],
+            }))
+            .filter(row => row.consumers.length > 0),
         );
       } else {
         loadConsumers();
@@ -377,7 +383,7 @@ export default function IntegrationCredentials() {
   // A plain string comes from a server that does not send `holders` yet.
   const consumerLabel = (consumer: IntegrationCredentialHolder | string) => {
     if (typeof consumer === 'string') return consumer;
-    const label = t(`deleteDialog.holders.${consumer.kind}`, { name: consumer.name });
+    const label = t(`holders.${consumer.kind}`, { name: consumer.name });
     return consumer.key ? `${label} [${consumer.key}]` : label;
   };
 
@@ -505,8 +511,8 @@ export default function IntegrationCredentials() {
               <span className="text-muted-foreground">{t(`inUse.kinds.${consumer.kind}`)}</span>
               <span className="font-medium">{consumer.name}</span>
               <span className="text-xs text-muted-foreground">
-                {consumer.consumerNames
-                  ? consumer.consumerNames.join(', ')
+                {consumer.consumers
+                  ? consumer.consumers.map(consumerLabel).join(', ')
                   : (consumer.credentialIds ?? [])
                       .map(id => credentials.find(credential => credential.id === id)?.name ?? id)
                       .join(', ')}
