@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { allowedFor } from './_lib/allowlist';
+import { allowedFor, PORTUGUESE_ALLOWED_KEYS } from './_lib/allowlist';
 import {
   emptyValueKeys,
   findLeaks,
+  findPortuguese,
   missingKeys,
 } from './_lib/parity';
 
@@ -16,6 +17,7 @@ import {
  *
  * es must also carry every EN and pt-BR key (CRM-671): pt-BR, en and es are the locales
  * the product ships, so a key missing in es fails CI like one missing in pt-BR.
+ * en and es values must not be Portuguese: pasting the pt-BR value satisfies the key checks.
  * fr/it/pt are not enforced.
  *
  * Pre-existing pt-BR-only orphan keys (extras absent from EN) are reported as
@@ -83,6 +85,17 @@ describe('i18n catalog parity (EVO-1430)', () => {
 
     it('es has no empty string values', () => {
       expect(emptyValueKeys(es)).toEqual([]);
+    });
+
+    it('es has no Portuguese text', () => {
+      expect(findPortuguese(es, PORTUGUESE_ALLOWED_KEYS[file] ?? new Set())).toEqual([]);
+    });
+  });
+
+  describe.each([...enByFile.keys()].sort())('en/%s', (file) => {
+    it('en has no Portuguese text', () => {
+      const en = enByFile.get(file) as LocaleModule;
+      expect(findPortuguese(en, PORTUGUESE_ALLOWED_KEYS[file] ?? new Set())).toEqual([]);
     });
   });
 

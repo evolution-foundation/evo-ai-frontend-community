@@ -131,3 +131,59 @@ export function emptyValueKeys(obj: Record<string, unknown>): string[] {
   }
   return empties;
 }
+
+const PT_LETTERS = /[ãõçâêôÃÕÇÂÊÔ]/u;
+
+// Accent-stripped. Only forms Spanish and English lack: shared ones (para, que, pelo,
+// salvar) would flag correct Spanish.
+const PT_WORDS = [
+  // function words
+  'nao', 'voce', 'tambem', 'entao', 'ate', 'um', 'uns', 'uma', 'umas', 'com', 'em', 'ao',
+  'aos', 'ou', 'seu', 'sua', 'seus', 'suas', 'meu', 'minha', 'meus', 'minhas', 'nosso',
+  'nossa', 'isso', 'isto', 'nenhum', 'nenhuma', 'muito', 'muitos', 'muita', 'mais', 'outro',
+  'outra', 'tudo', 'bom', 'boa', 'agora', 'ainda', 'depois', 'quando', 'onde', 'hoje',
+  'novamente', 'tem', 'ter', 'foi', 'deve', 'devem', 'pode', 'podem', 'posso', 'fazer',
+  // verbs and UI labels
+  'carregando', 'digite', 'insira', 'preencha', 'descreva', 'selecione', 'selecionar',
+  'selecionado', 'selecionada', 'selecionados', 'escolha', 'escolher', 'limpar', 'voltar',
+  'deletar', 'deletando', 'pesquisar', 'cadastro', 'cadastrar', 'ativar', 'desativar',
+  'atualizar', 'atualizado', 'atualizada', 'gerenciar', 'gerar', 'gerado', 'baixar',
+  'aprovar', 'aprovado', 'rejeitar', 'tente', 'deseja', 'ajuda', 'ajudar', 'obrigado',
+  'obrigatorio', 'obrigatoria', 'obrigatorios', 'configuracoes', 'alteracoes', 'erro',
+  'sucesso', 'senha', 'conta', 'contas', 'nome', 'novo', 'nova', 'ativo', 'ativa', 'ativos',
+  'ativas', 'inativo', 'inativa', 'aberto', 'pendente', 'pendentes', 'resolvido',
+  'desconhecido', 'disponivel', 'disponiveis', 'mensagem', 'mensagens', 'resposta',
+  'respostas', 'contato', 'contatos', 'conteudo', 'ferramenta', 'ferramentas', 'chave',
+  'segredo', 'credenciais', 'canais', 'campanha', 'campanhas', 'atendimento', 'atendente',
+  'atendentes', 'prioridade', 'arquivo', 'arquivos', 'telefone', 'tarefa', 'tarefas',
+  'imagem', 'comunidade', 'funil', 'chamado', 'produto', 'produtos', 'cor', 'identidade',
+  'saida', 'conhecimento', 'itens', 'rascunho', 'pagamento', 'painel', 'analise',
+  'variaveis', 'atividade', 'membros', 'estagio', 'palavras', 'assunto', 'passos', 'baixa',
+  'desempenho', 'loja', 'assistente', 'relatorio', 'relatorios', 'acesso',
+];
+const PT_WORD_RE = new RegExp(`(?<![\\p{L}\\p{N}.@/_-])(?:${PT_WORDS.join('|')})(?![\\p{L}\\p{N}_-])`, 'u');
+// Standalone "é" ("is"): Spanish uses é only inside words.
+const PT_IS_RE = /(?<!\p{L})é(?!\p{L})/u;
+// Spanish writes ll/ñ where Portuguese writes lh ("detalhes", "melhor").
+const PT_LH_RE = /\p{L}+lh\p{L}+/u;
+
+/**
+ * The Portuguese marker in an en/es value, or `null`. Parity checks the key, not the
+ * text, so a pt-BR value pasted to satisfy it would otherwise ship. Catches about three
+ * in four pasted sentences and half the one-word labels.
+ */
+export function portugueseMarker(value: string): string | null {
+  const text = value.replace(/\{\{[^}]*\}\}|<[^>]*>/g, ' ').toLowerCase();
+  const letter = text.match(PT_LETTERS);
+  if (letter) return letter[0];
+  if (PT_IS_RE.test(text)) return 'é';
+  const plain = text.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  return plain.match(PT_WORD_RE)?.[0] ?? plain.match(PT_LH_RE)?.[0] ?? null;
+}
+
+/** `key = "value"` for every string value with Portuguese in it, skipping `allowedKeys`. */
+export function findPortuguese(locale: Record<string, unknown>, allowedKeys: Set<string>): string[] {
+  return Object.entries(flattenWithValues(locale))
+    .filter(([key, value]) => typeof value === 'string' && !allowedKeys.has(key) && portugueseMarker(value))
+    .map(([key, value]) => `${key} = ${JSON.stringify(value)}`);
+}

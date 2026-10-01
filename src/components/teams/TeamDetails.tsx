@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { Team } from '@/types/users';
 import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/lib/dateFnsLocale';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface TeamDetailsProps {
@@ -41,7 +41,7 @@ export default function TeamDetails({
   onEdit,
   onManageUsers,
 }: TeamDetailsProps) {
-  const { t } = useLanguage('teams');
+  const { t, currentLanguage } = useLanguage('teams');
 
   const getInitials = (name: string) =>
     name
@@ -163,7 +163,7 @@ export default function TeamDetails({
                       <span className="font-mono">
                         {formatDistanceToNow(new Date(team.created_at), {
                           addSuffix: true,
-                          locale: ptBR,
+                          locale: getDateFnsLocale(currentLanguage),
                         })}
                       </span>
                     </div>
@@ -174,7 +174,7 @@ export default function TeamDetails({
                       <span className="font-mono">
                         {formatDistanceToNow(new Date(team.updated_at), {
                           addSuffix: true,
-                          locale: ptBR,
+                          locale: getDateFnsLocale(currentLanguage),
                         })}
                       </span>
                     </div>

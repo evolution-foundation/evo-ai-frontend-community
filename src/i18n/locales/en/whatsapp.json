@@ -34,10 +34,10 @@
   "cloudForm": {
     "title": "WhatsApp Cloud",
     "defaultChannelName": "WhatsApp Cloud",
-    "or": "ou",
+    "or": "or",
     "autoConfig": {
       "title": "Automatic Configuration",
-      "description": "Use o Facebook Embedded Signup para configurar automaticamente seu canal WhatsApp.",
+      "description": "Use Facebook Embedded Signup to set up your WhatsApp channel automatically.",
       "connecting": "Connecting...",
       "configureButton": "Configure with Facebook"
     },

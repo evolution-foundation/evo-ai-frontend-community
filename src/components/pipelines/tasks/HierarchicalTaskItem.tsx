@@ -31,7 +31,7 @@ import {
 import { cn } from '@/lib/utils';
 import type { PipelineTask } from '@/types/analytics';
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/lib/dateFnsLocale';
 
 interface HierarchicalTaskItemProps {
   task: PipelineTask;
@@ -58,7 +58,7 @@ export default function HierarchicalTaskItem({
   disabled = false,
   allTasks = [],
 }: HierarchicalTaskItemProps) {
-  const { t } = useLanguage('pipelines');
+  const { t, currentLanguage } = useLanguage('pipelines');
   const [isExpanded, setIsExpanded] = useState(true);
 
   const hasSubtasks = task.subtasks && task.subtasks.length > 0;
@@ -247,7 +247,7 @@ export default function HierarchicalTaskItem({
   const formatDueDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      return format(date, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+      return format(date, 'P p', { locale: getDateFnsLocale(currentLanguage) });
     } catch {
       return dateString;
     }

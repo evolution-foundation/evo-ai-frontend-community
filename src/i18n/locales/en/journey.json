@@ -1590,7 +1590,7 @@
         "identifier": "Identifier"
       },
       "placeholders": {
-        "name": "Ex: João Silva",
+        "name": "Ex: John Smith",
         "email": "Ex: joao@example.com",
         "phone_number": "Ex: +1234567890",
         "identifier": "Ex: ID-12345"
@@ -1912,7 +1912,7 @@
       "model": "Model",
       "condition": "Condition",
       "selectCondition": "Select the condition",
-      "value": "Valor",
+      "value": "Value",
       "enterValue": "Enter the value",
       "useVariablesHint": "Use variables clicking on the (x) button.",
       "selectedAttribute": "Selected Attribute",
