@@ -69,8 +69,8 @@ export default function WebWidgetAdvancedForm({
           className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
         >
           <option value="">
-            {t('settings.webWidgetAdvanced.language.options.accountDefault', {
-              defaultValue: 'Use account default',
+            {t('settings.webWidgetAdvanced.language.options.visitorLanguage', {
+              defaultValue: "Visitor's browser language",
             })}
           </option>
           <option value="en">English</option>
