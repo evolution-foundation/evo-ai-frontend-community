@@ -142,5 +142,78 @@
       "confirm": "Elimina Tutte",
       "deleting": "Eliminazione..."
     }
+  },
+  "actionTypes": {
+    "send_message": {
+      "name": "Invia messaggio",
+      "description": "Invia un messaggio automatico nella conversazione"
+    },
+    "add_label": {
+      "name": "Aggiungi etichetta",
+      "description": "Aggiunge etichette alla conversazione"
+    },
+    "remove_label": {
+      "name": "Rimuovi etichetta",
+      "description": "Rimuove etichette dalla conversazione"
+    },
+    "assign_team": {
+      "name": "Assegna team",
+      "description": "Assegna la conversazione a un team specifico"
+    },
+    "assign_agent": {
+      "name": "Assegna agente",
+      "description": "Assegna la conversazione a un agente specifico"
+    },
+    "remove_assigned_team": {
+      "name": "Rimuovi assegnazione team",
+      "description": "Rimuove l'assegnazione del team dalla conversazione"
+    },
+    "mute_conversation": {
+      "name": "Silenzia conversazione",
+      "description": "Silenzia la conversazione per non ricevere notifiche"
+    },
+    "change_status": {
+      "name": "Cambia stato",
+      "description": "Cambia lo stato della conversazione",
+      "options": {
+        "open": "Aperta",
+        "resolved": "Risolta",
+        "pending": "In attesa"
+      }
+    },
+    "resolve_conversation": {
+      "name": "Risolvi conversazione",
+      "description": "Segna la conversazione come risolta"
+    },
+    "snooze_conversation": {
+      "name": "Posticipa conversazione",
+      "description": "Posticipa la conversazione fino a un momento stabilito (in ore)"
+    },
+    "change_priority": {
+      "name": "Cambia priorità",
+      "description": "Cambia la priorità della conversazione",
+      "options": {
+        "low": "Bassa",
+        "medium": "Media",
+        "high": "Alta",
+        "urgent": "Urgente"
+      }
+    },
+    "send_email_transcript": {
+      "name": "Invia trascrizione via email",
+      "description": "Invia la trascrizione della conversazione a un indirizzo email"
+    },
+    "send_attachment": {
+      "name": "Invia allegato",
+      "description": "Invia un file allegato nella conversazione"
+    },
+    "add_private_note": {
+      "name": "Aggiungi nota privata",
+      "description": "Aggiunge una nota privata alla conversazione"
+    },
+    "send_webhook_event": {
+      "name": "Invia webhook",
+      "description": "Attiva un webhook verso un endpoint esterno"
+    }
   }
 }

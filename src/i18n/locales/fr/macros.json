@@ -142,5 +142,78 @@
       "confirm": "Tout Supprimer",
       "deleting": "Suppression..."
     }
+  },
+  "actionTypes": {
+    "send_message": {
+      "name": "Envoyer un message",
+      "description": "Envoie un message automatique dans la conversation"
+    },
+    "add_label": {
+      "name": "Ajouter une étiquette",
+      "description": "Ajoute des étiquettes à la conversation"
+    },
+    "remove_label": {
+      "name": "Retirer une étiquette",
+      "description": "Retire des étiquettes de la conversation"
+    },
+    "assign_team": {
+      "name": "Attribuer une équipe",
+      "description": "Attribue la conversation à une équipe précise"
+    },
+    "assign_agent": {
+      "name": "Attribuer un agent",
+      "description": "Attribue la conversation à un agent précis"
+    },
+    "remove_assigned_team": {
+      "name": "Retirer l'attribution d'équipe",
+      "description": "Retire l'attribution d'équipe de la conversation"
+    },
+    "mute_conversation": {
+      "name": "Mettre la conversation en sourdine",
+      "description": "Met la conversation en sourdine pour ne plus recevoir de notifications"
+    },
+    "change_status": {
+      "name": "Modifier le statut",
+      "description": "Modifie le statut de la conversation",
+      "options": {
+        "open": "Ouverte",
+        "resolved": "Résolue",
+        "pending": "En attente"
+      }
+    },
+    "resolve_conversation": {
+      "name": "Résoudre la conversation",
+      "description": "Marque la conversation comme résolue"
+    },
+    "snooze_conversation": {
+      "name": "Reporter la conversation",
+      "description": "Reporte la conversation jusqu'à un moment donné (en heures)"
+    },
+    "change_priority": {
+      "name": "Modifier la priorité",
+      "description": "Modifie la priorité de la conversation",
+      "options": {
+        "low": "Basse",
+        "medium": "Moyenne",
+        "high": "Haute",
+        "urgent": "Urgente"
+      }
+    },
+    "send_email_transcript": {
+      "name": "Envoyer la transcription par e-mail",
+      "description": "Envoie la transcription de la conversation à une adresse e-mail"
+    },
+    "send_attachment": {
+      "name": "Envoyer une pièce jointe",
+      "description": "Envoie un fichier joint dans la conversation"
+    },
+    "add_private_note": {
+      "name": "Ajouter une note privée",
+      "description": "Ajoute une note privée à la conversation"
+    },
+    "send_webhook_event": {
+      "name": "Envoyer un webhook",
+      "description": "Déclenche un webhook vers un endpoint externe"
+    }
   }
 }

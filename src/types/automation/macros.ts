@@ -58,10 +58,10 @@ export interface MacrosListParams {
 
 export interface MacroActionType {
   key: string;
-  name: string;
+  nameKey: string;
   inputType: 'text' | 'textarea' | 'select' | 'multi_select' | 'email' | 'url' | 'file' | null;
-  description: string;
-  options?: Array<{ value: string | number; label: string }>;
+  descriptionKey: string;
+  options?: Array<{ value: string | number; labelKey: string }>;
 }
 
 export interface MacrosState {
@@ -82,107 +82,107 @@ export interface MacrosState {
   sortOrder: 'asc' | 'desc';
 }
 
-// Ações disponíveis para macros - melhoradas com labels amigáveis
+// Name, description and option labels are keys of the macros namespace.
 export const MACRO_ACTION_TYPES: MacroActionType[] = [
   {
     key: 'send_message',
-    name: 'Enviar mensagem',
+    nameKey: 'actionTypes.send_message.name',
     inputType: 'textarea',
-    description: 'Envia uma mensagem automática na conversa',
+    descriptionKey: 'actionTypes.send_message.description',
   },
   {
     key: 'add_label',
-    name: 'Adicionar etiqueta',
+    nameKey: 'actionTypes.add_label.name',
     inputType: 'multi_select',
-    description: 'Adiciona etiquetas à conversa',
+    descriptionKey: 'actionTypes.add_label.description',
   },
   {
     key: 'remove_label',
-    name: 'Remover etiqueta',
+    nameKey: 'actionTypes.remove_label.name',
     inputType: 'multi_select',
-    description: 'Remove etiquetas da conversa',
+    descriptionKey: 'actionTypes.remove_label.description',
   },
   {
     key: 'assign_team',
-    name: 'Atribuir equipe',
+    nameKey: 'actionTypes.assign_team.name',
     inputType: 'select',
-    description: 'Atribui a conversa a uma equipe específica',
+    descriptionKey: 'actionTypes.assign_team.description',
   },
   {
     key: 'assign_agent',
-    name: 'Atribuir agente',
+    nameKey: 'actionTypes.assign_agent.name',
     inputType: 'select',
-    description: 'Atribui a conversa a um agente específico',
+    descriptionKey: 'actionTypes.assign_agent.description',
   },
   {
     key: 'remove_assigned_team',
-    name: 'Remover atribuição de equipe',
+    nameKey: 'actionTypes.remove_assigned_team.name',
     inputType: null,
-    description: 'Remove a atribuição de equipe da conversa',
+    descriptionKey: 'actionTypes.remove_assigned_team.description',
   },
   {
     key: 'mute_conversation',
-    name: 'Silenciar conversa',
+    nameKey: 'actionTypes.mute_conversation.name',
     inputType: null,
-    description: 'Silencia a conversa para não receber notificações',
+    descriptionKey: 'actionTypes.mute_conversation.description',
   },
   {
     key: 'change_status',
-    name: 'Alterar status',
+    nameKey: 'actionTypes.change_status.name',
     inputType: 'select',
-    description: 'Altera o status da conversa',
+    descriptionKey: 'actionTypes.change_status.description',
     options: [
-      { value: 'open', label: 'Aberta' },
-      { value: 'resolved', label: 'Resolvida' },
-      { value: 'pending', label: 'Pendente' },
+      { value: 'open', labelKey: 'actionTypes.change_status.options.open' },
+      { value: 'resolved', labelKey: 'actionTypes.change_status.options.resolved' },
+      { value: 'pending', labelKey: 'actionTypes.change_status.options.pending' },
     ],
   },
   {
     key: 'resolve_conversation',
-    name: 'Resolver conversa',
+    nameKey: 'actionTypes.resolve_conversation.name',
     inputType: null,
-    description: 'Marca a conversa como resolvida',
+    descriptionKey: 'actionTypes.resolve_conversation.description',
   },
   {
     key: 'snooze_conversation',
-    name: 'Adiar conversa',
+    nameKey: 'actionTypes.snooze_conversation.name',
     inputType: 'text',
-    description: 'Adia a conversa até uma data específica (em horas)',
+    descriptionKey: 'actionTypes.snooze_conversation.description',
   },
   {
     key: 'change_priority',
-    name: 'Alterar prioridade',
+    nameKey: 'actionTypes.change_priority.name',
     inputType: 'select',
-    description: 'Altera a prioridade da conversa',
+    descriptionKey: 'actionTypes.change_priority.description',
     options: [
-      { value: 'low', label: 'Baixa' },
-      { value: 'medium', label: 'Média' },
-      { value: 'high', label: 'Alta' },
-      { value: 'urgent', label: 'Urgente' },
+      { value: 'low', labelKey: 'actionTypes.change_priority.options.low' },
+      { value: 'medium', labelKey: 'actionTypes.change_priority.options.medium' },
+      { value: 'high', labelKey: 'actionTypes.change_priority.options.high' },
+      { value: 'urgent', labelKey: 'actionTypes.change_priority.options.urgent' },
     ],
   },
   {
     key: 'send_email_transcript',
-    name: 'Enviar transcrição por email',
+    nameKey: 'actionTypes.send_email_transcript.name',
     inputType: 'email',
-    description: 'Envia a transcrição da conversa para um email',
+    descriptionKey: 'actionTypes.send_email_transcript.description',
   },
   {
     key: 'send_attachment',
-    name: 'Enviar anexo',
+    nameKey: 'actionTypes.send_attachment.name',
     inputType: 'file',
-    description: 'Envia um arquivo anexo na conversa',
+    descriptionKey: 'actionTypes.send_attachment.description',
   },
   {
     key: 'add_private_note',
-    name: 'Adicionar nota privada',
+    nameKey: 'actionTypes.add_private_note.name',
     inputType: 'textarea',
-    description: 'Adiciona uma nota privada à conversa',
+    descriptionKey: 'actionTypes.add_private_note.description',
   },
   {
     key: 'send_webhook_event',
-    name: 'Enviar webhook',
+    nameKey: 'actionTypes.send_webhook_event.name',
     inputType: 'url',
-    description: 'Dispara um webhook para um endpoint externo',
+    descriptionKey: 'actionTypes.send_webhook_event.description',
   },
 ];

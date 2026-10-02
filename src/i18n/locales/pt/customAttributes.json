@@ -277,5 +277,33 @@
       "confirm": "Deletar Todos",
       "deleting": "Deletando..."
     }
+  },
+  "modelOptions": {
+    "conversation": {
+      "label": "Conversas",
+      "description": "Atributos aplicados às conversas"
+    },
+    "contact": {
+      "label": "Contatos",
+      "description": "Atributos aplicados aos contatos"
+    },
+    "pipeline": {
+      "label": "Pipeline",
+      "description": "Atributos aplicados a pipelines, estágios ou items"
+    }
+  },
+  "pipelineTypeOptions": {
+    "pipeline": {
+      "label": "Pipeline",
+      "description": "Atributos aplicados ao pipeline em si"
+    },
+    "pipeline_stage": {
+      "label": "Estágio",
+      "description": "Atributos aplicados aos estágios do pipeline"
+    },
+    "pipeline_item": {
+      "label": "Item",
+      "description": "Atributos aplicados aos items (deals/leads) do pipeline"
+    }
   }
 }

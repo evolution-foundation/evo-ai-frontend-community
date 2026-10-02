@@ -105,7 +105,11 @@ export default function MacroActionRow({
   const renderActionInput = () => {
     if (!selectedActionConfig) return null;
 
-    const { inputType, options: actionOptions } = selectedActionConfig;
+    const { inputType } = selectedActionConfig;
+    const actionOptions: MacroFormOption[] | undefined = selectedActionConfig.options?.map(o => ({
+      value: o.value,
+      label: t(o.labelKey),
+    }));
 
     switch (inputType) {
       case 'select': {
@@ -367,9 +371,9 @@ export default function MacroActionRow({
                   className="text-sidebar-foreground"
                 >
                   <div>
-                    <div className="font-medium">{actionConfig.name}</div>
+                    <div className="font-medium">{t(actionConfig.nameKey)}</div>
                     <div className="text-xs text-sidebar-foreground/60">
-                      {actionConfig.description}
+                      {t(actionConfig.descriptionKey)}
                     </div>
                   </div>
                 </SelectItem>

@@ -36,7 +36,7 @@ export default function CustomAttributesHeader({
       title={t('header.title')}
       subtitle={t(totalCount === 1 ? 'header.subtitleSingular' : 'header.subtitle', {
         count: totalCount,
-        tabName: currentTab?.name.toLowerCase(),
+        tabName: currentTab ? t(currentTab.nameKey).toLowerCase() : undefined,
       })}
       searchPlaceholder={t('header.searchPlaceholder')}
       searchValue={searchValue}

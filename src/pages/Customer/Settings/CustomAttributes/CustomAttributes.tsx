@@ -341,7 +341,7 @@ export default function CustomAttributes() {
         <TabsList className="mb-4">
           {ATTRIBUTE_TABS.map(tab => (
             <TabsTrigger key={tab.key} value={tab.key}>
-              {tab.name}
+              {t(tab.nameKey)}
             </TabsTrigger>
           ))}
         </TabsList>

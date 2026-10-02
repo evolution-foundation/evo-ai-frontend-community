@@ -255,8 +255,8 @@ export default function CustomAttributeModal({
                 {ATTRIBUTE_MODEL_OPTIONS.map(option => (
                   <SelectItem key={option.value} value={option.value}>
                     <div>
-                      <div className="font-medium">{option.label}</div>
-                      <div className="text-xs text-muted-foreground">{option.description}</div>
+                      <div className="font-medium">{t(option.labelKey)}</div>
+                      <div className="text-xs text-muted-foreground">{t(option.descriptionKey)}</div>
                     </div>
                   </SelectItem>
                 ))}
@@ -282,8 +282,8 @@ export default function CustomAttributeModal({
                   {PIPELINE_TYPE_OPTIONS.map(option => (
                     <SelectItem key={option.value} value={option.value}>
                       <div>
-                        <div className="font-medium">{option.label}</div>
-                        <div className="text-xs text-muted-foreground">{option.description}</div>
+                        <div className="font-medium">{t(option.labelKey)}</div>
+                        <div className="text-xs text-muted-foreground">{t(option.descriptionKey)}</div>
                       </div>
                     </SelectItem>
                   ))}

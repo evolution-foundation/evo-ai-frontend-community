@@ -239,5 +239,33 @@
       "confirm": "Tout Supprimer",
       "deleting": "Suppression..."
     }
+  },
+  "modelOptions": {
+    "conversation": {
+      "label": "Conversations",
+      "description": "Attributs appliqués aux conversations"
+    },
+    "contact": {
+      "label": "Contacts",
+      "description": "Attributs appliqués aux contacts"
+    },
+    "pipeline": {
+      "label": "Pipeline",
+      "description": "Attributs appliqués aux pipelines, étapes ou éléments"
+    }
+  },
+  "pipelineTypeOptions": {
+    "pipeline": {
+      "label": "Pipeline",
+      "description": "Attributs appliqués au pipeline lui-même"
+    },
+    "pipeline_stage": {
+      "label": "Étape",
+      "description": "Attributs appliqués aux étapes du pipeline"
+    },
+    "pipeline_item": {
+      "label": "Élément",
+      "description": "Attributs appliqués aux éléments (deals/leads) du pipeline"
+    }
   }
 }
