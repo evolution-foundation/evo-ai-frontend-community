@@ -140,5 +140,78 @@
       "confirm": "Delete All",
       "deleting": "Deleting..."
     }
+  },
+  "actionTypes": {
+    "send_message": {
+      "name": "Send message",
+      "description": "Sends an automatic message in the conversation"
+    },
+    "add_label": {
+      "name": "Add label",
+      "description": "Adds labels to the conversation"
+    },
+    "remove_label": {
+      "name": "Remove label",
+      "description": "Removes labels from the conversation"
+    },
+    "assign_team": {
+      "name": "Assign team",
+      "description": "Assigns the conversation to a specific team"
+    },
+    "assign_agent": {
+      "name": "Assign agent",
+      "description": "Assigns the conversation to a specific agent"
+    },
+    "remove_assigned_team": {
+      "name": "Remove team assignment",
+      "description": "Removes the team assignment from the conversation"
+    },
+    "mute_conversation": {
+      "name": "Mute conversation",
+      "description": "Mutes the conversation so it sends no notifications"
+    },
+    "change_status": {
+      "name": "Change status",
+      "description": "Changes the conversation status",
+      "options": {
+        "open": "Open",
+        "resolved": "Resolved",
+        "pending": "Pending"
+      }
+    },
+    "resolve_conversation": {
+      "name": "Resolve conversation",
+      "description": "Marks the conversation as resolved"
+    },
+    "snooze_conversation": {
+      "name": "Snooze conversation",
+      "description": "Snoozes the conversation until a given time (in hours)"
+    },
+    "change_priority": {
+      "name": "Change priority",
+      "description": "Changes the conversation priority",
+      "options": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "urgent": "Urgent"
+      }
+    },
+    "send_email_transcript": {
+      "name": "Email transcript",
+      "description": "Sends the conversation transcript to an email address"
+    },
+    "send_attachment": {
+      "name": "Send attachment",
+      "description": "Sends a file attachment in the conversation"
+    },
+    "add_private_note": {
+      "name": "Add private note",
+      "description": "Adds a private note to the conversation"
+    },
+    "send_webhook_event": {
+      "name": "Send webhook",
+      "description": "Fires a webhook to an external endpoint"
+    }
   }
 }
