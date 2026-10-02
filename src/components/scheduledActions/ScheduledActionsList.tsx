@@ -11,7 +11,7 @@ interface ScheduledActionsListProps {
 }
 
 export function ScheduledActionsList({ contactId }: ScheduledActionsListProps) {
-  const { t } = useLanguage('contacts');
+  const { t, currentLanguage } = useLanguage('contacts');
   const [actions, setActions] = useState<ScheduledAction[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -251,7 +251,7 @@ export function ScheduledActionsList({ contactId }: ScheduledActionsListProps) {
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          <span>{new Date(action.scheduled_for).toLocaleString('pt-BR')}</span>
+                          <span>{new Date(action.scheduled_for).toLocaleString(currentLanguage)}</span>
                         </div>
                         {action.overdue && (
                           <div className="flex items-center gap-1 text-destructive">

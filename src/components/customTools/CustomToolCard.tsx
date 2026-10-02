@@ -20,7 +20,7 @@ export default function CustomToolCard({
   onClick,
   isTestLoading = false
 }: CustomToolCardProps) {
-  const { t } = useLanguage('customTools');
+  const { t, currentLanguage } = useLanguage('customTools');
 
   const getMethodColor = (method: string) => {
     switch (method.toUpperCase()) {
@@ -96,7 +96,7 @@ export default function CustomToolCard({
           {/* Examples Count */}
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
             <span>{t('card.examples', { count: tool.examples?.length || 0 })}</span>
-            <span>{t('card.createdAt')} {new Date(tool.created_at).toLocaleDateString('pt-BR')}</span>
+            <span>{t('card.createdAt')} {new Date(tool.created_at).toLocaleDateString(currentLanguage)}</span>
           </div>
         </div>
 

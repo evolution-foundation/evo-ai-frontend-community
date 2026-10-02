@@ -34,7 +34,7 @@ export default function SegmentsTable({
   sortOrder,
   onSort,
 }: SegmentsTableProps) {
-  const { t } = useLanguage('segments');
+  const { t, currentLanguage } = useLanguage('segments');
   const { can, isReady } = usePermissions();
   const [loadingRecompute, setLoadingRecompute] = useState<string | null>(null);
   const canUpdate = () => isReady && can('segments', 'update');
@@ -69,7 +69,7 @@ export default function SegmentsTable({
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
+    return new Date(dateString).toLocaleDateString(currentLanguage, {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

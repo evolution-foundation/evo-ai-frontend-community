@@ -33,7 +33,7 @@ export default function PipelineItemCard({
   showDragHandle = false,
   showActions = true,
 }: PipelineItemCardProps) {
-  const { t } = useLanguage('pipelines');
+  const { t, currentLanguage } = useLanguage('pipelines');
 
   return (
     <div
@@ -183,7 +183,7 @@ export default function PipelineItemCard({
                     typeof item.conversation.last_non_activity_message.created_at === 'number'
                       ? item.conversation.last_non_activity_message.created_at * 1000
                       : item.conversation.last_non_activity_message.created_at,
-                  ).toLocaleString('pt-BR', {
+                  ).toLocaleString(currentLanguage, {
                     day: '2-digit',
                     month: '2-digit',
                     hour: '2-digit',
@@ -327,8 +327,8 @@ export default function PipelineItemCard({
           </div>
           <span>
             {item.conversation?.last_activity_at
-              ? new Date(item.conversation.last_activity_at * 1000).toLocaleDateString('pt-BR')
-              : new Date((item.entered_at || 0) * 1000).toLocaleDateString('pt-BR')}
+              ? new Date(item.conversation.last_activity_at * 1000).toLocaleDateString(currentLanguage)
+              : new Date((item.entered_at || 0) * 1000).toLocaleDateString(currentLanguage)}
           </span>
         </div>
 

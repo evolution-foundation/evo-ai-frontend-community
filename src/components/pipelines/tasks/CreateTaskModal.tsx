@@ -38,7 +38,7 @@ export default function CreateTaskModal({
   availableUsers = [],
   parentTask = null,
 }: CreateTaskModalProps) {
-  const { t } = useLanguage('pipelines');
+  const { t, currentLanguage } = useLanguage('pipelines');
 
   const [formData, setFormData] = useState<CreateTaskData>({
     title: '',
@@ -232,7 +232,7 @@ export default function CreateTaskModal({
             />
             {parentTask?.due_date && (
               <p className="text-xs text-muted-foreground">
-                {t('tasks.form.exactDueDate')}: {new Date(parentTask.due_date).toLocaleString('pt-BR')}
+                {t('tasks.form.exactDueDate')}: {new Date(parentTask.due_date).toLocaleString(currentLanguage)}
               </p>
             )}
             {errors.due_date && (

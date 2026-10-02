@@ -30,7 +30,7 @@ export default function CustomAttributesTable({
   sortBy,
   sortOrder,
 }: CustomAttributesTableProps) {
-  const { t } = useLanguage('customAttributes');
+  const { t, currentLanguage } = useLanguage('customAttributes');
   const { can, isReady } = usePermissions();
 
   const getAttributeTypeLabel = (type: string) => {
@@ -124,7 +124,7 @@ export default function CustomAttributesTable({
       sortable: true,
       render: (attribute: CustomAttributeDefinition) => (
         <div className="text-sm text-muted-foreground">
-          {new Date(attribute.created_at).toLocaleDateString('pt-BR')}
+          {new Date(attribute.created_at).toLocaleDateString(currentLanguage)}
         </div>
       ),
     },

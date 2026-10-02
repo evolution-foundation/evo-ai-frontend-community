@@ -30,7 +30,7 @@ export default function CustomToolsTable({
   onCreateTool,
   testingToolId,
 }: CustomToolsTableProps) {
-  const { t } = useLanguage('customTools');
+  const { t, currentLanguage } = useLanguage('customTools');
   const { can, isReady } = usePermissions();
   const toolsList = tools || [];
 
@@ -131,7 +131,7 @@ export default function CustomToolsTable({
       sortable: true,
       render: tool => (
         <span className="text-sm text-muted-foreground">
-          {new Date(tool.created_at).toLocaleDateString('pt-BR')}
+          {new Date(tool.created_at).toLocaleDateString(currentLanguage)}
         </span>
       ),
     },

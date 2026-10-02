@@ -70,7 +70,7 @@ export default function IntegrationStatus({
   errorMessage,
   className = ''
 }: IntegrationStatusProps) {
-  const { t } = useLanguage('integrations');
+  const { t, currentLanguage } = useLanguage('integrations');
   const config = getStatusConfig(t)[status];
   const Icon = config.icon;
 
@@ -78,7 +78,7 @@ export default function IntegrationStatus({
     if (!dateString) return t('connection.never');
 
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('pt-BR', {
+    return new Intl.DateTimeFormat(currentLanguage, {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

@@ -38,7 +38,7 @@ export default function EditTaskModal({
   loading = false,
   availableUsers = [],
 }: EditTaskModalProps) {
-  const { t } = useLanguage('pipelines');
+  const { t, currentLanguage } = useLanguage('pipelines');
 
   const [formData, setFormData] = useState<UpdateTaskData>({
     title: '',
@@ -232,7 +232,7 @@ export default function EditTaskModal({
             />
             {task?.parent_task?.due_date && (
               <p className="text-xs text-muted-foreground">
-                {t('tasks.form.exactDueDate')}: {new Date(task.parent_task.due_date).toLocaleString('pt-BR')}
+                {t('tasks.form.exactDueDate')}: {new Date(task.parent_task.due_date).toLocaleString(currentLanguage)}
               </p>
             )}
             {errors.due_date && (

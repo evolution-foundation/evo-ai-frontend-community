@@ -30,7 +30,7 @@ export default function CustomMCPServersTable({
   onCreateServer,
   testingServerId,
 }: CustomMCPServersTableProps) {
-  const { t } = useLanguage('customMcpServers');
+  const { t, currentLanguage } = useLanguage('customMcpServers');
   const { can, isReady } = usePermissions();
   const serversList = servers || [];
 
@@ -114,7 +114,7 @@ export default function CustomMCPServersTable({
       sortable: true,
       render: server => (
         <span className="text-sm text-muted-foreground">
-          {new Date(server.created_at).toLocaleDateString('pt-BR')}
+          {new Date(server.created_at).toLocaleDateString(currentLanguage)}
         </span>
       ),
     },

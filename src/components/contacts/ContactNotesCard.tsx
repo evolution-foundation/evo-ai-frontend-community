@@ -17,10 +17,10 @@ interface ContactNotesCardProps {
   contactId: string;
 }
 
-function formatDateTime(dateString: string): string {
+function formatDateTime(dateString: string, locale: string): string {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return dateString;
-  return date.toLocaleDateString('pt-BR', {
+  return date.toLocaleDateString(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -30,7 +30,7 @@ function formatDateTime(dateString: string): string {
 }
 
 export default function ContactNotesCard({ contactId }: ContactNotesCardProps) {
-  const { t } = useLanguage('contacts');
+  const { t, currentLanguage } = useLanguage('contacts');
   const { can, isReady } = usePermissions();
   const canUpdate = isReady && can('contacts', 'update');
   const canDelete = isReady && can('contacts', 'delete');
@@ -170,7 +170,7 @@ export default function ContactNotesCard({ contactId }: ContactNotesCardProps) {
                   <div className="text-xs text-muted-foreground truncate">
                     <span className="font-medium text-foreground">{note.user?.name}</span>
                     {' · '}
-                    {formatDateTime(note.created_at)}
+                    {formatDateTime(note.created_at, currentLanguage)}
                   </div>
                   {editingId !== note.id && (canUpdate || canDelete) && (
                     <div className="flex items-center gap-1 shrink-0">

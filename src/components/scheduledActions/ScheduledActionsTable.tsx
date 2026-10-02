@@ -23,7 +23,7 @@ export default function ScheduledActionsTable({
   onCancel,
   onContactClick,
 }: ScheduledActionsTableProps) {
-  const { t } = useLanguage('contacts');
+  const { t, currentLanguage } = useLanguage('contacts');
 
   const getActionTypeLabel = (type: string) => {
     return t(`scheduledActions.actions.${type}`) || type;
@@ -106,7 +106,7 @@ export default function ScheduledActionsTable({
       render: action => (
         <div className="space-y-1">
           <div className="text-sm">
-            {new Date(action.scheduled_for).toLocaleString('pt-BR')}
+            {new Date(action.scheduled_for).toLocaleString(currentLanguage)}
           </div>
           {action.status === 'scheduled' && !action.overdue && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -129,7 +129,7 @@ export default function ScheduledActionsTable({
       sortable: true,
       render: action => (
         <div className="text-sm text-muted-foreground">
-          {new Date(action.created_at).toLocaleString('pt-BR')}
+          {new Date(action.created_at).toLocaleString(currentLanguage)}
         </div>
       ),
     },

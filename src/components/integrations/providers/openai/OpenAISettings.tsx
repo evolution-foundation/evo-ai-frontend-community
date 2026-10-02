@@ -25,7 +25,7 @@ interface OpenAISettingsProps {
 }
 
 export default function OpenAISettings({ onBack }: OpenAISettingsProps = {}) {
-  const { t } = useLanguage('integrations');
+  const { t, currentLanguage } = useLanguage('integrations');
   const [hook, setHook] = useState<OpenAIHook | null>(null);
   const [loading, setLoading] = useState({
     get: false,
@@ -194,7 +194,7 @@ export default function OpenAISettings({ onBack }: OpenAISettingsProps = {}) {
                     {t('openai.settings.status.configuredAt')}
                   </label>
                   <p className="text-sm font-medium">
-                    {new Date(hook.created_at).toLocaleDateString('pt-BR', {
+                    {new Date(hook.created_at).toLocaleDateString(currentLanguage, {
                       day: '2-digit',
                       month: '2-digit',
                       year: 'numeric',
@@ -208,7 +208,7 @@ export default function OpenAISettings({ onBack }: OpenAISettingsProps = {}) {
                     {t('openai.settings.status.lastUpdate')}
                   </label>
                   <p className="text-sm font-medium">
-                    {new Date(hook.updated_at).toLocaleDateString('pt-BR', {
+                    {new Date(hook.updated_at).toLocaleDateString(currentLanguage, {
                       day: '2-digit',
                       month: '2-digit',
                       year: 'numeric',

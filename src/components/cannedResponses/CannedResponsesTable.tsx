@@ -27,7 +27,7 @@ export default function CannedResponsesTable({
   sortBy,
   sortOrder,
 }: CannedResponsesTableProps) {
-  const { t } = useLanguage('cannedResponses');
+  const { t, currentLanguage } = useLanguage('cannedResponses');
   const { can, isReady } = usePermissions();
 
   const columns = [
@@ -64,7 +64,7 @@ export default function CannedResponsesTable({
       sortable: true,
       render: (cannedResponse: CannedResponse) => (
         <div className="text-sm text-muted-foreground">
-          {new Date(cannedResponse.created_at).toLocaleDateString('pt-BR')}
+          {new Date(cannedResponse.created_at).toLocaleDateString(currentLanguage)}
         </div>
       ),
     },

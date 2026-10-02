@@ -25,7 +25,7 @@ interface BMSSettingsProps {
 }
 
 export default function BMSSettings({ onBack }: BMSSettingsProps = {}) {
-  const { t } = useLanguage('integrations');
+  const { t, currentLanguage } = useLanguage('integrations');
   const [hook, setHook] = useState<BMSHook | null>(null);
   const [loading, setLoading] = useState({
     get: false,
@@ -184,7 +184,7 @@ export default function BMSSettings({ onBack }: BMSSettingsProps = {}) {
                 <div>
                   <label className="text-xs text-slate-500">{t('bms.status.configuredAt')}</label>
                   <p className="text-sm font-medium">
-                    {new Date(hook.created_at).toLocaleDateString('pt-BR', {
+                    {new Date(hook.created_at).toLocaleDateString(currentLanguage, {
                       day: '2-digit',
                       month: '2-digit',
                       year: 'numeric',
@@ -196,7 +196,7 @@ export default function BMSSettings({ onBack }: BMSSettingsProps = {}) {
                 <div>
                   <label className="text-xs text-slate-500">{t('bms.status.lastUpdate')}</label>
                   <p className="text-sm font-medium">
-                    {new Date(hook.updated_at).toLocaleDateString('pt-BR', {
+                    {new Date(hook.updated_at).toLocaleDateString(currentLanguage, {
                       day: '2-digit',
                       month: '2-digit',
                       year: 'numeric',
