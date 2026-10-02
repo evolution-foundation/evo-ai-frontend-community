@@ -1,5 +1,17 @@
 import { useMemo, useState } from 'react';
-import { Button, Input } from '@evoapi/design-system';
+import {
+  Button,
+  Input,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from '@evoapi/design-system';
+import { Check, ChevronsUpDown } from 'lucide-react';
 import { useGlobalConfig } from '@/contexts/GlobalConfigContext';
 import ChannelsService from '@/services/channels/channelsService';
 import { toast } from 'sonner';
@@ -34,6 +46,7 @@ export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookCha
 
   const [pages, setPages] = useState<any[]>([]);
   const [selected, setSelected] = useState<any | null>(null);
+  const [pagePickerOpen, setPagePickerOpen] = useState(false);
   const [inboxName, setInboxName] = useState('');
   const [userAccessToken, setUserAccessToken] = useState('');
 
@@ -224,10 +237,10 @@ export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookCha
     try {
       const fbPages = await ChannelsService.fetchFacebookPages(accessToken);
 
-      const pageDetails = fbPages?.data?.page_details || [];
+      const pageDetails = fbPages?.page_details || [];
       const availablePages = pageDetails.filter((p: any) => !p.exists);
 
-      setUserAccessToken(fbPages?.data?.user_access_token || accessToken);
+      setUserAccessToken(fbPages?.user_access_token || accessToken);
       setPages(availablePages);
       setIsLoading(false);
 
@@ -441,34 +454,55 @@ export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookCha
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {pages.map((p: any) => (
-                <button
-                  key={p.id}
-                  onClick={() => setSelected(p)}
-                  className={`text-left rounded-lg border transition-all ${
-                    selected?.id === p.id
-                      ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
-                      : 'border-border bg-card hover:border-primary/50'
-                  } p-4`}
+            <Popover open={pagePickerOpen} onOpenChange={setPagePickerOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={pagePickerOpen}
+                  className="w-full justify-between h-auto py-3"
                 >
-                  <div className="font-medium text-foreground">{p.name}</div>
-                  <div className="text-sm text-muted-foreground">ID: {p.id}</div>
-                  {selected?.id === p.id && (
-                    <div className="mt-2 flex items-center gap-1 text-xs text-primary">
-                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      {t('selected')}
+                  {selected ? (
+                    <div className="text-left">
+                      <div className="font-medium text-foreground">{selected.name}</div>
+                      <div className="text-xs text-muted-foreground">ID: {selected.id}</div>
                     </div>
+                  ) : (
+                    <span className="text-muted-foreground">{t('selectPage')}</span>
                   )}
-                </button>
-              ))}
-            </div>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder={t('searchPages', { defaultValue: 'Buscar página...' })} />
+                  <CommandEmpty>{t('noPagesFound', { defaultValue: 'Nenhuma página encontrada.' })}</CommandEmpty>
+                  <CommandGroup className="max-h-64 overflow-auto">
+                    {pages.map((p: any) => (
+                      <CommandItem
+                        key={p.id}
+                        value={`${p.name} ${p.id}`}
+                        onSelect={() => {
+                          setSelected(p);
+                          setInboxName(p.name);
+                          setPagePickerOpen(false);
+                        }}
+                      >
+                        <Check
+                          className={`mr-2 h-4 w-4 shrink-0 ${
+                            selected?.id === p.id ? 'opacity-100' : 'opacity-0'
+                          }`}
+                        />
+                        <div>
+                          <div className="font-medium text-foreground">{p.name}</div>
+                          <div className="text-xs text-muted-foreground">ID: {p.id}</div>
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Channel Configuration */}

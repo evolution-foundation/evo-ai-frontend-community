@@ -10,6 +10,8 @@ interface PipelinesHeaderProps {
   onNewPipeline: () => void;
   /** Optional override; defaults to the pipelines.create permission (EVO-2030). */
   canCreate?: boolean;
+  /** Optional title override — used by the Empresa/Pessoal scoped submenu views. */
+  title?: string;
 }
 
 export default function PipelinesHeader({
@@ -18,6 +20,7 @@ export default function PipelinesHeader({
   onSearchChange,
   onNewPipeline,
   canCreate,
+  title,
 }: PipelinesHeaderProps) {
   const { t } = useLanguage('pipelines');
   const { can, isReady } = usePermissions();
@@ -33,7 +36,7 @@ export default function PipelinesHeader({
 
   return (
     <BaseHeader
-      title={t('pipelinesHeader.title')}
+      title={title ?? t('pipelinesHeader.title')}
       subtitle={subtitle}
       searchValue={searchValue}
       onSearchChange={onSearchChange}

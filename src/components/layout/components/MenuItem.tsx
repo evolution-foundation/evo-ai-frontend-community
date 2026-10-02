@@ -52,7 +52,15 @@ export default function MenuItem({
           : 'text-muted-foreground hover:text-foreground hover:bg-accent',
       )}
     >
-      <item.icon className={cn('flex-shrink-0 h-5 w-5', isActive && 'text-primary')} />
+      {item.iconUrl ? (
+        <img
+          src={item.iconUrl}
+          alt=""
+          className={cn('flex-shrink-0 h-5 w-5 object-contain', isActive && 'drop-shadow')}
+        />
+      ) : (
+        <item.icon className={cn('flex-shrink-0 h-5 w-5', isActive && 'text-primary')} />
+      )}
       {(!isCollapsed || mobile) && (
         <>
           <div className="flex items-center gap-2 flex-1">

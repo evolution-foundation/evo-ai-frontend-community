@@ -17,6 +17,14 @@ vi.mock('@evoapi/design-system', () => ({
   Tooltip: ({ children }: any) => <>{children}</>,
   TooltipTrigger: ({ children }: any) => <>{children}</>,
   TooltipContent: ({ children }: any) => <>{children}</>,
+  Dialog: ({ children }: any) => <>{children}</>,
+  DialogContent: ({ children }: any) => <div>{children}</div>,
+  DialogHeader: ({ children }: any) => <div>{children}</div>,
+  DialogTitle: ({ children }: any) => <div>{children}</div>,
+  DialogDescription: ({ children }: any) => <div>{children}</div>,
+  DialogFooter: ({ children }: any) => <div>{children}</div>,
+  Input: (props: any) => <input {...props} />,
+  Label: ({ children }: any) => <label>{children}</label>,
 }));
 
 vi.mock('./MenuItem', () => ({
@@ -86,7 +94,7 @@ describe('Sidebar — collapsed + activeSubmenu', () => {
   it('flyout container is always mounted when collapsed (for CSS transitions)', () => {
     const { container } = renderSidebar({ activeSubmenu: null });
     // The flyout container must exist in DOM even when inactive so transitions work
-    const flyout = container.querySelector('.absolute.left-16');
+    const flyout = container.querySelector('[role="dialog"]');
     expect(flyout).toBeInTheDocument();
     expect(flyout?.className).toMatch(/opacity-0/);
     expect(flyout?.className).toMatch(/pointer-events-none/);
@@ -94,7 +102,7 @@ describe('Sidebar — collapsed + activeSubmenu', () => {
 
   it('flyout container shows with opacity-100 when activeSubmenu is set', () => {
     const { container } = renderSidebar({ activeSubmenu: settingsItem });
-    const flyout = container.querySelector('.absolute.left-16');
+    const flyout = container.querySelector('[role="dialog"]');
     expect(flyout?.className).toMatch(/opacity-100/);
     expect(flyout?.className).not.toMatch(/pointer-events-none/);
   });
@@ -182,14 +190,14 @@ describe('Sidebar — collapsed + activeSubmenu', () => {
 
   it('flyout has role="dialog" when active and is not aria-hidden', () => {
     const { container } = renderSidebar({ activeSubmenu: settingsItem });
-    const flyout = container.querySelector('.absolute.left-16');
+    const flyout = container.querySelector('[role="dialog"]');
     expect(flyout).toHaveAttribute('role', 'dialog');
     expect(flyout).not.toHaveAttribute('aria-hidden');
   });
 
   it('flyout is aria-hidden when activeSubmenu is null (prevents broken aria-labelledby reference)', () => {
     const { container } = renderSidebar({ activeSubmenu: null });
-    const flyout = container.querySelector('.absolute.left-16');
+    const flyout = container.querySelector('[role="dialog"]');
     expect(flyout).toHaveAttribute('aria-hidden', 'true');
   });
 
@@ -204,8 +212,32 @@ describe('Sidebar — collapsed + activeSubmenu', () => {
 
   it('expanded mode renders inline submenu panel without flyout (AC #3)', () => {
     const { container } = renderSidebar({ isCollapsed: false, activeSubmenu: settingsItem });
-    expect(container.querySelector('.absolute.left-16')).not.toBeInTheDocument();
+    expect(container.querySelector('[role="dialog"]')).not.toBeInTheDocument();
     expect(screen.getByText('General')).toBeInTheDocument();
     expect(screen.getByText('Security')).toBeInTheDocument();
+  });
+
+  it('renders nested submenu layers (children) recursively', () => {
+    const layeredItem: MenuItemType = {
+      id: 'layered',
+      name: 'Comercial',
+      href: '/editor/menu',
+      icon: Cog,
+      subItems: [
+        {
+          name: 'Pasta',
+          href: '/editor/content/folder-1',
+          icon: Cog,
+          children: [
+            { name: 'Folha interna', href: '/editor/content/leaf-1', icon: Cog },
+          ],
+        },
+      ],
+    };
+    renderSidebar({ activeSubmenu: layeredItem });
+    // título do grupo e folha aninhada aparecem
+    expect(screen.getByText('Pasta')).toBeInTheDocument();
+    const leaf = screen.getByRole('link', { name: /folha interna/i });
+    expect(leaf).toHaveAttribute('href', '/editor/content/leaf-1');
   });
 });

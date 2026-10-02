@@ -37,16 +37,19 @@ class RequestMonitor {
   }
 
   private checkEnabled() {
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
     this.enabled = localStorage.getItem('ENABLE_REQUEST_MONITOR') === 'true';
   }
 
   enable() {
+    if (typeof localStorage === 'undefined') return;
     localStorage.setItem('ENABLE_REQUEST_MONITOR', 'true');
     this.enabled = true;
     this.reset();
   }
 
   disable() {
+    if (typeof localStorage === 'undefined') return;
     localStorage.removeItem('ENABLE_REQUEST_MONITOR');
     this.enabled = false;
   }

@@ -15,6 +15,11 @@ vi.mock('date-fns', () => ({
 }));
 vi.mock('date-fns/locale', () => ({
   ptBR: {},
+  pt: {},
+  enUS: {},
+  es: {},
+  fr: {},
+  it: {},
 }));
 
 // Mock shared attachment components

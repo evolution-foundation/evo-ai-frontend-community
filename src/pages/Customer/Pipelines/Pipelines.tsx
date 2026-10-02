@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -59,6 +59,18 @@ export default function Pipelines() {
   const { t } = useLanguage('pipelines');
   const { can, isReady: permissionsReady } = usePermissions();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Submenu Empresa/Pessoal (/pipelines/empresa | /pipelines/pessoal — rotas
+  // estáticas, ver routes/index.tsx). Fora dessas rotas (ex.: /pipelines puro,
+  // usado como fallback de navegação após excluir/duplicar) mostra tudo, sem
+  // filtrar — comportamento inalterado.
+  const scopeLocked: 'empresa' | 'pessoal' | null = location.pathname.endsWith('/pessoal')
+    ? 'pessoal'
+    : location.pathname.endsWith('/empresa')
+      ? 'empresa'
+      : null;
+
   const [state, setState] = useState<PipelinesState>(INITIAL_STATE);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [pipelineToDelete, setPipelineToDelete] = useState<Pipeline | null>(null);
@@ -152,7 +164,7 @@ export default function Pipelines() {
       toast.error(t('messages.noPermissionCreate'));
       return;
     }
-    navigate('/pipelines/new');
+    navigate(scopeLocked ? `/pipelines/new?scope=${scopeLocked}` : '/pipelines/new');
   };
 
   const handleEditPipeline = (pipeline: Pipeline) => {
@@ -302,25 +314,36 @@ export default function Pipelines() {
     }
   };
 
+  // Filter by scope (Empresa/Pessoal submenu) — pipelines without a scope
+  // (created before this field existed) count as 'empresa', per spec.
+  const scopedPipelines = scopeLocked
+    ? state.pipelines.filter(pipeline =>
+        scopeLocked === 'pessoal' ? pipeline.scope === 'pessoal' : pipeline.scope !== 'pessoal',
+      )
+    : state.pipelines;
+
   // Filter pipelines by search
   const filteredPipelines = state.searchQuery
-    ? state.pipelines.filter(
+    ? scopedPipelines.filter(
         pipeline =>
           pipeline.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
           pipeline.description?.toLowerCase().includes(state.searchQuery.toLowerCase()),
       )
-    : state.pipelines;
+    : scopedPipelines;
 
   return (
     <div className="h-full flex flex-col p-4">
       <PipelinesTour />
       <div data-tour="pipelines-header">
         <PipelinesHeader
-          totalCount={state.meta.pagination.total}
+          totalCount={scopeLocked ? filteredPipelines.length : state.meta.pagination.total}
           searchValue={state.searchQuery}
           onSearchChange={handleSearchChange}
           onNewPipeline={handleCreatePipeline}
           canCreate={permissionsReady && can('pipelines', 'create')}
+          title={
+            scopeLocked === 'empresa' ? 'Pipelines — Empresa' : scopeLocked === 'pessoal' ? 'Pipelines — Pessoal' : undefined
+          }
         />
       </div>
 

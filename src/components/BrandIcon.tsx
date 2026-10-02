@@ -27,6 +27,7 @@ import {
   SiDialogflow,
   SiElevenlabs,
   SiIntercom,
+  SiGooglegemini,
 } from '@icons-pack/react-simple-icons';
 
 const BRAND_ICONS: Record<string, IconType> = {
@@ -67,6 +68,11 @@ const BRAND_ICONS: Record<string, IconType> = {
   'eleven-labs': SiElevenlabs,
   whatsappcloud: SiWhatsapp,
   'whatsapp-cloud': SiWhatsapp,
+  gemini: SiGooglegemini,
+  googlegemini: SiGooglegemini,
+  'google-gemini': SiGooglegemini,
+  google_workspace: SiGoogle,
+  'google-workspace': SiGoogle,
 };
 
 // Official brand colors from simple-icons. Used as defaults when ChannelIcon
@@ -110,6 +116,11 @@ const BRAND_COLORS: Record<string, string> = {
   intercom: '#1F8DED',
   whatsappcloud: '#25D366',
   'whatsapp-cloud': '#25D366',
+  gemini: '#8E75B2',
+  googlegemini: '#8E75B2',
+  'google-gemini': '#8E75B2',
+  google_workspace: '#4285F4',
+  'google-workspace': '#4285F4',
 };
 
 export function getBrandIcon(id?: string): IconType | undefined {

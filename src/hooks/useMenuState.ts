@@ -97,8 +97,9 @@ export function useMenuState(
     let newActiveSubmenu: MenuItem | null = null;
     let newActiveMenu: string | null = null;
 
-    // If pathname contains /edit, always close submenu
-    const isEditRoute = pathname.includes('/edit');
+    // If pathname contains an /edit segment (e.g. /agents/:id/edit), always close submenu.
+    // Regex com segmento exato: /editor/menu e /editor/content/:id NÃO são rotas de edição.
+    const isEditRoute = /\/edit(?:\/|$)/.test(pathname);
 
     // First pass: Check for subitem matches (highest priority)
     for (const item of menuItems) {

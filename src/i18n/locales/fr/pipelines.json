@@ -673,6 +673,10 @@
       "valueLabel": "Valeur Totale :",
       "system": "Système"
     },
+    "task": {
+      "untitled": "Tâche sans titre",
+      "noDueDate": "Sans échéance"
+    },
     "messages": {
       "conversationMoved": "Conversation déplacée avec succès",
       "conversationMoveError": "Erreur lors du déplacement de la conversation",

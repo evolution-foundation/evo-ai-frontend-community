@@ -5,7 +5,10 @@ import {
   clearLastSavedAt,
 } from './lastSavedMark';
 
+const BASELINE = new Date('2026-05-21T00:00:00Z').getTime();
+
 beforeEach(() => {
+  vi.spyOn(Date, 'now').mockReturnValue(BASELINE);
   window.localStorage.clear();
 });
 

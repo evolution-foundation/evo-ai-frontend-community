@@ -54,6 +54,10 @@
       "description": "Configure integration with OpenAI for intelligent suggestions",
       "globallyConfigured": "OpenAI is already configured globally by the administrator"
     },
+    "gemini": {
+      "name": "Google Gemini",
+      "description": "Configure the Google Gemini integration for AI-powered features"
+    },
     "shopify": {
       "name": "Shopify",
       "description": "Integrate with Shopify to sync customer and order data"
@@ -69,6 +73,22 @@
     "canva": {
       "name": "Canva",
       "description": "Create and edit designs, presentations and visual materials with Canva"
+    },
+    "groq": {
+      "name": "Groq",
+      "description": "Connect Groq for ultra-fast AI inference"
+    },
+    "googleAds": {
+      "name": "Google Ads",
+      "description": "Connect Google Ads to manage campaigns and conversions"
+    },
+    "elevenlabs": {
+      "name": "ElevenLabs",
+      "description": "Connect ElevenLabs to generate realistic AI voice audio"
+    },
+    "huggingface": {
+      "name": "Hugging Face",
+      "description": "Connect Hugging Face to run open-source AI models"
     }
   },
   "messages": {
@@ -632,6 +652,33 @@
       "updateError": "Error updating OAuth application",
       "clientIdCopied": "Client ID copied to clipboard",
       "clientSecretCopied": "Client Secret copied to clipboard"
+    }
+  },
+  "gemini": {
+    "modal": {
+      "title": "Configure Google Gemini Integration",
+      "updateTitle": "Update Google Gemini Integration",
+      "description": "Integrate with Google Gemini to bring AI-powered features to your dashboard using the Gemini models.",
+      "apiConfig": "API Configuration",
+      "fields": {
+        "apiKey": {
+          "label": "Gemini API Key",
+          "placeholder": "AIza...",
+          "hint": "Enter your Google Gemini API key (Google AI Studio) to set up the integration",
+          "required": "API Key is required"
+        }
+      },
+      "security": {
+        "title": "Security:",
+        "description": "Your API key will be stored securely and encrypted. Never share your Google Gemini API key with third parties."
+      },
+      "actions": {
+        "help": "Need Help?",
+        "cancel": "Cancel",
+        "configure": "Configure Integration",
+        "update": "Update Integration",
+        "saving": "Saving..."
+      }
     }
   },
   "openai": {
@@ -1348,5 +1395,142 @@
   "email": {
     "name": "Email",
     "description": "Integrated email support"
+  },
+  "groq": {
+    "modal": {
+      "title": "Configure Groq Integration",
+      "updateTitle": "Update Groq Integration",
+      "description": "Connect Groq to use its ultra-fast AI models (Llama, Mixtral and others) via LPU inference.",
+      "apiConfig": "API Configuration",
+      "fields": {
+        "apiKey": {
+          "label": "Groq API Key",
+          "placeholder": "gsk_...",
+          "hint": "Enter your Groq API key (console.groq.com) to enable this integration",
+          "required": "API Key is required"
+        }
+      },
+      "security": {
+        "title": "Security:",
+        "description": "Your API key will be stored securely and encrypted. Never share your Groq API key with third parties."
+      },
+      "actions": {
+        "help": "Need Help?",
+        "cancel": "Cancel",
+        "configure": "Configure Integration",
+        "update": "Update Integration",
+        "saving": "Saving..."
+      }
+    }
+  },
+  "googleAds": {
+    "modal": {
+      "title": "Configure Google Ads Integration",
+      "updateTitle": "Update Google Ads Integration",
+      "description": "Connect your Google Ads account to pull campaign reports and manage conversions. You'll need OAuth credentials plus a developer token from the Google Ads API.",
+      "apiConfig": "API Credentials",
+      "fields": {
+        "clientId": {
+          "label": "Client ID (OAuth)",
+          "placeholder": "xxxxx.apps.googleusercontent.com",
+          "hint": "OAuth 2.0 Client ID created in Google Cloud Console",
+          "required": "Client ID is required"
+        },
+        "clientSecret": {
+          "label": "Client Secret (OAuth)",
+          "placeholder": "GOCSPX-...",
+          "hint": "OAuth 2.0 Client Secret paired with the Client ID above",
+          "required": "Client Secret is required"
+        },
+        "refreshToken": {
+          "label": "Refresh Token",
+          "placeholder": "1//0...",
+          "hint": "OAuth refresh token generated for a Google Ads user with access to this account",
+          "required": "Refresh Token is required"
+        },
+        "developerToken": {
+          "label": "Developer Token",
+          "placeholder": "Your Google Ads developer token",
+          "hint": "Issued by your Google Ads Manager Account (MCC) API Center",
+          "required": "Developer Token is required"
+        },
+        "customerId": {
+          "label": "Ad Account ID (Customer ID)",
+          "placeholder": "123-456-7890",
+          "hint": "The Google Ads account ID whose data you want to access",
+          "required": "Customer ID is required"
+        },
+        "loginCustomerId": {
+          "label": "Manager Account ID (MCC, optional)",
+          "placeholder": "123-456-7890",
+          "hint": "Required only if the Ad Account is managed under an MCC"
+        }
+      },
+      "security": {
+        "title": "Security:",
+        "description": "Your credentials will be stored securely and encrypted. Never share them with third parties."
+      },
+      "actions": {
+        "documentation": "Google Ads API Docs",
+        "cancel": "Cancel",
+        "configure": "Configure Integration",
+        "update": "Update Integration",
+        "saving": "Saving..."
+      }
+    }
+  },
+  "elevenlabs": {
+    "modal": {
+      "title": "Configure ElevenLabs Integration",
+      "updateTitle": "Update ElevenLabs Integration",
+      "description": "Connect ElevenLabs to generate realistic text-to-speech audio for your content.",
+      "apiConfig": "API Configuration",
+      "fields": {
+        "apiKey": {
+          "label": "ElevenLabs API Key",
+          "placeholder": "sk_...",
+          "hint": "Enter your ElevenLabs API key (elevenlabs.io) to enable this integration",
+          "required": "API Key is required"
+        }
+      },
+      "security": {
+        "title": "Security:",
+        "description": "Your API key will be stored securely and encrypted. Never share your ElevenLabs API key with third parties."
+      },
+      "actions": {
+        "help": "Need Help?",
+        "cancel": "Cancel",
+        "configure": "Configure Integration",
+        "update": "Update Integration",
+        "saving": "Saving..."
+      }
+    }
+  },
+  "huggingface": {
+    "modal": {
+      "title": "Configure Hugging Face Integration",
+      "updateTitle": "Update Hugging Face Integration",
+      "description": "Connect Hugging Face to run open-source AI models (image, text and more) via the Inference API.",
+      "apiConfig": "API Configuration",
+      "fields": {
+        "apiKey": {
+          "label": "Hugging Face Access Token",
+          "placeholder": "hf_...",
+          "hint": "Enter your Hugging Face access token (huggingface.co/settings/tokens) to enable this integration",
+          "required": "Access Token is required"
+        }
+      },
+      "security": {
+        "title": "Security:",
+        "description": "Your access token will be stored securely and encrypted. Never share your Hugging Face token with third parties."
+      },
+      "actions": {
+        "help": "Need Help?",
+        "cancel": "Cancel",
+        "configure": "Configure Integration",
+        "update": "Update Integration",
+        "saving": "Saving..."
+      }
+    }
   }
 }

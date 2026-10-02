@@ -54,6 +54,10 @@
       "description": "Configurez l'intégration avec OpenAI pour des suggestions intelligentes",
       "globallyConfigured": "OpenAI est déjà configuré globalement par l'administrateur"
     },
+    "gemini": {
+      "name": "Google Gemini",
+      "description": "Configurez l'intégration Google Gemini pour des fonctionnalités d'IA"
+    },
     "shopify": {
       "name": "Shopify",
       "description": "Intégrez avec Shopify pour synchroniser les données des clients et des commandes"
@@ -61,6 +65,22 @@
     "slack": {
       "name": "Slack",
       "description": "Connectez votre espace de travail Slack pour recevoir des notifications en temps réel"
+    },
+    "groq": {
+      "name": "Groq",
+      "description": "Connectez Groq pour une inférence IA ultra-rapide"
+    },
+    "googleAds": {
+      "name": "Google Ads",
+      "description": "Connectez Google Ads pour gérer les campagnes et les conversions"
+    },
+    "elevenlabs": {
+      "name": "ElevenLabs",
+      "description": "Connectez ElevenLabs pour générer de l'audio vocal IA réaliste"
+    },
+    "huggingface": {
+      "name": "Hugging Face",
+      "description": "Connectez Hugging Face pour exécuter des modèles d'IA open-source"
     }
   },
   "messages": {
@@ -613,6 +633,33 @@
       "updateError": "Erreur lors de la mise à jour de l'application OAuth",
       "clientIdCopied": "Client ID copié dans le presse-papiers",
       "clientSecretCopied": "Client Secret copié dans le presse-papiers"
+    }
+  },
+  "gemini": {
+    "modal": {
+      "title": "Configurer l'intégration Google Gemini",
+      "updateTitle": "Mettre à jour l'intégration Google Gemini",
+      "description": "Intégrez Google Gemini pour apporter des fonctionnalités d'IA à votre tableau de bord avec les modèles Gemini.",
+      "apiConfig": "Configuration de l'API",
+      "fields": {
+        "apiKey": {
+          "label": "Clé API Gemini",
+          "placeholder": "AIza...",
+          "hint": "Saisissez votre clé API Google Gemini (Google AI Studio) pour configurer l'intégration",
+          "required": "La clé API est requise"
+        }
+      },
+      "security": {
+        "title": "Sécurité :",
+        "description": "Votre clé API sera stockée de manière sécurisée et chiffrée. Ne partagez jamais votre clé API Google Gemini avec des tiers."
+      },
+      "actions": {
+        "help": "Besoin d'aide ?",
+        "cancel": "Annuler",
+        "configure": "Configurer l'intégration",
+        "update": "Mettre à jour l'intégration",
+        "saving": "Enregistrement..."
+      }
     }
   },
   "openai": {
@@ -1270,5 +1317,142 @@
   "email": {
     "name": "E-mail",
     "description": "Support par e-mail intégré"
+  },
+  "groq": {
+    "modal": {
+      "title": "Configurer l'intégration Groq",
+      "updateTitle": "Mettre à jour l'intégration Groq",
+      "description": "Connectez Groq pour utiliser ses modèles d'IA ultra-rapides (Llama, Mixtral et autres) via l'inférence LPU.",
+      "apiConfig": "Configuration de l'API",
+      "fields": {
+        "apiKey": {
+          "label": "Clé API Groq",
+          "placeholder": "gsk_...",
+          "hint": "Saisissez votre clé API Groq (console.groq.com) pour activer cette intégration",
+          "required": "La clé API est requise"
+        }
+      },
+      "security": {
+        "title": "Sécurité :",
+        "description": "Votre clé API sera stockée de manière sécurisée et chiffrée. Ne partagez jamais votre clé API Groq avec des tiers."
+      },
+      "actions": {
+        "help": "Besoin d'aide ?",
+        "cancel": "Annuler",
+        "configure": "Configurer l'intégration",
+        "update": "Mettre à jour l'intégration",
+        "saving": "Enregistrement..."
+      }
+    }
+  },
+  "googleAds": {
+    "modal": {
+      "title": "Configurer l'intégration Google Ads",
+      "updateTitle": "Mettre à jour l'intégration Google Ads",
+      "description": "Connectez votre compte Google Ads pour récupérer les rapports de campagnes et gérer les conversions. Vous aurez besoin des identifiants OAuth et d'un jeton développeur de l'API Google Ads.",
+      "apiConfig": "Identifiants de l'API",
+      "fields": {
+        "clientId": {
+          "label": "Client ID (OAuth)",
+          "placeholder": "xxxxx.apps.googleusercontent.com",
+          "hint": "Client ID OAuth 2.0 créé dans Google Cloud Console",
+          "required": "Le Client ID est requis"
+        },
+        "clientSecret": {
+          "label": "Client Secret (OAuth)",
+          "placeholder": "GOCSPX-...",
+          "hint": "Client Secret OAuth 2.0 associé au Client ID ci-dessus",
+          "required": "Le Client Secret est requis"
+        },
+        "refreshToken": {
+          "label": "Refresh Token",
+          "placeholder": "1//0...",
+          "hint": "Jeton de rafraîchissement OAuth généré pour un utilisateur Google Ads ayant accès à ce compte",
+          "required": "Le Refresh Token est requis"
+        },
+        "developerToken": {
+          "label": "Developer Token",
+          "placeholder": "Votre jeton développeur Google Ads",
+          "hint": "Délivré dans le centre API de votre compte gestionnaire (MCC) Google Ads",
+          "required": "Le Developer Token est requis"
+        },
+        "customerId": {
+          "label": "ID du compte publicitaire (Customer ID)",
+          "placeholder": "123-456-7890",
+          "hint": "L'ID du compte Google Ads auquel vous voulez accéder",
+          "required": "Le Customer ID est requis"
+        },
+        "loginCustomerId": {
+          "label": "ID du compte gestionnaire (MCC, optionnel)",
+          "placeholder": "123-456-7890",
+          "hint": "Nécessaire uniquement si le compte publicitaire est géré par un MCC"
+        }
+      },
+      "security": {
+        "title": "Sécurité :",
+        "description": "Vos identifiants seront stockés de manière sécurisée et chiffrée. Ne les partagez jamais avec des tiers."
+      },
+      "actions": {
+        "documentation": "Documentation API Google Ads",
+        "cancel": "Annuler",
+        "configure": "Configurer l'intégration",
+        "update": "Mettre à jour l'intégration",
+        "saving": "Enregistrement..."
+      }
+    }
+  },
+  "elevenlabs": {
+    "modal": {
+      "title": "Configurer l'intégration ElevenLabs",
+      "updateTitle": "Mettre à jour l'intégration ElevenLabs",
+      "description": "Connectez ElevenLabs pour générer de l'audio texte-vers-parole réaliste pour votre contenu.",
+      "apiConfig": "Configuration de l'API",
+      "fields": {
+        "apiKey": {
+          "label": "Clé API ElevenLabs",
+          "placeholder": "sk_...",
+          "hint": "Saisissez votre clé API ElevenLabs (elevenlabs.io) pour activer cette intégration",
+          "required": "La clé API est requise"
+        }
+      },
+      "security": {
+        "title": "Sécurité :",
+        "description": "Votre clé API sera stockée de manière sécurisée et chiffrée. Ne partagez jamais votre clé API ElevenLabs avec des tiers."
+      },
+      "actions": {
+        "help": "Besoin d'aide ?",
+        "cancel": "Annuler",
+        "configure": "Configurer l'intégration",
+        "update": "Mettre à jour l'intégration",
+        "saving": "Enregistrement..."
+      }
+    }
+  },
+  "huggingface": {
+    "modal": {
+      "title": "Configurer l'intégration Hugging Face",
+      "updateTitle": "Mettre à jour l'intégration Hugging Face",
+      "description": "Connectez Hugging Face pour exécuter des modèles d'IA open-source (image, texte et plus) via l'API d'inférence.",
+      "apiConfig": "Configuration de l'API",
+      "fields": {
+        "apiKey": {
+          "label": "Jeton d'accès Hugging Face",
+          "placeholder": "hf_...",
+          "hint": "Saisissez votre jeton d'accès Hugging Face (huggingface.co/settings/tokens) pour activer cette intégration",
+          "required": "Le jeton d'accès est requis"
+        }
+      },
+      "security": {
+        "title": "Sécurité :",
+        "description": "Votre jeton d'accès sera stocké de manière sécurisée et chiffrée. Ne partagez jamais votre jeton Hugging Face avec des tiers."
+      },
+      "actions": {
+        "help": "Besoin d'aide ?",
+        "cancel": "Annuler",
+        "configure": "Configurer l'intégration",
+        "update": "Mettre à jour l'intégration",
+        "saving": "Enregistrement..."
+      }
+    }
   }
 }

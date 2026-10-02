@@ -65,7 +65,7 @@ const DefaultErrorFallback: React.FC<DefaultErrorFallbackProps> = ({ error, retr
         {t('base.errorBoundary.description')}
       </p>
 
-      {error && process.env.NODE_ENV === 'development' && (
+      {error && (
         <details className="mb-4 text-left max-w-md">
           <summary className="cursor-pointer text-sm text-muted-foreground mb-2">
             {t('base.errorBoundary.technicalDetails')}
