@@ -35,7 +35,7 @@ export default function ContactMergeModal({
   onConfirm,
   loading,
 }: ContactMergeModalProps) {
-  const { t } = useLanguage('contacts');
+  const { t, currentLanguage } = useLanguage('contacts');
   const [selectedParentId, setSelectedParentId] = useState<string>(contacts[0]?.id || '');
 
   const handleConfirm = () => {
@@ -52,7 +52,7 @@ export default function ContactMergeModal({
 
   const formatDate = (date?: string) => {
     if (!date) return '-';
-    return new Date(date).toLocaleDateString('pt-BR', {
+    return new Date(date).toLocaleDateString(currentLanguage, {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

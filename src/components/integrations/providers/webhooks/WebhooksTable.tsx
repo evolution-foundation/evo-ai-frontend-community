@@ -33,7 +33,7 @@ export default function WebhooksTable({
   sortOrder,
   onSort,
 }: WebhooksTableProps) {
-  const { t } = useLanguage('integrations');
+  const { t, currentLanguage } = useLanguage('integrations');
   const webhooksList = webhooks || [];
 
   const getEventBadgeColor = (event: string) => {
@@ -54,7 +54,7 @@ export default function WebhooksTable({
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return 'N/A';
       
-      return new Intl.DateTimeFormat('pt-BR', {
+      return new Intl.DateTimeFormat(currentLanguage, {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',

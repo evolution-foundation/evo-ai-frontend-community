@@ -20,7 +20,7 @@ import {
 import SegmentConditionEditor from '@/components/segments/SegmentConditionEditor';
 
 export default function SegmentCreateEdit() {
-  const { t } = useLanguage('segments');
+  const { t, currentLanguage } = useLanguage('segments');
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditing = !!id;
@@ -254,7 +254,7 @@ export default function SegmentCreateEdit() {
   const formatDate = (dateString?: string) => {
     if (!dateString) return t('createEdit.lastComputedNever');
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('pt-BR', {
+    return new Intl.DateTimeFormat(currentLanguage, {
       dateStyle: 'short',
       timeStyle: 'short',
     }).format(date);

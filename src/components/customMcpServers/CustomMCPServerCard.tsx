@@ -20,7 +20,7 @@ export default function CustomMCPServerCard({
   onClick,
   isTestLoading = false
 }: CustomMCPServerCardProps) {
-  const { t } = useLanguage('customMcpServers');
+  const { t, currentLanguage } = useLanguage('customMcpServers');
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-200 cursor-pointer">
@@ -92,7 +92,7 @@ export default function CustomMCPServerCard({
 
           {/* Created Date */}
           <div className="text-xs text-muted-foreground mb-3">
-            {t('card.createdAt', { date: new Date(server.created_at).toLocaleDateString('pt-BR') })}
+            {t('card.createdAt', { date: new Date(server.created_at).toLocaleDateString(currentLanguage) })}
           </div>
         </div>
 

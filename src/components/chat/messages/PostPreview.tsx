@@ -1,6 +1,7 @@
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@evoapi/design-system/avatar';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface PostData {
   id?: string;
@@ -42,6 +43,8 @@ interface PostPreviewProps {
 }
 
 const PostPreview: React.FC<PostPreviewProps> = ({ postData }) => {
+  const { currentLanguage } = useLanguage();
+
   if (!postData || Object.keys(postData).length === 0) {
     return null;
   }
@@ -80,7 +83,7 @@ const PostPreview: React.FC<PostPreviewProps> = ({ postData }) => {
     if (!dateString) return '';
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR', {
+      return date.toLocaleDateString(currentLanguage, {
         day: '2-digit',
         month: 'short',
         year: 'numeric',

@@ -28,7 +28,7 @@ export default function LabelsTable({
   sortBy,
   sortOrder,
 }: LabelsTableProps) {
-  const { t } = useLanguage('labels');
+  const { t, currentLanguage } = useLanguage('labels');
   const { can } = usePermissions();
 
   const columns = [
@@ -90,7 +90,7 @@ export default function LabelsTable({
       sortable: true,
       render: (label: Label) => (
         <div className="text-sm text-muted-foreground">
-          {new Date(label.created_at).toLocaleDateString('pt-BR')}
+          {new Date(label.created_at).toLocaleDateString(currentLanguage)}
         </div>
       ),
     },

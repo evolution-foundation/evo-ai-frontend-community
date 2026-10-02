@@ -58,7 +58,7 @@ const Step5_Review = ({
   onCreate,
   isEditMode = false,
 }: Step5Props) => {
-  const { t } = useLanguage('campaigns');
+  const { t, currentLanguage } = useLanguage('campaigns');
   const navigate = useNavigate();
   const [isCreating, setIsCreating] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -228,7 +228,7 @@ const Step5_Review = ({
                     <span className="font-bold">
                       {data.schedule_option === 'now'
                         ? t('wizard.step5.sendImmediate')
-                        : data.scheduled_date ? new Date(data.scheduled_date).toLocaleString('pt-BR') : t('wizard.step5.notAvailable')}
+                        : data.scheduled_date ? new Date(data.scheduled_date).toLocaleString(currentLanguage) : t('wizard.step5.notAvailable')}
                     </span>
                   </div>
 
@@ -291,7 +291,7 @@ const Step5_Review = ({
                       <span className="font-bold">
                         {data.ab_test_schedule_option === 'now'
                           ? t('wizard.step5.immediate')
-                          : data.ab_test_scheduled_date ? new Date(data.ab_test_scheduled_date).toLocaleString('pt-BR') : t('wizard.step5.notAvailable')}
+                          : data.ab_test_scheduled_date ? new Date(data.ab_test_scheduled_date).toLocaleString(currentLanguage) : t('wizard.step5.notAvailable')}
                       </span>
                     </div>
 
@@ -303,7 +303,7 @@ const Step5_Review = ({
                         </div>
                         <span className="font-bold">
                           {data.ab_test_winner_scheduled_date
-                            ? new Date(data.ab_test_winner_scheduled_date).toLocaleString('pt-BR') : t('wizard.step5.winnerManual')}
+                            ? new Date(data.ab_test_winner_scheduled_date).toLocaleString(currentLanguage) : t('wizard.step5.winnerManual')}
                         </span>
                       </div>
                     )}

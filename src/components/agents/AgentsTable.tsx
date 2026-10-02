@@ -60,7 +60,7 @@ export default function AgentsTable({
   onSort,
   emptyMessage,
 }: AgentsTableProps) {
-  const { t } = useLanguage('agents');
+  const { t, currentLanguage } = useLanguage('agents');
 
   const selectedIds = new Set(selectedAgents.map(agent => agent.id));
   const allSelected = agents.length > 0 && selectedIds.size === agents.length;
@@ -234,7 +234,7 @@ export default function AgentsTable({
               </div>
 
               <div role="cell" className={cn(COL.createdAt, 'text-[13px] text-muted-foreground')}>
-                {agent.created_at && new Date(agent.created_at).toLocaleDateString('pt-BR')}
+                {agent.created_at && new Date(agent.created_at).toLocaleDateString(currentLanguage)}
               </div>
 
               <div role="cell" className={cn(COL.actions, 'flex justify-end')}>

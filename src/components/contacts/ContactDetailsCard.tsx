@@ -26,13 +26,13 @@ interface ContactDetailsCardProps {
 // timestamp (seconds), same as elsewhere in this codebase (see contactTimestamp.ts).
 // Normalize through unixTimestampToIso before formatting, otherwise a raw epoch-seconds
 // value is misread as epoch-milliseconds by `new Date()` and renders as 1970.
-function formatDate(dateValue?: string | number): string | null {
+function formatDate(dateValue: string | number | undefined, locale: string): string | null {
   if (!dateValue && dateValue !== 0) return null;
   const iso = unixTimestampToIso(dateValue) ?? (typeof dateValue === 'string' ? dateValue : undefined);
   if (!iso) return null;
   const date = new Date(iso);
   if (isNaN(date.getTime())) return null;
-  return date.toLocaleDateString('pt-BR', {
+  return date.toLocaleDateString(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -70,7 +70,7 @@ export default function ContactDetailsCard({
   isNew = false,
   onCancelNew,
 }: ContactDetailsCardProps) {
-  const { t } = useLanguage('contacts');
+  const { t, currentLanguage } = useLanguage('contacts');
   const { shouldMask, maskPhone, maskEmail } = useContactPiiMasking();
   const protectedTitle = shouldMask ? t('card.dataProtectedTooltip') : undefined;
   const [isEditing, setIsEditing] = useState(false);
@@ -143,7 +143,7 @@ export default function ContactDetailsCard({
             label={t('details.sections.description')}
             value={contact.additional_attributes?.description}
           />
-          <FieldRow label={t('details.fields.createdAt')} value={formatDate(contact.created_at)} />
+          <FieldRow label={t('details.fields.createdAt')} value={formatDate(contact.created_at, currentLanguage)} />
         </div>
 
         <div className="mt-4 pt-4 border-t border-border/50">

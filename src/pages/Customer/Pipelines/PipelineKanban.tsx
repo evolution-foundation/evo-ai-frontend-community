@@ -108,7 +108,7 @@ const PRIORITY_BADGE_CLASS: Record<string, string> = {
 };
 
 export default function PipelineKanban() {
-  const { t } = useLanguage('pipelines');
+  const { t, currentLanguage } = useLanguage('pipelines');
   const { pipelineId } = useParams<{ pipelineId: string }>();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -1424,7 +1424,7 @@ export default function PipelineKanban() {
                                     typeof item.conversation.last_non_activity_message.created_at === 'number'
                                       ? item.conversation.last_non_activity_message.created_at * 1000
                                       : item.conversation.last_non_activity_message.created_at,
-                                  ).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                  ).toLocaleString(currentLanguage, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                 </span>
                               </div>
                               <p
@@ -1478,8 +1478,8 @@ export default function PipelineKanban() {
                             <span className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               {item.conversation?.last_activity_at
-                                ? new Date(item.conversation.last_activity_at * 1000).toLocaleDateString('pt-BR')
-                                : new Date((item.entered_at || 0) * 1000).toLocaleDateString('pt-BR')}
+                                ? new Date(item.conversation.last_activity_at * 1000).toLocaleDateString(currentLanguage)
+                                : new Date((item.entered_at || 0) * 1000).toLocaleDateString(currentLanguage)}
                             </span>
                             {item.conversation?.assignee && (
                               <span className="flex items-center gap-1 min-w-0">

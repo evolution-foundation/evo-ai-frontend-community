@@ -31,7 +31,7 @@ import { MCPServer } from '@/types/ai';
 import { listMCPServers } from '@/services/agents/mcpServerService';
 import { useLanguage } from '@/hooks/useLanguage';
 const McpServers = () => {
-  const { t } = useLanguage('mcpServers');
+  const { t, currentLanguage } = useLanguage('mcpServers');
   const [servers, setServers] = useState<MCPServer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -293,7 +293,7 @@ const McpServers = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {new Date(server.created_at).toLocaleDateString('pt-BR')}
+                        {new Date(server.created_at).toLocaleDateString(currentLanguage)}
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>

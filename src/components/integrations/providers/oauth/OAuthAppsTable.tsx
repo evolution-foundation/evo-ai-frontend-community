@@ -34,7 +34,7 @@ export default function OAuthAppsTable({
   showSecrets = {},
   onToggleSecret,
 }: OAuthAppsTableProps) {
-  const { t } = useLanguage('integrations');
+  const { t, currentLanguage } = useLanguage('integrations');
   const appsList = apps || [];
 
   const handleCopyToClipboard = (text: string, isSecret: boolean) => {
@@ -50,7 +50,7 @@ export default function OAuthAppsTable({
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return 'N/A';
 
-      return new Intl.DateTimeFormat('pt-BR', {
+      return new Intl.DateTimeFormat(currentLanguage, {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
