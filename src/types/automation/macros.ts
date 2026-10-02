@@ -82,7 +82,7 @@ export interface MacrosState {
   sortOrder: 'asc' | 'desc';
 }
 
-// Ações disponíveis para macros; nome, descrição e opções são chaves do namespace macros
+// Name, description and option labels are keys of the macros namespace.
 export const MACRO_ACTION_TYPES: MacroActionType[] = [
   {
     key: 'send_message',
