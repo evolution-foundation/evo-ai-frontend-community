@@ -114,18 +114,18 @@ export interface CustomAttributesState {
 export const ATTRIBUTE_MODEL_OPTIONS = [
   {
     value: 'conversation_attribute' as AttributeModel,
-    label: 'Conversas',
-    description: 'Atributos aplicados às conversas'
+    labelKey: 'modelOptions.conversation.label',
+    descriptionKey: 'modelOptions.conversation.description'
   },
   {
     value: 'contact_attribute' as AttributeModel,
-    label: 'Contatos',
-    description: 'Atributos aplicados aos contatos'
+    labelKey: 'modelOptions.contact.label',
+    descriptionKey: 'modelOptions.contact.description'
   },
   {
     value: 'pipeline_attribute' as AttributeModel,
-    label: 'Pipeline',
-    description: 'Atributos aplicados a pipelines, estágios ou items'
+    labelKey: 'modelOptions.pipeline.label',
+    descriptionKey: 'modelOptions.pipeline.description'
   }
 ];
 
@@ -135,18 +135,18 @@ export type PipelineType = 'pipeline' | 'pipeline_stage' | 'pipeline_item';
 export const PIPELINE_TYPE_OPTIONS = [
   {
     value: 'pipeline' as PipelineType,
-    label: 'Pipeline',
-    description: 'Atributos aplicados ao pipeline em si'
+    labelKey: 'pipelineTypeOptions.pipeline.label',
+    descriptionKey: 'pipelineTypeOptions.pipeline.description'
   },
   {
     value: 'pipeline_stage' as PipelineType,
-    label: 'Estágio',
-    description: 'Atributos aplicados aos estágios do pipeline'
+    labelKey: 'pipelineTypeOptions.pipeline_stage.label',
+    descriptionKey: 'pipelineTypeOptions.pipeline_stage.description'
   },
   {
     value: 'pipeline_item' as PipelineType,
-    label: 'Item',
-    description: 'Atributos aplicados aos items (deals/leads) do pipeline'
+    labelKey: 'pipelineTypeOptions.pipeline_item.label',
+    descriptionKey: 'pipelineTypeOptions.pipeline_item.description'
   }
 ];
 
@@ -247,17 +247,14 @@ export const ATTRIBUTE_TYPE_OPTIONS = [
 export const ATTRIBUTE_TABS = [
   {
     key: 'conversation_attribute' as AttributeModel,
-    name: 'Conversas',
-    description: 'Atributos personalizados para conversas'
+    nameKey: 'tabs.conversation'
   },
   {
     key: 'contact_attribute' as AttributeModel,
-    name: 'Contatos',
-    description: 'Atributos personalizados para contatos'
+    nameKey: 'tabs.contact'
   },
   {
     key: 'pipeline_attribute' as AttributeModel,
-    name: 'Pipeline',
-    description: 'Atributos personalizados para pipelines, estágios e items'
+    nameKey: 'tabs.pipeline_attribute'
   }
 ];

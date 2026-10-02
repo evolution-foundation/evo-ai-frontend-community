@@ -277,5 +277,33 @@
       "label": "Casilla de verificación",
       "description": "Verdadero o falso"
     }
+  },
+  "modelOptions": {
+    "conversation": {
+      "label": "Conversaciones",
+      "description": "Atributos aplicados a las conversaciones"
+    },
+    "contact": {
+      "label": "Contactos",
+      "description": "Atributos aplicados a los contactos"
+    },
+    "pipeline": {
+      "label": "Pipeline",
+      "description": "Atributos aplicados a pipelines, etapas o ítems"
+    }
+  },
+  "pipelineTypeOptions": {
+    "pipeline": {
+      "label": "Pipeline",
+      "description": "Atributos aplicados al pipeline en sí"
+    },
+    "pipeline_stage": {
+      "label": "Etapa",
+      "description": "Atributos aplicados a las etapas del pipeline"
+    },
+    "pipeline_item": {
+      "label": "Ítem",
+      "description": "Atributos aplicados a los ítems (deals/leads) del pipeline"
+    }
   }
 }
