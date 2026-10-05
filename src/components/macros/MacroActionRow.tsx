@@ -13,6 +13,8 @@ import {
 } from '@evoapi/design-system';
 import { Upload, X } from 'lucide-react';
 import { MACRO_ACTION_TYPES, MacroAction } from '@/types/automation';
+import type { MacroFile } from '@/types/automation';
+import { macrosService } from '@/services/macros';
 import type { MacroFormData, MacroFormDataSource, MacroFormOption } from '@/services/macros';
 
 interface ActionRowProps {
@@ -26,6 +28,8 @@ interface ActionRowProps {
   disabled: boolean;
   optionsLoading: boolean;
   failedSources: MacroFormDataSource[];
+  files?: MacroFile[];
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
 export default function MacroActionRow({
@@ -39,9 +43,14 @@ export default function MacroActionRow({
   disabled,
   optionsLoading,
   failedSources,
+  files = [],
+  onUploadingChange,
 }: ActionRowProps) {
   const { t } = useLanguage('macros');
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadFailed, setUploadFailed] = useState(false);
+  const [uploaded, setUploaded] = useState<{ blobId: string; filename: string } | null>(null);
 
   const selectedActionConfig = MACRO_ACTION_TYPES.find(a => a.key === action.action_name);
 
@@ -66,21 +75,33 @@ export default function MacroActionRow({
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const input = e.target;
+    const file = input.files?.[0];
     if (!file) return;
 
     setUploadingFile(true);
+    onUploadingChange?.(true);
+    setUploadProgress(0);
+    setUploadFailed(false);
     try {
-      // TODO: real upload
-      // const blobId = await macroService.uploadAttachment(file);
-      const blobId = `blob_${Date.now()}`; // Mock, never accepted by the backend
-
+      const blobId = await macrosService.uploadAttachment(file, setUploadProgress);
+      setUploaded({ blobId, filename: file.name });
       handleParamsChange([blobId]);
     } catch (error) {
+      // The param is left as it was, so a failed upload never reaches the save.
       console.error('Failed to upload the attachment:', error);
+      setUploadFailed(true);
     } finally {
       setUploadingFile(false);
+      onUploadingChange?.(false);
+      // Lets the same file be picked again after a failure.
+      input.value = '';
     }
+  };
+
+  const attachedFilename = (blobId: string): string | undefined => {
+    if (uploaded?.blobId === blobId) return uploaded.filename;
+    return files.find(f => String(f.blob_id) === blobId)?.filename;
   };
 
   // An empty list has three causes and the user has to tell them apart: the
@@ -99,6 +120,21 @@ export default function MacroActionRow({
       <SelectItem value="__placeholder__" disabled className="text-sidebar-foreground">
         {t(messageKey)}
       </SelectItem>
+    );
+  };
+
+  // A param without a matching file is the fake id the old form saved: naming it
+  // would show garbage, and the backend refuses it on save.
+  const renderAttachedFile = (blobId: string) => {
+    const filename = attachedFilename(blobId);
+    if (!filename) {
+      return <p className="text-sm text-red-500">{t('actionRow.fileMissing')}</p>;
+    }
+
+    return (
+      <div className="text-sm text-sidebar-foreground/70">
+        {t('actionRow.fileSelected', { filename })}
+      </div>
     );
   };
 
@@ -315,7 +351,9 @@ export default function MacroActionRow({
                 onClick={() => document.getElementById(`file-${index}`)?.click()}
               >
                 <Upload className="h-4 w-4 mr-2" />
-                {uploadingFile ? t('actionRow.fileUploading') : t('actionRow.fileSelectButton')}
+                {uploadingFile
+                  ? t('actionRow.fileUploadProgress', { progress: uploadProgress })
+                  : t('actionRow.fileSelectButton')}
               </Button>
 
               <input
@@ -327,11 +365,13 @@ export default function MacroActionRow({
               />
             </div>
 
-            {action.action_params.length > 0 && (
-              <div className="text-sm text-sidebar-foreground/70">
-                {t('actionRow.fileSelected', { filename: action.action_params[0] })}
-              </div>
+            {uploadFailed && (
+              <p role="alert" className="text-sm text-red-500">
+                {t('actionRow.fileUploadError')}
+              </p>
             )}
+
+            {action.action_params[0] && renderAttachedFile(String(action.action_params[0]))}
           </div>
         );
 
@@ -354,7 +394,8 @@ export default function MacroActionRow({
           <Select
             value={action.action_name}
             onValueChange={value => handleFieldChange('action_name', value)}
-            disabled={disabled}
+            // The upload writes its id back into this row when it lands.
+            disabled={disabled || uploadingFile}
           >
             <SelectTrigger
               className={`w-full bg-sidebar border-sidebar-border text-sidebar-foreground ${
@@ -403,7 +444,7 @@ export default function MacroActionRow({
               variant="outline"
               size="sm"
               onClick={() => onRemove(index)}
-              disabled={disabled}
+              disabled={disabled || uploadingFile}
               className="bg-sidebar border-sidebar-border text-sidebar-foreground hover:bg-red-500/10 hover:border-red-500 hover:text-red-500"
             >
               <X className="h-4 w-4" />

@@ -75,8 +75,10 @@
     "emailPlaceholder": "Saisissez l'email",
     "urlPlaceholder": "Saisissez l'URL du webhook",
     "fileSelectButton": "Sélectionner un Fichier",
-    "fileUploading": "Chargement...",
     "fileSelected": "Fichier sélectionné : {{filename}}",
+    "fileUploadProgress": "Envoi... {{progress}} %",
+    "fileUploadError": "Impossible d'envoyer le fichier. Réessayez.",
+    "fileMissing": "Le fichier joint est introuvable. Sélectionnez-le à nouveau.",
     "noConfig": "Cette action ne nécessite pas de configuration supplémentaire."
   },
   "table": {

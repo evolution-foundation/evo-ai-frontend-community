@@ -70,6 +70,7 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
   // first paint — false here shows "nothing registered" for a frame.
   const [optionsLoading, setOptionsLoading] = useState(true);
   const [failedSources, setFailedSources] = useState<MacroFormDataSource[]>([]);
+  const [uploadsInFlight, setUploadsInFlight] = useState(0);
 
   const isEditing = !!macro;
 
@@ -153,6 +154,9 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Saving now would send the file the row held before the new one landed.
+    if (uploadsInFlight > 0) return;
 
     if (!validateForm()) {
       return;
@@ -369,6 +373,10 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
                   disabled={loading}
                   optionsLoading={optionsLoading}
                   failedSources={failedSources}
+                  files={macro?.files}
+                  onUploadingChange={uploading =>
+                    setUploadsInFlight(count => Math.max(0, count + (uploading ? 1 : -1)))
+                  }
                 />
               ))}
             </div>
@@ -388,7 +396,7 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
           <Button
             type="submit"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || uploadsInFlight > 0}
             className="bg-[#00ffa7] hover:bg-[#00e693] text-black border-0 font-semibold"
           >
             {loading
