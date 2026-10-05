@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   Select,
@@ -51,6 +51,14 @@ export default function MacroActionRow({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadFailed, setUploadFailed] = useState(false);
   const [uploaded, setUploaded] = useState<{ blobId: string; filename: string } | null>(null);
+  // An upload outliving the row (modal closed) must not write into whatever form is open next.
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   const selectedActionConfig = MACRO_ACTION_TYPES.find(a => a.key === action.action_name);
 
@@ -85,6 +93,7 @@ export default function MacroActionRow({
     setUploadFailed(false);
     try {
       const blobId = await macrosService.uploadAttachment(file, setUploadProgress);
+      if (!mounted.current) return;
       setUploaded({ blobId, filename: file.name });
       handleParamsChange([blobId]);
     } catch (error) {

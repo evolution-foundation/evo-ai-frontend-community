@@ -43,7 +43,7 @@ const EMPTY_OPTIONS = { inboxes: [], agents: [], teams: [], labels: [], campaign
 function renderRow(actionParams: string[] = [], files: MacroFile[] = []) {
   const onUpdate = vi.fn();
   const onUploadingChange = vi.fn();
-  const { container } = render(
+  const { container, unmount } = render(
     <MacroActionRow
       action={{ action_name: 'send_attachment', action_params: actionParams }}
       index={0}
@@ -60,7 +60,7 @@ function renderRow(actionParams: string[] = [], files: MacroFile[] = []) {
     />,
   );
   const input = container.querySelector('input[type="file"]') as HTMLInputElement;
-  return { onUpdate, onUploadingChange, input };
+  return { onUpdate, onUploadingChange, input, unmount };
 }
 
 function pick(input: HTMLInputElement, name = 'tabela-precos.pdf') {
@@ -147,5 +147,24 @@ describe('MacroActionRow send_attachment', () => {
 
     expect(screen.getByText('actionRow.fileMissing')).toBeTruthy();
     expect(screen.queryByText(/blob_1759700000000/)).toBeNull();
+  });
+
+  // Closing the modal mid-upload: the late id must not land in the next form opened.
+  it('drops the blob id when the row is gone before the upload lands', async () => {
+    let finish: (id: string) => void = () => {};
+    uploadAttachment.mockImplementation(
+      () =>
+        new Promise<string>(resolve => {
+          finish = resolve;
+        }),
+    );
+    const { onUpdate, onUploadingChange, input, unmount } = renderRow();
+
+    pick(input);
+    unmount();
+    finish(BLOB_ID);
+
+    await waitFor(() => expect(onUploadingChange).toHaveBeenLastCalledWith(false));
+    expect(onUpdate).not.toHaveBeenCalled();
   });
 });

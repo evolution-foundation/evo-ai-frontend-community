@@ -349,7 +349,7 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
                 variant="outline"
                 size="sm"
                 onClick={addAction}
-                disabled={loading}
+                disabled={loading || uploadsInFlight > 0}
                 className="bg-sidebar border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -370,7 +370,9 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
                   onRemove={removeAction}
                   canRemove={formData.actions.length > 1}
                   errors={errors}
-                  disabled={loading}
+                  // Rows are keyed and updated by index: removing one under an upload lands
+                  // the file on whichever action shifted into that slot.
+                  disabled={loading || uploadsInFlight > 0}
                   optionsLoading={optionsLoading}
                   failedSources={failedSources}
                   files={macro?.files}
