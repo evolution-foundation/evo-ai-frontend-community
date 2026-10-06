@@ -10,20 +10,17 @@
     "accountNotFound": "Conta não encontrada",
     "accountIdNotAvailable": "ID da Conta não disponível",
     "loadError": "Erro ao carregar servidores MCP personalizados",
-    "applyFiltersError": "Erro ao aplicar filtros",
     "deleteError": "Erro ao deletar servidor MCP personalizado",
     "saveError": "Erro ao salvar servidor MCP personalizado",
     "updateError": "Erro ao atualizar servidor MCP personalizado",
     "testError": "Erro ao testar servidor MCP personalizado"
   },
   "success": {
-    "testSuccess": "Teste executado com sucesso! Ferramentas descobertas: {{count}}",
     "deleteSuccess": "Servidor MCP personalizado deletado com sucesso",
     "updateSuccess": "Servidor MCP personalizado atualizado com sucesso",
     "createSuccess": "Servidor MCP personalizado criado com sucesso"
   },
   "test": {
-    "failed": "Teste falhou: {{error}}",
     "unknownError": "Erro desconhecido"
   },
   "loading": {
@@ -42,10 +39,6 @@
     "cancel": "Cancelar",
     "confirm": "Deletar"
   },
-  "viewMode": {
-    "cards": "Visualização em Cards",
-    "table": "Visualização em Tabela"
-  },
   "header": {
     "title": "Servidores MCP Personalizados",
     "subtitle": "Configure servidores MCP personalizados para expandir as capacidades dos agentes",
@@ -54,7 +47,8 @@
     "filter": "Filtrar",
     "clearSelection": "Limpar Seleção",
     "totalCount": "{{count}} servidor(es)",
-    "selectedCount": "{{count}} selecionado(s)"
+    "selectedCount": "{{count}} selecionado(s)",
+    "bulkDelete": "Deletar"
   },
   "actions": {
     "edit": "Editar",
@@ -67,14 +61,7 @@
     "createServer": "Criar Servidor MCP"
   },
   "card": {
-    "custom": "Personalizado",
-    "noDescription": "Sem descrição",
-    "noName": "Sem nome",
-    "tools": "ferramentas",
-    "timeout": "Timeout: {{timeout}}s",
-    "retries": "Tentativas: {{count}}",
-    "createdAt": "Criado em {{date}}",
-    "moreTools": "+{{count}}"
+    "custom": "Personalizado"
   },
   "details": {
     "title": "Informações Básicas",
@@ -222,13 +209,6 @@
       "viewFallback": "Visualizar Servidor MCP Personalizado"
     }
   },
-  "filter": {
-    "title": "Filtrar Servidores MCP Personalizados",
-    "description": "Configure os filtros para encontrar os servidores MCP personalizados que você procura",
-    "apply": "Aplicar Filtros",
-    "clear": "Limpar Filtros",
-    "add": "Adicionar Filtro"
-  },
   "table": {
     "columns": {
       "server": "Servidor",
@@ -248,6 +228,39 @@
     "emptyMessage": "Nenhum servidor MCP personalizado encontrado",
     "emptyTitle": "Nenhum servidor MCP personalizado criado",
     "emptyDescription": "Crie servidores MCP personalizados para expandir as capacidades dos agentes.",
-    "emptyAction": "Criar servidor MCP personalizado"
+    "emptyAction": "Criar servidor MCP personalizado",
+    "noResults": "Nenhum servidor MCP personalizado corresponde à busca ou aos filtros aplicados."
+  },
+  "filters": {
+    "title": "Filtros",
+    "clear": "Limpar filtros",
+    "empty": "Nenhuma opção disponível",
+    "close": "Fechar filtros",
+    "sections": {
+      "tags": "Tags",
+      "timeout": "Timeout"
+    },
+    "timeoutValue": "{{timeout}}s"
+  },
+  "bulkDeleteDialog": {
+    "title": "Deletar servidores MCP personalizados",
+    "description_one": "Tem certeza de que deseja deletar {{count}} servidor MCP personalizado? Esta ação não pode ser desfeita.",
+    "description_other": "Tem certeza de que deseja deletar {{count}} servidores MCP personalizados? Esta ação não pode ser desfeita.",
+    "cancel": "Cancelar",
+    "confirm": "Deletar",
+    "deleting": "Deletando...",
+    "success_one": "{{count}} servidor MCP personalizado deletado com sucesso!",
+    "success_other": "{{count}} servidores MCP personalizados deletados com sucesso!",
+    "partialError": "{{failed}} de {{total}} servidores MCP personalizados não puderam ser deletados"
+  },
+  "testDialog": {
+    "testing": "Testando conexão…",
+    "testingDescription": "Conectando ao servidor MCP e listando as ferramentas.",
+    "titleSuccess": "Conexão bem-sucedida",
+    "titleError": "Falha na conexão",
+    "successMessage": "O servidor MCP respondeu e está pronto para uso.",
+    "toolsDiscovered": "Ferramentas descobertas: {{count}}",
+    "errorLabel": "Erro",
+    "close": "Fechar"
   }
 }

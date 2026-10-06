@@ -156,14 +156,6 @@ export function AgentsCustomMCPsTour() {
           disableScrolling: true,
         },
         {
-          target: '[data-tour="agents-custom-mcps-view-toggle"]',
-          title: 'Modo de Visualização',
-          content: 'Alterne entre visualização em cards e em tabela conforme sua preferência.',
-          placement: 'auto',
-          disableBeacon: true,
-          disableScrolling: true,
-        },
-        {
           target: '[data-tour="agents-custom-mcps-content"]',
           title: 'Lista de Servidores MCP',
           content: 'Cada servidor exibe nome, URL de conexão e status. Use as ações para editar, testar a conexão ou excluir o servidor.',
