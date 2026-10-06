@@ -725,6 +725,11 @@
       "traits": "Event traits",
       "noData": "No additional data for this event",
       "justNow": "just now",
+      "scheduledAction": {
+        "summary": "{{action}} · due {{scheduledFor}}",
+        "reason": "Reason: {{reason}}",
+        "willRetry": "Another attempt is scheduled"
+      },
       "enriched": {
         "campaign": "Campaign: {{name}}",
         "channel": "Channel: {{label}}",

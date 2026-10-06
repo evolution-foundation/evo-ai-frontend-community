@@ -38,7 +38,7 @@ describe('frontend events manifest mirror', () => {
     );
   });
 
-  it('groups events by category covering all 6 categories', () => {
+  it('groups events by category covering all 7 categories', () => {
     const grouped = Object.fromEntries(EVENT_CATEGORIES.map((c) => [c, getEventsByCategory(c)]));
     expect(grouped.contact.length).toBeGreaterThanOrEqual(6);
     // EVO-1263: 2 original (created/resolved) + 5 added (activity, first_reply,
@@ -48,13 +48,17 @@ describe('frontend events manifest mirror', () => {
     expect(grouped.campaign.length).toBeGreaterThanOrEqual(4);
     // CRM-316: the purchase captured by the CRM webhook, in its own group.
     expect(grouped.purchase.map((e) => e.eventName)).toEqual(['purchase.approved']);
+    expect(grouped.scheduled_action.map((e) => e.eventName)).toEqual([
+      'scheduled_action.executed',
+      'scheduled_action.failed',
+    ]);
     expect(grouped.custom).toHaveLength(1);
   });
 
   // EVO-1263 (AC1): this count is the single guard keeping the manifest faithful
   // to the backend SSOT EvoFlow::EVENT_NAMES (lib/events/evo_flow_event_names.rb)
   // — keep it strict, and bump BACKEND_COUNT with the backend, not with this file.
-  const BACKEND_COUNT = 24;
+  const BACKEND_COUNT = 26;
   // Exposed by the journey builder as its own trigger type, never picked as an event.
   const NOT_MIRRORED = ['pipeline.stage_changed'];
 

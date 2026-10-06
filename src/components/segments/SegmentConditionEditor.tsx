@@ -57,6 +57,7 @@ const SEGMENT_EVENT_CATEGORY_LABELS: Record<EventCategory, string> = {
   message: 'Eventos de Mensagem',
   campaign: 'Eventos de Campanha',
   purchase: 'Eventos de Compra',
+  scheduled_action: 'Eventos de Ação Agendada',
   custom: 'Personalizado',
 };
 
