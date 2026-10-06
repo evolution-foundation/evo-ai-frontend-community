@@ -89,9 +89,11 @@ vi.mock('@/components/customTools', () => ({
   CustomToolsTable: ({
     tools,
     onSelectionChange,
+    onDeleteTool,
   }: {
     tools: CustomTool[];
     onSelectionChange: (tools: CustomTool[]) => void;
+    onDeleteTool: (tool: CustomTool) => void;
   }) => (
     <div data-testid="tools-table">
       {tools.map(tool => (
@@ -99,6 +101,9 @@ vi.mock('@/components/customTools', () => ({
       ))}
       <button data-testid="select-all" onClick={() => onSelectionChange(tools)}>
         select-all
+      </button>
+      <button data-testid="delete-first" onClick={() => onDeleteTool(tools[0])}>
+        delete-first
       </button>
     </div>
   ),
@@ -253,6 +258,20 @@ describe('CustomTools page', () => {
     );
     expect(success).not.toHaveBeenCalled();
     await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(2));
+  });
+
+  it('keeps the search when refetching after a single delete', async () => {
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('search'));
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(2), { timeout: 2000 });
+
+    await userEvent.click(screen.getByTestId('delete-first'));
+    await userEvent.click(await screen.findByText('deleteDialog.confirm'));
+
+    await waitFor(() => expect(deleteCustomTool).toHaveBeenCalledWith('t-1'));
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(3));
+    expect(listCustomTools.mock.calls[2][0]).toMatchObject({ search: 'crm', pageSize: 20 });
   });
 
   it('denies the action without the delete permission', async () => {

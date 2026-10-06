@@ -160,6 +160,15 @@ export default function CustomTools() {
     load: loadTools,
   });
 
+  // Keeps the search and page size on screen; a bare `loadTools()` drops the search
+  // while the box still shows it.
+  const reloadList = () =>
+    loadTools({
+      skip: 0,
+      limit: state.meta.pagination.page_size,
+      search: state.searchQuery,
+    });
+
   // Handlers
   const handleSearchChange = (query: string) => {
     setState(prev => ({
@@ -321,8 +330,7 @@ export default function CustomTools() {
       await deleteCustomTool(toolToDelete.id);
       toast.success(t('messages.deleteSuccess'));
 
-      // Refresh the list
-      loadTools();
+      reloadList();
 
       setDeleteDialogOpen(false);
       setToolToDelete(null);
@@ -370,11 +378,7 @@ export default function CustomTools() {
 
       setBulkDeleteIds(null);
       // Refetch instead of local math: after a partial failure the local list is a guess.
-      await loadTools({
-        skip: 0,
-        limit: state.meta.pagination.page_size,
-        search: state.searchQuery,
-      });
+      await reloadList();
     } finally {
       setIsBulkDeleting(false);
     }
@@ -409,8 +413,7 @@ export default function CustomTools() {
         await createCustomTool(data);
         toast.success(t('messages.createSuccess'));
 
-        // Refresh the entire list for new tools
-        loadTools();
+        reloadList();
       }
 
       // Clear editing state; the wizard page navigates back below.
