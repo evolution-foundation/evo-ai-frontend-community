@@ -42,7 +42,7 @@ import {
   mergeFacetOptions,
 } from '@/components/customMcpServers/customMcpServersFilterFacets';
 import {
-  listCustomMcpServers,
+  listCustomMcpServersPage,
   getCustomMcpServer,
   createCustomMcpServer,
   updateCustomMcpServer,
@@ -92,6 +92,8 @@ export default function CustomMCPServers() {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsServer, setDetailsServer] = useState<CustomMcpServer | null>(null);
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  // Stable: the panel re-binds its outside-click listeners whenever `onClose` changes.
+  const closeFilterPanel = useCallback(() => setFilterPanelOpen(false), []);
   // Tags/Timeout are applied SERVER-side, over the whole base, like the Agents tab facets.
   const [facets, setFacets] = useState<CustomMcpServerFacetSelection>(
     EMPTY_CUSTOM_MCP_SERVER_FACETS,
@@ -144,19 +146,20 @@ export default function CustomMCPServers() {
         const filterParams = buildCustomMcpServerFilterParams(
           facetsOverride ?? facetsRef.current,
         );
-        const response = await listCustomMcpServers(requestParams, filterParams);
+        const { servers, total } = await listCustomMcpServersPage(requestParams, filterParams);
         if (seq !== loadSeqRef.current) return;
 
-        setFacetOptions(known => mergeFacetOptions(known, response));
+        const pageSize = requestParams.limit || DEFAULT_PAGE_SIZE;
+        setFacetOptions(known => mergeFacetOptions(known, servers));
         setState(prev => ({
           ...prev,
-          servers: response,
+          servers,
           meta: {
             pagination: {
-              page: Math.floor((requestParams.skip || 0) / (requestParams.limit || DEFAULT_PAGE_SIZE)) + 1,
-              page_size: requestParams.limit || DEFAULT_PAGE_SIZE,
-              total: response.length,
-              total_pages: Math.ceil(response.length / (requestParams.limit || DEFAULT_PAGE_SIZE)),
+              page: Math.floor((requestParams.skip || 0) / pageSize) + 1,
+              page_size: pageSize,
+              total,
+              total_pages: Math.ceil(total / pageSize),
             },
           },
           loading: { ...prev.loading, list: false },
@@ -211,23 +214,32 @@ export default function CustomMCPServers() {
     );
   };
 
+  // Reloads keep the page, page size and search on screen: dropping the search here would
+  // list the whole base under a search box that still shows the typed text.
+  const reloadCurrentPage = (page = state.meta.pagination.page) => {
+    const { page_size } = state.meta.pagination;
+    return loadServers({ skip: (page - 1) * page_size, limit: page_size, search: state.searchQuery });
+  };
+
+  // Page and page-size changes drop the selection for the same reason a search does.
   const handlePageChange = (page: number) => {
     setState(prev => ({
       ...prev,
+      selectedServerIds: [],
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page } },
     }));
 
-    const skip = (page - 1) * state.meta.pagination.page_size;
-    loadServers({ skip });
+    reloadCurrentPage(page);
   };
 
   const handlePerPageChange = (perPage: number) => {
     setState(prev => ({
       ...prev,
+      selectedServerIds: [],
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page_size: perPage, page: 1 } },
     }));
 
-    loadServers({ skip: 0, limit: perPage });
+    loadServers({ skip: 0, limit: perPage, search: state.searchQuery });
   };
 
   // Server actions
@@ -345,8 +357,16 @@ export default function CustomMCPServers() {
       await deleteCustomMcpServer(serverToDelete.id);
       toast.success(t('success.deleteSuccess'));
 
-      // Refresh the list
-      loadServers();
+      // A deleted row left in the selection would be re-sent by the bulk delete and 404.
+      const deletedId = serverToDelete.id;
+      const { page } = state.meta.pagination;
+      const targetPage = state.servers.length <= 1 && page > 1 ? page - 1 : page;
+      setState(prev => ({
+        ...prev,
+        selectedServerIds: prev.selectedServerIds.filter(id => id !== deletedId),
+        meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: targetPage } },
+      }));
+      reloadCurrentPage(targetPage);
 
       setDeleteDialogOpen(false);
       setServerToDelete(null);
@@ -396,7 +416,7 @@ export default function CustomMCPServers() {
 
       // Refetch instead of local math: after a partial failure the local list is a guess.
       // A page the delete emptied steps back one, or it would render empty.
-      const { page, page_size } = state.meta.pagination;
+      const { page } = state.meta.pagination;
       const targetPage = deleted >= state.servers.length && page > 1 ? page - 1 : page;
       setState(prev => ({
         ...prev,
@@ -404,11 +424,7 @@ export default function CustomMCPServers() {
         meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: targetPage } },
       }));
       setBulkDeleteDialogOpen(false);
-      await loadServers({
-        skip: (targetPage - 1) * page_size,
-        limit: page_size,
-        search: state.searchQuery,
-      });
+      await reloadCurrentPage(targetPage);
     } finally {
       setIsBulkDeleting(false);
     }
@@ -440,7 +456,7 @@ export default function CustomMCPServers() {
         toast.success(t('success.createSuccess'));
 
         // Refresh the entire list for new servers
-        loadServers();
+        reloadCurrentPage();
       }
 
       // Clear editing state; the wizard page navigates back below.
@@ -507,7 +523,7 @@ export default function CustomMCPServers() {
           filterPanel={
             <CustomMCPServersFilterPanel
               open={filterPanelOpen}
-              onClose={() => setFilterPanelOpen(false)}
+              onClose={closeFilterPanel}
               selection={facets}
               onSelectionChange={applyFacets}
               onClear={() => applyFacets(EMPTY_CUSTOM_MCP_SERVER_FACETS)}

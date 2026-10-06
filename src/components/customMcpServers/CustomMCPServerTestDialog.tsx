@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   Button,
@@ -50,9 +51,9 @@ export default function CustomMCPServerTestDialog({
             </span>
           </DialogTitle>
           {server && (
-            <p className="text-sm text-muted-foreground pt-1 break-all">
+            <DialogDescription className="text-sm text-muted-foreground pt-1 break-all">
               {server.name} · {server.url}
-            </p>
+            </DialogDescription>
           )}
         </DialogHeader>
 

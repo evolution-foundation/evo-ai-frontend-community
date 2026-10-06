@@ -27,13 +27,18 @@ const serverB = {
 } as unknown as CustomMcpServer;
 
 const listCustomMcpServers = vi.fn();
+// `meta.pagination.total` of the list response; undefined = one page holds the whole base.
+let listTotal: number | undefined;
 const deleteCustomMcpServer = vi.fn();
 const testCustomMcpServer = vi.fn();
 const success = vi.fn();
 const error = vi.fn();
 
 vi.mock('@/services/agents/customMcpServerService', () => ({
-  listCustomMcpServers: (...args: unknown[]) => listCustomMcpServers(...args),
+  listCustomMcpServersPage: async (...args: unknown[]) => {
+    const servers = await listCustomMcpServers(...args);
+    return { servers, total: listTotal ?? servers.length };
+  },
   deleteCustomMcpServer: (...args: unknown[]) => deleteCustomMcpServer(...args),
   testCustomMcpServer: (...args: unknown[]) => testCustomMcpServer(...args),
   getCustomMcpServer: vi.fn(),
@@ -98,6 +103,7 @@ const testResponse = (toolsCount: number) => ({
 describe('CustomMCPServers', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    listTotal = undefined;
     listCustomMcpServers.mockResolvedValue([serverA, serverB]);
     deleteCustomMcpServer.mockResolvedValue(undefined);
   });
@@ -225,6 +231,55 @@ describe('CustomMCPServers', () => {
     expect(deleteCustomMcpServer).toHaveBeenCalledWith('mcp-2');
     expect(error).not.toHaveBeenCalled();
     await waitFor(() => expect(listCustomMcpServers).toHaveBeenCalledTimes(2));
+  });
+
+  it('paginates by the backend total, keeping the search on the next page', async () => {
+    listTotal = 45;
+    renderPage();
+
+    await screen.findByText('Github MCP');
+
+    await userEvent.type(screen.getByPlaceholderText('header.searchPlaceholder'), 'mcp');
+    await waitFor(() => expect(listCustomMcpServers).toHaveBeenCalledTimes(2), { timeout: 2000 });
+    await userEvent.click(await screen.findByRole('button', { name: '3' }));
+
+    await waitFor(() => expect(listCustomMcpServers).toHaveBeenCalledTimes(3));
+    expect(listCustomMcpServers.mock.lastCall![0]).toEqual(
+      expect.objectContaining({ skip: 40, limit: 20, search: 'mcp' }),
+    );
+  });
+
+  it('drops the selection when the page changes', async () => {
+    listTotal = 45;
+    renderPage();
+
+    await screen.findByText('Github MCP');
+    await userEvent.click(within(rowOf('Github MCP')).getByRole('checkbox'));
+    expect(screen.getByText('header.bulkDelete')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: '2' }));
+
+    await waitFor(() => expect(screen.queryByText('header.bulkDelete')).toBeNull());
+  });
+
+  it('removes a server deleted from its row menu from the bulk selection', async () => {
+    renderPage();
+
+    await screen.findByText('Github MCP');
+    await userEvent.click(within(rowOf('Github MCP')).getByRole('checkbox'));
+    await userEvent.click(within(rowOf('Drive MCP')).getByRole('checkbox'));
+
+    listCustomMcpServers.mockResolvedValue([serverB]);
+    await userEvent.click(
+      rowOf('Github MCP').querySelector('[aria-haspopup="menu"]') as HTMLElement,
+    );
+    await userEvent.click(await screen.findByText('table.actions.delete'));
+    await userEvent.click(await screen.findByText('deleteDialog.confirm'));
+    await waitFor(() => expect(deleteCustomMcpServer).toHaveBeenCalledWith('mcp-1'));
+    await waitFor(() => expect(screen.queryByText('Github MCP')).toBeNull());
+
+    await userEvent.click(screen.getByText('header.bulkDelete'));
+    expect(await screen.findByText('bulkDeleteDialog.description#count=1')).toBeInTheDocument();
   });
 
   it('says nothing matched, instead of "create your first server", when search narrows to zero', async () => {
