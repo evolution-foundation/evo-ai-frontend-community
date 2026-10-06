@@ -67,22 +67,22 @@ const ConversationStatusButton = ({
   return (
     <div ref={rootRef} className="relative">
       <div
+        className="shadow-sm"
         style={{
           display: 'inline-flex',
           alignItems: 'stretch',
           borderRadius: 9,
           overflow: 'hidden',
           userSelect: 'none',
-          boxShadow: '0 1px 3px rgba(20,30,45,.18)',
         }}
       >
         <span
           onClick={mainAction}
+          className="text-white"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             padding: '9px 18px',
-            color: '#FFFFFF',
             fontSize: 14,
             fontWeight: 600,
             backgroundColor: meta.color,
@@ -93,11 +93,11 @@ const ConversationStatusButton = ({
         </span>
         <span
           onClick={() => setMenuOpen(prev => !prev)}
+          className="text-white"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             padding: '0 9px',
-            color: '#FFFFFF',
             backgroundColor: meta.dark,
             cursor: 'pointer',
           }}
@@ -108,15 +108,13 @@ const ConversationStatusButton = ({
 
       {menuOpen && (
         <div
+          className="bg-popover text-popover-foreground border border-border shadow-lg"
           style={{
             position: 'absolute',
             top: 46,
             right: 0,
             width: 206,
-            background: '#FFFFFF',
-            border: '1px solid #eceef2',
             borderRadius: 12,
-            boxShadow: '0 12px 32px rgba(20,30,45,.16)',
             padding: 7,
             zIndex: 100,
           }}
@@ -152,7 +150,7 @@ const ConversationStatusButton = ({
                     flex: '0 0 8px',
                   }}
                 />
-                <span style={{ fontSize: 14, color: '#2b3240', fontWeight: 600 }}>{o.label}</span>
+                <span className="text-popover-foreground" style={{ fontSize: 14, fontWeight: 600 }}>{o.label}</span>
               </div>
             );
           })}

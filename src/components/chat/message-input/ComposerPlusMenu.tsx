@@ -136,15 +136,13 @@ const ComposerPlusMenu: React.FC<ComposerPlusMenuProps> = ({
 
       {open && (
         <div
+          className="bg-popover text-popover-foreground border border-border shadow-lg"
           style={{
             position: 'absolute',
             bottom: 44,
             left: -6,
             width: 248,
-            background: '#FFFFFF',
-            border: '1px solid #eceef2',
             borderRadius: 14,
-            boxShadow: '0 12px 32px rgba(20,30,45,.16)',
             padding: 7,
             zIndex: 100,
           }}
@@ -158,6 +156,7 @@ const ComposerPlusMenu: React.FC<ComposerPlusMenuProps> = ({
                 setOpen(false);
                 item.onClick();
               }}
+              className={item.disabled ? undefined : 'hover:bg-accent'}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -167,13 +166,9 @@ const ComposerPlusMenu: React.FC<ComposerPlusMenuProps> = ({
                 cursor: item.disabled ? 'not-allowed' : 'pointer',
                 opacity: item.disabled ? 0.5 : 1,
               }}
-              onMouseEnter={e => {
-                if (!item.disabled) e.currentTarget.style.background = '#f4f6f9';
-              }}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
               <span className={ITEM_ICON_BOX}>{item.icon}</span>
-              <span style={{ fontSize: 14.5, color: '#2b3240', fontWeight: 500 }}>{item.label}</span>
+              <span className="text-popover-foreground" style={{ fontSize: 14.5, fontWeight: 500 }}>{item.label}</span>
             </div>
           ))}
         </div>
