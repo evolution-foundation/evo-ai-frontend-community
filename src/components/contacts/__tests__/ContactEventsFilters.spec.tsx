@@ -58,6 +58,9 @@ describe('ContactEventsFilters', () => {
   });
 
   it('selecting a period preset (e.g. "7 dias") emits occurred_after', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-07T01:00:00.000Z'));
+
     const user = userEvent.setup();
     const onChange = vi.fn();
     render(<ContactEventsFilters value={{}} onChange={onChange} />);
@@ -69,9 +72,7 @@ describe('ContactEventsFilters', () => {
     const listbox = await screen.findByRole('listbox');
     await user.click(within(listbox).getByText('events.filters.periodPresets.7d'));
 
-    expect(onChange).toHaveBeenCalledWith(
-      expect.objectContaining({ occurred_after: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/) }),
-    );
+    expect(onChange).toHaveBeenCalledWith({ occurred_after: '2026-09-29T03:00:00.000Z' });
   });
 
   it('"Hoje" starts at local midnight even after 21h in Brasília', async () => {
