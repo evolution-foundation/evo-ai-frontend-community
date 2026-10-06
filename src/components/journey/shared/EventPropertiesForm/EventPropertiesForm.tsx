@@ -23,6 +23,7 @@ import {
 import { cn } from '@/lib/utils';
 import { getEvent, isCustomEvent, type FieldSpec } from '@/lib/events-manifest';
 import { useLanguage } from '@/hooks/useLanguage';
+import { toDateTimeLocalValue } from '@/utils/time/dateTimeLocal';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import InboxesService from '@/services/channels/inboxesService';
 import { labelsService } from '@/services/contacts/labelsService';
@@ -565,10 +566,7 @@ function FieldInput({
 }
 
 function dateInputValue(raw: unknown): string {
-  if (typeof raw !== 'string' || raw === '') return '';
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return '';
-  return d.toISOString().slice(0, 16);
+  return typeof raw === 'string' ? toDateTimeLocalValue(raw) : '';
 }
 
 // Searchable typeahead picker built on cmdk Command, mirroring the

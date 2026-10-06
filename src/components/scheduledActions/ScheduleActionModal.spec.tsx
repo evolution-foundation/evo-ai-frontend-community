@@ -1,9 +1,18 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterAll, describe, expect, it, vi } from 'vitest';
 import type { Inbox } from '@/types/channels/inbox';
 import InboxesService from '@/services/channels/inboxesService';
+import { scheduledActionsService } from '@/services/scheduledActions/scheduledActionsService';
+import type { ScheduledAction } from '@/types/automation';
 import { ScheduleActionModal } from './ScheduleActionModal';
+
+const originalTZ = process.env.TZ;
+process.env.TZ = 'America/Sao_Paulo';
+
+afterAll(() => {
+  process.env.TZ = originalTZ;
+});
 
 vi.mock('lucide-react', () => ({
   Search: () => null,
@@ -108,6 +117,7 @@ vi.mock('@evoapi/design-system', () => {
 });
 
 const mockedInboxesService = vi.mocked(InboxesService);
+const mockedScheduledActionsService = vi.mocked(scheduledActionsService);
 
 const buildInbox = (overrides: Partial<Inbox>): Inbox => ({
   id: overrides.id || 'inbox-id',
@@ -156,5 +166,74 @@ describe('ScheduleActionModal', () => {
     expect(screen.queryByRole('option', { name: 'WhatsApp Legacy (scheduledActions.channelWhatsapp)' })).toBeNull();
     expect(screen.queryByRole('option', { name: 'SMS (scheduledActions.channelSms)' })).toBeNull();
     expect(screen.queryByRole('option', { name: /API Team/ })).toBeNull();
+  });
+
+  describe('editing', () => {
+    const scheduledFor = '2099-03-10T11:40:00.000Z';
+
+    const buildAction = (): ScheduledAction => ({
+      id: 'action-1',
+      contact_id: 'contact-1',
+      action_type: 'send_message',
+      status: 'scheduled',
+      scheduled_for: scheduledFor,
+      payload: { channel: 'telegram', message: 'Oi' },
+      created_by: 'user-1',
+      retry_count: 0,
+      max_retries: 3,
+      recurrence_type: 'once',
+    });
+
+    const renderEditing = async () => {
+      mockedInboxesService.list.mockResolvedValue({
+        success: true,
+        data: [buildInbox({ id: 'telegram-team', name: 'Telegram Team', channel_type: 'Channel::Telegram' })],
+        meta: {} as never,
+        message: '',
+      });
+      mockedScheduledActionsService.update.mockResolvedValue({} as never);
+
+      const view = render(<ScheduleActionModal open onClose={vi.fn()} action={buildAction()} />);
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Telegram Team (scheduledActions.channelTelegram)' })).toBeTruthy();
+      });
+      return view;
+    };
+
+    it('runs in a timezone other than UTC', () => {
+      expect(new Date(scheduledFor).getTimezoneOffset()).toBe(180);
+    });
+
+    it('fills the field with the local time of scheduled_for', async () => {
+      await renderEditing();
+      expect(screen.getByLabelText('scheduledActions.dateTime')).toHaveValue('2099-03-10T08:40');
+    });
+
+    it('keeps scheduled_for identical when saved without touching the time', async () => {
+      const { container } = await renderEditing();
+      fireEvent.submit(container.querySelector('form')!);
+
+      await waitFor(() => {
+        expect(mockedScheduledActionsService.update).toHaveBeenCalledWith(
+          'action-1',
+          expect.objectContaining({ scheduled_for: scheduledFor }),
+        );
+      });
+    });
+
+    it('saves the time typed by the user', async () => {
+      const { container } = await renderEditing();
+      fireEvent.change(screen.getByLabelText('scheduledActions.dateTime'), {
+        target: { value: '2099-03-10T09:15' },
+      });
+      fireEvent.submit(container.querySelector('form')!);
+
+      await waitFor(() => {
+        expect(mockedScheduledActionsService.update).toHaveBeenCalledWith(
+          'action-1',
+          expect.objectContaining({ scheduled_for: '2099-03-10T12:15:00.000Z' }),
+        );
+      });
+    });
   });
 });

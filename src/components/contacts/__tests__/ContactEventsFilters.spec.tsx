@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
 import { ContactEventsFilters } from '../ContactEventsFilters';
 
 // Permission-gated components resolve permissions from the context; grant
@@ -15,6 +15,17 @@ vi.mock('@/hooks/useLanguage', () => ({
     currentLanguage: 'en',
   }),
 }));
+
+const originalTZ = process.env.TZ;
+process.env.TZ = 'America/Sao_Paulo';
+
+afterAll(() => {
+  process.env.TZ = originalTZ;
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('ContactEventsFilters', () => {
   it('exposes the event type options plus an "all types" entry', async () => {
@@ -59,8 +70,27 @@ describe('ContactEventsFilters', () => {
     await user.click(within(listbox).getByText('events.filters.periodPresets.7d'));
 
     expect(onChange).toHaveBeenCalledWith(
-      expect.objectContaining({ occurred_after: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) }),
+      expect.objectContaining({ occurred_after: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/) }),
     );
+  });
+
+  it('"Hoje" starts at local midnight even after 21h in Brasília', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-07T01:00:00.000Z'));
+    expect(new Date().getTimezoneOffset()).toBe(180);
+
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<ContactEventsFilters value={{}} onChange={onChange} />);
+
+    const periodLabel = screen.getByText('events.filters.period');
+    const trigger = periodLabel.parentElement!.querySelector('[role="combobox"]') as HTMLElement;
+    await user.click(trigger);
+
+    const listbox = await screen.findByRole('listbox');
+    await user.click(within(listbox).getByText('events.filters.periodPresets.today'));
+
+    expect(onChange).toHaveBeenCalledWith({ occurred_after: '2026-10-06T03:00:00.000Z' });
   });
 
   it('selecting "Todo o período" clears occurred_after', async () => {
