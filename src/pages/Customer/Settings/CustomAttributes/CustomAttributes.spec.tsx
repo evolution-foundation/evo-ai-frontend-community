@@ -60,6 +60,18 @@ describe('CustomAttributes — a refused save points at the field', () => {
     expect(screen.queryByText('modal.fields.attributeKey.errors.taken')).not.toBeInTheDocument();
   });
 
+  // "Email" on the contacts tab generates the key `email`, a standard attribute.
+  it('explains a reserved key on its field instead of the generic toast', async () => {
+    vi.spyOn(customAttributesService, 'createCustomAttribute').mockRejectedValue(
+      validationError([{ field: 'attribute_key', codes: ['key_conflict'] }]),
+    );
+
+    await submitNewAttribute();
+
+    expect(await screen.findByText('modal.fields.attributeKey.errors.reserved')).toBeInTheDocument();
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
   // Variable-length lookbehind compiles in the browser but not in Ruby, which is
   // what the pre-chat form runs it with — only the server can refuse it.
   it('shows a pattern only the server refuses on the regex field', async () => {

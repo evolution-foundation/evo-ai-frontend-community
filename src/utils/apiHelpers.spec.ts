@@ -96,6 +96,15 @@ describe('apiFieldErrorCodes', () => {
     expect(apiFieldErrorCodes(rejection({ error: 'Canal já existe' }))).toEqual({});
   });
 
+  it('keeps only string codes', () => {
+    const error = validationRejection([
+      { field: 'title', codes: [1, null, 'taken', { error: 'x' }] },
+      { field: 'color', codes: [42] },
+    ]);
+
+    expect(apiFieldErrorCodes(error)).toEqual({ title: ['taken'] });
+  });
+
   it('returns nothing for a request that never got a response', () => {
     expect(apiFieldErrorCodes(new Error('Network Error'))).toEqual({});
     expect(apiFieldErrorCodes(null)).toEqual({});

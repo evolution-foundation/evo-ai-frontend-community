@@ -90,6 +90,7 @@
         "errors": {
           "required": "Attribute Key is required",
           "taken": "An attribute with this key already exists",
+          "reserved": "This key is reserved for a standard field. Use another name",
           "invalid": "Attribute Key must contain only lowercase letters, numbers and underscores"
         }
       },

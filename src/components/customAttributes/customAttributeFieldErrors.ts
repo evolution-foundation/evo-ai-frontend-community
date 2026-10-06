@@ -7,6 +7,7 @@ export const CUSTOM_ATTRIBUTE_FIELD_ERRORS: FieldErrorTable = {
   },
   attribute_key: {
     taken: 'modal.fields.attributeKey.errors.taken',
+    key_conflict: 'modal.fields.attributeKey.errors.reserved',
     blank: 'modal.fields.attributeKey.errors.required',
   },
   attribute_values: {

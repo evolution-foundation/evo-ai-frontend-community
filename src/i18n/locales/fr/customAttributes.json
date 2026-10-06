@@ -52,6 +52,7 @@
         "errors": {
           "required": "La clé de l'attribut est obligatoire",
           "taken": "Un attribut avec cette clé existe déjà",
+          "reserved": "Cette clé est réservée à un champ standard. Utilisez un autre nom",
           "invalid": "La clé doit contenir uniquement des lettres minuscules, des chiffres et des underscores"
         }
       },

@@ -90,6 +90,7 @@
         "errors": {
           "required": "Chave do atributo é obrigatória",
           "taken": "Já existe um atributo com essa chave",
+          "reserved": "Essa chave é reservada para um campo padrão. Use outro nome",
           "invalid": "Chave deve conter apenas letras minúsculas, números e sublinhados"
         }
       },

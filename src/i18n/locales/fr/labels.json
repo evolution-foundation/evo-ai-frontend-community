@@ -44,7 +44,7 @@
       "nameTaken": "Une étiquette avec ce nom existe déjà",
       "nameInvalid": "Utilisez uniquement des lettres, des chiffres, des espaces, des tirets et des tirets bas, en commençant et en finissant par une lettre ou un chiffre",
       "colorRequired": "La couleur est obligatoire",
-      "colorInvalid": "La couleur doit être au format hexadécimal (#RRGGBB)"
+      "colorInvalid": "La couleur doit être au format hexadécimal (#RGB ou #RRGGBB)"
     },
     "buttons": {
       "cancel": "Annuler",

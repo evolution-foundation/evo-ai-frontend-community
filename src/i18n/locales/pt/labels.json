@@ -44,7 +44,7 @@
       "nameTaken": "Já existe uma etiqueta com esse nome",
       "nameInvalid": "Use só letras, números, espaços, hífens e sublinhados, começando e terminando com letra ou número",
       "colorRequired": "Cor é obrigatória",
-      "colorInvalid": "Cor deve estar no formato hexadecimal (#RRGGBB)"
+      "colorInvalid": "Cor deve estar no formato hexadecimal (#RGB ou #RRGGBB)"
     },
     "buttons": {
       "cancel": "Cancelar",

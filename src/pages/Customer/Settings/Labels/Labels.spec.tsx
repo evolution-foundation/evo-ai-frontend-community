@@ -91,6 +91,31 @@ describe('Labels — a refused save points at the field', () => {
     expect(toast.error).toHaveBeenCalledWith('messages.createError');
   });
 
+  it('shows a name the server finds too short on the name field', async () => {
+    mockCreateLabel.mockRejectedValue(validationError([{ field: 'title', codes: ['too_short'] }]));
+
+    await submitNewLabel('ab');
+
+    expect(await screen.findByText('modal.validation.nameMinLength')).toBeInTheDocument();
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it('sends a three-digit hex color, which the server accepts', async () => {
+    mockCreateLabel.mockResolvedValue({ id: 'l1', title: 'vip', color: '#abc' });
+    const user = userEvent.setup();
+    render(<Labels />);
+
+    await user.click(await screen.findByRole('button', { name: 'header.newLabel' }));
+    await user.type(screen.getByLabelText(/modal.labels.name/), 'vip');
+    const color = screen.getByLabelText(/modal.labels.color/);
+    await user.clear(color);
+    await user.type(color, '#abc');
+    await user.click(screen.getByRole('button', { name: 'modal.buttons.create' }));
+
+    await waitFor(() => expect(mockCreateLabel).toHaveBeenCalledWith(expect.objectContaining({ color: '#abc' })));
+    expect(screen.queryByText('modal.validation.colorInvalid')).not.toBeInTheDocument();
+  });
+
   it('does not send a name that is one character once trimmed', async () => {
     await submitNewLabel(' a');
 

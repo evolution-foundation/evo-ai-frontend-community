@@ -52,6 +52,7 @@
         "errors": {
           "required": "La chiave dell'attributo è obbligatoria",
           "taken": "Esiste già un attributo con questa chiave",
+          "reserved": "Questa chiave è riservata a un campo standard. Usa un altro nome",
           "invalid": "La chiave deve contenere solo lettere minuscole, numeri e trattini bassi"
         }
       },
