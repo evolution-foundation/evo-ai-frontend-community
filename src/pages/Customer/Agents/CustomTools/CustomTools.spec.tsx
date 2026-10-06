@@ -106,10 +106,12 @@ vi.mock('@/components/customTools', () => ({
     selectedCount,
     onBulkDelete,
     onClearSelection,
+    onSearchChange,
   }: {
     selectedCount: number;
     onBulkDelete: () => void;
     onClearSelection: () => void;
+    onSearchChange: (value: string) => void;
   }) => (
     <div>
       <span data-testid="selected-count">{selectedCount}</span>
@@ -118,6 +120,9 @@ vi.mock('@/components/customTools', () => ({
       </button>
       <button data-testid="clear-selection" onClick={onClearSelection}>
         clear-selection
+      </button>
+      <button data-testid="search" onClick={() => onSearchChange('crm')}>
+        search
       </button>
     </div>
   ),
@@ -196,6 +201,42 @@ describe('CustomTools page', () => {
     await userEvent.click(screen.getByText('bulkDeleteDialog.confirm'));
 
     await waitFor(() => expect(deleteCustomTool).toHaveBeenCalledTimes(2));
+  });
+
+  it('ignores an older search answering after the post-delete refetch', async () => {
+    let answerSearch: (tools: CustomTool[]) => void = () => {};
+    listCustomTools
+      .mockResolvedValueOnce([toolA, toolB])
+      .mockImplementationOnce(() => new Promise(resolve => (answerSearch = resolve)))
+      .mockResolvedValueOnce([]);
+    render(<CustomTools />);
+
+    await selectAllAndOpenBulkDialog();
+    // The open modal makes the header inert; fireEvent stands in for typing before it opened.
+    fireEvent.click(screen.getByTestId('search'));
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(2), { timeout: 2000 });
+
+    await userEvent.click(screen.getByText('bulkDeleteDialog.confirm'));
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(3));
+    await waitFor(() => expect(screen.queryByText('Weather')).not.toBeInTheDocument());
+
+    answerSearch([toolA, toolB]);
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(screen.queryByText('Weather')).not.toBeInTheDocument();
+  });
+
+  it('drops the selection as soon as a refetch starts, even if it then fails', async () => {
+    listCustomTools
+      .mockResolvedValueOnce([toolA, toolB])
+      .mockRejectedValueOnce(new Error('offline'));
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('select-all'));
+    expect(screen.getByTestId('selected-count')).toHaveTextContent('2');
+
+    await userEvent.click(screen.getByTestId('search'));
+    await waitFor(() => expect(error).toHaveBeenCalledWith('messages.loadError'), { timeout: 2000 });
+    expect(screen.getByTestId('selected-count')).toHaveTextContent('0');
   });
 
   it('reports a partial failure instead of claiming success', async () => {

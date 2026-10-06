@@ -84,6 +84,10 @@ export default function CustomTools() {
     [],
   );
 
+  // Only the latest list request may commit: an older search answering last would
+  // otherwise bring back rows a bulk delete just removed.
+  const latestLoadRef = useRef(0);
+
   // Load tools
   const loadTools = useCallback(
     async (params?: Partial<CustomToolsListParams>, filtersOverride?: BaseFilter[]) => {
@@ -91,7 +95,14 @@ export default function CustomTools() {
       if (!can('ai_custom_tools', 'read')) {
         return;
       }
-      setState(prev => ({ ...prev, loading: { ...prev.loading, list: true } }));
+      const loadId = ++latestLoadRef.current;
+      // Cleared up front, not on success: a pending or failed refetch must not leave a
+      // selection a bulk delete could act on over rows that may no longer be listed.
+      setState(prev => ({
+        ...prev,
+        selectedToolIds: [],
+        loading: { ...prev.loading, list: true },
+      }));
 
       try {
         const searchParams: CustomToolsListParams = {
@@ -118,14 +129,12 @@ export default function CustomTools() {
         }, {} as Record<string, string>);
 
         const tools = await listCustomTools(searchParams, filterParams);
+        if (loadId !== latestLoadRef.current) return;
         setTagOptions(known => mergeTagOptions(known, tools || []));
 
         setState(prev => ({
           ...prev,
           tools: tools || [],
-          // A refetch can drop selected rows from view; keeping them counted would make a
-          // bulk delete hit tools the user no longer sees.
-          selectedToolIds: [],
           meta: {
             pagination: {
               page: searchParams.skip ? Math.floor(searchParams.skip / (searchParams.limit || DEFAULT_PAGE_SIZE)) + 1 : 1,
@@ -137,6 +146,7 @@ export default function CustomTools() {
           loading: { ...prev.loading, list: false },
         }));
       } catch (error) {
+        if (loadId !== latestLoadRef.current) return;
         console.error('Error loading custom tools:', error);
         toast.error(getErrorMessage(error as Error, t('messages.loadError')));
         setState(prev => ({ ...prev, loading: { ...prev.loading, list: false } }));
