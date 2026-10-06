@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { apiErrorCode, apiErrorMessage } from './apiHelpers';
+import {
+  apiErrorCode,
+  apiErrorMessage,
+  apiFieldErrorCodes,
+  resolveFieldErrors,
+} from './apiHelpers';
 
 // Mirrors app/controllers/concerns/api_response_helper.rb#error_response.
 function rejection(data: unknown, status = 422) {
@@ -63,5 +68,72 @@ describe('apiErrorCode', () => {
     expect(apiErrorCode({ response: { status: 500, data: { error: { code: '' } } } })).toBeUndefined();
     expect(apiErrorCode(new Error('network'))).toBeUndefined();
     expect(apiErrorCode(undefined)).toBeUndefined();
+  });
+});
+
+// Mirrors Api::BaseController#format_validation_errors.
+function validationRejection(details: unknown) {
+  return rejection({
+    success: false,
+    error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details },
+  });
+}
+
+describe('apiFieldErrorCodes', () => {
+  it('keys the codes of each detail by its field', () => {
+    const error = validationRejection([
+      { field: 'title', messages: ['já está em uso'], full_messages: ['Title já está em uso'], codes: ['taken'] },
+      { field: 'color', messages: ['x', 'y'], full_messages: [], codes: ['blank', 'invalid'] },
+    ]);
+
+    expect(apiFieldErrorCodes(error)).toEqual({ title: ['taken'], color: ['blank', 'invalid'] });
+  });
+
+  it('returns nothing when the server sends no codes', () => {
+    expect(apiFieldErrorCodes(validationRejection([{ field: 'title', messages: ['já está em uso'] }]))).toEqual({});
+    expect(apiFieldErrorCodes(validationRejection(['Short code has already been taken']))).toEqual({});
+    expect(apiFieldErrorCodes(validationRejection(undefined))).toEqual({});
+    expect(apiFieldErrorCodes(rejection({ error: 'Canal já existe' }))).toEqual({});
+  });
+
+  it('returns nothing for a request that never got a response', () => {
+    expect(apiFieldErrorCodes(new Error('Network Error'))).toEqual({});
+    expect(apiFieldErrorCodes(null)).toEqual({});
+  });
+});
+
+describe('resolveFieldErrors', () => {
+  const table = { title: { taken: 'modal.validation.nameTaken', too_short: 'modal.validation.nameMinLength' } };
+
+  it('maps each known code to its key', () => {
+    expect(resolveFieldErrors({ title: ['taken'] }, table)).toEqual({
+      fields: { title: 'modal.validation.nameTaken' },
+      complete: true,
+    });
+  });
+
+  it('uses the first code the screen knows', () => {
+    expect(resolveFieldErrors({ title: ['weird', 'too_short'] }, table).fields).toEqual({
+      title: 'modal.validation.nameMinLength',
+    });
+  });
+
+  it('is incomplete when a field or code is unknown, so the caller still warns', () => {
+    expect(resolveFieldErrors({ title: ['taken'], color: ['invalid'] }, table)).toEqual({
+      fields: { title: 'modal.validation.nameTaken' },
+      complete: false,
+    });
+    expect(resolveFieldErrors({ title: ['weird'] }, table).complete).toBe(false);
+  });
+
+  it('is incomplete when there are no codes at all', () => {
+    expect(resolveFieldErrors({}, table)).toEqual({ fields: {}, complete: false });
+  });
+
+  it('ignores inherited keys such as constructor', () => {
+    expect(resolveFieldErrors({ constructor: ['taken'], title: ['toString'] }, table)).toEqual({
+      fields: {},
+      complete: false,
+    });
   });
 });

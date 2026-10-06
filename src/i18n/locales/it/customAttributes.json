@@ -51,6 +51,7 @@
         "hint": "La chiave verrà utilizzata per identificare questo attributo nell'API. Usa solo lettere minuscole, numeri e trattini bassi.",
         "errors": {
           "required": "La chiave dell'attributo è obbligatoria",
+          "taken": "Esiste già un attributo con questa chiave",
           "invalid": "La chiave deve contenere solo lettere minuscole, numeri e trattini bassi"
         }
       },

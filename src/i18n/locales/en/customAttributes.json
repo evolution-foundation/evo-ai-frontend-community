@@ -89,6 +89,7 @@
         "hint": "The key will be used to identify this attribute in the API. Use only lowercase letters, numbers and underscores.",
         "errors": {
           "required": "Attribute Key is required",
+          "taken": "An attribute with this key already exists",
           "invalid": "Attribute Key must contain only lowercase letters, numbers and underscores"
         }
       },

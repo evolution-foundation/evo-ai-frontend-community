@@ -26,6 +26,8 @@ import CannedResponsesHeader from '@/components/cannedResponses/CannedResponsesH
 import CannedResponsesTable from '@/components/cannedResponses/CannedResponsesTable';
 import CannedResponsesPagination from '@/components/cannedResponses/CannedResponsesPagination';
 import CannedResponseModal from '@/components/cannedResponses/CannedResponseModal';
+import { CANNED_RESPONSE_FIELD_ERRORS } from '@/components/cannedResponses/cannedResponseFieldErrors';
+import { apiFieldErrorCodes, resolveFieldErrors } from '@/utils/apiHelpers';
 import { DEFAULT_PAGE_SIZE, SETTINGS_LIST_FETCH_SIZE } from '@/constants/pagination';
 
 const INITIAL_STATE: CannedResponsesState = {
@@ -60,6 +62,7 @@ export default function CannedResponses() {
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [cannedResponseModalOpen, setCannedResponseModalOpen] = useState(false);
   const [editingCannedResponse, setEditingCannedResponse] = useState<CannedResponse | null>(null);
+  const [cannedResponseServerErrors, setCannedResponseServerErrors] = useState<Record<string, string>>({});
 
   // Load canned responses
   const loadCannedResponses = useCallback(async () => {
@@ -242,6 +245,7 @@ export default function CannedResponses() {
 
   // Handle canned response form submission
   const handleCannedResponseFormSubmit = async (data: CannedResponseFormData) => {
+    setCannedResponseServerErrors({});
     setState(prev => ({
       ...prev,
       loading: { ...prev.loading, [editingCannedResponse ? 'update' : 'create']: true },
@@ -266,7 +270,13 @@ export default function CannedResponses() {
       setEditingCannedResponse(null);
     } catch (error) {
       console.error('Error saving canned response:', error);
-      toast.error(editingCannedResponse ? t('messages.updateError') : t('messages.createError'));
+      const { fields, complete } = resolveFieldErrors(apiFieldErrorCodes(error), CANNED_RESPONSE_FIELD_ERRORS);
+      setCannedResponseServerErrors(
+        Object.fromEntries(Object.entries(fields).map(([field, key]) => [field, t(key)])),
+      );
+      if (!complete) {
+        toast.error(editingCannedResponse ? t('messages.updateError') : t('messages.createError'));
+      }
     } finally {
       setState(prev => ({
         ...prev,
@@ -280,6 +290,7 @@ export default function CannedResponses() {
     if (!open) {
       setCannedResponseModalOpen(false);
       setEditingCannedResponse(null);
+      setCannedResponseServerErrors({});
     }
   };
 
@@ -442,6 +453,7 @@ export default function CannedResponses() {
         isNew={!editingCannedResponse}
         loading={state.loading.create || state.loading.update}
         onSubmit={handleCannedResponseFormSubmit}
+        serverErrors={cannedResponseServerErrors}
       />
     </div>
   );

@@ -41,6 +41,8 @@
     "validation": {
       "nameRequired": "Name is required",
       "nameMinLength": "Name must be at least 2 characters",
+      "nameTaken": "A label with this name already exists",
+      "nameInvalid": "Use only letters, numbers, spaces, hyphens and underscores, starting and ending with a letter or number",
       "colorRequired": "Color is required",
       "colorInvalid": "Color must be in hexadecimal format (#RRGGBB)"
     },

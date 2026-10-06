@@ -28,6 +28,8 @@ interface CannedResponseModalProps {
   isNew: boolean;
   loading: boolean;
   onSubmit: (data: CannedResponseFormData) => void;
+  /** Field messages from a rejected save, already translated. */
+  serverErrors?: Record<string, string>;
 }
 
 type VariableItem = {
@@ -49,6 +51,7 @@ export default function CannedResponseModal({
   isNew,
   loading,
   onSubmit,
+  serverErrors,
 }: CannedResponseModalProps) {
   const { t } = useLanguage('cannedResponses');
   const [formData, setFormData] = useState<CannedResponseFormData>({
@@ -84,6 +87,12 @@ export default function CannedResponseModal({
       setRemovedAttachmentIds([]);
     }
   }, [open, cannedResponse, isNew]);
+
+  useEffect(() => {
+    if (serverErrors && Object.keys(serverErrors).length > 0) {
+      setErrors(prev => ({ ...prev, ...serverErrors }));
+    }
+  }, [serverErrors]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

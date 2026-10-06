@@ -32,6 +32,8 @@ import CustomAttributesHeader from '@/components/customAttributes/CustomAttribut
 import CustomAttributesTable from '@/components/customAttributes/CustomAttributesTable';
 import CustomAttributesPagination from '@/components/customAttributes/CustomAttributesPagination';
 import CustomAttributeModal from '@/components/customAttributes/CustomAttributeModal';
+import { CUSTOM_ATTRIBUTE_FIELD_ERRORS } from '@/components/customAttributes/customAttributeFieldErrors';
+import { apiFieldErrorCodes, resolveFieldErrors } from '@/utils/apiHelpers';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 
 const INITIAL_STATE: CustomAttributesState = {
@@ -69,6 +71,7 @@ export default function CustomAttributes() {
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [attributeModalOpen, setAttributeModalOpen] = useState(false);
   const [editingAttribute, setEditingAttribute] = useState<CustomAttributeDefinition | null>(null);
+  const [attributeServerErrors, setAttributeServerErrors] = useState<Record<string, string>>({});
 
   // Load custom attributes
   const loadCustomAttributes = useCallback(async () => {
@@ -277,6 +280,7 @@ export default function CustomAttributes() {
 
   // Handle attribute form submission
   const handleAttributeFormSubmit = async (data: CustomAttributeFormData) => {
+    setAttributeServerErrors({});
     setState(prev => ({
       ...prev,
       loading: { ...prev.loading, [editingAttribute ? 'update' : 'create']: true },
@@ -301,7 +305,13 @@ export default function CustomAttributes() {
       setEditingAttribute(null);
     } catch (error) {
       console.error('Error saving custom attribute:', error);
-      toast.error(editingAttribute ? t('messages.updateError') : t('messages.createError'));
+      const { fields, complete } = resolveFieldErrors(apiFieldErrorCodes(error), CUSTOM_ATTRIBUTE_FIELD_ERRORS);
+      setAttributeServerErrors(
+        Object.fromEntries(Object.entries(fields).map(([field, key]) => [field, t(key)])),
+      );
+      if (!complete) {
+        toast.error(editingAttribute ? t('messages.updateError') : t('messages.createError'));
+      }
     } finally {
       setState(prev => ({
         ...prev,
@@ -315,6 +325,7 @@ export default function CustomAttributes() {
     if (!open) {
       setAttributeModalOpen(false);
       setEditingAttribute(null);
+      setAttributeServerErrors({});
     }
   };
 
@@ -501,6 +512,7 @@ export default function CustomAttributes() {
         loading={state.loading.create || state.loading.update}
         onSubmit={handleAttributeFormSubmit}
         defaultAttributeModel={state.activeTab}
+        serverErrors={attributeServerErrors}
       />
     </div>
   );

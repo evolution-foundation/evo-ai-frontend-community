@@ -41,6 +41,8 @@
     "validation": {
       "nameRequired": "Nome é obrigatório",
       "nameMinLength": "Nome deve ter pelo menos 2 caracteres",
+      "nameTaken": "Já existe uma etiqueta com esse nome",
+      "nameInvalid": "Use só letras, números, espaços, hífens e sublinhados, começando e terminando com letra ou número",
       "colorRequired": "Cor é obrigatória",
       "colorInvalid": "Cor deve estar no formato hexadecimal (#RRGGBB)"
     },

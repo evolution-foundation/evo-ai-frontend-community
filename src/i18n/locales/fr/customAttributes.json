@@ -51,6 +51,7 @@
         "hint": "La clé sera utilisée pour identifier cet attribut dans l'API. Utilisez uniquement des lettres minuscules, des chiffres et des underscores.",
         "errors": {
           "required": "La clé de l'attribut est obligatoire",
+          "taken": "Un attribut avec cette clé existe déjà",
           "invalid": "La clé doit contenir uniquement des lettres minuscules, des chiffres et des underscores"
         }
       },

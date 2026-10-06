@@ -89,6 +89,7 @@
         "hint": "A chave será usada para identificar este atributo na API. Use apenas letras minúsculas, números e sublinhados.",
         "errors": {
           "required": "Chave do atributo é obrigatória",
+          "taken": "Já existe um atributo com essa chave",
           "invalid": "Chave deve conter apenas letras minúsculas, números e sublinhados"
         }
       },

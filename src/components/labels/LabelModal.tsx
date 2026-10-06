@@ -29,6 +29,8 @@ interface LabelModalProps {
     color: string;
     show_on_sidebar?: boolean;
   }) => void;
+  /** Field messages from a rejected save, already translated. */
+  serverErrors?: Record<string, string>;
 }
 
 const DEFAULT_COLORS = [
@@ -49,6 +51,7 @@ export default function LabelModal({
   loading,
   initialTitle,
   onSubmit,
+  serverErrors,
 }: LabelModalProps) {
   const { t } = useLanguage('labels');
   const { can } = usePermissions();
@@ -82,18 +85,24 @@ export default function LabelModal({
     }
   }, [open, label, isNew]);
 
+  useEffect(() => {
+    if (serverErrors && Object.keys(serverErrors).length > 0) {
+      setErrors(prev => ({ ...prev, ...serverErrors }));
+    }
+  }, [serverErrors]);
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.title.trim()) {
       newErrors.title = t('modal.validation.nameRequired');
-    } else if (formData.title.length < 2) {
+    } else if (formData.title.trim().length < 2) {
       newErrors.title = t('modal.validation.nameMinLength');
     }
 
     if (!formData.color.trim()) {
       newErrors.color = t('modal.validation.colorRequired');
-    } else if (!/^#[0-9A-F]{6}$/i.test(formData.color)) {
+    } else if (!/^#([0-9A-F]{6}|[0-9A-F]{3})$/i.test(formData.color)) {
       newErrors.color = t('modal.validation.colorInvalid');
     }
 
