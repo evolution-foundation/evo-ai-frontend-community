@@ -47,7 +47,7 @@ export default function CampaignsTable({
   sortOrder,
   onSort,
 }: CampaignsTableProps) {
-  const { t } = useLanguage('campaigns');
+  const { t, currentLanguage } = useLanguage('campaigns');
   const { i18n } = useTranslation();
   const campaignsList = campaigns || [];
 
@@ -81,7 +81,7 @@ export default function CampaignsTable({
 
   const formatNumber = (num: number | undefined) => {
     if (num === undefined || num === null) return '0';
-    return num.toLocaleString('pt-BR');
+    return num.toLocaleString(currentLanguage);
   };
 
   const formatPercentage = (delivered: number, total: number) => {
