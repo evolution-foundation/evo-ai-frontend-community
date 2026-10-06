@@ -3,6 +3,7 @@ import { Edit, Trash2 } from 'lucide-react';
 import BaseTable from '@/components/base/BaseTable';
 import { Label } from '@/types/settings';
 import { usePermissions } from '@/contexts/PermissionsContext';
+import { unixTimestampToIso } from '@/utils/chat/contactTimestamp';
 
 interface LabelsTableProps {
   labels: Label[];
@@ -88,11 +89,14 @@ export default function LabelsTable({
       key: 'created_at',
       label: t('table.columns.createdAt'),
       sortable: true,
-      render: (label: Label) => (
-        <div className="text-sm text-muted-foreground">
-          {new Date(label.created_at).toLocaleDateString(currentLanguage)}
-        </div>
-      ),
+      render: (label: Label) => {
+        const createdAt = unixTimestampToIso(label.created_at);
+        return (
+          <div className="text-sm text-muted-foreground">
+            {createdAt && new Date(createdAt).toLocaleDateString(currentLanguage)}
+          </div>
+        );
+      },
     },
   ];
 

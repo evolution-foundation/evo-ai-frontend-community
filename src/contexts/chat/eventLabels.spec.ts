@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { mapEventLabels } from './eventLabels';
 
-const CREATED_AT = '2026-08-14T10:00:00Z';
-const UPDATED_AT = '2026-08-14T11:00:00Z';
+const CREATED_AT = 1786701600;
+const UPDATED_AT = 1786705200;
 
 // Covers the mapper only. The merge itself (the `title && color` guard and the
 // empty-list override in ChatContext) needs the whole provider to exercise.
@@ -33,11 +33,11 @@ describe('mapEventLabels', () => {
     expect(result[0].id).toBe('a1');
   });
 
-  it('coerces the epoch timestamp instead of leaving a number in a string field', () => {
-    const result = mapEventLabels([{ id: 'a1', title: 'urgente', color: '#ff0000' }], [], 1755172800, 1755176400);
+  it('keeps the epoch timestamp as a number, the same shape the labels API sends', () => {
+    const result = mapEventLabels([{ id: 'a1', title: 'urgente', color: '#ff0000' }], [], '1786701600', '1786705200');
 
-    expect(typeof result[0].created_at).toBe('string');
-    expect(result[0].created_at).toBe('1755172800');
+    expect(result[0].created_at).toBe(1786701600);
+    expect(result[0].updated_at).toBe(1786705200);
   });
 
   it('returns an empty list for an empty labels_data, so a removal reflects', () => {
