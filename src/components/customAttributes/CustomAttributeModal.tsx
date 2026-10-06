@@ -73,12 +73,13 @@ export default function CustomAttributeModal({
   const [regexEnabled, setRegexEnabled] = useState(false);
   const [listValue, setListValue] = useState('');
 
-  // Auto-generate attribute key from display name
+  // Auto-generate attribute key from display name. Only on create: the key is what
+  // stored values are filed under, so renaming an existing attribute must keep it.
   const handleDisplayNameChange = (value: string) => {
     setFormData(prev => ({
       ...prev,
       attribute_display_name: value,
-      attribute_key: customAttributesService.generateAttributeKey(value),
+      attribute_key: isNew ? customAttributesService.generateAttributeKey(value) : prev.attribute_key,
     }));
 
     // The key is regenerated from the name, so a server error on it is stale too.

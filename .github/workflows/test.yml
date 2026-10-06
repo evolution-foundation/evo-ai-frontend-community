@@ -159,6 +159,8 @@ jobs:
       #   - settings save refusals (labels, canned responses, custom attributes): a
       #     422 the screen can explain lands on its field with the modal open; one it
       #     cannot still raises the generic toast, so a refusal is never silent.
+      #     Renaming an existing attribute keeps its key: the stored values are filed
+      #     under it.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -221,6 +223,7 @@ jobs:
             src/components/contacts/ContactsTable.spec.tsx \
             src/components/rbac-render-gates.spec.tsx \
             src/components/customAttributes/CustomAttributesForm.spec.tsx \
+            src/components/customAttributes/CustomAttributeModal.spec.tsx \
             src/components/layout/config/menuItems.spec.ts \
             src/components/macros/MacroActionRow.spec.tsx \
             src/pages/Setup/Setup.spec.tsx \
