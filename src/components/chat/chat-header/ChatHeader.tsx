@@ -29,8 +29,9 @@ import { Conversation } from '@/types/chat/api';
 import type { Pipeline, PipelineStage } from '@/types/analytics';
 import ContactAvatar from '@/components/chat/contact/ContactAvatar';
 import { getStatusLabel } from '@/utils/chat/conversationStatus';
+import { cn } from '@/lib/utils';
 import ConversationStatusButton from './ConversationStatusButton';
-import { STATUS_META, STATUS_META_LIGHT } from './statusMeta';
+import { STATUS_META, STATUS_PILL_CLASSES } from './statusMeta';
 import { isPhoneBearingChannel } from '@/utils/channelUtils';
 import { formatContactPhone } from '@/utils/contact/formatContactPhone';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -473,7 +474,7 @@ const ChatHeader = ({
                   buttons on mobile instead of truncating (EVO-2234). */}
               {inboxName && <span className="min-w-0 truncate">{inboxName}</span>}
               {(() => {
-                const meta = STATUS_META_LIGHT[conversation.status] || STATUS_META_LIGHT.snoozed;
+                const pillClasses = STATUS_PILL_CLASSES[conversation.status] || STATUS_PILL_CLASSES.snoozed;
                 // Rótulo LONGO do protótipo ("Atendimento em Aberto" etc.), distinto do
                 // rótulo curto de getStatusLabel ("Aberta") usado em badges compactos —
                 // chave própria (chatHeader.statusPill.*) para não regressar os outros
@@ -491,11 +492,8 @@ const ChatHeader = ({
                       • {getStatusLabel(conversation.status, t)}
                     </span>
                     <span
-                      className="hidden md:inline"
+                      className={cn('hidden md:inline border', pillClasses)}
                       style={{
-                        background: meta.bg,
-                        border: `1px solid ${meta.border}`,
-                        color: meta.text,
                         borderRadius: 9,
                         padding: '7px 14px',
                         fontSize: 13,

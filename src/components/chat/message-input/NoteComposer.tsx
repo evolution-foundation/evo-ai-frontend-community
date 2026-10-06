@@ -28,23 +28,26 @@ const NoteComposer: React.FC<NoteComposerProps> = ({ onSave, onExit, isSaving = 
 
   return (
     <div
+      className="border-t-[3px] border-t-[#f97316] bg-[#fff7ed] dark:border-t-orange-500 dark:bg-orange-950/40"
       style={{
         flex: 1,
         width: '100%',
         padding: '16px 20px 18px',
-        borderTop: '3px solid #f97316',
-        background: '#fff7ed',
         boxSizing: 'border-box',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
-        <span style={{ fontSize: 13.5, color: '#9a3412', lineHeight: 1.4 }}>
+        <span className="text-[#9a3412] dark:text-orange-200" style={{ fontSize: 13.5, lineHeight: 1.4 }}>
           {t(
             'messageInput.noteComposer.helper',
             'Salve notas importantes na conversa para que outros usuários possam ver no futuro.',
           )}
         </span>
-        <div onClick={onExit} style={{ cursor: 'pointer', color: '#c2410c', flex: '0 0 auto', display: 'flex', marginTop: 1 }}>
+        <div
+          onClick={onExit}
+          className="text-[#c2410c] dark:text-orange-300"
+          style={{ cursor: 'pointer', flex: '0 0 auto', display: 'flex', marginTop: 1 }}
+        >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
             <line x1="6" y1="6" x2="18" y2="18" />
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -58,17 +61,15 @@ const NoteComposer: React.FC<NoteComposerProps> = ({ onSave, onExit, isSaving = 
         placeholder={t('messageInput.noteComposer.placeholder', 'Adicionar nota ao atendimento...')}
         disabled={isSaving}
         autoFocus
+        className="border border-[#fdba74] bg-background text-foreground dark:border-orange-800"
         style={{
           marginTop: 14,
           width: '100%',
           minHeight: 72,
           resize: 'none',
-          border: '1px solid #fdba74',
           borderRadius: 12,
-          background: '#FFFFFF',
           padding: '12px 14px',
           fontSize: 14,
-          color: '#2b3240',
           fontFamily: 'inherit',
           outline: 'none',
           boxSizing: 'border-box',
@@ -78,9 +79,9 @@ const NoteComposer: React.FC<NoteComposerProps> = ({ onSave, onExit, isSaving = 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
         <div
           onClick={onExit}
+          className="text-[#9a3412] dark:text-orange-200"
           style={{
             cursor: 'pointer',
-            color: '#9a3412',
             fontSize: 14,
             fontWeight: 500,
             padding: '8px 16px',
@@ -91,12 +92,10 @@ const NoteComposer: React.FC<NoteComposerProps> = ({ onSave, onExit, isSaving = 
         </div>
         <div
           onClick={() => !isSaving && handleSave()}
+          className="border border-[#f97316] bg-[#f97316] text-white dark:border-orange-600 dark:bg-orange-600"
           style={{
             cursor: content.trim() && !isSaving ? 'pointer' : 'not-allowed',
             opacity: content.trim() && !isSaving ? 1 : 0.6,
-            background: '#f97316',
-            border: '1px solid #f97316',
-            color: '#FFFFFF',
             fontSize: 14,
             fontWeight: 600,
             padding: '8px 22px',
