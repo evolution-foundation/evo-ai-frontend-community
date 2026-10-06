@@ -6,16 +6,6 @@
     "newTool": "Nueva Herramienta Personalizada",
     "searchPlaceholder": "Buscar por nombre, método o endpoint..."
   },
-  "card": {
-    "noDescription": "Sin descripción",
-    "examples": "{{count}} ejemplo(s)",
-    "createdAt": "Creado el",
-    "actions": {
-      "test": "Probar",
-      "edit": "Editar",
-      "delete": "Eliminar"
-    }
-  },
   "details": {
     "title": "Detalles de la Herramienta",
     "sections": {
@@ -329,7 +319,8 @@
       "endpoint": "Endpoint",
       "tags": "Etiquetas",
       "createdAt": "Creado el",
-      "test": "Prueba"
+      "test": "Prueba",
+      "actions": "Acciones"
     },
     "noName": "Sin nombre",
     "noDescription": "Sin descripción",
@@ -338,13 +329,15 @@
       "test": "Probar",
       "edit": "Editar herramienta",
       "delete": "Eliminar herramienta",
-      "create": "Crear herramienta personalizada"
+      "create": "Crear herramienta personalizada",
+      "deleteSelected": "Eliminar seleccionadas"
     },
     "empty": {
       "title": "Ninguna herramienta personalizada creada",
       "description": "Cree herramientas personalizadas para expandir las capacidades de los agentes.",
       "noResults": "Ninguna herramienta personalizada encontrada"
-    }
+    },
+    "selectAll": "Seleccionar todo"
   },
   "loading": {
     "tools": "Cargando herramientas...",
@@ -370,6 +363,15 @@
     "description": "¿Seguro que deseas eliminar la herramienta \"{{name}}\"? Esta acción no se puede deshacer.",
     "cancel": "Cancelar",
     "confirm": "Eliminar"
+  },
+  "bulkDeleteDialog": {
+    "title": "Eliminar herramientas personalizadas",
+    "description": "¿Eliminar {{count}} herramienta(s) personalizada(s) seleccionada(s)? Esta acción no se puede deshacer.",
+    "cancel": "Cancelar",
+    "confirm": "Eliminar",
+    "deleting": "Eliminando...",
+    "success": "{{count}} herramienta(s) personalizada(s) eliminada(s)",
+    "partialError": "No se pudieron eliminar {{failed}} de {{total}} herramientas personalizadas"
   },
   "permissions": {
     "viewDenied": "No tienes permiso para ver herramientas personalizadas",

@@ -6,16 +6,6 @@
     "newTool": "Nouvel Outil Personnalisé",
     "searchPlaceholder": "Rechercher par nom, méthode ou endpoint..."
   },
-  "card": {
-    "noDescription": "Sans description",
-    "examples": "{{count}} exemple(s)",
-    "createdAt": "Créé le",
-    "actions": {
-      "test": "Tester",
-      "edit": "Modifier",
-      "delete": "Supprimer"
-    }
-  },
   "details": {
     "title": "Détails de l'Outil",
     "sections": {
@@ -329,7 +319,8 @@
       "endpoint": "Endpoint",
       "tags": "Tags",
       "createdAt": "Créé le",
-      "test": "Test"
+      "test": "Test",
+      "actions": "Actions"
     },
     "noName": "Sans nom",
     "noDescription": "Sans description",
@@ -338,13 +329,15 @@
       "test": "Tester",
       "edit": "Modifier l'outil",
       "delete": "Supprimer l'outil",
-      "create": "Créer un outil personnalisé"
+      "create": "Créer un outil personnalisé",
+      "deleteSelected": "Supprimer la sélection"
     },
     "empty": {
       "title": "Aucun outil personnalisé créé",
       "description": "Créez des outils personnalisés pour étendre les capacités des agents.",
       "noResults": "Aucun outil personnalisé trouvé"
-    }
+    },
+    "selectAll": "Tout sélectionner"
   },
   "loading": {
     "tools": "Chargement des outils...",
@@ -370,6 +363,15 @@
     "description": "Voulez-vous vraiment supprimer l'outil \"{{name}}\" ? Cette action est irréversible.",
     "cancel": "Annuler",
     "confirm": "Supprimer"
+  },
+  "bulkDeleteDialog": {
+    "title": "Supprimer les outils personnalisés",
+    "description": "Supprimer {{count}} outil(s) personnalisé(s) sélectionné(s) ? Cette action est irréversible.",
+    "cancel": "Annuler",
+    "confirm": "Supprimer",
+    "deleting": "Suppression...",
+    "success": "{{count}} outil(s) personnalisé(s) supprimé(s)",
+    "partialError": "{{failed}} outils personnalisés sur {{total}} n’ont pas pu être supprimés"
   },
   "permissions": {
     "viewDenied": "Vous n'avez pas la permission de voir les outils personnalisés",

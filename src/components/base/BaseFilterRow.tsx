@@ -133,16 +133,29 @@ export default function BaseFilterRow<T extends BaseFilter>({
             className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/50 truncate min-w-0"
           />
         );
-      default:
+      default: {
+        const suggestions = currentFilterType.suggestions ?? [];
+        const suggestionsId = `filter-suggestions-${index}`;
         return (
-          <Input
-            type="text"
-            value={filter.values as string}
-            onChange={e => onUpdate(index, 'values' as keyof T, e.target.value)}
-            placeholder={tCommon('base.filter.enterValue')}
-            className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/50 truncate min-w-0"
-          />
+          <>
+            <Input
+              type="text"
+              value={filter.values as string}
+              onChange={e => onUpdate(index, 'values' as keyof T, e.target.value)}
+              placeholder={tCommon('base.filter.enterValue')}
+              list={suggestions.length > 0 ? suggestionsId : undefined}
+              className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/50 truncate min-w-0"
+            />
+            {suggestions.length > 0 && (
+              <datalist id={suggestionsId}>
+                {suggestions.map(suggestion => (
+                  <option key={suggestion} value={suggestion} />
+                ))}
+              </datalist>
+            )}
+          </>
         );
+      }
     }
   };
 

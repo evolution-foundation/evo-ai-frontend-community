@@ -13,6 +13,8 @@ export interface FilterType {
   attribute_type: 'standard' | 'custom';
   attributeModel?: string;
   options?: Array<{ label: string; value: string | number }>;
+  /** Free-text values offered as autocomplete on a `plain_text` input; never translated. */
+  suggestions?: string[];
 }
 
 // Interface base para filtros (genérica)
@@ -371,9 +373,11 @@ export const CUSTOM_TOOL_FILTER_TYPES: FilterType[] = [
   {
     attributeKey: 'tags',
     attributeI18nKey: 'Tags',
+    // Free text, with the tags of the loaded tools injected as suggestions at runtime:
+    // there is no endpoint listing a tenant's tags, so a closed list would miss some.
     inputType: 'plain_text',
     dataType: 'text',
-    filterOperators: OPERATOR_TYPES_3,
+    filterOperators: OPERATOR_TYPES_5,
     attribute_type: 'standard',
   },
   {
