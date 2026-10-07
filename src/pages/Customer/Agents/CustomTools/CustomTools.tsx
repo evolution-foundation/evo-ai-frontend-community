@@ -160,14 +160,9 @@ export default function CustomTools() {
     load: loadTools,
   });
 
-  // Keeps the search and page size on screen; a bare `loadTools()` drops the search
-  // while the box still shows it.
-  const reloadList = () =>
-    loadTools({
-      skip: 0,
-      limit: state.meta.pagination.page_size,
-      search: state.searchQuery,
-    });
+  // Keeps the search on screen, which a bare `loadTools()` drops. No `limit`, like the search
+  // and filter loads: `page_size` reads 20, but the list was loaded with the service's 100.
+  const reloadList = () => loadTools({ skip: 0, search: state.searchQuery });
 
   // Handlers
   const handleSearchChange = (query: string) => {

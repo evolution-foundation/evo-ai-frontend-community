@@ -96,8 +96,11 @@ describe('custom tool filter types', () => {
     ]);
   });
 
-  it('keeps a tag exactly as stored, since the backend does not trim it', () => {
-    expect(mergeTagOptions([], [{ ...tool, tags: [' padded '] }])).toEqual([' padded ']);
+  it('trims tags, since the backend trims the value it receives', () => {
+    expect(mergeTagOptions(['api'], [{ ...tool, tags: [' padded ', ' api'] }])).toEqual([
+      'api',
+      'padded',
+    ]);
   });
 
   it('suggests the known tags on a free-text Tags filter with every backend operator', () => {

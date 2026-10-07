@@ -274,6 +274,18 @@ describe('CustomTools page', () => {
     expect(listCustomTools.mock.calls[2][0]).toMatchObject({ search: 'crm', pageSize: 20 });
   });
 
+  it('reloads as many rows after a delete as the first load asked for', async () => {
+    // The first load sends no limit, so the service asks for 100; a reload sending the
+    // 20 of `page_size` would cut the list after every delete.
+    render(<CustomTools />);
+
+    await selectAllAndOpenBulkDialog();
+    await userEvent.click(await screen.findByText('bulkDeleteDialog.confirm'));
+
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(2));
+    expect(listCustomTools.mock.calls[1][0].limit).toBe(listCustomTools.mock.calls[0][0].limit);
+  });
+
   it('denies the action without the delete permission', async () => {
     can.mockImplementation((_resource: string, action: string) => action !== 'delete');
     render(<CustomTools />);
