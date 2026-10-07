@@ -24,8 +24,8 @@ export function mapEventLabels(
       description: '',
       color: String(label.color ?? ''),
       show_on_sidebar: false,
-      created_at: String(createdAt),
-      updated_at: String(updatedAt),
+      created_at: Number(createdAt),
+      updated_at: Number(updatedAt),
     }));
   }
 
@@ -39,8 +39,8 @@ export function mapEventLabels(
         description: '',
         color: '',
         show_on_sidebar: false,
-        created_at: String(createdAt),
-        updated_at: String(updatedAt),
+        created_at: Number(createdAt),
+        updated_at: Number(updatedAt),
       };
     }
     return {
@@ -49,8 +49,8 @@ export function mapEventLabels(
       description: String(label.description || ''),
       color: String(label.color || ''),
       show_on_sidebar: Boolean(label.show_on_sidebar),
-      created_at: String(label.created_at || createdAt),
-      updated_at: String(label.updated_at || updatedAt),
+      created_at: Number(label.created_at || createdAt),
+      updated_at: Number(label.updated_at || updatedAt),
     };
   });
 }
