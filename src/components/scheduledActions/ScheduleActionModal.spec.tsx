@@ -1,8 +1,10 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { Inbox } from '@/types/channels/inbox';
 import InboxesService from '@/services/channels/inboxesService';
+import { scheduledActionsService } from '@/services/scheduledActions/scheduledActionsService';
+import type { ScheduledAction } from '@/types/automation';
 import { ScheduleActionModal } from './ScheduleActionModal';
 
 vi.mock('lucide-react', () => ({
@@ -108,6 +110,7 @@ vi.mock('@evoapi/design-system', () => {
 });
 
 const mockedInboxesService = vi.mocked(InboxesService);
+const mockedScheduledActionsService = vi.mocked(scheduledActionsService);
 
 const buildInbox = (overrides: Partial<Inbox>): Inbox => ({
   id: overrides.id || 'inbox-id',
@@ -156,5 +159,79 @@ describe('ScheduleActionModal', () => {
     expect(screen.queryByRole('option', { name: 'WhatsApp Legacy (scheduledActions.channelWhatsapp)' })).toBeNull();
     expect(screen.queryByRole('option', { name: 'SMS (scheduledActions.channelSms)' })).toBeNull();
     expect(screen.queryByRole('option', { name: /API Team/ })).toBeNull();
+  });
+
+  describe('create_task payload', () => {
+    const futureDateTime = () => {
+      const date = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      const pad = (value: number) => String(value).padStart(2, '0');
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    };
+
+    const submit = (container: HTMLElement) => {
+      fireEvent.submit(container.querySelector('form') as HTMLFormElement);
+    };
+
+    it('sends the card the modal was opened from', async () => {
+      mockedInboxesService.list.mockResolvedValue({ success: true, data: [], meta: {} as never, message: '' });
+
+      const { container } = render(
+        <ScheduleActionModal open onClose={vi.fn()} contactId="contact-1" pipelineItemId="item-1" />
+      );
+
+      const actionTypeSelect = screen
+        .getAllByLabelText('mock-select')
+        .find(select => select.querySelector('option[value="create_task"]')) as HTMLSelectElement;
+      fireEvent.change(actionTypeSelect, { target: { value: 'create_task' } });
+      fireEvent.change(container.querySelector('#scheduled_for') as HTMLInputElement, {
+        target: { value: futureDateTime() },
+      });
+      fireEvent.change(container.querySelector('#task_title') as HTMLInputElement, {
+        target: { value: 'Call back' },
+      });
+      submit(container);
+
+      await waitFor(() => {
+        expect(mockedScheduledActionsService.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            contact_id: 'contact-1',
+            payload: expect.objectContaining({ task_title: 'Call back', pipeline_item_id: 'item-1' }),
+          })
+        );
+      });
+    });
+
+    it('keeps the card of an action being edited', async () => {
+      mockedInboxesService.list.mockResolvedValue({ success: true, data: [], meta: {} as never, message: '' });
+      const action = {
+        id: 'action-1',
+        contact_id: 'contact-1',
+        action_type: 'create_task',
+        status: 'scheduled',
+        scheduled_for: `${futureDateTime()}:00.000Z`,
+        payload: { task_title: 'Call back', pipeline_item_id: 'item-9' },
+        created_by: 'user-1',
+        retry_count: 0,
+        max_retries: 3,
+        created_at: '',
+        updated_at: '',
+      } as ScheduledAction;
+
+      const { container } = render(<ScheduleActionModal open onClose={vi.fn()} action={action} />);
+
+      await waitFor(() => {
+        expect((container.querySelector('#task_title') as HTMLInputElement).value).toBe('Call back');
+      });
+      submit(container);
+
+      await waitFor(() => {
+        expect(mockedScheduledActionsService.update).toHaveBeenCalledWith(
+          'action-1',
+          expect.objectContaining({
+            payload: expect.objectContaining({ pipeline_item_id: 'item-9' }),
+          })
+        );
+      });
+    });
   });
 });

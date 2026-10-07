@@ -156,6 +156,8 @@ jobs:
       #     parse renders a raw i18n key, or an empty list asserting somebody holds it.
       #   - browser language detection: a regional Portuguese tag (pt-PT, pt-AO) resolves
       #     to pt-BR instead of falling through to English.
+      #   - scheduled task card: a task scheduled from a pipeline card names that card,
+      #     and editing the action keeps it; without it the task goes to another card.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -253,7 +255,8 @@ jobs:
             src/components/channels/settings/helpers/widgetHelpers.spec.ts \
             src/services/widget/widgetCable.spec.ts \
             src/pages/Public/Survey/SurveyResponse.spec.tsx \
-            src/hooks/usePipelineBoardColumns.spec.ts
+            src/hooks/usePipelineBoardColumns.spec.ts \
+            src/components/scheduledActions/ScheduleActionModal.spec.tsx
 
   # Lint gate scoped to the files the PR touched.
   eslint:

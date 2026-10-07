@@ -34,6 +34,8 @@ interface ScheduleActionModalProps {
   open: boolean;
   onClose: () => void;
   contactId?: string;
+  /** Card the action came from; a scheduled task goes to this card. */
+  pipelineItemId?: string;
   action?: ScheduledAction | null;
 }
 
@@ -41,6 +43,7 @@ export function ScheduleActionModal({
   open,
   onClose,
   contactId: initialContactId,
+  pipelineItemId,
   action,
 }: ScheduleActionModalProps) {
   const { t } = useLanguage('contacts');
@@ -314,6 +317,7 @@ export function ScheduleActionModal({
           payload.payload = {
             task_title: formData.task_title,
             task_description: formData.task_description || undefined,
+            pipeline_item_id: pipelineItemId ?? action?.payload.pipeline_item_id,
           };
           break;
       }
