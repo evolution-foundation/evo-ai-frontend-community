@@ -317,7 +317,7 @@
         "send_message": "Invia messaggio",
         "send_email": "Invia e-mail",
         "execute_webhook": "Esegui webhook",
-        "trigger_journey": "Attiva jornada",
+        "trigger_journey": "Attiva percorso",
         "create_task": "Crea attività",
         "update_deal_stage": "Aggiorna fase",
         "add_deal_note": "Aggiungi nota",
