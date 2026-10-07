@@ -14,6 +14,7 @@ import { automationService } from '@/services/automation/automationService';
 import { NodeConfigModal } from '@/components/journey/shared/NodeConfigModal';
 import { FlowFeedbackBanner } from '@/components/journey/_ui';
 import { useLanguage } from '@/hooks/useLanguage';
+import { toDateTimeLocalValue } from '@/utils/time/dateTimeLocal';
 
 interface DeferConversationPanelProps {
   nodeId: string;
@@ -35,16 +36,16 @@ export function DeferConversationPanel({
   const [snoozeDuration, setSnoozeDuration] = useState<number>(data.snooze_duration || 1);
   const [snoozeUntil, setSnoozeUntil] = useState<string>(() => {
     if (data.snooze_until) {
-      return new Date(data.snooze_until).toISOString().slice(0, 16);
+      return toDateTimeLocalValue(data.snooze_until);
     }
     const defaultDate = new Date();
     defaultDate.setHours(defaultDate.getHours() + 1);
-    return defaultDate.toISOString().slice(0, 16);
+    return toDateTimeLocalValue(defaultDate);
   });
   const [originalSnapshot] = useState(() => ({
     snoozeType: data.snooze_type || 'duration',
     snoozeDuration: data.snooze_duration || 1,
-    snoozeUntil: data.snooze_until ? new Date(data.snooze_until).toISOString().slice(0, 16) : '',
+    snoozeUntil: toDateTimeLocalValue(data.snooze_until),
   }));
   const [formDataOptions, setFormDataOptions] = useState<{
     agents: any[];
