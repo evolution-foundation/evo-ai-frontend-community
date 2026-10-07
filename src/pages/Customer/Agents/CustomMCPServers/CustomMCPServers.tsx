@@ -181,7 +181,7 @@ export default function CustomMCPServers() {
 
   // Handlers
   // Dropping the selection is the honest move: keeping rows the user can no longer see
-  // counted in "N selecionados" hides what a bulk action would hit.
+  // in the selected count hides what a bulk action would hit.
   const handleSearchChange = (query: string) => {
     setState(prev => ({
       ...prev,
@@ -193,8 +193,9 @@ export default function CustomMCPServers() {
     if (searchDebounceRef.current) {
       clearTimeout(searchDebounceRef.current);
     }
+    const { page_size } = state.meta.pagination;
     searchDebounceRef.current = setTimeout(() => {
-      loadServers({ skip: 0, search: query });
+      loadServers({ skip: 0, limit: page_size, search: query });
     }, 500);
   };
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import CustomMCPServers from './CustomMCPServers';
@@ -54,8 +54,13 @@ vi.mock('sonner', () => ({
   },
 }));
 
+let canDelete = true;
 vi.mock('@/contexts/PermissionsContext', () => ({
-  usePermissions: () => ({ can: () => true, isReady: true, loading: false }),
+  usePermissions: () => ({
+    can: (_resource: string, action: string) => action !== 'delete' || canDelete,
+    isReady: true,
+    loading: false,
+  }),
 }));
 
 vi.mock('@/hooks/useLanguage', () => ({
@@ -104,6 +109,7 @@ describe('CustomMCPServers', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     listTotal = undefined;
+    canDelete = true;
     listCustomMcpServers.mockResolvedValue([serverA, serverB]);
     deleteCustomMcpServer.mockResolvedValue(undefined);
   });
@@ -282,6 +288,101 @@ describe('CustomMCPServers', () => {
     expect(await screen.findByText('bulkDeleteDialog.description#count=1')).toBeInTheDocument();
   });
 
+  it('steps back a page when the row menu deletes the last row of the page', async () => {
+    listTotal = 21;
+    renderPage();
+
+    await screen.findByText('Github MCP');
+    listCustomMcpServers.mockResolvedValue([serverA]);
+    await userEvent.click(screen.getByRole('button', { name: '2' }));
+    await waitFor(() => expect(screen.queryByText('Drive MCP')).toBeNull());
+
+    await userEvent.click(
+      (await screen.findByText('Github MCP'))
+        .closest('tr')!
+        .querySelector('[aria-haspopup="menu"]') as HTMLElement,
+    );
+    await userEvent.click(await screen.findByText('table.actions.delete'));
+    await userEvent.click(await screen.findByText('deleteDialog.confirm'));
+
+    await waitFor(() => expect(deleteCustomMcpServer).toHaveBeenCalledWith('mcp-1'));
+    await waitFor(() =>
+      expect(listCustomMcpServers.mock.lastCall![0]).toEqual(
+        expect.objectContaining({ skip: 0, limit: 20 }),
+      ),
+    );
+  });
+
+  it('steps back a page when a bulk delete empties the page', async () => {
+    listTotal = 21;
+    renderPage();
+
+    await screen.findByText('Github MCP');
+    listCustomMcpServers.mockResolvedValue([serverB]);
+    await userEvent.click(screen.getByRole('button', { name: '2' }));
+    await waitFor(() => expect(screen.queryByText('Github MCP')).toBeNull());
+
+    await screen.findByText('Drive MCP');
+    const [selectAll] = screen.getAllByRole('checkbox');
+    await userEvent.click(selectAll);
+    await userEvent.click(screen.getByText('header.bulkDelete'));
+    await userEvent.click(await screen.findByText('bulkDeleteDialog.confirm'));
+
+    await waitFor(() => expect(success).toHaveBeenCalledWith('bulkDeleteDialog.success#count=1'));
+    await waitFor(() =>
+      expect(listCustomMcpServers.mock.lastCall![0]).toEqual(
+        expect.objectContaining({ skip: 0, limit: 20 }),
+      ),
+    );
+  });
+
+  it('hides the bulk Delete from whoever lacks the delete permission', async () => {
+    canDelete = false;
+    renderPage();
+
+    await screen.findByText('Github MCP');
+    await userEvent.click(within(rowOf('Github MCP')).getByRole('checkbox'));
+
+    expect(screen.getByText('base.header.selected#count=1')).toBeInTheDocument();
+    expect(screen.queryByText('header.bulkDelete')).toBeNull();
+  });
+
+  it('ignores a list response that arrives after a newer one', async () => {
+    renderPage();
+
+    await screen.findByText('Github MCP');
+    const stale = deferred<CustomMcpServer[]>();
+    listCustomMcpServers.mockReturnValueOnce(stale.promise);
+    await userEvent.click(screen.getByText('base.header.filters'));
+    await userEvent.click(within(filterPanel()).getByRole('checkbox', { name: 'docs' }));
+    await userEvent.click(within(filterPanel()).getByRole('checkbox', { name: 'docs' }));
+    await waitFor(() => expect(listCustomMcpServers).toHaveBeenCalledTimes(3));
+    await screen.findByText('Github MCP');
+
+    await act(async () => {
+      stale.resolve([serverB]);
+    });
+    expect(screen.getByText('Github MCP')).toBeInTheDocument();
+  });
+
+  it('keeps the chosen page size when a search reloads the list', async () => {
+    listTotal = 45;
+    renderPage();
+
+    await screen.findByText('Github MCP');
+    await userEvent.click(screen.getByRole('combobox'));
+    await userEvent.click(await screen.findByRole('option', { name: '50' }));
+    await waitFor(() =>
+      expect(listCustomMcpServers.mock.lastCall![0]).toEqual(expect.objectContaining({ limit: 50 })),
+    );
+
+    await userEvent.type(screen.getByPlaceholderText('header.searchPlaceholder'), 'g');
+    await waitFor(() => expect(listCustomMcpServers).toHaveBeenCalledTimes(3), { timeout: 2000 });
+    expect(listCustomMcpServers.mock.lastCall![0]).toEqual(
+      expect.objectContaining({ skip: 0, limit: 50, search: 'g' }),
+    );
+  });
+
   it('says nothing matched, instead of "create your first server", when search narrows to zero', async () => {
     renderPage();
 
@@ -316,8 +417,7 @@ describe('CustomMCPServers', () => {
       });
     });
 
-    // The debounced search used to fire a loadServers from the render where the user typed,
-    // carrying the facets of that moment: its response then overwrote the filtered rows.
+    // The debounce callback must read the facets when it fires, not when the user typed.
     it('keeps a facet ticked while the search debounce is pending', async () => {
       renderPage();
 

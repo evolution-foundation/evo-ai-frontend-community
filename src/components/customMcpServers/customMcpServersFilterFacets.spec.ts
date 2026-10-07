@@ -35,8 +35,6 @@ describe('buildCustomMcpServerFilterParams', () => {
     expect(buildCustomMcpServerFilterParams({ tags: [], timeout: [] })).toEqual({});
   });
 
-  // The backend glues clauses flat and SQL binds AND before OR, so (A|B) AND X must
-  // travel as (A AND X) OR (B AND X).
   it('distributes tags x timeout into AND pairs joined by OR', () => {
     const params = buildCustomMcpServerFilterParams({ tags: ['a', 'b'], timeout: ['30'] });
 
@@ -62,7 +60,14 @@ describe('buildCustomMcpServerFilterParams', () => {
   it('ORs values of a single facet', () => {
     const params = buildCustomMcpServerFilterParams({ tags: [], timeout: ['30', '60'] });
 
-    expect(params['filters[1][query_operator]']).toBe('or');
-    expect(params['filters[1][values]']).toBe('60');
+    expect(params).toEqual({
+      'filters[0][attribute_key]': 'timeout',
+      'filters[0][filter_operator]': 'equal_to',
+      'filters[0][values]': '30',
+      'filters[1][attribute_key]': 'timeout',
+      'filters[1][filter_operator]': 'equal_to',
+      'filters[1][values]': '60',
+      'filters[1][query_operator]': 'or',
+    });
   });
 });
