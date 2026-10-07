@@ -3,7 +3,9 @@ import { AlertTriangle } from 'lucide-react';
 import { Badge, Card, CardContent } from '@evoapi/design-system';
 import { BaseHeader } from '@/components/base';
 import type { HeaderFilter } from '@/components/base';
+import { format } from 'date-fns';
 import { useLanguage } from '@/hooks/useLanguage';
+import { getDateFnsLocale } from '@/lib/dateFnsLocale';
 import { pipelinesService } from '@/services/pipelines';
 import TeamsService from '@/services/teams/teamsService';
 import InboxesService from '@/services/channels/inboxesService';
@@ -77,15 +79,15 @@ const buildDashboardParams = (filters: DashboardFilterState): CustomerDashboardP
   return params;
 };
 
-const formatDateLabel = (value: string) => {
+const formatDateLabel = (value: string, language: string) => {
   if (!value) return '-';
-  const [year, month, day] = value.split('-');
+  const [year, month, day] = value.split('-').map(Number);
   if (!year || !month || !day) return value;
-  return `${day}/${month}/${year}`;
+  return format(new Date(year, month - 1, day), 'P', { locale: getDateFnsLocale(language) });
 };
 
 const CustomerDashboardPage = () => {
-  const { t } = useLanguage('customerDashboard');
+  const { t, currentLanguage } = useLanguage('customerDashboard');
   const [defaultFilters] = useState<DashboardFilterState>(() => getDefaultFilterState());
   const [data, setData] = useState<CustomerDashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -204,13 +206,13 @@ const CustomerDashboardPage = () => {
     if (hasCustomPeriod) {
       filters.push({
         label: t('dashboard.filters.period') || 'Período',
-        value: `${formatDateLabel(appliedFilters.since)} - ${formatDateLabel(appliedFilters.until)}`,
+        value: `${formatDateLabel(appliedFilters.since, currentLanguage)} - ${formatDateLabel(appliedFilters.until, currentLanguage)}`,
         onRemove: () => setAppliedFilters(prev => ({ ...prev, since: defaultFilters.since, until: defaultFilters.until })),
       });
     }
 
     return filters;
-  }, [appliedFilters, defaultFilters.since, defaultFilters.until, inboxes, pipelines, t, teams, users]);
+  }, [appliedFilters, currentLanguage, defaultFilters.since, defaultFilters.until, inboxes, pipelines, t, teams, users]);
 
   useEffect(() => {
     setDraftFilters(appliedFilters);
@@ -235,8 +237,8 @@ const CustomerDashboardPage = () => {
   }, [inboxes, pipelines, teams, users]);
 
   const currentPeriodLabel = useMemo(() => {
-    return `${formatDateLabel(appliedFilters.since)} - ${formatDateLabel(appliedFilters.until)}`;
-  }, [appliedFilters.since, appliedFilters.until]);
+    return `${formatDateLabel(appliedFilters.since, currentLanguage)} - ${formatDateLabel(appliedFilters.until, currentLanguage)}`;
+  }, [appliedFilters.since, appliedFilters.until, currentLanguage]);
 
   const channelShareData = useMemo(() => {
     if (!data) return [];

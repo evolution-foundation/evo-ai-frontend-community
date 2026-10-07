@@ -37,7 +37,7 @@ interface MarketplacePagination {
 }
 
 const Marketplace = () => {
-  const { t } = useLanguage('marketplace');
+  const { t, currentLanguage } = useLanguage('marketplace');
   const [products, setProducts] = useState<MarketplaceProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -139,7 +139,7 @@ const Marketplace = () => {
 
   const formatPrice = (price: number, currency: string) => {
     if (price === 0) return t('product.free');
-    return new Intl.NumberFormat('pt-BR', {
+    return new Intl.NumberFormat(currentLanguage, {
       style: 'currency',
       currency: currency === 'USD' ? 'USD' : 'BRL',
     }).format(price);
