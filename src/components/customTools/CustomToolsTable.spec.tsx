@@ -103,18 +103,16 @@ describe('custom tool filter types', () => {
     ]);
   });
 
-  it('suggests the known tags on a free-text Tags filter with every backend operator', () => {
+  it('offers the known tags as a closed list, with the operators that fit one', () => {
     const types = buildCustomToolFilterTypes(['api']);
     const tags = types.find(type => type.attributeKey === 'tags');
 
-    expect(tags?.inputType).toBe('plain_text');
-    expect(tags?.suggestions).toEqual(['api']);
-    expect(tags?.options).toBeUndefined();
+    expect(tags?.inputType).toBe('search_select');
+    expect(tags?.options).toEqual([{ label: 'api', value: 'api' }]);
+    expect(tags?.untranslatedOptions).toBe(true);
     expect(tags?.filterOperators.map(operator => operator.key)).toEqual([
       'equal_to',
       'not_equal_to',
-      'contains',
-      'does_not_contain',
       'is_present',
       'is_not_present',
     ]);

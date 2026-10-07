@@ -73,7 +73,8 @@
       "selectDate": "Seleccionar fecha",
       "selectOption": "Seleccionar opción",
       "enterNumber": "Ingrese un número",
-      "enterValue": "Ingrese el valor"
+      "enterValue": "Ingrese el valor",
+      "noOptions": "Ninguna opción disponible"
     },
     "form": {
       "required": "{{field}} es obligatorio",

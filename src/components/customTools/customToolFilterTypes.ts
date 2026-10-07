@@ -19,5 +19,7 @@ export const mergeTagOptions = (known: string[], tools: CustomTool[]): string[] 
 
 export const buildCustomToolFilterTypes = (tagOptions: string[]): FilterType[] =>
   CUSTOM_TOOL_FILTER_TYPES.map(filterType =>
-    filterType.attributeKey === 'tags' ? { ...filterType, suggestions: tagOptions } : filterType,
+    filterType.attributeKey === 'tags'
+      ? { ...filterType, options: tagOptions.map(tag => ({ label: tag, value: tag })) }
+      : filterType,
   );

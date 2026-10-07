@@ -106,9 +106,17 @@ export default function BaseFilterRow<T extends BaseFilter>({
               <SelectValue placeholder={tCommon('base.filter.selectOption')} className="truncate" />
             </SelectTrigger>
             <SelectContent className="bg-sidebar border-sidebar-border">
+              {!currentFilterType.options?.length && (
+                <div className="px-2 py-1.5 text-sm text-sidebar-foreground/60">
+                  {tCommon('base.filter.noOptions')}
+                </div>
+              )}
               {currentFilterType.options?.map(option => {
                 // Check if label is a translation key (contains a dot, indicating namespace.key format)
-                const isTranslationKey = typeof option.label === 'string' && option.label.includes('.');
+                const isTranslationKey =
+                  !currentFilterType.untranslatedOptions &&
+                  typeof option.label === 'string' &&
+                  option.label.includes('.');
                 const displayLabel = isTranslationKey ? t(option.label) : option.label;
                 return (
                   <SelectItem
@@ -133,29 +141,16 @@ export default function BaseFilterRow<T extends BaseFilter>({
             className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/50 truncate min-w-0"
           />
         );
-      default: {
-        const suggestions = currentFilterType.suggestions ?? [];
-        const suggestionsId = `filter-suggestions-${index}`;
+      default:
         return (
-          <>
-            <Input
-              type="text"
-              value={filter.values as string}
-              onChange={e => onUpdate(index, 'values' as keyof T, e.target.value)}
-              placeholder={tCommon('base.filter.enterValue')}
-              list={suggestions.length > 0 ? suggestionsId : undefined}
-              className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/50 truncate min-w-0"
-            />
-            {suggestions.length > 0 && (
-              <datalist id={suggestionsId}>
-                {suggestions.map(suggestion => (
-                  <option key={suggestion} value={suggestion} />
-                ))}
-              </datalist>
-            )}
-          </>
+          <Input
+            type="text"
+            value={filter.values as string}
+            onChange={e => onUpdate(index, 'values' as keyof T, e.target.value)}
+            placeholder={tCommon('base.filter.enterValue')}
+            className="w-full bg-sidebar border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/50 truncate min-w-0"
+          />
         );
-      }
     }
   };
 

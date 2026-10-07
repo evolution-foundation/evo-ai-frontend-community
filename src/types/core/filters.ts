@@ -13,8 +13,8 @@ export interface FilterType {
   attribute_type: 'standard' | 'custom';
   attributeModel?: string;
   options?: Array<{ label: string; value: string | number }>;
-  /** Free-text values offered as autocomplete on a `plain_text` input; never translated. */
-  suggestions?: string[];
+  /** Option labels are user data (e.g. tags), shown as stored: `t()` would eat a `ns:` prefix. */
+  untranslatedOptions?: boolean;
 }
 
 // Interface base para filtros (genérica)
@@ -314,12 +314,15 @@ export const CUSTOM_TOOL_FILTER_TYPES: FilterType[] = [
   {
     attributeKey: 'tags',
     attributeI18nKey: 'Tags',
-    // Free text, with the tags of the loaded tools injected as suggestions at runtime:
-    // there is no endpoint listing a tenant's tags, so a closed list would miss some.
-    inputType: 'plain_text',
+    // Options are the tags of the loaded tools, injected at runtime: there is no endpoint
+    // listing a tenant's tags. Substring operators make no sense over a closed list.
+    inputType: 'search_select',
     dataType: 'text',
-    filterOperators: OPERATOR_TYPES_5,
+    filterOperators: OPERATOR_TYPES_5.filter(
+      operator => operator.key !== 'contains' && operator.key !== 'does_not_contain',
+    ),
     attribute_type: 'standard',
+    untranslatedOptions: true,
   },
   {
     attributeKey: 'created_at',
