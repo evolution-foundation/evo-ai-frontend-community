@@ -217,7 +217,7 @@
       "tools": "Ferramentas",
       "timeout": "Timeout",
       "createdAt": "Criado em",
-      "actions": "Teste"
+      "test": "Teste"
     },
     "custom": "Personalizado",
     "noDescription": "Sem descrição",

@@ -217,7 +217,7 @@
       "tools": "Outils",
       "timeout": "Délai",
       "createdAt": "Créé le",
-      "actions": "Test"
+      "test": "Test"
     },
     "custom": "Personnalisé",
     "noDescription": "Sans description",

@@ -217,7 +217,7 @@
       "tools": "Tools",
       "timeout": "Timeout",
       "createdAt": "Created at",
-      "actions": "Test"
+      "test": "Test"
     },
     "custom": "Custom",
     "noDescription": "No description",
