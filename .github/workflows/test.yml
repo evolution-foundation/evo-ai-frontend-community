@@ -53,6 +53,8 @@ jobs:
       #   - Journey subcomponent labels: every <Label> that names a single
       #     control resolves through getByLabelText, and the ones that cover
       #     a set (webhook headers) expose a named group.
+      #   - journey label trigger: the selected label's creation date reads the API's
+      #     epoch seconds and follows the interface language, instead of January 1970.
       #   - MessageList (CRM-165): a message arriving with the view at the
       #     bottom keeps auto-scrolling (even while an own send is still in
       #     flight), reading history is never hijacked — bot replies included —
@@ -206,6 +208,7 @@ jobs:
             src/components/base/BaseFlowCanvas.spec.tsx \
             src/components/journey/SessionsViewer.spec.tsx \
             src/components/journey/nodes/trigger/components/WebhookConfiguration.spec.tsx \
+            src/components/journey/nodes/trigger/components/LabelConfiguration.spec.tsx \
             src/components/journey/nodes/actions/wait/components/WaitTimeConfig.spec.tsx \
             src/components/journey/nodes/actions/send-webhook/components/WebhookBasicConfig.spec.tsx \
             src/components/journey/nodes/actions/send-webhook/components/WebhookHeadersConfig.spec.tsx \
