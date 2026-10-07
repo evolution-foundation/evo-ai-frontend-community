@@ -69,6 +69,8 @@ jobs:
       #     can() denies and renders when it grants. The paired positive case is
       #     what keeps the negative ones honest — a control that stopped
       #     rendering for everyone would satisfy the denial assertions too.
+      #   - dashboardUtils / formatDateTime: amounts stay in reais while the
+      #     separators and the day/month order follow the interface language.
       #   - permissions service (CRM-164): a fetch with no cache to serve must
       #     reject, not resolve to []. The context spec mocks the service away,
       #     so these are the only examples guarding it.
@@ -183,6 +185,8 @@ jobs:
             src/components/users/UserFormModal.spec.tsx \
             src/utils/apiHelpers.spec.ts \
             src/utils/templateVariables.spec.ts \
+            src/pages/Customer/Dashboard/components/dashboardUtils.spec.ts \
+            src/utils/time/formatDateTime.spec.ts \
             src/components/channels/settings/TemplateFormModal.spec.tsx \
             src/hooks/channels/useChannelSubmission.spec.ts \
             src/hooks/channels/useChannelValidation.spec.ts \
