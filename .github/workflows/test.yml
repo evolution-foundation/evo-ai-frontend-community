@@ -154,6 +154,9 @@ jobs:
       #     discards the whole list, so the dialog falls back to the server's pt-BR
       #     strings instead of naming part of who holds the credential. A permissive
       #     parse renders a raw i18n key, or an empty list asserting somebody holds it.
+      #   - datetime-local fields and the contact events period: the stored instant shows
+      #     in local time and the typed time is saved unshifted. The specs force
+      #     America/Sao_Paulo; on a UTC runner the shift is zero and a revert passes.
       #   - browser language detection: a regional Portuguese tag (pt-PT, pt-AO) resolves
       #     to pt-BR instead of falling through to English.
       # The whole list runs in ~40s and is deterministic.
@@ -216,6 +219,10 @@ jobs:
             src/components/contacts/ContactNotesCard.spec.tsx \
             src/components/contacts/ContactDetailPage.spec.tsx \
             src/components/contacts/ContactsTable.spec.tsx \
+            src/components/contacts/__tests__/ContactEventsFilters.spec.tsx \
+            src/components/scheduledActions/ScheduleActionModal.spec.tsx \
+            src/components/pipelines/tasks/TaskModals.dueDate.spec.tsx \
+            src/utils/time/dateTimeLocal.spec.ts \
             src/components/rbac-render-gates.spec.tsx \
             src/components/customAttributes/CustomAttributesForm.spec.tsx \
             src/components/layout/config/menuItems.spec.ts \
