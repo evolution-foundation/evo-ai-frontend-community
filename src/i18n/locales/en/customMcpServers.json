@@ -10,20 +10,17 @@
     "accountNotFound": "Account not found",
     "accountIdNotAvailable": "Account ID not available",
     "loadError": "Error loading custom MCP servers",
-    "applyFiltersError": "Error applying filters",
     "deleteError": "Error deleting custom MCP server",
     "saveError": "Error saving custom MCP server",
     "updateError": "Error updating custom MCP server",
     "testError": "Error testing custom MCP server"
   },
   "success": {
-    "testSuccess": "Test executed successfully! Tools discovered: {{count}}",
     "deleteSuccess": "Custom MCP server deleted successfully",
     "updateSuccess": "Custom MCP server updated successfully",
     "createSuccess": "Custom MCP server created successfully"
   },
   "test": {
-    "failed": "Test failed: {{error}}",
     "unknownError": "Unknown error"
   },
   "loading": {
@@ -42,10 +39,6 @@
     "cancel": "Cancel",
     "confirm": "Delete"
   },
-  "viewMode": {
-    "cards": "Cards View",
-    "table": "Table View"
-  },
   "header": {
     "title": "Custom MCP Servers",
     "subtitle": "Configure custom MCP servers to expand the capabilities of agents",
@@ -54,7 +47,8 @@
     "filter": "Filter",
     "clearSelection": "Clear Selection",
     "totalCount": "{{count}} server(s)",
-    "selectedCount": "{{count}} selected(s)"
+    "selectedCount": "{{count}} selected(s)",
+    "bulkDelete": "Delete"
   },
   "actions": {
     "edit": "Edit",
@@ -67,14 +61,7 @@
     "createServer": "Create MCP Server"
   },
   "card": {
-    "custom": "Custom",
-    "noDescription": "No description",
-    "noName": "No name",
-    "tools": "tools",
-    "timeout": "Timeout: {{timeout}}s",
-    "retries": "Retries: {{count}}",
-    "createdAt": "Created at {{date}}",
-    "moreTools": "+{{count}}"
+    "custom": "Custom"
   },
   "details": {
     "title": "Basic Information",
@@ -222,13 +209,6 @@
       "viewFallback": "View Custom MCP Server"
     }
   },
-  "filter": {
-    "title": "Filter Custom MCP Servers",
-    "description": "Configure the filters to find the custom MCP servers you're looking for",
-    "apply": "Apply Filters",
-    "clear": "Clear Filters",
-    "add": "Add Filter"
-  },
   "table": {
     "columns": {
       "server": "Server",
@@ -237,7 +217,7 @@
       "tools": "Tools",
       "timeout": "Timeout",
       "createdAt": "Created at",
-      "actions": "Test"
+      "test": "Test"
     },
     "custom": "Custom",
     "noDescription": "No description",
@@ -248,6 +228,39 @@
     "emptyMessage": "No custom MCP server found",
     "emptyTitle": "No custom MCP server created",
     "emptyDescription": "Create custom MCP servers to expand the capabilities of agents.",
-    "emptyAction": "Create custom MCP server"
+    "emptyAction": "Create custom MCP server",
+    "noResults": "No custom MCP server matches your search or the applied filters."
+  },
+  "filters": {
+    "title": "Filters",
+    "clear": "Clear filters",
+    "empty": "No options available",
+    "close": "Close filters",
+    "sections": {
+      "tags": "Tags",
+      "timeout": "Timeout"
+    },
+    "timeoutValue": "{{timeout}}s"
+  },
+  "bulkDeleteDialog": {
+    "title": "Delete custom MCP servers",
+    "description_one": "Are you sure you want to delete {{count}} custom MCP server? This action cannot be undone.",
+    "description_other": "Are you sure you want to delete {{count}} custom MCP servers? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete",
+    "deleting": "Deleting...",
+    "success_one": "{{count}} custom MCP server deleted successfully!",
+    "success_other": "{{count}} custom MCP servers deleted successfully!",
+    "partialError": "{{failed}} of {{total}} custom MCP servers could not be deleted"
+  },
+  "testDialog": {
+    "testing": "Testing connection…",
+    "testingDescription": "Connecting to the MCP server and listing its tools.",
+    "titleSuccess": "Connection successful",
+    "titleError": "Connection failed",
+    "successMessage": "The MCP server responded and is ready to use.",
+    "toolsDiscovered": "Tools discovered: {{count}}",
+    "errorLabel": "Error",
+    "close": "Close"
   }
 }

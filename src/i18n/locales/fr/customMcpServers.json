@@ -10,20 +10,17 @@
     "accountNotFound": "Compte non trouvé",
     "accountIdNotAvailable": "Identifiant de compte non disponible",
     "loadError": "Erreur lors du chargement des serveurs MCP personnalisés",
-    "applyFiltersError": "Erreur lors de l'application des filtres",
     "deleteError": "Erreur lors de la suppression du serveur MCP personnalisé",
     "saveError": "Erreur lors de l'enregistrement du serveur MCP personnalisé",
     "updateError": "Erreur lors de la mise à jour du serveur MCP personnalisé",
     "testError": "Erreur lors du test du serveur MCP personnalisé"
   },
   "success": {
-    "testSuccess": "Test exécuté avec succès ! Outils découverts : {{count}}",
     "deleteSuccess": "Serveur MCP personnalisé supprimé avec succès",
     "updateSuccess": "Serveur MCP personnalisé mis à jour avec succès",
     "createSuccess": "Serveur MCP personnalisé créé avec succès"
   },
   "test": {
-    "failed": "Test échoué : {{error}}",
     "unknownError": "Erreur inconnue"
   },
   "loading": {
@@ -42,10 +39,6 @@
     "cancel": "Annuler",
     "confirm": "Supprimer"
   },
-  "viewMode": {
-    "cards": "Vue en Cartes",
-    "table": "Vue en Tableau"
-  },
   "header": {
     "title": "Serveurs MCP Personnalisés",
     "subtitle": "Configurez des serveurs MCP personnalisés pour étendre les capacités des agents",
@@ -54,7 +47,8 @@
     "filter": "Filtrer",
     "clearSelection": "Effacer la Sélection",
     "totalCount": "{{count}} serveur(s)",
-    "selectedCount": "{{count}} sélectionné(s)"
+    "selectedCount": "{{count}} sélectionné(s)",
+    "bulkDelete": "Supprimer"
   },
   "actions": {
     "edit": "Modifier",
@@ -67,14 +61,7 @@
     "createServer": "Créer un Serveur MCP"
   },
   "card": {
-    "custom": "Personnalisé",
-    "noDescription": "Sans description",
-    "noName": "Sans nom",
-    "tools": "outils",
-    "timeout": "Délai : {{timeout}}s",
-    "retries": "Tentatives : {{count}}",
-    "createdAt": "Créé le {{date}}",
-    "moreTools": "+{{count}}"
+    "custom": "Personnalisé"
   },
   "details": {
     "title": "Informations de Base",
@@ -222,13 +209,6 @@
       "viewFallback": "Visualiser le Serveur MCP Personnalisé"
     }
   },
-  "filter": {
-    "title": "Filtrer les Serveurs MCP Personnalisés",
-    "description": "Configurez les filtres pour trouver les serveurs MCP personnalisés que vous recherchez",
-    "apply": "Appliquer les Filtres",
-    "clear": "Effacer les Filtres",
-    "add": "Ajouter un Filtre"
-  },
   "table": {
     "columns": {
       "server": "Serveur",
@@ -237,7 +217,7 @@
       "tools": "Outils",
       "timeout": "Délai",
       "createdAt": "Créé le",
-      "actions": "Test"
+      "test": "Test"
     },
     "custom": "Personnalisé",
     "noDescription": "Sans description",
@@ -248,6 +228,39 @@
     "emptyMessage": "Aucun serveur MCP personnalisé trouvé",
     "emptyTitle": "Aucun serveur MCP personnalisé créé",
     "emptyDescription": "Créez des serveurs MCP personnalisés pour étendre les capacités des agents.",
-    "emptyAction": "Créer un serveur MCP personnalisé"
+    "emptyAction": "Créer un serveur MCP personnalisé",
+    "noResults": "Aucun serveur MCP personnalisé ne correspond à la recherche ou aux filtres appliqués."
+  },
+  "filters": {
+    "title": "Filtres",
+    "clear": "Effacer les filtres",
+    "empty": "Aucune option disponible",
+    "close": "Fermer les filtres",
+    "sections": {
+      "tags": "Tags",
+      "timeout": "Délai d'attente"
+    },
+    "timeoutValue": "{{timeout}} s"
+  },
+  "bulkDeleteDialog": {
+    "title": "Supprimer des serveurs MCP personnalisés",
+    "description_one": "Voulez-vous vraiment supprimer {{count}} serveur MCP personnalisé ? Cette action est irréversible.",
+    "description_other": "Voulez-vous vraiment supprimer {{count}} serveurs MCP personnalisés ? Cette action est irréversible.",
+    "cancel": "Annuler",
+    "confirm": "Supprimer",
+    "deleting": "Suppression...",
+    "success_one": "{{count}} serveur MCP personnalisé supprimé avec succès !",
+    "success_other": "{{count}} serveurs MCP personnalisés supprimés avec succès !",
+    "partialError": "{{failed}} serveurs MCP personnalisés sur {{total}} n'ont pas pu être supprimés"
+  },
+  "testDialog": {
+    "testing": "Test de la connexion…",
+    "testingDescription": "Connexion au serveur MCP et récupération de ses outils.",
+    "titleSuccess": "Connexion réussie",
+    "titleError": "Échec de la connexion",
+    "successMessage": "Le serveur MCP a répondu et est prêt à être utilisé.",
+    "toolsDiscovered": "Outils découverts : {{count}}",
+    "errorLabel": "Erreur",
+    "close": "Fermer"
   }
 }

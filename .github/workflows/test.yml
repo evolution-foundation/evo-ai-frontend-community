@@ -240,6 +240,9 @@ jobs:
             src/components/ai_agents/shared/BodyParamsEditor.spec.tsx \
             src/components/customTools/CustomToolForm.spec.tsx \
             src/components/customTools/CustomToolWizardModal.spec.tsx \
+            src/pages/Customer/Agents/CustomMCPServers/CustomMCPServers.spec.tsx \
+            src/components/customMcpServers/customMcpServersFilterFacets.spec.ts \
+            src/services/agents/customMcpServerService.spec.ts \
             src/components/journey/theme-tokens.spec.ts \
             src/components/journey/shared/EventPropertiesForm/filterFields.spec.ts \
             src/components/journey/shared/EventPropertiesForm/EventPropertiesForm.spec.tsx \
