@@ -156,6 +156,8 @@ jobs:
       #     parse renders a raw i18n key, or an empty list asserting somebody holds it.
       #   - browser language detection: a regional Portuguese tag (pt-PT, pt-AO) resolves
       #     to pt-BR instead of falling through to English.
+      #   - labels list creation date: the API sends epoch seconds, so the column shows
+      #     the real day in each language instead of January 1970.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -213,6 +215,7 @@ jobs:
             src/components/journey/environment-manager/VariableMapping.spec.tsx \
             src/components/chat/messages/MessageList.spec.tsx \
             src/contexts/chat/eventLabels.spec.ts \
+            src/components/labels/LabelsTable.spec.tsx \
             src/components/contacts/ContactNotesCard.spec.tsx \
             src/components/contacts/ContactDetailPage.spec.tsx \
             src/components/contacts/ContactsTable.spec.tsx \
