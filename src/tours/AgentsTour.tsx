@@ -99,17 +99,9 @@ export function AgentsCustomToolsTour() {
           disableScrolling: true,
         },
         {
-          target: '[data-tour="agents-custom-tools-view-toggle"]',
-          title: 'Modo de Visualização',
-          content: 'Alterne entre visualização em cards e em tabela.',
-          placement: 'auto',
-          disableBeacon: true,
-          disableScrolling: true,
-        },
-        {
           target: '[data-tour="agents-custom-tools-content"]',
           title: 'Lista de Custom Tools',
-          content: 'Cada card exibe nome, descrição e status da tool. Use as ações para editar, testar ou excluir. Ferramentas testadas garantem que o Agente as use corretamente.',
+          content: 'Cada linha exibe nome, método, endpoint e tags da tool. Use o botão Testar e o menu ⋯ para editar ou excluir. Ferramentas testadas garantem que o Agente as use corretamente.',
           placement: 'auto',
           disableBeacon: true,
           disableScrolling: true,

@@ -2,9 +2,9 @@ import { useLanguage } from '@/hooks/useLanguage';
 import BaseFilter from '@/components/base/BaseFilter';
 import {
   BaseFilter as CustomToolFilter,
-  CUSTOM_TOOL_FILTER_TYPES,
   DEFAULT_CUSTOM_TOOL_FILTER,
 } from '@/types/core';
+import { buildCustomToolFilterTypes } from './customToolFilterTypes';
 
 interface CustomToolsFilterProps {
   open: boolean;
@@ -13,6 +13,7 @@ interface CustomToolsFilterProps {
   onFiltersChange: (filters: CustomToolFilter[]) => void;
   onApplyFilters: (filters: CustomToolFilter[]) => void;
   onClearFilters: () => void;
+  tagOptions: string[];
 }
 
 export default function CustomToolsFilter({
@@ -22,6 +23,7 @@ export default function CustomToolsFilter({
   onFiltersChange,
   onApplyFilters,
   onClearFilters,
+  tagOptions,
 }: CustomToolsFilterProps) {
   const { t } = useLanguage('customTools');
 
@@ -33,7 +35,7 @@ export default function CustomToolsFilter({
       onFiltersChange={onFiltersChange}
       onApplyFilters={onApplyFilters}
       onClearFilters={onClearFilters}
-      filterTypes={CUSTOM_TOOL_FILTER_TYPES}
+      filterTypes={buildCustomToolFilterTypes(tagOptions)}
       defaultFilter={DEFAULT_CUSTOM_TOOL_FILTER}
       title={t('filter.title')}
       description={t('filter.description')}

@@ -6,16 +6,6 @@
     "newTool": "Nuovo Strumento Personalizzato",
     "searchPlaceholder": "Cerca per nome, metodo o endpoint..."
   },
-  "card": {
-    "noDescription": "Nessuna descrizione",
-    "examples": "{{count}} esempio(i)",
-    "createdAt": "Creato il",
-    "actions": {
-      "test": "Testa",
-      "edit": "Modifica",
-      "delete": "Elimina"
-    }
-  },
   "details": {
     "title": "Dettagli dello Strumento",
     "sections": {
@@ -329,7 +319,8 @@
       "endpoint": "Endpoint",
       "tags": "Tag",
       "createdAt": "Creato il",
-      "test": "Test"
+      "test": "Test",
+      "actions": "Azioni"
     },
     "noName": "Senza nome",
     "noDescription": "Senza descrizione",
@@ -338,13 +329,15 @@
       "test": "Testa",
       "edit": "Modifica strumento",
       "delete": "Elimina strumento",
-      "create": "Crea strumento personalizzato"
+      "create": "Crea strumento personalizzato",
+      "deleteSelected": "Elimina selezionati"
     },
     "empty": {
       "title": "Nessuno strumento personalizzato creato",
       "description": "Crea strumenti personalizzati per espandere le capacità degli agenti.",
       "noResults": "Nessuno strumento personalizzato trovato"
-    }
+    },
+    "selectAll": "Seleziona tutto"
   },
   "loading": {
     "tools": "Caricamento strumenti...",
@@ -370,6 +363,15 @@
     "description": "Vuoi davvero eliminare lo strumento \"{{name}}\"? Questa azione non può essere annullata.",
     "cancel": "Annulla",
     "confirm": "Elimina"
+  },
+  "bulkDeleteDialog": {
+    "title": "Elimina strumenti personalizzati",
+    "description": "Eliminare {{count}} strumento/i personalizzato/i selezionato/i? Questa azione non può essere annullata.",
+    "cancel": "Annulla",
+    "confirm": "Elimina",
+    "deleting": "Eliminazione...",
+    "success": "{{count}} strumento/i personalizzato/i eliminato/i",
+    "partialError": "Impossibile eliminare {{failed}} strumenti personalizzati su {{total}}"
   },
   "permissions": {
     "viewDenied": "Non hai il permesso di vedere gli strumenti personalizzati",
