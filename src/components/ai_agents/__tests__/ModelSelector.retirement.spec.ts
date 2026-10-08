@@ -15,9 +15,10 @@ import { availableModels } from '@/components/ai_agents/ModelSelector';
  * axis is pinned again on a different route (Responses API); the same rule applies the
  * moment any of those ids gets a published end-of-service date.
  *
- * A second exception: an id whose date falls inside the next deploy window leaves the list
- * early. Saved agents keep the value (see ModelSelector.retiredValue.spec.tsx), so only new
- * agents stop being offered a model about to die — vertex Gemini 2.5 Pro left that way.
+ * A second exception: an id whose date falls before the next release can reach production
+ * leaves the list early. Saved agents keep the value (see ModelSelector.retiredValue.spec.tsx),
+ * so only new agents stop being offered a model about to die — vertex Gemini 2.5 Pro left
+ * that way.
  */
 
 // End-of-service dates, as the provider published them. A row is added when a pin gains a
