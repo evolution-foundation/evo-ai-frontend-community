@@ -1407,41 +1407,14 @@
     },
     "agentBotConfiguration": {
       "title": "Configuration du Bot",
-      "description": "Configurez des bots de service client pour automatiser les réponses",
-      "fields": {
-        "selectBot": "Sélectionner un Bot",
-        "provider": "Fournisseur",
-        "type": "Type"
-      },
-      "placeholders": {
-        "selectBot": "Sélectionnez un bot"
-      },
       "status": {
-        "disconnected": "Déconnecté",
-        "connected": "Connecté",
-        "active": "Actif"
-      },
-      "noBots": {
-        "title": "Aucun Bot Disponible",
-        "description": "Vous n'avez pas encore de bots configurés pour ce canal."
+        "active": "Actif",
+        "inactive": "Inactif"
       },
       "buttons": {
-        "manageBots": "Gérer les Bots",
-        "configure": "Configurer le Bot",
-        "configuring": "Configuration...",
-        "disconnect": "Déconnecter le Bot",
-        "disconnecting": "Déconnexion...",
         "advancedSettings": "Paramètres Avancés"
       },
-      "info": {
-        "title": "Comment ça Fonctionne :",
-        "point1": "Les bots peuvent répondre automatiquement aux messages des clients",
-        "point2": "Configurez des mots-clés et des réponses automatiques",
-        "point3": "Les bots peuvent transférer les conversations à des agents humains",
-        "point4": "Les statistiques de performance des bots sont disponibles"
-      },
       "advanced": {
-        "title": "Configuration Avancée",
         "description": "Configurez les comportements et paramètres avancés du bot",
         "conversationStatus": {
           "title": "Statut de la Conversation",
@@ -1522,16 +1495,16 @@
       },
       "errors": {
         "loadError": "Erreur lors du chargement des données des bots",
-        "configureError": "Erreur lors de la configuration du bot",
-        "disconnectError": "Erreur lors de la déconnexion du bot",
         "loadPostsError": "Erreur lors du chargement des publications Facebook"
       },
-      "success": {
-        "configured": "Bot configuré avec succès !",
-        "disconnected": "Bot déconnecté avec succès !"
-      },
-      "validation": {
-        "selectBot": "Sélectionnez un bot avant de continuer"
+      "readOnly": {
+        "managedIn": "Géré dans Agents IA",
+        "servedBy": "Ce canal est pris en charge par l'agent {{name}}. La liaison et ses paramètres se modifient dans l'onglet Canaux de l'agent.",
+        "inactiveNote": "La liaison avec l'agent {{name}} est inactive : il ne répond pas sur ce canal. Réactivez-la dans l'onglet Canaux de l'agent.",
+        "openAgent": "Ouvrir l'onglet Canaux de l'agent",
+        "openAgents": "Ouvrir Agents IA",
+        "noAgent": "Aucun agent IA ne prend en charge ce canal.",
+        "linkAgent": "Lier un agent"
       }
     },
     "lockToSingleConversation": {

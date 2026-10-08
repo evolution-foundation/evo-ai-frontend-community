@@ -1,9 +1,7 @@
-import { useLayoutEffect, useRef } from 'react';
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ChannelSettings from './ChannelSettings';
-import type { TabSaveHandle } from '@/components/channels/settings/tabSave';
 
 // Router: provide the inbox id and a no-op navigate.
 vi.mock('react-router-dom', () => ({
@@ -47,10 +45,6 @@ vi.mock('@/services/channels/inboxesService', () => ({
   },
 }));
 
-// The AI agent tab registers its save with the footer like the other snapshot
-// tabs; the spy stands in for that tab's save.
-const { agentBotSave } = vi.hoisted(() => ({ agentBotSave: vi.fn() }));
-
 // Stub the channel component barrel so the page renders without pulling every
 // heavy settings form into the test.
 vi.mock('@/components/channels', () => {
@@ -68,19 +62,7 @@ vi.mock('@/components/channels', () => {
     CSATForm: stub('CSATForm'),
     PreChatForm: stub('PreChatForm'),
     WidgetBuilderForm: stub('WidgetBuilderForm'),
-    AgentBotConfigurationForm: ({
-      registerSave,
-    }: {
-      registerSave?: (handle: TabSaveHandle | null) => void;
-    }) => {
-      const registerSaveRef = useRef(registerSave);
-      registerSaveRef.current = registerSave;
-      useLayoutEffect(() => {
-        registerSaveRef.current?.({ save: agentBotSave, canSave: true });
-        return () => registerSaveRef.current?.(null);
-      }, []);
-      return <div data-testid="AgentBotConfigurationForm" />;
-    },
+    AgentBotConfigurationForm: stub('AgentBotConfigurationForm'),
     ConfigurationForm: stub('ConfigurationForm'),
     ModerationDashboard: stub('ModerationDashboard'),
   };
@@ -134,17 +116,14 @@ describe('ChannelSettings redesign', () => {
     await waitFor(() => expect(update).toHaveBeenCalled());
   });
 
-  it('saves the agent bot tab from the sticky footer', async () => {
+  // CRM-41: the binding is edited from the agent's Channels tab.
+  it('offers no save on the read-only agent tab', async () => {
     await renderPage();
     await userEvent.click(screen.getByRole('tab', { name: /settings\.tabs\.botConfiguration/i }));
     await screen.findByTestId('AgentBotConfigurationForm');
 
+    expect(screen.queryByRole('button', { name: /settings\.updateConfig/i })).toBeNull();
     expect(screen.queryByText('settings.info.tabSpecificSave')).toBeNull();
-    const saveButton = screen.getByRole('button', { name: /settings\.updateConfig/i });
-    expect(saveButton).toBeEnabled();
-
-    await userEvent.click(saveButton);
-    await waitFor(() => expect(agentBotSave).toHaveBeenCalled());
   });
 
   it('disables the footer with a hint on imperative tabs', async () => {

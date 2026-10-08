@@ -5,14 +5,16 @@ import type {
   AgentBotResponse,
   ChannelAccessTokenResponse,
   AgentBotInboxConfiguration,
+  AgentBotInboxBinding,
+  AgentBotInboxStatus,
   InboxAgentBotResponse,
 } from '@/types/channels/inbox';
 
 const AgentBotsService = {
   // Get all agent bots
-  async getAll(): Promise<AgentBot[]> {
+  async getAll(params?: { per_page?: number }): Promise<AgentBot[]> {
     try {
-      const { data } = await api.get<AgentBotsResponse>(`/agent_bots`);
+      const { data } = await api.get<AgentBotsResponse>(`/agent_bots`, { params });
 
       let result = data.data || data;
       if (!Array.isArray(result)) {
@@ -245,18 +247,31 @@ const AgentBotsService = {
     }
   },
 
-  // Disconnect bot from inbox
-  async disconnectInboxBot(inboxId: string): Promise<boolean> {
-    try {
-      await api.post(`/inboxes/${inboxId}/set_agent_bot`, {
-        agent_bot: null,
-      });
+  // Channels bound to an agent bot, active and inactive (CRM-41)
+  async listBotInboxes(botId: string): Promise<AgentBotInboxBinding[]> {
+    const { data } = await api.get<{ data: AgentBotInboxBinding[] }>(
+      `/agent_bots/${botId}/inboxes`,
+    );
+    return Array.isArray(data?.data) ? data.data : [];
+  },
 
-      return true;
-    } catch (error) {
-      console.error('AgentBotsService.disconnectInboxBot error:', error);
-      throw error;
-    }
+  // Edits the inbox's binding in place: unlinking is `status: 'inactive'`, which
+  // keeps the configuration for a later reactivation. `botId` makes the backend
+  // answer 409 if the channel has meanwhile moved to another agent.
+  async updateInboxBinding(
+    inboxId: string,
+    botId: string,
+    changes: { status?: AgentBotInboxStatus; configuration?: AgentBotInboxConfiguration },
+  ): Promise<AgentBotInboxBinding> {
+    const { data } = await api.patch<{ data: AgentBotInboxBinding }>(
+      `/inboxes/${inboxId}/agent_bot_inbox`,
+      {
+        agent_bot_id: botId,
+        ...(changes.status ? { status: changes.status } : {}),
+        ...(changes.configuration ? { agent_bot_config: changes.configuration } : {}),
+      },
+    );
+    return data.data;
   },
 };
 

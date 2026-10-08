@@ -1466,41 +1466,14 @@
     },
     "agentBotConfiguration": {
       "title": "Configuração de Agente de IA",
-      "description": "Configure agentes de IA para automatizar respostas",
-      "fields": {
-        "selectBot": "Selecionar Agente de IA",
-        "provider": "Provedor",
-        "type": "Tipo"
-      },
-      "placeholders": {
-        "selectBot": "Selecione um agente de IA"
-      },
       "status": {
-        "disconnected": "Desconectado",
-        "connected": "Conectado",
-        "active": "Ativo"
-      },
-      "noBots": {
-        "title": "Nenhum Agente de IA Disponível",
-        "description": "Você ainda não possui agentes de IA configurados para este canal."
+        "active": "Ativo",
+        "inactive": "Inativo"
       },
       "buttons": {
-        "manageBots": "Gerenciar Agentes de IA",
-        "configure": "Configurar Agente de IA",
-        "configuring": "Configurando...",
-        "disconnect": "Desconectar Agente de IA",
-        "disconnecting": "Desconectando...",
         "advancedSettings": "Configurações Avançadas"
       },
-      "info": {
-        "title": "Como Funciona:",
-        "point1": "Agentes de IA podem responder automaticamente às mensagens dos clientes",
-        "point2": "Configure palavras-chave e respostas automáticas",
-        "point3": "Agentes de IA podem transferir conversas para atendentes humanos",
-        "point4": "Estatísticas de desempenho dos agentes de IA estão disponíveis"
-      },
       "advanced": {
-        "title": "Configuração Avançada",
         "description": "Configure comportamentos e configurações avançadas do agente de IA",
         "conversationStatus": {
           "title": "Status da Conversa",
@@ -1581,16 +1554,16 @@
       },
       "errors": {
         "loadError": "Erro ao carregar dados dos agentes de IA",
-        "configureError": "Erro ao configurar agente de IA",
-        "disconnectError": "Erro ao desconectar agente de IA",
         "loadPostsError": "Erro ao carregar posts do Facebook"
       },
-      "success": {
-        "configured": "Agente de IA configurado com sucesso!",
-        "disconnected": "Agente de IA desconectado com sucesso!"
-      },
-      "validation": {
-        "selectBot": "Selecione um agente de IA antes de continuar"
+      "readOnly": {
+        "managedIn": "Gerenciado em Agentes de IA",
+        "servedBy": "Este canal é atendido pelo agente {{name}}. O vínculo e as configurações são editados na aba Canais do agente.",
+        "inactiveNote": "O vínculo com o agente {{name}} está inativo: ele não responde neste canal. Reative na aba Canais do agente.",
+        "openAgent": "Abrir aba Canais do agente",
+        "openAgents": "Abrir Agentes de IA",
+        "noAgent": "Nenhum agente de IA atende este canal.",
+        "linkAgent": "Vincular um agente"
       }
     },
     "lockToSingleConversation": {

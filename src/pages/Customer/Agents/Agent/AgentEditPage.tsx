@@ -30,7 +30,7 @@ import AgentEditHeader from './sections/AgentEditHeader';
 import AgentDetailTabs from './components/AgentDetailTabs';
 import { AgentDetailTab, getVisibleAgentTabs } from './components/agentTabs';
 import AgentToolsAccordion from './components/AgentToolsAccordion';
-import AgentChannelsShell from './components/AgentChannelsShell';
+import AgentChannelsTab from './components/channels/AgentChannelsTab';
 import AgentTestChat from '@/components/agents/AgentTestChat';
 import { TabsContent } from '@evoapi/design-system';
 import { Team, Tool } from '@/types';
@@ -918,7 +918,14 @@ const AgentEditPage = () => {
             )}
 
             <TabsContent value="channels" className="mt-0">
-              <AgentChannelsShell />
+              <AgentChannelsTab
+                agent={agent}
+                onOpenAgentConfiguration={
+                  visibleTabs.includes('configuration')
+                    ? () => setActiveTab('configuration')
+                    : undefined
+                }
+              />
             </TabsContent>
           </AgentDetailTabs>
         </div>
