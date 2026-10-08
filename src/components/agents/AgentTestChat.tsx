@@ -121,6 +121,7 @@ function AgentTestChatPanel({ agent, onClose }: { agent: Agent; onClose: () => v
         aria-valuenow={width}
         aria-valuemin={PANEL_MIN_WIDTH}
         aria-valuemax={maxWidth}
+        aria-valuetext={`${width}px`}
         tabIndex={0}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}

@@ -48,8 +48,15 @@ const setViewportWidth = (width: number) => {
   Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
 };
 
-const renderPanel = () =>
-  render(<AgentTestChat open onOpenChange={vi.fn()} agent={agent} />);
+// Settle the provider's initial listSessions fetch inside act, so its state update does
+// not land after a synchronous test has finished.
+const settle = () => act(async () => {});
+
+const renderPanel = async () => {
+  const view = render(<AgentTestChat open onOpenChange={vi.fn()} agent={agent} />);
+  await settle();
+  return view;
+};
 
 const getHandle = () => screen.getByRole('separator', { name: 'chat.resizePanel' });
 
@@ -82,25 +89,36 @@ describe('AgentTestChat', () => {
   });
 
   it('opens as an in-page side panel, not a dialog', async () => {
-    renderPanel();
+    await renderPanel();
     await waitFor(() => expect(listSessionsMock).toHaveBeenCalledWith('agent-1'));
 
     expect(screen.getByRole('complementary')).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('starts at 460px and exposes the resize bounds', () => {
-    renderPanel();
+  it('starts at 460px and exposes the resize bounds', async () => {
+    await renderPanel();
     const handle = getHandle();
 
     expect(handle).toHaveAttribute('aria-orientation', 'vertical');
     expect(handle).toHaveAttribute('aria-valuenow', '460');
     expect(handle).toHaveAttribute('aria-valuemin', '360');
     expect(handle).toHaveAttribute('aria-valuemax', '800');
+    expect(handle).toHaveAttribute('aria-valuetext', '460px');
   });
 
-  it('widens when dragged left and stops at half the window', () => {
-    renderPanel();
+  it('keeps the handle and the custom width desktop-only', async () => {
+    await renderPanel();
+
+    // JSDOM applies no media queries, so the mobile contract is pinned on the classes.
+    expect(getHandle()).toHaveClass('hidden', 'md:block');
+    const panel = screen.getByRole('complementary');
+    expect(panel).toHaveClass('fixed', 'inset-0', 'md:w-(--agent-chat-width)');
+    expect(panel.style.width).toBe('');
+  });
+
+  it('widens when dragged left and stops at half the window', async () => {
+    await renderPanel();
     const handle = getHandle();
 
     drag(handle, 1000, 900);
@@ -110,8 +128,8 @@ describe('AgentTestChat', () => {
     expect(handle).toHaveAttribute('aria-valuenow', '800');
   });
 
-  it('narrows when dragged right and stops at the 360px minimum', () => {
-    renderPanel();
+  it('narrows when dragged right and stops at the 360px minimum', async () => {
+    await renderPanel();
     const handle = getHandle();
 
     drag(handle, 1000, 1050);
@@ -121,8 +139,8 @@ describe('AgentTestChat', () => {
     expect(handle).toHaveAttribute('aria-valuenow', '360');
   });
 
-  it('ignores pointer moves after the drag ended', () => {
-    renderPanel();
+  it('ignores pointer moves after the drag ended', async () => {
+    await renderPanel();
     const handle = getHandle();
 
     drag(handle, 1000, 900);
@@ -131,8 +149,8 @@ describe('AgentTestChat', () => {
     expect(handle).toHaveAttribute('aria-valuenow', '560');
   });
 
-  it('resizes with the arrow keys inside the bounds', () => {
-    renderPanel();
+  it('resizes with the arrow keys inside the bounds', async () => {
+    await renderPanel();
     const handle = getHandle();
 
     fireEvent.keyDown(handle, { key: 'ArrowLeft' });
@@ -149,8 +167,8 @@ describe('AgentTestChat', () => {
     expect(handle).toHaveAttribute('aria-valuenow', '800');
   });
 
-  it('jumps to the bounds with Home/End and ignores modified arrows', () => {
-    renderPanel();
+  it('jumps to the bounds with Home/End and ignores modified arrows', async () => {
+    await renderPanel();
     const handle = getHandle();
 
     fireEvent.keyDown(handle, { key: 'End' });
@@ -163,8 +181,8 @@ describe('AgentTestChat', () => {
     expect(handle).toHaveAttribute('aria-valuenow', '360');
   });
 
-  it('feeds the width to the panel through the CSS variable', () => {
-    renderPanel();
+  it('feeds the width to the panel through the CSS variable', async () => {
+    await renderPanel();
     drag(getHandle(), 1000, 900);
 
     expect(screen.getByRole('complementary').style.getPropertyValue('--agent-chat-width')).toBe(
@@ -172,8 +190,8 @@ describe('AgentTestChat', () => {
     );
   });
 
-  it('locks text selection while dragging and restores it afterwards', () => {
-    renderPanel();
+  it('locks text selection while dragging and restores it afterwards', async () => {
+    await renderPanel();
     const handle = getHandle();
 
     fireEvent.pointerDown(handle, { button: 0, pointerId: 1, clientX: 1000 });
@@ -185,8 +203,8 @@ describe('AgentTestChat', () => {
     expect(document.body.style.cursor).toBe('');
   });
 
-  it('ends the drag when the pointer capture is lost', () => {
-    renderPanel();
+  it('ends the drag when the pointer capture is lost', async () => {
+    await renderPanel();
     const handle = getHandle();
 
     fireEvent.pointerDown(handle, { button: 0, pointerId: 1, clientX: 1000 });
@@ -197,8 +215,8 @@ describe('AgentTestChat', () => {
     expect(document.body.style.userSelect).toBe('');
   });
 
-  it('ignores a second pointer while a drag is active', () => {
-    renderPanel();
+  it('ignores a second pointer while a drag is active', async () => {
+    await renderPanel();
     const handle = getHandle();
 
     fireEvent.pointerDown(handle, { button: 0, pointerId: 1, clientX: 1000 });
@@ -209,8 +227,8 @@ describe('AgentTestChat', () => {
     expect(handle).toHaveAttribute('aria-valuenow', '560');
   });
 
-  it('re-applies the maximum when the window shrinks', () => {
-    renderPanel();
+  it('re-applies the maximum when the window shrinks', async () => {
+    await renderPanel();
     const handle = getHandle();
     drag(handle, 1000, 300);
     expect(handle).toHaveAttribute('aria-valuenow', '800');
@@ -224,20 +242,21 @@ describe('AgentTestChat', () => {
     expect(handle).toHaveAttribute('aria-valuemax', '500');
   });
 
-  it('goes back to 460px when reopened', () => {
-    const { rerender } = renderPanel();
+  it('goes back to 460px when reopened', async () => {
+    const { rerender } = await renderPanel();
     drag(getHandle(), 1000, 800);
     expect(getHandle()).toHaveAttribute('aria-valuenow', '660');
 
     rerender(<AgentTestChat open={false} onOpenChange={vi.fn()} agent={agent} />);
     rerender(<AgentTestChat open onOpenChange={vi.fn()} agent={agent} />);
+    await settle();
 
     expect(getHandle()).toHaveAttribute('aria-valuenow', '460');
   });
 
   it('creates a session from the "+" button', async () => {
     const user = userEvent.setup();
-    renderPanel();
+    await renderPanel();
 
     await user.click(screen.getByRole('button', { name: 'chat.newConversation' }));
 
@@ -246,7 +265,7 @@ describe('AgentTestChat', () => {
 
   it('sends the typed message through the chat service', async () => {
     const user = userEvent.setup();
-    renderPanel();
+    await renderPanel();
     await user.click(screen.getByRole('button', { name: 'chat.newConversation' }));
 
     const input = await screen.findByPlaceholderText('chat.typeMessage');
@@ -262,10 +281,39 @@ describe('AgentTestChat', () => {
     );
   });
 
+  it('greys out the send button until there is text, then sends on click', async () => {
+    const user = userEvent.setup();
+    await renderPanel();
+    await user.click(screen.getByRole('button', { name: 'chat.newConversation' }));
+
+    const input = await screen.findByPlaceholderText('chat.typeMessage');
+    const sendButton = input.closest('form')!.querySelector<HTMLButtonElement>(
+      'button[type="submit"]',
+    )!;
+
+    expect(sendButton).toBeDisabled();
+    expect(sendButton).toHaveClass('disabled:bg-muted', 'disabled:opacity-100');
+
+    await user.type(input, 'Pelo botão');
+    expect(sendButton).toBeEnabled();
+    expect(sendButton).not.toHaveClass('disabled:bg-muted');
+
+    await user.click(sendButton);
+
+    await waitFor(() =>
+      expect(sendChatMessageMock).toHaveBeenCalledWith(
+        'agent-1',
+        SESSION.id,
+        'Pelo botão',
+        undefined,
+      ),
+    );
+  });
+
   it('deletes a session from the conversations popover', async () => {
     listSessionsMock.mockResolvedValue({ data: [SESSION] });
     const user = userEvent.setup();
-    renderPanel();
+    await renderPanel();
 
     await user.click(await screen.findByRole('button', { name: 'chat.conversations' }));
     await user.click(await screen.findByRole('button', { name: 'actions.delete' }));
