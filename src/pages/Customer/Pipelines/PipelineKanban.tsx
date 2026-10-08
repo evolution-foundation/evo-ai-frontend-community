@@ -41,6 +41,8 @@ import {
   MessageSquare,
   FileText,
   Link2,
+  SearchX,
+  ShieldOff,
 } from 'lucide-react';
 
 import { pipelinesService } from '@/services/pipelines';
@@ -66,6 +68,7 @@ import ReorderStagesModal from '@/components/pipelines/ReorderStagesModal';
 import PipelineCaptureFormsModal from '@/components/pipelines/PipelineCaptureFormsModal';
 import PipelinePurchaseWebhookModal from '@/components/pipelines/PipelinePurchaseWebhookModal';
 import { ScheduleActionModal } from '@/components/scheduledActions';
+import EmptyState from '@/components/base/EmptyState';
 
 // Status/priority badge styles use the design system's semantic Tailwind classes
 // (same palette Chat/Contacts use), with dark-mode variants — NOT arbitrary hex.
@@ -153,6 +156,7 @@ export default function PipelineKanban() {
 
   const [loading, setLoading] = useState(true);
   const [pipeline, setPipeline] = useState<Pipeline | null>(null);
+  const [loadError, setLoadError] = useState<'forbidden' | 'notFound' | null>(null);
   const [stages, setStages] = useState<PipelineStage[]>([]);
   const [allPipelines, setAllPipelines] = useState<Pipeline[]>([]);
   const [draggedItem, setDraggedItem] = useState<PipelineItem | null>(null);
@@ -197,6 +201,7 @@ export default function PipelineKanban() {
     if (!pipelineId) return;
 
     if (!silent) setLoading(true);
+    setLoadError(null);
     try {
       const pipelineData = await pipelinesService.getPipeline(pipelineId, { include_items: false });
 
@@ -204,7 +209,16 @@ export default function PipelineKanban() {
       setStages(pipelineData.stages || []);
     } catch (error) {
       console.error('Error loading pipeline data:', error);
-      toast.error(t('kanban.messages.loadDataError'));
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      if (status === 403 || status === 404) {
+        // A deep link to a pipeline the user cannot open: drop the previous board so the
+        // columns stop fetching items for stages that belong to another pipeline.
+        setPipeline(null);
+        setStages([]);
+        setLoadError(status === 403 ? 'forbidden' : 'notFound');
+      } else {
+        toast.error(t('kanban.messages.loadDataError'));
+      }
     } finally {
       if (!silent) setLoading(false);
     }
@@ -787,6 +801,22 @@ export default function PipelineKanban() {
       <div className="flex items-center justify-center h-full">
         <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
       </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <EmptyState
+        icon={loadError === 'forbidden' ? ShieldOff : SearchX}
+        title={t(`kanban.loadState.${loadError}.title`)}
+        description={t(`kanban.loadState.${loadError}.description`)}
+        action={{
+          label: t('kanban.loadState.backToPipelines'),
+          onClick: () => navigate('/pipelines'),
+          variant: 'outline',
+        }}
+        className="h-full"
+      />
     );
   }
 

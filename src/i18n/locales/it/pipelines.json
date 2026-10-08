@@ -700,6 +700,17 @@
     "tasks": {
       "pending": "in sospeso",
       "overdue": "in ritardo"
+    },
+    "loadState": {
+      "forbidden": {
+        "title": "Nessun accesso a questa pipeline",
+        "description": "Questa pipeline è privata o non hai il permesso di vederla. Chiedi l'accesso a chi l'ha creata o a un amministratore dell'account."
+      },
+      "notFound": {
+        "title": "Pipeline non trovata",
+        "description": "Questa pipeline non esiste più o il link non è corretto."
+      },
+      "backToPipelines": "Torna alle pipeline"
     }
   },
   "tasks": {
