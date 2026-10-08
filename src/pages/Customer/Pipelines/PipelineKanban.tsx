@@ -211,10 +211,6 @@ export default function PipelineKanban() {
       console.error('Error loading pipeline data:', error);
       const status = (error as { response?: { status?: number } })?.response?.status;
       if (status === 403 || status === 404) {
-        // A deep link to a pipeline the user cannot open: drop the previous board so the
-        // columns stop fetching items for stages that belong to another pipeline.
-        setPipeline(null);
-        setStages([]);
         setLoadError(status === 403 ? 'forbidden' : 'notFound');
       } else {
         toast.error(t('kanban.messages.loadDataError'));
@@ -237,7 +233,12 @@ export default function PipelineKanban() {
       }),
     [searchQuery, assigneeFilter, statusFilter, dateFrom, dateTo, labelFilter, priorityFilter],
   );
-  const stageIds = useMemo(() => stages.map(stage => stage.id), [stages]);
+  // Right after the route changes, the stages still belong to the previous pipeline; handing
+  // them over would fetch the new pipeline's cards by stages it does not have.
+  const stageIds = useMemo(
+    () => (pipeline?.id === pipelineId ? stages.map(stage => stage.id) : []),
+    [pipeline?.id, pipelineId, stages],
+  );
   const {
     columns,
     loadMore,

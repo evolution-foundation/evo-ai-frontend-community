@@ -2,13 +2,14 @@ import i18n from '@/i18n/config';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import PipelineKanban from './PipelineKanban';
 
 // A deep link to a pipeline the user cannot open used to fall through to a nameless,
 // empty board. Forbidden and missing pipelines now get their own explicit state.
 const getPipeline = vi.fn();
 const toastError = vi.fn();
+const boardColumns = vi.fn();
 
 vi.mock('@/services/pipelines', () => ({
   pipelinesService: {
@@ -19,12 +20,15 @@ vi.mock('@/services/pipelines', () => ({
 
 vi.mock('@/hooks/usePipelineBoardColumns', () => ({
   boardFilterParams: () => ({}),
-  usePipelineBoardColumns: () => ({
-    columns: {},
-    loadMore: vi.fn(),
-    reload: vi.fn().mockResolvedValue(undefined),
-    moveItem: vi.fn(),
-  }),
+  usePipelineBoardColumns: (pipelineId: string, stageIds: string[]) => {
+    boardColumns(pipelineId, stageIds);
+    return {
+      columns: {},
+      loadMore: vi.fn(),
+      reload: vi.fn().mockResolvedValue(undefined),
+      moveItem: vi.fn(),
+    };
+  },
 }));
 
 vi.mock('@/store/appDataStore', () => ({
@@ -37,9 +41,15 @@ vi.mock('sonner', () => ({
 
 const httpError = (status: number) => Object.assign(new Error(`HTTP ${status}`), { response: { status } });
 
+function GoToOtherPipeline() {
+  const navigate = useNavigate();
+  return <button onClick={() => navigate('/pipelines/p-2')}>go-p-2</button>;
+}
+
 function renderBoard() {
   return render(
     <MemoryRouter initialEntries={['/pipelines/p-1']}>
+      <GoToOtherPipeline />
       <Routes>
         <Route path="/pipelines/:pipelineId" element={<PipelineKanban />} />
         <Route path="/pipelines" element={<div>pipelines-list</div>} />
@@ -53,6 +63,7 @@ describe('PipelineKanban load failures', () => {
     await i18n.changeLanguage('pt-BR');
     getPipeline.mockReset();
     toastError.mockReset();
+    boardColumns.mockReset();
   });
 
   it('shows the no-access state on 403, without the board or an error toast', async () => {
@@ -90,5 +101,22 @@ describe('PipelineKanban load failures', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Voltar aos pipelines' }));
 
     expect(await screen.findByText('pipelines-list')).toBeInTheDocument();
+  });
+
+  it("drops the previous board's stages when the next pipeline is forbidden", async () => {
+    getPipeline.mockImplementation((id: string) =>
+      id === 'p-1'
+        ? Promise.resolve({ id: 'p-1', name: 'Vendas', stages: [{ id: 's-1', name: 'Novo', position: 1 }] })
+        : Promise.reject(httpError(403)),
+    );
+    renderBoard();
+    await vi.waitFor(() => expect(boardColumns).toHaveBeenCalledWith('p-1', ['s-1']));
+
+    await userEvent.click(screen.getByRole('button', { name: 'go-p-2' }));
+
+    expect(await screen.findByText('Sem acesso a este pipeline')).toBeInTheDocument();
+    expect(boardColumns).not.toHaveBeenCalledWith('p-2', ['s-1']);
+    expect(boardColumns).toHaveBeenLastCalledWith('p-2', []);
+    expect(toastError).not.toHaveBeenCalled();
   });
 });
