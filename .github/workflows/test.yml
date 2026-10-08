@@ -165,6 +165,8 @@ jobs:
       #     to pt-BR instead of falling through to English.
       #   - labels list creation date: the API sends epoch seconds, so the column shows
       #     the real day in each language instead of January 1970.
+      #   - pipeline board load failures: a deep link to a pipeline the user cannot open
+      #     (403) or that does not exist (404) shows an explicit state, not an empty board.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -274,7 +276,8 @@ jobs:
             src/components/channels/settings/helpers/widgetHelpers.spec.ts \
             src/services/widget/widgetCable.spec.ts \
             src/pages/Public/Survey/SurveyResponse.spec.tsx \
-            src/hooks/usePipelineBoardColumns.spec.ts
+            src/hooks/usePipelineBoardColumns.spec.ts \
+            src/pages/Customer/Pipelines/PipelineKanban.loadState.spec.tsx
 
   # Lint gate scoped to the files the PR touched.
   eslint:
