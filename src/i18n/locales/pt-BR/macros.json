@@ -75,8 +75,10 @@
     "emailPlaceholder": "Digite o email",
     "urlPlaceholder": "Digite a URL do webhook",
     "fileSelectButton": "Selecionar Arquivo",
-    "fileUploading": "Carregando...",
     "fileSelected": "Arquivo selecionado: {{filename}}",
+    "fileUploadProgress": "Enviando... {{progress}}%",
+    "fileUploadError": "Não foi possível enviar o arquivo. Tente novamente.",
+    "fileMissing": "O arquivo anexado não foi encontrado. Selecione-o novamente.",
     "noConfig": "Esta ação não requer configuração adicional."
   },
   "table": {

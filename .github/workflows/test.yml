@@ -88,6 +88,8 @@ jobs:
       #     there is an agent list to pick from — a reopened modal refetching over
       #     the previous one included — and never on the other select actions.
       #     Also guards the aria wiring from the select to the warning.
+      #   - macro send_attachment: the action stores the uploaded blob id, and the form
+      #     cannot save or reshuffle rows while a file is still uploading.
       #   - Setup wizard (CRM-262): a degraded provisioning answer warns instead of
       #     congratulating, and an ok one still congratulates without warning. The
       #     paired direction is what keeps it honest — a warning ADDED next to the
@@ -247,6 +249,8 @@ jobs:
             src/components/customAttributes/CustomAttributeModal.spec.tsx \
             src/components/layout/config/menuItems.spec.ts \
             src/components/macros/MacroActionRow.spec.tsx \
+            src/components/macros/MacroActionRow.attachment.spec.tsx \
+            src/components/macros/MacroFormModal.upload.spec.tsx \
             src/pages/Setup/Setup.spec.tsx \
             src/i18n/locales/_lib/parity.spec.ts \
             src/i18n/locales/i18n-parity.spec.ts \

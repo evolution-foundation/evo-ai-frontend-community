@@ -74,6 +74,25 @@ class MacrosService {
     return response.data;
   }
 
+  // The blob the send_attachment action carries: the file has to exist before
+  // the macro is saved, since the backend refuses an id it cannot resolve.
+  async uploadAttachment(file: File, onProgress?: (percent: number) => void): Promise<string> {
+    const formData = new FormData();
+    formData.append('attachment', file);
+
+    const response = await api.post('/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: event => {
+        if (onProgress && event.total) {
+          onProgress(Math.round((event.loaded * 100) / event.total));
+        }
+      },
+    });
+    const blobId = extractData<{ blob_id?: string }>(response)?.blob_id;
+    if (!blobId) throw new Error('Upload answered without a blob_id');
+    return blobId;
+  }
+
   // Search macros (if implemented in backend)
   async searchMacros(query: string, params?: MacrosListParams): Promise<MacrosResponse> {
     const searchParams = { ...params, q: query };

@@ -22,6 +22,7 @@ import { Macro, MacroAction, MACRO_ACTION_TYPES } from '@/types/automation';
 import { macrosService } from '@/services/macros';
 import type { MacroFormData, MacroFormDataSource } from '@/services/macros';
 import MacroActionRow from './MacroActionRow';
+import type { AttachedFile } from './MacroActionRow';
 
 const ALL_FORM_DATA_SOURCES: MacroFormDataSource[] = ['inboxes', 'agents', 'teams', 'labels'];
 
@@ -70,6 +71,9 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
   // first paint — false here shows "nothing registered" for a frame.
   const [optionsLoading, setOptionsLoading] = useState(true);
   const [failedSources, setFailedSources] = useState<MacroFormDataSource[]>([]);
+  const [uploadsInFlight, setUploadsInFlight] = useState(0);
+  // Named by blob id here, not in the row: rows are keyed by index, so row state follows the slot.
+  const [uploadedFiles, setUploadedFiles] = useState<AttachedFile[]>([]);
 
   const isEditing = !!macro;
 
@@ -93,6 +97,9 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
         setFormData(initialFormData);
       }
       setErrors({});
+      // An upload left running by the previous form must not lock this one.
+      setUploadsInFlight(0);
+      setUploadedFiles([]);
     }
   }, [isOpen, macro]);
 
@@ -153,6 +160,9 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Saving now would send the file the row held before the new one landed.
+    if (uploadsInFlight > 0) return;
 
     if (!validateForm()) {
       return;
@@ -345,7 +355,7 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
                 variant="outline"
                 size="sm"
                 onClick={addAction}
-                disabled={loading}
+                disabled={loading || uploadsInFlight > 0}
                 className="bg-sidebar border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -366,9 +376,16 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
                   onRemove={removeAction}
                   canRemove={formData.actions.length > 1}
                   errors={errors}
-                  disabled={loading}
+                  // Rows are keyed and updated by index: removing one under an upload lands
+                  // the file on whichever action shifted into that slot.
+                  disabled={loading || uploadsInFlight > 0}
                   optionsLoading={optionsLoading}
                   failedSources={failedSources}
+                  files={[...(macro?.files ?? []), ...uploadedFiles]}
+                  onFileUploaded={file => setUploadedFiles(prev => [...prev, file])}
+                  onUploadingChange={uploading =>
+                    setUploadsInFlight(count => Math.max(0, count + (uploading ? 1 : -1)))
+                  }
                 />
               ))}
             </div>
@@ -388,7 +405,7 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
           <Button
             type="submit"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || uploadsInFlight > 0}
             className="bg-[#00ffa7] hover:bg-[#00e693] text-black border-0 font-semibold"
           >
             {loading
