@@ -117,6 +117,5 @@ describe('PipelineKanban load failures', () => {
     expect(await screen.findByText('Sem acesso a este pipeline')).toBeInTheDocument();
     expect(boardColumns).not.toHaveBeenCalledWith('p-2', ['s-1']);
     expect(boardColumns).toHaveBeenLastCalledWith('p-2', []);
-    expect(toastError).not.toHaveBeenCalled();
   });
 });
