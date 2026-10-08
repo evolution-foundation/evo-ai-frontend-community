@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
 // Interpolates the values so a test can read which filename the row shows.
@@ -35,7 +35,7 @@ vi.mock('@evoapi/design-system', () => ({
 }));
 
 import MacroActionRow from './MacroActionRow';
-import type { MacroFile } from '@/types/automation';
+import type { MacroAction, MacroFile } from '@/types/automation';
 
 const BLOB_ID = 'ae3d777f-63bc-4ace-9387-106db5278298';
 const EMPTY_OPTIONS = { inboxes: [], agents: [], teams: [], labels: [], campaigns: [] };
@@ -43,9 +43,10 @@ const EMPTY_OPTIONS = { inboxes: [], agents: [], teams: [], labels: [], campaign
 function renderRow(actionParams: string[] = [], files: MacroFile[] = []) {
   const onUpdate = vi.fn();
   const onUploadingChange = vi.fn();
-  const { container, unmount } = render(
+  const onFileUploaded = vi.fn();
+  const row = (action: MacroAction) => (
     <MacroActionRow
-      action={{ action_name: 'send_attachment', action_params: actionParams }}
+      action={action}
       index={0}
       options={EMPTY_OPTIONS}
       onUpdate={onUpdate}
@@ -56,11 +57,16 @@ function renderRow(actionParams: string[] = [], files: MacroFile[] = []) {
       optionsLoading={false}
       failedSources={[]}
       files={files}
+      onFileUploaded={onFileUploaded}
       onUploadingChange={onUploadingChange}
-    />,
+    />
+  );
+  const { container, unmount, rerender } = render(
+    row({ action_name: 'send_attachment', action_params: actionParams }),
   );
   const input = container.querySelector('input[type="file"]') as HTMLInputElement;
-  return { onUpdate, onUploadingChange, input, unmount };
+  const showAction = (action: MacroAction) => rerender(row(action));
+  return { onUpdate, onUploadingChange, onFileUploaded, input, unmount, showAction };
 }
 
 function pick(input: HTMLInputElement, name = 'tabela-precos.pdf') {
@@ -76,7 +82,7 @@ describe('MacroActionRow send_attachment', () => {
 
   it('uploads the file and stores the real blob id', async () => {
     uploadAttachment.mockResolvedValue(BLOB_ID);
-    const { onUpdate, input } = renderRow();
+    const { onUpdate, onFileUploaded, input } = renderRow();
 
     const file = pick(input);
 
@@ -87,6 +93,10 @@ describe('MacroActionRow send_attachment', () => {
       }),
     );
     expect(uploadAttachment).toHaveBeenCalledWith(file, expect.any(Function));
+    expect(onFileUploaded).toHaveBeenCalledWith({
+      blob_id: BLOB_ID,
+      filename: 'tabela-precos.pdf',
+    });
   });
 
   it('shows the upload progress while the file is sent', async () => {
@@ -123,6 +133,18 @@ describe('MacroActionRow send_attachment', () => {
     expect(onUpdate).not.toHaveBeenCalled();
   });
 
+  it('drops the upload error when another action shifts into the row', async () => {
+    uploadAttachment.mockRejectedValue(new Error('413'));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { input, showAction } = renderRow();
+
+    pick(input);
+    await screen.findByRole('alert');
+    showAction({ action_name: 'send_attachment', action_params: [] });
+
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
   it('names the file of a saved macro when it is reopened', () => {
     renderRow(
       [BLOB_ID],
@@ -150,7 +172,7 @@ describe('MacroActionRow send_attachment', () => {
   });
 
   // Closing the modal mid-upload: the late id must not land in the next form opened.
-  it('drops the blob id when the row is gone before the upload lands', async () => {
+  it('reports nothing back when the row is gone before the upload lands', async () => {
     let finish: (id: string) => void = () => {};
     uploadAttachment.mockImplementation(
       () =>
@@ -158,13 +180,14 @@ describe('MacroActionRow send_attachment', () => {
           finish = resolve;
         }),
     );
-    const { onUpdate, onUploadingChange, input, unmount } = renderRow();
+    const { onUpdate, onUploadingChange, onFileUploaded, input, unmount } = renderRow();
 
     pick(input);
     unmount();
-    finish(BLOB_ID);
+    await act(async () => finish(BLOB_ID));
 
-    await waitFor(() => expect(onUploadingChange).toHaveBeenLastCalledWith(false));
     expect(onUpdate).not.toHaveBeenCalled();
+    expect(onFileUploaded).not.toHaveBeenCalled();
+    expect(onUploadingChange).not.toHaveBeenCalledWith(false);
   });
 });

@@ -22,6 +22,7 @@ import { Macro, MacroAction, MACRO_ACTION_TYPES } from '@/types/automation';
 import { macrosService } from '@/services/macros';
 import type { MacroFormData, MacroFormDataSource } from '@/services/macros';
 import MacroActionRow from './MacroActionRow';
+import type { AttachedFile } from './MacroActionRow';
 
 const ALL_FORM_DATA_SOURCES: MacroFormDataSource[] = ['inboxes', 'agents', 'teams', 'labels'];
 
@@ -71,6 +72,8 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
   const [optionsLoading, setOptionsLoading] = useState(true);
   const [failedSources, setFailedSources] = useState<MacroFormDataSource[]>([]);
   const [uploadsInFlight, setUploadsInFlight] = useState(0);
+  // Named by blob id here, not in the row: rows are keyed by index, so row state follows the slot.
+  const [uploadedFiles, setUploadedFiles] = useState<AttachedFile[]>([]);
 
   const isEditing = !!macro;
 
@@ -94,6 +97,9 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
         setFormData(initialFormData);
       }
       setErrors({});
+      // An upload left running by the previous form must not lock this one.
+      setUploadsInFlight(0);
+      setUploadedFiles([]);
     }
   }, [isOpen, macro]);
 
@@ -375,7 +381,8 @@ export default function MacroFormModal({ isOpen, onClose, macro, onSuccess }: Ma
                   disabled={loading || uploadsInFlight > 0}
                   optionsLoading={optionsLoading}
                   failedSources={failedSources}
-                  files={macro?.files}
+                  files={[...(macro?.files ?? []), ...uploadedFiles]}
+                  onFileUploaded={file => setUploadedFiles(prev => [...prev, file])}
                   onUploadingChange={uploading =>
                     setUploadsInFlight(count => Math.max(0, count + (uploading ? 1 : -1)))
                   }

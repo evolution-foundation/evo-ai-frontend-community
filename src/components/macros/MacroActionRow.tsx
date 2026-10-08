@@ -17,6 +17,8 @@ import type { MacroFile } from '@/types/automation';
 import { macrosService } from '@/services/macros';
 import type { MacroFormData, MacroFormDataSource, MacroFormOption } from '@/services/macros';
 
+export type AttachedFile = Pick<MacroFile, 'blob_id' | 'filename'>;
+
 interface ActionRowProps {
   action: MacroAction;
   index: number;
@@ -28,7 +30,8 @@ interface ActionRowProps {
   disabled: boolean;
   optionsLoading: boolean;
   failedSources: MacroFormDataSource[];
-  files?: MacroFile[];
+  files?: AttachedFile[];
+  onFileUploaded?: (file: AttachedFile) => void;
   onUploadingChange?: (uploading: boolean) => void;
 }
 
@@ -44,13 +47,14 @@ export default function MacroActionRow({
   optionsLoading,
   failedSources,
   files = [],
+  onFileUploaded,
   onUploadingChange,
 }: ActionRowProps) {
   const { t } = useLanguage('macros');
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadFailed, setUploadFailed] = useState(false);
-  const [uploaded, setUploaded] = useState<{ blobId: string; filename: string } | null>(null);
+  // Rows are keyed by index, so the error is tied to the action, not to this slot.
+  const [failedAction, setFailedAction] = useState<MacroAction | null>(null);
   // An upload outliving the row (modal closed) must not write into whatever form is open next.
   const mounted = useRef(true);
   useEffect(() => {
@@ -90,28 +94,27 @@ export default function MacroActionRow({
     setUploadingFile(true);
     onUploadingChange?.(true);
     setUploadProgress(0);
-    setUploadFailed(false);
+    setFailedAction(null);
     try {
       const blobId = await macrosService.uploadAttachment(file, setUploadProgress);
       if (!mounted.current) return;
-      setUploaded({ blobId, filename: file.name });
+      onFileUploaded?.({ blob_id: blobId, filename: file.name });
       handleParamsChange([blobId]);
     } catch (error) {
       // The param is left as it was, so a failed upload never reaches the save.
       console.error('Failed to upload the attachment:', error);
-      setUploadFailed(true);
+      setFailedAction(action);
     } finally {
       setUploadingFile(false);
-      onUploadingChange?.(false);
+      // The modal resets its count when it reopens; a late report would unlock the next form.
+      if (mounted.current) onUploadingChange?.(false);
       // Lets the same file be picked again after a failure.
       input.value = '';
     }
   };
 
-  const attachedFilename = (blobId: string): string | undefined => {
-    if (uploaded?.blobId === blobId) return uploaded.filename;
-    return files.find(f => String(f.blob_id) === blobId)?.filename;
-  };
+  const attachedFilename = (blobId: string): string | undefined =>
+    files.find(f => String(f.blob_id) === blobId)?.filename;
 
   // An empty list has three causes and the user has to tell them apart: the
   // fetch is still running, the source answered with an error, or nothing is
@@ -374,7 +377,7 @@ export default function MacroActionRow({
               />
             </div>
 
-            {uploadFailed && (
+            {failedAction === action && (
               <p role="alert" className="text-sm text-red-500">
                 {t('actionRow.fileUploadError')}
               </p>

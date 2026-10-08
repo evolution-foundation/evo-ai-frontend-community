@@ -48,20 +48,31 @@ vi.mock('@evoapi/design-system', () => {
 });
 
 // The row owns the upload itself (MacroActionRow.attachment.spec); here only its
-// contract with the modal matters: it reports uploads and honours `disabled`.
+// contract with the modal matters: it reports uploads, honours `disabled` and names
+// files from the `files` it is given.
 vi.mock('./MacroActionRow', () => ({
   default: ({
     index,
     disabled,
     onUpdate,
+    onRemove,
+    files = [],
+    onFileUploaded,
     onUploadingChange,
   }: {
     index: number;
     disabled: boolean;
     onUpdate: (index: number, action: { action_name: string; action_params: unknown[] }) => void;
+    onRemove: (index: number) => void;
+    files?: { blob_id: string; filename: string }[];
+    onFileUploaded?: (file: { blob_id: string; filename: string }) => void;
     onUploadingChange?: (uploading: boolean) => void;
   }) => (
-    <div data-testid={`row-${index}`} data-disabled={String(disabled)}>
+    <div
+      data-testid={`row-${index}`}
+      data-disabled={String(disabled)}
+      data-files={files.map(f => f.filename).join(',')}
+    >
       <button
         type="button"
         onClick={() => onUpdate(index, { action_name: 'resolve_conversation', action_params: [] })}
@@ -74,6 +85,17 @@ vi.mock('./MacroActionRow', () => ({
       <button type="button" onClick={() => onUploadingChange?.(false)}>
         finish-upload-{index}
       </button>
+      <button
+        type="button"
+        onClick={() =>
+          onFileUploaded?.({ blob_id: `blob-${index}`, filename: `file-${index}.pdf` })
+        }
+      >
+        uploaded-{index}
+      </button>
+      <button type="button" onClick={() => onRemove(index)}>
+        remove-{index}
+      </button>
     </div>
   ),
 }));
@@ -81,7 +103,10 @@ vi.mock('./MacroActionRow', () => ({
 import MacroFormModal from './MacroFormModal';
 
 function renderModal() {
-  render(<MacroFormModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} macro={null} />);
+  const modal = (isOpen: boolean) => (
+    <MacroFormModal isOpen={isOpen} onClose={vi.fn()} onSuccess={vi.fn()} macro={null} />
+  );
+  const { rerender } = render(modal(true));
   fireEvent.change(screen.getByPlaceholderText('modal.form.namePlaceholder'), {
     target: { value: 'Send price list' },
   });
@@ -89,6 +114,12 @@ function renderModal() {
   // A form that passes validation, so only the upload can hold the save back.
   fireEvent.click(screen.getByText('fill-0'));
   fireEvent.click(screen.getByText('fill-1'));
+  return {
+    reopen: () => {
+      rerender(modal(false));
+      rerender(modal(true));
+    },
+  };
 }
 
 const submitForm = () => fireEvent.submit(document.querySelector('form') as HTMLFormElement);
@@ -134,5 +165,29 @@ describe('MacroFormModal while a file uploads', () => {
     submitForm();
 
     await waitFor(() => expect(createMacro).toHaveBeenCalledTimes(1));
+  });
+
+  it('unlocks a reopened form even if the closed one was still uploading', () => {
+    const { reopen } = renderModal();
+
+    fireEvent.click(screen.getByText('start-upload-0'));
+    expect(submitButton().disabled).toBe(true);
+
+    reopen();
+
+    expect(submitButton().disabled).toBe(false);
+    expect(screen.getByTestId('row-0').dataset.disabled).toBe('false');
+  });
+
+  it('names a just-uploaded file by its blob id after the rows shift', () => {
+    const { reopen } = renderModal();
+
+    fireEvent.click(screen.getByText('uploaded-1'));
+    fireEvent.click(screen.getByText('remove-0'));
+
+    expect(screen.getByTestId('row-0').dataset.files).toBe('file-1.pdf');
+
+    reopen();
+    expect(screen.getByTestId('row-0').dataset.files).toBe('');
   });
 });
