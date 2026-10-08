@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
 import { ContactEventsFilters } from '../ContactEventsFilters';
 
 // Permission-gated components resolve permissions from the context; grant
@@ -15,6 +15,17 @@ vi.mock('@/hooks/useLanguage', () => ({
     currentLanguage: 'en',
   }),
 }));
+
+const originalTZ = process.env.TZ;
+process.env.TZ = 'America/Sao_Paulo';
+
+afterAll(() => {
+  process.env.TZ = originalTZ;
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('ContactEventsFilters', () => {
   it('exposes the event type options plus an "all types" entry', async () => {
@@ -46,7 +57,13 @@ describe('ContactEventsFilters', () => {
     expect(onChange).toHaveBeenCalledWith({ event_type: 'track' });
   });
 
-  it('selecting a period preset (e.g. "7 dias") emits occurred_after', async () => {
+  it.each([
+    ['7d', '2026-09-29T03:00:00.000Z'],
+    ['30d', '2026-09-06T03:00:00.000Z'],
+  ])('selecting the %s preset emits the local midnight that many days back', async (preset, expected) => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-07T01:00:00.000Z'));
+
     const user = userEvent.setup();
     const onChange = vi.fn();
     render(<ContactEventsFilters value={{}} onChange={onChange} />);
@@ -56,11 +73,28 @@ describe('ContactEventsFilters', () => {
     await user.click(trigger);
 
     const listbox = await screen.findByRole('listbox');
-    await user.click(within(listbox).getByText('events.filters.periodPresets.7d'));
+    await user.click(within(listbox).getByText(`events.filters.periodPresets.${preset}`));
 
-    expect(onChange).toHaveBeenCalledWith(
-      expect.objectContaining({ occurred_after: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) }),
-    );
+    expect(onChange).toHaveBeenCalledWith({ occurred_after: expected });
+  });
+
+  it('"Hoje" starts at local midnight even after 21h in Brasília', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-07T01:00:00.000Z'));
+    expect(new Date().getTimezoneOffset()).toBe(180);
+
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<ContactEventsFilters value={{}} onChange={onChange} />);
+
+    const periodLabel = screen.getByText('events.filters.period');
+    const trigger = periodLabel.parentElement!.querySelector('[role="combobox"]') as HTMLElement;
+    await user.click(trigger);
+
+    const listbox = await screen.findByRole('listbox');
+    await user.click(within(listbox).getByText('events.filters.periodPresets.today'));
+
+    expect(onChange).toHaveBeenCalledWith({ occurred_after: '2026-10-06T03:00:00.000Z' });
   });
 
   it('selecting "Todo o período" clears occurred_after', async () => {

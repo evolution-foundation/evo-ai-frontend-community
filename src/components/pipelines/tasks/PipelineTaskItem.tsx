@@ -1,5 +1,6 @@
 import { format, isToday, isTomorrow, isPast } from 'date-fns';
 import { useLanguage } from '@/hooks/useLanguage';
+import { getDateFnsLocale } from '@/lib/dateFnsLocale';
 import { Badge, Button, Checkbox } from '@evoapi/design-system';
 import {
   Phone,
@@ -33,7 +34,7 @@ export default function PipelineTaskItem({
   onReopen,
   disabled = false,
 }: PipelineTaskItemProps) {
-  const { t } = useLanguage('pipelines');
+  const { t, currentLanguage } = useLanguage('pipelines');
 
   // Get task type icon
   const getTaskTypeIcon = () => {
@@ -83,7 +84,7 @@ export default function PipelineTaskItem({
       return t('tasks.dueDates.tomorrow');
     }
 
-    return format(date, 'dd/MM/yyyy HH:mm');
+    return format(date, 'P p', { locale: getDateFnsLocale(currentLanguage) });
   };
 
   // Get due date classes

@@ -53,6 +53,8 @@ jobs:
       #   - Journey subcomponent labels: every <Label> that names a single
       #     control resolves through getByLabelText, and the ones that cover
       #     a set (webhook headers) expose a named group.
+      #   - journey label trigger: the selected label's creation date reads the API's
+      #     epoch seconds and follows the interface language, instead of January 1970.
       #   - MessageList (CRM-165): a message arriving with the view at the
       #     bottom keeps auto-scrolling (even while an own send is still in
       #     flight), reading history is never hijacked — bot replies included —
@@ -69,6 +71,8 @@ jobs:
       #     can() denies and renders when it grants. The paired positive case is
       #     what keeps the negative ones honest — a control that stopped
       #     rendering for everyone would satisfy the denial assertions too.
+      #   - dashboardUtils / formatDateTime: amounts stay in reais while the
+      #     separators and the day/month order follow the interface language.
       #   - permissions service (CRM-164): a fetch with no cache to serve must
       #     reject, not resolve to []. The context spec mocks the service away,
       #     so these are the only examples guarding it.
@@ -154,8 +158,13 @@ jobs:
       #     discards the whole list, so the dialog falls back to the server's pt-BR
       #     strings instead of naming part of who holds the credential. A permissive
       #     parse renders a raw i18n key, or an empty list asserting somebody holds it.
+      #   - datetime-local fields and the contact events period: the stored instant shows
+      #     in local time and the typed time is saved unshifted. The specs force
+      #     America/Sao_Paulo; on a UTC runner the shift is zero and a revert passes.
       #   - browser language detection: a regional Portuguese tag (pt-PT, pt-AO) resolves
       #     to pt-BR instead of falling through to English.
+      #   - labels list creation date: the API sends epoch seconds, so the column shows
+      #     the real day in each language instead of January 1970.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -183,6 +192,8 @@ jobs:
             src/components/users/UserFormModal.spec.tsx \
             src/utils/apiHelpers.spec.ts \
             src/utils/templateVariables.spec.ts \
+            src/pages/Customer/Dashboard/components/dashboardUtils.spec.ts \
+            src/utils/time/formatDateTime.spec.ts \
             src/components/channels/settings/TemplateFormModal.spec.tsx \
             src/hooks/channels/useChannelSubmission.spec.ts \
             src/hooks/channels/useChannelValidation.spec.ts \
@@ -206,6 +217,7 @@ jobs:
             src/components/base/BaseFlowCanvas.spec.tsx \
             src/components/journey/SessionsViewer.spec.tsx \
             src/components/journey/nodes/trigger/components/WebhookConfiguration.spec.tsx \
+            src/components/journey/nodes/trigger/components/LabelConfiguration.spec.tsx \
             src/components/journey/nodes/actions/wait/components/WaitTimeConfig.spec.tsx \
             src/components/journey/nodes/actions/send-webhook/components/WebhookBasicConfig.spec.tsx \
             src/components/journey/nodes/actions/send-webhook/components/WebhookHeadersConfig.spec.tsx \
@@ -213,9 +225,15 @@ jobs:
             src/components/journey/environment-manager/VariableMapping.spec.tsx \
             src/components/chat/messages/MessageList.spec.tsx \
             src/contexts/chat/eventLabels.spec.ts \
+            src/components/labels/LabelsTable.spec.tsx \
             src/components/contacts/ContactNotesCard.spec.tsx \
             src/components/contacts/ContactDetailPage.spec.tsx \
             src/components/contacts/ContactsTable.spec.tsx \
+            src/components/contacts/__tests__/ContactEventCard.spec.tsx \
+            src/components/contacts/__tests__/ContactEventsFilters.spec.tsx \
+            src/components/scheduledActions/ScheduleActionModal.spec.tsx \
+            src/components/pipelines/tasks/TaskModals.dueDate.spec.tsx \
+            src/utils/time/dateTimeLocal.spec.ts \
             src/components/rbac-render-gates.spec.tsx \
             src/components/customAttributes/CustomAttributesForm.spec.tsx \
             src/components/layout/config/menuItems.spec.ts \
@@ -240,6 +258,9 @@ jobs:
             src/components/ai_agents/shared/BodyParamsEditor.spec.tsx \
             src/components/customTools/CustomToolForm.spec.tsx \
             src/components/customTools/CustomToolWizardModal.spec.tsx \
+            src/pages/Customer/Agents/CustomMCPServers/CustomMCPServers.spec.tsx \
+            src/components/customMcpServers/customMcpServersFilterFacets.spec.ts \
+            src/services/agents/customMcpServerService.spec.ts \
             src/components/journey/theme-tokens.spec.ts \
             src/components/journey/shared/EventPropertiesForm/filterFields.spec.ts \
             src/components/journey/shared/EventPropertiesForm/EventPropertiesForm.spec.tsx \

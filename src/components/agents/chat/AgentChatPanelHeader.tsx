@@ -12,7 +12,7 @@ interface AgentChatPanelHeaderProps {
 
 /** Must render inside AgentChatProvider: the sessions come from it. */
 export function AgentChatPanelHeader({ agent, onClose }: AgentChatPanelHeaderProps) {
-  const { t } = useLanguage('aiAgents');
+  const { t, currentLanguage } = useLanguage('aiAgents');
   const { sessions, selectedSessionId, selectSession, createNewSession, deleteSession } =
     useAgentChat();
 
@@ -88,7 +88,7 @@ export function AgentChatPanelHeader({ agent, onClose }: AgentChatPanelHeaderPro
                           </span>
                         </div>
                         <p className="ml-4 mt-0.5 text-[12px] text-muted-foreground">
-                          {formatDateTime(session.update_time)}
+                          {formatDateTime(session.update_time, currentLanguage)}
                         </p>
                       </div>
                       <button

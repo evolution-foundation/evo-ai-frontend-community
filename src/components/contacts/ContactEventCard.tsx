@@ -30,6 +30,59 @@ const ICON_BY_TYPE: Record<ContactEventType, React.ComponentType<{ className?: s
   segment: Layers,
 };
 
+const SCHEDULED_ACTION_FAILED = 'scheduled_action.failed';
+
+function formatScheduledFor(value: unknown, locale: string): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString(locale, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+// The outcome of a scheduled action reads from the card itself: what ran, when
+// it was due and, on failure, why — without expanding the raw properties.
+function ScheduledActionSummary({ event }: ContactEventCardProps) {
+  const { t, currentLanguage } = useLanguage('contacts');
+  const {
+    action_type: actionType,
+    scheduled_for: scheduledFor,
+    error_message: reason,
+    will_retry: willRetry,
+  } = event.properties;
+  const failed = event.eventName === SCHEDULED_ACTION_FAILED;
+  const action =
+    typeof actionType === 'string'
+      ? t(`scheduledActions.actions.${actionType}`, { defaultValue: actionType })
+      : undefined;
+  const dueAt = formatScheduledFor(scheduledFor, currentLanguage);
+
+  return (
+    <div className="mt-1 space-y-0.5 text-xs">
+      {action && (
+        <p className="text-muted-foreground">
+          {dueAt
+            ? t('events.card.scheduledAction.summary', { action, scheduledFor: dueAt })
+            : action}
+        </p>
+      )}
+      {failed && typeof reason === 'string' && reason !== '' && (
+        <p className="break-words text-destructive">
+          {t('events.card.scheduledAction.reason', { reason })}
+        </p>
+      )}
+      {failed && willRetry === true && (
+        <p className="text-muted-foreground">{t('events.card.scheduledAction.willRetry')}</p>
+      )}
+    </div>
+  );
+}
+
 function ContactEventCardImpl({ event }: ContactEventCardProps) {
   const { t, currentLanguage } = useLanguage('contacts');
   const [expanded, setExpanded] = useState(false);
@@ -88,6 +141,10 @@ function ContactEventCardImpl({ event }: ContactEventCardProps) {
                 {relativeLabel}
               </time>
             </div>
+
+            {event.eventName.startsWith('scheduled_action.') && (
+              <ScheduledActionSummary event={event} />
+            )}
 
             {enriched && (enriched.campaign_name || enriched.channel_label || enriched.agent_name) && (
               <div className="mt-2 flex flex-wrap gap-1.5">

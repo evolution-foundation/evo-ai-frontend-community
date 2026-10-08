@@ -12,6 +12,7 @@ import {
 import { labelsService } from '@/services/contacts/labelsService';
 import { Label as LabelType } from '@/types/settings';
 import { useLanguage } from '@/hooks/useLanguage';
+import { unixTimestampToIso } from '@/utils/chat/contactTimestamp';
 
 interface LabelConfigurationProps {
   labelId: string;
@@ -26,7 +27,7 @@ export function LabelConfiguration({
   onLabelIdChange,
   onLabelActionChange,
 }: LabelConfigurationProps) {
-  const { t } = useLanguage('journey');
+  const { t, currentLanguage } = useLanguage('journey');
   const [availableLabels, setAvailableLabels] = useState<LabelType[]>([]);
   const [loadingLabels, setLoadingLabels] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +59,7 @@ export function LabelConfiguration({
   }, [t]);
 
   const selectedLabel = availableLabels.find(l => l.id === labelId);
+  const selectedCreatedAt = unixTimestampToIso(selectedLabel?.created_at);
 
   return (
     <>
@@ -189,7 +191,7 @@ export function LabelConfiguration({
               <div className="flex justify-between">
                 <span>{t('triggerComponents.label.createdAt')}:</span>
                 <span className="font-medium">
-                  {new Date(selectedLabel.created_at).toLocaleDateString()}
+                  {selectedCreatedAt && new Date(selectedCreatedAt).toLocaleDateString(currentLanguage)}
                 </span>
               </div>
             </div>

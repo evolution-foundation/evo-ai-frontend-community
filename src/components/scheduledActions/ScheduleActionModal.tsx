@@ -22,6 +22,7 @@ import type { ScheduledAction, CreateScheduledAction } from '@/types/automation'
 import type { Inbox } from '@/types/channels/inbox';
 import type { Contact } from '@/types/contacts';
 import { useLanguage } from '@/hooks/useLanguage';
+import { toDateTimeLocalValue } from '@/utils/time/dateTimeLocal';
 import { Search, Loader2 } from 'lucide-react';
 import {
   buildChannelOptions,
@@ -190,15 +191,7 @@ export function ScheduleActionModal({
     }
   }, [showContactDropdown]);
 
-  const getMinDateTime = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
+  const getMinDateTime = () => toDateTimeLocalValue(new Date());
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -248,7 +241,7 @@ export function ScheduleActionModal({
 
       setFormData({
         action_type: action.action_type,
-        scheduled_for: action.scheduled_for.slice(0, 16),
+        scheduled_for: toDateTimeLocalValue(action.scheduled_for),
         channel: getStringValue(action.payload.channel),
         message: getStringValue(action.payload.message),
         subject: getStringValue(action.payload.subject),

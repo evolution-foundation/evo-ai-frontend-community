@@ -121,7 +121,7 @@ export const PER_FILE_ALLOWED: Record<string, Set<string>> = {
     '{{seconds}}s',
   ]),
   'customMcpServers.json': new Set([
-    'Timeout: {{timeout}}s', 'api, search, database',
+    'api, search, database', '{{timeout}}s',
   ]),
   'customTools.json': new Set(['api, http, webhook']),
   'integrations.json': new Set([

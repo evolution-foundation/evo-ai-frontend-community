@@ -524,7 +524,7 @@ export default function PipelineKanban() {
 
   // Format currency
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
+    return new Intl.NumberFormat(currentLanguage, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(value);

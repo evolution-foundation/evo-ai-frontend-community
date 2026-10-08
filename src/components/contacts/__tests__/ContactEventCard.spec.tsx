@@ -9,8 +9,22 @@ vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({
     // Render the i18n key + the defaultValue if any so XSS-safety tests can
     // assert against the raw event_name without intermediate translation.
-    t: (key: string, opts?: { defaultValue?: string; name?: string; label?: string; count?: number; cap?: number }) => {
+    t: (
+      key: string,
+      opts?: {
+        defaultValue?: string;
+        name?: string;
+        label?: string;
+        count?: number;
+        cap?: number;
+        action?: string;
+        scheduledFor?: string;
+        reason?: string;
+      },
+    ) => {
       if (opts && 'defaultValue' in opts && opts.defaultValue !== undefined) return opts.defaultValue;
+      if (opts && opts.action !== undefined) return `${key}|${opts.action}|${opts.scheduledFor}`;
+      if (opts && opts.reason !== undefined) return `${key}|${opts.reason}`;
       if (opts && opts.name !== undefined) return `${key}|${opts.name}`;
       if (opts && opts.label !== undefined) return `${key}|${opts.label}`;
       return key;
@@ -139,5 +153,62 @@ describe('ContactEventCard', () => {
     const pre = await screen.findByText((_, node) => node?.tagName.toLowerCase() === 'pre');
     expect(region!.contains(pre)).toBe(true);
     expect(within(region!).getByText(/foo/)).toBeInTheDocument();
+  });
+
+  describe('scheduled action outcome', () => {
+    const properties = {
+      scheduled_action_id: 42,
+      action_type: 'execute_webhook',
+      scheduled_for: '2026-10-06T14:00:00Z',
+      source: 'scheduled_action',
+    };
+
+    it('shows the action type and the due time of an executed action, without a reason', () => {
+      render(
+        <ContactEventCard
+          event={makeEvent({ eventName: 'scheduled_action.executed', properties })}
+        />,
+      );
+      expect(
+        screen.getByText(/^events\.card\.scheduledAction\.summary\|execute_webhook\|.+/),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/events\.card\.scheduledAction\.reason/)).not.toBeInTheDocument();
+    });
+
+    it('shows why a failed action failed and that it will be retried', () => {
+      render(
+        <ContactEventCard
+          event={makeEvent({
+            eventName: 'scheduled_action.failed',
+            properties: {
+              ...properties,
+              error_message: 'Webhook failed with status 500',
+              will_retry: true,
+            },
+          })}
+        />,
+      );
+      expect(
+        screen.getByText('events.card.scheduledAction.reason|Webhook failed with status 500'),
+      ).toBeInTheDocument();
+      expect(screen.getByText('events.card.scheduledAction.willRetry')).toBeInTheDocument();
+    });
+
+    it('does not announce a retry when the failure is final', () => {
+      render(
+        <ContactEventCard
+          event={makeEvent({
+            eventName: 'scheduled_action.failed',
+            properties: { ...properties, error_message: 'Expired', will_retry: false },
+          })}
+        />,
+      );
+      expect(screen.queryByText('events.card.scheduledAction.willRetry')).not.toBeInTheDocument();
+    });
+
+    it('renders nothing extra for other events', () => {
+      render(<ContactEventCard event={makeEvent({ properties })} />);
+      expect(screen.queryByText(/events\.card\.scheduledAction/)).not.toBeInTheDocument();
+    });
   });
 });
