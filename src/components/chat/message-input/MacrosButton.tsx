@@ -132,6 +132,7 @@ const MacrosButton: React.FC<MacrosButtonProps> = ({
 
         {open && (
           <div
+            className="bg-popover text-popover-foreground border border-border shadow-lg"
             style={{
               position: 'absolute',
               bottom: 44,
@@ -139,10 +140,7 @@ const MacrosButton: React.FC<MacrosButtonProps> = ({
               width: 264,
               maxHeight: 340,
               overflowY: 'auto',
-              background: '#FFFFFF',
-              border: '1px solid #eceef2',
               borderRadius: 14,
-              boxShadow: '0 12px 32px rgba(20,30,45,.16)',
               padding: 7,
               zIndex: 100,
             }}
@@ -152,10 +150,10 @@ const MacrosButton: React.FC<MacrosButtonProps> = ({
                 <Zap className="h-4 w-4" />
               </span>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 14.5, color: '#2b3240', fontWeight: 600, lineHeight: 1.2 }}>
+                <div className="text-popover-foreground" style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.2 }}>
                   {t('messageInput.macros.tooltip')}
                 </div>
-                <div style={{ fontSize: 12, color: '#7d8a8e', lineHeight: 1.3 }}>
+                <div className="text-muted-foreground" style={{ fontSize: 12, lineHeight: 1.3 }}>
                   {t('messageInput.macros.subtitle')}
                 </div>
               </div>
@@ -195,6 +193,7 @@ const MacrosButton: React.FC<MacrosButtonProps> = ({
                     setOpen(false);
                     setSelectedMacro(macro);
                   }}
+                  className="hover:bg-accent"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -204,8 +203,6 @@ const MacrosButton: React.FC<MacrosButtonProps> = ({
                     cursor: executingMacroId === macro.id ? 'default' : 'pointer',
                     minWidth: 0,
                   }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#f4f6f9')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 >
                   <span className={ITEM_ICON_BOX}>
                     {executingMacroId === macro.id ? (
@@ -215,9 +212,9 @@ const MacrosButton: React.FC<MacrosButtonProps> = ({
                     )}
                   </span>
                   <span
+                    className="text-popover-foreground"
                     style={{
                       fontSize: 14.5,
-                      color: '#2b3240',
                       fontWeight: 500,
                       minWidth: 0,
                       overflow: 'hidden',

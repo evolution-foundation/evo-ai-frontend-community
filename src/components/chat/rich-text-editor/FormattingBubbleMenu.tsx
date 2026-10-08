@@ -92,6 +92,7 @@ const FormattingBubbleMenu: React.FC<FormattingBubbleMenuProps> = ({ view, rect,
   return createPortal(
     <div
       ref={rootRef}
+      className="bg-popover text-popover-foreground border border-border shadow-lg"
       style={{
         position: 'fixed',
         top: rect.top,
@@ -100,10 +101,7 @@ const FormattingBubbleMenu: React.FC<FormattingBubbleMenuProps> = ({ view, rect,
         display: 'flex',
         alignItems: 'center',
         gap: 2,
-        background: '#FFFFFF',
-        border: '1px solid #eceef2',
         borderRadius: 12,
-        boxShadow: '0 12px 32px rgba(20,30,45,.16)',
         padding: 5,
         zIndex: 100,
       }}
