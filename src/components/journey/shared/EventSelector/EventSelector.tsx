@@ -1,5 +1,6 @@
 import { useMemo, useState, useId } from 'react';
 import {
+  CalendarClock,
   Check,
   ChevronsUpDown,
   User,
@@ -64,6 +65,7 @@ const CATEGORY_ICON: Record<EventCategory, LucideIcon> = {
   message: MessageSquare,
   campaign: Megaphone,
   purchase: ShoppingCart,
+  scheduled_action: CalendarClock,
   custom: Sparkles,
 };
 

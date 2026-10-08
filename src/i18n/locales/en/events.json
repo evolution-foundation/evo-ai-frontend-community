@@ -12,6 +12,7 @@
     "message": "Message events",
     "campaign": "Campaign events",
     "purchase": "Purchase events",
+    "scheduled_action": "Scheduled action events",
     "custom": "Custom"
   },
   "propertiesForm": {
@@ -308,6 +309,29 @@
         "system": "System"
       },
       "help": "Whether an agent or the system (channel, import, webhook) created the contact."
+    },
+    "action_type": {
+      "label": "Action type",
+      "help": "Only fires for scheduled actions of this type.",
+      "options": {
+        "send_message": "Send message",
+        "send_email": "Send email",
+        "execute_webhook": "Run webhook",
+        "trigger_journey": "Trigger journey",
+        "create_task": "Create task",
+        "update_deal_stage": "Update stage",
+        "add_deal_note": "Add note",
+        "send_whatsapp": "Send WhatsApp",
+        "send_sms": "Send SMS"
+      }
+    },
+    "retry_count": {
+      "label": "Failed attempts",
+      "help": "How many attempts have failed, this one included."
+    },
+    "will_retry": {
+      "label": "Will retry",
+      "help": "Checked: another attempt is already scheduled."
     }
   },
   "events": {
@@ -379,6 +403,12 @@
     },
     "purchase_approved": {
       "description": "A purchase was approved on a payment platform and captured as a lead in the CRM."
+    },
+    "scheduled_action_executed": {
+      "description": "A scheduled action for the contact ran."
+    },
+    "scheduled_action_failed": {
+      "description": "A scheduled action for the contact failed or expired before running."
     }
   }
 }

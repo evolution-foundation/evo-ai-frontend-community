@@ -12,6 +12,7 @@
     "message": "Eventos de Mensagem",
     "campaign": "Eventos de Campanha",
     "purchase": "Eventos de Compra",
+    "scheduled_action": "Eventos de Ação Agendada",
     "custom": "Personalizado"
   },
   "propertiesForm": {
@@ -308,6 +309,29 @@
         "system": "Sistema"
       },
       "help": "Se o contato foi criado por um agente ou pelo sistema (canal, importação, webhook)."
+    },
+    "action_type": {
+      "label": "Tipo da ação",
+      "help": "Só dispara para ações agendadas deste tipo.",
+      "options": {
+        "send_message": "Enviar mensagem",
+        "send_email": "Enviar e-mail",
+        "execute_webhook": "Executar webhook",
+        "trigger_journey": "Disparar jornada",
+        "create_task": "Criar tarefa",
+        "update_deal_stage": "Atualizar etapa",
+        "add_deal_note": "Adicionar nota",
+        "send_whatsapp": "Enviar WhatsApp",
+        "send_sms": "Enviar SMS"
+      }
+    },
+    "retry_count": {
+      "label": "Tentativas com falha",
+      "help": "Quantas tentativas já falharam, contando esta."
+    },
+    "will_retry": {
+      "label": "Vai tentar de novo",
+      "help": "Marcado: outra tentativa já está agendada."
     }
   },
   "events": {
@@ -379,6 +403,12 @@
     },
     "purchase_approved": {
       "description": "Uma compra foi aprovada numa plataforma de pagamento e virou lead no CRM."
+    },
+    "scheduled_action_executed": {
+      "description": "Uma ação agendada para o contacto foi executada."
+    },
+    "scheduled_action_failed": {
+      "description": "Uma ação agendada para o contacto falhou ou expirou sem ser executada."
     }
   }
 }

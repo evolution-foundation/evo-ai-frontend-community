@@ -13,11 +13,12 @@ export const IDENTITY_FIELDS: ReadonlySet<string> = new Set([
   'message_id',
   'purchase_id',
   'pipeline_item_id',
+  'scheduled_action_id',
 ]);
 
 // Keys that never make sense as an equality filter: producer bookkeeping
-// (source), raw payload dumps, display names that duplicate an id with a
-// select, and an id the CRM emits as a free string.
+// (source), raw payload dumps, free-text reasons, display names that duplicate
+// an id with a select, and an id the CRM emits as a free string.
 export const INTERNAL_FIELDS: ReadonlySet<string> = new Set([
   'source',
   'custom_fields',
@@ -27,6 +28,7 @@ export const INTERNAL_FIELDS: ReadonlySet<string> = new Set([
   'pipeline_name',
   'pipeline_stage_name',
   'resolved_by_id',
+  'error_message',
 ]);
 
 // Equality on a timestamp never matches and an object has no input.

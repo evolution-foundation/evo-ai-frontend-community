@@ -12,6 +12,7 @@
     "message": "Eventi di messaggio",
     "campaign": "Eventi di campagna",
     "purchase": "Eventi di acquisto",
+    "scheduled_action": "Eventi di azione pianificata",
     "custom": "Personalizzato"
   },
   "propertiesForm": {
@@ -308,6 +309,29 @@
         "system": "Sistema"
       },
       "help": "Se il contatto è stato creato da un agente o dal sistema (canale, importazione, webhook)."
+    },
+    "action_type": {
+      "label": "Tipo di azione",
+      "help": "Si attiva solo per le azioni pianificate di questo tipo.",
+      "options": {
+        "send_message": "Invia messaggio",
+        "send_email": "Invia e-mail",
+        "execute_webhook": "Esegui webhook",
+        "trigger_journey": "Attiva percorso",
+        "create_task": "Crea attività",
+        "update_deal_stage": "Aggiorna fase",
+        "add_deal_note": "Aggiungi nota",
+        "send_whatsapp": "Invia WhatsApp",
+        "send_sms": "Invia SMS"
+      }
+    },
+    "retry_count": {
+      "label": "Tentativi falliti",
+      "help": "Quanti tentativi sono falliti, compreso questo."
+    },
+    "will_retry": {
+      "label": "Nuovo tentativo previsto",
+      "help": "Selezionato: un altro tentativo è già pianificato."
     }
   },
   "events": {
@@ -379,6 +403,12 @@
     },
     "purchase_approved": {
       "description": "Un acquisto è stato approvato su una piattaforma di pagamento ed è diventato lead nel CRM."
+    },
+    "scheduled_action_executed": {
+      "description": "Un'azione pianificata per il contatto è stata eseguita."
+    },
+    "scheduled_action_failed": {
+      "description": "Un'azione pianificata per il contatto non è riuscita o è scaduta senza essere eseguita."
     }
   }
 }
