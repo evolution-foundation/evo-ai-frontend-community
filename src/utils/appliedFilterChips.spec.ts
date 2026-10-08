@@ -103,6 +103,28 @@ describe('buildAppliedFilterChips', () => {
     expect(chip.value).toBe('Blocked');
   });
 
+  it('shows user-data option labels as stored, without t()', () => {
+    const tagTypes: FilterType[] = [
+      {
+        attributeKey: 'tags',
+        attributeI18nKey: 'Tags',
+        inputType: 'search_select',
+        dataType: 'text',
+        filterOperators: [],
+        attribute_type: 'standard',
+        options: [{ label: 'filter.options.blocked.true', value: 'filter.options.blocked.true' }],
+        untranslatedOptions: true,
+      },
+    ];
+    const [chip] = buildAppliedFilterChips(
+      [mkFilter({ attributeKey: 'tags', values: 'filter.options.blocked.true' })],
+      tagTypes,
+      t,
+      () => {},
+    );
+    expect(chip.value).toBe('filter.options.blocked.true');
+  });
+
   it('joins multiple raw values', () => {
     const [chip] = buildAppliedFilterChips(
       [mkFilter({ attributeKey: 'name', values: ['a', 'b'] })],

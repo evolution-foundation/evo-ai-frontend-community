@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
 import { EventPropertiesForm, type EventPropertiesValue } from './EventPropertiesForm';
 import i18n from '@/i18n/config';
 
@@ -442,5 +442,30 @@ describe('EventPropertiesForm — lookup page sizes', () => {
     await user.click(within(listbox).getByText('pipeline_id'));
 
     await waitFor(() => expect(mockGetPipelines).toHaveBeenCalledWith());
+  });
+});
+
+describe('EventPropertiesForm — date filters in local time', () => {
+  const originalTZ = process.env.TZ;
+  process.env.TZ = 'America/Sao_Paulo';
+
+  afterAll(() => {
+    process.env.TZ = originalTZ;
+  });
+
+  const resolvedAt = '2099-03-10T11:40:00.000Z';
+
+  it('runs in a timezone other than UTC', () => {
+    expect(new Date(resolvedAt).getTimezoneOffset()).toBe(180);
+  });
+
+  it('shows the persisted instant in local time and saves the time typed by the user', () => {
+    render(<Harness eventName="conversation.bot_resolved" initial={{ resolved_at: resolvedAt }} />);
+
+    const input = screen.getByLabelText(/resolved_at/, { selector: 'input' });
+    expect(input).toHaveValue('2099-03-10T08:40');
+
+    fireEvent.change(input, { target: { value: '2099-03-10T09:15' } });
+    expect(persisted().resolved_at).toBe('2099-03-10T12:15:00.000Z');
   });
 });

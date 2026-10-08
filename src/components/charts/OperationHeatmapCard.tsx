@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Button } from '@evoapi/design-system';
 import { useState } from 'react';
 import { TooltipInfo } from '@/components/base/TooltipInfo';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface OperationHeatmapData {
   timezone: string;
@@ -38,11 +39,11 @@ interface OperationHeatmapCardProps {
 
 const toHourLabel = (hour: number) => `${String(hour).padStart(2, '0')}h`;
 
-const formatDateLabel = (date: string | null) => {
+const formatDateLabel = (date: string | null, language: string) => {
   if (!date) return '-';
-  const [year, month, day] = date.split('-');
+  const [year, month, day] = date.split('-').map(Number);
   if (!year || !month || !day) return date;
-  return `${day}/${month}`;
+  return new Date(year, month - 1, day).toLocaleDateString(language, { day: '2-digit', month: '2-digit' });
 };
 
 const cellColor = (value: number, maxValue: number) => {
@@ -60,6 +61,7 @@ const OperationHeatmapCard = ({
   labels,
   tooltip,
 }: OperationHeatmapCardProps) => {
+  const { currentLanguage } = useLanguage();
   const [expanded, setExpanded] = useState(false);
   const byKey = new Map<string, number>();
   data.cells.forEach(cell => {
@@ -140,7 +142,7 @@ const OperationHeatmapCard = ({
             {labels?.peakHour || 'Hora de pico'}: {toHourLabel(data.peak_hour.hour)} ({data.peak_hour.conversations})
           </Badge>
           <Badge variant="secondary">
-            {labels?.peakPeriodDay || 'Dia de pico no período'}: {formatDateLabel(peakDayInPeriod?.date || null)} ({peakDayInPeriod?.conversations || 0})
+            {labels?.peakPeriodDay || 'Dia de pico no período'}: {formatDateLabel(peakDayInPeriod?.date || null, currentLanguage)} ({peakDayInPeriod?.conversations || 0})
           </Badge>
           <Badge variant="outline">
             {labels?.timezone || 'Timezone'}: {data.timezone}

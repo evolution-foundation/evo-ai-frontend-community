@@ -4,6 +4,7 @@ import { OperationHeatmapCard } from '@/components/charts';
 import type { CustomerDashboardResponse } from '@/types/analytics/dashboard';
 import { formatCurrency, formatSeconds } from './dashboardUtils';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/hooks/useLanguage';
 import { TooltipInfo } from '@/components/base/TooltipInfo';
 
 interface DashboardPerformanceSectionProps {
@@ -13,6 +14,7 @@ interface DashboardPerformanceSectionProps {
 
 const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionProps) => {
   const { t: tTours } = useTranslation('tours');
+  const { currentLanguage } = useLanguage();
   const tx = (key: string, fallback: string) => {
     const value = t(key);
     return value === key ? fallback : value;
@@ -120,7 +122,7 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
                             {stage.count} {t('dashboard.pipeline.opportunities')}
                           </Badge>
                         </div>
-                        <span className="text-lg font-semibold">{formatCurrency(stage.value)}</span>
+                        <span className="text-lg font-semibold">{formatCurrency(stage.value, currentLanguage)}</span>
                       </div>
                       <div className="relative w-full bg-secondary/50 rounded-full h-3 overflow-hidden">
                         <div className={`${color} h-3 rounded-full transition-all duration-500`} style={{ width: `${percentage}%` }} />
@@ -149,11 +151,11 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
             </div>
             <div className="rounded-md border p-3 bg-muted/10">
               <div className="text-sm text-muted-foreground">{tx('dashboard.pipeline.avgTicket', 'Ticket médio no funil')}</div>
-              <div className="text-xl font-semibold">{formatCurrency(avgTicketValue)}</div>
+              <div className="text-xl font-semibold">{formatCurrency(avgTicketValue, currentLanguage)}</div>
             </div>
             <div className="rounded-md border p-3 bg-muted/10">
               <div className="text-sm text-muted-foreground">{tx('dashboard.pipeline.totalValue', 'Valor total do funil')}</div>
-              <div className="text-xl font-semibold">{formatCurrency(data.pipeline.total_value)}</div>
+              <div className="text-xl font-semibold">{formatCurrency(data.pipeline.total_value, currentLanguage)}</div>
             </div>
           </CardContent>
         </Card>
@@ -185,7 +187,7 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold">{formatCurrency(channel.value)}</div>
+                      <div className="font-bold">{formatCurrency(channel.value, currentLanguage)}</div>
                     </div>
                   </div>
                 ))}
@@ -213,7 +215,7 @@ const DashboardPerformanceSection = ({ data, t }: DashboardPerformanceSectionPro
                     <div className="font-medium">{channel.name}</div>
                     <div className="text-xs text-muted-foreground">{channel.percentage}% do volume</div>
                   </div>
-                  <div className="font-semibold">{formatCurrency(channel.value)}</div>
+                  <div className="font-semibold">{formatCurrency(channel.value, currentLanguage)}</div>
                 </div>
               ))
             )}

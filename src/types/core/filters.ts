@@ -13,6 +13,8 @@ export interface FilterType {
   attribute_type: 'standard' | 'custom';
   attributeModel?: string;
   options?: Array<{ label: string; value: string | number }>;
+  /** Option labels are user data (e.g. tags), shown as stored: `t()` would eat a `ns:` prefix. */
+  untranslatedOptions?: boolean;
 }
 
 // Interface base para filtros (genérica)
@@ -233,65 +235,6 @@ export const DEFAULT_MCP_SERVER_FILTER: BaseFilter = {
   attributeKey: 'name',
 };
 
-// Tipos de filtro para servidores MCP personalizados
-export const CUSTOM_MCP_SERVER_FILTER_TYPES: FilterType[] = [
-  {
-    attributeKey: 'name',
-    attributeI18nKey: 'Nome',
-    inputType: 'plain_text',
-    dataType: 'text',
-    filterOperators: OPERATOR_TYPES_3,
-    attribute_type: 'standard',
-  },
-  {
-    attributeKey: 'description',
-    attributeI18nKey: 'Descrição',
-    inputType: 'plain_text',
-    dataType: 'text',
-    filterOperators: OPERATOR_TYPES_3,
-    attribute_type: 'standard',
-  },
-  {
-    attributeKey: 'url',
-    attributeI18nKey: 'URL',
-    inputType: 'plain_text',
-    dataType: 'text',
-    filterOperators: OPERATOR_TYPES_3,
-    attribute_type: 'standard',
-  },
-  {
-    attributeKey: 'timeout',
-    attributeI18nKey: 'Timeout',
-    inputType: 'number',
-    dataType: 'number',
-    filterOperators: OPERATOR_TYPES_1,
-    attribute_type: 'standard',
-  },
-  {
-    attributeKey: 'tags',
-    attributeI18nKey: 'Tags',
-    inputType: 'plain_text',
-    dataType: 'text',
-    filterOperators: OPERATOR_TYPES_3,
-    attribute_type: 'standard',
-  },
-  {
-    attributeKey: 'created_at',
-    attributeI18nKey: 'Data de Criação',
-    inputType: 'date',
-    dataType: 'date',
-    // Date column: only equality operators (the Go backend matches by DATE();
-    // substring operators are invalid on a timestamp and would 500).
-    filterOperators: OPERATOR_TYPES_1,
-    attribute_type: 'standard',
-  },
-];
-
-export const DEFAULT_CUSTOM_MCP_SERVER_FILTER: BaseFilter = {
-  ...DEFAULT_BASE_FILTER,
-  attributeKey: 'name',
-};
-
 // Tipos de filtro para ferramentas
 export const TOOL_FILTER_TYPES: FilterType[] = [
   {
@@ -371,10 +314,15 @@ export const CUSTOM_TOOL_FILTER_TYPES: FilterType[] = [
   {
     attributeKey: 'tags',
     attributeI18nKey: 'Tags',
-    inputType: 'plain_text',
+    // Options are the tags of the loaded tools, injected at runtime: there is no endpoint
+    // listing a tenant's tags. Substring operators make no sense over a closed list.
+    inputType: 'search_select',
     dataType: 'text',
-    filterOperators: OPERATOR_TYPES_3,
+    filterOperators: OPERATOR_TYPES_5.filter(
+      operator => operator.key !== 'contains' && operator.key !== 'does_not_contain',
+    ),
     attribute_type: 'standard',
+    untranslatedOptions: true,
   },
   {
     attributeKey: 'created_at',

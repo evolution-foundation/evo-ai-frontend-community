@@ -31,7 +31,7 @@ interface Step2Props {
 }
 
 const Step2_Audience = ({ data, onChange, onNext, onBack }: Step2Props) => {
-  const { t } = useLanguage('campaigns');
+  const { t, currentLanguage } = useLanguage('campaigns');
   const [totalContacts, setTotalContacts] = useState<number | null>(null);
   const [segments, setSegments] = useState<Segment[]>([]);
   const [labels, setLabels] = useState<LabelType[]>([]);
@@ -312,7 +312,7 @@ const Step2_Audience = ({ data, onChange, onNext, onBack }: Step2Props) => {
                     <SelectContent>
                       {newFilterType === 'segment' && segments.map(seg => (
                         <SelectItem key={seg.id} value={seg.id}>
-                          {seg.name} ({(seg.contactsCount || 0).toLocaleString('pt-BR')})
+                          {seg.name} ({(seg.contactsCount || 0).toLocaleString(currentLanguage)})
                         </SelectItem>
                       ))}
                       {newFilterType === 'tag' && labels.map(label => (

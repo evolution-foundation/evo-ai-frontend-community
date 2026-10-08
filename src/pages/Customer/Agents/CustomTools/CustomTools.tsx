@@ -6,14 +6,17 @@ import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { useLanguage } from '@/hooks/useLanguage';
 import { AgentsCustomToolsTour } from '@/tours';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Button } from '@evoapi/design-system';
-import { Grid3X3, List, Wand } from 'lucide-react';
+import { Wand } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 import { CustomTool, CustomToolsState, CustomToolFormData, CustomToolsListParams, CustomToolTestResponse } from '@/types/ai';
-import { BaseFilter, AppliedFilter, CUSTOM_TOOL_FILTER_TYPES } from '@/types/core';
+import { BaseFilter, AppliedFilter } from '@/types/core';
 import { buildAppliedFilterChips } from '@/utils/appliedFilterChips';
 import { AgentsTabsLayout } from '@/components/agents';
 import {
-  CustomToolCard,
+  buildCustomToolFilterTypes,
+  mergeTagOptions,
+} from '@/components/customTools/customToolFilterTypes';
+import {
   CustomToolsHeader,
   CustomToolsTable,
   CustomToolsPagination,
@@ -46,9 +49,13 @@ export default function CustomTools() {
   const isWizardEdit = !!editToolId && location.pathname.endsWith('/edit');
   const isWizardOpen = isWizardCreate || isWizardEdit;
   const [state, setState] = useState<CustomToolsState>(INITIAL_STATE);
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [toolToDelete, setToolToDelete] = useState<CustomTool | null>(null);
+  // Snapshot taken when the dialog opens: a background refetch (e.g. the debounced search)
+  // clears the live selection, and the dialog must keep naming what the user confirmed.
+  const [bulkDeleteIds, setBulkDeleteIds] = useState<string[] | null>(null);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [tagOptions, setTagOptions] = useState<string[]>([]);
 
   const [editingTool, setEditingTool] = useState<CustomTool | null>(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
@@ -77,6 +84,10 @@ export default function CustomTools() {
     [],
   );
 
+  // Only the latest list request may commit: an older search answering last would
+  // otherwise bring back rows a bulk delete just removed.
+  const latestLoadRef = useRef(0);
+
   // Load tools
   const loadTools = useCallback(
     async (params?: Partial<CustomToolsListParams>, filtersOverride?: BaseFilter[]) => {
@@ -84,7 +95,14 @@ export default function CustomTools() {
       if (!can('ai_custom_tools', 'read')) {
         return;
       }
-      setState(prev => ({ ...prev, loading: { ...prev.loading, list: true } }));
+      const loadId = ++latestLoadRef.current;
+      // Cleared up front, not on success: a pending or failed refetch must not leave a
+      // selection a bulk delete could act on over rows that may no longer be listed.
+      setState(prev => ({
+        ...prev,
+        selectedToolIds: [],
+        loading: { ...prev.loading, list: true },
+      }));
 
       try {
         const searchParams: CustomToolsListParams = {
@@ -111,6 +129,8 @@ export default function CustomTools() {
         }, {} as Record<string, string>);
 
         const tools = await listCustomTools(searchParams, filterParams);
+        if (loadId !== latestLoadRef.current) return;
+        setTagOptions(known => mergeTagOptions(known, tools || []));
 
         setState(prev => ({
           ...prev,
@@ -126,6 +146,7 @@ export default function CustomTools() {
           loading: { ...prev.loading, list: false },
         }));
       } catch (error) {
+        if (loadId !== latestLoadRef.current) return;
         console.error('Error loading custom tools:', error);
         toast.error(getErrorMessage(error as Error, t('messages.loadError')));
         setState(prev => ({ ...prev, loading: { ...prev.loading, list: false } }));
@@ -138,6 +159,10 @@ export default function CustomTools() {
     resource: 'ai_custom_tools',
     load: loadTools,
   });
+
+  // Keeps the search on screen, which a bare `loadTools()` drops. No `limit`, like the search
+  // and filter loads: `page_size` reads 20, but the list was loaded with the service's 100.
+  const reloadList = () => loadTools({ skip: 0, search: state.searchQuery });
 
   // Handlers
   const handleSearchChange = (query: string) => {
@@ -156,7 +181,7 @@ export default function CustomTools() {
   };
 
   const convertFiltersToApplied = (filters: BaseFilter[]): AppliedFilter[] =>
-    buildAppliedFilterChips(filters, CUSTOM_TOOL_FILTER_TYPES, t, handleRemoveFilter);
+    buildAppliedFilterChips(filters, buildCustomToolFilterTypes(tagOptions), t, handleRemoveFilter);
 
   const handleOpenFilter = () => {
     setFilterModalOpen(true);
@@ -300,8 +325,7 @@ export default function CustomTools() {
       await deleteCustomTool(toolToDelete.id);
       toast.success(t('messages.deleteSuccess'));
 
-      // Refresh the list
-      loadTools();
+      reloadList();
 
       setDeleteDialogOpen(false);
       setToolToDelete(null);
@@ -310,6 +334,48 @@ export default function CustomTools() {
       toast.error(t('messages.deleteError'));
     } finally {
       setState(prev => ({ ...prev, loading: { ...prev.loading, delete: false } }));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (!can('ai_custom_tools', 'delete')) {
+      toast.error(t('permissions.deleteDenied'));
+      return;
+    }
+    if (state.selectedToolIds.length === 0) {
+      return;
+    }
+    setBulkDeleteIds(state.selectedToolIds);
+  };
+
+  const confirmBulkDelete = async () => {
+    const selectedIds = bulkDeleteIds ?? [];
+    if (selectedIds.length === 0) return;
+
+    setIsBulkDeleting(true);
+    try {
+      const results = await Promise.allSettled(selectedIds.map(id => deleteCustomTool(id)));
+      const rejected = results.filter(
+        (result): result is PromiseRejectedResult => result.status === 'rejected',
+      );
+      const failed = rejected.length;
+
+      if (failed > 0) {
+        // The toast only carries a count; the reasons would otherwise be lost.
+        console.error(
+          'Error bulk deleting custom tools:',
+          rejected.map(result => result.reason),
+        );
+        toast.error(t('bulkDeleteDialog.partialError', { failed, total: selectedIds.length }));
+      } else {
+        toast.success(t('bulkDeleteDialog.success', { count: selectedIds.length }));
+      }
+
+      setBulkDeleteIds(null);
+      // Refetch instead of local math: after a partial failure the local list is a guess.
+      await reloadList();
+    } finally {
+      setIsBulkDeleting(false);
     }
   };
 
@@ -342,8 +408,7 @@ export default function CustomTools() {
         await createCustomTool(data);
         toast.success(t('messages.createSuccess'));
 
-        // Refresh the entire list for new tools
-        loadTools();
+        reloadList();
       }
 
       // Clear editing state; the wizard page navigates back below.
@@ -369,6 +434,8 @@ export default function CustomTools() {
       setDetailsTool(null);
     }
   };
+
+  const isNarrowed = state.searchQuery.trim().length > 0 || activeFilters.length > 0;
 
   if (isWizardOpen) {
     return (
@@ -402,42 +469,17 @@ export default function CustomTools() {
           onSearchChange={handleSearchChange}
           onNewTool={handleCreateTool}
           onFilter={handleOpenFilter}
-
+          onBulkDelete={handleBulkDelete}
           onClearSelection={() => setState(prev => ({ ...prev, selectedToolIds: [] }))}
           activeFilters={appliedFilters}
           showFilters={true}
         />
       </div>
 
-      {/* View Mode Toggle */}
-      <div className="flex items-center justify-end mb-3" data-tour="agents-custom-tools-view-toggle">
-        <div className="flex items-center border rounded-lg">
-          <Button
-            variant={viewMode === 'cards' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setViewMode('cards')}
-            className="border-0 rounded-r-none"
-          >
-            <Grid3X3 className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={viewMode === 'table' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setViewMode('table')}
-            className="border-0 rounded-l-none"
-          >
-            <List className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Content */}
       <div className="mt-5 flex-1 overflow-auto" data-tour="agents-custom-tools-content">
-        {state.loading.list ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="text-muted-foreground">{t('loading.tools')}</div>
-          </div>
-        ) : state.tools.length === 0 ? (
+        {/* The onboarding empty state only when nothing narrows the list: under a search
+            or filter, "no tool created yet" would be false. */}
+        {!state.loading.list && state.tools.length === 0 && !isNarrowed ? (
           <EmptyState
             icon={Wand}
             title={t('table.empty.title')}
@@ -448,20 +490,6 @@ export default function CustomTools() {
             }}
             className="h-full"
           />
-        ) : viewMode === 'cards' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {state.tools.map(tool => (
-              <CustomToolCard
-                key={tool.id}
-                tool={tool}
-                onEdit={handleEditTool}
-                onDelete={handleDeleteTool}
-                onTest={handleTestTool}
-                onClick={handleToolClick}
-                isTestLoading={testingTool === tool.id}
-              />
-            ))}
-          </div>
         ) : (
           <CustomToolsTable
             tools={state.tools}
@@ -479,7 +507,6 @@ export default function CustomTools() {
             onEditTool={handleEditTool}
             onDeleteTool={handleDeleteTool}
             onTestTool={handleTestTool}
-            onCreateTool={handleCreateTool}
             testingToolId={testingTool}
           />
         )}
@@ -526,6 +553,34 @@ export default function CustomTools() {
         </DialogContent>
       </Dialog>
 
+      <Dialog
+        open={bulkDeleteIds !== null}
+        onOpenChange={open => {
+          if (!open && !isBulkDeleting) setBulkDeleteIds(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('bulkDeleteDialog.title')}</DialogTitle>
+            <DialogDescription>
+              {t('bulkDeleteDialog.description', { count: bulkDeleteIds?.length ?? 0 })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setBulkDeleteIds(null)}
+              disabled={isBulkDeleting}
+            >
+              {t('bulkDeleteDialog.cancel')}
+            </Button>
+            <Button variant="destructive" onClick={confirmBulkDelete} disabled={isBulkDeleting}>
+              {isBulkDeleting ? t('bulkDeleteDialog.deleting') : t('bulkDeleteDialog.confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Tool Details Modal */}
       <CustomToolDetails
         open={detailsModalOpen}
@@ -547,6 +602,7 @@ export default function CustomTools() {
         onFiltersChange={setActiveFilters}
         onApplyFilters={handleApplyFilters}
         onClearFilters={handleClearFilters}
+        tagOptions={tagOptions}
       />
 
       {/* Test Result Dialog */}

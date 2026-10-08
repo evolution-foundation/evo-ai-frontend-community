@@ -14,7 +14,7 @@ import {
   DialogTitle,
   Button,
 } from '@evoapi/design-system';
-import { Grid3X3, List, TestTube } from 'lucide-react';
+import { TestTube } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 import {
   CustomMcpServer,
@@ -22,19 +22,27 @@ import {
   ListCustomMcpServersParams,
   CustomMcpServerFormData,
 } from '@/types/ai';
-import { BaseFilter, AppliedFilter, CUSTOM_MCP_SERVER_FILTER_TYPES } from '@/types/core';
-import { buildAppliedFilterChips } from '@/utils/appliedFilterChips';
 import { AgentsTabsLayout } from '@/components/agents';
-import { CustomMCPServerCard } from '@/components/customMcpServers';
 
 import CustomMCPServersHeader from '@/components/customMcpServers/CustomMCPServersHeader';
 import CustomMCPServersTable from '@/components/customMcpServers/CustomMCPServersTable';
 import CustomMCPServersPagination from '@/components/customMcpServers/CustomMCPServersPagination';
 import { CustomMCPServerWizardModal } from '@/components/customMcpServers';
 import CustomMCPServerDetails from '@/components/customMcpServers/CustomMCPServerDetails';
-import CustomMCPServersFilter from '@/components/customMcpServers/CustomMCPServersFilter';
+import CustomMCPServersFilterPanel from '@/components/customMcpServers/CustomMCPServersFilterPanel';
+import CustomMCPServerTestDialog, {
+  CustomMCPServerTestOutcome,
+} from '@/components/customMcpServers/CustomMCPServerTestDialog';
 import {
-  listCustomMcpServers,
+  EMPTY_CUSTOM_MCP_SERVER_FACETS,
+  EMPTY_CUSTOM_MCP_SERVER_FACET_OPTIONS,
+  CustomMcpServerFacetSelection,
+  buildCustomMcpServerFilterParams,
+  countSelectedFacets,
+  mergeFacetOptions,
+} from '@/components/customMcpServers/customMcpServersFilterFacets';
+import {
+  listCustomMcpServersPage,
   getCustomMcpServer,
   createCustomMcpServer,
   updateCustomMcpServer,
@@ -75,21 +83,34 @@ export default function CustomMCPServers() {
   const isWizardEdit = !!editServerId && location.pathname.endsWith('/edit');
   const isWizardOpen = isWizardCreate || isWizardEdit;
   const [state, setState] = useState<CustomMcpServersState>(INITIAL_STATE);
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [serverToDelete, setServerToDelete] = useState<CustomMcpServer | null>(null);
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
   const [editingServer, setEditingServer] = useState<CustomMcpServer | null>(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsServer, setDetailsServer] = useState<CustomMcpServer | null>(null);
-  const [filterModalOpen, setFilterModalOpen] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<BaseFilter[]>([]);
-  // EVO-1953: ref synced to activeFilters so the applied-chip "x" removes against
-  // the current list, not the stale snapshot captured when the chips were built.
-  const activeFiltersRef = useRef<BaseFilter[]>([]);
-  activeFiltersRef.current = activeFilters;
-  const [appliedFilters, setAppliedFilters] = useState<AppliedFilter[]>([]);
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  // Stable: the panel re-binds its outside-click listeners whenever `onClose` changes.
+  const closeFilterPanel = useCallback(() => setFilterPanelOpen(false), []);
+  // Tags/Timeout are applied SERVER-side, over the whole base, like the Agents tab facets.
+  const [facets, setFacets] = useState<CustomMcpServerFacetSelection>(
+    EMPTY_CUSTOM_MCP_SERVER_FACETS,
+  );
+  // Read by `loadServers` instead of closing over `facets`: the debounced search fires a
+  // `loadServers` from an older render, which would drop a facet ticked in the meantime.
+  const facetsRef = useRef<CustomMcpServerFacetSelection>(EMPTY_CUSTOM_MCP_SERVER_FACETS);
+  const [facetOptions, setFacetOptions] = useState(EMPTY_CUSTOM_MCP_SERVER_FACET_OPTIONS);
+  // Requests are not serialized: a slow response for an older search/facet set must not
+  // overwrite the rows of the newer one.
+  const loadSeqRef = useRef(0);
   const [testingServer, setTestingServer] = useState<string | null>(null);
+  // Per-run token, not the server id: re-testing the same server, or closing the dialog
+  // mid-flight, must not let an older run write its outcome.
+  const testRunRef = useRef(0);
+  const [testDialogServer, setTestDialogServer] = useState<CustomMcpServer | null>(null);
+  const [testOutcome, setTestOutcome] = useState<CustomMCPServerTestOutcome | null>(null);
   // EVO-1953: debounce the server-side search so typing fires one request after
   // it settles, not one per keystroke.
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -104,11 +125,15 @@ export default function CustomMCPServers() {
 
   // Load servers
   const loadServers = useCallback(
-    async (params?: Partial<ListCustomMcpServersParams>, filtersOverride?: BaseFilter[]) => {
+    async (
+      params?: Partial<ListCustomMcpServersParams>,
+      facetsOverride?: CustomMcpServerFacetSelection,
+    ) => {
       // No toast: `AgentsTabsLayout` is already redirecting whoever lacks `read`.
       if (!can('ai_custom_mcp_servers', 'read')) {
         return;
       }
+      const seq = ++loadSeqRef.current;
       setState(prev => ({ ...prev, loading: { ...prev.loading, list: true } }));
 
       try {
@@ -118,42 +143,35 @@ export default function CustomMCPServers() {
           ...params,
         };
 
-        const effectiveFilters = filtersOverride ?? activeFilters;
-        const filterParams = effectiveFilters.reduce((acc, filter, index) => {
-          const prefix = `filters[${index}]`;
-          acc[`${prefix}[attribute_key]`] = filter.attributeKey;
-          acc[`${prefix}[filter_operator]`] = filter.filterOperator;
-          acc[`${prefix}[values]`] = Array.isArray(filter.values)
-            ? filter.values.join(',')
-            : String(filter.values);
-          if (index > 0) {
-            acc[`${prefix}[query_operator]`] = filter.queryOperator;
-          }
-          return acc;
-        }, {} as Record<string, string>);
+        const filterParams = buildCustomMcpServerFilterParams(
+          facetsOverride ?? facetsRef.current,
+        );
+        const { servers, total } = await listCustomMcpServersPage(requestParams, filterParams);
+        if (seq !== loadSeqRef.current) return;
 
-        const response = await listCustomMcpServers(requestParams, filterParams);
-
+        const pageSize = requestParams.limit || DEFAULT_PAGE_SIZE;
+        setFacetOptions(known => mergeFacetOptions(known, servers));
         setState(prev => ({
           ...prev,
-          servers: response,
+          servers,
           meta: {
             pagination: {
-              page: Math.floor((requestParams.skip || 0) / (requestParams.limit || DEFAULT_PAGE_SIZE)) + 1,
-              page_size: requestParams.limit || DEFAULT_PAGE_SIZE,
-              total: response.length,
-              total_pages: Math.ceil(response.length / (requestParams.limit || DEFAULT_PAGE_SIZE)),
+              page: Math.floor((requestParams.skip || 0) / pageSize) + 1,
+              page_size: pageSize,
+              total,
+              total_pages: Math.ceil(total / pageSize),
             },
           },
           loading: { ...prev.loading, list: false },
         }));
       } catch (error) {
+        if (seq !== loadSeqRef.current) return;
         console.error('Error loading Custom MCP servers:', error);
         toast.error(t('errors.loadError'));
         setState(prev => ({ ...prev, loading: { ...prev.loading, list: false } }));
       }
     },
-    [can, t, activeFilters],
+    [can, t],
   );
 
   usePermissionGatedLoad({
@@ -162,78 +180,67 @@ export default function CustomMCPServers() {
   });
 
   // Handlers
+  // Dropping the selection is the honest move: keeping rows the user can no longer see
+  // in the selected count hides what a bulk action would hit.
   const handleSearchChange = (query: string) => {
     setState(prev => ({
       ...prev,
       searchQuery: query,
+      selectedServerIds: [],
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
     }));
 
     if (searchDebounceRef.current) {
       clearTimeout(searchDebounceRef.current);
     }
+    const { page_size } = state.meta.pagination;
     searchDebounceRef.current = setTimeout(() => {
-      loadServers({ skip: 0, search: query });
+      loadServers({ skip: 0, limit: page_size, search: query });
     }, 500);
   };
 
-  const convertFiltersToApplied = (filters: BaseFilter[]): AppliedFilter[] =>
-    buildAppliedFilterChips(filters, CUSTOM_MCP_SERVER_FILTER_TYPES, t, handleRemoveFilter);
-
-  const handleOpenFilter = () => {
-    setFilterModalOpen(true);
-  };
-
-  const handleApplyFilters = async (filters: BaseFilter[]) => {
-    setActiveFilters(filters);
-    setAppliedFilters(convertFiltersToApplied(filters));
-
+  // A facet change is a refetch from page 1: staying on page 5 would ask for a page the
+  // narrowed result set no longer has.
+  const applyFacets = (next: CustomMcpServerFacetSelection) => {
+    facetsRef.current = next;
+    setFacets(next);
     setState(prev => ({
       ...prev,
-      loading: { ...prev.loading, list: true },
+      selectedServerIds: [],
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
     }));
-
-    try {
-      await loadServers({ skip: 0, search: state.searchQuery }, filters);
-    } catch (error) {
-      console.error('Error applying filters:', error);
-      toast.error(t('errors.applyFiltersError'));
-    }
+    loadServers(
+      { skip: 0, limit: state.meta.pagination.page_size, search: state.searchQuery },
+      next,
+    );
   };
 
-  const handleClearFilters = () => {
-    setActiveFilters([]);
-    setAppliedFilters([]);
-    loadServers({ skip: 0, search: state.searchQuery }, []);
+  // Reloads keep the page, page size and search on screen: dropping the search here would
+  // list the whole base under a search box that still shows the typed text.
+  const reloadCurrentPage = (page = state.meta.pagination.page) => {
+    const { page_size } = state.meta.pagination;
+    return loadServers({ skip: (page - 1) * page_size, limit: page_size, search: state.searchQuery });
   };
 
-  const handleRemoveFilter = (index: number) => {
-    const newFilters = activeFiltersRef.current.filter((_, i) => i !== index);
-    if (newFilters.length === 0) {
-      handleClearFilters();
-    } else {
-      handleApplyFilters(newFilters);
-    }
-  };
-
+  // Page and page-size changes drop the selection for the same reason a search does.
   const handlePageChange = (page: number) => {
     setState(prev => ({
       ...prev,
+      selectedServerIds: [],
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page } },
     }));
 
-    const skip = (page - 1) * state.meta.pagination.page_size;
-    loadServers({ skip });
+    reloadCurrentPage(page);
   };
 
   const handlePerPageChange = (perPage: number) => {
     setState(prev => ({
       ...prev,
+      selectedServerIds: [],
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page_size: perPage, page: 1 } },
     }));
 
-    loadServers({ skip: 0, limit: perPage });
+    loadServers({ skip: 0, limit: perPage, search: state.searchQuery });
   };
 
   // Server actions
@@ -295,9 +302,13 @@ export default function CustomMCPServers() {
   };
 
   const handleTestServer = async (server: CustomMcpServer) => {
+    const run = ++testRunRef.current;
     setTestingServer(server.id);
+    setTestDialogServer(server);
+    setTestOutcome(null);
     setState(prev => ({ ...prev, loading: { ...prev.loading, test: true } }));
 
+    let outcome: CustomMCPServerTestOutcome;
     try {
       const result = await testCustomMcpServer(server.id);
       if (result.test_result.success) {
@@ -305,9 +316,9 @@ export default function CustomMCPServers() {
         // agora no handshake MCP) sobre `server.tools.length` (DB, que fica
         // stale se o Create original não conseguiu popular). Optional-chaining
         // no fallback evita o crash silencioso quando o server tem tools=null.
-        const count =
+        const toolsCount =
           result.test_result.tools_count ?? result.server.tools?.length ?? 0;
-        toast.success(t('success.testSuccess', { count }));
+        outcome = { success: true, toolsCount };
         // Update server with latest tools
         setState(prev => ({
           ...prev,
@@ -316,17 +327,25 @@ export default function CustomMCPServers() {
           ),
         }));
       } else {
-        toast.error(
-          t('test.failed', { error: result.test_result.error || t('test.unknownError') }),
-        );
+        outcome = { success: false, error: result.test_result.error || t('test.unknownError') };
       }
     } catch (error) {
       console.error('Error testing Custom MCP server:', error);
-      toast.error(t('errors.testError'));
-    } finally {
-      setTestingServer(null);
-      setState(prev => ({ ...prev, loading: { ...prev.loading, test: false } }));
+      outcome = { success: false, error: t('errors.testError') };
     }
+
+    if (run !== testRunRef.current) return;
+    setTestingServer(null);
+    setTestOutcome(outcome);
+    setState(prev => ({ ...prev, loading: { ...prev.loading, test: false } }));
+  };
+
+  const closeTestDialog = () => {
+    testRunRef.current += 1;
+    setTestingServer(null);
+    setTestDialogServer(null);
+    setTestOutcome(null);
+    setState(prev => ({ ...prev, loading: { ...prev.loading, test: false } }));
   };
 
   // Confirm delete single server
@@ -339,8 +358,16 @@ export default function CustomMCPServers() {
       await deleteCustomMcpServer(serverToDelete.id);
       toast.success(t('success.deleteSuccess'));
 
-      // Refresh the list
-      loadServers();
+      // A deleted row left in the selection would be re-sent by the bulk delete and 404.
+      const deletedId = serverToDelete.id;
+      const { page } = state.meta.pagination;
+      const targetPage = state.servers.length <= 1 && page > 1 ? page - 1 : page;
+      setState(prev => ({
+        ...prev,
+        selectedServerIds: prev.selectedServerIds.filter(id => id !== deletedId),
+        meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: targetPage } },
+      }));
+      reloadCurrentPage(targetPage);
 
       setDeleteDialogOpen(false);
       setServerToDelete(null);
@@ -349,6 +376,58 @@ export default function CustomMCPServers() {
       toast.error(t('errors.deleteError'));
     } finally {
       setState(prev => ({ ...prev, loading: { ...prev.loading, delete: false } }));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (!can('ai_custom_mcp_servers', 'delete')) {
+      toast.error(t('permissions.deleteDenied'));
+      return;
+    }
+    if (state.selectedServerIds.length === 0) {
+      return;
+    }
+    setBulkDeleteDialogOpen(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    const selectedIds = state.selectedServerIds;
+    if (selectedIds.length === 0) return;
+
+    setIsBulkDeleting(true);
+    try {
+      const results = await Promise.allSettled(selectedIds.map(id => deleteCustomMcpServer(id)));
+      const rejected = results.filter(
+        (result): result is PromiseRejectedResult => result.status === 'rejected',
+      );
+      const failed = rejected.length;
+      const deleted = selectedIds.length - failed;
+
+      if (failed > 0) {
+        // The toast only carries a count: without this the reason each delete failed is
+        // lost, and a partial failure leaves nothing to debug.
+        console.error(
+          'Error bulk deleting Custom MCP servers:',
+          rejected.map(result => result.reason),
+        );
+        toast.error(t('bulkDeleteDialog.partialError', { failed, total: selectedIds.length }));
+      } else {
+        toast.success(t('bulkDeleteDialog.success', { count: deleted }));
+      }
+
+      // Refetch instead of local math: after a partial failure the local list is a guess.
+      // A page the delete emptied steps back one, or it would render empty.
+      const { page } = state.meta.pagination;
+      const targetPage = deleted >= state.servers.length && page > 1 ? page - 1 : page;
+      setState(prev => ({
+        ...prev,
+        selectedServerIds: [],
+        meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: targetPage } },
+      }));
+      setBulkDeleteDialogOpen(false);
+      await reloadCurrentPage(targetPage);
+    } finally {
+      setIsBulkDeleting(false);
     }
   };
 
@@ -378,7 +457,7 @@ export default function CustomMCPServers() {
         toast.success(t('success.createSuccess'));
 
         // Refresh the entire list for new servers
-        loadServers();
+        reloadCurrentPage();
       }
 
       // Clear editing state; the wizard page navigates back below.
@@ -403,6 +482,8 @@ export default function CustomMCPServers() {
       setDetailsServer(null);
     }
   };
+
+  const isNarrowed = state.searchQuery.trim().length > 0 || countSelectedFacets(facets) > 0;
 
   if (isWizardOpen) {
     return (
@@ -435,33 +516,22 @@ export default function CustomMCPServers() {
           searchValue={state.searchQuery}
           onSearchChange={handleSearchChange}
           onNewServer={handleCreateServer}
-          onFilter={handleOpenFilter}
+          onFilter={() => setFilterPanelOpen(open => !open)}
+          onBulkDelete={handleBulkDelete}
           onClearSelection={() => setState(prev => ({ ...prev, selectedServerIds: [] }))}
-          activeFilters={appliedFilters}
+          filterCount={countSelectedFacets(facets)}
           showFilters={true}
+          filterPanel={
+            <CustomMCPServersFilterPanel
+              open={filterPanelOpen}
+              onClose={closeFilterPanel}
+              selection={facets}
+              onSelectionChange={applyFacets}
+              onClear={() => applyFacets(EMPTY_CUSTOM_MCP_SERVER_FACETS)}
+              options={facetOptions}
+            />
+          }
         />
-      </div>
-
-      {/* View Mode Toggle */}
-      <div className="flex items-center justify-end mb-3" data-tour="agents-custom-mcps-view-toggle">
-        <div className="flex items-center border rounded-lg">
-          <Button
-            variant={viewMode === 'cards' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setViewMode('cards')}
-            className="border-0 rounded-r-none"
-          >
-            <Grid3X3 className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={viewMode === 'table' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setViewMode('table')}
-            className="border-0 rounded-l-none"
-          >
-            <List className="h-4 w-4" />
-          </Button>
-        </div>
       </div>
 
       {/* Content */}
@@ -470,7 +540,7 @@ export default function CustomMCPServers() {
           <div className="flex items-center justify-center py-16">
             <div className="text-muted-foreground">{t('loading.servers')}</div>
           </div>
-        ) : state.servers.length === 0 ? (
+        ) : state.servers.length === 0 && !isNarrowed ? (
           <EmptyState
             icon={TestTube}
             title={t('emptyState.title')}
@@ -481,20 +551,6 @@ export default function CustomMCPServers() {
             }}
             className="h-full"
           />
-        ) : viewMode === 'cards' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {state.servers.map(server => (
-              <CustomMCPServerCard
-                key={server.id}
-                server={server}
-                onEdit={handleEditServer}
-                onDelete={handleDeleteServer}
-                onTest={handleTestServer}
-                onClick={handleServerClick}
-                isTestLoading={testingServer === server.id}
-              />
-            ))}
-          </div>
         ) : (
           <CustomMCPServersTable
             servers={state.servers}
@@ -514,6 +570,7 @@ export default function CustomMCPServers() {
             onTestServer={handleTestServer}
             onCreateServer={handleCreateServer}
             testingServerId={testingServer}
+            emptyMessage={isNarrowed ? t('table.noResults') : undefined}
           />
         )}
       </div>
@@ -559,6 +616,34 @@ export default function CustomMCPServers() {
         </DialogContent>
       </Dialog>
 
+      <Dialog
+        open={bulkDeleteDialogOpen}
+        onOpenChange={open => {
+          if (!isBulkDeleting) setBulkDeleteDialogOpen(open);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('bulkDeleteDialog.title')}</DialogTitle>
+            <DialogDescription>
+              {t('bulkDeleteDialog.description', { count: state.selectedServerIds.length })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setBulkDeleteDialogOpen(false)}
+              disabled={isBulkDeleting}
+            >
+              {t('bulkDeleteDialog.cancel')}
+            </Button>
+            <Button variant="destructive" onClick={confirmBulkDelete} disabled={isBulkDeleting}>
+              {isBulkDeleting ? t('bulkDeleteDialog.deleting') : t('bulkDeleteDialog.confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Server Details Modal */}
       <CustomMCPServerDetails
         open={detailsModalOpen}
@@ -568,18 +653,20 @@ export default function CustomMCPServers() {
           setDetailsModalOpen(false);
           handleEditServer(server);
         }}
-        onTest={handleTestServer}
+        onTest={server => {
+          setDetailsModalOpen(false);
+          handleTestServer(server);
+        }}
         isTestLoading={testingServer === detailsServer?.id}
       />
 
-      {/* Servers Filter Modal */}
-      <CustomMCPServersFilter
-        open={filterModalOpen}
-        onOpenChange={setFilterModalOpen}
-        filters={activeFilters}
-        onFiltersChange={setActiveFilters}
-        onApplyFilters={handleApplyFilters}
-        onClearFilters={handleClearFilters}
+      <CustomMCPServerTestDialog
+        open={!!testDialogServer}
+        onOpenChange={open => {
+          if (!open) closeTestDialog();
+        }}
+        server={testDialogServer}
+        outcome={testOutcome}
       />
     </div>
     </AgentsTabsLayout>

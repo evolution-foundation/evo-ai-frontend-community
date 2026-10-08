@@ -1,5 +1,5 @@
 import evoaiApi from '@/services/core/apiEvoAI';
-import { extractData } from '@/utils/apiHelpers';
+import { extractData, extractResponse } from '@/utils/apiHelpers';
 import {
   CustomMcpServer,
   CustomMcpServerCreate,
@@ -9,11 +9,10 @@ import {
   ListCustomMcpServersParams,
 } from '@/types/ai';
 
-// List custom MCP servers
-export const listCustomMcpServers = async (
+const buildListQueryParams = (
   params?: ListCustomMcpServersParams,
   filterParams?: Record<string, string>,
-): Promise<CustomMcpServer[]> => {
+): Record<string, unknown> => {
   const queryParams: Record<string, unknown> = {
     skip: params?.skip || 0,
     limit: params?.limit || 100,
@@ -36,10 +35,36 @@ export const listCustomMcpServers = async (
     Object.assign(queryParams, filterParams);
   }
 
+  return queryParams;
+};
+
+// List custom MCP servers
+export const listCustomMcpServers = async (
+  params?: ListCustomMcpServersParams,
+  filterParams?: Record<string, string>,
+): Promise<CustomMcpServer[]> => {
   const response = await evoaiApi.get('/custom-mcp-servers', {
-    params: queryParams,
+    params: buildListQueryParams(params, filterParams),
   });
   return extractData<CustomMcpServer[]>(response);
+};
+
+export interface CustomMcpServersPage {
+  servers: CustomMcpServer[];
+  total: number;
+}
+
+// Same request, keeping `meta.pagination.total`: the length of `data` is one page, not the base.
+export const listCustomMcpServersPage = async (
+  params?: ListCustomMcpServersParams,
+  filterParams?: Record<string, string>,
+): Promise<CustomMcpServersPage> => {
+  const response = await evoaiApi.get('/custom-mcp-servers', {
+    params: buildListQueryParams(params, filterParams),
+  });
+  const { data, meta } = extractResponse<CustomMcpServer>(response);
+  const servers = data ?? [];
+  return { servers, total: meta?.pagination?.total ?? servers.length };
 };
 
 // Create custom MCP server

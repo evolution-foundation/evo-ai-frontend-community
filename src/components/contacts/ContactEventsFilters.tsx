@@ -9,6 +9,7 @@ import {
 } from '@evoapi/design-system';
 import { X } from 'lucide-react';
 import { useId, useState } from 'react';
+import { startOfDay } from 'date-fns';
 import { useLanguage } from '@/hooks/useLanguage';
 import type { ContactEventsQuery, ContactEventType } from '@/types/contacts';
 
@@ -22,7 +23,8 @@ const EVENT_TYPES: ContactEventType[] = ['identify', 'track', 'page', 'screen', 
 
 const ALL_VALUE = '__all__';
 
-// Period presets computed client-side into `occurred_after` (YYYY-MM-DD). This
+// Period presets computed client-side into `occurred_after` (start of the local
+// day, as an ISO instant: a bare YYYY-MM-DD is read as UTC midnight). This
 // replaces the old free-form "De/Até" date inputs + channel/campaign filters —
 // the panel now only exposes Tipo + Período (channel/campaign stay supported
 // by the ContactEventsQuery type/backend, just not surfaced in this filter UI).
@@ -33,7 +35,7 @@ function presetToOccurredAfter(preset: PeriodPreset): string | undefined {
   const days = preset === 'today' ? 0 : preset === '7d' ? 7 : 30;
   const date = new Date();
   date.setDate(date.getDate() - days);
-  return date.toISOString().slice(0, 10);
+  return startOfDay(date).toISOString();
 }
 
 function isFilterActive(filters: ContactEventsQuery): boolean {
