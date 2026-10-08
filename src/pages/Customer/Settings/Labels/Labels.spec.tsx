@@ -100,8 +100,8 @@ describe('Labels — a refused save points at the field', () => {
     expect(toast.error).not.toHaveBeenCalled();
   });
 
-  it('sends a three-digit hex color, which the server accepts', async () => {
-    mockCreateLabel.mockResolvedValue({ id: 'l1', title: 'vip', color: '#abc' });
+  it('accepts a three-digit hex color and sends it as six digits', async () => {
+    mockCreateLabel.mockResolvedValue({ id: 'l1', title: 'vip', color: '#aabbcc' });
     const user = userEvent.setup();
     render(<Labels />);
 
@@ -112,7 +112,7 @@ describe('Labels — a refused save points at the field', () => {
     await user.type(color, '#abc');
     await user.click(screen.getByRole('button', { name: 'modal.buttons.create' }));
 
-    await waitFor(() => expect(mockCreateLabel).toHaveBeenCalledWith(expect.objectContaining({ color: '#abc' })));
+    await waitFor(() => expect(mockCreateLabel).toHaveBeenCalledWith(expect.objectContaining({ color: '#aabbcc' })));
     expect(screen.queryByText('modal.validation.colorInvalid')).not.toBeInTheDocument();
   });
 

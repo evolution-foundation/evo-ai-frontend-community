@@ -43,6 +43,10 @@ const getRandomColor = () => {
   return DEFAULT_COLORS[Math.floor(Math.random() * DEFAULT_COLORS.length)];
 };
 
+// Label chips derive their tint from six hex digits, so #RGB is saved as #RRGGBB.
+const expandShortHex = (color: string) =>
+  /^#[0-9A-F]{3}$/i.test(color) ? `#${[...color.slice(1)].map(digit => digit + digit).join('')}` : color;
+
 export default function LabelModal({
   open,
   onOpenChange,
@@ -126,7 +130,7 @@ export default function LabelModal({
     onSubmit({
       title: formData.title.toLowerCase().trim(),
       description: formData.description.trim() || undefined,
-      color: formData.color,
+      color: expandShortHex(formData.color),
       show_on_sidebar: formData.show_on_sidebar,
     });
   };
