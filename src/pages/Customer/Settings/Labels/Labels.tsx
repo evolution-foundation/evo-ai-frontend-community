@@ -23,6 +23,8 @@ import LabelsHeader from '@/components/labels/LabelsHeader';
 import LabelsTable from '@/components/labels/LabelsTable';
 import LabelsPagination from '@/components/labels/LabelsPagination';
 import LabelModal from '@/components/labels/LabelModal';
+import { LABEL_FIELD_ERRORS } from '@/components/labels/labelFieldErrors';
+import { apiFieldErrorCodes, resolveFieldErrors } from '@/utils/apiHelpers';
 import { DEFAULT_PAGE_SIZE, SETTINGS_LIST_FETCH_SIZE } from '@/constants/pagination';
 
 const INITIAL_STATE: LabelsState = {
@@ -57,6 +59,7 @@ export default function Labels() {
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [labelModalOpen, setLabelModalOpen] = useState(false);
   const [editingLabel, setEditingLabel] = useState<Label | null>(null);
+  const [labelServerErrors, setLabelServerErrors] = useState<Record<string, string>>({});
 
   // Load labels
   const loadLabels = useCallback(async () => {
@@ -227,6 +230,7 @@ export default function Labels() {
       return;
     }
 
+    setLabelServerErrors({});
     setState(prev => ({
       ...prev,
       loading: { ...prev.loading, [editingLabel ? 'update' : 'create']: true },
@@ -252,7 +256,13 @@ export default function Labels() {
       setEditingLabel(null);
     } catch (error) {
       console.error('Error saving label:', error);
-      toast.error(editingLabel ? t('messages.updateError') : t('messages.createError'));
+      const { fields, complete } = resolveFieldErrors(apiFieldErrorCodes(error), LABEL_FIELD_ERRORS);
+      setLabelServerErrors(
+        Object.fromEntries(Object.entries(fields).map(([field, key]) => [field, t(key)])),
+      );
+      if (!complete) {
+        toast.error(editingLabel ? t('messages.updateError') : t('messages.createError'));
+      }
     } finally {
       setState(prev => ({
         ...prev,
@@ -266,6 +276,7 @@ export default function Labels() {
     if (!open) {
       setLabelModalOpen(false);
       setEditingLabel(null);
+      setLabelServerErrors({});
     }
   };
 
@@ -467,6 +478,7 @@ export default function Labels() {
         isNew={!editingLabel}
         loading={state.loading.create || state.loading.update}
         onSubmit={handleLabelFormSubmit}
+        serverErrors={labelServerErrors}
       />
     </div>
   );

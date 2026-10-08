@@ -163,6 +163,11 @@ jobs:
       #     America/Sao_Paulo; on a UTC runner the shift is zero and a revert passes.
       #   - browser language detection: a regional Portuguese tag (pt-PT, pt-AO) resolves
       #     to pt-BR instead of falling through to English.
+      #   - settings save refusals (labels, canned responses, custom attributes): a
+      #     422 the screen can explain lands on its field with the modal open; one it
+      #     cannot still raises the generic toast, so a refusal is never silent.
+      #     Renaming an existing attribute keeps its key: the stored values are filed
+      #     under it.
       #   - labels list creation date: the API sends epoch seconds, so the column shows
       #     the real day in each language instead of January 1970.
       #   - pipeline board load failures: a deep link to a pipeline the user cannot open
@@ -239,6 +244,7 @@ jobs:
             src/utils/time/dateTimeLocal.spec.ts \
             src/components/rbac-render-gates.spec.tsx \
             src/components/customAttributes/CustomAttributesForm.spec.tsx \
+            src/components/customAttributes/CustomAttributeModal.spec.tsx \
             src/components/layout/config/menuItems.spec.ts \
             src/components/macros/MacroActionRow.spec.tsx \
             src/pages/Setup/Setup.spec.tsx \
@@ -248,6 +254,9 @@ jobs:
             src/i18n/config.spec.ts \
             src/services/contacts/contactsService.createContact.spec.ts \
             src/services/contacts/labelsService.spec.ts \
+            src/pages/Customer/Settings/Labels/Labels.spec.tsx \
+            src/pages/Customer/Settings/CannedResponses/CannedResponses.spec.tsx \
+            src/pages/Customer/Settings/CustomAttributes/CustomAttributes.spec.tsx \
             src/pages/Customer/Settings/AiCredentials/AiCredentials.spec.tsx \
             src/pages/Customer/Settings/IntegrationCredentials/IntegrationCredentials.spec.tsx \
             src/services/agents/integrationCredentialService.spec.ts \

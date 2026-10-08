@@ -41,8 +41,10 @@
     "validation": {
       "nameRequired": "Il nome è obbligatorio",
       "nameMinLength": "Il nome deve contenere almeno 2 caratteri",
+      "nameTaken": "Esiste già un'etichetta con questo nome",
+      "nameInvalid": "Usa solo lettere, numeri, spazi, trattini e trattini bassi, iniziando e finendo con una lettera o un numero",
       "colorRequired": "Il colore è obbligatorio",
-      "colorInvalid": "Il colore deve essere in formato esadecimale (#RRGGBB)"
+      "colorInvalid": "Il colore deve essere in formato esadecimale (#RGB o #RRGGBB)"
     },
     "buttons": {
       "cancel": "Annulla",

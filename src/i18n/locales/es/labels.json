@@ -41,8 +41,10 @@
     "validation": {
       "nameRequired": "El nombre es obligatorio",
       "nameMinLength": "El nombre debe tener al menos 2 caracteres",
+      "nameTaken": "Ya existe una etiqueta con ese nombre",
+      "nameInvalid": "Usa solo letras, números, espacios, guiones y guiones bajos, empezando y terminando con una letra o un número",
       "colorRequired": "El color es obligatorio",
-      "colorInvalid": "El color debe estar en formato hexadecimal (#RRGGBB)"
+      "colorInvalid": "El color debe estar en formato hexadecimal (#RGB o #RRGGBB)"
     },
     "buttons": {
       "cancel": "Cancelar",

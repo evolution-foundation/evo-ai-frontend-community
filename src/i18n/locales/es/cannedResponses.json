@@ -81,6 +81,7 @@
       "shortCodeRequired": "El código es obligatorio",
       "shortCodeMinLength": "El código debe tener al menos 2 caracteres",
       "shortCodeInvalid": "El código debe contener solo letras, números, guiones bajos y guiones",
+      "shortCodeTaken": "Ya existe una respuesta rápida con ese código",
       "contentRequired": "El contenido es obligatorio",
       "contentMinLength": "El contenido debe tener al menos 10 caracteres"
     }

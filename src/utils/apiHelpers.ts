@@ -151,6 +151,64 @@ export function apiErrorCode(error: unknown): string | undefined {
   return typeof code === 'string' && code.trim() !== '' ? code : undefined;
 }
 
+/** Validation codes per field, e.g. `{ title: ['taken'] }`. */
+export type FieldErrorCodes = Record<string, string[]>;
+
+/**
+ * The per-field codes of a 422 envelope (`error.details: [{ field, codes }]`).
+ * Empty when the server sends none — an older API, or a non-validation failure —
+ * so the caller keeps its generic feedback.
+ * @param error - Value caught from a rejected request
+ * @returns The codes keyed by field
+ */
+export function apiFieldErrorCodes(error: unknown): FieldErrorCodes {
+  if (!error || typeof error !== 'object') return {};
+  const details = (error as { response?: { data?: { error?: { details?: unknown } | null } } })
+    .response?.data?.error?.details;
+  if (!Array.isArray(details)) return {};
+
+  const byField: FieldErrorCodes = {};
+  details.forEach(detail => {
+    if (!detail || typeof detail !== 'object') return;
+    const { field, codes } = detail as { field?: unknown; codes?: unknown };
+    if (typeof field !== 'string' || !Array.isArray(codes)) return;
+    const known = codes.filter((code): code is string => typeof code === 'string');
+    if (known.length > 0) byField[field] = known;
+  });
+  return byField;
+}
+
+/** For each field a screen can explain, the i18n key of each code. */
+export type FieldErrorTable = Record<string, Record<string, string>>;
+
+/**
+ * Maps server codes to the i18n keys a screen knows.
+ * `complete` is false when there were no codes or a field could not be explained,
+ * which is when the caller still owes the person its generic message.
+ * @param codes - Output of apiFieldErrorCodes
+ * @param table - The screen's field → code → i18n key table
+ * @returns The i18n key per explained field, and whether every field was explained
+ */
+export function resolveFieldErrors(
+  codes: FieldErrorCodes,
+  table: FieldErrorTable,
+): { fields: Record<string, string>; complete: boolean } {
+  const fields: Record<string, string> = {};
+  const failedFields = Object.keys(codes);
+
+  failedFields.forEach(field => {
+    const known = Object.prototype.hasOwnProperty.call(table, field) ? table[field] : undefined;
+    if (!known) return;
+    const code = codes[field].find(candidate => Object.prototype.hasOwnProperty.call(known, candidate));
+    if (code) fields[field] = known[code];
+  });
+
+  return {
+    fields,
+    complete: failedFields.length > 0 && failedFields.every(field => field in fields),
+  };
+}
+
 /**
  * Extract success message from response
  * @param response - Axios response object

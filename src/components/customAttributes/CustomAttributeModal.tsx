@@ -42,6 +42,8 @@ interface CustomAttributeModalProps {
   loading: boolean;
   onSubmit: (data: CustomAttributeFormData) => void;
   defaultAttributeModel?: AttributeModel;
+  /** Field messages from a rejected save, already translated. */
+  serverErrors?: Record<string, string>;
 }
 
 export default function CustomAttributeModal({
@@ -52,6 +54,7 @@ export default function CustomAttributeModal({
   loading,
   onSubmit,
   defaultAttributeModel = 'conversation_attribute',
+  serverErrors,
 }: CustomAttributeModalProps) {
   const { t } = useLanguage('customAttributes');
   const [formData, setFormData] = useState<CustomAttributeFormData>({
@@ -70,16 +73,18 @@ export default function CustomAttributeModal({
   const [regexEnabled, setRegexEnabled] = useState(false);
   const [listValue, setListValue] = useState('');
 
-  // Auto-generate attribute key from display name
+  // Auto-generate attribute key from display name. Only on create: the key is what
+  // stored values are filed under, so renaming an existing attribute must keep it.
   const handleDisplayNameChange = (value: string) => {
     setFormData(prev => ({
       ...prev,
       attribute_display_name: value,
-      attribute_key: customAttributesService.generateAttributeKey(value),
+      attribute_key: isNew ? customAttributesService.generateAttributeKey(value) : prev.attribute_key,
     }));
 
-    if (errors.attribute_display_name) {
-      setErrors(prev => ({ ...prev, attribute_display_name: '' }));
+    // On create the key is regenerated from the name, so a server error on it is stale too.
+    if (errors.attribute_display_name || errors.attribute_key) {
+      setErrors(prev => ({ ...prev, attribute_display_name: '', attribute_key: '' }));
     }
   };
 
@@ -117,6 +122,12 @@ export default function CustomAttributeModal({
       setListValue('');
     }
   }, [open, attribute, isNew, defaultAttributeModel]);
+
+  useEffect(() => {
+    if (serverErrors && Object.keys(serverErrors).length > 0) {
+      setErrors(prev => ({ ...prev, ...serverErrors }));
+    }
+  }, [serverErrors]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

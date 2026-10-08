@@ -81,6 +81,7 @@
       "shortCodeRequired": "Code is required",
       "shortCodeMinLength": "Code must be at least 2 characters",
       "shortCodeInvalid": "Code must contain only letters, numbers, underscores and hyphens",
+      "shortCodeTaken": "A canned response with this code already exists",
       "contentRequired": "Content is required",
       "contentMinLength": "Content must be at least 10 characters"
     }

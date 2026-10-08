@@ -51,6 +51,8 @@
         "hint": "La clave será utilizada para identificar este atributo en la API. Use solo letras minúsculas, números y guiones bajos.",
         "errors": {
           "required": "La clave del atributo es obligatoria",
+          "taken": "Ya existe un atributo con esa clave",
+          "reserved": "Esta clave está reservada para un campo estándar. Usa otro nombre",
           "invalid": "La clave debe contener solo letras minúsculas, números y guiones bajos"
         }
       },
