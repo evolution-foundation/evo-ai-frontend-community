@@ -1456,6 +1456,7 @@
   },
   "chat": {
     "newConversation": "Nouvelle Conversation",
+    "resizePanel": "Redimensionner le panneau",
     "searchConversations": "Rechercher des conversations...",
     "conversations": "Conversations",
     "noConversations": "Aucune conversation",
