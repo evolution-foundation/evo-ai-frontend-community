@@ -133,6 +133,8 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
       if (axios.isAxiosError(error) && error.response?.status === 409) {
         // The channel changed hands after it was checked: show the list as it is now.
         toast.error(t('edit.channels.errors.channelChanged', { channel: inbox.name }));
+        // It may have come to this very agent, so the cards are stale too.
+        loadBindings().catch(() => undefined);
         loadAccountInboxes();
         return;
       }

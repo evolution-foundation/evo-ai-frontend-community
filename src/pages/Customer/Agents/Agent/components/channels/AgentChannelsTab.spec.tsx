@@ -345,10 +345,17 @@ describe('AgentChannelsTab', () => {
     const dialog = await openModal();
     await within(dialog).findByText('Instagram');
     const listCalls = inboxesList.mock.calls.length;
+    // Someone else linked it to this very agent meanwhile.
+    service.listBotInboxes.mockResolvedValue([
+      binding('in-active', 'WhatsApp Vendas', 'active'),
+      binding('in-free', 'Instagram', 'active'),
+    ]);
     await userEvent.click(within(dialog).getByRole('button', { name: /edit\.channels\.linkModal\.link/ }));
 
     await waitFor(() => expect(toast.error).toHaveBeenCalledWith('edit.channels.errors.channelChanged'));
     expect(inboxesList.mock.calls.length).toBeGreaterThan(listCalls);
+    expect(await screen.findByTestId('agent-channel-card-in-free')).toBeInTheDocument();
+    await waitFor(() => expect(within(screen.getByRole('dialog')).queryByText('Instagram')).toBeNull());
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(toast.success).not.toHaveBeenCalled();
   });
