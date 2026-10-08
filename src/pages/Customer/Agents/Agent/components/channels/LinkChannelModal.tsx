@@ -18,6 +18,7 @@ import {
   Skeleton,
 } from '@evoapi/design-system';
 import { Plus, Radio } from 'lucide-react';
+import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import { ChannelIcon } from '@/components/channels';
 import type { Inbox } from '@/types/channels/inbox';
@@ -57,18 +58,22 @@ export default function LinkChannelModal({
 
   // A channel holds one agent: linking it here replaces whoever answers it, so
   // that never happens without the user confirming. The list is a snapshot from
-  // when the modal opened, so a channel shown as free is checked again first.
+  // when the modal opened, so the channel is checked again first; without that
+  // check there is nothing current to confirm against, so nothing is linked.
   const handleLinkClick = async (inbox: Inbox) => {
-    let current = inbox;
-    if (!inbox.agent_bot) {
-      setLinkingId(inbox.id);
-      try {
-        current = (await InboxesService.getById(inbox.id)).data ?? inbox;
-      } catch (error) {
-        console.error('Error refreshing the channel before linking:', error);
-      } finally {
-        setLinkingId(null);
-      }
+    let current: Inbox | undefined;
+    setLinkingId(inbox.id);
+    try {
+      current = (await InboxesService.getById(inbox.id)).data;
+    } catch (error) {
+      console.error('Error refreshing the channel before linking:', error);
+    } finally {
+      setLinkingId(null);
+    }
+
+    if (!current) {
+      toast.error(t('edit.channels.errors.refreshChannel'));
+      return;
     }
 
     if (current.agent_bot) {
@@ -167,10 +172,15 @@ export default function LinkChannelModal({
           <AlertDialogHeader>
             <AlertDialogTitle>{t('edit.channels.transfer.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t('edit.channels.transfer.description', {
-                channel: pendingTransfer?.name ?? '',
-                agent: pendingTransfer?.agent_bot?.name ?? '',
-              })}
+              {t(
+                pendingTransfer?.agent_bot?.status === 'inactive'
+                  ? 'edit.channels.transfer.descriptionInactive'
+                  : 'edit.channels.transfer.description',
+                {
+                  channel: pendingTransfer?.name ?? '',
+                  agent: pendingTransfer?.agent_bot?.name ?? '',
+                },
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

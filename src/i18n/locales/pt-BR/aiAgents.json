@@ -1301,6 +1301,7 @@
       "transfer": {
         "title": "Transferir canal?",
         "description": "O canal {{channel}} já é atendido pelo agente {{agent}}. Transferir?",
+        "descriptionInactive": "O canal {{channel}} está vinculado ao agente {{agent}}, que está inativo. Vincular aqui substitui esse vínculo e descarta a configuração dele. Continuar?",
         "cancel": "Cancelar",
         "confirm": "Transferir"
       },
@@ -1316,7 +1317,9 @@
         "loadChannels": "Erro ao carregar os canais da conta",
         "link": "Erro ao vincular o canal",
         "status": "Erro ao alterar o vínculo do canal",
-        "save": "Erro ao salvar as configurações do canal"
+        "save": "Erro ao salvar as configurações do canal",
+        "channelChanged": "O canal {{channel}} mudou de agente. A lista foi atualizada; confira e tente de novo.",
+        "refreshChannel": "Não foi possível conferir o canal agora. Tente de novo."
       }
     },
     "settings": {

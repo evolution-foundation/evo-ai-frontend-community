@@ -255,6 +255,16 @@ const AgentBotsService = {
     return Array.isArray(data?.data) ? data.data : [];
   },
 
+  // Binds the inbox to `botId` on the backend defaults. `expectedBotId` is the agent
+  // the caller saw on the channel (null = none): the backend answers 409 if the
+  // channel has meanwhile changed hands, so a transfer never goes unconfirmed.
+  async linkInboxBot(inboxId: string, botId: string, expectedBotId: string | null): Promise<void> {
+    await api.post(`/inboxes/${inboxId}/set_agent_bot`, {
+      agent_bot: botId,
+      expected_agent_bot_id: expectedBotId,
+    });
+  },
+
   // Edits the inbox's binding in place: unlinking is `status: 'inactive'`, which
   // keeps the configuration for a later reactivation. `botId` makes the backend
   // answer 409 if the channel has meanwhile moved to another agent.

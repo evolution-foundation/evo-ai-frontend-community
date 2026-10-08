@@ -1301,6 +1301,7 @@
       "transfer": {
         "title": "Transfer channel?",
         "description": "Channel {{channel}} is already served by agent {{agent}}. Transfer it?",
+        "descriptionInactive": "Channel {{channel}} is linked to agent {{agent}}, which is inactive. Linking it here replaces that link and discards its settings. Continue?",
         "cancel": "Cancel",
         "confirm": "Transfer"
       },
@@ -1316,7 +1317,9 @@
         "loadChannels": "Error loading the account's channels",
         "link": "Error linking the channel",
         "status": "Error changing the channel link",
-        "save": "Error saving the channel settings"
+        "save": "Error saving the channel settings",
+        "channelChanged": "Channel {{channel}} changed agents. The list was refreshed; check it and try again.",
+        "refreshChannel": "Couldn't check the channel right now. Try again."
       }
     },
     "settings": {

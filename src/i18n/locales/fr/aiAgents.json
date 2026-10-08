@@ -1227,6 +1227,7 @@
       "transfer": {
         "title": "Transférer le canal ?",
         "description": "Le canal {{channel}} est déjà pris en charge par l'agent {{agent}}. Transférer ?",
+        "descriptionInactive": "Le canal {{channel}} est lié à l'agent {{agent}}, qui est inactif. Le lier ici remplace cette liaison et supprime ses paramètres. Continuer ?",
         "cancel": "Annuler",
         "confirm": "Transférer"
       },
@@ -1242,7 +1243,9 @@
         "loadChannels": "Erreur lors du chargement des canaux du compte",
         "link": "Erreur lors de la liaison du canal",
         "status": "Erreur lors de la modification de la liaison du canal",
-        "save": "Erreur lors de l'enregistrement des paramètres du canal"
+        "save": "Erreur lors de l'enregistrement des paramètres du canal",
+        "channelChanged": "Le canal {{channel}} a changé d'agent. La liste a été actualisée ; vérifiez-la et réessayez.",
+        "refreshChannel": "Impossible de vérifier le canal pour le moment. Réessayez."
       }
     },
     "settings": {

@@ -1228,6 +1228,7 @@
       "transfer": {
         "title": "Trasferire il canale?",
         "description": "Il canale {{channel}} è già gestito dall'agente {{agent}}. Trasferire?",
+        "descriptionInactive": "Il canale {{channel}} è collegato all'agente {{agent}}, che è inattivo. Collegarlo qui sostituisce quel collegamento e ne elimina le impostazioni. Continuare?",
         "cancel": "Annulla",
         "confirm": "Trasferisci"
       },
@@ -1243,7 +1244,9 @@
         "loadChannels": "Errore durante il caricamento dei canali dell'account",
         "link": "Errore durante il collegamento del canale",
         "status": "Errore durante la modifica del collegamento del canale",
-        "save": "Errore durante il salvataggio delle impostazioni del canale"
+        "save": "Errore durante il salvataggio delle impostazioni del canale",
+        "channelChanged": "Il canale {{channel}} ha cambiato agente. L'elenco è stato aggiornato; controllalo e riprova.",
+        "refreshChannel": "Impossibile verificare il canale in questo momento. Riprova."
       }
     },
     "settings": {

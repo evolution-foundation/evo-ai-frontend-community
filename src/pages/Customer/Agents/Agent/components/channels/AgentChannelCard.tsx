@@ -19,6 +19,7 @@ interface AgentChannelCardProps {
   agentConfig?: AgentConfig;
   highlighted: boolean;
   busy: boolean;
+  canEdit: boolean;
   onUnlink: () => void;
   onReactivate: () => void;
   onSaveConfiguration: (configuration: AgentBotInboxConfiguration) => Promise<void>;
@@ -32,6 +33,7 @@ export default function AgentChannelCard({
   agentConfig,
   highlighted,
   busy,
+  canEdit,
   onUnlink,
   onReactivate,
   onSaveConfiguration,
@@ -43,11 +45,14 @@ export default function AgentChannelCard({
   // Bumped when the saved configuration comes back, so the fields' own text
   // state (word list, post mode) restarts from what the server stored.
   const [draftVersion, setDraftVersion] = useState(0);
+  // Keyed by content, not identity: reloading the list hands every card a new
+  // object, and that must not wipe an edit in progress on an unchanged binding.
+  const savedConfiguration = JSON.stringify(binding.configuration);
 
   useEffect(() => {
-    setDraft(binding.configuration);
+    setDraft(JSON.parse(savedConfiguration));
     setDraftVersion(version => version + 1);
-  }, [binding.configuration]);
+  }, [savedConfiguration]);
 
   const { inbox } = binding;
   const isActive = binding.status === 'active';
@@ -81,7 +86,7 @@ export default function AgentChannelCard({
             </div>
             {identifier && <p className="truncate text-xs text-muted-foreground">{identifier}</p>}
           </div>
-          {isActive ? (
+          {!canEdit ? null : isActive ? (
             <Button type="button" variant="outline" size="sm" onClick={onUnlink} disabled={busy}>
               <Link2Off className="mr-2 h-4 w-4" />
               {t('edit.channels.actions.unlink')}
@@ -114,25 +119,29 @@ export default function AgentChannelCard({
 
           {showAdvanced && (
             <div className="mt-4 space-y-6">
-              <AgentBotInboxSettingsFields
-                key={draftVersion}
-                inboxId={inbox.id}
-                idPrefix={`binding-${binding.id}`}
-                agentBotId={binding.agent_bot_id}
-                isFacebookInbox={inbox.channel_type === 'Channel::FacebookPage'}
-                agentBots={agentBots}
-                labels={labels}
-                value={draft}
-                onChange={setDraft}
-              />
+              <fieldset disabled={!canEdit} className="m-0 min-w-0 border-0 p-0">
+                <AgentBotInboxSettingsFields
+                  key={draftVersion}
+                  inboxId={inbox.id}
+                  idPrefix={`binding-${binding.id}`}
+                  agentBotId={binding.agent_bot_id}
+                  isFacebookInbox={inbox.channel_type === 'Channel::FacebookPage'}
+                  agentBots={agentBots}
+                  labels={labels}
+                  value={draft}
+                  onChange={setDraft}
+                />
+              </fieldset>
 
               <AgentLevelSettings config={agentConfig} onOpen={onOpenAgentConfiguration} />
 
-              <div className="flex justify-end">
-                <Button type="button" size="sm" onClick={handleSave} disabled={busy}>
-                  {t('edit.channels.advanced.save')}
-                </Button>
-              </div>
+              {canEdit && (
+                <div className="flex justify-end">
+                  <Button type="button" size="sm" onClick={handleSave} disabled={busy}>
+                    {t('edit.channels.advanced.save')}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -5,6 +5,7 @@ import { Link2, Radio } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
+import { usePermissions } from '@/contexts/PermissionsContext';
 import AgentBotsService from '@/services/channels/agentBotsService';
 import InboxesService from '@/services/channels/inboxesService';
 import { labelsService } from '@/services/contacts/labelsService';
@@ -33,6 +34,9 @@ interface AgentChannelsTabProps {
 export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: AgentChannelsTabProps) {
   const { t } = useLanguage('aiAgents');
   const navigate = useNavigate();
+  const { can, isReady: permissionsReady } = usePermissions();
+  // Every write here goes through the inbox routes, gated by inboxes.update.
+  const canEdit = permissionsReady && can('inboxes', 'update');
   const botId = agent.evolution_bot_id || null;
 
   const [bindings, setBindings] = useState<AgentBotInboxBinding[]>([]);
@@ -94,8 +98,7 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
 
   useEffect(() => () => clearTimeout(highlightTimer.current), []);
 
-  const openLinkModal = async () => {
-    setIsModalOpen(true);
+  const loadAccountInboxes = async () => {
     setIsLoadingInboxes(true);
     try {
       const response = await InboxesService.list({ per_page: 200 });
@@ -109,6 +112,11 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
     }
   };
 
+  const openLinkModal = () => {
+    setIsModalOpen(true);
+    loadAccountInboxes();
+  };
+
   const boundInboxIds = useMemo(() => new Set(bindings.map(b => b.inbox_id)), [bindings]);
   const linkableInboxes = useMemo(
     () => accountInboxes.filter(inbox => !boundInboxIds.has(inbox.id)),
@@ -119,17 +127,28 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
     if (!botId) return;
     try {
       // No configuration: the binding starts on the backend defaults (pending only).
-      await AgentBotsService.setInboxAgentBot(inbox.id, botId);
-      await loadBindings();
-      setIsModalOpen(false);
-      toast.success(t('edit.channels.success.linked', { channel: inbox.name }));
-      clearTimeout(highlightTimer.current);
-      setHighlightedInboxId(inbox.id);
-      highlightTimer.current = setTimeout(() => setHighlightedInboxId(null), LINK_HIGHLIGHT_MS);
+      await AgentBotsService.linkInboxBot(inbox.id, botId, inbox.agent_bot?.id ?? null);
     } catch (error) {
       console.error('Error linking channel:', error);
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
+        // The channel changed hands after it was checked: show the list as it is now.
+        toast.error(t('edit.channels.errors.channelChanged', { channel: inbox.name }));
+        loadAccountInboxes();
+        return;
+      }
       toast.error(t('edit.channels.errors.link'));
+      return;
     }
+
+    setIsModalOpen(false);
+    toast.success(t('edit.channels.success.linked', { channel: inbox.name }));
+    clearTimeout(highlightTimer.current);
+    setHighlightedInboxId(inbox.id);
+    highlightTimer.current = setTimeout(() => setHighlightedInboxId(null), LINK_HIGHLIGHT_MS);
+    loadBindings().catch(error => {
+      console.error('Error reloading the agent channels:', error);
+      toast.error(t('edit.channels.errors.load'));
+    });
   };
 
   const setBusy = (inboxId: string, busy: boolean) =>
@@ -202,7 +221,7 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
           <h2 className="mb-2 text-2xl font-bold">{t('edit.channels.title')}</h2>
           <p className="text-sm text-muted-foreground">{t('edit.channels.subtitle')}</p>
         </div>
-        {botId && !loadFailed && (
+        {botId && !loadFailed && canEdit && (
           <Button type="button" onClick={openLinkModal}>
             <Link2 className="mr-2 h-4 w-4" />
             {t('edit.channels.actions.link')}
@@ -240,6 +259,7 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
               agentConfig={agent.config}
               highlighted={highlightedInboxId === binding.inbox_id}
               busy={busyInboxIds.has(binding.inbox_id)}
+              canEdit={canEdit}
               onUnlink={() => changeStatus(binding, 'inactive')}
               onReactivate={() => changeStatus(binding, 'active')}
               onSaveConfiguration={configuration => saveConfiguration(binding, configuration)}

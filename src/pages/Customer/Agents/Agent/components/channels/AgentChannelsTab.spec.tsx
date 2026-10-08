@@ -18,6 +18,15 @@ const { toast } = vi.hoisted(() => ({
 }));
 vi.mock('sonner', () => ({ toast }));
 
+const permissions = vi.hoisted(() => ({ canUpdate: true }));
+vi.mock('@/contexts/PermissionsContext', () => ({
+  usePermissions: () => ({
+    can: (resource: string, action: string) =>
+      resource === 'inboxes' && action === 'update' ? permissions.canUpdate : true,
+    isReady: true,
+  }),
+}));
+
 vi.mock('@/components/channels', () => ({
   ChannelIcon: () => <span data-testid="channel-icon" />,
 }));
@@ -25,7 +34,7 @@ vi.mock('@/components/channels', () => ({
 const service = vi.hoisted(() => ({
   listBotInboxes: vi.fn(),
   getAll: vi.fn(),
-  setInboxAgentBot: vi.fn(),
+  linkInboxBot: vi.fn(),
   updateInboxBinding: vi.fn(),
 }));
 vi.mock('@/services/channels/agentBotsService', () => ({ default: service }));
@@ -90,14 +99,18 @@ beforeAll(() => {
 beforeEach(() => {
   vi.clearAllMocks();
   service.getAll.mockResolvedValue([]);
-  service.setInboxAgentBot.mockResolvedValue(true);
+  permissions.canUpdate = true;
+  service.linkInboxBot.mockResolvedValue(undefined);
   service.listBotInboxes.mockResolvedValue([
     binding('in-active', 'WhatsApp Vendas', 'active'),
     binding('in-paused', 'Site', 'inactive'),
   ]);
   inboxesList.mockResolvedValue({ data: [] });
   // By default the channel is still as the modal listed it.
-  inboxGetById.mockImplementation(async (id: string) => ({ data: inbox(id, id) }));
+  inboxGetById.mockImplementation(async (id: string) => {
+    const listed = (await inboxesList()).data as Inbox[];
+    return { data: listed.find(item => item.id === id) ?? inbox(id, id) };
+  });
 });
 
 describe('AgentChannelsTab', () => {
@@ -133,7 +146,7 @@ describe('AgentChannelsTab', () => {
     await userEvent.click(within(dialog).getByRole('button', { name: /edit\.channels\.linkModal\.link/ }));
 
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(service.setInboxAgentBot).toHaveBeenCalledWith('in-free', BOT_ID);
+    expect(service.linkInboxBot).toHaveBeenCalledWith('in-free', BOT_ID, null);
     expect(toast.success).toHaveBeenCalledWith('edit.channels.success.linked');
     const linked = await screen.findByTestId('agent-channel-card-in-free');
     expect(linked).toHaveAttribute('data-highlighted', 'true');
@@ -153,10 +166,10 @@ describe('AgentChannelsTab', () => {
 
     const confirm = await screen.findByRole('alertdialog');
     expect(within(confirm).getByText('edit.channels.transfer.description')).toBeInTheDocument();
-    expect(service.setInboxAgentBot).not.toHaveBeenCalled();
+    expect(service.linkInboxBot).not.toHaveBeenCalled();
 
     await userEvent.click(within(confirm).getByRole('button', { name: /edit\.channels\.transfer\.confirm/ }));
-    await waitFor(() => expect(service.setInboxAgentBot).toHaveBeenCalledWith('in-taken', BOT_ID));
+    await waitFor(() => expect(service.linkInboxBot).toHaveBeenCalledWith('in-taken', BOT_ID, 'bot-2'));
   });
 
   it('changes nothing when the transfer is cancelled', async () => {
@@ -173,7 +186,7 @@ describe('AgentChannelsTab', () => {
     await userEvent.click(within(confirm).getByRole('button', { name: /edit\.channels\.transfer\.cancel/ }));
 
     await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
-    expect(service.setInboxAgentBot).not.toHaveBeenCalled();
+    expect(service.linkInboxBot).not.toHaveBeenCalled();
     expect(service.updateInboxBinding).not.toHaveBeenCalled();
     // The link modal stays open on the same list.
     expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -189,7 +202,7 @@ describe('AgentChannelsTab', () => {
     await userEvent.click(within(target).getByRole('button', { name: /edit\.channels\.actions\.unlink/ }));
     expect(service.updateInboxBinding).toHaveBeenCalledWith('in-active', BOT_ID, { status: 'inactive' });
     expect(await within(target).findByText('edit.channels.status.inactive')).toBeInTheDocument();
-    expect(service.setInboxAgentBot).not.toHaveBeenCalled();
+    expect(service.linkInboxBot).not.toHaveBeenCalled();
 
     await userEvent.click(within(target).getByRole('button', { name: /edit\.channels\.actions\.reactivate/ }));
     expect(service.updateInboxBinding).toHaveBeenLastCalledWith('in-active', BOT_ID, { status: 'active' });
@@ -237,7 +250,7 @@ describe('AgentChannelsTab', () => {
     await userEvent.click(within(dialog).getByRole('button', { name: /edit\.channels\.linkModal\.link/ }));
 
     expect(await screen.findByRole('alertdialog')).toBeInTheDocument();
-    expect(service.setInboxAgentBot).not.toHaveBeenCalled();
+    expect(service.linkInboxBot).not.toHaveBeenCalled();
   });
 
   it('refreshes the list instead of editing when the channel moved to another agent', async () => {
@@ -274,5 +287,113 @@ describe('AgentChannelsTab', () => {
 
     await userEvent.click(within(dialog).getByRole('button', { name: /edit\.channels\.linkModal\.connectNew/ }));
     expect(navigate).toHaveBeenCalledWith('/channels/new');
+  });
+
+  it('links nothing when the channel cannot be checked again', async () => {
+    inboxesList.mockResolvedValue({ data: [inbox('in-free', 'Instagram')] });
+    inboxGetById.mockRejectedValue(new Error('network'));
+    await renderTab();
+
+    const dialog = await openModal();
+    await within(dialog).findByText('Instagram');
+    await userEvent.click(within(dialog).getByRole('button', { name: /edit\.channels\.linkModal\.link/ }));
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('edit.channels.errors.refreshChannel'));
+    expect(service.linkInboxBot).not.toHaveBeenCalled();
+    expect(screen.queryByRole('alertdialog')).toBeNull();
+  });
+
+  it('confirms against the agent the channel has now, not the one listed', async () => {
+    inboxesList.mockResolvedValue({
+      data: [inbox('in-taken', 'Telegram', { agent_bot: { id: 'bot-2', name: 'Suporte', status: 'active' } })],
+    });
+    inboxGetById.mockResolvedValue({
+      data: inbox('in-taken', 'Telegram', { agent_bot: { id: 'bot-3', name: 'Pós-venda', status: 'active' } }),
+    });
+    await renderTab();
+
+    const dialog = await openModal();
+    await within(dialog).findByText('Telegram');
+    await userEvent.click(within(dialog).getByRole('button', { name: /edit\.channels\.linkModal\.link/ }));
+    const confirm = await screen.findByRole('alertdialog');
+    await userEvent.click(within(confirm).getByRole('button', { name: /edit\.channels\.transfer\.confirm/ }));
+
+    await waitFor(() => expect(service.linkInboxBot).toHaveBeenCalledWith('in-taken', BOT_ID, 'bot-3'));
+  });
+
+  it('says an inactive link gets replaced instead of claiming the channel is served', async () => {
+    inboxesList.mockResolvedValue({
+      data: [inbox('in-idle', 'Telegram', { agent_bot: { id: 'bot-2', name: 'Suporte', status: 'inactive' } })],
+    });
+    await renderTab();
+
+    const dialog = await openModal();
+    await within(dialog).findByText('Telegram');
+    await userEvent.click(within(dialog).getByRole('button', { name: /edit\.channels\.linkModal\.link/ }));
+
+    const confirm = await screen.findByRole('alertdialog');
+    expect(within(confirm).getByText('edit.channels.transfer.descriptionInactive')).toBeInTheDocument();
+    expect(within(confirm).queryByText('edit.channels.transfer.description')).toBeNull();
+  });
+
+  it('keeps the modal open and refreshes it when the channel changed hands at the last moment', async () => {
+    const conflict = Object.assign(new Error('conflict'), { isAxiosError: true, response: { status: 409 } });
+    service.linkInboxBot.mockRejectedValueOnce(conflict);
+    inboxesList.mockResolvedValue({ data: [inbox('in-free', 'Instagram')] });
+    await renderTab();
+
+    const dialog = await openModal();
+    await within(dialog).findByText('Instagram');
+    const listCalls = inboxesList.mock.calls.length;
+    await userEvent.click(within(dialog).getByRole('button', { name: /edit\.channels\.linkModal\.link/ }));
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('edit.channels.errors.channelChanged'));
+    expect(inboxesList.mock.calls.length).toBeGreaterThan(listCalls);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it('keeps an unsaved edit in a card when the list reloads', async () => {
+    inboxesList.mockResolvedValue({ data: [inbox('in-free', 'Instagram')] });
+    await renderTab();
+    const target = await screen.findByTestId('agent-channel-card-in-active');
+    await userEvent.click(within(target).getByRole('button', { name: /edit\.channels\.advanced\.title/ }));
+    const open = () =>
+      within(card('in-active')).getByRole('checkbox', {
+        name: /settings\.agentBotConfiguration\.statusOptions\.open/,
+      });
+    await userEvent.click(open());
+    expect(open()).toBeChecked();
+
+    // Linking another channel reloads every binding as new objects, same content.
+    service.listBotInboxes.mockResolvedValue([
+      binding('in-active', 'WhatsApp Vendas', 'active'),
+      binding('in-paused', 'Site', 'inactive'),
+      binding('in-free', 'Instagram', 'active'),
+    ]);
+    const dialog = await openModal();
+    await within(dialog).findByText('Instagram');
+    await userEvent.click(within(dialog).getByRole('button', { name: /edit\.channels\.linkModal\.link/ }));
+    await screen.findByTestId('agent-channel-card-in-free');
+
+    expect(open()).toBeChecked();
+  });
+
+  it('is read-only without inboxes.update', async () => {
+    permissions.canUpdate = false;
+    render(<AgentChannelsTab agent={agent} />);
+    const target = await screen.findByTestId('agent-channel-card-in-active');
+
+    expect(screen.queryByRole('button', { name: /edit\.channels\.actions\.link/ })).toBeNull();
+    expect(within(target).queryByRole('button', { name: /edit\.channels\.actions\.unlink/ })).toBeNull();
+    expect(
+      within(card('in-paused')).queryByRole('button', { name: /edit\.channels\.actions\.reactivate/ }),
+    ).toBeNull();
+
+    await userEvent.click(within(target).getByRole('button', { name: /edit\.channels\.advanced\.title/ }));
+    expect(
+      within(target).getByRole('checkbox', { name: /settings\.agentBotConfiguration\.statusOptions\.open/ }),
+    ).toBeDisabled();
+    expect(within(target).queryByRole('button', { name: /edit\.channels\.advanced\.save/ })).toBeNull();
   });
 });
