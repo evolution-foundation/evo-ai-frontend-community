@@ -82,7 +82,7 @@ export default function CustomAttributeModal({
       attribute_key: isNew ? customAttributesService.generateAttributeKey(value) : prev.attribute_key,
     }));
 
-    // The key is regenerated from the name, so a server error on it is stale too.
+    // On create the key is regenerated from the name, so a server error on it is stale too.
     if (errors.attribute_display_name || errors.attribute_key) {
       setErrors(prev => ({ ...prev, attribute_display_name: '', attribute_key: '' }));
     }
