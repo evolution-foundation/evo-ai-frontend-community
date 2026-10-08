@@ -56,8 +56,8 @@ function wonSummary(pipeline: Pipeline): { count: number; value: number } {
   );
 }
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
+const formatCurrency = (value: number, locale: string) =>
+  new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
     value,
   );
 
@@ -75,7 +75,7 @@ export default function PipelinesTable({
   sortOrder,
   onSort,
 }: PipelinesTableProps) {
-  const { t } = useLanguage('pipelines');
+  const { t, currentLanguage } = useLanguage('pipelines');
   const { can, isReady } = usePermissions();
 
   const columns: TableColumn<Pipeline>[] = [
@@ -129,7 +129,7 @@ export default function PipelinesTable({
             </span>
             {won.value > 0 && (
               <span className="text-[11px] font-semibold text-primary">
-                R$ {formatCurrency(won.value)}
+                R$ {formatCurrency(won.value, currentLanguage)}
               </span>
             )}
           </div>
@@ -163,9 +163,9 @@ export default function PipelinesTable({
       render: pipeline => {
         const total = pipeline.services_info?.total_value || 0;
         return total > 0 ? (
-          <span className="text-sm font-semibold text-primary">R$ {formatCurrency(total)}</span>
+          <span className="text-sm font-semibold text-primary">R$ {formatCurrency(total, currentLanguage)}</span>
         ) : (
-          <span className="text-sm font-semibold text-sidebar-foreground/60">R$ 0,00</span>
+          <span className="text-sm font-semibold text-sidebar-foreground/60">R$ {formatCurrency(0, currentLanguage)}</span>
         );
       },
     },

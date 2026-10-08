@@ -13,7 +13,14 @@ export interface EventSchema {
   optional: Record<string, FieldSpec>;
 }
 
-export type EventCategory = 'contact' | 'conversation' | 'message' | 'campaign' | 'purchase' | 'custom';
+export type EventCategory =
+  | 'contact'
+  | 'conversation'
+  | 'message'
+  | 'campaign'
+  | 'purchase'
+  | 'scheduled_action'
+  | 'custom';
 
 export type EventDtoType = 'track' | 'identify';
 

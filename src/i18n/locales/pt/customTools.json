@@ -6,16 +6,6 @@
     "newTool": "Nova Ferramenta Personalizada",
     "searchPlaceholder": "Buscar por nome, método ou endpoint..."
   },
-  "card": {
-    "noDescription": "Sem descrição",
-    "examples": "{{count}} exemplo(s)",
-    "createdAt": "Criado em",
-    "actions": {
-      "test": "Testar",
-      "edit": "Editar",
-      "delete": "Deletar"
-    }
-  },
   "details": {
     "title": "Detalhes da Ferramenta",
     "sections": {
@@ -329,7 +319,8 @@
       "endpoint": "Endpoint",
       "tags": "Tags",
       "createdAt": "Criado em",
-      "test": "Teste"
+      "test": "Teste",
+      "actions": "Ações"
     },
     "noName": "Sem nome",
     "noDescription": "Sem descrição",
@@ -338,13 +329,15 @@
       "test": "Testar",
       "edit": "Editar ferramenta",
       "delete": "Deletar ferramenta",
-      "create": "Criar ferramenta personalizada"
+      "create": "Criar ferramenta personalizada",
+      "deleteSelected": "Excluir selecionadas"
     },
     "empty": {
       "title": "Nenhuma ferramenta personalizada criada",
       "description": "Crie ferramentas personalizadas para expandir as capacidades dos agentes.",
       "noResults": "Nenhuma ferramenta personalizada encontrada"
-    }
+    },
+    "selectAll": "Selecionar todas"
   },
   "loading": {
     "tools": "Carregando ferramentas...",
@@ -370,6 +363,15 @@
     "description": "Tem certeza que deseja excluir a ferramenta \"{{name}}\"? Esta ação não pode ser desfeita.",
     "cancel": "Cancelar",
     "confirm": "Excluir"
+  },
+  "bulkDeleteDialog": {
+    "title": "Excluir ferramentas personalizadas",
+    "description": "Excluir {{count}} ferramenta(s) personalizada(s) selecionada(s)? Esta ação não pode ser desfeita.",
+    "cancel": "Cancelar",
+    "confirm": "Excluir",
+    "deleting": "Excluindo...",
+    "success": "{{count}} ferramenta(s) personalizada(s) excluída(s)",
+    "partialError": "Não foi possível excluir {{failed}} de {{total}} ferramentas personalizadas"
   },
   "permissions": {
     "viewDenied": "Você não tem permissão para ver ferramentas personalizadas",

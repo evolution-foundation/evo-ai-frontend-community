@@ -1,7 +1,6 @@
 export { default as CustomToolsHeader } from './CustomToolsHeader';
 export { default as CustomToolsTable } from './CustomToolsTable';
 export { default as CustomToolsPagination } from './CustomToolsPagination';
-export { default as CustomToolCard } from './CustomToolCard';
 export { default as CustomToolModal } from './CustomToolModal';
 export { default as CustomToolWizardModal } from './CustomToolWizardModal';
 export { default as CustomToolTestResultDialog } from './CustomToolTestResultDialog';

@@ -12,6 +12,7 @@
     "message": "Eventos de Mensaje",
     "campaign": "Eventos de Campaña",
     "purchase": "Eventos de compra",
+    "scheduled_action": "Eventos de acción programada",
     "custom": "Personalizado"
   },
   "propertiesForm": {
@@ -308,6 +309,29 @@
         "system": "Sistema"
       },
       "help": "Si el contacto fue creado por un agente o por el sistema (canal, importación, webhook)."
+    },
+    "action_type": {
+      "label": "Tipo de acción",
+      "help": "Solo se activa para acciones programadas de este tipo.",
+      "options": {
+        "send_message": "Enviar mensaje",
+        "send_email": "Enviar correo",
+        "execute_webhook": "Ejecutar webhook",
+        "trigger_journey": "Iniciar jornada",
+        "create_task": "Crear tarea",
+        "update_deal_stage": "Actualizar etapa",
+        "add_deal_note": "Añadir nota",
+        "send_whatsapp": "Enviar WhatsApp",
+        "send_sms": "Enviar SMS"
+      }
+    },
+    "retry_count": {
+      "label": "Intentos fallidos",
+      "help": "Cuántos intentos han fallado, incluido este."
+    },
+    "will_retry": {
+      "label": "Se reintentará",
+      "help": "Marcado: ya hay otro intento programado."
     }
   },
   "events": {
@@ -379,6 +403,12 @@
     },
     "purchase_approved": {
       "description": "Una compra fue aprobada en una plataforma de pago y se convirtió en lead en el CRM."
+    },
+    "scheduled_action_executed": {
+      "description": "Se ejecutó una acción programada para el contacto."
+    },
+    "scheduled_action_failed": {
+      "description": "Una acción programada para el contacto falló o expiró sin ejecutarse."
     }
   }
 }

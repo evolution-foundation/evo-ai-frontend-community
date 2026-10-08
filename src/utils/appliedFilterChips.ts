@@ -27,7 +27,8 @@ const resolveValueLabel = (
       const raw = String(value ?? '');
       // Option-backed values store an id/code; show the option's human label.
       const option = filterType?.options?.find(o => String(o.value) === raw);
-      return option ? t(option.label) : raw;
+      if (!option) return raw;
+      return filterType?.untranslatedOptions ? option.label : t(option.label);
     })
     .join(', ');
 };

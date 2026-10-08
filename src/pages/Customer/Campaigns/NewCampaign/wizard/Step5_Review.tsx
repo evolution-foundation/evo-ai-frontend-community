@@ -182,7 +182,7 @@ const Step5_Review = ({
               {data.estimated_contacts && (
                 <div className="flex justify-between items-center p-3 bg-blue-500/5 rounded-lg border border-blue-500/10">
                   <span className="text-muted-foreground font-medium">{t('wizard.step5.estimatedContacts')}</span>
-                  <span className="text-lg font-bold text-blue-600">{data.estimated_contacts.toLocaleString('pt-BR')}</span>
+                  <span className="text-lg font-bold text-blue-600">{data.estimated_contacts.toLocaleString(currentLanguage)}</span>
                 </div>
               )}
             </div>

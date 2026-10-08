@@ -77,6 +77,26 @@ const messageCommonOptional: Record<string, FieldSpec> = {
   content: f('string', 'Truncated to 2000 chars; absent when EVO_FLOW_MESSAGE_CONTENT_DISABLED=true'),
 };
 
+// ScheduledAction::ACTION_TYPES.
+const SCHEDULED_ACTION_TYPES = [
+  'send_message',
+  'send_email',
+  'execute_webhook',
+  'trigger_journey',
+  'create_task',
+  'update_deal_stage',
+  'add_deal_note',
+  'send_whatsapp',
+  'send_sms',
+] as const;
+
+const scheduledActionRequired: Record<string, FieldSpec> = {
+  scheduled_action_id: f('uuid', 'Numeric id of the scheduled action'),
+  action_type: f('string', 'What the action does', SCHEDULED_ACTION_TYPES),
+  scheduled_for: f('date', 'When the action was due'),
+  source: f('string'),
+};
+
 const ENTRIES: EventCatalogEntry[] = [
   {
     eventName: 'contact.created',
@@ -382,6 +402,38 @@ const ENTRIES: EventCatalogEntry[] = [
       },
     },
   },
+  {
+    eventName: 'scheduled_action.executed',
+    category: 'scheduled_action',
+    dtoType: 'track',
+    labelPt: 'Ação agendada executada',
+    labelEn: 'Scheduled action executed',
+    description: 'A scheduled action targeting the contact ran successfully.',
+    schema: {
+      required: scheduledActionRequired,
+      optional: {
+        conversation_id: f('uuid'),
+        executed_at: f('date'),
+      },
+    },
+  },
+  {
+    eventName: 'scheduled_action.failed',
+    category: 'scheduled_action',
+    dtoType: 'track',
+    labelPt: 'Ação agendada falhou',
+    labelEn: 'Scheduled action failed',
+    description: 'A scheduled action targeting the contact failed or expired before running.',
+    schema: {
+      required: scheduledActionRequired,
+      optional: {
+        conversation_id: f('uuid'),
+        error_message: f('string', 'Why it failed, truncated to 500 chars'),
+        retry_count: f('number', 'Failed attempts so far'),
+        will_retry: f('boolean', 'Whether another attempt is scheduled'),
+      },
+    },
+  },
 ];
 
 export const EVENT_CATEGORIES: readonly EventCategory[] = [
@@ -390,6 +442,7 @@ export const EVENT_CATEGORIES: readonly EventCategory[] = [
   'message',
   'campaign',
   'purchase',
+  'scheduled_action',
   'custom',
 ] as const;
 

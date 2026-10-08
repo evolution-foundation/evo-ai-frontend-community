@@ -4,6 +4,7 @@ import { AreaChartCard, BarChartCard, DonutChartCard } from '@/components/charts
 import type { CustomerDashboardResponse } from '@/types/analytics/dashboard';
 import { formatCurrency } from './dashboardUtils';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/hooks/useLanguage';
 import { TooltipInfo } from '@/components/base/TooltipInfo';
 
 interface DashboardTrendsSectionProps {
@@ -14,6 +15,7 @@ interface DashboardTrendsSectionProps {
 
 const DashboardTrendsSection = ({ data, t, channelShareData }: DashboardTrendsSectionProps) => {
   const { t: tTours } = useTranslation('tours');
+  const { currentLanguage } = useLanguage();
   const tx = (key: string, fallback: string) => {
     const value = t(key);
     return value === key ? fallback : value;
@@ -112,7 +114,7 @@ const DashboardTrendsSection = ({ data, t, channelShareData }: DashboardTrendsSe
 
             <div className="rounded-md border p-3 bg-muted/10">
               <div className="text-sm text-muted-foreground">{tx('dashboard.channels.totalValue', 'Valor total por canais')}</div>
-              <div className="text-xl font-semibold">{formatCurrency(channelsRevenue)}</div>
+              <div className="text-xl font-semibold">{formatCurrency(channelsRevenue, currentLanguage)}</div>
             </div>
           </CardContent>
         </Card>

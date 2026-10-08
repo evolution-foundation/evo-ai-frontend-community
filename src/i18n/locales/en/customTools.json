@@ -6,16 +6,6 @@
     "newTool": "New Custom Tool",
     "searchPlaceholder": "Search by name, method or endpoint..."
   },
-  "card": {
-    "noDescription": "No description",
-    "examples": "{{count}} example(s)",
-    "createdAt": "Created at",
-    "actions": {
-      "test": "Test",
-      "edit": "Edit",
-      "delete": "Delete"
-    }
-  },
   "details": {
     "title": "Tool Details",
     "sections": {
@@ -329,7 +319,8 @@
       "endpoint": "Endpoint",
       "tags": "Tags",
       "createdAt": "Created at",
-      "test": "Test"
+      "test": "Test",
+      "actions": "Actions"
     },
     "noName": "No name",
     "noDescription": "No description",
@@ -338,13 +329,15 @@
       "test": "Test",
       "edit": "Edit tool",
       "delete": "Delete tool",
-      "create": "Create custom tool"
+      "create": "Create custom tool",
+      "deleteSelected": "Delete selected"
     },
     "empty": {
       "title": "No custom tool created",
       "description": "Create custom tools to expand the capabilities of agents.",
       "noResults": "No custom tool found"
-    }
+    },
+    "selectAll": "Select all"
   },
   "loading": {
     "tools": "Loading tools...",
@@ -370,6 +363,15 @@
     "description": "Are you sure you want to delete the tool \"{{name}}\"? This action cannot be undone.",
     "cancel": "Cancel",
     "confirm": "Delete"
+  },
+  "bulkDeleteDialog": {
+    "title": "Delete custom tools",
+    "description": "Delete {{count}} selected custom tool(s)? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete",
+    "deleting": "Deleting...",
+    "success": "{{count}} custom tool(s) deleted",
+    "partialError": "{{failed}} of {{total}} custom tools could not be deleted"
   },
   "permissions": {
     "viewDenied": "You don't have permission to view custom tools",

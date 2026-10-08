@@ -725,6 +725,11 @@
       "traits": "Atributos do evento",
       "noData": "Sem dados adicionais para este evento",
       "justNow": "agora",
+      "scheduledAction": {
+        "summary": "{{action}} · prevista para {{scheduledFor}}",
+        "reason": "Motivo: {{reason}}",
+        "willRetry": "Nova tentativa agendada"
+      },
       "enriched": {
         "campaign": "Campanha: {{name}}",
         "channel": "Canal: {{label}}",

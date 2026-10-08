@@ -7,8 +7,8 @@ export interface Label {
   color: string;
   show_on_sidebar: boolean;
   usage_count?: number;
-  created_at: string;
-  updated_at: string;
+  created_at: number;
+  updated_at: number;
 }
 
 export interface LabelFormData {

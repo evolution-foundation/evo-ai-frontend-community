@@ -83,7 +83,7 @@ export default function EditItemModal({
   loading,
   onSchedule,
 }: EditItemModalProps) {
-  const { t } = useLanguage('pipelines');
+  const { t, currentLanguage } = useLanguage('pipelines');
   const { users } = useAccountUsers();
   const [notes, setNotes] = useState('');
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
@@ -168,7 +168,7 @@ export default function EditItemModal({
   const calculateTotalValue = () =>
     services.reduce((total, service) => total + (parseFloat(service.value) || 0), 0);
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+    new Intl.NumberFormat(currentLanguage, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 
   const canSubmit = selectedStageId !== null;
 

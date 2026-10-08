@@ -116,7 +116,7 @@ export default function CreateTaskModal({
     }
 
     if (formData.due_date) {
-      submitData.due_date = formData.due_date;
+      submitData.due_date = new Date(formData.due_date).toISOString();
     }
 
     if (formData.assigned_to_id?.trim()) {
