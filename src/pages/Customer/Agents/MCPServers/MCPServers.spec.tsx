@@ -111,6 +111,18 @@ describe('MCPServers page', () => {
     expect(screen.getByTestId('pagination')).toHaveTextContent('1/1/45');
   });
 
+  it('keeps the footer on the rows still shown when a page request fails', async () => {
+    render(<MCPServers />);
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('1/3/45'));
+
+    listMCPServersPage.mockRejectedValueOnce(new Error('offline'));
+    await userEvent.click(screen.getByTestId('page-2'));
+
+    await waitFor(() => expect(listMCPServersPage).toHaveBeenCalledTimes(2));
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(screen.getByTestId('pagination')).toHaveTextContent('1/3/45');
+  });
+
   it('asks for the next slice keeping the chosen page size', async () => {
     render(<MCPServers />);
 

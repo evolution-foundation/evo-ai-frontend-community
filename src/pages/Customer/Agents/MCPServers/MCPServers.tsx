@@ -120,18 +120,15 @@ export default function MCPServers() {
   // reaches state; read from state, that reload would bring the old size back.
   const pageSizeRef = useRef(INITIAL_STATE.meta.pagination.page_size);
 
+  // Page and size reach state only with the rows `loadServers` commits, so a failed request
+  // leaves the footer describing the rows still on screen.
   const handlePageChange = (page: number) => {
     const pageSize = pageSizeRef.current;
-    setState(prev => ({ ...prev, meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page } } }));
     loadServers({ skip: (page - 1) * pageSize, limit: pageSize });
   };
 
   const handlePageSizeChange = (pageSize: number) => {
     pageSizeRef.current = pageSize;
-    setState(prev => ({
-      ...prev,
-      meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page_size: pageSize, page: 1 } },
-    }));
     loadServers({ skip: 0, limit: pageSize });
   };
 

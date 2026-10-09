@@ -232,22 +232,14 @@ export default function CustomTools() {
     }
   };
 
+  // Page and size reach state only with the rows `loadTools` commits, so a failed request
+  // leaves the footer describing the rows still on screen.
   const handlePageChange = (page: number) => {
-    setState(prev => ({
-      ...prev,
-      meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page } },
-    }));
-
     reloadPage(page);
   };
 
   const handlePerPageChange = (perPage: number) => {
     pageSizeRef.current = perPage;
-    setState(prev => ({
-      ...prev,
-      meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page_size: perPage, page: 1 } },
-    }));
-
     loadTools({ skip: 0, limit: perPage, search: state.searchQuery });
   };
 

@@ -368,6 +368,17 @@ describe('CustomTools page', () => {
     expect(listCustomTools.mock.lastCall![0]).toMatchObject({ skip: 0, limit: 50 });
   });
 
+  it('keeps the footer on the rows still shown when a page request fails', async () => {
+    listTotal = 45;
+    listCustomTools.mockResolvedValueOnce([toolA, toolB]).mockRejectedValueOnce(new Error('offline'));
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('page-2'));
+
+    await waitFor(() => expect(error).toHaveBeenCalledWith('messages.loadError'));
+    expect(screen.getByTestId('pagination')).toHaveTextContent('1/3/45');
+  });
+
   it('keeps the search when the page changes', async () => {
     listTotal = 45;
     render(<CustomTools />);
