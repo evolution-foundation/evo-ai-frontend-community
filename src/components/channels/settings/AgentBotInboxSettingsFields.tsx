@@ -33,6 +33,8 @@ interface AgentBotInboxSettingsFieldsProps {
   isFacebookInbox: boolean;
   agentBots: AgentBot[];
   labels: AgentBotInboxLabelOption[];
+  /** The label list failed to load, so an id missing from it says nothing about the label. */
+  labelsUnavailable?: boolean;
   value: AgentBotInboxConfiguration;
   onChange: (value: AgentBotInboxConfiguration) => void;
 }
@@ -45,6 +47,7 @@ export default function AgentBotInboxSettingsFields({
   isFacebookInbox,
   agentBots,
   labels,
+  labelsUnavailable = false,
   value,
   onChange,
 }: AgentBotInboxSettingsFieldsProps) {
@@ -168,6 +171,11 @@ export default function AgentBotInboxSettingsFields({
     label => !ignoredLabelIds.includes(label.id) && !allowedLabelIds.includes(label.id),
   );
   const selectedLabelsData = labels.filter(label => allowedLabelIds.includes(label.id));
+  // A deleted allowed label keeps blocking the agent (the backend keeps its id).
+  // Hiding it would make the list look empty, which reads as "answers everyone".
+  const deletedLabelIds = labelsUnavailable
+    ? []
+    : allowedLabelIds.filter(id => !labels.some(label => label.id === id));
   const selectedIgnoredLabelsData = labels.filter(label => ignoredLabelIds.includes(label.id));
   const otherBots = agentBots.filter(bot => bot.id !== agentBotId);
   const fieldId = (name: string) => `${idPrefix}-${name}`;
@@ -237,6 +245,23 @@ export default function AgentBotInboxSettingsFields({
             </Badge>
           ))}
 
+          {deletedLabelIds.map(labelId => (
+            <Badge
+              key={labelId}
+              variant="outline"
+              className="flex items-center gap-1 px-2 py-1 text-muted-foreground"
+            >
+              {t('settings.agentBotConfiguration.advanced.labels.deleted')}
+              <button
+                onClick={() => handleLabelRemove(labelId)}
+                className="ml-1 hover:bg-black/10 rounded-full p-0.5"
+                type="button"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+
           {availableLabels.length > 0 && (
             <Select value={labelSelectValue} onValueChange={handleLabelAdd}>
               <SelectTrigger className="w-auto min-w-32">
@@ -256,10 +281,16 @@ export default function AgentBotInboxSettingsFields({
           )}
         </div>
 
-        {labels.length === 0 && (
-          <p className="text-xs text-muted-foreground italic">
-            {t('settings.agentBotConfiguration.advanced.labels.noLabels')}
+        {labelsUnavailable ? (
+          <p role="alert" className="text-xs text-destructive">
+            {t('settings.agentBotConfiguration.advanced.labels.loadFailed')}
           </p>
+        ) : (
+          labels.length === 0 && (
+            <p className="text-xs text-muted-foreground italic">
+              {t('settings.agentBotConfiguration.advanced.labels.noLabels')}
+            </p>
+          )
         )}
 
         {allowedLabelIds.length === 0 && labels.length > 0 && (

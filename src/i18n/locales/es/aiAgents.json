@@ -1315,7 +1315,10 @@
         "servedBy": "Atendido por el agente {{name}}",
         "link": "Vincular",
         "linking": "Vinculando...",
-        "connectNew": "Conectar canal nuevo"
+        "connectNew": "Conectar canal nuevo",
+        "noChannelsTitle": "Aún no hay canales conectados.",
+        "loadFailed": "No se pudieron cargar los canales.",
+        "retry": "Intentar de nuevo"
       },
       "transfer": {
         "title": "¿Transferir canal?",
@@ -1333,7 +1336,6 @@
       "errors": {
         "moved": "Este canal pasó a otro agente. La lista se actualizó.",
         "load": "Error al cargar los canales del agente",
-        "loadChannels": "Error al cargar los canales de la cuenta",
         "link": "Error al vincular el canal",
         "status": "Error al cambiar el vínculo del canal",
         "save": "Error al guardar la configuración del canal",

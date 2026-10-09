@@ -15,7 +15,7 @@ interface AgentBotConfigurationFormProps {
 }
 
 /**
- * The channel's agent, read-only (CRM-41). The binding is created, edited and
+ * The channel's agent, read-only. The binding is created, edited and
  * unlinked from the agent's Channels tab; this tab only says who answers and
  * leads there.
  */

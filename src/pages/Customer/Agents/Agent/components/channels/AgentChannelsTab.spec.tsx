@@ -2,6 +2,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AgentChannelsTab from './AgentChannelsTab';
+import { labelsService } from '@/services/contacts/labelsService';
 import type { Agent } from '@/types/agents';
 import type { AgentBotInboxBinding, Inbox } from '@/types/channels/inbox';
 
@@ -46,7 +47,7 @@ vi.mock('@/services/channels/inboxesService', () => ({
 }));
 
 vi.mock('@/services/contacts/labelsService', () => ({
-  labelsService: { getLabels: vi.fn(async () => ({ data: [] })) },
+  labelsService: { getAllLabels: vi.fn(async () => []) },
 }));
 
 const BOT_ID = 'bot-1';
@@ -278,15 +279,52 @@ describe('AgentChannelsTab', () => {
     expect(screen.queryByRole('button', { name: /edit\.channels\.actions\.link/ })).toBeNull();
   });
 
-  it('shows the empty state with "connect new channel" when no channel is available', async () => {
+  it('shows the empty state with "connect new channel" when every channel is already linked', async () => {
     inboxesList.mockResolvedValue({ data: [inbox('in-active', 'WhatsApp Vendas')] });
     await renderTab();
 
     const dialog = await openModal();
     expect(await within(dialog).findByText('edit.channels.linkModal.emptyTitle')).toBeInTheDocument();
+    expect(within(dialog).getByText('edit.channels.linkModal.emptyDescription')).toBeInTheDocument();
+    expect(within(dialog).queryByText('edit.channels.linkModal.noChannelsTitle')).toBeNull();
 
     await userEvent.click(within(dialog).getByRole('button', { name: /edit\.channels\.linkModal\.connectNew/ }));
     expect(navigate).toHaveBeenCalledWith('/channels/new');
+  });
+
+  it('says the account has no channel yet, with "connect new channel"', async () => {
+    await renderTab();
+
+    const dialog = await openModal();
+    expect(await within(dialog).findByText('edit.channels.linkModal.noChannelsTitle')).toBeInTheDocument();
+    expect(within(dialog).queryByText('edit.channels.linkModal.emptyDescription')).toBeNull();
+    expect(within(dialog).getByRole('button', { name: /edit\.channels\.linkModal\.connectNew/ })).toBeInTheDocument();
+  });
+
+  it('says the channels failed to load and offers a retry instead of "connect new channel"', async () => {
+    inboxesList.mockRejectedValueOnce(new Error('500'));
+    await renderTab();
+
+    const dialog = await openModal();
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent('edit.channels.linkModal.loadFailed');
+    expect(within(dialog).queryByText('edit.channels.linkModal.emptyTitle')).toBeNull();
+    expect(within(dialog).queryByText('edit.channels.linkModal.noChannelsTitle')).toBeNull();
+    expect(within(dialog).queryByRole('button', { name: /edit\.channels\.linkModal\.connectNew/ })).toBeNull();
+
+    inboxesList.mockResolvedValue({ data: [inbox('in-free', 'Instagram')] });
+    await userEvent.click(within(dialog).getByRole('button', { name: /edit\.channels\.linkModal\.retry/ }));
+    expect(await within(dialog).findByText('Instagram')).toBeInTheDocument();
+  });
+
+  it('lists channels by the name the user gave them, not the stored slug', async () => {
+    inboxesList.mockResolvedValue({
+      data: [inbox('in-free', 'canal-instagram', { display_name: 'Canal Instagram' })],
+    });
+    await renderTab();
+
+    const dialog = await openModal();
+    expect(await within(dialog).findByText('Canal Instagram')).toBeInTheDocument();
+    expect(within(dialog).queryByText('canal-instagram')).toBeNull();
   });
 
   it('links nothing when the channel cannot be checked again', async () => {
@@ -384,6 +422,25 @@ describe('AgentChannelsTab', () => {
     await screen.findByTestId('agent-channel-card-in-free');
 
     expect(open()).toBeChecked();
+  });
+
+  it('marks an allowed label as deleted only when the label list loaded', async () => {
+    const withGoneLabel = binding('in-active', 'WhatsApp Vendas', 'active');
+    withGoneLabel.configuration.allowed_label_ids = ['label-gone'];
+    service.listBotInboxes.mockResolvedValue([withGoneLabel]);
+    const deleted = 'settings.agentBotConfiguration.advanced.labels.deleted';
+
+    vi.mocked(labelsService.getAllLabels).mockRejectedValueOnce(new Error('500'));
+    const { unmount } = render(<AgentChannelsTab agent={agent} />);
+    let target = await screen.findByTestId('agent-channel-card-in-active');
+    await userEvent.click(within(target).getByRole('button', { name: /edit\.channels\.advanced\.title/ }));
+    expect(within(target).queryByText(deleted)).toBeNull();
+    unmount();
+
+    render(<AgentChannelsTab agent={agent} />);
+    target = await screen.findByTestId('agent-channel-card-in-active');
+    await userEvent.click(within(target).getByRole('button', { name: /edit\.channels\.advanced\.title/ }));
+    expect(within(target).getByText(deleted)).toBeInTheDocument();
   });
 
   it('is read-only without inboxes.update', async () => {

@@ -10,12 +10,13 @@ import AgentBotInboxSettingsFields, {
 import { AgentBot } from '@/components/channels/settings/helpers/agentBotHelpers';
 import type { AgentBotInboxBinding, AgentBotInboxConfiguration } from '@/types/channels/inbox';
 import type { AgentConfig } from '@/types/agents';
-import { getInboxIdentifier } from './channelIdentifier';
+import { getInboxDisplayName, getInboxIdentifier } from './channelIdentifier';
 
 interface AgentChannelCardProps {
   binding: AgentBotInboxBinding;
   agentBots: AgentBot[];
   labels: AgentBotInboxLabelOption[];
+  labelsUnavailable?: boolean;
   agentConfig?: AgentConfig;
   highlighted: boolean;
   busy: boolean;
@@ -30,6 +31,7 @@ export default function AgentChannelCard({
   binding,
   agentBots,
   labels,
+  labelsUnavailable,
   agentConfig,
   highlighted,
   busy,
@@ -74,7 +76,9 @@ export default function AgentChannelCard({
           <ChannelIcon channelType={inbox.channel_type} provider={inbox.provider} size="md" />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="truncate font-medium text-foreground">{inbox.name}</span>
+              <span className="truncate font-medium text-foreground">
+                {getInboxDisplayName(inbox)}
+              </span>
               <span
                 className={cn(
                   'rounded-[7px] px-2 py-0.5 text-[11px] font-bold',
@@ -84,7 +88,14 @@ export default function AgentChannelCard({
                 {isActive ? t('edit.channels.status.active') : t('edit.channels.status.inactive')}
               </span>
             </div>
-            {identifier && <p className="truncate text-xs text-muted-foreground">{identifier}</p>}
+            {identifier && (
+              <p
+                data-testid="channel-identifier"
+                className="truncate text-xs text-muted-foreground"
+              >
+                {identifier}
+              </p>
+            )}
           </div>
           {!canEdit ? null : isActive ? (
             <Button type="button" variant="outline" size="sm" onClick={onUnlink} disabled={busy}>
@@ -128,6 +139,7 @@ export default function AgentChannelCard({
                   isFacebookInbox={inbox.channel_type === 'Channel::FacebookPage'}
                   agentBots={agentBots}
                   labels={labels}
+                  labelsUnavailable={labelsUnavailable}
                   value={draft}
                   onChange={setDraft}
                 />
@@ -152,7 +164,8 @@ export default function AgentChannelCard({
 
 /**
  * Debounce and segmentation belong to the agent, not to the binding: one value
- * serves every channel, edited in the Configuration tab.
+ * serves every channel, edited in the Configuration tab. The fallbacks are the
+ * Configuration tab's own (AgentEditPage).
  */
 function AgentLevelSettings({ config, onOpen }: { config?: AgentConfig; onOpen?: () => void }) {
   const { t } = useLanguage('aiAgents');
@@ -166,7 +179,7 @@ function AgentLevelSettings({ config, onOpen }: { config?: AgentConfig; onOpen?:
         <div className="flex gap-1">
           <dt className="text-muted-foreground">{t('edit.channels.agentLevel.debounce')}:</dt>
           <dd className="text-foreground">
-            {t('edit.channels.agentLevel.seconds', { value: config?.message_wait_time ?? 0 })}
+            {t('edit.channels.agentLevel.seconds', { value: config?.message_wait_time ?? 5 })}
           </dd>
         </div>
         <div className="flex gap-1">
@@ -174,7 +187,7 @@ function AgentLevelSettings({ config, onOpen }: { config?: AgentConfig; onOpen?:
           <dd className="text-foreground">
             {segmentation
               ? t('edit.channels.agentLevel.segmentationOn', {
-                  max: config?.max_characters_per_segment ?? 0,
+                  max: config?.max_characters_per_segment ?? 300,
                 })
               : t('edit.channels.agentLevel.segmentationOff')}
           </dd>

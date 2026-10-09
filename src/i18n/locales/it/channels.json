@@ -1426,7 +1426,9 @@
           "description": "Seleziona quali etichette consentono all'Agente IA di eseguirsi. Se nessuna è selezionata, l'Agente IA si eseguirà per tutte le conversazioni indipendentemente dalle etichette.",
           "emptyHint": "Se nessuna etichetta è selezionata, l'Agente IA si eseguirà per tutte le conversazioni indipendentemente dalle etichette.",
           "noLabels": "Nessuna etichetta disponibile. Crea etichette nella sezione Etichette per utilizzare questa funzionalità.",
-          "addLabel": "Aggiungi Etichetta"
+          "addLabel": "Aggiungi Etichetta",
+          "deleted": "Etichetta eliminata",
+          "loadFailed": "Impossibile caricare le etichette. Le etichette consentite salvate restano valide."
         },
         "ignoredLabels": {
           "title": "Etichette Ignorate",

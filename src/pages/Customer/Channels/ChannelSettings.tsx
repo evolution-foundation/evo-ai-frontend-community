@@ -959,7 +959,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
       </div>
 
       {/* Fixed footer: single unified save action, anchored to the content box.
-          The agent tab is read-only (CRM-41): it has nothing to save. */}
+          The agent tab is read-only: it has nothing to save. */}
       {activeTab !== 'botConfiguration' && (
         <div className="flex items-center justify-end gap-3 border-t border-border bg-card px-6 py-3">
           {!currentTabIsSavable && (

@@ -749,6 +749,10 @@ const AgentEditPage = () => {
       }
 
       await updateAgent(id, agentUpdateData);
+      // The Channels tab shows debounce and segmentation from the loaded agent.
+      await getAgent(id)
+        .then(setAgent)
+        .catch(error => console.error('Error reloading agent:', error));
 
       toast.success(t('messages.saveSuccess') || 'Agent saved successfully!', { id: toastId });
       setIsDirty(false);

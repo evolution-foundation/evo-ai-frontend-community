@@ -1222,7 +1222,10 @@
         "servedBy": "Pris en charge par l'agent {{name}}",
         "link": "Lier",
         "linking": "Liaison...",
-        "connectNew": "Connecter un nouveau canal"
+        "connectNew": "Connecter un nouveau canal",
+        "noChannelsTitle": "Aucun canal connecté pour le moment.",
+        "loadFailed": "Impossible de charger les canaux.",
+        "retry": "Réessayer"
       },
       "transfer": {
         "title": "Transférer le canal ?",
@@ -1240,7 +1243,6 @@
       "errors": {
         "moved": "Ce canal est passé à un autre agent. La liste a été actualisée.",
         "load": "Erreur lors du chargement des canaux de l'agent",
-        "loadChannels": "Erreur lors du chargement des canaux du compte",
         "link": "Erreur lors de la liaison du canal",
         "status": "Erreur lors de la modification de la liaison du canal",
         "save": "Erreur lors de l'enregistrement des paramètres du canal",

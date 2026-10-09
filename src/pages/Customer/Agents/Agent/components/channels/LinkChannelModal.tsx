@@ -17,20 +17,24 @@ import {
   DialogTitle,
   Skeleton,
 } from '@evoapi/design-system';
-import { Plus, Radio } from 'lucide-react';
+import { Plus, Radio, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import { ChannelIcon } from '@/components/channels';
 import type { Inbox } from '@/types/channels/inbox';
 import InboxesService from '@/services/channels/inboxesService';
-import { getInboxIdentifier } from './channelIdentifier';
+import { getInboxDisplayName, getInboxIdentifier } from './channelIdentifier';
 
 interface LinkChannelModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Channels of the account not bound to this agent. */
   inboxes: Inbox[];
+  /** Whether the account has any channel at all, linked to this agent or not. */
+  hasAccountInboxes: boolean;
   isLoading: boolean;
+  loadFailed: boolean;
+  onRetry: () => void;
   onLink: (inbox: Inbox) => Promise<void>;
   onConnectNewChannel: () => void;
 }
@@ -39,7 +43,10 @@ export default function LinkChannelModal({
   open,
   onOpenChange,
   inboxes,
+  hasAccountInboxes,
   isLoading,
+  loadFailed,
+  onRetry,
   onLink,
   onConnectNewChannel,
 }: LinkChannelModalProps) {
@@ -103,6 +110,23 @@ export default function LinkChannelModal({
               <Skeleton className="h-14 w-full" />
               <Skeleton className="h-14 w-full" />
             </div>
+          ) : loadFailed ? (
+            <div className="flex flex-col items-center gap-3 py-8 text-center">
+              <p role="alert" className="text-sm text-destructive">
+                {t('edit.channels.linkModal.loadFailed')}
+              </p>
+              <Button type="button" variant="outline" size="sm" onClick={onRetry}>
+                <RotateCcw className="mr-2 h-4 w-4" />
+                {t('edit.channels.linkModal.retry')}
+              </Button>
+            </div>
+          ) : !hasAccountInboxes ? (
+            <div className="flex flex-col items-center gap-2 py-8 text-center">
+              <Radio className="h-8 w-8 text-muted-foreground" />
+              <p className="font-medium text-foreground">
+                {t('edit.channels.linkModal.noChannelsTitle')}
+              </p>
+            </div>
           ) : inboxes.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-8 text-center">
               <Radio className="h-8 w-8 text-muted-foreground" />
@@ -122,7 +146,9 @@ export default function LinkChannelModal({
                   >
                     <ChannelIcon channelType={inbox.channel_type} provider={inbox.provider} size="sm" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-foreground">{inbox.name}</p>
+                      <p className="truncate text-sm font-medium text-foreground">
+                        {getInboxDisplayName(inbox)}
+                      </p>
                       {identifier && (
                         <p className="truncate text-xs text-muted-foreground">{identifier}</p>
                       )}
@@ -153,12 +179,14 @@ export default function LinkChannelModal({
             </ul>
           )}
 
-          <DialogFooter className="sm:justify-start">
-            <Button type="button" variant="ghost" onClick={onConnectNewChannel}>
-              <Plus className="mr-2 h-4 w-4" />
-              {t('edit.channels.linkModal.connectNew')}
-            </Button>
-          </DialogFooter>
+          {!loadFailed && (
+            <DialogFooter className="sm:justify-start">
+              <Button type="button" variant="ghost" onClick={onConnectNewChannel}>
+                <Plus className="mr-2 h-4 w-4" />
+                {t('edit.channels.linkModal.connectNew')}
+              </Button>
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
 
@@ -177,7 +205,7 @@ export default function LinkChannelModal({
                   ? 'edit.channels.transfer.descriptionInactive'
                   : 'edit.channels.transfer.description',
                 {
-                  channel: pendingTransfer?.name ?? '',
+                  channel: pendingTransfer ? getInboxDisplayName(pendingTransfer) : '',
                   agent: pendingTransfer?.agent_bot?.name ?? '',
                 },
               )}

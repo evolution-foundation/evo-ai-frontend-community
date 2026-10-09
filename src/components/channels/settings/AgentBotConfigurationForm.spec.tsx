@@ -23,7 +23,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-// CRM-41: the binding is edited from the agent's Channels tab; the channel only shows it.
+// The binding is edited from the agent's Channels tab; the channel only shows it.
 describe('AgentBotConfigurationForm (read-only)', () => {
   it('shows who answers the channel and leads to that agent’s Channels tab', async () => {
     getById.mockResolvedValue({

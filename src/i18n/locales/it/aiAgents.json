@@ -1223,7 +1223,10 @@
         "servedBy": "Gestito dall'agente {{name}}",
         "link": "Collega",
         "linking": "Collegamento...",
-        "connectNew": "Connetti nuovo canale"
+        "connectNew": "Connetti nuovo canale",
+        "noChannelsTitle": "Nessun canale ancora connesso.",
+        "loadFailed": "Impossibile caricare i canali.",
+        "retry": "Riprova"
       },
       "transfer": {
         "title": "Trasferire il canale?",
@@ -1241,7 +1244,6 @@
       "errors": {
         "moved": "Questo canale è passato a un altro agente. L'elenco è stato aggiornato.",
         "load": "Errore durante il caricamento dei canali dell'agente",
-        "loadChannels": "Errore durante il caricamento dei canali dell'account",
         "link": "Errore durante il collegamento del canale",
         "status": "Errore durante la modifica del collegamento del canale",
         "save": "Errore durante il salvataggio delle impostazioni del canale",

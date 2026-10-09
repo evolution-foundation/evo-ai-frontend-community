@@ -1296,7 +1296,10 @@
         "servedBy": "Served by agent {{name}}",
         "link": "Link",
         "linking": "Linking...",
-        "connectNew": "Connect new channel"
+        "connectNew": "Connect new channel",
+        "noChannelsTitle": "No channels connected yet.",
+        "loadFailed": "Couldn't load the channels.",
+        "retry": "Try again"
       },
       "transfer": {
         "title": "Transfer channel?",
@@ -1314,7 +1317,6 @@
       "errors": {
         "moved": "This channel moved to another agent. The list was refreshed.",
         "load": "Error loading the agent's channels",
-        "loadChannels": "Error loading the account's channels",
         "link": "Error linking the channel",
         "status": "Error changing the channel link",
         "save": "Error saving the channel settings",

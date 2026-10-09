@@ -1426,7 +1426,9 @@
           "description": "Sélectionnez quelles étiquettes permettent au bot de s'exécuter. Si aucune n'est sélectionnée, le bot s'exécutera pour toutes les conversations indépendamment des étiquettes.",
           "emptyHint": "Si aucune étiquette n'est sélectionnée, le bot s'exécutera pour toutes les conversations indépendamment des étiquettes.",
           "noLabels": "Aucune étiquette disponible. Créez des étiquettes dans la section Étiquettes pour utiliser cette fonctionnalité.",
-          "addLabel": "Ajouter une Étiquette"
+          "addLabel": "Ajouter une Étiquette",
+          "deleted": "Étiquette supprimée",
+          "loadFailed": "Impossible de charger les étiquettes. Les étiquettes autorisées enregistrées restent en vigueur."
         },
         "ignoredLabels": {
           "title": "Étiquettes Ignorées",

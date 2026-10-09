@@ -247,7 +247,7 @@ const AgentBotsService = {
     }
   },
 
-  // Channels bound to an agent bot, active and inactive (CRM-41)
+  // Channels bound to an agent bot, active and inactive
   async listBotInboxes(botId: string): Promise<AgentBotInboxBinding[]> {
     const { data } = await api.get<{ data: AgentBotInboxBinding[] }>(
       `/agent_bots/${botId}/inboxes`,

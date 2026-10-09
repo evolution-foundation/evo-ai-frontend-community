@@ -68,4 +68,22 @@ describe('labelsService', () => {
     expect(response.data).toHaveLength(1);
     expect(response.meta.pagination.total).toBe(1);
   });
+
+  // The agent's Channels tab reads "not in this list" as "deleted label".
+  it('getAllLabels walks every page', async () => {
+    const page = (n: number, ids: string[]) =>
+      apiResponse({
+        success: true,
+        data: ids.map(id => ({ id, title: id })),
+        meta: { pagination: { page: n, page_size: 200, total: 3, total_pages: 2 } },
+      });
+    vi.mocked(api.get)
+      .mockResolvedValueOnce(page(1, ['l-1', 'l-2']))
+      .mockResolvedValueOnce(page(2, ['l-201']));
+
+    const labels = await labelsService.getAllLabels();
+
+    expect(labels.map(label => label.id)).toEqual(['l-1', 'l-2', 'l-201']);
+    expect(api.get).toHaveBeenLastCalledWith('/labels', { params: { page: 2, per_page: 200 } });
+  });
 });

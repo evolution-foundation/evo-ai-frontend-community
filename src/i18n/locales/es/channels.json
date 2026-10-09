@@ -1486,7 +1486,9 @@
           "description": "Seleccione qué etiquetas permiten que el bot se ejecute. Si no se selecciona ninguna, el bot se ejecutará para todas las conversaciones independientemente de las etiquetas.",
           "emptyHint": "Si no se selecciona ninguna etiqueta, el bot se ejecutará para todas las conversaciones independientemente de las etiquetas.",
           "noLabels": "No hay etiquetas disponibles. Cree etiquetas en la sección de Etiquetas para usar esta función.",
-          "addLabel": "Agregar Etiqueta"
+          "addLabel": "Agregar Etiqueta",
+          "deleted": "Etiqueta eliminada",
+          "loadFailed": "No se pudieron cargar las etiquetas. Las etiquetas permitidas guardadas siguen vigentes."
         },
         "ignoredLabels": {
           "title": "Etiquetas Ignoradas",

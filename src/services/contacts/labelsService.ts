@@ -8,6 +8,20 @@ class LabelsService {
     return extractResponse<Label>(response) as LabelsResponse;
   }
 
+  // Every page: a caller that reads "not in the list" as "deleted" cannot stop at the first.
+  async getAllLabels(): Promise<Label[]> {
+    const labels: Label[] = [];
+    let page = 1;
+    let totalPages = 1;
+    do {
+      const response = await this.getLabels({ page, per_page: 200 });
+      labels.push(...(response.data || []));
+      totalPages = Number(response.meta?.pagination?.total_pages) || 1;
+      page += 1;
+    } while (page <= totalPages);
+    return labels;
+  }
+
   // extractData strips the {success, data} envelope, so the write methods below
   // are typed as the payload — typing them as the envelope makes callers unwrap twice.
   async createLabel(data: {

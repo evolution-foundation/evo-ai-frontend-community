@@ -116,7 +116,7 @@ describe('ChannelSettings redesign', () => {
     await waitFor(() => expect(update).toHaveBeenCalled());
   });
 
-  // CRM-41: the binding is edited from the agent's Channels tab.
+  // The binding is edited from the agent's Channels tab.
   it('offers no save on the read-only agent tab', async () => {
     await renderPage();
     await userEvent.click(screen.getByRole('tab', { name: /settings\.tabs\.botConfiguration/i }));

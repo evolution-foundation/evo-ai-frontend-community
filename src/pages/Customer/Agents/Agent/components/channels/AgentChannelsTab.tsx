@@ -21,6 +21,7 @@ import type {
 } from '@/types/channels/inbox';
 import AgentChannelCard from './AgentChannelCard';
 import LinkChannelModal from './LinkChannelModal';
+import { getInboxDisplayName } from './channelIdentifier';
 
 /** How long a just-linked card stays highlighted. */
 export const LINK_HIGHLIGHT_MS = 3000;
@@ -30,7 +31,7 @@ interface AgentChannelsTabProps {
   onOpenAgentConfiguration?: () => void;
 }
 
-/** The agent's channels: where an agent ↔ channel binding is created, edited and unlinked (CRM-41). */
+/** The agent's channels: where an agent ↔ channel binding is created, edited and unlinked. */
 export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: AgentChannelsTabProps) {
   const { t } = useLanguage('aiAgents');
   const navigate = useNavigate();
@@ -43,6 +44,7 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
   const [isLoading, setIsLoading] = useState(true);
   const [agentBots, setAgentBots] = useState<AgentBot[]>([]);
   const [labels, setLabels] = useState<AgentBotInboxLabelOption[]>([]);
+  const [labelsUnavailable, setLabelsUnavailable] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
   const [busyInboxIds, setBusyInboxIds] = useState<Set<string>>(() => new Set());
   const [highlightedInboxId, setHighlightedInboxId] = useState<string | null>(null);
@@ -51,6 +53,7 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [accountInboxes, setAccountInboxes] = useState<Inbox[]>([]);
   const [isLoadingInboxes, setIsLoadingInboxes] = useState(false);
+  const [inboxesLoadFailed, setInboxesLoadFailed] = useState(false);
 
   const loadBindings = useCallback(async () => {
     if (!botId) return;
@@ -69,14 +72,15 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
     Promise.all([
       AgentBotsService.listBotInboxes(botId),
       AgentBotsService.getAll({ per_page: 200 }),
-      labelsService.getLabels({ per_page: 200 }).catch(() => ({ data: [] })),
+      labelsService.getAllLabels().catch(() => null),
     ])
-      .then(([botBindings, bots, labelsResponse]) => {
+      .then(([botBindings, bots, accountLabels]) => {
         if (cancelled) return;
         setBindings(botBindings);
         setAgentBots(bots);
+        setLabelsUnavailable(accountLabels === null);
         setLabels(
-          (labelsResponse?.data || []).map((label: LabelType) => ({
+          (accountLabels || []).map((label: LabelType) => ({
             id: label.id,
             title: label.title,
             color: label.color || '#1f93ff',
@@ -100,12 +104,13 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
 
   const loadAccountInboxes = async () => {
     setIsLoadingInboxes(true);
+    setInboxesLoadFailed(false);
     try {
       const response = await InboxesService.list({ per_page: 200 });
       setAccountInboxes(response.data || []);
     } catch (error) {
       console.error('Error loading channels:', error);
-      toast.error(t('edit.channels.errors.loadChannels'));
+      setInboxesLoadFailed(true);
       setAccountInboxes([]);
     } finally {
       setIsLoadingInboxes(false);
@@ -132,7 +137,9 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
       console.error('Error linking channel:', error);
       if (axios.isAxiosError(error) && error.response?.status === 409) {
         // The channel changed hands after it was checked: show the list as it is now.
-        toast.error(t('edit.channels.errors.channelChanged', { channel: inbox.name }));
+        toast.error(
+          t('edit.channels.errors.channelChanged', { channel: getInboxDisplayName(inbox) }),
+        );
         // It may have come to this very agent, so the cards are stale too.
         loadBindings().catch(() => undefined);
         loadAccountInboxes();
@@ -143,7 +150,7 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
     }
 
     setIsModalOpen(false);
-    toast.success(t('edit.channels.success.linked', { channel: inbox.name }));
+    toast.success(t('edit.channels.success.linked', { channel: getInboxDisplayName(inbox) }));
     clearTimeout(highlightTimer.current);
     setHighlightedInboxId(inbox.id);
     highlightTimer.current = setTimeout(() => setHighlightedInboxId(null), LINK_HIGHLIGHT_MS);
@@ -181,8 +188,8 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
       );
       toast.success(
         status === 'inactive'
-          ? t('edit.channels.success.unlinked', { channel: binding.inbox.name })
-          : t('edit.channels.success.reactivated', { channel: binding.inbox.name }),
+          ? t('edit.channels.success.unlinked', { channel: getInboxDisplayName(binding.inbox) })
+          : t('edit.channels.success.reactivated', { channel: getInboxDisplayName(binding.inbox) }),
       );
     } catch (error) {
       console.error('Error changing channel status:', error);
@@ -258,6 +265,7 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
               binding={binding}
               agentBots={agentBots}
               labels={labels}
+              labelsUnavailable={labelsUnavailable}
               agentConfig={agent.config}
               highlighted={highlightedInboxId === binding.inbox_id}
               busy={busyInboxIds.has(binding.inbox_id)}
@@ -275,7 +283,10 @@ export default function AgentChannelsTab({ agent, onOpenAgentConfiguration }: Ag
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         inboxes={linkableInboxes}
+        hasAccountInboxes={accountInboxes.length > 0}
         isLoading={isLoadingInboxes}
+        loadFailed={inboxesLoadFailed}
+        onRetry={loadAccountInboxes}
         onLink={handleLink}
         onConnectNewChannel={() => navigate('/channels/new')}
       />

@@ -1485,7 +1485,9 @@
           "description": "Selecione quais etiquetas permitem que o agente de IA execute. Se nenhuma for selecionada, o agente de IA executará para todas as conversas independentemente das etiquetas.",
           "emptyHint": "Se nenhuma etiqueta for selecionada, o agente de IA executará para todas as conversas independentemente das etiquetas.",
           "noLabels": "Nenhuma etiqueta disponível. Crie etiquetas na seção de Etiquetas para usar este recurso.",
-          "addLabel": "Adicionar Etiqueta"
+          "addLabel": "Adicionar Etiqueta",
+          "deleted": "Etiqueta excluída",
+          "loadFailed": "Não foi possível carregar as etiquetas. As etiquetas permitidas salvas continuam valendo."
         },
         "ignoredLabels": {
           "title": "Etiquetas Ignoradas",

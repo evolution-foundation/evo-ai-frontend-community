@@ -1486,7 +1486,9 @@
           "description": "Select which labels allow the AI agent to execute. If none are selected, the AI agent will execute for all conversations regardless of labels.",
           "emptyHint": "If no labels are selected, the AI agent will execute for all conversations regardless of labels.",
           "noLabels": "No labels available. Create labels in the Labels section to use this feature.",
-          "addLabel": "Add Label"
+          "addLabel": "Add Label",
+          "deleted": "Deleted label",
+          "loadFailed": "Couldn't load the labels. The saved allowed labels still apply."
         },
         "ignoredLabels": {
           "title": "Ignored Labels",
