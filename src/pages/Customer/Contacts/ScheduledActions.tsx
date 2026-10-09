@@ -60,11 +60,14 @@ export default function ScheduledActions() {
   // The pager fires `onPageChange(1)` right after a page-size change, before the new size
   // reaches state; read from state, that reload would bring the old size back.
   const perPageRef = useRef(INITIAL_STATE.meta.per_page);
+  // Only the latest list request may commit: page clicks and debounced searches can overlap
+  // and answer out of order.
+  const latestLoadRef = useRef(0);
 
   // Load scheduled actions
   const loadActions = useCallback(
     async (params?: { page?: number; per_page?: number; status?: string; search?: string }) => {
-
+      const loadId = ++latestLoadRef.current;
       setState(prev => ({ ...prev, loading: { ...prev.loading, list: true } }));
 
       try {
@@ -82,6 +85,7 @@ export default function ScheduledActions() {
         }
 
         const { actions, total } = await scheduledActionsService.listPage(queryParams);
+        if (loadId !== latestLoadRef.current) return;
 
         setState(prev => ({
           ...prev,
@@ -97,6 +101,7 @@ export default function ScheduledActions() {
           loading: { ...prev.loading, list: false },
         }));
       } catch (error: any) {
+        if (loadId !== latestLoadRef.current) return;
         console.error('Error loading scheduled actions:', error);
         toast.error(error.response?.data?.error || t('scheduledActions.errors.loadFailed'));
         setState(prev => ({ ...prev, loading: { ...prev.loading, list: false } }));

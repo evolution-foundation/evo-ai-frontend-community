@@ -106,6 +106,22 @@ describe('ScheduledActions page', () => {
     expect(listPage).toHaveBeenLastCalledWith({ page: 1, per_page: 50 });
   });
 
+  it('ignores an older page answering after a newer one', async () => {
+    let answerPage2: (page: unknown) => void = () => {};
+    render(<ScheduledActions />);
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('1/3/45'));
+
+    listPage.mockImplementationOnce(() => new Promise(resolve => (answerPage2 = resolve)));
+    await userEvent.click(screen.getByTestId('page-2'));
+    await userEvent.click(screen.getByTestId('per-page-50'));
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('1/1/45'));
+
+    answerPage2({ actions: [{ id: 'sa-21' }], total: 45 });
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(screen.getByTestId('pagination')).toHaveTextContent('1/1/45');
+    expect(screen.queryByText('sa-21')).not.toBeInTheDocument();
+  });
+
   it('loads the chosen page', async () => {
     listPage
       .mockResolvedValueOnce({ actions: [{ id: 'sa-1' }], total: 45 })
