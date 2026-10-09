@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { ScheduledActionsTour } from '@/tours';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -10,6 +10,8 @@ import { ScheduleActionModal } from '@/components/scheduledActions/ScheduleActio
 import ScheduledActionsHeader from '@/components/scheduledActions/ScheduledActionsHeader';
 import ScheduledActionsTable from '@/components/scheduledActions/ScheduledActionsTable';
 import EmptyState from '@/components/base/EmptyState';
+import BasePagination from '@/components/base/BasePagination';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/constants/pagination';
 import { CalendarClock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -55,17 +57,23 @@ export default function ScheduledActions() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingAction, setEditingAction] = useState<ScheduledAction | null>(null);
   const [, setUpdateTrigger] = useState(0); // Force re-render for countdown updates
+  // The pager fires `onPageChange(1)` right after a page-size change, before the new size
+  // reaches state; read from state, that reload would bring the old size back.
+  const perPageRef = useRef(INITIAL_STATE.meta.per_page);
+  // Only the latest list request may commit: page clicks and debounced searches can overlap
+  // and answer out of order.
+  const latestLoadRef = useRef(0);
 
   // Load scheduled actions
   const loadActions = useCallback(
     async (params?: { page?: number; per_page?: number; status?: string; search?: string }) => {
-
+      const loadId = ++latestLoadRef.current;
       setState(prev => ({ ...prev, loading: { ...prev.loading, list: true } }));
 
       try {
         const queryParams: Record<string, any> = {
           page: params?.page || state.meta.current_page,
-          per_page: params?.per_page || state.meta.per_page,
+          per_page: params?.per_page || perPageRef.current,
         };
 
         if (params?.status || state.statusFilter) {
@@ -76,31 +84,30 @@ export default function ScheduledActions() {
           queryParams.search = params?.search || state.searchQuery;
         }
 
-        const response = await scheduledActionsService.list(queryParams);
-        
-        // API returns an array of ScheduledAction[]
-        const actionsArray = Array.isArray(response) ? response : [];
-        
+        const { actions, total } = await scheduledActionsService.listPage(queryParams);
+        if (loadId !== latestLoadRef.current) return;
+
         setState(prev => ({
           ...prev,
-          actions: actionsArray,
+          actions,
           meta: {
             ...prev.meta,
-            current_page: params?.page || prev.meta.current_page,
-            per_page: params?.per_page || prev.meta.per_page,
-            total_count: actionsArray.length,
-            count: actionsArray.length,
-            total_pages: Math.ceil(actionsArray.length / (params?.per_page || prev.meta.per_page)),
+            current_page: queryParams.page,
+            per_page: queryParams.per_page,
+            total_count: total,
+            count: actions.length,
+            total_pages: Math.ceil(total / queryParams.per_page),
           },
           loading: { ...prev.loading, list: false },
         }));
       } catch (error: any) {
+        if (loadId !== latestLoadRef.current) return;
         console.error('Error loading scheduled actions:', error);
         toast.error(error.response?.data?.error || t('scheduledActions.errors.loadFailed'));
         setState(prev => ({ ...prev, loading: { ...prev.loading, list: false } }));
       }
     },
-    [state.meta.current_page, state.meta.per_page, state.statusFilter, state.searchQuery, t],
+    [state.meta.current_page, state.statusFilter, state.searchQuery, t],
   );
 
   usePermissionGatedLoad({
@@ -108,6 +115,12 @@ export default function ScheduledActions() {
     load: loadActions,
     onDenied: () => toast.error('Você não tem permissão para visualizar ações agendadas'),
   });
+
+  // With no load pending, back to the size on screen: a failed size change must not make
+  // the next request ask for a size the footer never showed.
+  useEffect(() => {
+    if (!state.loading.list) perPageRef.current = state.meta.per_page;
+  }, [state.loading.list, state.meta.per_page]);
 
   // Set up interval to update countdown every second
   useEffect(() => {
@@ -138,6 +151,17 @@ export default function ScheduledActions() {
     }, 500);
 
     return () => clearTimeout(timeoutId);
+  };
+
+  const handlePageChange = (page: number) => {
+    setState(prev => ({ ...prev, selectedActionIds: [] }));
+    loadActions({ page });
+  };
+
+  const handlePerPageChange = (perPage: number) => {
+    perPageRef.current = perPage;
+    setState(prev => ({ ...prev, selectedActionIds: [] }));
+    loadActions({ page: 1, per_page: perPage });
   };
 
   const handleCreate = () => {
@@ -258,18 +282,19 @@ export default function ScheduledActions() {
             onContactClick={handleContactClick}
           />
 
-          {state.meta.total_pages > 1 && (
-            <div className="mt-4 flex justify-center">
-              {/* Pagination component would go here */}
-              <div className="text-sm text-muted-foreground">
-                {t('scheduledActions.pagination', {
-                  page: state.meta.current_page,
-                  totalPages: state.meta.total_pages,
-                  total: state.meta.total_count,
-                })}
-              </div>
-            </div>
-          )}
+          <BasePagination
+            currentPage={state.meta.current_page}
+            totalPages={state.meta.total_pages}
+            totalItems={state.meta.total_count}
+            itemsPerPage={state.meta.per_page}
+            onPageChange={handlePageChange}
+            onItemsPerPageChange={handlePerPageChange}
+            itemsPerPageOptions={DEFAULT_PAGE_SIZE_OPTIONS}
+            showItemsPerPage
+            showTotalItems
+            showPageNumbers
+            disabled={state.loading.list}
+          />
         </>
       )}
 
