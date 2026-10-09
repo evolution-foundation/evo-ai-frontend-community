@@ -163,14 +163,25 @@ export default function CustomTools() {
     load: loadTools,
   });
 
-  // The pager fires `onPageChange(1)` right after a page-size change, before the new size
-  // reaches state; read from state, that reload would bring the old size back.
+  // The size every load asks for. The pager fires `onPageChange(1)` right after a size
+  // change, before the new size reaches state, so state cannot be the source.
   const pageSizeRef = useRef(INITIAL_STATE.meta.pagination.page_size);
+  // With no load pending, back to the size on screen: a failed size change must not make
+  // the next request ask for a size the footer never showed.
+  useEffect(() => {
+    if (!state.loading.list) pageSizeRef.current = state.meta.pagination.page_size;
+  }, [state.loading.list, state.meta.pagination.page_size]);
 
   // Keeps the page size and the search on screen, which a bare `loadTools()` drops.
   const reloadPage = (page = state.meta.pagination.page) => {
     const pageSize = pageSizeRef.current;
     return loadTools({ skip: (page - 1) * pageSize, limit: pageSize, search: state.searchQuery });
+  };
+
+  // A delete that empties the last page reloads the one before it, or it would render empty.
+  const pageAfterDelete = (deleted: number) => {
+    const { page, total_pages } = state.meta.pagination;
+    return page > 1 && page === total_pages && deleted >= state.tools.length ? page - 1 : page;
   };
 
   // Handlers
@@ -185,7 +196,7 @@ export default function CustomTools() {
       clearTimeout(searchDebounceRef.current);
     }
     searchDebounceRef.current = setTimeout(() => {
-      loadTools({ skip: 0, limit: state.meta.pagination.page_size, search: query });
+      loadTools({ skip: 0, limit: pageSizeRef.current, search: query });
     }, 500);
   };
 
@@ -208,7 +219,7 @@ export default function CustomTools() {
 
     try {
       await loadTools(
-        { skip: 0, limit: state.meta.pagination.page_size, search: state.searchQuery },
+        { skip: 0, limit: pageSizeRef.current, search: state.searchQuery },
         filters,
       );
     } catch (error) {
@@ -220,7 +231,7 @@ export default function CustomTools() {
   const handleClearFilters = () => {
     setActiveFilters([]);
     setAppliedFilters([]);
-    loadTools({ skip: 0, limit: state.meta.pagination.page_size, search: state.searchQuery }, []);
+    loadTools({ skip: 0, limit: pageSizeRef.current, search: state.searchQuery }, []);
   };
 
   const handleRemoveFilter = (index: number) => {
@@ -329,8 +340,7 @@ export default function CustomTools() {
       await deleteCustomTool(toolToDelete.id);
       toast.success(t('messages.deleteSuccess'));
 
-      const { page } = state.meta.pagination;
-      reloadPage(state.tools.length <= 1 && page > 1 ? page - 1 : page);
+      reloadPage(pageAfterDelete(1));
 
       setDeleteDialogOpen(false);
       setToolToDelete(null);
@@ -378,10 +388,7 @@ export default function CustomTools() {
 
       setBulkDeleteIds(null);
       // Refetch instead of local math: after a partial failure the local list is a guess.
-      // A page the delete emptied steps back one, or it would render empty.
-      const { page } = state.meta.pagination;
-      const deleted = selectedIds.length - failed;
-      await reloadPage(deleted >= state.tools.length && page > 1 ? page - 1 : page);
+      await reloadPage(pageAfterDelete(selectedIds.length - failed));
     } finally {
       setIsBulkDeleting(false);
     }

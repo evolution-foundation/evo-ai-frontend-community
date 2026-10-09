@@ -407,6 +407,49 @@ describe('CustomTools page', () => {
     expect(listCustomTools.mock.calls[2][0]).toMatchObject({ skip: 20, limit: 20 });
   });
 
+  it('steps back a page after a bulk delete empties the last page', async () => {
+    listTotal = 42;
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('page-3'));
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('3/3/42'));
+
+    listTotal = 40;
+    await selectAllAndOpenBulkDialog();
+    await userEvent.click(await screen.findByText('bulkDeleteDialog.confirm'));
+
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(3));
+    expect(listCustomTools.mock.calls[2][0]).toMatchObject({ skip: 20, limit: 20 });
+  });
+
+  it('stays on a middle page a bulk delete empties, since later rows move into it', async () => {
+    listTotal = 45;
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('page-2'));
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('2/3/45'));
+
+    listTotal = 43;
+    await selectAllAndOpenBulkDialog();
+    await userEvent.click(await screen.findByText('bulkDeleteDialog.confirm'));
+
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(3));
+    expect(listCustomTools.mock.calls[2][0]).toMatchObject({ skip: 20, limit: 20 });
+  });
+
+  it('asks for the size on screen again after a size change fails', async () => {
+    listTotal = 45;
+    listCustomTools.mockResolvedValueOnce([toolA, toolB]).mockRejectedValueOnce(new Error('offline'));
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('per-page-50'));
+    await waitFor(() => expect(error).toHaveBeenCalledWith('messages.loadError'));
+
+    await userEvent.click(screen.getByTestId('page-2'));
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(3));
+    expect(listCustomTools.mock.calls[2][0]).toMatchObject({ skip: 20, limit: 20 });
+  });
+
   it('keeps the tags of earlier pages in the Tags filter', async () => {
     listTotal = 45;
     listCustomTools.mockResolvedValueOnce([toolA]).mockResolvedValueOnce([toolB]);

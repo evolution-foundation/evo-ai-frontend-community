@@ -116,6 +116,12 @@ export default function ScheduledActions() {
     onDenied: () => toast.error('Você não tem permissão para visualizar ações agendadas'),
   });
 
+  // With no load pending, back to the size on screen: a failed size change must not make
+  // the next request ask for a size the footer never showed.
+  useEffect(() => {
+    if (!state.loading.list) perPageRef.current = state.meta.per_page;
+  }, [state.loading.list, state.meta.per_page]);
+
   // Set up interval to update countdown every second
   useEffect(() => {
     const hasScheduledActions = state.actions.some(

@@ -134,4 +134,18 @@ describe('ScheduledActions page', () => {
     expect(listPage).toHaveBeenLastCalledWith({ page: 2, per_page: 20 });
     expect(screen.getByText('sa-21')).toBeInTheDocument();
   });
+
+  it('asks for the size on screen again after a size change fails', async () => {
+    render(<ScheduledActions />);
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('1/3/45'));
+
+    listPage.mockRejectedValueOnce(new Error('offline'));
+    await userEvent.click(screen.getByTestId('per-page-50'));
+    await waitFor(() => expect(listPage).toHaveBeenCalledTimes(2));
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    await userEvent.click(screen.getByTestId('page-2'));
+    await waitFor(() => expect(listPage).toHaveBeenCalledTimes(3));
+    expect(listPage).toHaveBeenLastCalledWith({ page: 2, per_page: 20 });
+  });
 });

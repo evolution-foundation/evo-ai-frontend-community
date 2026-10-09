@@ -36,8 +36,29 @@ vi.mock('@/hooks/useLanguage', () => ({
 vi.mock('@/components/mcpServers', () => ({
   MCPServerCard: ({ server }: { server: MCPServer }) => <span>{server.name}</span>,
 }));
-vi.mock('@/components/mcpServers/MCPServersHeader', () => ({ default: () => null }));
-vi.mock('@/components/mcpServers/MCPServersTable', () => ({ default: () => null }));
+// A named icon, so the spec can reach the table view's toggle.
+vi.mock('lucide-react', async importOriginal => ({
+  ...(await importOriginal<typeof import('lucide-react')>()),
+  List: () => <span>table-view</span>,
+}));
+vi.mock('@/components/mcpServers/MCPServersHeader', () => ({
+  default: ({ selectedCount }: { selectedCount: number }) => (
+    <span data-testid="selected-count">{selectedCount}</span>
+  ),
+}));
+vi.mock('@/components/mcpServers/MCPServersTable', () => ({
+  default: ({
+    servers,
+    onSelectionChange,
+  }: {
+    servers: MCPServer[];
+    onSelectionChange: (servers: MCPServer[]) => void;
+  }) => (
+    <button data-testid="select-all" onClick={() => onSelectionChange(servers)}>
+      select-all
+    </button>
+  ),
+}));
 vi.mock('@/components/mcpServers/MCPServerDetails', () => ({ default: () => null }));
 vi.mock('@/components/mcpServers/MCPServersPagination', () => ({
   default: ({
@@ -132,5 +153,30 @@ describe('MCPServers page', () => {
     await userEvent.click(screen.getByTestId('page-2'));
     await waitFor(() => expect(listMCPServersPage).toHaveBeenCalledTimes(3));
     expect(listMCPServersPage.mock.calls[2][0]).toMatchObject({ skip: 50, limit: 50 });
+  });
+
+  it('asks for the size on screen again after a size change fails', async () => {
+    render(<MCPServers />);
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('1/3/45'));
+
+    listMCPServersPage.mockRejectedValueOnce(new Error('offline'));
+    await userEvent.click(screen.getByTestId('per-page-50'));
+    await waitFor(() => expect(listMCPServersPage).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(screen.queryByText('loading.servers')).not.toBeInTheDocument());
+
+    await userEvent.click(screen.getByTestId('page-2'));
+    await waitFor(() => expect(listMCPServersPage).toHaveBeenCalledTimes(3));
+    expect(listMCPServersPage.mock.calls[2][0]).toMatchObject({ skip: 20, limit: 20 });
+  });
+
+  it('drops the selection when another page loads', async () => {
+    render(<MCPServers />);
+
+    await userEvent.click(await screen.findByText('table-view'));
+    await userEvent.click(await screen.findByTestId('select-all'));
+    expect(screen.getByTestId('selected-count')).toHaveTextContent('1');
+
+    await userEvent.click(screen.getByTestId('page-2'));
+    await waitFor(() => expect(screen.getByTestId('selected-count')).toHaveTextContent('0'));
   });
 });

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@evoapi/design-system';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -56,7 +56,12 @@ export default function MCPServers() {
         return;
       }
       const loadId = ++latestLoadRef.current;
-      setState(prev => ({ ...prev, loading: { ...prev.loading, list: true } }));
+      // The selection only names rows of the page on screen.
+      setState(prev => ({
+        ...prev,
+        selectedServerIds: [],
+        loading: { ...prev.loading, list: true },
+      }));
 
       try {
         const requestParams: MCPServersListParams = {
@@ -98,6 +103,15 @@ export default function MCPServers() {
     onDenied: () => toast.error(t('errors.permissionDenied')),
   });
 
+  // The size every load asks for. The pager fires `onPageChange(1)` right after a size
+  // change, before the new size reaches state, so state cannot be the source.
+  const pageSizeRef = useRef(INITIAL_STATE.meta.pagination.page_size);
+  // With no load pending, back to the size on screen: a failed size change must not make
+  // the next request ask for a size the footer never showed.
+  useEffect(() => {
+    if (!state.loading.list) pageSizeRef.current = state.meta.pagination.page_size;
+  }, [state.loading.list, state.meta.pagination.page_size]);
+
   // Handlers
   const handleSearchChange = (query: string) => {
     setState(prev => ({
@@ -106,19 +120,13 @@ export default function MCPServers() {
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
     }));
 
-    loadServers({ skip: 0, limit: state.meta.pagination.page_size, search: query });
+    loadServers({ skip: 0, limit: pageSizeRef.current, search: query });
   };
 
   const handleServerClick = (server: MCPServer) => {
     setDetailsServer(server);
     setDetailsModalOpen(true);
   };
-
-
-
-  // The pager fires `onPageChange(1)` right after a page-size change, before the new size
-  // reaches state; read from state, that reload would bring the old size back.
-  const pageSizeRef = useRef(INITIAL_STATE.meta.pagination.page_size);
 
   // Page and size reach state only with the rows `loadServers` commits, so a failed request
   // leaves the footer describing the rows still on screen.
