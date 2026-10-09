@@ -45,6 +45,9 @@ export default function MCPServers() {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsServer, setDetailsServer] = useState<MCPServer | null>(null);
 
+  // Only the latest list request may commit: page clicks can overlap and answer out of order.
+  const latestLoadRef = useRef(0);
+
   // Load servers
   const loadServers = useCallback(
     async (params?: Partial<MCPServersListParams>) => {
@@ -52,6 +55,7 @@ export default function MCPServers() {
         toast.error(t('errors.permissionDenied'));
         return;
       }
+      const loadId = ++latestLoadRef.current;
       setState(prev => ({ ...prev, loading: { ...prev.loading, list: true } }));
 
       try {
@@ -62,6 +66,7 @@ export default function MCPServers() {
         };
 
         const { servers, total } = await listMCPServersPage(requestParams);
+        if (loadId !== latestLoadRef.current) return;
         const pageSize = requestParams.limit || DEFAULT_PAGE_SIZE;
 
         setState(prev => ({
@@ -78,6 +83,7 @@ export default function MCPServers() {
           loading: { ...prev.loading, list: false },
         }));
       } catch (error) {
+        if (loadId !== latestLoadRef.current) return;
         console.error('Error loading MCP servers:', error);
         toast.error(t('errors.loadError'));
         setState(prev => ({ ...prev, loading: { ...prev.loading, list: false } }));

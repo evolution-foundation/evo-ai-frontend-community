@@ -96,6 +96,21 @@ describe('MCPServers page', () => {
     expect(listMCPServersPage.mock.lastCall![0]).toMatchObject({ skip: 0, limit: 50 });
   });
 
+  it('ignores an older page answering after a newer one', async () => {
+    let answerPage2: (page: unknown) => void = () => {};
+    render(<MCPServers />);
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('1/3/45'));
+
+    listMCPServersPage.mockImplementationOnce(() => new Promise(resolve => (answerPage2 = resolve)));
+    await userEvent.click(screen.getByTestId('page-2'));
+    await userEvent.click(screen.getByTestId('per-page-50'));
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('1/1/45'));
+
+    answerPage2({ servers: [server], total: 45 });
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(screen.getByTestId('pagination')).toHaveTextContent('1/1/45');
+  });
+
   it('asks for the next slice keeping the chosen page size', async () => {
     render(<MCPServers />);
 
