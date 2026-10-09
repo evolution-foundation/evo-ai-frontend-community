@@ -39,7 +39,6 @@ const buildListQueryParams = (
   return queryParams;
 };
 
-// Lista ferramentas personalizadas
 export const listCustomTools = async (
   params?: CustomToolsListParams,
   filterParams?: Record<string, string>,

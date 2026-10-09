@@ -556,7 +556,6 @@
     "searchPlaceholder": "Search scheduled actions...",
     "bulkCancel": "Cancel Selected",
     "emptyDescription": "Create a new scheduled action to get started",
-    "pagination": "Page {{page}} of {{totalPages}} ({{total}} total)",
     "messages": {
       "noChannelsConfigured": "No messaging channels configured. Please configure a WhatsApp, SMS, Email, or Telegram channel first in the Channels settings."
     },

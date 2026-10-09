@@ -29,7 +29,6 @@ const buildListQueryParams = (params?: MCPServersListParams) => {
   return queryParams;
 };
 
-// List MCP servers
 export const listMCPServers = async (params?: MCPServersListParams): Promise<MCPServer[]> => {
   const response = await evoaiApi.get('/mcp-servers', {
     params: buildListQueryParams(params),
