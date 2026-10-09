@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@evoapi/design-system';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -13,7 +13,7 @@ import MCPServersHeader from '@/components/mcpServers/MCPServersHeader';
 import MCPServersTable from '@/components/mcpServers/MCPServersTable';
 import MCPServersPagination from '@/components/mcpServers/MCPServersPagination';
 import MCPServerDetails from '@/components/mcpServers/MCPServerDetails';
-import { listMCPServers } from '@/services/agents/mcpServerService';
+import { listMCPServersPage } from '@/services/agents/mcpServerService';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 
 const INITIAL_STATE: MCPServersState = {
@@ -61,17 +61,18 @@ export default function MCPServers() {
           ...params,
         };
 
-        const response = await listMCPServers(requestParams);
+        const { servers, total } = await listMCPServersPage(requestParams);
+        const pageSize = requestParams.limit || DEFAULT_PAGE_SIZE;
 
         setState(prev => ({
           ...prev,
-          servers: response,
+          servers,
           meta: {
             pagination: {
-              page: Math.floor((requestParams.skip || 0) / (requestParams.limit || DEFAULT_PAGE_SIZE)) + 1,
-              page_size: requestParams.limit || DEFAULT_PAGE_SIZE,
-              total: response.length,
-              total_pages: Math.ceil(response.length / (requestParams.limit || DEFAULT_PAGE_SIZE)),
+              page: Math.floor((requestParams.skip || 0) / pageSize) + 1,
+              page_size: pageSize,
+              total,
+              total_pages: Math.ceil(total / pageSize),
             },
           },
           loading: { ...prev.loading, list: false },
@@ -99,7 +100,7 @@ export default function MCPServers() {
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
     }));
 
-    loadServers({ skip: 0, search: query });
+    loadServers({ skip: 0, limit: state.meta.pagination.page_size, search: query });
   };
 
   const handleServerClick = (server: MCPServer) => {
@@ -109,13 +110,18 @@ export default function MCPServers() {
 
 
 
+  // The pager fires `onPageChange(1)` right after a page-size change, before the new size
+  // reaches state; read from state, that reload would bring the old size back.
+  const pageSizeRef = useRef(INITIAL_STATE.meta.pagination.page_size);
+
   const handlePageChange = (page: number) => {
-    const skip = (page - 1) * state.meta.pagination.page_size;
+    const pageSize = pageSizeRef.current;
     setState(prev => ({ ...prev, meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page } } }));
-    loadServers({ skip });
+    loadServers({ skip: (page - 1) * pageSize, limit: pageSize });
   };
 
   const handlePageSizeChange = (pageSize: number) => {
+    pageSizeRef.current = pageSize;
     setState(prev => ({
       ...prev,
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page_size: pageSize, page: 1 } },
