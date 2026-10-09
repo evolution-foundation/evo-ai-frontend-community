@@ -1258,8 +1258,71 @@
     },
     "channels": {
       "title": "Canais",
-      "subtitle": "Configure os canais de comunicação do agente",
-      "comingSoon": "Em breve..."
+      "subtitle": "Canais que este agente atende. Vincule, desvincule e ajuste como ele responde em cada um.",
+      "noBot": "Este agente ainda não tem um bot de atendimento, então não pode ser vinculado a canais.",
+      "status": {
+        "active": "Ativo",
+        "inactive": "Inativo"
+      },
+      "actions": {
+        "link": "Vincular a um canal",
+        "unlink": "Desvincular",
+        "reactivate": "Reativar"
+      },
+      "empty": {
+        "title": "Nenhum canal vinculado",
+        "description": "Vincule um canal para que este agente comece a responder nele."
+      },
+      "advanced": {
+        "title": "Configurações avançadas",
+        "save": "Salvar configurações"
+      },
+      "agentLevel": {
+        "title": "Tempo de espera e segmentação",
+        "description": "Valem para todos os canais deste agente e são editados na aba Configuração.",
+        "debounce": "Tempo de espera",
+        "seconds": "{{value}} segundos",
+        "segmentation": "Segmentação de texto",
+        "segmentationOn": "Ativa, até {{max}} caracteres por mensagem",
+        "segmentationOff": "Desativada",
+        "open": "Abrir aba Configuração"
+      },
+      "linkModal": {
+        "title": "Vincular a um canal",
+        "description": "Escolha um canal já configurado para este agente atender.",
+        "emptyTitle": "Nenhum canal disponível",
+        "emptyDescription": "Todos os canais já estão vinculados a este agente. Conecte um novo canal para vinculá-lo.",
+        "linkedInactive": "Vinculado ao agente {{name}} (inativo)",
+        "servedBy": "Atendido pelo agente {{name}}",
+        "link": "Vincular",
+        "linking": "Vinculando...",
+        "connectNew": "Conectar novo canal",
+        "noChannelsTitle": "Nenhum canal conectado ainda.",
+        "loadFailed": "Não foi possível carregar os canais.",
+        "retry": "Tentar de novo"
+      },
+      "transfer": {
+        "title": "Transferir canal?",
+        "description": "O canal {{channel}} já é atendido pelo agente {{agent}}. Transferir?",
+        "descriptionInactive": "O canal {{channel}} está vinculado ao agente {{agent}}, que está inativo. Vincular aqui substitui esse vínculo e descarta a configuração dele. Continuar?",
+        "cancel": "Cancelar",
+        "confirm": "Transferir"
+      },
+      "success": {
+        "linked": "Canal {{channel}} vinculado",
+        "unlinked": "Canal {{channel}} desvinculado. A configuração foi mantida.",
+        "reactivated": "Canal {{channel}} reativado",
+        "saved": "Configurações do canal salvas"
+      },
+      "errors": {
+        "moved": "Este canal passou para outro agente. A lista foi atualizada.",
+        "load": "Erro ao carregar os canais do agente",
+        "link": "Erro ao vincular o canal",
+        "status": "Erro ao alterar o vínculo do canal",
+        "save": "Erro ao salvar as configurações do canal",
+        "channelChanged": "O canal {{channel}} mudou de agente. A lista foi atualizada; confira e tente de novo.",
+        "refreshChannel": "Não foi possível conferir o canal agora. Tente de novo."
+      }
     },
     "settings": {
       "title": "Configurações",

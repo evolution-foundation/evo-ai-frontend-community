@@ -16,6 +16,8 @@ export interface Agent {
   agent_card_url?: string;
   folder_id?: string;
   config?: AgentConfig;
+  /** The CRM agent_bot that answers channels for this agent. */
+  evolution_bot_id?: string | null;
   created_at: string;
   updated_at?: string;
   // Metadata de compartilhamento

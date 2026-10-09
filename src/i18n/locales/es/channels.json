@@ -1467,41 +1467,14 @@
     },
     "agentBotConfiguration": {
       "title": "Configuración de Bot",
-      "description": "Configure bots de atención para automatizar respuestas",
-      "fields": {
-        "selectBot": "Seleccionar Bot",
-        "provider": "Proveedor",
-        "type": "Tipo"
-      },
-      "placeholders": {
-        "selectBot": "Seleccione un bot"
-      },
       "status": {
-        "disconnected": "Desconectado",
-        "connected": "Conectado",
-        "active": "Activo"
-      },
-      "noBots": {
-        "title": "Ningún Bot Disponible",
-        "description": "Aún no tiene bots configurados para este canal."
+        "active": "Activo",
+        "inactive": "Inactivo"
       },
       "buttons": {
-        "manageBots": "Gestionar Bots",
-        "configure": "Configurar Bot",
-        "configuring": "Configurando...",
-        "disconnect": "Desconectar Bot",
-        "disconnecting": "Desconectando...",
         "advancedSettings": "Configuración Avanzada"
       },
-      "info": {
-        "title": "Cómo Funciona:",
-        "point1": "Los bots pueden responder automáticamente a los mensajes de los clientes",
-        "point2": "Configure palabras clave y respuestas automáticas",
-        "point3": "Los bots pueden transferir conversaciones a Agentes humanos",
-        "point4": "Las estadísticas de rendimiento de los bots están disponibles"
-      },
       "advanced": {
-        "title": "Configuración Avanzada",
         "description": "Configure comportamientos y ajustes avanzados del bot",
         "conversationStatus": {
           "title": "Estado de Conversación",
@@ -1513,7 +1486,9 @@
           "description": "Seleccione qué etiquetas permiten que el bot se ejecute. Si no se selecciona ninguna, el bot se ejecutará para todas las conversaciones independientemente de las etiquetas.",
           "emptyHint": "Si no se selecciona ninguna etiqueta, el bot se ejecutará para todas las conversaciones independientemente de las etiquetas.",
           "noLabels": "No hay etiquetas disponibles. Cree etiquetas en la sección de Etiquetas para usar esta función.",
-          "addLabel": "Agregar Etiqueta"
+          "addLabel": "Agregar Etiqueta",
+          "deleted": "Etiqueta eliminada",
+          "loadFailed": "No se pudieron cargar las etiquetas. Las etiquetas permitidas guardadas siguen vigentes."
         },
         "ignoredLabels": {
           "title": "Etiquetas Ignoradas",
@@ -1582,16 +1557,16 @@
       },
       "errors": {
         "loadError": "Error al cargar datos de los bots",
-        "configureError": "Error al configurar bot",
-        "disconnectError": "Error al desconectar bot",
         "loadPostsError": "Error al cargar publicaciones de Facebook"
       },
-      "success": {
-        "configured": "¡Bot configurado con éxito!",
-        "disconnected": "¡Bot desconectado con éxito!"
-      },
-      "validation": {
-        "selectBot": "Seleccione un bot antes de continuar"
+      "readOnly": {
+        "managedIn": "Gestionado en Agentes de IA",
+        "servedBy": "Este canal lo atiende el agente {{name}}. El vínculo y su configuración se editan en la pestaña Canales del agente.",
+        "inactiveNote": "El vínculo con el agente {{name}} está inactivo: no responde en este canal. Reactívalo en la pestaña Canales del agente.",
+        "openAgent": "Abrir pestaña Canales del agente",
+        "openAgents": "Abrir Agentes de IA",
+        "noAgent": "Ningún agente de IA atiende este canal.",
+        "linkAgent": "Vincular un agente"
       }
     },
     "lockToSingleConversation": {

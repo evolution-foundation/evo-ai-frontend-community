@@ -1407,41 +1407,14 @@
     },
     "agentBotConfiguration": {
       "title": "Configurazione Agente IA",
-      "description": "Configura gli Agenti IA di assistenza per automatizzare le risposte",
-      "fields": {
-        "selectBot": "Seleziona Agente IA",
-        "provider": "Fornitore",
-        "type": "Tipo"
-      },
-      "placeholders": {
-        "selectBot": "Seleziona un Agente IA"
-      },
       "status": {
-        "disconnected": "Disconnesso",
-        "connected": "Connesso",
-        "active": "Attivo"
-      },
-      "noBots": {
-        "title": "Nessun Agente IA Disponibile",
-        "description": "Non hai ancora Agenti IA configurati per questo canale."
+        "active": "Attivo",
+        "inactive": "Inattivo"
       },
       "buttons": {
-        "manageBots": "Gestisci Agenti IA",
-        "configure": "Configura Agente IA",
-        "configuring": "Configurazione...",
-        "disconnect": "Disconnetti Agente IA",
-        "disconnecting": "Disconnessione...",
         "advancedSettings": "Impostazioni Avanzate"
       },
-      "info": {
-        "title": "Come Funziona:",
-        "point1": "Gli Agenti IA possono rispondere automaticamente ai messaggi dei clienti",
-        "point2": "Configura parole chiave e risposte automatiche",
-        "point3": "Gli Agenti IA possono trasferire le conversazioni ad Agenti umani",
-        "point4": "Le statistiche sulle prestazioni degli Agenti IA sono disponibili"
-      },
       "advanced": {
-        "title": "Configurazione Avanzata",
         "description": "Configura comportamenti e impostazioni avanzate dell'Agente IA",
         "conversationStatus": {
           "title": "Stato della Conversazione",
@@ -1453,7 +1426,9 @@
           "description": "Seleziona quali etichette consentono all'Agente IA di eseguirsi. Se nessuna è selezionata, l'Agente IA si eseguirà per tutte le conversazioni indipendentemente dalle etichette.",
           "emptyHint": "Se nessuna etichetta è selezionata, l'Agente IA si eseguirà per tutte le conversazioni indipendentemente dalle etichette.",
           "noLabels": "Nessuna etichetta disponibile. Crea etichette nella sezione Etichette per utilizzare questa funzionalità.",
-          "addLabel": "Aggiungi Etichetta"
+          "addLabel": "Aggiungi Etichetta",
+          "deleted": "Etichetta eliminata",
+          "loadFailed": "Impossibile caricare le etichette. Le etichette consentite salvate restano valide."
         },
         "ignoredLabels": {
           "title": "Etichette Ignorate",
@@ -1522,16 +1497,16 @@
       },
       "errors": {
         "loadError": "Errore durante il caricamento dei dati degli Agenti IA",
-        "configureError": "Errore durante la configurazione dell'Agente IA",
-        "disconnectError": "Errore durante la disconnessione dell'Agente IA",
         "loadPostsError": "Errore durante il caricamento dei post di Facebook"
       },
-      "success": {
-        "configured": "Agente IA configurato con successo!",
-        "disconnected": "Agente IA disconnesso con successo!"
-      },
-      "validation": {
-        "selectBot": "Seleziona un Agente IA prima di continuare"
+      "readOnly": {
+        "managedIn": "Gestito in Agenti IA",
+        "servedBy": "Questo canale è gestito dall'agente {{name}}. Il collegamento e le impostazioni si modificano nella scheda Canali dell'agente.",
+        "inactiveNote": "Il collegamento con l'agente {{name}} è inattivo: non risponde su questo canale. Riattivalo nella scheda Canali dell'agente.",
+        "openAgent": "Apri la scheda Canali dell'agente",
+        "openAgents": "Apri Agenti IA",
+        "noAgent": "Nessun agente IA gestisce questo canale.",
+        "linkAgent": "Collega un agente"
       }
     },
     "lockToSingleConversation": {

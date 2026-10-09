@@ -59,6 +59,8 @@ export interface Inbox {
   // EVO-1680 — true when an AgentBot is connected and its AgentBotInbox.status
   // is :active. Gates the "Devolver ao bot" UI control in ConversationActionsDropdown.
   agent_bot_active?: boolean;
+  /** The agent bound to this channel today, active or not; null when none. */
+  agent_bot?: InboxAgentBotSummary | null;
   // Live channel health (EVO-1674)
   connection_state?: InboxConnectionState;
   health_source?: InboxHealthSource;
@@ -417,6 +419,24 @@ export interface AgentBotInboxConfiguration {
   auto_approve_responses?: boolean;
   auto_reject_explicit_words?: boolean;
   auto_reject_offensive_sentiment?: boolean;
+}
+
+export type AgentBotInboxStatus = 'active' | 'inactive';
+
+export interface InboxAgentBotSummary {
+  id: string;
+  name: string;
+  status: AgentBotInboxStatus;
+}
+
+/** One agent ↔ channel binding, as GET /agent_bots/:id/inboxes returns it. */
+export interface AgentBotInboxBinding {
+  id: string;
+  agent_bot_id: string;
+  inbox_id: string;
+  status: AgentBotInboxStatus;
+  configuration: AgentBotInboxConfiguration;
+  inbox: Inbox;
 }
 
 export interface InboxAgentBotResponse {

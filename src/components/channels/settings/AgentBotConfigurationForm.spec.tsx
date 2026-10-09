@@ -1,164 +1,75 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import AgentBotConfigurationForm from './AgentBotConfigurationForm';
 
+const { t } = vi.hoisted(() => ({ t: (key: string) => key }));
 vi.mock('@/hooks/useLanguage', () => ({
-  useLanguage: () => ({
-    t: (key: string) => key,
-  }),
+  useLanguage: () => ({ t, currentLanguage: 'pt-BR' }),
 }));
 
-vi.mock('sonner', () => ({
-  toast: {
-    error: vi.fn(),
-    success: vi.fn(),
-  },
-}));
+const navigate = vi.fn();
+vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
 
-vi.mock('@/services/channels/agentBotsService', () => ({
-  default: {
-    getAll: vi.fn(),
-    getInboxAgentBot: vi.fn(),
-    getInboxAgentBotConfiguration: vi.fn(),
-    setInboxAgentBot: vi.fn(),
-    disconnectInboxBot: vi.fn(),
-  },
-}));
+vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
-vi.mock('@/services/contacts/labelsService', () => ({
-  labelsService: {
-    getLabels: vi.fn(),
-  },
-}));
+const getById = vi.hoisted(() => vi.fn());
+vi.mock('@/services/channels/inboxesService', () => ({ default: { getById } }));
 
-vi.mock('@/services/channels/inboxesService', () => ({
-  default: {
-    getById: vi.fn(),
-    getFacebookPosts: vi.fn(),
-  },
-}));
+const getAccessibleAgents = vi.hoisted(() => vi.fn());
+vi.mock('@/services/agents', () => ({ getAccessibleAgents }));
 
-import AgentBotsService from '@/services/channels/agentBotsService';
-import { labelsService } from '@/services/contacts/labelsService';
-import InboxesService from '@/services/channels/inboxesService';
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
-const bot = { id: 'bot-1', name: 'Bot One', description: '', outgoing_url: '' };
-const savedConfiguration = {
-  allowed_conversation_statuses: ['pending'],
-  allowed_label_ids: ['lbl-1'],
-  ignored_label_ids: ['lbl-2'],
-};
-
-describe('AgentBotConfigurationForm', () => {
-  const defaultProps = { inboxId: 'inbox-1' };
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.mocked(InboxesService.getById).mockResolvedValue({
-      data: { channel_type: 'Channel::WebWidget' },
-    } as never);
-    vi.mocked(AgentBotsService.getAll).mockResolvedValue([bot] as never);
-    vi.mocked(AgentBotsService.getInboxAgentBot).mockResolvedValue(null as never);
-    vi.mocked(AgentBotsService.getInboxAgentBotConfiguration).mockResolvedValue(null as never);
-    vi.mocked(AgentBotsService.setInboxAgentBot).mockResolvedValue(undefined as never);
-    vi.mocked(labelsService.getLabels).mockResolvedValue({
-      data: [
-        { id: 'lbl-1', title: 'VIP', color: '#111111' },
-        { id: 'lbl-2', title: 'Spam', color: '#222222' },
-      ],
-    } as never);
-  });
-
-  // The save is driven by the ChannelSettings sticky footer through the
-  // registerSave registry, mirroring the other snapshot tabs.
-  const lastHandle = (mock: ReturnType<typeof vi.fn>) => {
-    const handles = mock.mock.calls
-      .map(call => call[0])
-      .filter(arg => arg && typeof arg === 'object');
-    return handles[handles.length - 1];
-  };
-
-  it('registers a non-savable handle when no bot is selected, even after loading', async () => {
-    const registerSave = vi.fn();
-    render(<AgentBotConfigurationForm {...defaultProps} registerSave={registerSave} />);
-
-    // Let the initial load settle so the assertion covers the post-load state,
-    // not just the synchronous mount registration.
-    await waitFor(() => expect(labelsService.getLabels).toHaveBeenCalled());
-    await act(async () => {});
-
-    const handle = lastHandle(registerSave);
-    expect(handle).toBeTruthy();
-    expect(handle.canSave).toBe(false);
-    expect(typeof handle.save).toBe('function');
-  });
-
-  it('registers a savable handle once a bot is connected and data is loaded', async () => {
-    vi.mocked(AgentBotsService.getInboxAgentBot).mockResolvedValue(bot as never);
-    const registerSave = vi.fn();
-    render(<AgentBotConfigurationForm {...defaultProps} registerSave={registerSave} />);
-
-    await waitFor(() => expect(lastHandle(registerSave)?.canSave).toBe(true));
-  });
-
-  it('save() sends the full configuration including label scoping', async () => {
-    vi.mocked(AgentBotsService.getInboxAgentBot).mockResolvedValue(bot as never);
-    vi.mocked(AgentBotsService.getInboxAgentBotConfiguration).mockResolvedValue(
-      savedConfiguration as never,
-    );
-    const registerSave = vi.fn();
-    render(<AgentBotConfigurationForm {...defaultProps} registerSave={registerSave} />);
-
-    await waitFor(() => expect(lastHandle(registerSave)?.canSave).toBe(true));
-    await act(() => lastHandle(registerSave).save());
-
-    expect(AgentBotsService.setInboxAgentBot).toHaveBeenCalledWith(
-      'inbox-1',
-      'bot-1',
-      expect.objectContaining({
-        allowed_label_ids: ['lbl-1'],
-        ignored_label_ids: ['lbl-2'],
-        allowed_conversation_statuses: ['pending'],
-      }),
-    );
-  });
-
-  it('blocks the footer save while the bot is being disconnected', async () => {
-    vi.mocked(AgentBotsService.getInboxAgentBot).mockResolvedValue(bot as never);
-    let releaseDisconnect = () => {};
-    vi.mocked(AgentBotsService.disconnectInboxBot).mockReturnValue(
-      new Promise<boolean>(resolve => {
-        releaseDisconnect = () => resolve(true);
-      }) as never,
-    );
-    const registerSave = vi.fn();
-    render(<AgentBotConfigurationForm {...defaultProps} registerSave={registerSave} />);
-
-    await waitFor(() => expect(lastHandle(registerSave)?.canSave).toBe(true));
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: /settings\.agentBotConfiguration\.buttons\.disconnect$/,
-      }),
-    );
-
-    // setInboxAgentBot and disconnectInboxBot write the same agent_bot_inbox
-    // row, so the footer must stay locked until the disconnect settles.
-    await waitFor(() => expect(lastHandle(registerSave)?.canSave).toBe(false));
-
-    await act(async () => {
-      releaseDisconnect();
+// The binding is edited from the agent's Channels tab; the channel only shows it.
+describe('AgentBotConfigurationForm (read-only)', () => {
+  it('shows who answers the channel and leads to that agent’s Channels tab', async () => {
+    getById.mockResolvedValue({
+      data: { id: 'inbox-1', agent_bot: { id: 'bot-1', name: 'Vendas', status: 'active' } },
     });
-    expect(AgentBotsService.setInboxAgentBot).not.toHaveBeenCalled();
+    getAccessibleAgents.mockResolvedValue({
+      data: [
+        { id: 'agent-other', name: 'Vendas', evolution_bot_id: 'bot-9' },
+        { id: 'agent-1', name: 'Vendas', evolution_bot_id: 'bot-1' },
+      ],
+    });
+    render(<AgentBotConfigurationForm inboxId="inbox-1" />);
+
+    expect(await screen.findByText('Vendas')).toBeInTheDocument();
+    expect(screen.getByText('settings.agentBotConfiguration.status.active')).toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).toBeNull();
+    expect(screen.queryByRole('checkbox')).toBeNull();
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: /settings\.agentBotConfiguration\.readOnly\.openAgent$/ }),
+    );
+    expect(navigate).toHaveBeenCalledWith('/agents/agent-1/edit?tab=channels');
   });
 
-  it('unregisters the handle on unmount', async () => {
-    const registerSave = vi.fn();
-    const { unmount } = render(
-      <AgentBotConfigurationForm {...defaultProps} registerSave={registerSave} />,
-    );
-    await waitFor(() => expect(lastHandle(registerSave)).toBeTruthy());
+  it('flags an inactive binding', async () => {
+    getById.mockResolvedValue({
+      data: { id: 'inbox-1', agent_bot: { id: 'bot-1', name: 'Vendas', status: 'inactive' } },
+    });
+    getAccessibleAgents.mockResolvedValue({ data: [] });
+    render(<AgentBotConfigurationForm inboxId="inbox-1" />);
 
-    unmount();
-    expect(registerSave).toHaveBeenLastCalledWith(null);
+    expect(
+      await screen.findByText('settings.agentBotConfiguration.status.inactive'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('settings.agentBotConfiguration.readOnly.inactiveNote')).toBeInTheDocument();
+  });
+
+  it('offers a shortcut to link an agent when nobody answers the channel', async () => {
+    getById.mockResolvedValue({ data: { id: 'inbox-1', agent_bot: null } });
+    render(<AgentBotConfigurationForm inboxId="inbox-1" />);
+
+    expect(await screen.findByText('settings.agentBotConfiguration.readOnly.noAgent')).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole('button', { name: /settings\.agentBotConfiguration\.readOnly\.linkAgent/ }),
+    );
+    expect(navigate).toHaveBeenCalledWith('/agents/list');
+    expect(getAccessibleAgents).not.toHaveBeenCalled();
   });
 });

@@ -1467,41 +1467,14 @@
     },
     "agentBotConfiguration": {
       "title": "AI Agent Configuration",
-      "description": "Configure AI agents to automate responses",
-      "fields": {
-        "selectBot": "Select AI Agent",
-        "provider": "Provider",
-        "type": "Type"
-      },
-      "placeholders": {
-        "selectBot": "Select an AI agent"
-      },
       "status": {
-        "disconnected": "Disconnected",
-        "connected": "Connected",
-        "active": "Active"
-      },
-      "noBots": {
-        "title": "No AI Agents Available",
-        "description": "You don't have any AI agents configured for this channel yet."
+        "active": "Active",
+        "inactive": "Inactive"
       },
       "buttons": {
-        "manageBots": "Manage AI Agents",
-        "configure": "Configure AI Agent",
-        "configuring": "Configuring...",
-        "disconnect": "Disconnect AI Agent",
-        "disconnecting": "Disconnecting...",
         "advancedSettings": "Advanced Settings"
       },
-      "info": {
-        "title": "How It Works:",
-        "point1": "AI agents can automatically respond to customer messages",
-        "point2": "Configure keywords and automatic responses",
-        "point3": "AI agents can transfer conversations to human agents",
-        "point4": "AI agent performance statistics are available"
-      },
       "advanced": {
-        "title": "Advanced Configuration",
         "description": "Configure advanced AI agent settings and behaviors",
         "conversationStatus": {
           "title": "Conversation Status",
@@ -1513,7 +1486,9 @@
           "description": "Select which labels allow the AI agent to execute. If none are selected, the AI agent will execute for all conversations regardless of labels.",
           "emptyHint": "If no labels are selected, the AI agent will execute for all conversations regardless of labels.",
           "noLabels": "No labels available. Create labels in the Labels section to use this feature.",
-          "addLabel": "Add Label"
+          "addLabel": "Add Label",
+          "deleted": "Deleted label",
+          "loadFailed": "Couldn't load the labels. The saved allowed labels still apply."
         },
         "ignoredLabels": {
           "title": "Ignored Labels",
@@ -1582,16 +1557,16 @@
       },
       "errors": {
         "loadError": "Error loading AI agents data",
-        "configureError": "Error configuring AI agent",
-        "disconnectError": "Error disconnecting AI agent",
         "loadPostsError": "Error loading Facebook posts"
       },
-      "success": {
-        "configured": "AI agent configured successfully!",
-        "disconnected": "AI agent disconnected successfully!"
-      },
-      "validation": {
-        "selectBot": "Select an AI agent before continuing"
+      "readOnly": {
+        "managedIn": "Managed in AI Agents",
+        "servedBy": "This channel is served by agent {{name}}. The link and its settings are edited in the agent's Channels tab.",
+        "inactiveNote": "The link to agent {{name}} is inactive: it does not reply on this channel. Reactivate it in the agent's Channels tab.",
+        "openAgent": "Open the agent's Channels tab",
+        "openAgents": "Open AI Agents",
+        "noAgent": "No AI agent serves this channel.",
+        "linkAgent": "Link an agent"
       }
     },
     "lockToSingleConversation": {

@@ -1185,8 +1185,71 @@
     },
     "channels": {
       "title": "Canali",
-      "subtitle": "Configura i canali di comunicazione dell'agente",
-      "comingSoon": "Prossimamente..."
+      "subtitle": "Canali gestiti da questo agente. Collega, scollega e regola come risponde su ciascuno.",
+      "noBot": "Questo agente non ha ancora un bot di assistenza, quindi non può essere collegato ai canali.",
+      "status": {
+        "active": "Attivo",
+        "inactive": "Inattivo"
+      },
+      "actions": {
+        "link": "Collega a un canale",
+        "unlink": "Scollega",
+        "reactivate": "Riattiva"
+      },
+      "empty": {
+        "title": "Nessun canale collegato",
+        "description": "Collega un canale perché questo agente inizi a rispondere lì."
+      },
+      "advanced": {
+        "title": "Impostazioni avanzate",
+        "save": "Salva impostazioni"
+      },
+      "agentLevel": {
+        "title": "Tempo di attesa e segmentazione",
+        "description": "Valgono per tutti i canali di questo agente e si modificano nella scheda Configurazione.",
+        "debounce": "Tempo di attesa",
+        "seconds": "{{value}} secondi",
+        "segmentation": "Segmentazione del testo",
+        "segmentationOn": "Attiva, fino a {{max}} caratteri per messaggio",
+        "segmentationOff": "Disattivata",
+        "open": "Apri scheda Configurazione"
+      },
+      "linkModal": {
+        "title": "Collega a un canale",
+        "description": "Scegli un canale già configurato che questo agente gestirà.",
+        "emptyTitle": "Nessun canale disponibile",
+        "emptyDescription": "Tutti i canali sono già collegati a questo agente. Connetti un nuovo canale per collegarlo.",
+        "linkedInactive": "Collegato all'agente {{name}} (inattivo)",
+        "servedBy": "Gestito dall'agente {{name}}",
+        "link": "Collega",
+        "linking": "Collegamento...",
+        "connectNew": "Connetti nuovo canale",
+        "noChannelsTitle": "Nessun canale ancora connesso.",
+        "loadFailed": "Impossibile caricare i canali.",
+        "retry": "Riprova"
+      },
+      "transfer": {
+        "title": "Trasferire il canale?",
+        "description": "Il canale {{channel}} è già gestito dall'agente {{agent}}. Trasferire?",
+        "descriptionInactive": "Il canale {{channel}} è collegato all'agente {{agent}}, che è inattivo. Collegarlo qui sostituisce quel collegamento e ne elimina le impostazioni. Continuare?",
+        "cancel": "Annulla",
+        "confirm": "Trasferisci"
+      },
+      "success": {
+        "linked": "Canale {{channel}} collegato",
+        "unlinked": "Canale {{channel}} scollegato. Le impostazioni sono state mantenute.",
+        "reactivated": "Canale {{channel}} riattivato",
+        "saved": "Impostazioni del canale salvate"
+      },
+      "errors": {
+        "moved": "Questo canale è passato a un altro agente. L'elenco è stato aggiornato.",
+        "load": "Errore durante il caricamento dei canali dell'agente",
+        "link": "Errore durante il collegamento del canale",
+        "status": "Errore durante la modifica del collegamento del canale",
+        "save": "Errore durante il salvataggio delle impostazioni del canale",
+        "channelChanged": "Il canale {{channel}} ha cambiato agente. L'elenco è stato aggiornato; controllalo e riprova.",
+        "refreshChannel": "Impossibile verificare il canale in questo momento. Riprova."
+      }
     },
     "settings": {
       "title": "Impostazioni",

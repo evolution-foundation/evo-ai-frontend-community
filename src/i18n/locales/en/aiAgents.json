@@ -1258,8 +1258,71 @@
     },
     "channels": {
       "title": "Channels",
-      "subtitle": "Configure agent communication channels",
-      "comingSoon": "Coming soon..."
+      "subtitle": "Channels this agent answers. Link, unlink and tune how it replies on each one.",
+      "noBot": "This agent has no service bot yet, so it cannot be linked to channels.",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "actions": {
+        "link": "Link to a channel",
+        "unlink": "Unlink",
+        "reactivate": "Reactivate"
+      },
+      "empty": {
+        "title": "No linked channels",
+        "description": "Link a channel so this agent starts answering on it."
+      },
+      "advanced": {
+        "title": "Advanced settings",
+        "save": "Save settings"
+      },
+      "agentLevel": {
+        "title": "Wait time and segmentation",
+        "description": "They apply to every channel of this agent and are edited in the Configuration tab.",
+        "debounce": "Wait time",
+        "seconds": "{{value}} seconds",
+        "segmentation": "Text segmentation",
+        "segmentationOn": "On, up to {{max}} characters per message",
+        "segmentationOff": "Off",
+        "open": "Open Configuration tab"
+      },
+      "linkModal": {
+        "title": "Link to a channel",
+        "description": "Pick an already configured channel for this agent to answer.",
+        "emptyTitle": "No channels available",
+        "emptyDescription": "Every channel is already linked to this agent. Connect a new channel to link it.",
+        "linkedInactive": "Linked to agent {{name}} (inactive)",
+        "servedBy": "Served by agent {{name}}",
+        "link": "Link",
+        "linking": "Linking...",
+        "connectNew": "Connect new channel",
+        "noChannelsTitle": "No channels connected yet.",
+        "loadFailed": "Couldn't load the channels.",
+        "retry": "Try again"
+      },
+      "transfer": {
+        "title": "Transfer channel?",
+        "description": "Channel {{channel}} is already served by agent {{agent}}. Transfer it?",
+        "descriptionInactive": "Channel {{channel}} is linked to agent {{agent}}, which is inactive. Linking it here replaces that link and discards its settings. Continue?",
+        "cancel": "Cancel",
+        "confirm": "Transfer"
+      },
+      "success": {
+        "linked": "Channel {{channel}} linked",
+        "unlinked": "Channel {{channel}} unlinked. Its settings were kept.",
+        "reactivated": "Channel {{channel}} reactivated",
+        "saved": "Channel settings saved"
+      },
+      "errors": {
+        "moved": "This channel moved to another agent. The list was refreshed.",
+        "load": "Error loading the agent's channels",
+        "link": "Error linking the channel",
+        "status": "Error changing the channel link",
+        "save": "Error saving the channel settings",
+        "channelChanged": "Channel {{channel}} changed agents. The list was refreshed; check it and try again.",
+        "refreshChannel": "Couldn't check the channel right now. Try again."
+      }
     },
     "settings": {
       "title": "Settings",

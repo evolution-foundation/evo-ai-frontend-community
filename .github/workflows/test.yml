@@ -178,6 +178,11 @@ jobs:
       #     the total comes from meta.pagination and each page asks for its own slice; a
       #     total read off the loaded rows, or a catalog loaded at the backend's default
       #     size, leaves every row past the first page unreachable.
+      #   - agent Channels tab: a channel another agent serves is never linked without
+      #     confirmation (checked again on click; a 409 refreshes instead), unlinking
+      #     deactivates, a deleted allowed label stays visible because it still blocks
+      #     the agent, and the link modal tells "no channel", "all linked" and "failed
+      #     to load" apart. The channel's own agent tab is read-only.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -303,7 +308,11 @@ jobs:
             src/services/scheduledActions/scheduledActionsService.spec.ts \
             src/pages/Customer/Contacts/ScheduledActions.spec.tsx \
             src/services/automation/automationService.spec.ts \
-            src/pages/Customer/Automation/AutomationsListPage.spec.tsx
+            src/pages/Customer/Automation/AutomationsListPage.spec.tsx \
+            src/pages/Customer/Agents/Agent/components/channels/AgentChannelsTab.spec.tsx \
+            src/pages/Customer/Agents/Agent/components/channels/AgentChannelCard.spec.tsx \
+            src/components/channels/settings/AgentBotConfigurationForm.spec.tsx \
+            src/pages/Customer/Channels/ChannelSettings.spec.tsx
 
   # Lint gate scoped to the files the PR touched.
   eslint:

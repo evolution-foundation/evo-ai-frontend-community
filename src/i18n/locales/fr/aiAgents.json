@@ -1184,8 +1184,71 @@
     },
     "channels": {
       "title": "Canaux",
-      "subtitle": "Configurez les canaux de communication de l'agent",
-      "comingSoon": "Bientôt disponible..."
+      "subtitle": "Canaux pris en charge par cet agent. Liez, déliez et ajustez sa façon de répondre sur chacun.",
+      "noBot": "Cet agent n'a pas encore de bot de service, il ne peut donc pas être lié à des canaux.",
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif"
+      },
+      "actions": {
+        "link": "Lier à un canal",
+        "unlink": "Délier",
+        "reactivate": "Réactiver"
+      },
+      "empty": {
+        "title": "Aucun canal lié",
+        "description": "Liez un canal pour que cet agent commence à y répondre."
+      },
+      "advanced": {
+        "title": "Paramètres avancés",
+        "save": "Enregistrer les paramètres"
+      },
+      "agentLevel": {
+        "title": "Temps d'attente et segmentation",
+        "description": "Ils s'appliquent à tous les canaux de cet agent et se modifient dans l'onglet Configuration.",
+        "debounce": "Temps d'attente",
+        "seconds": "{{value}} secondes",
+        "segmentation": "Segmentation du texte",
+        "segmentationOn": "Activée, jusqu'à {{max}} caractères par message",
+        "segmentationOff": "Désactivée",
+        "open": "Ouvrir l'onglet Configuration"
+      },
+      "linkModal": {
+        "title": "Lier à un canal",
+        "description": "Choisissez un canal déjà configuré que cet agent prendra en charge.",
+        "emptyTitle": "Aucun canal disponible",
+        "emptyDescription": "Tous les canaux sont déjà liés à cet agent. Connectez un nouveau canal pour le lier.",
+        "linkedInactive": "Lié à l'agent {{name}} (inactif)",
+        "servedBy": "Pris en charge par l'agent {{name}}",
+        "link": "Lier",
+        "linking": "Liaison...",
+        "connectNew": "Connecter un nouveau canal",
+        "noChannelsTitle": "Aucun canal connecté pour le moment.",
+        "loadFailed": "Impossible de charger les canaux.",
+        "retry": "Réessayer"
+      },
+      "transfer": {
+        "title": "Transférer le canal ?",
+        "description": "Le canal {{channel}} est déjà pris en charge par l'agent {{agent}}. Transférer ?",
+        "descriptionInactive": "Le canal {{channel}} est lié à l'agent {{agent}}, qui est inactif. Le lier ici remplace cette liaison et supprime ses paramètres. Continuer ?",
+        "cancel": "Annuler",
+        "confirm": "Transférer"
+      },
+      "success": {
+        "linked": "Canal {{channel}} lié",
+        "unlinked": "Canal {{channel}} délié. Ses paramètres ont été conservés.",
+        "reactivated": "Canal {{channel}} réactivé",
+        "saved": "Paramètres du canal enregistrés"
+      },
+      "errors": {
+        "moved": "Ce canal est passé à un autre agent. La liste a été actualisée.",
+        "load": "Erreur lors du chargement des canaux de l'agent",
+        "link": "Erreur lors de la liaison du canal",
+        "status": "Erreur lors de la modification de la liaison du canal",
+        "save": "Erreur lors de l'enregistrement des paramètres du canal",
+        "channelChanged": "Le canal {{channel}} a changé d'agent. La liste a été actualisée ; vérifiez-la et réessayez.",
+        "refreshChannel": "Impossible de vérifier le canal pour le moment. Réessayez."
+      }
     },
     "settings": {
       "title": "Paramètres",

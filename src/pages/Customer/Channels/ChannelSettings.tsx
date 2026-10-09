@@ -924,16 +924,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
 
             {/* Agent Bot Configuration Tab */}
             <TabsContent value="botConfiguration">
-              {activeTab === 'botConfiguration' && <AgentBotConfigurationForm
-                inboxId={inboxId}
-                registerSave={handle => registerTabSave('botConfiguration', handle)}
-                onUpdate={success => {
-                  if (success) {
-                    // Optionally refresh inbox data or show success feedback
-                    console.log('Agent bot configuration updated successfully');
-                  }
-                }}
-              />}
+              {activeTab === 'botConfiguration' && <AgentBotConfigurationForm inboxId={inboxId} />}
             </TabsContent>
 
             {/* Configuration Tab */}
@@ -967,23 +958,26 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
         </div>
       </div>
 
-      {/* Fixed footer: single unified save action, anchored to the content box */}
-      <div className="flex items-center justify-end gap-3 border-t border-border bg-card px-6 py-3">
-        {!currentTabIsSavable && (
-          <span className="text-xs text-muted-foreground">
-            {t('settings.info.tabSpecificSave')}
-          </span>
-        )}
-        <Button
-          onClick={handleFooterSave}
-          loading={isFooterSaving || isSaving || undefined}
-          disabled={!footerCanSave || isFooterSaving || isSaving}
-          className="min-w-48"
-        >
-          <Check className="h-4 w-4 mr-2" />
-          {t('settings.updateConfig')}
-        </Button>
-      </div>
+      {/* Fixed footer: single unified save action, anchored to the content box.
+          The agent tab is read-only: it has nothing to save. */}
+      {activeTab !== 'botConfiguration' && (
+        <div className="flex items-center justify-end gap-3 border-t border-border bg-card px-6 py-3">
+          {!currentTabIsSavable && (
+            <span className="text-xs text-muted-foreground">
+              {t('settings.info.tabSpecificSave')}
+            </span>
+          )}
+          <Button
+            onClick={handleFooterSave}
+            loading={isFooterSaving || isSaving || undefined}
+            disabled={!footerCanSave || isFooterSaving || isSaving}
+            className="min-w-48"
+          >
+            <Check className="h-4 w-4 mr-2" />
+            {t('settings.updateConfig')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
