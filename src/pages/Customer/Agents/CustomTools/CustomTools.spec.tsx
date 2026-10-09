@@ -13,9 +13,14 @@ const success = vi.fn();
 const error = vi.fn();
 const can = vi.fn();
 const tagOptionsSeen = vi.fn();
+// `meta.pagination.total` of the list response; undefined = one page holds the whole base.
+let listTotal: number | undefined;
 
 vi.mock('@/services/agents/customToolsService', () => ({
-  listCustomTools: (...args: unknown[]) => listCustomTools(...args),
+  listCustomToolsPage: async (...args: unknown[]) => {
+    const tools = await listCustomTools(...args);
+    return { tools, total: listTotal ?? tools.length };
+  },
   deleteCustomTool: (...args: unknown[]) => deleteCustomTool(...args),
   getCustomTool: vi.fn(),
   createCustomTool: vi.fn(),
@@ -135,7 +140,39 @@ vi.mock('@/components/customTools', () => ({
     tagOptionsSeen(tagOptions);
     return null;
   },
-  CustomToolsPagination: () => null,
+  CustomToolsPagination: ({
+    currentPage,
+    totalPages,
+    totalCount,
+    onPageChange,
+    onPerPageChange,
+  }: {
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+    onPageChange: (page: number) => void;
+    onPerPageChange: (perPage: number) => void;
+  }) => (
+    <div>
+      <span data-testid="pagination">{`${currentPage}/${totalPages}/${totalCount}`}</span>
+      <button data-testid="page-2" onClick={() => onPageChange(2)}>
+        page-2
+      </button>
+      <button data-testid="page-3" onClick={() => onPageChange(3)}>
+        page-3
+      </button>
+      {/* Like BasePagination off page 1: the new size, then a jump back to page 1. */}
+      <button
+        data-testid="per-page-50"
+        onClick={() => {
+          onPerPageChange(50);
+          if (currentPage > 1) onPageChange(1);
+        }}
+      >
+        per-page-50
+      </button>
+    </div>
+  ),
   CustomToolWizardModal: () => null,
   CustomToolTestResultDialog: () => null,
   CustomToolDetails: () => null,
@@ -149,6 +186,7 @@ async function selectAllAndOpenBulkDialog() {
 describe('CustomTools page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    listTotal = undefined;
     can.mockReturnValue(true);
     listCustomTools.mockResolvedValue([toolA, toolB]);
     deleteCustomTool.mockResolvedValue(undefined);
@@ -284,6 +322,143 @@ describe('CustomTools page', () => {
 
     await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(2));
     expect(listCustomTools.mock.calls[1][0].limit).toBe(listCustomTools.mock.calls[0][0].limit);
+  });
+
+  it('counts pages by the backend total, not by the rows on screen', async () => {
+    listTotal = 45;
+    render(<CustomTools />);
+
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('1/3/45'));
+    expect(listCustomTools.mock.calls[0][0]).toMatchObject({ skip: 0, limit: 20 });
+  });
+
+  it('asks the backend for the slice of the chosen page', async () => {
+    listTotal = 45;
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('page-2'));
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(2));
+    expect(listCustomTools.mock.calls[1][0]).toMatchObject({ skip: 20, limit: 20 });
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('2/3/45'));
+
+    await userEvent.click(screen.getByTestId('page-3'));
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(3));
+    expect(listCustomTools.mock.calls[2][0]).toMatchObject({ skip: 40, limit: 20 });
+  });
+
+  it('fits the whole base in one page of 50', async () => {
+    listTotal = 45;
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('per-page-50'));
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(2));
+    expect(listCustomTools.mock.calls[1][0]).toMatchObject({ skip: 0, limit: 50 });
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('1/1/45'));
+  });
+
+  it('keeps the new page size when the pager also jumps back to page 1', async () => {
+    listTotal = 45;
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('page-3'));
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('3/3/45'));
+    await userEvent.click(screen.getByTestId('per-page-50'));
+
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('1/1/45'));
+    expect(listCustomTools.mock.lastCall![0]).toMatchObject({ skip: 0, limit: 50 });
+  });
+
+  it('keeps the footer on the rows still shown when a page request fails', async () => {
+    listTotal = 45;
+    listCustomTools.mockResolvedValueOnce([toolA, toolB]).mockRejectedValueOnce(new Error('offline'));
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('page-2'));
+
+    await waitFor(() => expect(error).toHaveBeenCalledWith('messages.loadError'));
+    expect(screen.getByTestId('pagination')).toHaveTextContent('1/3/45');
+  });
+
+  it('keeps the search when the page changes', async () => {
+    listTotal = 45;
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('search'));
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(2), { timeout: 2000 });
+
+    await userEvent.click(screen.getByTestId('page-2'));
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(3));
+    expect(listCustomTools.mock.calls[2][0]).toMatchObject({ skip: 20, search: 'crm' });
+  });
+
+  it('steps back a page after deleting the only tool of the last page', async () => {
+    listTotal = 41;
+    listCustomTools.mockResolvedValueOnce([toolA, toolB]).mockResolvedValueOnce([toolA]);
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('page-3'));
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('3/3/41'));
+
+    listTotal = 40;
+    await userEvent.click(screen.getByTestId('delete-first'));
+    await userEvent.click(await screen.findByText('deleteDialog.confirm'));
+
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(3));
+    expect(listCustomTools.mock.calls[2][0]).toMatchObject({ skip: 20, limit: 20 });
+  });
+
+  it('steps back a page after a bulk delete empties the last page', async () => {
+    listTotal = 42;
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('page-3'));
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('3/3/42'));
+
+    listTotal = 40;
+    await selectAllAndOpenBulkDialog();
+    await userEvent.click(await screen.findByText('bulkDeleteDialog.confirm'));
+
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(3));
+    expect(listCustomTools.mock.calls[2][0]).toMatchObject({ skip: 20, limit: 20 });
+  });
+
+  it('stays on a middle page a bulk delete empties, since later rows move into it', async () => {
+    listTotal = 45;
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('page-2'));
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('2/3/45'));
+
+    listTotal = 43;
+    await selectAllAndOpenBulkDialog();
+    await userEvent.click(await screen.findByText('bulkDeleteDialog.confirm'));
+
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(3));
+    expect(listCustomTools.mock.calls[2][0]).toMatchObject({ skip: 20, limit: 20 });
+  });
+
+  it('asks for the size on screen again after a size change fails', async () => {
+    listTotal = 45;
+    listCustomTools.mockResolvedValueOnce([toolA, toolB]).mockRejectedValueOnce(new Error('offline'));
+    render(<CustomTools />);
+
+    await userEvent.click(await screen.findByTestId('per-page-50'));
+    await waitFor(() => expect(error).toHaveBeenCalledWith('messages.loadError'));
+
+    await userEvent.click(screen.getByTestId('page-2'));
+    await waitFor(() => expect(listCustomTools).toHaveBeenCalledTimes(3));
+    expect(listCustomTools.mock.calls[2][0]).toMatchObject({ skip: 20, limit: 20 });
+  });
+
+  it('keeps the tags of earlier pages in the Tags filter', async () => {
+    listTotal = 45;
+    listCustomTools.mockResolvedValueOnce([toolA]).mockResolvedValueOnce([toolB]);
+    render(<CustomTools />);
+
+    await waitFor(() => expect(tagOptionsSeen).toHaveBeenLastCalledWith(['api', 'weather']));
+    await userEvent.click(screen.getByTestId('page-2'));
+
+    await waitFor(() => expect(tagOptionsSeen).toHaveBeenLastCalledWith(['api', 'crm', 'weather']));
   });
 
   it('denies the action without the delete permission', async () => {

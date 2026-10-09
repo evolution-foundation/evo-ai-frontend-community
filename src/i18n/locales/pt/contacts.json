@@ -556,7 +556,6 @@
     "searchPlaceholder": "Buscar ações agendadas...",
     "bulkCancel": "Cancelar Selecionadas",
     "emptyDescription": "Crie uma nova ação agendada para começar",
-    "pagination": "Página {{page}} de {{totalPages}} ({{total}} total)",
     "messages": {
       "noChannelsConfigured": "Nenhum canal de mensagens configurado. Por favor, configure primeiro um canal de WhatsApp, SMS, Email ou Telegram nas configurações de Canais."
     },

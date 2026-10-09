@@ -577,7 +577,6 @@
     "searchPlaceholder": "Rechercher des actions programmées...",
     "bulkCancel": "Annuler la Sélection",
     "emptyDescription": "Créez une nouvelle action programmée pour commencer",
-    "pagination": "Page {{page}} sur {{totalPages}} ({{total}} au total)",
     "messages": {
       "noChannelsConfigured": "Aucun canal de messagerie configuré. Veuillez d'abord configurer un canal WhatsApp, SMS, Email ou Telegram dans les paramètres des Canaux."
     },

@@ -26,7 +26,7 @@ import {
   CustomToolsFilter,
 } from '@/components/customTools';
 import {
-  listCustomTools,
+  listCustomToolsPage,
   getCustomTool,
   createCustomTool,
   updateCustomTool,
@@ -105,11 +105,14 @@ export default function CustomTools() {
       }));
 
       try {
+        const pageSize = params?.limit || DEFAULT_PAGE_SIZE;
+        const skip = params?.skip || 0;
+        const page = Math.floor(skip / pageSize) + 1;
         const searchParams: CustomToolsListParams = {
-          page: params?.skip ? Math.floor(params.skip / (params.limit || DEFAULT_PAGE_SIZE)) + 1 : 1,
-          pageSize: params?.limit || DEFAULT_PAGE_SIZE,
-          skip: params?.skip,
-          limit: params?.limit,
+          page,
+          pageSize,
+          skip,
+          limit: pageSize,
           search: params?.search,
           tags: params?.tags,
         };
@@ -128,19 +131,19 @@ export default function CustomTools() {
           return acc;
         }, {} as Record<string, string>);
 
-        const tools = await listCustomTools(searchParams, filterParams);
+        const { tools, total } = await listCustomToolsPage(searchParams, filterParams);
         if (loadId !== latestLoadRef.current) return;
-        setTagOptions(known => mergeTagOptions(known, tools || []));
+        setTagOptions(known => mergeTagOptions(known, tools));
 
         setState(prev => ({
           ...prev,
-          tools: tools || [],
+          tools,
           meta: {
             pagination: {
-              page: searchParams.skip ? Math.floor(searchParams.skip / (searchParams.limit || DEFAULT_PAGE_SIZE)) + 1 : 1,
-              page_size: searchParams.limit || DEFAULT_PAGE_SIZE,
-              total: tools.length,
-              total_pages: Math.ceil(tools.length / (searchParams.limit || DEFAULT_PAGE_SIZE)),
+              page,
+              page_size: pageSize,
+              total,
+              total_pages: Math.ceil(total / pageSize),
             },
           },
           loading: { ...prev.loading, list: false },
@@ -160,9 +163,26 @@ export default function CustomTools() {
     load: loadTools,
   });
 
-  // Keeps the search on screen, which a bare `loadTools()` drops. No `limit`, like the search
-  // and filter loads: `page_size` reads 20, but the list was loaded with the service's 100.
-  const reloadList = () => loadTools({ skip: 0, search: state.searchQuery });
+  // The size every load asks for. The pager fires `onPageChange(1)` right after a size
+  // change, before the new size reaches state, so state cannot be the source.
+  const pageSizeRef = useRef(INITIAL_STATE.meta.pagination.page_size);
+  // With no load pending, back to the size on screen: a failed size change must not make
+  // the next request ask for a size the footer never showed.
+  useEffect(() => {
+    if (!state.loading.list) pageSizeRef.current = state.meta.pagination.page_size;
+  }, [state.loading.list, state.meta.pagination.page_size]);
+
+  // Keeps the page size and the search on screen, which a bare `loadTools()` drops.
+  const reloadPage = (page = state.meta.pagination.page) => {
+    const pageSize = pageSizeRef.current;
+    return loadTools({ skip: (page - 1) * pageSize, limit: pageSize, search: state.searchQuery });
+  };
+
+  // A delete that empties the last page reloads the one before it, or it would render empty.
+  const pageAfterDelete = (deleted: number) => {
+    const { page, total_pages } = state.meta.pagination;
+    return page > 1 && page === total_pages && deleted >= state.tools.length ? page - 1 : page;
+  };
 
   // Handlers
   const handleSearchChange = (query: string) => {
@@ -176,7 +196,7 @@ export default function CustomTools() {
       clearTimeout(searchDebounceRef.current);
     }
     searchDebounceRef.current = setTimeout(() => {
-      loadTools({ skip: 0, search: query });
+      loadTools({ skip: 0, limit: pageSizeRef.current, search: query });
     }, 500);
   };
 
@@ -198,7 +218,10 @@ export default function CustomTools() {
     }));
 
     try {
-      await loadTools({ skip: 0, search: state.searchQuery }, filters);
+      await loadTools(
+        { skip: 0, limit: pageSizeRef.current, search: state.searchQuery },
+        filters,
+      );
     } catch (error) {
       console.error('Error applying filters:', error);
       toast.error(getErrorMessage(error as Error, t('messages.applyFiltersError')));
@@ -208,7 +231,7 @@ export default function CustomTools() {
   const handleClearFilters = () => {
     setActiveFilters([]);
     setAppliedFilters([]);
-    loadTools({ skip: 0, search: state.searchQuery }, []);
+    loadTools({ skip: 0, limit: pageSizeRef.current, search: state.searchQuery }, []);
   };
 
   const handleRemoveFilter = (index: number) => {
@@ -220,23 +243,15 @@ export default function CustomTools() {
     }
   };
 
+  // Page and size reach state only with the rows `loadTools` commits, so a failed request
+  // leaves the footer describing the rows still on screen.
   const handlePageChange = (page: number) => {
-    setState(prev => ({
-      ...prev,
-      meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page } },
-    }));
-
-    const skip = (page - 1) * state.meta.pagination.page_size;
-    loadTools({ skip });
+    reloadPage(page);
   };
 
   const handlePerPageChange = (perPage: number) => {
-    setState(prev => ({
-      ...prev,
-      meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page_size: perPage, page: 1 } },
-    }));
-
-    loadTools({ skip: 0, limit: perPage });
+    pageSizeRef.current = perPage;
+    loadTools({ skip: 0, limit: perPage, search: state.searchQuery });
   };
 
   // Tool actions
@@ -325,7 +340,7 @@ export default function CustomTools() {
       await deleteCustomTool(toolToDelete.id);
       toast.success(t('messages.deleteSuccess'));
 
-      reloadList();
+      reloadPage(pageAfterDelete(1));
 
       setDeleteDialogOpen(false);
       setToolToDelete(null);
@@ -373,7 +388,7 @@ export default function CustomTools() {
 
       setBulkDeleteIds(null);
       // Refetch instead of local math: after a partial failure the local list is a guess.
-      await reloadList();
+      await reloadPage(pageAfterDelete(selectedIds.length - failed));
     } finally {
       setIsBulkDeleting(false);
     }
@@ -408,7 +423,7 @@ export default function CustomTools() {
         await createCustomTool(data);
         toast.success(t('messages.createSuccess'));
 
-        reloadList();
+        reloadPage();
       }
 
       // Clear editing state; the wizard page navigates back below.

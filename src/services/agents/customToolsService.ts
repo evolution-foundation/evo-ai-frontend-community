@@ -1,5 +1,5 @@
 import evoaiApi from '@/services/core/apiEvoAI';
-import { extractData } from '@/utils/apiHelpers';
+import { extractData, extractResponse } from '@/utils/apiHelpers';
 import {
   CustomTool,
   CustomToolCreate,
@@ -10,11 +10,10 @@ import {
 } from '@/types/ai';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 
-// Lista ferramentas personalizadas
-export const listCustomTools = async (
+const buildListQueryParams = (
   params?: CustomToolsListParams,
   filterParams?: Record<string, string>,
-): Promise<CustomTool[]> => {
+): Record<string, unknown> => {
   const queryParams: Record<string, unknown> = {
     skip: params?.skip || 0,
     limit: params?.limit || 100
@@ -37,10 +36,35 @@ export const listCustomTools = async (
     Object.assign(queryParams, filterParams);
   }
 
+  return queryParams;
+};
+
+export const listCustomTools = async (
+  params?: CustomToolsListParams,
+  filterParams?: Record<string, string>,
+): Promise<CustomTool[]> => {
   const response = await evoaiApi.get('/custom-tools', {
-    params: queryParams,
+    params: buildListQueryParams(params, filterParams),
   });
   return extractData<CustomTool[]>(response);
+};
+
+export interface CustomToolsPage {
+  tools: CustomTool[];
+  total: number;
+}
+
+// Same request, keeping `meta.pagination.total`: the length of `data` is one page, not the base.
+export const listCustomToolsPage = async (
+  params?: CustomToolsListParams,
+  filterParams?: Record<string, string>,
+): Promise<CustomToolsPage> => {
+  const response = await evoaiApi.get('/custom-tools', {
+    params: buildListQueryParams(params, filterParams),
+  });
+  const { data, meta } = extractResponse<CustomTool>(response);
+  const tools = data ?? [];
+  return { tools, total: meta?.pagination?.total ?? tools.length };
 };
 
 // Busca ferramenta personalizada por ID

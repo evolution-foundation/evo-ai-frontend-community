@@ -1,11 +1,13 @@
 import api from '@/services/core/api';
-import { extractData } from '@/utils/apiHelpers';
+import { extractData, extractResponse } from '@/utils/apiHelpers';
 import type { ScheduledAction, CreateScheduledAction } from '@/types/automation';
 
 class ScheduledActionsService {
-  async list(params?: Record<string, any>): Promise<ScheduledAction[]> {
+  async listPage(params?: Record<string, any>): Promise<{ actions: ScheduledAction[]; total: number }> {
     const response = await api.get('/scheduled_actions', { params });
-    return extractData<any>(response);
+    const { data, meta } = extractResponse<ScheduledAction>(response);
+    const actions = data ?? [];
+    return { actions, total: meta?.pagination?.total ?? actions.length };
   }
 
   async get(id: string): Promise<ScheduledAction> {
