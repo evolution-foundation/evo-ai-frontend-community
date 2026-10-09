@@ -1213,7 +1213,7 @@
   },
   "src/services/automation/automationService.ts": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 34
+      "count": 33
     }
   },
   "src/services/cannedResponses/cannedResponsesService.ts": {

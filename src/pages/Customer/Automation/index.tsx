@@ -16,7 +16,7 @@ import { usePermissionGatedLoad } from '@/hooks/rbac/usePermissionGatedLoad';
 import { automationService } from '@/services/automation/automationService';
 import type { AutomationRule } from '@/types/automation';
 import { AutomationsHeader, AutomationsTable, AutomationsPagination } from '@/components/automation';
-import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
+import { DEFAULT_PAGE_SIZE, SETTINGS_LIST_FETCH_SIZE } from '@/constants/pagination';
 
 interface Pagination {
   page: number;
@@ -70,7 +70,7 @@ export default function AutomationsListPage() {
     }
     setState((prev) => ({ ...prev, loading: { ...prev.loading, list: true } }));
     try {
-      const response = await automationService.getAutomations();
+      const response = await automationService.getAutomations(SETTINGS_LIST_FETCH_SIZE);
       const dataArray = (response as unknown as { data?: AutomationRule[] }).data ?? [];
       const meta = (response as unknown as { meta?: { pagination?: Pagination } }).meta;
       setState((prev) => ({

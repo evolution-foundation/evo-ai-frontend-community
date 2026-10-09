@@ -15,9 +15,11 @@ import type {
 } from '@/types/automation';
 
 class AutomationService {
-  async getAutomations(): Promise<AutomationsResponse> {
+  async getAutomations(perPage?: number): Promise<AutomationsResponse> {
     try {
-      const response = await api.get('/automation_rules');
+      const response = await api.get('/automation_rules', {
+        params: perPage ? { per_page: perPage } : undefined,
+      });
       return extractResponse<AutomationRule>(response) as AutomationsResponse;
     } catch (error: any) {
       console.error('Erro ao buscar automações:', error);
