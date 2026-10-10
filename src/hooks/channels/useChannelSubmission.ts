@@ -28,9 +28,11 @@ import { ChannelType, FormData } from '@/hooks/channels/useChannelForm';
 import { useChannelValidation } from '@/hooks/channels/useChannelValidation';
 import { useAppDataStore } from '@/store/appDataStore';
 import { apiErrorMessage } from '@/utils/apiHelpers';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export const useChannelSubmission = (form?: FormData) => {
   const navigate = useNavigate();
+  const { t } = useLanguage('channels');
   const { validateByChannelAndProvider, getStr } = useChannelValidation();
   const { addInbox } = useAppDataStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -92,6 +94,7 @@ export const useChannelSubmission = (form?: FormData) => {
         try {
           // Build verify payload
           const verifyPayload: any = {
+            mode: 'test',
             instanceName: getStr(form, 'instance_name') || getStr(form, 'name'),
             phoneNumber: getStr(form, 'phone_number'),
             proxySettings: form.proxy_enabled
@@ -120,7 +123,7 @@ export const useChannelSubmission = (form?: FormData) => {
           if (!useGlobalConfig) {
             const apiUrl = getStr(form, 'api_url');
             if (!apiUrl) {
-              toast.error('URL da API é obrigatória');
+              toast.error(t('newChannel.messages.apiUrlRequired'));
               setIsTesting(false);
               return;
             }
@@ -131,7 +134,7 @@ export const useChannelSubmission = (form?: FormData) => {
               result = {
                 success: false,
                 error:
-                  'Health check falhou. Verifique se a URL da Evolution API está correta e acessível.',
+                  t('newChannel.messages.evolutionHealthFailed'),
               };
               setHealthCheckPassed(false);
               setIsTesting(false);
@@ -145,7 +148,7 @@ export const useChannelSubmission = (form?: FormData) => {
 
           // Backend will run health check if using global config
           await EvolutionService.verifyConnection(verifyPayload);
-          result = { success: true, message: 'Conexão verificada com sucesso' };
+          result = { success: true, message: t('newChannel.messages.connectionVerified') };
           setHealthCheckPassed(true);
         } catch (error) {
           result = { success: false, error: apiErrorMessage(error) || (error as Error).message };
@@ -174,7 +177,7 @@ export const useChannelSubmission = (form?: FormData) => {
           if (!useGlobalConfig) {
             const apiUrl = getStr(form, 'api_url');
             if (!apiUrl) {
-              toast.error('URL da API é obrigatória');
+              toast.error(t('newChannel.messages.apiUrlRequired'));
               setIsTesting(false);
               return;
             }
@@ -199,7 +202,7 @@ export const useChannelSubmission = (form?: FormData) => {
 
           // Backend will run health check if using global config
           await EvolutionGoService.verifyConnection(verifyPayload);
-          result = { success: true, message: 'Conexão verificada com sucesso' };
+          result = { success: true, message: t('newChannel.messages.connectionVerified') };
           setHealthCheckPassed(true);
         } catch (error) {
           result = { success: false, error: apiErrorMessage(error) || (error as Error).message };
@@ -233,14 +236,14 @@ export const useChannelSubmission = (form?: FormData) => {
 
       if (result) {
         if (result.success) {
-          toast.success(result.message || 'Conexão testada com sucesso');
+          toast.success(result.message || t('newChannel.messages.connectionVerified'));
         } else {
-          toast.error(result.error || 'Falha no teste de conexão');
+          toast.error(result.error || t('newChannel.messages.connectionTestFailed'));
         }
       }
     } catch (error) {
       toast.error(
-        apiErrorMessage(error) || (error as Error).message || 'Erro no teste de conexão',
+        apiErrorMessage(error) || (error as Error).message || t('newChannel.messages.connectionTestFailed'),
       );
     } finally {
       setIsTesting(false);
@@ -500,13 +503,13 @@ export const useChannelSubmission = (form?: FormData) => {
             if (!useGlobalConfig) {
               const apiUrl = getStr(form, 'api_url');
               if (!apiUrl) {
-                throw new Error('URL da API é obrigatória');
+                throw new Error(t('newChannel.messages.apiUrlRequired'));
               }
 
               const healthOk = await EvolutionService.healthCheck(apiUrl);
               if (!healthOk) {
                 throw new Error(
-                  'Health check falhou. Verifique se a URL da Evolution API está correta e acessível.',
+                  t('newChannel.messages.evolutionHealthFailed'),
                 );
               }
             }
@@ -543,11 +546,12 @@ export const useChannelSubmission = (form?: FormData) => {
               verifyPayload.adminToken = getStr(form, 'admin_token');
             }
 
+            verifyPayload.mode = 'create';
             await EvolutionService.verifyConnection(verifyPayload);
 
             // Build final payload
             const providerConfig: any = {
-              instance_name: getStr(form, 'name'),
+              instance_name: getStr(form, 'instance_name') || getStr(form, 'name'),
               proxy_settings: form.proxy_enabled
                 ? {
                     enabled: true,
@@ -595,7 +599,7 @@ export const useChannelSubmission = (form?: FormData) => {
             if (!useGlobalConfig) {
               const apiUrl = getStr(form, 'api_url');
               if (!apiUrl) {
-                throw new Error('URL da API é obrigatória');
+                throw new Error(t('newChannel.messages.apiUrlRequired'));
               }
 
               const healthOk = await EvolutionGoService.healthCheck(apiUrl);
@@ -713,7 +717,7 @@ export const useChannelSubmission = (form?: FormData) => {
         addInbox(data as Inbox);
       }
 
-      toast.success('Canal criado com sucesso');
+      toast.success(t('newChannel.messages.channelCreated'));
       if (onCreated) {
         onCreated(createdId);
       } else {
@@ -721,7 +725,7 @@ export const useChannelSubmission = (form?: FormData) => {
       }
     } catch (e: unknown) {
       const err = e as Error;
-      toast.error(apiErrorMessage(e) || err?.message || 'Falha ao criar canal');
+      toast.error(apiErrorMessage(e) || err?.message || t('newChannel.messages.channelCreateFailed'));
     } finally {
       setIsSubmitting(false);
     }
