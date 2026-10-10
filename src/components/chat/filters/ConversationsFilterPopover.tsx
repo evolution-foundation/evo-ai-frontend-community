@@ -23,8 +23,8 @@ interface ConversationsFilterPopoverProps {
 }
 
 // Uma seção por attributeKey. `multi: true` agrega vários valores no MESMO
-// BaseFilter (values: string[]) — só provado no converter para 'labels'
-// (filterConverters.ts trata labels.length > 1 como OR); os demais atributos
+// BaseFilter (values: string[]) — labels e assignee_id suportam OR entre valores;
+// os demais atributos
 // ficam single-select até o backend confirmar suporte a lista em equal_to.
 interface FilterSection {
   attributeKey: string;
@@ -36,7 +36,7 @@ interface FilterSection {
 const SECTIONS: FilterSection[] = [
   { attributeKey: 'inbox_id', icon: Hash, optionsKey: 'inboxes', multi: false },
   { attributeKey: 'labels', icon: Tag, optionsKey: 'labels', multi: true },
-  { attributeKey: 'assignee_id', icon: UserCheck, optionsKey: 'users', multi: false },
+  { attributeKey: 'assignee_id', icon: UserCheck, optionsKey: 'users', multi: true },
   { attributeKey: 'team_id', icon: Users, optionsKey: 'teams', multi: false },
   { attributeKey: 'pipeline_id', icon: Workflow, optionsKey: 'pipelines', multi: false },
 ];

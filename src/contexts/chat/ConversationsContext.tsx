@@ -62,7 +62,9 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
           delete listParams.page;
           currentQueryRef.current = { kind: 'list', params: listParams };
         }
+        const queryAtStart = currentQueryRef.current;
         const response = await chatService.getConversations(params);
+        if (currentQueryRef.current !== queryAtStart) return;
 
         if (!response || !response.data) {
           dispatch({
@@ -111,6 +113,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
       } finally {
         // Reset ref always
         loadingRef.current = false;
+        dispatch({ type: 'SET_CONVERSATIONS_LOADING', payload: false });
       }
     },
     [t], // Adicionado t para traduções
@@ -136,6 +139,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
       dispatch({ type: 'SET_CONVERSATIONS_LOADING', payload: true });
       try {
         const response = await chatService.filterConversations({ ...query.request, page: nextPage });
+        if (currentQueryRef.current !== query) return;
         const { conversations, pagination: nextPagination } = extractConversationsData(response);
         dispatch({ type: 'APPEND_CONVERSATIONS', payload: { conversations, pagination: nextPagination } });
       } catch (error) {
@@ -145,12 +149,32 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         dispatch({ type: 'SET_CONVERSATIONS_LOADING', payload: false });
       } finally {
         loadingRef.current = false;
+        dispatch({ type: 'SET_CONVERSATIONS_LOADING', payload: false });
       }
       return;
     }
 
     await loadConversations({ ...query.params, page: nextPage });
   }, [state.conversationsPagination, state.conversationsLoading, loadConversations, t]);
+
+  // Reconcile list membership AND totals after assignment events using exactly
+  // the active request. A changed/cleared filter invalidates this response.
+  const refreshCurrentQuery = useCallback(async () => {
+    const query: ConversationsQuery = { ...currentQueryRef.current };
+    currentQueryRef.current = query;
+    try {
+      const response = query.kind === 'filter'
+        ? await chatService.filterConversations({ ...query.request, page: 1 })
+        : await chatService.getConversations({ ...query.params, page: 1 });
+      if (currentQueryRef.current !== query) return;
+      const { conversations, pagination } = extractConversationsData(response);
+      // The page-one replacement invalidates pages requested while refreshing.
+      currentQueryRef.current = { ...query };
+      dispatch({ type: 'SET_CONVERSATIONS', payload: { conversations, pagination } });
+    } catch (error) {
+      console.error('Error refreshing current conversation query:', error);
+    }
+  }, []);
 
   const loadSpecificConversation = useCallback(
     async (conversationId: string): Promise<Conversation | null> => {
@@ -974,6 +998,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
     state,
     loadConversations,
     loadMoreConversations,
+    refreshCurrentQuery,
     setConversations,
     loadSpecificConversation,
     selectConversation,
