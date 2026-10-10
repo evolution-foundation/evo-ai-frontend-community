@@ -10,7 +10,11 @@ export function convertBaseFiltersToConversationFilters(
   return baseFilters.map(filter => ({
     attribute_key: filter.attributeKey,
     filter_operator: filter.filterOperator as any,
-    values: Array.isArray(filter.values) ? filter.values : [filter.values],
+    values: filter.attributeKey === 'assignee_id'
+      ? (Array.isArray(filter.values) ? filter.values : [filter.values])
+          .flatMap(value => String(value).split(','))
+          .map(value => value.trim()).filter(Boolean)
+      : Array.isArray(filter.values) ? filter.values : [filter.values],
     query_operator: filter.queryOperator,
   }));
 }
