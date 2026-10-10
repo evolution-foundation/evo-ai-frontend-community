@@ -19,9 +19,13 @@ apiPublic.interceptors.request.use((config) => {
     config.headers.Authorization = authHeader.Authorization;
   }
 
-  // Don't override Content-Type for FormData requests
-  if (config.data instanceof FormData && config.headers['Content-Type'] === undefined) {
+  // Don't override Content-Type for FormData requests. The instance default
+  // sets application/json, which axios merges into config.headers before
+  // this interceptor runs, so it's never actually `undefined` here — strip
+  // it unconditionally so the browser can set the multipart boundary itself.
+  if (config.data instanceof FormData) {
     delete config.headers['Content-Type'];
+    delete config.headers['content-type'];
   }
 
   return config;
