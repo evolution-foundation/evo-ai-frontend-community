@@ -178,6 +178,9 @@ jobs:
       #     the total comes from meta.pagination and each page asks for its own slice; a
       #     total read off the loaded rows, or a catalog loaded at the backend's default
       #     size, leaves every row past the first page unreachable.
+      #   - agent test panel (CRM-43): it stays an in-page side panel, never a dialog, its
+      #     width stays between 360px and half the window, and the session actions keep
+      #     calling the server instead of local state.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -303,7 +306,8 @@ jobs:
             src/services/scheduledActions/scheduledActionsService.spec.ts \
             src/pages/Customer/Contacts/ScheduledActions.spec.tsx \
             src/services/automation/automationService.spec.ts \
-            src/pages/Customer/Automation/AutomationsListPage.spec.tsx
+            src/pages/Customer/Automation/AutomationsListPage.spec.tsx \
+            src/components/agents/AgentTestChat.spec.tsx
 
   # Lint gate scoped to the files the PR touched.
   eslint:

@@ -20,10 +20,11 @@ export function AgentMessageInput({
   const [messageInput, setMessageInput] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<FileData[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const hasContent = messageInput.trim().length > 0 || selectedFiles.length > 0;
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((!messageInput.trim() && selectedFiles.length === 0) || isDisabled) return;
+    if (!hasContent || isDisabled) return;
 
     await onSendMessage(messageInput, selectedFiles.length > 0 ? selectedFiles : undefined);
     setMessageInput('');
@@ -151,8 +152,13 @@ export function AgentMessageInput({
 
         <Button
           type="submit"
-          disabled={isDisabled || (!messageInput.trim() && selectedFiles.length === 0)}
+          disabled={isDisabled || !hasContent}
           size="icon"
+          className={
+            hasContent
+              ? undefined
+              : 'disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100'
+          }
         >
           {isDisabled ? (
             <Loader2 className="h-4 w-4 animate-spin" />
