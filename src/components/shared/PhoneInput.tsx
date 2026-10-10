@@ -2,6 +2,7 @@ import React from 'react';
 import PhoneInputLib, { type Country } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import { cn } from '@/lib/utils';
+import { CountrySelectCombobox } from './CountrySelectCombobox';
 
 interface PhoneInputProps {
   value: string;
@@ -52,8 +53,8 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
         error && 'phone-input-error',
         className
       )}
+      countrySelectComponent={CountrySelectCombobox}
       countrySelectProps={{
-        unicodeFlags: true,
         disabled,
       }}
       numberInputProps={{
