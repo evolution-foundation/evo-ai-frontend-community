@@ -14,6 +14,7 @@ import {
   PresenceUpdateEvent,
   ConversationReadEvent,
   ContactUpdatedEvent,
+  AssigneeChangedEvent,
 } from '@/services/chat/websocket/ChatActionCableConnector';
 import { normalizeToUnixSeconds } from '@/utils/time/timeHelpers';
 import { mapEventLabels } from '@/contexts/chat/eventLabels';
@@ -181,6 +182,7 @@ function webSocketReducer(state: WebSocketState, action: WebSocketAction): WebSo
 }
 
 interface WebSocketHandlers {
+  onAssigneeChanged?: (event: AssigneeChangedEvent) => void;
   onMessageCreated?: (message: Message) => void;
   onMessageUpdated?: (message: Message) => void;
   onConversationCreated?: (conversation: Conversation) => void;
@@ -231,6 +233,9 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       enabled: !!(user?.id && user?.pubsub_token), // ✅ Habilitado condicionalmente
       websocketHost: import.meta.env.VITE_API_URL, // ✅ Host correto da API
       handlers: {
+        onAssigneeChanged: useCallback((data: AssigneeChangedEvent) => {
+          handlersRef.current.onAssigneeChanged?.(data);
+        }, []),
         onMessageCreated: useCallback((data: MessageCreatedEvent) => {
           // Canonical conversation id (UUID from backend)
           const conversationId = String(data.conversation?.id ?? data.conversation_id ?? '');

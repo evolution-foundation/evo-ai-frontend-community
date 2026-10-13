@@ -119,6 +119,8 @@ export const convertFiltersToUrlParams = (
           } else {
             params.assignee_id = value as string;
           }
+        } else if (values.length > 1) {
+          params.assignee_id = values as string[];
         }
         break;
 

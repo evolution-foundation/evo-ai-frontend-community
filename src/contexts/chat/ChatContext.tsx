@@ -25,6 +25,7 @@ import { isAdminRole } from '@/constants/roles';
 import { playNotificationSound, getAudioSettings } from '@/utils/audioNotificationUtils';
 import { normalizeToUnixSeconds } from '@/utils/time/timeHelpers';
 import { doesConversationMatchFilters } from '@/utils/chat/conversationMatch';
+import { useAssigneeFilterRefresh } from '@/hooks/chat/useAssigneeFilterRefresh';
 
 interface ChatContextValue {
   // All sub-contexts
@@ -60,6 +61,9 @@ function useChatIntegration() {
   const processedMessageIdsRef = useRef<Set<string>>(new Set());
   const activeFiltersRef = useRef<ConversationFilter[]>(filters.state.activeFilters);
   const attachmentReloadTimersRef = useRef<Record<string, number>>({});
+  const refreshAssigneeFilter = useAssigneeFilterRefresh(
+    filters.state.activeFilters, conversations.refreshCurrentQuery,
+  );
   const account = useAppDataStore(state => state.account);
   // A session the server masks too reads the same values from REST as from the
   // frame. Unknown role refetches: the cost is a request, the risk is the bug.
@@ -130,6 +134,7 @@ function useChatIntegration() {
   // Integrar WebSocket com outros contextos
   useEffect(() => {
     websocket.registerHandlers({
+      onAssigneeChanged: refreshAssigneeFilter,
       onMessageCreated: (message: Message) => {
         if (!message || !message.id || !message.conversation_id) {
           console.warn('⚠️ WEBSOCKET: Mensagem inválida recebida, ignorando:', message);
@@ -424,6 +429,7 @@ function useChatIntegration() {
           return;
         }
         conversations.addConversation(conversation);
+        refreshAssigneeFilter();
       },
 
       onConversationUpdated: (conversation: Partial<Conversation> & { id: string }) => {
@@ -450,9 +456,12 @@ function useChatIntegration() {
           conversations.addHiddenConversation(mergedConversation);
           if (existsInList) {
             conversations.removeConversation(conversationId);
+            refreshAssigneeFilter();
           }
           return;
         }
+
+        if (!existsInList) refreshAssigneeFilter();
 
         // Conversation now matches filters but wasn't in the list (e.g. just
         // assigned to me while viewing "Mine" tab) — add it so the list updates
@@ -530,6 +539,7 @@ function useChatIntegration() {
       },
 
       onConversationStatusChanged: (conversationId: string, status: Conversation['status'], updatedAt?: string) => {
+        refreshAssigneeFilter();
         const existingConversation = conversations.getConversation(conversationId);
         if (!existingConversation) {
           return;
@@ -555,6 +565,7 @@ function useChatIntegration() {
       },
 
       onConversationRead: (conversationId: string, unreadCount: number) => {
+        refreshAssigneeFilter();
         conversations.updateUnreadCount(conversationId, unreadCount);
 
         const conversation = conversations.getConversation(conversationId);
@@ -591,6 +602,7 @@ function useChatIntegration() {
     currentUser,
     shouldReloadMessageForMissingImageData,
     reconcileContactUpdated,
+    refreshAssigneeFilter,
   ]);
 
   // Integrated actions

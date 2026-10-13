@@ -55,6 +55,7 @@ export interface ConversationsContextValue {
   // Conversation actions
   loadConversations: (params?: ConversationListParams) => Promise<void>;
   loadMoreConversations: () => Promise<void>;
+  refreshCurrentQuery: () => Promise<void>;
   setConversations: (
     conversations: Conversation[],
     pagination: PaginationMeta,

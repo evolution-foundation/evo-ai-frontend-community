@@ -375,7 +375,7 @@ export interface ConversationListParams {
   pageSize?: number;
   status?: 'open' | 'resolved' | 'pending' | 'snoozed' | 'all';
   assignee_type?: 'me' | 'unassigned' | 'assigned' | 'all';
-  assignee_id?: string;
+  assignee_id?: string | string[];
   inbox_id?: string;
   team_id?: string;
   labels?: string[];
