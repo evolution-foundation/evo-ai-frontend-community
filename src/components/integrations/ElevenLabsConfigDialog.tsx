@@ -73,14 +73,20 @@ const ElevenLabsConfigDialog = ({
 
   // Fetch voices from ElevenLabs API when apiKey changes
   useEffect(() => {
+    // A slower response for a previous key must not mark the current one as valid.
+    let cancelled = false;
+
     const fetchVoices = async () => {
       if (!config.apiKey || config.apiKey.length < 10) {
         setAvailableVoices([]);
+        setVoicesError(false);
+        setLoadingVoices(false);
         return;
       }
 
       setLoadingVoices(true);
       setVoicesError(false);
+      setAvailableVoices([]);
 
       try {
         const response = await fetch('https://api.elevenlabs.io/v1/voices', {
@@ -95,6 +101,7 @@ const ElevenLabsConfigDialog = ({
         }
 
         const data = await response.json();
+        if (cancelled) return;
         const voices = data.voices.map((voice: any) => ({
           voice_id: voice.voice_id,
           name: voice.name,
@@ -107,18 +114,31 @@ const ElevenLabsConfigDialog = ({
           setConfig((prev) => ({ ...prev, voice: voices[0].voice_id }));
         }
       } catch (error) {
+        if (cancelled) return;
         console.error('Error fetching ElevenLabs voices:', error);
         setVoicesError(true);
         setAvailableVoices([]);
       } finally {
-        setLoadingVoices(false);
+        if (!cancelled) setLoadingVoices(false);
       }
     };
 
     fetchVoices();
+
+    return () => {
+      cancelled = true;
+    };
   }, [config.apiKey]);
 
+  // Saved without a voice the processor skips the audio tool, so the card reads
+  // "Activated" while the agent never answers in audio.
+  const canSave =
+    !loadingVoices &&
+    !voicesError &&
+    availableVoices.some((voice) => voice.voice_id === config.voice);
+
   const handleSave = () => {
+    if (!canSave) return;
     onSave(config);
     onOpenChange(false);
   };
@@ -287,7 +307,7 @@ const ElevenLabsConfigDialog = ({
           <div className="flex flex-col gap-3 pt-4">
             <Button
               onClick={handleSave}
-              disabled={!config.apiKey}
+              disabled={!canSave}
               className="w-full"
             >
               {t('edit.integrations.elevenlabs.applyConfig') || 'APLICAR CONFIGURAÇÕES'}
