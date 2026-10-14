@@ -49,6 +49,17 @@ export const ModelApiPanel = ({
 }: ModelApiPanelProps) => {
   const { t } = useLanguage('aiAgents');
   const [showApiKeysModal, setShowApiKeysModal] = useState(false);
+  // The provider form owns its fields (apiUrl, apiKey, credential_id, ...) and
+  // saves them itself via its own "Save" button; only `provider` lives in the
+  // agent config. Keep the full form state here so typed values survive the
+  // re-render — rebuilding `data` from `provider` alone discarded every change.
+  const externalProvider = externalConfigData?.provider as ExternalAgentConfigData['provider'];
+  const [externalFormData, setExternalFormData] = useState<ExternalAgentConfigData>({
+    provider: externalProvider,
+  } as ExternalAgentConfigData);
+  if (externalFormData.provider !== externalProvider) {
+    setExternalFormData({ provider: externalProvider } as ExternalAgentConfigData);
+  }
 
   const handleLLMConfigChange = useCallback(
     (data: LLMConfigData) => {
@@ -156,16 +167,15 @@ export const ModelApiPanel = ({
             <ExternalAgentConfig
               mode="edit"
               agentId={agent.id}
-              data={
-                {
-                  provider: externalConfigData.provider as ExternalAgentConfigData['provider'],
-                } as ExternalAgentConfigData
-              }
+              data={externalFormData}
               onChange={data => {
-                onExternalConfigChange({
-                  ...externalConfigData,
-                  provider: data.provider,
-                });
+                setExternalFormData(data);
+                if (data.provider !== externalConfigData.provider) {
+                  onExternalConfigChange({
+                    ...externalConfigData,
+                    provider: data.provider,
+                  });
+                }
               }}
               onValidationChange={() => {}}
             />
