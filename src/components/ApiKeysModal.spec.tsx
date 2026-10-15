@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ApiKeysModal, AI_CREDENTIALS_ROUTE } from './ApiKeysModal';
 
@@ -76,6 +76,21 @@ describe('ApiKeysModal — points at the unified page (AC6)', () => {
     await user.click(screen.getByRole('button', { name: 'actions.cancel' }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  // CRM-42: the modal closes on a click outside.
+  it('closes on a click outside without navigating', async () => {
+    const onOpenChange = vi.fn();
+    render(<ApiKeysModal open onOpenChange={onOpenChange} />);
+
+    // Radix locks `pointer-events` on the body while the dialog is open, so drive the
+    // dismissable layer directly instead of through userEvent's pointer guard. Its
+    // outside listener attaches a tick after mount, hence the retry.
+    await waitFor(() => {
+      fireEvent.pointerDown(document.body, { bubbles: true, button: 0, ctrlKey: false });
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
     expect(navigate).not.toHaveBeenCalled();
   });
 });
