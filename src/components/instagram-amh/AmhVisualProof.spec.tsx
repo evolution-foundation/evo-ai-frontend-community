@@ -24,22 +24,20 @@ function setup() {
     get: vi.fn().mockResolvedValue(proof),
     create: vi.fn().mockResolvedValue(proof),
     save: vi.fn().mockResolvedValue({ ...proof, lock_version: 1 }),
-    publish: vi
-      .fn()
-      .mockResolvedValue({
-        ...proof,
-        versions: [
-          {
-            id: 'v1',
-            number: 1,
-            graph: initialGraph(),
-            at: '2026-10-19T17:00:00Z',
-            digest: 'qa',
-            actor: 'qa',
-            state: 'paused',
-          },
-        ],
-      }),
+    publish: vi.fn().mockResolvedValue({
+      ...proof,
+      versions: [
+        {
+          id: 'v1',
+          number: 1,
+          graph: initialGraph(),
+          at: '2026-10-19T17:00:00Z',
+          digest: 'qa',
+          actor: 'qa',
+          state: 'paused',
+        },
+      ],
+    }),
     simulate: vi.fn(),
   };
   return { proof, api };

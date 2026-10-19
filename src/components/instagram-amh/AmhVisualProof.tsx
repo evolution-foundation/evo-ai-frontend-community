@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useUnsavedNavigationGuard } from './useUnsavedNavigationGuard';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   ReactFlow,
   Background,
@@ -88,6 +89,8 @@ export function AmhVisualProof({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [dirty, setDirty] = useState(false);
+  const createKey = useRef(crypto.randomUUID());
+  useUnsavedNavigationGuard(dirty);
   const [name, setName] = useState('Instagram AMH — prova visual');
   const [viewVersion, setViewVersion] = useState(false);
   const errorText = (error: unknown) =>
@@ -164,7 +167,7 @@ export function AmhVisualProof({
     perform(async () => {
       const next = proof
         ? await api.save(proof, cleanGraph(graph))
-        : await api.create(name, cleanGraph(graph));
+        : await api.create(name, cleanGraph(graph), createKey.current);
       hydrate(next);
       setMessage('Rascunho salvo no CRM. Reabra para conferir.');
     });
@@ -190,6 +193,7 @@ export function AmhVisualProof({
               if (id) void perform(async () => hydrate(await api.get(id)));
               else {
                 setProof(null);
+                createKey.current = crypto.randomUUID();
                 setGraph(initialGraph());
                 setVersionId('');
                 setRun(null);
@@ -501,7 +505,7 @@ export function AmhVisualProof({
             />
           </label>
           <button
-            disabled={!proof || !version || busy || dirty}
+            disabled={!proof || !version || busy || dirty || !permissions.edit}
             onClick={() =>
               void perform(async () => {
                 if (!proof) return;

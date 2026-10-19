@@ -9,8 +9,8 @@ export const proofApi = {
   async get(id: string) {
     return extractData<Proof>(await api.get(`${path}/${id}`));
   },
-  async create(name: string, graph: Graph) {
-    return extractData<Proof>(await api.post(path, { name, graph }));
+  async create(name: string, graph: Graph, create_key: string) {
+    return extractData<Proof>(await api.post(path, { name, graph, create_key }));
   },
   async save(proof: Proof, graph: Graph) {
     return extractData<Proof>(
