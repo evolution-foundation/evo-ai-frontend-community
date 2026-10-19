@@ -59,6 +59,7 @@ import Segments from '@/pages/Customer/Settings/Segments/Segments';
 import SegmentCreateEdit from '@/pages/Customer/Settings/Segments/SegmentCreateEdit';
 import Journey from '@/pages/Customer/Journey/Journey';
 import JourneyFlowEditor from '@/pages/Customer/Journey/JourneyFlowEditor';
+import InstagramAmh from '@/pages/Customer/InstagramAmh/InstagramAmh';
 import Campaigns from '@/pages/Customer/Campaigns/Campaigns';
 import NewCampaign from '@/pages/Customer/Campaigns/NewCampaign/NewCampaign';
 import CannedResponses from '@/pages/Customer/Settings/CannedResponses';
@@ -609,6 +610,11 @@ const AppRouter = () => {
             }
           />
 
+          <Route path="/journeys/instagram-amh" element={
+            <PrivateRoute><CustomerRoute><MainLayout>
+              <PermissionRoute resource="journeys" action="read"><InstagramAmh /></PermissionRoute>
+            </MainLayout></CustomerRoute></PrivateRoute>
+          } />
           {/* Journeys */}
           <Route
             path="/journeys"
