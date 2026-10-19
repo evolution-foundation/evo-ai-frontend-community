@@ -277,6 +277,10 @@ export default function JourneyPage() {
 
   return (
     <div className="h-full flex flex-col p-4">
+      {permissionsReady && can('journeys', 'read') ? <button
+        className="self-start mb-4 rounded-md border px-4 py-2 text-sm hover:bg-muted"
+        onClick={() => navigate('/journeys/instagram-amh')}
+      >Instagram AMH · editor e simulador</button> : null}
       <BaseHeader
         title={t('title')}
         subtitle={t('subtitle')}

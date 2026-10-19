@@ -1,0 +1,240 @@
+.amh-proof {
+  color: var(--foreground, #172033);
+  padding: 28px;
+  max-width: 1800px;
+  margin: auto;
+  font-size: 14px;
+}
+.amh-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 22px;
+}
+.amh-header small {
+  letter-spacing: 0.16em;
+  color: #63758a;
+  font-size: 11px;
+}
+.amh-header h1 {
+  font-size: 30px;
+  font-weight: 650;
+  margin: 6px 0;
+}
+.amh-proof p {
+  color: var(--muted-foreground, #59687a);
+  line-height: 1.6;
+}
+.amh-paused {
+  background: #fef3c7;
+  color: #854d0e;
+  border: 1px solid #fde68a;
+  padding: 8px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.amh-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  margin: 16px 0;
+}
+.amh-proof label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 500;
+}
+.amh-proof input,
+.amh-proof select,
+.amh-proof textarea {
+  border: 1px solid #94a3b8;
+  border-radius: 7px;
+  padding: 9px;
+  background: var(--background, #fff);
+  color: inherit;
+  font-weight: 400;
+  max-width: 100%;
+}
+.amh-proof button {
+  border: 1px solid #64748b;
+  border-radius: 7px;
+  padding: 9px 14px;
+  background: var(--background, #fff);
+  color: inherit;
+  cursor: pointer;
+}
+.amh-proof button:hover:enabled {
+  background: #e0f2fe;
+  color: #164e63;
+}
+.amh-proof button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.amh-proof :focus-visible {
+  outline: 3px solid #0284c7;
+  outline-offset: 2px;
+}
+.amh-notice,
+.amh-feedback {
+  padding: 10px 14px;
+  background: var(--muted, #f1f5f9);
+  border-radius: 6px;
+}
+.amh-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  border: 1px solid #94a3b8;
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 510px;
+}
+.amh-canvas {
+  height: 510px;
+  background: #f4f7fa;
+}
+.amh-node {
+  background: white;
+  color: #172033;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  width: 240px;
+  padding: 18px;
+  box-shadow: 0 3px 10px #1720330a;
+}
+.amh-node small {
+  font-size: 9px;
+  color: #64748b;
+  letter-spacing: 0.08em;
+}
+.amh-node strong {
+  display: block;
+  font-size: 15px;
+  margin: 8px 0;
+}
+.amh-node span {
+  font-size: 12px;
+  color: #526378;
+  display: block;
+  overflow-wrap: anywhere;
+}
+.amh-selected {
+  border: 2px solid #0284c7;
+}
+.amh-inspector {
+  border-left: 1px solid #94a3b8;
+  padding: 20px;
+  overflow: auto;
+}
+.amh-proof h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+.amh-proof h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 14px 0;
+}
+.amh-inspector fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 15px 0;
+}
+.amh-proof .amh-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+.amh-simulator {
+  margin-top: 26px;
+}
+.amh-run {
+  padding: 18px;
+  border: 1px solid #94a3b8;
+  border-radius: 10px;
+}
+.amh-run blockquote {
+  background: var(--muted, #f1f5f9);
+  padding: 16px;
+  border-left: 3px solid #0284c7;
+  margin: 16px 0;
+  overflow-wrap: anywhere;
+}
+.amh-table-wrap {
+  overflow: auto;
+}
+.amh-proof table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+  min-width: 650px;
+}
+.amh-proof td,
+.amh-proof th {
+  padding: 10px;
+  border-bottom: 1px solid #cbd5e1;
+  vertical-align: top;
+}
+.amh-proof details {
+  margin-top: 18px;
+}
+.amh-proof details button {
+  display: block;
+  margin: 8px 0;
+}
+@media (max-width: 900px) {
+  .amh-workspace {
+    grid-template-columns: 1fr;
+  }
+  .amh-inspector {
+    border-left: 0;
+    border-top: 1px solid #94a3b8;
+  }
+  .amh-header {
+    align-items: start;
+    flex-direction: column;
+  }
+  .amh-proof {
+    padding: 16px;
+  }
+  .amh-canvas {
+    height: 360px;
+  }
+}
+.amh-node em {
+  display: block;
+  font-size: 11px;
+  font-style: normal;
+  margin-top: 10px;
+  font-weight: 600;
+}
+.amh-trace-passed {
+  border-color: #0d9488;
+}
+.amh-trace-not_reached {
+  opacity: 0.6;
+}
+.amh-trace-rejected,
+.amh-trace-conflict,
+.amh-trace-failed,
+.amh-trace-blocked,
+.amh-trace-uncertain {
+  border-color: #d97706;
+  background: #fffbeb;
+}
+.amh-proof .react-flow__controls-button {
+  padding: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 0;
+  color: #172033;
+  background: white;
+}
+.amh-proof .react-flow__controls-button svg {
+  max-width: 16px;
+  max-height: 16px;
+}
