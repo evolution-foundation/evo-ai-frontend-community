@@ -13,9 +13,9 @@ export const proofApi = {
   async create(name: string, graph: Graph, create_key: string) {
     return extractData<Proof>(await api.post(path, { name, graph, create_key }));
   },
-  async save(proof: Proof, graph: Graph) {
+  async save(proof: Proof, graph: Graph, name?: string) {
     return extractData<Proof>(
-      await api.patch(`${path}/${proof.id}`, { graph, lock_version: proof.lock_version }),
+      await api.patch(`${path}/${proof.id}`, { graph, name, lock_version: proof.lock_version }),
     );
   },
   async publish(proof: Proof) {
@@ -33,8 +33,8 @@ export type ProofApi = typeof proofApi;
 
 export type Operations = {
   at: string;
-  outbound_enabled: false;
-  state: 'paused';
+  outbound_enabled: boolean;
+  state: string;
   reception_enabled: boolean;
   inbound: {
     available: boolean;
@@ -49,7 +49,7 @@ export type Operations = {
   rules: {
     id: string;
     name: string;
-    state: 'paused';
+    state: string;
     version: number | null;
     draft_changed: boolean;
     scope: { account?: string; ad?: string; media?: string };
@@ -62,8 +62,8 @@ export type Operations = {
 };
 export const operationsSchema = z.object({
   at: z.string().datetime({ offset: true }),
-  outbound_enabled: z.literal(false),
-  state: z.literal('paused'),
+  outbound_enabled: z.boolean(),
+  state: z.string(),
   reception_enabled: z.boolean(),
   limit: z.number().int().positive().max(50),
   activation: z.string(),
@@ -89,7 +89,7 @@ export const operationsSchema = z.object({
       z.object({
         id: z.string(),
         name: z.string(),
-        state: z.literal('paused'),
+        state: z.string(),
         version: z.number().int().positive().nullable(),
         draft_changed: z.boolean(),
         scope: z.object({
