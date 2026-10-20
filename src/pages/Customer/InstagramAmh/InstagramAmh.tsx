@@ -5,7 +5,7 @@ export default function InstagramAmh() {
   const { can } = usePermissions();
   return (
     <>
-      <AmhOperations />
+      {can('journeys', 'read') ? <AmhOperations /> : null}
       <AmhVisualProof
         permissions={{
           create: can('journeys', 'create'),

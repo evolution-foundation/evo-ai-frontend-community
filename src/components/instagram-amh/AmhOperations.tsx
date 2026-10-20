@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/store/authStore';
 import { useEffect, useState } from 'react';
 import { operationsApi, type Operations } from './api';
 import './amh-visual.css';
@@ -19,6 +20,13 @@ const outcomes: Record<string, string> = {
 };
 const date = (value: string) => new Date(value).toLocaleString('pt-BR');
 export function AmhOperations({ api = operationsApi }: { api?: typeof operationsApi }) {
+  const token = useAuthStore(state => state.accessToken);
+  const userId = useAuthStore(state => state.currentUser?.id);
+  // Remount synchronously on identity changes: no previous identity snapshot or
+  // in-flight completion may become visible in the new session.
+  return <OperationsPanel key={JSON.stringify([userId, token])} api={api} />;
+}
+function OperationsPanel({ api }: { api: typeof operationsApi }) {
   const [data, setData] = useState<Operations | null>(null);
   const [busy, setBusy] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -151,6 +159,10 @@ export function AmhOperations({ api = operationsApi }: { api?: typeof operations
           </div>
           {!rules.length ? <p>Nenhuma regra encontrada nesta consulta.</p> : null}
           <h3>Recepção real · ledger de entrada</h3>
+          <p>
+            Contagens referentes aos últimos {data.limit} recibos exibidos, sem representar o
+            histórico completo.
+          </p>
           {!data.inbound.available ? (
             <p>
               Eventos indisponíveis: confira a configuração da conta/inbox. Isso não significa fila

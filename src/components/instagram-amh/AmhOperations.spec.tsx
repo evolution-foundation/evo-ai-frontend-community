@@ -1,8 +1,14 @@
+import { act } from '@testing-library/react';
+import { useAuthStore } from '@/store/authStore';
+import { operationsSchema } from './api';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AmhOperations } from './AmhOperations';
 import type { Operations } from './api';
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  useAuthStore.setState({ accessToken: null });
+});
 const snapshot: Operations = {
   at: '2026-10-20T12:00:00Z',
   outbound_enabled: false,
@@ -10,6 +16,7 @@ const snapshot: Operations = {
   reception_enabled: true,
   inbound: {
     available: true,
+    counts_scope: 'recent_receipts',
     counts: { pending: 2 },
     recent: [
       {
@@ -81,7 +88,10 @@ describe('AMH operations', () => {
     const api = {
       get: vi
         .fn()
-        .mockResolvedValue({ ...snapshot, inbound: { available: false, counts: {}, recent: [] } }),
+        .mockResolvedValue({
+          ...snapshot,
+          inbound: { available: false, counts_scope: 'recent_receipts', counts: {}, recent: [] },
+        }),
     };
     render(<AmhOperations api={api} />);
     expect(await screen.findByText(/Eventos indisponíveis/)).toBeInTheDocument();
@@ -93,8 +103,51 @@ describe('AMH operations', () => {
     };
     render(<AmhOperations api={api} />);
     expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível atualizar');
+    expect(screen.queryByText(/Recepção real/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Recibo: qa-receipt/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Pendente:/)).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Atualizar acompanhamento' }));
     await screen.findByText('QA AMH');
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+  it('clears old snapshots on identity change and ignores a late completion from the old token', async () => {
+    let resolveOld!: (value: Operations) => void;
+    const oldRequest = new Promise<Operations>(resolve => {
+      resolveOld = resolve;
+    });
+    const api = {
+      get: vi
+        .fn()
+        .mockResolvedValueOnce(snapshot)
+        .mockReturnValueOnce(oldRequest)
+        .mockResolvedValueOnce({
+          ...snapshot,
+          rules: [],
+          inbound: { ...snapshot.inbound, counts: {}, recent: [] },
+        }),
+    };
+    act(() => useAuthStore.setState({ accessToken: 'qa-first' }));
+    render(<AmhOperations api={api} />);
+    await screen.findByText('QA AMH');
+    fireEvent.click(screen.getByRole('button', { name: 'Atualizar acompanhamento' }));
+    await waitFor(() => expect(api.get).toHaveBeenCalledTimes(2));
+    act(() => useAuthStore.setState({ accessToken: 'qa-second' }));
+    expect(screen.queryByText('QA AMH')).not.toBeInTheDocument();
+    await screen.findByText('Nenhuma regra encontrada nesta consulta.');
+    await act(async () => resolveOld(snapshot));
+    expect(screen.queryByText('QA AMH')).not.toBeInTheDocument();
+    expect(screen.queryByText('Recibo: qa-receipt')).not.toBeInTheDocument();
+  });
+  it('rejects incompatible successful responses before rendering them', () => {
+    expect(operationsSchema.parse(snapshot)).toEqual(snapshot);
+    for (const invalid of [
+      null,
+      {},
+      { ...snapshot, rules: undefined },
+      { ...snapshot, inbound: {} },
+      { ...snapshot, rules: [{ ...snapshot.rules[0], keywords: null }] },
+    ]) {
+      expect(() => operationsSchema.parse(invalid)).toThrow();
+    }
   });
 });
