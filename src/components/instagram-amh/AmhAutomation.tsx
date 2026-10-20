@@ -121,6 +121,7 @@ export function AmhAutomation({
     setDirty(true);
   };
   const hydrate = (next: Proof) => {
+    setPreviewConfirmed(false);
     setProof(next);
     setGraph(next.draft);
     setName(next.name);
@@ -815,8 +816,8 @@ export function AmhAutomation({
           <div className="ig-explainer">
             <strong>O caminho da entrega</strong>
             <p>
-              Comentário com palavra-chave → mensagem privada → cadastro → acesso ao material +
-              e-mail.
+              Comentário com palavra-chave → convite → clique em Pode enviar → botão de acesso →
+              cadastro → material + e-mail.
             </p>
             <p>Comentários fora da publicação escolhida não acionam esta regra.</p>
           </div>
