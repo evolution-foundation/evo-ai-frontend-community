@@ -519,6 +519,30 @@ export function AmhAutomation({
               </ol>
               <div className="ig-actions">
                 <button
+                  disabled={!ready || busy || !permissions.edit}
+                  onClick={() =>
+                    void perform(async () => {
+                      if (!proof || !version) return;
+                      const result = await api.simulate(
+                        proof.id,
+                        version.id,
+                        'eligible',
+                        sample || undefined,
+                      );
+                      setProof(result.proof);
+                      setMessage(
+                        result.run.outcome === 'simulated_accepted'
+                          ? 'Validação aprovada: a versão publicada reconhece o comentário e monta a mensagem. Nenhuma mensagem foi enviada.'
+                          : 'O comentário não passou na validação da versão publicada. Confira as palavras-chave. Nenhuma mensagem foi enviada.',
+                      );
+                    })
+                  }
+                >
+                  Validar sem enviar
+                </button>
+              </div>
+              <div className="ig-actions">
+                <button
                   disabled={!proof || dirty || busy || !permissions.publish}
                   onClick={() =>
                     void perform(async () => {
@@ -701,7 +725,7 @@ export function AmhAutomation({
               </span>
               <small>Após um comentário correspondente</small>
               <div className="ig-bubble">{preview}</div>
-              <small>Prévia ilustrativa · nenhum envio por esta tela</small>
+              <small>Prévia ilustrativa da mensagem</small>
             </div>
           </div>
           <div className="ig-explainer">
