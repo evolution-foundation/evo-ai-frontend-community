@@ -238,3 +238,73 @@
   max-width: 16px;
   max-height: 16px;
 }
+
+.amh-operations h2 {
+  font-size: 24px;
+  font-weight: 650;
+}
+.amh-rule-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 16px;
+}
+.amh-rule-card {
+  border: 1px solid #94a3b8;
+  border-radius: 10px;
+  padding: 18px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.amh-rule-card h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  font-weight: 650;
+}
+.amh-rule-card h4 {
+  margin-top: 16px;
+  font-weight: 600;
+}
+.amh-rule-card dl {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 8px;
+}
+.amh-rule-card dt {
+  color: var(--muted-foreground, #59687a);
+}
+.amh-rule-card dd {
+  margin: 0;
+}
+.amh-rule-card blockquote {
+  border-left: 3px solid #0e7490;
+  padding-left: 12px;
+  margin: 10px 0;
+  white-space: pre-wrap;
+}
+.amh-event-counts {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.amh-event-list {
+  list-style: none;
+  padding: 0;
+}
+.amh-event-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid #94a3b8;
+  overflow-wrap: anywhere;
+}
+.amh-operations .amh-paused {
+  white-space: normal;
+}
+.amh-operations,
+.amh-operations * {
+  box-sizing: border-box;
+}
+.amh-operations .amh-toolbar label {
+  min-width: 0;
+  max-width: 100%;
+}

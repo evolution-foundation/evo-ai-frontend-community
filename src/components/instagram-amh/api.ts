@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import api from '@/services/core/api';
 import { extractData } from '@/utils/apiHelpers';
 import type { Graph, Proof, Run } from './contract';
@@ -29,3 +30,90 @@ export const proofApi = {
   },
 };
 export type ProofApi = typeof proofApi;
+
+export type Operations = {
+  at: string;
+  outbound_enabled: false;
+  state: 'paused';
+  reception_enabled: boolean;
+  inbound: {
+    available: boolean;
+    counts_scope: 'recent_receipts';
+    counts: Record<string, number>;
+    recent: { id: string; state: string; created_at: string; updated_at: string }[];
+  };
+  limit: number;
+  activation: string;
+  private_reply_button: string;
+  mautic: 'not_queried';
+  rules: {
+    id: string;
+    name: string;
+    state: 'paused';
+    version: number | null;
+    draft_changed: boolean;
+    scope: { account?: string; ad?: string; media?: string };
+    material: string;
+    keywords: string[];
+    preview: string;
+    simulations: number;
+    last_simulation: { outcome: string; at: string; outbound_calls: number } | null;
+  }[];
+};
+export const operationsSchema = z.object({
+  at: z.string().datetime({ offset: true }),
+  outbound_enabled: z.literal(false),
+  state: z.literal('paused'),
+  reception_enabled: z.boolean(),
+  limit: z.number().int().positive().max(50),
+  activation: z.string(),
+  private_reply_button: z.string(),
+  mautic: z.literal('not_queried'),
+  inbound: z.object({
+    available: z.boolean(),
+    counts_scope: z.literal('recent_receipts'),
+    counts: z.record(z.number().int().nonnegative()),
+    recent: z
+      .array(
+        z.object({
+          id: z.string(),
+          state: z.string(),
+          created_at: z.string().datetime({ offset: true }),
+          updated_at: z.string().datetime({ offset: true }),
+        }),
+      )
+      .max(50),
+  }),
+  rules: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        state: z.literal('paused'),
+        version: z.number().int().positive().nullable(),
+        draft_changed: z.boolean(),
+        scope: z.object({
+          account: z.string().optional(),
+          ad: z.string().optional(),
+          media: z.string().optional(),
+        }),
+        material: z.string(),
+        keywords: z.array(z.string()),
+        preview: z.string(),
+        simulations: z.number().int().nonnegative(),
+        last_simulation: z
+          .object({
+            outcome: z.string(),
+            at: z.string().datetime({ offset: true }),
+            outbound_calls: z.number().int().nonnegative(),
+          })
+          .nullable(),
+      }),
+    )
+    .max(50),
+});
+export const operationsApi = {
+  async get() {
+    return operationsSchema.parse(extractData<unknown>(await api.get(`${path}/operations`)));
+  },
+};
