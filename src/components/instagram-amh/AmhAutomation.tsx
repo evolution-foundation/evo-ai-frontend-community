@@ -28,7 +28,7 @@ const states: Record<string, string> = {
   paused: 'Pausada',
   test: 'Em teste',
   active: 'Ativa',
-  accepted: 'Material aceito pelo Instagram após o clique',
+  accepted: 'Material aceito pelo Instagram',
   awaiting_confirmation: 'Aguardando clique em Pode enviar',
   prompt_sending: 'Convite reservado',
   prompt_failed: 'Convite recusado pelo Instagram',
