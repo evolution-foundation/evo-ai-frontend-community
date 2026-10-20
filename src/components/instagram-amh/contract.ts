@@ -55,8 +55,9 @@ export type Proof = {
   versions: Version[];
   ledger: Run[];
   lock_version: number;
-  state: 'paused';
-  outbound_enabled: false;
+  state: 'paused' | 'test' | 'active';
+  outbound_enabled: boolean;
+  active_version_id?: string | null;
 };
 export const fixtures = {
   eligible: 'Comentário elegível',

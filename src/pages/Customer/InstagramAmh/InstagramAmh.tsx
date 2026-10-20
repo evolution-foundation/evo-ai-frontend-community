@@ -1,18 +1,15 @@
-import { AmhOperations } from '@/components/instagram-amh/AmhOperations';
-import { AmhVisualProof } from '@/components/instagram-amh/AmhVisualProof';
+import { AmhAutomation } from '@/components/instagram-amh/AmhAutomation';
 import { usePermissions } from '@/contexts/PermissionsContext';
 export default function InstagramAmh() {
   const { can } = usePermissions();
+  if (!can('journeys', 'read')) return null;
   return (
-    <>
-      {can('journeys', 'read') ? <AmhOperations /> : null}
-      <AmhVisualProof
-        permissions={{
-          create: can('journeys', 'create'),
-          edit: can('journeys', 'update'),
-          publish: can('journeys', 'toggle_active'),
-        }}
-      />
-    </>
+    <AmhAutomation
+      permissions={{
+        create: can('journeys', 'create'),
+        edit: can('journeys', 'update'),
+        publish: can('journeys', 'toggle_active'),
+      }}
+    />
   );
 }
