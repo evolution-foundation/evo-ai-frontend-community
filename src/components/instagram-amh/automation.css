@@ -514,3 +514,8 @@
   opacity: 1;
   border: 0;
 }
+
+.ig-automation .ig-preview-access:disabled {
+  opacity: 1;
+  cursor: default;
+}

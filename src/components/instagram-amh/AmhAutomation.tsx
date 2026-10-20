@@ -158,7 +158,13 @@ export function AmhAutomation({
     ),
   ];
   const version = proof?.versions.at(-1);
-  const ready = Boolean(proof && version && !dirty && data.reply.confirmationRequired);
+  const ready = Boolean(
+    proof &&
+    version &&
+    !dirty &&
+    data.reply.confirmationRequired &&
+    version.graph.nodes.find(n => n.id === 'reply')?.data.confirmationRequired,
+  );
   const matching = keywordMatches(sample, data.keyword);
   const publication = catalog?.publications.find(item => item.id === data.scope.media);
   const preview = data.reply.text || '';
