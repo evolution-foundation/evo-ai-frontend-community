@@ -29,3 +29,37 @@ export const proofApi = {
   },
 };
 export type ProofApi = typeof proofApi;
+
+export type Operations = {
+  at: string;
+  outbound_enabled: false;
+  state: 'paused';
+  reception_enabled: boolean;
+  inbound: {
+    available: boolean;
+    counts: Record<string, number>;
+    recent: { id: string; state: string; created_at: string; updated_at: string }[];
+  };
+  limit: number;
+  activation: string;
+  private_reply_button: string;
+  mautic: 'not_queried';
+  rules: {
+    id: string;
+    name: string;
+    state: 'paused';
+    version: number | null;
+    draft_changed: boolean;
+    scope: { account?: string; ad?: string; media?: string };
+    material: string;
+    keywords: string[];
+    preview: string;
+    simulations: number;
+    last_simulation: { outcome: string; at: string; outbound_calls: number } | null;
+  }[];
+};
+export const operationsApi = {
+  async get() {
+    return extractData<Operations>(await api.get(`${path}/operations`));
+  },
+};
