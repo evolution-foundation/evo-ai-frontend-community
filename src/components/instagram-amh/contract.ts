@@ -19,6 +19,9 @@ export type Parameters = {
   ignoreAccents?: boolean;
   material?: string;
   text?: string;
+  confirmationRequired?: boolean;
+  openingText?: string;
+  buttonLabel?: string;
   traceStatus?: string;
 };
 export type ProofNode = Node<Parameters, Stage>;
@@ -76,7 +79,10 @@ export function initialGraph(): Graph {
     keyword: { keywords: ['AMH'], mode: 'word', ignoreCase: true, ignoreAccents: true },
     material: { material: 'amh' },
     reply: {
-      text: 'Oi! Acesse o link {{link}}, preencha seus dados e o material será liberado na hora. Você também recebe uma cópia por e-mail.',
+      confirmationRequired: true,
+      openingText: 'Oi! Você pediu o material sobre AMH. Posso enviar o acesso por aqui?',
+      text: 'Aqui está o acesso ao material. Toque no botão, preencha seus dados e o PDF será liberado. Você também recebe por e-mail.',
+      buttonLabel: 'Acessar material',
     },
     result: {},
   };

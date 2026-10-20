@@ -28,10 +28,14 @@ const states: Record<string, string> = {
   paused: 'Pausada',
   test: 'Em teste',
   active: 'Ativa',
-  accepted: 'Mensagem aceita pelo Instagram',
+  accepted: 'Material aceito pelo Instagram após o clique',
+  awaiting_confirmation: 'Aguardando clique em Pode enviar',
+  prompt_sending: 'Convite reservado',
+  prompt_failed: 'Convite recusado pelo Instagram',
+  prompt_uncertain: 'Convite com resultado incerto · não reenviar',
   failed: 'Envio recusado',
   uncertain: 'Resultado incerto · revisar antes de reenviar',
-  sending: 'Envio reservado · aguardando confirmação',
+  sending: 'Entrega após o clique em processamento',
   pending: 'Na fila',
   blocked: 'Envio bloqueado',
 };
@@ -58,6 +62,7 @@ export function AmhAutomation({
   const [loadError, setLoadError] = useState('');
   const [word, setWord] = useState('');
   const [sample, setSample] = useState('Quero o AMH!');
+  const [previewConfirmed, setPreviewConfirmed] = useState(false);
   const [events, setEvents] = useState<TestEvent[]>([]);
   const [eventId, setEventId] = useState('');
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
@@ -106,6 +111,7 @@ export function AmhAutomation({
   >;
   const editable = !busy && (proof ? permissions.edit : permissions.create);
   const change = (stage: Stage, patch: Parameters) => {
+    setPreviewConfirmed(false);
     setGraph(old => ({
       ...old,
       nodes: old.nodes.map(node =>
@@ -143,13 +149,20 @@ export function AmhAutomation({
   const valid = [
     Boolean(data.scope.account && (data.scope.media || data.scope.ad)),
     words.length > 0 && !word.trim(),
-    Boolean(data.reply.text?.trim() && data.reply.text.includes('{{link}}')),
+    Boolean(
+      data.reply.confirmationRequired &&
+      data.reply.openingText?.trim() &&
+      data.reply.text?.trim() &&
+      data.reply.buttonLabel?.trim() &&
+      !/https?:|www\.|\{\{link\}\}/i.test(data.reply.text + data.reply.openingText),
+    ),
   ];
   const version = proof?.versions.at(-1);
-  const ready = Boolean(proof && version && !dirty);
+  const ready = Boolean(proof && version && !dirty && data.reply.confirmationRequired);
   const matching = keywordMatches(sample, data.keyword);
   const publication = catalog?.publications.find(item => item.id === data.scope.media);
-  const preview = (data.reply.text || '').split('{{link}}').join('co.agenciavetorial.com/exemplo');
+  const preview = data.reply.text || '';
+  const legacy = data.reply.confirmationRequired !== true;
   const isCurrentVersion = proof?.active_version_id === version?.id;
   return (
     <section className="ig-automation">
@@ -157,7 +170,7 @@ export function AmhAutomation({
         <div>
           <span className="ig-eyebrow">AUTOMAÇÕES / INSTAGRAM</span>
           <h1>Do comentário ao material.</h1>
-          <p>Escolha onde ouvir, o que reconhecer e a mensagem que a pessoa vai receber.</p>
+          <p>Configure o convite, a confirmação e a entrega do material no Direct.</p>
         </div>
         <span className={`ig-status ig-status-${proof?.state || 'paused'}`}>
           {states[proof?.state || 'paused']}
@@ -431,8 +444,8 @@ export function AmhAutomation({
                 </label>
                 <p role="status" className={matching ? 'ig-match' : 'ig-no-match'}>
                   {matching
-                    ? '✓ Este comentário aciona a mensagem'
-                    : 'Este comentário não aciona a mensagem'}
+                    ? '✓ Este comentário aciona o convite'
+                    : 'Este comentário não aciona o convite'}
                 </p>
                 <small>
                   Esta prévia verifica as palavras. O teste completo também valida conta, publicação
@@ -444,10 +457,10 @@ export function AmhAutomation({
           {step === 2 && (
             <>
               <span className="ig-eyebrow">03 / A ENTREGA</span>
-              <h2>Uma mensagem. O material certo.</h2>
+              <h2>Primeiro o convite. Depois o material.</h2>
               <p>
-                A pessoa recebe o link para se cadastrar e acessar o material. O link individual é
-                preenchido automaticamente.
+                O comentário envia apenas o convite. O clique em Pode enviar libera a mensagem com o
+                botão de acesso. Nenhum link é enviado antes da confirmação.
               </p>
               <fieldset disabled={!editable}>
                 <label>
@@ -460,30 +473,60 @@ export function AmhAutomation({
                     <option value="amh-consultorio">AMH — No consultório</option>
                   </select>
                 </label>
+                {legacy && (
+                  <div className="ig-alert">
+                    <p>
+                      Esta configuração antiga enviava o material diretamente. Publique uma nova
+                      versão com confirmação para voltar a ativar.
+                    </p>
+                    <button
+                      onClick={() =>
+                        change('reply', initialGraph().nodes.find(n => n.id === 'reply')!.data)
+                      }
+                    >
+                      Usar convite com confirmação
+                    </button>
+                  </div>
+                )}
                 <label>
-                  Mensagem no Direct
+                  Convite antes da confirmação
                   <textarea
-                    rows={7}
-                    maxLength={1000}
-                    value={data.reply.text}
+                    aria-label="Convite antes da confirmação"
+                    rows={3}
+                    maxLength={600}
+                    value={data.reply.openingText || ''}
+                    onChange={e => change('reply', { openingText: e.target.value })}
+                  />
+                </label>
+                <p className="ig-hint">
+                  Botão do convite: <strong>Pode enviar</strong>. O clique autoriza somente a
+                  entrega deste material.
+                </p>
+                <label>
+                  Mensagem após o clique
+                  <textarea
+                    aria-label="Mensagem após o clique"
+                    rows={4}
+                    maxLength={600}
+                    value={data.reply.text || ''}
                     onChange={e => change('reply', { text: e.target.value })}
                   />
                 </label>
-                <div className="ig-text-tools">
-                  <button
-                    disabled={data.reply.text?.includes('{{link}}')}
-                    onClick={() =>
-                      change('reply', {
-                        text: `${data.reply.text || ''} {{link}}`,
-                      })
-                    }
-                  >
-                    <Plus size={14} /> Inserir link do material
-                  </button>
-                  <small>{data.reply.text?.length || 0}/1.000</small>
-                </div>
+                <label>
+                  Texto do botão de acesso
+                  <input
+                    maxLength={20}
+                    value={data.reply.buttonLabel || ''}
+                    onChange={e => change('reply', { buttonLabel: e.target.value })}
+                  />
+                </label>
+                <p className="ig-hint">
+                  O link individual fica apenas no botão. Não cole URLs nas mensagens.
+                </p>
                 {!valid[2] && (
-                  <p role="alert">Inclua o link do material na mensagem usando o botão acima.</p>
+                  <p role="alert">
+                    Preencha o convite, a mensagem e o botão, sem incluir URLs no texto.
+                  </p>
                 )}
               </fieldset>
             </>
@@ -494,7 +537,7 @@ export function AmhAutomation({
               <h2>Confira antes de ligar.</h2>
               <p>
                 Salve e publique a configuração. Primeiro teste com o perfil autorizado; depois
-                ative para novos comentários.
+                confirme o clique e a entrega antes de ativar para novos comentários.
               </p>
               <ol className="ig-review">
                 <li>
@@ -532,7 +575,7 @@ export function AmhAutomation({
                       setProof(result.proof);
                       setMessage(
                         result.run.outcome === 'simulated_accepted'
-                          ? 'Validação aprovada: a versão publicada reconhece o comentário e monta a mensagem. Nenhuma mensagem foi enviada.'
+                          ? 'Validação aprovada: a versão publicada reconhece o comentário. O material continua bloqueado até o clique em Pode enviar. Nenhuma mensagem foi enviada.'
                           : 'O comentário não passou na validação da versão publicada. Confira as palavras-chave. Nenhuma mensagem foi enviada.',
                       );
                     })
@@ -588,7 +631,8 @@ export function AmhAutomation({
                 <div className="ig-try">
                   <h3>Envio real para o perfil de teste</h3>
                   <p>
-                    Este botão envia uma mensagem privada em resposta ao comentário selecionado.
+                    Este botão envia apenas o convite ao perfil de teste. O material depende do
+                    clique real em Pode enviar no Instagram.
                   </p>
                   <button
                     disabled={busy}
@@ -624,11 +668,15 @@ export function AmhAutomation({
                         setDeliveries(await api.deliveries(proof.id));
                         setEvents(await api.testEvents());
                         setEventId('');
-                        setMessage(states[result.state] || result.state);
+                        setMessage(
+                          result.state === 'awaiting_confirmation'
+                            ? 'Convite enviado. Agora clique em Pode enviar no Instagram; o material só será liberado depois desse clique.'
+                            : states[result.state] || result.state,
+                        );
                       })
                     }
                   >
-                    <Send size={16} /> Enviar mensagem de teste
+                    <Send size={16} /> Enviar convite de teste
                   </button>
                 </div>
               )}
@@ -661,8 +709,9 @@ export function AmhAutomation({
                 </button>
               </div>
               <p className="ig-hint">
-                A ativação exige um teste real aceito pelo Instagram nesta versão. “Aceita” não
-                significa lida. Respostas com resultado incerto precisam de revisão.
+                A ativação exige um convite, o clique real e a entrega aceita pelo Instagram nesta
+                versão. “Aceita” não significa lida. Respostas com resultado incerto precisam de
+                revisão.
               </p>
               {proof && (
                 <>
@@ -724,8 +773,37 @@ export function AmhAutomation({
                 <MessageCircle size={15} /> {sample || 'Quero o AMH!'}
               </span>
               <small>Após um comentário correspondente</small>
-              <div className="ig-bubble">{preview}</div>
-              <small>Prévia ilustrativa da mensagem</small>
+              {legacy ? (
+                <div className="ig-alert">
+                  Configuração antiga sem confirmação. Atualize antes de ativar.
+                </div>
+              ) : (
+                <>
+                  <div className="ig-bubble">{data.reply.openingText}</div>
+                  <button
+                    className="ig-preview-confirm"
+                    disabled={previewConfirmed}
+                    onClick={() => setPreviewConfirmed(true)}
+                  >
+                    Pode enviar
+                  </button>
+                  {previewConfirmed ? (
+                    <>
+                      <small>Depois do clique</small>
+                      <div className="ig-bubble">
+                        {preview}
+                        <button className="ig-preview-access" disabled>
+                          {data.reply.buttonLabel || 'Acessar material'}
+                        </button>
+                      </div>
+                      <button onClick={() => setPreviewConfirmed(false)}>Reiniciar prévia</button>
+                    </>
+                  ) : (
+                    <small>O material fica bloqueado até o clique.</small>
+                  )}
+                </>
+              )}
+              <small>Prévia interativa · nenhum envio real</small>
             </div>
           </div>
           <div className="ig-explainer">
