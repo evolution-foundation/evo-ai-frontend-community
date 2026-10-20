@@ -8,14 +8,12 @@ import type { AutomationApi } from './automationApi';
 const permissions = { create: true, edit: true, publish: true };
 function setup() {
   const api = {
-    catalog: vi
-      .fn()
-      .mockResolvedValue({
-        account: { id: '90001', label: 'Conta QA' },
-        publications: [{ id: '90004', label: 'O AMH na prática', source: 'instagram' }],
-        execution_available: false,
-        test_available: false,
-      }),
+    catalog: vi.fn().mockResolvedValue({
+      account: { id: '90001', label: 'Conta QA' },
+      publications: [{ id: '90004', label: 'O AMH na prática', source: 'instagram' }],
+      execution_available: false,
+      test_available: false,
+    }),
     list: vi.fn().mockResolvedValue([]),
     create: vi.fn(),
     save: vi.fn(),
@@ -53,15 +51,15 @@ describe('Instagram automation product', () => {
       target: { value: '90004' },
     });
     fireEvent.click(screen.getByText('Continuar'));
-    expect(screen.getByText('✓ Este comentário aciona a mensagem')).toBeTruthy();
+    expect(screen.getByText('✓ Este comentário aciona o convite')).toBeTruthy();
     fireEvent.change(screen.getByLabelText('Palavras-chave'), { target: { value: 'material' } });
     fireEvent.click(screen.getByText('Adicionar'));
     fireEvent.change(screen.getByLabelText('Experimente um comentário'), {
       target: { value: 'XAMH' },
     });
-    expect(screen.getByText('Este comentário não aciona a mensagem')).toBeTruthy();
+    expect(screen.getByText('Este comentário não aciona o convite')).toBeTruthy();
     fireEvent.click(screen.getByText('Continuar'));
-    expect(screen.getByLabelText('Mensagem no Direct')).toBeTruthy();
+    expect(screen.getByLabelText('Mensagem após o clique')).toBeTruthy();
     fireEvent.click(screen.getByText('Salvar rascunho •'));
     await waitFor(() => expect(api.create).toHaveBeenCalled());
     const graph = api.create.mock.calls[0][1];
@@ -71,5 +69,14 @@ describe('Instagram automation product', () => {
     });
     expect(graph.nodes.find(n => n.id === 'keyword')?.data.keywords).toEqual(['AMH', 'material']);
     expect(api.testReply).not.toHaveBeenCalled();
+  });
+  it('keeps the material out of the initial preview until the confirmation button is clicked', async () => {
+    const api = setup();
+    await screen.findByText('O AMH na prática');
+    expect(screen.queryByText('Acessar material')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Pode enviar', exact: true }));
+    expect(screen.getByRole('button', { name: 'Acessar material', exact: true })).toBeTruthy();
+    expect(api.testReply).not.toHaveBeenCalled();
+    expect(api.activate).not.toHaveBeenCalled();
   });
 });

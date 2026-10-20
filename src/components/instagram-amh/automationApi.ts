@@ -12,6 +12,8 @@ export type Delivery = {
   id: string;
   version_id: string;
   state: string;
+  prompt_state?: string;
+  confirmation_received_at?: string | null;
   reason: string;
   created_at: string;
   updated_at: string;

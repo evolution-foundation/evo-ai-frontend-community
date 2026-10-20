@@ -499,3 +499,23 @@
     gap: 5px;
   }
 }
+
+.ig-automation .ig-preview-confirm {
+  color: #6951cd;
+  border-color: #bba8eb;
+  width: 100%;
+}
+.ig-automation .ig-preview-access {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  background: white;
+  color: #6951cd;
+  opacity: 1;
+  border: 0;
+}
+
+.ig-automation .ig-preview-access:disabled {
+  opacity: 1;
+  cursor: default;
+}
