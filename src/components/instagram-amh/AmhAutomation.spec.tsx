@@ -90,4 +90,24 @@ describe('Instagram automation product', () => {
     expect(screen.getByLabelText('Publicação ou anúncio')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Pode enviar', exact: true })).toBeTruthy();
   });
+  it('requires publishing a saved changed draft before testing an older version', async () => {
+    const graph = initialGraph();
+    graph.nodes[1].data = { account: '90001', media: '90004' };
+    const published = structuredClone(graph);
+    graph.nodes[4].data.openingText = 'Novo convite salvo ainda sem publicação';
+    const api = {
+      catalog: vi.fn().mockResolvedValue({ account: { id: '90001', label: 'QA' }, publications: [], execution_available: true, test_available: true }),
+      list: vi.fn().mockResolvedValue([]),
+      get: vi.fn().mockResolvedValue({ id: 'qa-proof', name: 'QA saved', state: 'test', draft: graph, active_version_id: 'qa-version', versions: [{ id: 'qa-version', number: 1, graph: published }], ledger: [], lock_version: 2 }),
+      create: vi.fn(), save: vi.fn(), publish: vi.fn(), simulate: vi.fn(), activate: vi.fn(), testEvents: vi.fn(), testReply: vi.fn(), deliveries: vi.fn(),
+    } satisfies AutomationApi;
+    render(<MemoryRouter><AmhAutomation initialId="qa-proof" permissions={permissions} api={api} /></MemoryRouter>);
+    expect(await screen.findByText(/Rascunho salvo: publique as alterações/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Clique → material/ }));
+    expect(screen.getByRole('button', { name: 'Preparar teste real' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Validar sem enviar' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Publicar configuração' })).toBeEnabled();
+    expect(api.activate).not.toHaveBeenCalled();
+  });
+
 });

@@ -182,9 +182,11 @@ export function AmhAutomation({
     ),
   ];
   const version = proof?.versions.at(-1);
+  const draftPublished = Boolean(version && JSON.stringify(graph) === JSON.stringify(version.graph));
   const ready = Boolean(
     proof &&
     version &&
+    draftPublished &&
     !dirty &&
     data.reply.confirmationRequired &&
     version.graph.nodes.find(n => n.id === 'reply')?.data.confirmationRequired,
@@ -225,7 +227,7 @@ export function AmhAutomation({
       )}
       {proof && <p className="ig-alert" role="status">
         {proof.state === 'active' ? 'Ativa para novos comentários.' : proof.state === 'test' ? 'Em teste: somente o perfil autorizado recebe mensagens.' : 'Pausada: nenhum comentário novo inicia esta automação.'}
-        {' '}{dirty ? 'Há alterações não salvas.' : proof.active_version_id ? `Versão em execução: ${proof.versions.find(v => v.id === proof.active_version_id)?.number || '—'}.` : 'Nenhuma versão em execução.'}
+        {' '}{dirty ? 'Há alterações não salvas.' : !draftPublished ? 'Rascunho salvo: publique as alterações antes de testar ou ativar.' : proof.active_version_id ? `Versão em execução: ${proof.versions.find(v => v.id === proof.active_version_id)?.number || '—'}.` : 'Nenhuma versão em execução.'}
       </p>}
       <div className="ig-topbar">
         <label hidden={Boolean(onBack)}>
