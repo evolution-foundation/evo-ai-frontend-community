@@ -59,9 +59,9 @@ export function InstagramAutomations({ permissions, api = automationApi }: { per
         const publication = catalog?.publications.find(p => p.id === item.scope?.media);
         return <article className="ig-rule-card" key={item.id}>
           <header><Instagram size={20} /><span className={`ig-status ig-status-${item.state || 'paused'}`}>{status[item.state || 'paused']}</span></header>
-          <h2>{item.name}</h2><p>{publication?.label || (item.scope?.media ? `Publicação ${item.scope.media}` : 'Conteúdo ainda não configurado')}</p>
+          <h2>{item.name}</h2><p>{(item.scope?.allContent ? 'Todos os anúncios e publicações' : publication?.label) || (item.scope?.media ? `Publicação ${item.scope.media}` : 'Conteúdo ainda não configurado')}</p>
           <dl><div><dt>Palavras-chave</dt><dd>{item.keywords?.join(' · ') || 'Não configuradas'}</dd></div>
-            <div><dt>Material</dt><dd>{item.material === 'amh' ? 'AMH · Highlights' : item.material === 'amh-consultorio' ? 'AMH · No consultório' : 'Não configurado'}</dd></div>
+            <div><dt>Material</dt><dd>{item.material === 'context' ? 'Automático por criativo e assunto' : item.material === 'amh' ? 'AMH · Highlights' : item.material === 'amh-consultorio' ? 'AMH · No consultório' : 'Não configurado'}</dd></div>
             <div><dt>Versão</dt><dd>{item.version ? `${item.version}${item.draft_changed ? ' · alterações em rascunho' : ''}` : 'Rascunho'}</dd></div></dl>
           <button onClick={() => setSelected(item.id)}>Abrir configuração <ArrowRight size={15} /></button>
         </article>;

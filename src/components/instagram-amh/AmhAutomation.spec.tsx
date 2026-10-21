@@ -110,4 +110,36 @@ describe('Instagram automation product', () => {
     expect(api.activate).not.toHaveBeenCalled();
   });
 
+  it('saves account-wide inventory routing and multiple public replies without sending', async () => {
+    const api = setup();
+    await screen.findByText('O AMH na prática');
+    fireEvent.click(screen.getByLabelText('Todos os anúncios e publicações desta conta, inclusive novos'));
+    expect(screen.getByLabelText('Publicação ou anúncio').closest('fieldset')).toBeDisabled();
+    fireEvent.click(screen.getByText('Continuar'));
+    fireEvent.click(screen.getByText('Continuar'));
+    fireEvent.change(screen.getByLabelText('Escolha do material'), { target: { value: 'context' } });
+    fireEvent.change(screen.getByLabelText('Nova variação'), { target: { value: 'Confira seu Direct para acessar o material!' } });
+    fireEvent.click(screen.getByText('Adicionar variação'));
+    fireEvent.click(screen.getByText('Ver outra variação'));
+    expect(screen.getByText('Confira seu Direct para acessar o material!', { selector: 'p' })).toBeTruthy();
+    fireEvent.click(screen.getByText('Salvar rascunho •'));
+    await waitFor(() => expect(api.create).toHaveBeenCalled());
+    const graph = api.create.mock.calls[0][1];
+    expect(graph.nodes[1].data).toMatchObject({ allContent: true, media: '', ad: '', account: '90001' });
+    expect(graph.nodes[3].data.mode).toBe('context');
+    expect(graph.nodes[4].data.publicReplyVariants).toHaveLength(2);
+    expect(api.testReply).not.toHaveBeenCalled();
+  });
+  it('blocks saving an unsafe or oversized public variant', async () => {
+    setup();
+    await screen.findByText('O AMH na prática');
+    fireEvent.change(screen.getByLabelText('Publicação ou anúncio'), { target: { value: '90004' } });
+    fireEvent.click(screen.getByText('Continuar'));
+    fireEvent.click(screen.getByText('Continuar'));
+    fireEvent.change(screen.getByLabelText('Resposta ao comentário 1'), { target: { value: 'https://example.com' } });
+    expect(screen.getByText('Salvar rascunho •')).toBeDisabled();
+    fireEvent.change(screen.getByLabelText('Resposta ao comentário 1'), { target: { value: 'á'.repeat(251) } });
+    expect(screen.getByText('Salvar rascunho •')).toBeDisabled();
+  });
+
 });

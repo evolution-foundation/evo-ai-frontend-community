@@ -53,7 +53,7 @@ export type Operations = {
     state: string;
     version: number | null;
     draft_changed: boolean;
-    scope: { account?: string; ad?: string; media?: string };
+    scope: { account?: string; ad?: string; media?: string; allContent?: boolean };
     material: string;
     keywords: string[];
     preview: string;
@@ -94,6 +94,7 @@ export const operationsSchema = z.object({
         version: z.number().int().positive().nullable(),
         draft_changed: z.boolean(),
         scope: z.object({
+          allContent: z.boolean().optional(),
           account: z.string().optional(),
           ad: z.string().optional(),
           media: z.string().optional(),

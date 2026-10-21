@@ -138,7 +138,7 @@ function OperationsPanel({ api }: { api: typeof operationsApi }) {
                   <dt>Anúncio</dt>
                   <dd>{rule.scope.ad || 'Não definido'}</dd>
                   <dt>Publicação</dt>
-                  <dd>{rule.scope.media || 'Não definida'}</dd>
+                  <dd>{rule.scope.allContent ? 'Todos os anúncios e publicações' : rule.scope.media || 'Não definida'}</dd>
                   <dt>Palavras-chave</dt>
                   <dd>{rule.keywords.join(' / ')}</dd>
                 </dl>
