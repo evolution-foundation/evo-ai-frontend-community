@@ -39,6 +39,23 @@ const states: Record<string, string> = {
   pending: 'Na fila',
   blocked: 'Envio bloqueado',
 };
+const likeStates: Record<string, string> = {
+  not_requested: 'Curtida não solicitada nesta execução',
+  pending: 'Curtida pendente',
+  sending: 'Curtida reservada · aguarde o resultado',
+  accepted: 'Curtida confirmada pelo Instagram',
+  failed: 'Curtida recusada pelo Instagram',
+  uncertain: 'Curtida com resultado incerto · revisar',
+  blocked: 'Curtida bloqueada',
+};
+const likeReasons: Record<string, string> = {
+  like_gate_disabled: 'curtida automática desligada',
+  facebook_connection_required: 'conecte o Facebook para autorizar curtidas',
+  engagement_permission_required: 'autorize a permissão de curtidas no Facebook',
+  facebook_account_mismatch: 'a conta do Facebook não corresponde ao Instagram',
+  rule_unavailable: 'configuração pausada ou comentário inelegível',
+  like_rate_limited: 'limite de curtidas atingido · revisar',
+};
 export function AmhAutomation({
   permissions,
   api = automationApi,
@@ -177,7 +194,7 @@ export function AmhAutomation({
         <div>
           <span className="ig-eyebrow">AUTOMAÇÕES / INSTAGRAM</span>
           <h1>Do comentário ao material.</h1>
-          <p>Configure o convite, a confirmação e a entrega do material no Direct.</p>
+          <p>Configure o convite, a confirmação, a curtida e a entrega do material no Direct.</p>
         </div>
         <span className={`ig-status ig-status-${proof?.state || 'paused'}`}>
           {states[proof?.state || 'paused']}
@@ -186,6 +203,17 @@ export function AmhAutomation({
       {loadError && (
         <p role="alert" className="ig-alert">
           {loadError}
+        </p>
+      )}
+      {catalog?.comment_like_status === 'connection_required' && (
+        <p role="status" className="ig-alert">
+          Para curtir comentários, autorize a conexão Facebook da mesma conta Instagram. O convite e
+          a entrega do material continuam funcionando.
+        </p>
+      )}
+      {catalog?.comment_like_status === 'disabled' && (
+        <p role="status" className="ig-alert">
+          A curtida automática está desligada.
         </p>
       )}
       <div className="ig-topbar">
@@ -737,7 +765,17 @@ export function AmhAutomation({
                     <ul className="ig-deliveries">
                       {deliveries.map(item => (
                         <li key={item.id}>
-                          <span>{states[item.state] || item.state}</span>
+                          <div>
+                            <span>{states[item.state] || item.state}</span>
+                            {item.like_state && (
+                              <p>
+                                {likeStates[item.like_state] || 'Curtida em revisão'}
+                                {item.like_state === 'blocked' && item.like_reason
+                                  ? ` · ${likeReasons[item.like_reason] || 'verifique a conexão'}`
+                                  : ''}
+                              </p>
+                            )}
+                          </div>
                           <time>{new Date(item.updated_at).toLocaleString('pt-BR')}</time>
                         </li>
                       ))}

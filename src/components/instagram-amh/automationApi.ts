@@ -6,6 +6,7 @@ export type Catalog = {
   account: { id: string; label: string };
   publications: { id: string; label: string; permalink?: string; source: string; ad?: string }[];
   execution_available: boolean;
+  comment_like_status?: 'connection_required' | 'configured' | 'disabled';
   test_available: boolean;
 };
 export type Delivery = {
@@ -13,6 +14,9 @@ export type Delivery = {
   version_id: string;
   state: string;
   prompt_state?: string;
+  like_state?: string;
+  like_reason?: string | null;
+  like_accepted_at?: string | null;
   confirmation_received_at?: string | null;
   reason: string;
   created_at: string;

@@ -6,13 +6,16 @@ import { keywordMatches } from './keywordMatches';
 import { initialGraph } from './contract';
 import type { AutomationApi } from './automationApi';
 const permissions = { create: true, edit: true, publish: true };
-function setup() {
+function setup(
+  commentLikeStatus: 'connection_required' | 'configured' | 'disabled' = 'configured',
+) {
   const api = {
     catalog: vi.fn().mockResolvedValue({
       account: { id: '90001', label: 'Conta QA' },
       publications: [{ id: '90004', label: 'O AMH na prática', source: 'instagram' }],
       execution_available: false,
       test_available: false,
+      comment_like_status: commentLikeStatus,
     }),
     list: vi.fn().mockResolvedValue([]),
     create: vi.fn(),
@@ -78,5 +81,13 @@ describe('Instagram automation product', () => {
     expect(screen.getByRole('button', { name: 'Acessar material', exact: true })).toBeTruthy();
     expect(api.testReply).not.toHaveBeenCalled();
     expect(api.activate).not.toHaveBeenCalled();
+  });
+  it('explains the missing Facebook authorization while keeping the invitation configuration usable', async () => {
+    setup('connection_required');
+    expect(
+      await screen.findByText(/Para curtir comentários, autorize a conexão Facebook/),
+    ).toBeTruthy();
+    expect(screen.getByLabelText('Publicação ou anúncio')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Pode enviar', exact: true })).toBeTruthy();
   });
 });
