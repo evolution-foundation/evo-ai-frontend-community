@@ -126,6 +126,13 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
     action: 'read',
   },
   {
+    name: 'Instagram · Automações',
+    href: '/automations/instagram',
+    icon: MessageCircle,
+    resource: 'journeys',
+    action: 'read',
+  },
+  {
     name: t('menu.customer.journeys'),
     href: '/journeys',
     icon: Route,

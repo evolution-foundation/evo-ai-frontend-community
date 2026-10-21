@@ -31,7 +31,7 @@ export default function JourneyModal({ open, onClose, journey, onSave }: Journey
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    isActive: true,
+    isActive: false,
   });
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function JourneyModal({ open, onClose, journey, onSave }: Journey
       setFormData({
         name: '',
         description: '',
-        isActive: true,
+        isActive: false,
       });
     }
   }, [journey]);
@@ -62,7 +62,7 @@ export default function JourneyModal({ open, onClose, journey, onSave }: Journey
       const basePayload = {
         name: formData.name.trim(),
         description: formData.description.trim() || undefined,
-        isActive: formData.isActive,
+        isActive: journey ? formData.isActive : false,
       };
 
       if (journey?.id) {
@@ -127,7 +127,7 @@ export default function JourneyModal({ open, onClose, journey, onSave }: Journey
       onSave();
     } catch (error) {
       console.error('Erro ao salvar jornada:', error);
-      toast.error(t('modal.messages.saveError'));
+      toast.error(error instanceof Error ? error.message : t('modal.messages.saveError'));
     } finally {
       setLoading(false);
     }
@@ -177,7 +177,7 @@ export default function JourneyModal({ open, onClose, journey, onSave }: Journey
             />
           </div>
 
-          <div className="flex items-center space-x-2">
+          {journey && <div className="flex items-center space-x-2">
             <Switch
               id="isActive"
               checked={formData.isActive}
@@ -186,7 +186,8 @@ export default function JourneyModal({ open, onClose, journey, onSave }: Journey
             <Label htmlFor="isActive" className="text-sidebar-foreground">
               {t('modal.fields.isActive')}
             </Label>
-          </div>
+          </div>}
+          {!journey && <p className="text-sm text-muted-foreground">A jornada será criada pausada. Configure o fluxo antes de ativar.</p>}
         </div>
 
         <DialogFooter>

@@ -3,9 +3,10 @@ import api from '@/services/core/api';
 import { extractData } from '@/utils/apiHelpers';
 import type { Graph, Proof, Run } from './contract';
 const path = '/instagram_amh_proofs';
+export type AutomationSummary = Pick<Proof, 'id' | 'name'> & Partial<Operations['rules'][number]>;
 export const proofApi = {
   async list() {
-    return extractData<Pick<Proof, 'id' | 'name'>[]>(await api.get(path));
+    return extractData<AutomationSummary[]>(await api.get(path));
   },
   async get(id: string) {
     return extractData<Proof>(await api.get(`${path}/${id}`));

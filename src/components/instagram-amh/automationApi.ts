@@ -14,6 +14,8 @@ export type Delivery = {
   version_id: string;
   state: string;
   prompt_state?: string;
+  public_reply_state?: string;
+  public_reply_reason?: string;
   like_state?: string;
   like_reason?: string | null;
   like_accepted_at?: string | null;

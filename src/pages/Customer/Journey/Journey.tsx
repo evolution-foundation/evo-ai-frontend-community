@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { isEvoFlowConfigured } from '@/services/core/apiEvoFlow';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Route, Copy, Trash2, Edit3, GitBranch } from 'lucide-react';
 import BaseHeader from '../../../components/base/BaseHeader';
@@ -57,7 +58,7 @@ export default function JourneyPage() {
   };
 
   useEffect(() => {
-    if (!permissionsReady) {
+    if (!permissionsReady || !isEvoFlowConfigured) {
       return;
     }
 
@@ -275,12 +276,20 @@ export default function JourneyPage() {
     },
   ];
 
+  if (!isEvoFlowConfigured) return (
+    <div className="p-6 max-w-3xl">
+      <h1 className="text-2xl font-semibold mb-3">Jornadas</h1>
+      <p className="text-muted-foreground mb-6">As jornadas de relacionamento dependem do serviço Evo Flow, que ainda não está configurado nesta instalação. A criação de jornadas fica disponível após essa conexão.</p>
+      <div className="rounded-xl border p-6">
+        <h2 className="font-semibold mb-2">Quer automatizar comentários do Instagram?</h2>
+        <p className="text-muted-foreground mb-4">Configure o conteúdo, as palavras-chave, a resposta pública e o Direct em Automações do Instagram. Esse módulo já tem seu próprio fluxo de execução.</p>
+        <button className="rounded-md bg-primary text-primary-foreground px-4 py-2" onClick={() => navigate('/automations/instagram')}>Abrir automações do Instagram</button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="h-full flex flex-col p-4">
-      {permissionsReady && can('journeys', 'read') ? <button
-        className="self-start mb-4 rounded-md border px-4 py-2 text-sm hover:bg-muted"
-        onClick={() => navigate('/journeys/instagram-amh')}
-      >Instagram AMH · editor e simulador</button> : null}
       <BaseHeader
         title={t('title')}
         subtitle={t('subtitle')}

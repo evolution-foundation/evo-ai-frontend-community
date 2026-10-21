@@ -21,6 +21,8 @@ export type Parameters = {
   text?: string;
   confirmationRequired?: boolean;
   openingText?: string;
+  publicReplyEnabled?: boolean;
+  publicReplyText?: string;
   buttonLabel?: string;
   traceStatus?: string;
 };
@@ -80,6 +82,8 @@ export function initialGraph(): Graph {
     material: { material: 'amh' },
     reply: {
       confirmationRequired: true,
+      publicReplyEnabled: true,
+      publicReplyText: 'Te enviei uma mensagem no Direct. Confira também as solicitações de mensagem! ',
       openingText: 'Oi! Você pediu o material sobre AMH. Posso enviar o acesso por aqui?',
       text: 'Aqui está o acesso ao material. Toque no botão, preencha seus dados e o PDF será liberado. Você também recebe por e-mail.',
       buttonLabel: 'Acessar material',

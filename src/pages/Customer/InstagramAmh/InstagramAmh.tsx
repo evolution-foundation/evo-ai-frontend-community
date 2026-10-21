@@ -1,10 +1,10 @@
-import { AmhAutomation } from '@/components/instagram-amh/AmhAutomation';
+import { InstagramAutomations } from '@/components/instagram-amh/InstagramAutomations';
 import { usePermissions } from '@/contexts/PermissionsContext';
 export default function InstagramAmh() {
   const { can } = usePermissions();
   if (!can('journeys', 'read')) return null;
   return (
-    <AmhAutomation
+    <InstagramAutomations
       permissions={{
         create: can('journeys', 'create'),
         edit: can('journeys', 'update'),

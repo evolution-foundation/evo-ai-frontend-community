@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  Check,
   ChevronRight,
   Instagram,
   MessageCircle,
@@ -23,7 +22,6 @@ import type { ProofPermissions } from './AmhVisualProof';
 import './automation.css';
 import { keywordMatches } from './keywordMatches';
 
-const steps = ['Publicação', 'Palavras-chave', 'Mensagem e material', 'Testar e ativar'];
 const states: Record<string, string> = {
   paused: 'Pausada',
   test: 'Em teste',
@@ -58,9 +56,13 @@ const likeReasons: Record<string, string> = {
 };
 export function AmhAutomation({
   permissions,
+  initialId,
+  onBack,
   api = automationApi,
 }: {
   permissions: ProofPermissions;
+  initialId?: string;
+  onBack?: () => void;
   api?: AutomationApi;
 }) {
   const [catalog, setCatalog] = useState<Catalog | null>(null);
@@ -93,6 +95,9 @@ export function AmhAutomation({
         if (!live) return;
         setCatalog(inventory);
         setItems(list);
+        if (initialId) {
+          void api.get(initialId).then(next => { if (live) hydrate(next); }).catch(error => { if (live) setLoadError(extractError(error).message); });
+        }
         setGraph(old => ({
           ...old,
           nodes: old.nodes.map(node =>
@@ -112,7 +117,7 @@ export function AmhAutomation({
     return () => {
       live = false;
     };
-  }, [api]);
+  }, [api, initialId]);
   useEffect(() => {
     if (!dirty) return;
     const guard = (event: BeforeUnloadEvent) => {
@@ -126,7 +131,7 @@ export function AmhAutomation({
     Stage,
     Parameters
   >;
-  const editable = !busy && (proof ? permissions.edit : permissions.create);
+  const editable = !busy && !loadError && (!initialId || Boolean(proof)) && (proof ? permissions.edit : permissions.create);
   const change = (stage: Stage, patch: Parameters) => {
     setPreviewConfirmed(false);
     setGraph(old => ({
@@ -172,6 +177,7 @@ export function AmhAutomation({
       data.reply.openingText?.trim() &&
       data.reply.text?.trim() &&
       data.reply.buttonLabel?.trim() &&
+      (!data.reply.publicReplyEnabled || data.reply.publicReplyText?.trim()) &&
       !/https?:|www\.|\{\{link\}\}/i.test(data.reply.text + data.reply.openingText),
     ),
   ];
@@ -190,14 +196,15 @@ export function AmhAutomation({
   const isCurrentVersion = proof?.active_version_id === version?.id;
   return (
     <section className="ig-automation">
+      {onBack && <button className="ig-back" disabled={dirty || busy} onClick={onBack}>← Todas as automações</button>}
       <header className="ig-title">
         <div>
           <span className="ig-eyebrow">AUTOMAÇÕES / INSTAGRAM</span>
-          <h1>Do comentário ao material.</h1>
-          <p>Configure o convite, a confirmação, a curtida e a entrega do material no Direct.</p>
+          <h1>{proof ? name : 'Nova automação do Instagram'}</h1>
+          <p>Comentários → resposta pública → convite no Direct → confirmação → material.</p>
         </div>
         <span className={`ig-status ig-status-${proof?.state || 'paused'}`}>
-          {states[proof?.state || 'paused']}
+          {proof ? states[proof.state] : 'Rascunho não salvo'}
         </span>
       </header>
       {loadError && (
@@ -216,8 +223,12 @@ export function AmhAutomation({
           A curtida automática está desligada.
         </p>
       )}
+      {proof && <p className="ig-alert" role="status">
+        {proof.state === 'active' ? 'Ativa para novos comentários.' : proof.state === 'test' ? 'Em teste: somente o perfil autorizado recebe mensagens.' : 'Pausada: nenhum comentário novo inicia esta automação.'}
+        {' '}{dirty ? 'Há alterações não salvas.' : proof.active_version_id ? `Versão em execução: ${proof.versions.find(v => v.id === proof.active_version_id)?.number || '—'}.` : 'Nenhuma versão em execução.'}
+      </p>}
       <div className="ig-topbar">
-        <label>
+        <label hidden={Boolean(onBack)}>
           Automação
           <select
             aria-label="Automação"
@@ -291,28 +302,32 @@ export function AmhAutomation({
         >
           Salvar rascunho{dirty ? ' •' : ''}
         </button>
-        {dirty && proof && (
+        {dirty && (
           <button
             disabled={busy}
-            onClick={() => void perform(async () => hydrate(await api.get(proof.id)))}
+            onClick={() => void perform(async () => {
+              if (proof) hydrate(await api.get(proof.id));
+              else {
+                const next = initialGraph();
+                next.nodes.find(n => n.id === 'scope')!.data = { account: catalog?.account.id || '', media: '', ad: '' };
+                setGraph(next);
+                setName('Entrega de material AMH');
+                setDirty(false);
+                setWord('');
+              }
+            })}
           >
             Descartar alterações
           </button>
         )}
       </div>
-      <nav className="ig-steps" aria-label="Etapas da automação">
-        {steps.map((label, index) => (
-          <button
-            key={label}
-            aria-current={step === index ? 'step' : undefined}
-            onClick={() => setStep(index)}
-          >
-            <span>{index < 3 && valid[index] ? <Check size={16} /> : index + 1}</span>
-            {label}
-            <ChevronRight size={15} />
-          </button>
-        ))}
-      </nav>
+      <div className="ig-flow-map" aria-label="Mapa do fluxo">
+        {['Comentário no conteúdo', 'Palavra reconhecida', 'Resposta + Direct', 'Clique → material'].map((title, index) =>
+          <button key={title} aria-pressed={step === index} onClick={() => setStep(index)}>
+            <small>{index + 1} / {index === 0 ? (publication?.label || 'Escolher conteúdo') : index === 1 ? words.join(' · ') : index === 2 ? (data.reply.publicReplyEnabled ? 'Público e privado' : 'Somente privado') : 'Teste e ativação'}</small>
+            <strong>{title}</strong><ChevronRight size={16} />
+          </button>)}
+      </div>
       {message && (
         <p role="status" className="ig-alert">
           {message}
@@ -323,7 +338,7 @@ export function AmhAutomation({
           {step === 0 && (
             <>
               <span className="ig-eyebrow">01 / O GATILHO</span>
-              <h2>Em qual publicação?</h2>
+              <h2>Qual conteúdo inicia este fluxo?</h2>
               <p>A automação só responde aos comentários da publicação escolhida nesta conta.</p>
               <fieldset disabled={!editable}>
                 <label>
@@ -498,6 +513,17 @@ export function AmhAutomation({
                 botão de acesso. Nenhum link é enviado antes da confirmação.
               </p>
               <fieldset disabled={!editable}>
+                <label className="ig-checkbox">
+                  <input type="checkbox" checked={data.reply.publicReplyEnabled === true}
+                    onChange={e => change('reply', { publicReplyEnabled: e.target.checked, publicReplyText: data.reply.publicReplyText || 'Te enviei uma mensagem no Direct. Confira também as solicitações de mensagem!' })} />
+                  Responder também ao comentário público
+                </label>
+                {data.reply.publicReplyEnabled && <label>
+                  Resposta ao comentário
+                  <textarea value={data.reply.publicReplyText || ''} maxLength={500} rows={3}
+                    onChange={e => change('reply', { publicReplyText: e.target.value })} />
+                  <small>Publicada após o Instagram aceitar o convite no Direct. Sem links ou dados pessoais.</small>
+                </label>}
                 <label>
                   Material
                   <select
@@ -767,6 +793,7 @@ export function AmhAutomation({
                         <li key={item.id}>
                           <div>
                             <span>{states[item.state] || item.state}</span>
+                            {item.public_reply_state && <p>Resposta pública: {{ accepted: 'aceita pelo Instagram', failed: 'recusada', uncertain: 'resultado incerto · revisar', blocked: 'bloqueada', pending: 'pendente', sending: 'reservada', not_requested: 'não solicitada nesta versão' }[item.public_reply_state] || item.public_reply_state}</p>}
                             {item.like_state && (
                               <p>
                                 {likeStates[item.like_state] || 'Curtida em revisão'}
@@ -817,7 +844,8 @@ export function AmhAutomation({
               <span className="ig-comment">
                 <MessageCircle size={15} /> {sample || 'Quero o AMH!'}
               </span>
-              <small>Após um comentário correspondente</small>
+              {data.reply.publicReplyEnabled && <div className="ig-public-reply"><small>Resposta pública</small><p>{data.reply.publicReplyText}</p></div>}
+              <small>Convite no Direct após o comentário</small>
               {legacy ? (
                 <div className="ig-alert">
                   Configuração antiga sem confirmação. Atualize antes de ativar.
@@ -857,7 +885,7 @@ export function AmhAutomation({
               Comentário com palavra-chave → convite → clique em Pode enviar → botão de acesso →
               cadastro → material + e-mail.
             </p>
-            <p>Comentários fora da publicação escolhida não acionam esta regra.</p>
+            <p>O fluxo considera a conta, o conteúdo e as palavras-chave configurados. Para outro conteúdo, crie outra automação com seu próprio material e suas mensagens.</p>
           </div>
         </aside>
       </div>

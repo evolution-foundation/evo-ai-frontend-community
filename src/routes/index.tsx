@@ -610,7 +610,8 @@ const AppRouter = () => {
             }
           />
 
-          <Route path="/journeys/instagram-amh" element={
+          <Route path="/journeys/instagram-amh" element={<Navigate to="/automations/instagram" replace />} />
+          <Route path="/automations/instagram" element={
             <PrivateRoute><CustomerRoute><MainLayout>
               <PermissionRoute resource="journeys" action="read"><InstagramAmh /></PermissionRoute>
             </MainLayout></CustomerRoute></PrivateRoute>
