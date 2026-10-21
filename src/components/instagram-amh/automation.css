@@ -560,3 +560,7 @@
   .ig-flow-map small { max-width: 125px; }
   .ig-title { flex-wrap: wrap; }
 }
+
+.ig-routing-map { max-height: 260px; overflow: auto; margin: 12px 0; }
+.ig-routing-map table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.ig-routing-map th, .ig-routing-map td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border, #e1e5ed); white-space: nowrap; }

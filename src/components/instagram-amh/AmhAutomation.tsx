@@ -79,6 +79,8 @@ export function AmhAutomation({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [loadError, setLoadError] = useState('');
+  const [variant, setVariant] = useState('');
+  const [previewVariant, setPreviewVariant] = useState(0);
   const [word, setWord] = useState('');
   const [sample, setSample] = useState('Quero o AMH!');
   const [previewConfirmed, setPreviewConfirmed] = useState(false);
@@ -169,15 +171,18 @@ export function AmhAutomation({
     change('keyword', { keywords: [...words, next] });
     setWord('');
   };
+  const variants = data.reply.publicReplyVariants || [data.reply.publicReplyText || ''];
+  const routes = data.material.routes || [];
   const valid = [
-    Boolean(data.scope.account && (data.scope.media || data.scope.ad)),
+    Boolean(data.scope.account && (data.scope.allContent || data.scope.media || data.scope.ad)),
     words.length > 0 && !word.trim(),
     Boolean(
       data.reply.confirmationRequired &&
       data.reply.openingText?.trim() &&
       data.reply.text?.trim() &&
       data.reply.buttonLabel?.trim() &&
-      (!data.reply.publicReplyEnabled || data.reply.publicReplyText?.trim()) &&
+      (!data.reply.publicReplyEnabled || (variants.length > 0 && variants.every(v => v.trim() && new TextEncoder().encode(v).length <= 500 && !/https?:|www\.|\{\{link\}\}/i.test(v)) && !variant.trim())) &&
+      (data.material.mode !== 'context' || (routes.length > 0 && routes.every(r => r.keywords.length > 0 && r.keywords.length <= 10 && r.keywords.every(k => k.trim() && k.length <= 60)))) &&
       !/https?:|www\.|\{\{link\}\}/i.test(data.reply.text + data.reply.openingText),
     ),
   ];
@@ -326,7 +331,7 @@ export function AmhAutomation({
       <div className="ig-flow-map" aria-label="Mapa do fluxo">
         {['Comentário no conteúdo', 'Palavra reconhecida', 'Resposta + Direct', 'Clique → material'].map((title, index) =>
           <button key={title} aria-pressed={step === index} onClick={() => setStep(index)}>
-            <small>{index + 1} / {index === 0 ? (publication?.label || 'Escolher conteúdo') : index === 1 ? words.join(' · ') : index === 2 ? (data.reply.publicReplyEnabled ? 'Público e privado' : 'Somente privado') : 'Teste e ativação'}</small>
+            <small>{index + 1} / {index === 0 ? (data.scope.allContent ? 'Todos os conteúdos' : publication?.label || 'Escolher conteúdo') : index === 1 ? words.join(' · ') : index === 2 ? (data.reply.publicReplyEnabled ? 'Público e privado' : 'Somente privado') : 'Teste e ativação'}</small>
             <strong>{title}</strong><ChevronRight size={16} />
           </button>)}
       </div>
@@ -341,12 +346,19 @@ export function AmhAutomation({
             <>
               <span className="ig-eyebrow">01 / O GATILHO</span>
               <h2>Qual conteúdo inicia este fluxo?</h2>
-              <p>A automação só responde aos comentários da publicação escolhida nesta conta.</p>
+              <p>Escolha uma publicação ou acompanhe todos os anúncios e publicações que enviarem comentários pela conta conectada.</p>
               <fieldset disabled={!editable}>
                 <label>
                   Conta conectada
                   <input readOnly value={catalog?.account.label || 'Carregando conexão…'} />
                 </label>
+                <label className="ig-checkbox">
+                  <input type="checkbox" checked={data.scope.allContent === true}
+                    onChange={e => change('scope', { allContent: e.target.checked, media: '', ad: '' })} />
+                  Todos os anúncios e publicações desta conta, inclusive novos
+                </label>
+                <p className="ig-hint">Depende dos eventos entregues pela Meta. Não recupera comentários antigos. Contexto ausente ou conflitante bloqueia o envio.</p>
+                <fieldset disabled={data.scope.allContent === true}>
                 <label>
                   Publicação ou anúncio
                   <select
@@ -406,6 +418,7 @@ export function AmhAutomation({
                     />
                   </label>
                 </details>
+              </fieldset>
               </fieldset>
             </>
           )}
@@ -520,13 +533,51 @@ export function AmhAutomation({
                     onChange={e => change('reply', { publicReplyEnabled: e.target.checked, publicReplyText: data.reply.publicReplyText || 'Te enviei uma mensagem no Direct. Confira também as solicitações de mensagem!' })} />
                   Responder também ao comentário público
                 </label>
-                {data.reply.publicReplyEnabled && <label>
-                  Resposta ao comentário
-                  <textarea value={data.reply.publicReplyText || ''} maxLength={500} rows={3}
-                    onChange={e => change('reply', { publicReplyText: e.target.value })} />
-                  <small>Publicada após o Instagram aceitar o convite no Direct. Sem links ou dados pessoais.</small>
-                </label>}
-                <label>
+                {data.reply.publicReplyEnabled && <div>
+                  <p>Variações da resposta ao comentário · {variants.length}/10</p>
+                  {variants.map((text, index) => <div key={index}>
+                    <label>Resposta ao comentário {index + 1}
+                      <textarea value={text} maxLength={500} rows={3}
+                        onChange={e => change('reply', { publicReplyVariants: variants.map((v, i) => i === index ? e.target.value : v) })} />
+                    </label>
+                    <button disabled={variants.length === 1} onClick={() => change('reply', { publicReplyVariants: variants.filter((_, i) => i !== index) })}>Remover resposta {index + 1}</button>
+                  </div>)}
+                  <label>Nova variação<textarea value={variant} maxLength={500} rows={2} onChange={e => setVariant(e.target.value)} /></label>
+                  <button disabled={!variant.trim() || variants.length >= 10} onClick={() => { change('reply', { publicReplyVariants: [...variants, variant.trim()] }); setVariant(''); }}>Adicionar variação</button>
+                  <small>Uma variação é selecionada por comentário e preservada nas repetições. Até 500 bytes por resposta, sem links. A resposta só sai após o aceite do convite.</small>
+                </div>}
+                <label>Escolha do material
+                  <select value={data.material.mode || 'fixed'} onChange={e => change('material', {
+                    mode: e.target.value as 'fixed' | 'context',
+                    mappings: data.material.mappings || catalog?.material_routing?.mappings || [],
+                    inventoryRevision: data.material.inventoryRevision || catalog?.material_routing?.revision,
+                    routes: data.material.routes || catalog?.material_routing?.routes || [
+                      { material: 'amh', keywords: ['StgMRAMH', 'AMH na prática ginecológica'] },
+                      { material: 'amh-consultorio', keywords: ['StgMRAMHV2', 'AMH no consultório'] },
+                    ],
+                  })}>
+                    <option value="fixed">Material definido nesta automação</option>
+                    <option value="context">Automática: criativo, assunto e legenda</option>
+                  </select>
+                </label>
+                {data.material.mode === 'context' && <div>
+                  <p>O anúncio ou a publicação é cruzado com o mapa de criativos e assuntos. Sem vínculo por ID, a legenda precisa identificar um único material pelos termos abaixo. Sem correspondência ou com conflito, o envio fica bloqueado.</p>
+                  <p>{data.material.mappings?.length || 0} vínculos de anúncio · revisão {data.material.inventoryRevision || 'não importada'}</p>
+                  {catalog?.material_routing?.subjects.map(subject => <p key={subject.id}><strong>{subject.id}</strong> · {subject.description}</p>)}
+                  <button disabled={!catalog?.material_routing} onClick={() => change('material', { mappings: catalog!.material_routing!.mappings, routes: catalog!.material_routing!.routes, inventoryRevision: catalog!.material_routing!.revision })}>Atualizar mapa de criativos e assuntos</button>
+                  <small>O mapa é congelado ao publicar a automação. Atualizações do catálogo exigem salvar e publicar a nova versão.</small>
+                  <details><summary>Ver criativos vinculados</summary>
+                    <div className="ig-routing-map"><table><thead><tr><th>Criativo</th><th>Material</th><th>ID do anúncio</th><th>ID da publicação</th></tr></thead>
+                      <tbody>{data.material.mappings?.map((item, index) => <tr key={`${item.ad}-${index}`}><td>{item.editorial || 'Criativo'}</td><td>{item.material === 'amh' ? 'Highlights' : 'No consultório'}</td><td>{item.ad}</td><td>{item.media}</td></tr>)}</tbody>
+                    </table></div>
+                  </details>
+                  {routes.map((route, index) => <label key={route.material}>
+                    {route.material === 'amh' ? 'AMH — Highlights: termos do contexto' : 'AMH — No consultório: termos do contexto'}
+                    <input value={route.keywords.join('; ')} onChange={e => change('material', { routes: routes.map((r, i) => i === index ? { ...r, keywords: e.target.value.split(';').map(k => k.trim()) } : r) })} />
+                    <small>Separe alternativas com ponto e vírgula. Até 10 termos por material. Use nomes e frases que distinguem a oferta.</small>
+                  </label>)}
+                </div>}
+                {(!data.material.mode || data.material.mode === 'fixed') && <label>
                   Material
                   <select
                     value={data.material.material}
@@ -535,7 +586,7 @@ export function AmhAutomation({
                     <option value="amh">AMH — Highlights</option>
                     <option value="amh-consultorio">AMH — No consultório</option>
                   </select>
-                </label>
+                </label>}
                 {legacy && (
                   <div className="ig-alert">
                     <p>
@@ -606,7 +657,7 @@ export function AmhAutomation({
                 <li>
                   <strong>Publicação</strong>
                   <span>
-                    {publication?.label ||
+                    {(data.scope.allContent ? 'Todos os anúncios e publicações da conta' : publication?.label) ||
                       data.scope.media ||
                       data.scope.ad ||
                       'Selecione uma publicação'}
@@ -619,7 +670,7 @@ export function AmhAutomation({
                 <li>
                   <strong>Material</strong>
                   <span>
-                    {data.material.material === 'amh' ? 'AMH — Highlights' : 'AMH — No consultório'}
+                    {data.material.mode === 'context' ? 'Automático por criativo e assunto' : data.material.material === 'amh' ? 'AMH — Highlights' : 'AMH — No consultório'}
                   </span>
                 </li>
               </ol>
@@ -639,7 +690,7 @@ export function AmhAutomation({
                       setMessage(
                         result.run.outcome === 'simulated_accepted'
                           ? 'Validação aprovada: a versão publicada reconhece o comentário. O material continua bloqueado até o clique em Pode enviar. Nenhuma mensagem foi enviada.'
-                          : 'O comentário não passou na validação da versão publicada. Confira as palavras-chave. Nenhuma mensagem foi enviada.',
+                          : ['context'].includes(data.material.mode || '') ? 'Palavras verificadas. A seleção contextual precisa da legenda real no teste controlado; esta simulação não escolhe material nem envia mensagens.' : 'O comentário não passou na validação da versão publicada. Confira as palavras-chave. Nenhuma mensagem foi enviada.',
                       );
                     })
                   }
@@ -795,6 +846,9 @@ export function AmhAutomation({
                         <li key={item.id}>
                           <div>
                             <span>{states[item.state] || item.state}</span>
+                            {item.reason === 'context_unresolved' && <p>Contexto sem material seguro ou análise indisponível. Nenhuma mensagem enviada.</p>}
+                            {item.resolved_material && <p>Material: {item.resolved_material === 'amh' ? 'AMH — Highlights' : 'AMH — No consultório'} · {item.routing_source === 'inventory_ad' ? 'vínculo do anúncio' : item.routing_source === 'inventory_media' ? 'vínculo da publicação' : item.routing_source === 'configured' ? 'configurado' : 'legenda da publicação'}</p>}
+                            {item.public_reply_variant != null && <p>Variação pública {item.public_reply_variant + 1}</p>}
                             {item.public_reply_state && <p>Resposta pública: {{ accepted: 'aceita pelo Instagram', failed: 'recusada', uncertain: 'resultado incerto · revisar', blocked: 'bloqueada', pending: 'pendente', sending: 'reservada', not_requested: 'não solicitada nesta versão' }[item.public_reply_state] || item.public_reply_state}</p>}
                             {item.like_state && (
                               <p>
@@ -846,7 +900,7 @@ export function AmhAutomation({
               <span className="ig-comment">
                 <MessageCircle size={15} /> {sample || 'Quero o AMH!'}
               </span>
-              {data.reply.publicReplyEnabled && <div className="ig-public-reply"><small>Resposta pública</small><p>{data.reply.publicReplyText}</p></div>}
+              {data.reply.publicReplyEnabled && <div className="ig-public-reply"><small>Resposta pública</small><p>{variants[previewVariant % variants.length]}</p>{variants.length > 1 && <button onClick={() => setPreviewVariant(v => v + 1)}>Ver outra variação</button>}</div>}
               <small>Convite no Direct após o comentário</small>
               {legacy ? (
                 <div className="ig-alert">
@@ -887,7 +941,7 @@ export function AmhAutomation({
               Comentário com palavra-chave → convite → clique em Pode enviar → botão de acesso →
               cadastro → material + e-mail.
             </p>
-            <p>O fluxo considera a conta, o conteúdo e as palavras-chave configurados. Para outro conteúdo, crie outra automação com seu próprio material e suas mensagens.</p>
+            <p>O fluxo considera a conta, a abrangência e as palavras configuradas. Na seleção automática, o mapa de criativos ou a legenda precisa identificar um único material.</p>
           </div>
         </aside>
       </div>

@@ -6,6 +6,7 @@ export type Catalog = {
   account: { id: string; label: string };
   publications: { id: string; label: string; permalink?: string; source: string; ad?: string }[];
   execution_available: boolean;
+  material_routing?: { revision: string; source: string; subjects: { id: string; description: string; material: string }[]; mappings: NonNullable<import('./contract').Parameters['mappings']>; routes: NonNullable<import('./contract').Parameters['routes']> };
   comment_like_status?: 'connection_required' | 'configured' | 'disabled';
   test_available: boolean;
 };
@@ -14,6 +15,9 @@ export type Delivery = {
   version_id: string;
   state: string;
   prompt_state?: string;
+  resolved_material?: string;
+  routing_source?: string;
+  public_reply_variant?: number;
   public_reply_state?: string;
   public_reply_reason?: string;
   like_state?: string;

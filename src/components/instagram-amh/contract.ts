@@ -11,10 +11,14 @@ export const labels: Record<Stage, string> = {
 };
 export type Parameters = {
   account?: string;
+  allContent?: boolean;
+  mappings?: { account: string; ad: string; media: string; material: string; editorial?: string }[];
+  inventoryRevision?: string;
+  routes?: { material: string; keywords: string[] }[];
   ad?: string;
   media?: string;
   keywords?: string[];
-  mode?: 'word' | 'contains';
+  mode?: 'word' | 'contains' | 'fixed' | 'context';
   ignoreCase?: boolean;
   ignoreAccents?: boolean;
   material?: string;
@@ -23,6 +27,7 @@ export type Parameters = {
   openingText?: string;
   publicReplyEnabled?: boolean;
   publicReplyText?: string;
+  publicReplyVariants?: string[];
   buttonLabel?: string;
   traceStatus?: string;
 };
