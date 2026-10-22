@@ -89,7 +89,7 @@ export function initialGraph(): Graph {
       confirmationRequired: true,
       publicReplyEnabled: true,
       publicReplyText: 'Te enviei uma mensagem no Direct. Confira também as solicitações de mensagem! ',
-      openingText: 'Oi! Você pediu o material sobre AMH. Posso enviar o acesso por aqui?',
+      openingText: 'Oi, {{primeiro_nome}}! Você pediu o material sobre AMH. Posso enviar o acesso por aqui?',
       text: 'Aqui está o acesso ao material. Toque no botão, preencha seus dados e o PDF será liberado. Você também recebe por e-mail.',
       buttonLabel: 'Acessar material',
     },

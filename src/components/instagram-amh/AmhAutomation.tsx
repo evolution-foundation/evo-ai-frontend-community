@@ -613,6 +613,8 @@ export function AmhAutomation({
                   />
                 </label>
                 <p className="ig-hint">
+                  Use <code>{'{{primeiro_nome}}'}</code> para o primeiro nome (ex.: Jonas).
+                  Sem nome disponível, o convite usa Oi! Prévia com nome ilustrativo.
                   Botão do convite: <strong>Pode enviar</strong>. O clique autoriza somente a
                   entrega deste material.
                 </p>
@@ -908,7 +910,7 @@ export function AmhAutomation({
                 </div>
               ) : (
                 <>
-                  <div className="ig-bubble">{data.reply.openingText}</div>
+                  <div className="ig-bubble">{data.reply.openingText?.split('{{primeiro_nome}}').join('Jonas')}</div>
                   <button
                     className="ig-preview-confirm"
                     disabled={previewConfirmed}
