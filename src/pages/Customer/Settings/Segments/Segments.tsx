@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
@@ -61,6 +61,8 @@ export default function Segments() {
   const [contactIdsDialogOpen, setContactIdsDialogOpen] = useState(false);
   const [selectedSegmentForIds, setSelectedSegmentForIds] = useState<Segment | null>(null);
   const [contactIds, setContactIds] = useState<string[]>([]);
+  // The segment whose ids the dialog is waiting for: a slower load of an earlier one is dropped.
+  const contactIdsRequestRef = useRef<string | null>(null);
 
   // Load segments
   const loadSegments = useCallback(async () => {
@@ -211,7 +213,9 @@ export default function Segments() {
 
   const handleViewContactIds = async (segment: Segment) => {
     setSelectedSegmentForIds(segment);
+    setContactIds([]);
     setContactIdsDialogOpen(true);
+    contactIdsRequestRef.current = segment.id;
 
     try {
       const ids = await fetchAllPages(CONTACT_IDS_PAGE_SIZE, async (page, limit) => {
@@ -221,7 +225,7 @@ export default function Segments() {
         });
         return { items: result.contactIds, total: result.total };
       });
-      setContactIds(ids);
+      if (contactIdsRequestRef.current === segment.id) setContactIds(ids);
     } catch (error) {
       console.error('Error loading contact IDs:', error);
       toast.error(t('messages.loadContactIdsError'));
