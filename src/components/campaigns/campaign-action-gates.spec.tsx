@@ -117,15 +117,25 @@ describe('CampaignsTable — per-campaign actions', () => {
     expect(screen.queryByText('card.actions.start')).toBeNull();
   });
 
-  it('shows every action with every key', async () => {
+  // With every key, each status keeps exactly the actions it had before the gates.
+  const MENU_TAIL = ['card.actions.duplicate', 'card.actions.edit', 'card.actions.delete'];
+  it.each([
+    [CampaignStatus.DRAFT, ['card.actions.start', 'card.actions.cancel'], ['card.actions.start', 'card.actions.cancel']],
+    [CampaignStatus.SCHEDULED, ['card.actions.start', 'card.actions.cancel'], ['card.actions.start', 'card.actions.cancel']],
+    [CampaignStatus.SENDING, ['card.actions.pause', 'card.actions.cancel'], ['card.actions.pause', 'card.actions.cancel']],
+    [CampaignStatus.PAUSED, ['card.actions.resume', 'card.actions.cancel'], ['card.actions.start', 'card.actions.cancel']],
+    [CampaignStatus.STOPPED, ['card.actions.resume'], ['card.actions.start']],
+    [CampaignStatus.COMPLETED, [], []],
+    [CampaignStatus.SENDING_TESTAB, [], []],
+  ])('status %s with every key keeps its actions', async (status, quick, menu) => {
     grant(...ALL_KEYS);
-    renderTable(CampaignStatus.SENDING);
-    expect(screen.getByTitle('card.actions.pause')).toBeTruthy();
-    expect(screen.getByTitle('card.actions.cancel')).toBeTruthy();
+    const { container } = renderTable(status);
+    const titles = Array.from(container.querySelectorAll('button[title]'), b => b.getAttribute('title'));
+    expect(titles).toEqual(quick);
+
     await openRowMenu();
-    for (const label of ['card.actions.pause', 'card.actions.cancel', 'card.actions.duplicate']) {
-      expect(screen.getByText(label)).toBeTruthy();
-    }
+    const items = screen.getAllByRole('menuitem').map(item => item.textContent?.trim());
+    expect(items).toEqual(['card.actions.viewStats', ...menu, ...MENU_TAIL]);
   });
 });
 
