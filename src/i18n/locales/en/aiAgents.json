@@ -881,6 +881,10 @@
       "active": "Activated",
       "configure": "Configure",
       "notAvailable": "Coming soon",
+      "credentialMissing": "No credential",
+      "googleCredentialMissing": "Google credential missing. Add the Client ID and Client Secret in the CRM integrations.",
+      "credentialUnchecked": "Not checked",
+      "googleCredentialUnchecked": "Could not check the Google credential. Reload the page to try again.",
       "elevenlabs": {
         "description": "With ElevenLabs you give your agent the ability to respond to your customers in audio, making it even more humanized.",
         "configTitle": "Configure ElevenLabs",
