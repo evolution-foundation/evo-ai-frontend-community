@@ -80,8 +80,11 @@ export default function ScheduledActions() {
           queryParams.status = params?.status || state.statusFilter;
         }
 
-        if (params?.search || state.searchQuery) {
-          queryParams.search = params?.search || state.searchQuery;
+        // A debounced search runs with the state of the keystroke before it; a cleared
+        // box must not fall back to that older term.
+        const search = params && 'search' in params ? params.search : state.searchQuery;
+        if (search) {
+          queryParams.search = search;
         }
 
         const { actions, total } = await scheduledActionsService.listPage(queryParams);
