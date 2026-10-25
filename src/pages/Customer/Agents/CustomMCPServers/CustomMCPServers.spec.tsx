@@ -443,9 +443,21 @@ describe('CustomMCPServers', () => {
       await screen.findByText('Github MCP');
     };
 
-    it('asks a later search for the new size', async () => {
+    // Holds both loads of the size change, so state still carries the old size.
+    const pickFiftyFromPageThreeStillLoading = async () => {
+      await goToPageThree();
+      const pending = deferred<CustomMcpServer[]>();
+      listCustomMcpServers
+        .mockReturnValueOnce(pending.promise)
+        .mockReturnValueOnce(pending.promise);
+      await pickPerPage('50');
+      await waitFor(() => expect(listCustomMcpServers).toHaveBeenCalledTimes(4));
+      return pending;
+    };
+
+    it('asks a search typed while the new size loads for the new size', async () => {
       renderPage();
-      await pickFiftyFromPageThree();
+      const pending = await pickFiftyFromPageThreeStillLoading();
 
       await userEvent.type(screen.getByPlaceholderText('header.searchPlaceholder'), 'g');
 
@@ -453,11 +465,12 @@ describe('CustomMCPServers', () => {
       expect(listCustomMcpServers.mock.lastCall![0]).toEqual(
         expect.objectContaining({ skip: 0, limit: 50, search: 'g' }),
       );
+      await act(async () => pending.resolve([serverA, serverB]));
     });
 
-    it('asks a later filter for the new size', async () => {
+    it('asks a filter ticked while the new size loads for the new size', async () => {
       renderPage();
-      await pickFiftyFromPageThree();
+      const pending = await pickFiftyFromPageThreeStillLoading();
 
       await userEvent.click(screen.getByText('base.header.filters'));
       await userEvent.click(within(filterPanel()).getByRole('checkbox', { name: 'docs' }));
@@ -466,6 +479,7 @@ describe('CustomMCPServers', () => {
       expect(listCustomMcpServers.mock.lastCall![0]).toEqual(
         expect.objectContaining({ skip: 0, limit: 50 }),
       );
+      await act(async () => pending.resolve([serverA, serverB]));
     });
 
     it('asks the reload after a delete for the new size', async () => {
