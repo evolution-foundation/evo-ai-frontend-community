@@ -51,26 +51,30 @@ export default function CampaignsHeader({
 
   const secondaryActions: HeaderAction[] = [];
 
+  // The bulk endpoint demands its own key plus the key of the action it applies.
+  const canBulk = (action: string) =>
+    isReady && can('campaigns', 'bulk_action') && can('campaigns', action);
+
   const bulkActions: HeaderAction[] = [
-    ...(isReady && can('campaigns', 'update') ? [{
+    ...(canBulk('resume') ? [{
       label: t('header.bulkResume'),
       icon: <Play className="h-4 w-4" />,
       onClick: onBulkResume,
       variant: 'outline' as const,
     }] : []),
-    ...(isReady && can('campaigns', 'update') ? [{
+    ...(canBulk('pause') ? [{
       label: t('header.bulkPause'),
       icon: <Pause className="h-4 w-4" />,
       onClick: onBulkPause,
       variant: 'outline' as const,
     }] : []),
-    ...(isReady && can('campaigns', 'create') ? [{
+    ...(canBulk('duplicate') ? [{
       label: t('header.bulkDuplicate'),
       icon: <Copy className="h-4 w-4" />,
       onClick: onBulkDuplicate,
       variant: 'outline' as const,
     }] : []),
-    ...(isReady && can('campaigns', 'delete') ? [{
+    ...(canBulk('delete') ? [{
       label: t('header.bulkDelete'),
       icon: <Trash2 className="h-4 w-4" />,
       onClick: onBulkDelete,

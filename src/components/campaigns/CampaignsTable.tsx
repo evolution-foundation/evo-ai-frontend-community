@@ -9,6 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ptBR, enUS, es, fr, it } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@evoapi/design-system';
+import { usePermissions } from '@/contexts/PermissionsContext';
 
 interface CampaignsTableProps {
   campaigns: Campaign[];
@@ -49,7 +50,29 @@ export default function CampaignsTable({
 }: CampaignsTableProps) {
   const { t, currentLanguage } = useLanguage('campaigns');
   const { i18n } = useTranslation();
+  const { can, isReady } = usePermissions();
   const campaignsList = campaigns || [];
+
+  const allowed = (action: string) => isReady && can('campaigns', action);
+
+  // Play resumes a paused campaign and executes any other startable one.
+  const canStart = (campaign: Campaign) =>
+    campaign.status === CampaignStatus.PAUSED
+      ? allowed('resume')
+      : (campaign.status === CampaignStatus.DRAFT ||
+          campaign.status === CampaignStatus.SCHEDULED ||
+          campaign.status === CampaignStatus.STOPPED) &&
+        allowed('execute');
+
+  const canPause = (campaign: Campaign) =>
+    campaign.status === CampaignStatus.SENDING && allowed('pause');
+
+  const canStop = (campaign: Campaign) =>
+    (campaign.status === CampaignStatus.DRAFT ||
+      campaign.status === CampaignStatus.SCHEDULED ||
+      campaign.status === CampaignStatus.SENDING ||
+      campaign.status === CampaignStatus.PAUSED) &&
+    allowed('stop');
 
   const getDateFnsLocale = () => {
     switch (i18n.language) {
@@ -188,10 +211,7 @@ export default function CampaignsTable({
       align: 'center',
       render: campaign => (
         <div className="flex items-center justify-center gap-1">
-          {(campaign.status === CampaignStatus.DRAFT ||
-            campaign.status === CampaignStatus.SCHEDULED ||
-            campaign.status === CampaignStatus.PAUSED ||
-            campaign.status === CampaignStatus.STOPPED) && (
+          {canStart(campaign) && (
             <Button
               variant="ghost"
               size="sm"
@@ -209,7 +229,7 @@ export default function CampaignsTable({
               <Play className="h-4 w-4" />
             </Button>
           )}
-          {campaign.status === CampaignStatus.SENDING && (
+          {canPause(campaign) && (
             <Button
               variant="ghost"
               size="sm"
@@ -223,10 +243,7 @@ export default function CampaignsTable({
               <Pause className="h-4 w-4" />
             </Button>
           )}
-          {(campaign.status === CampaignStatus.DRAFT ||
-            campaign.status === CampaignStatus.SCHEDULED ||
-            campaign.status === CampaignStatus.SENDING ||
-            campaign.status === CampaignStatus.PAUSED) && (
+          {canStop(campaign) && (
             <Button
               variant="ghost"
               size="sm"
@@ -255,33 +272,26 @@ export default function CampaignsTable({
       label: t('card.actions.start'),
       icon: <Play className="h-4 w-4" />,
       onClick: onStartCampaign,
-      show: campaign =>
-        campaign.status === CampaignStatus.DRAFT ||
-        campaign.status === CampaignStatus.SCHEDULED ||
-        campaign.status === CampaignStatus.PAUSED ||
-        campaign.status === CampaignStatus.STOPPED,
+      show: canStart,
     },
     {
       label: t('card.actions.pause'),
       icon: <Pause className="h-4 w-4" />,
       onClick: onPauseCampaign,
-      show: campaign => campaign.status === CampaignStatus.SENDING,
+      show: canPause,
     },
     {
       label: t('card.actions.cancel'),
       icon: <Square className="h-4 w-4" />,
       onClick: onStopCampaign,
       variant: 'destructive' as const,
-      show: campaign =>
-        campaign.status === CampaignStatus.DRAFT ||
-        campaign.status === CampaignStatus.SCHEDULED ||
-        campaign.status === CampaignStatus.SENDING ||
-        campaign.status === CampaignStatus.PAUSED,
+      show: canStop,
     },
     {
       label: t('card.actions.duplicate'),
       icon: <Copy className="h-4 w-4" />,
       onClick: onDuplicateCampaign,
+      show: () => allowed('duplicate'),
     },
     {
       label: t('card.actions.edit'),

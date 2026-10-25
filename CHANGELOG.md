@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- N/A
+- **CRM-824 — campaign actions follow the keys the CRM checks.** Each campaign action shows only with its own key: execute, resume, pause, stop and duplicate (`campaigns.<action>`). Bulk pause, resume, duplicate and delete need `campaigns.bulk_action` plus the key of the action, instead of `campaigns.update`/`create`. Before, a custom role saw buttons that the CRM answered with 403. The account owner, who has every key, sees the same screen as before.
 
 ## [v1.0.0-rc6] - 2026-07-04
 
