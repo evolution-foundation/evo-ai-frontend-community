@@ -26,6 +26,18 @@ describe('listMCPServersPage', () => {
     expect(get).toHaveBeenCalledWith('/mcp-servers', { params: { skip: 20, limit: 20 } });
   });
 
+  it('sends the search term, and leaves it out when empty', async () => {
+    get.mockResolvedValue({ data: { success: true, data: [server], meta: {} } });
+
+    await listMCPServersPage({ skip: 0, limit: 20, search: 'git' });
+    expect(get).toHaveBeenLastCalledWith('/mcp-servers', {
+      params: { skip: 0, limit: 20, search: 'git' },
+    });
+
+    await listMCPServersPage({ skip: 0, limit: 20, search: '' });
+    expect(get).toHaveBeenLastCalledWith('/mcp-servers', { params: { skip: 0, limit: 20 } });
+  });
+
   it('falls back to the page length when the response carries no pagination', async () => {
     get.mockResolvedValue({ data: { success: true, data: [server], meta: {} } });
 
