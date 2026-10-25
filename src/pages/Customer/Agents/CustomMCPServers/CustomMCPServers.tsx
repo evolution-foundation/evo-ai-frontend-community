@@ -179,6 +179,15 @@ export default function CustomMCPServers() {
     load: loadServers,
   });
 
+  // The size every load asks for. The pager fires `onPageChange(1)` right after a size
+  // change, before the new size reaches state, so state cannot be the source.
+  const pageSizeRef = useRef(INITIAL_STATE.meta.pagination.page_size);
+  // With no load pending, back to the size on screen: a failed size change must not make
+  // the next request ask for a size the footer never showed.
+  useEffect(() => {
+    if (!state.loading.list) pageSizeRef.current = state.meta.pagination.page_size;
+  }, [state.loading.list, state.meta.pagination.page_size]);
+
   // Handlers
   // Dropping the selection is the honest move: keeping rows the user can no longer see
   // in the selected count hides what a bulk action would hit.
@@ -193,9 +202,8 @@ export default function CustomMCPServers() {
     if (searchDebounceRef.current) {
       clearTimeout(searchDebounceRef.current);
     }
-    const { page_size } = state.meta.pagination;
     searchDebounceRef.current = setTimeout(() => {
-      loadServers({ skip: 0, limit: page_size, search: query });
+      loadServers({ skip: 0, limit: pageSizeRef.current, search: query });
     }, 500);
   };
 
@@ -210,7 +218,7 @@ export default function CustomMCPServers() {
       meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
     }));
     loadServers(
-      { skip: 0, limit: state.meta.pagination.page_size, search: state.searchQuery },
+      { skip: 0, limit: pageSizeRef.current, search: state.searchQuery },
       next,
     );
   };
@@ -218,28 +226,21 @@ export default function CustomMCPServers() {
   // Reloads keep the page, page size and search on screen: dropping the search here would
   // list the whole base under a search box that still shows the typed text.
   const reloadCurrentPage = (page = state.meta.pagination.page) => {
-    const { page_size } = state.meta.pagination;
-    return loadServers({ skip: (page - 1) * page_size, limit: page_size, search: state.searchQuery });
+    const pageSize = pageSizeRef.current;
+    return loadServers({ skip: (page - 1) * pageSize, limit: pageSize, search: state.searchQuery });
   };
 
-  // Page and page-size changes drop the selection for the same reason a search does.
+  // Page and page-size changes drop the selection for the same reason a search does. Page
+  // and size reach state only with the rows `loadServers` commits, so a failed request
+  // leaves the footer describing the rows still on screen.
   const handlePageChange = (page: number) => {
-    setState(prev => ({
-      ...prev,
-      selectedServerIds: [],
-      meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page } },
-    }));
-
+    setState(prev => ({ ...prev, selectedServerIds: [] }));
     reloadCurrentPage(page);
   };
 
   const handlePerPageChange = (perPage: number) => {
-    setState(prev => ({
-      ...prev,
-      selectedServerIds: [],
-      meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page_size: perPage, page: 1 } },
-    }));
-
+    pageSizeRef.current = perPage;
+    setState(prev => ({ ...prev, selectedServerIds: [] }));
     loadServers({ skip: 0, limit: perPage, search: state.searchQuery });
   };
 
