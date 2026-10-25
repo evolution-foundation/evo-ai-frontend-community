@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MCPServers from './MCPServers';
 import { MCPServer } from '@/types/ai';
@@ -42,8 +42,23 @@ vi.mock('lucide-react', async importOriginal => ({
   List: () => <span>table-view</span>,
 }));
 vi.mock('@/components/mcpServers/MCPServersHeader', () => ({
-  default: ({ selectedCount }: { selectedCount: number }) => (
-    <span data-testid="selected-count">{selectedCount}</span>
+  default: ({
+    selectedCount,
+    searchValue,
+    onSearchChange,
+  }: {
+    selectedCount: number;
+    searchValue: string;
+    onSearchChange: (value: string) => void;
+  }) => (
+    <div>
+      <span data-testid="selected-count">{selectedCount}</span>
+      <input
+        data-testid="search"
+        value={searchValue}
+        onChange={event => onSearchChange(event.target.value)}
+      />
+    </div>
   ),
 }));
 vi.mock('@/components/mcpServers/MCPServersTable', () => ({
@@ -178,5 +193,67 @@ describe('MCPServers page', () => {
 
     await userEvent.click(screen.getByTestId('page-2'));
     await waitFor(() => expect(screen.getByTestId('selected-count')).toHaveTextContent('0'));
+  });
+
+  it('sends one search request once typing settles', async () => {
+    render(<MCPServers />);
+    await waitFor(() => expect(listMCPServersPage).toHaveBeenCalledTimes(1));
+
+    const input = screen.getByTestId('search');
+    fireEvent.change(input, { target: { value: 'g' } });
+    fireEvent.change(input, { target: { value: 'gi' } });
+    fireEvent.change(input, { target: { value: 'git' } });
+
+    await waitFor(() => expect(listMCPServersPage).toHaveBeenCalledTimes(2), { timeout: 2000 });
+    expect(listMCPServersPage.mock.calls[1][0]).toMatchObject({ skip: 0, limit: 20, search: 'git' });
+    await new Promise(resolve => setTimeout(resolve, 600));
+    expect(listMCPServersPage).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps the search when the page or the page size changes', async () => {
+    listMCPServersPage.mockResolvedValue({ servers: [server], total: 25 });
+    render(<MCPServers />);
+    await waitFor(() => expect(listMCPServersPage).toHaveBeenCalledTimes(1));
+
+    fireEvent.change(screen.getByTestId('search'), { target: { value: 'git' } });
+    await waitFor(() => expect(listMCPServersPage).toHaveBeenCalledTimes(2), { timeout: 2000 });
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('1/2/25'));
+
+    await userEvent.click(screen.getByTestId('page-2'));
+    await waitFor(() => expect(listMCPServersPage).toHaveBeenCalledTimes(3));
+    expect(listMCPServersPage.mock.calls[2][0]).toMatchObject({ skip: 20, limit: 20, search: 'git' });
+
+    await userEvent.click(screen.getByTestId('per-page-50'));
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('1/1/25'));
+    expect(listMCPServersPage.mock.lastCall![0]).toMatchObject({ skip: 0, limit: 50, search: 'git' });
+  });
+
+  it('goes back to the whole list on page 1 when the search is cleared', async () => {
+    render(<MCPServers />);
+    await waitFor(() => expect(listMCPServersPage).toHaveBeenCalledTimes(1));
+
+    fireEvent.change(screen.getByTestId('search'), { target: { value: 'git' } });
+    await waitFor(() => expect(listMCPServersPage).toHaveBeenCalledTimes(2), { timeout: 2000 });
+    await userEvent.click(screen.getByTestId('page-2'));
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('2/3/45'));
+
+    fireEvent.change(screen.getByTestId('search'), { target: { value: '' } });
+    await waitFor(() => expect(listMCPServersPage).toHaveBeenCalledTimes(4), { timeout: 2000 });
+    expect(listMCPServersPage.mock.calls[3][0]).toMatchObject({ skip: 0, limit: 20, search: '' });
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('1/3/45'));
+  });
+
+  it('keeps the footer on the rows still shown while a search waits or fails', async () => {
+    render(<MCPServers />);
+    await userEvent.click(await screen.findByTestId('page-2'));
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('2/3/45'));
+
+    listMCPServersPage.mockRejectedValueOnce(new Error('offline'));
+    fireEvent.change(screen.getByTestId('search'), { target: { value: 'git' } });
+    expect(screen.getByTestId('pagination')).toHaveTextContent('2/3/45');
+
+    await waitFor(() => expect(listMCPServersPage).toHaveBeenCalledTimes(3), { timeout: 2000 });
+    await waitFor(() => expect(screen.queryByText('loading.servers')).not.toBeInTheDocument());
+    expect(screen.getByTestId('pagination')).toHaveTextContent('2/3/45');
   });
 });

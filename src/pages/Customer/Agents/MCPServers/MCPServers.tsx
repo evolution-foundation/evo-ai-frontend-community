@@ -45,6 +45,17 @@ export default function MCPServers() {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsServer, setDetailsServer] = useState<MCPServer | null>(null);
 
+  // Typing fires one request after it settles, not one per keystroke.
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
+    },
+    [],
+  );
+
   // Only the latest list request may commit: page clicks can overlap and answer out of order.
   const latestLoadRef = useRef(0);
 
@@ -114,13 +125,14 @@ export default function MCPServers() {
 
   // Handlers
   const handleSearchChange = (query: string) => {
-    setState(prev => ({
-      ...prev,
-      searchQuery: query,
-      meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
-    }));
+    setState(prev => ({ ...prev, searchQuery: query }));
 
-    loadServers({ skip: 0, limit: pageSizeRef.current, search: query });
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+    }
+    searchDebounceRef.current = setTimeout(() => {
+      loadServers({ skip: 0, limit: pageSizeRef.current, search: query });
+    }, 500);
   };
 
   const handleServerClick = (server: MCPServer) => {
@@ -132,12 +144,12 @@ export default function MCPServers() {
   // leaves the footer describing the rows still on screen.
   const handlePageChange = (page: number) => {
     const pageSize = pageSizeRef.current;
-    loadServers({ skip: (page - 1) * pageSize, limit: pageSize });
+    loadServers({ skip: (page - 1) * pageSize, limit: pageSize, search: state.searchQuery });
   };
 
   const handlePageSizeChange = (pageSize: number) => {
     pageSizeRef.current = pageSize;
-    loadServers({ skip: 0, limit: pageSize });
+    loadServers({ skip: 0, limit: pageSize, search: state.searchQuery });
   };
 
   const selectedServers = state.servers.filter(server => 

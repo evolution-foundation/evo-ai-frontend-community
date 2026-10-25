@@ -14,7 +14,13 @@ export const createMCPServer = async (server: MCPServerCreate) => {
 };
 
 const buildListQueryParams = (params?: MCPServersListParams) => {
-  const queryParams: { skip: number; limit: number; page?: number; pageSize?: number } = {
+  const queryParams: {
+    skip: number;
+    limit: number;
+    page?: number;
+    pageSize?: number;
+    search?: string;
+  } = {
     skip: params?.skip || 0,
     limit: params?.limit || 100
   };
@@ -24,6 +30,9 @@ const buildListQueryParams = (params?: MCPServersListParams) => {
   }
   if (params?.pageSize !== undefined) {
     queryParams.pageSize = params.pageSize;
+  }
+  if (params?.search) {
+    queryParams.search = params.search;
   }
 
   return queryParams;
