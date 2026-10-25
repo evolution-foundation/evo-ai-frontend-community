@@ -39,7 +39,11 @@ vi.mock('@/tours', () => ({ ScheduledActionsTour: () => null }));
 vi.mock('@/components/scheduledActions/ScheduleActionModal', () => ({
   ScheduleActionModal: () => null,
 }));
-vi.mock('@/components/scheduledActions/ScheduledActionsHeader', () => ({ default: () => null }));
+vi.mock('@/components/scheduledActions/ScheduledActionsHeader', () => ({
+  default: ({ onSearchChange }: { onSearchChange: (value: string) => void }) => (
+    <input data-testid="search" onChange={event => onSearchChange(event.target.value)} />
+  ),
+}));
 vi.mock('@/components/scheduledActions/ScheduledActionsTable', () => ({
   default: ({ actions }: { actions: { id: string }[] }) => (
     <div>
@@ -147,5 +151,20 @@ describe('ScheduledActions page', () => {
     await userEvent.click(screen.getByTestId('page-2'));
     await waitFor(() => expect(listPage).toHaveBeenCalledTimes(3));
     expect(listPage).toHaveBeenLastCalledWith({ page: 2, per_page: 20 });
+  });
+
+  it('loads the whole list again once the search is cleared', async () => {
+    render(<ScheduledActions />);
+    await waitFor(() => expect(listPage).toHaveBeenCalledTimes(1));
+    const search = screen.getByTestId('search');
+
+    await userEvent.type(search, 'Maria');
+    await waitFor(() =>
+      expect(listPage).toHaveBeenLastCalledWith({ page: 1, per_page: 20, search: 'Maria' }),
+    );
+
+    await userEvent.clear(search);
+    await new Promise(resolve => setTimeout(resolve, 700));
+    expect(listPage).toHaveBeenLastCalledWith({ page: 1, per_page: 20 });
   });
 });
