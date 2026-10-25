@@ -125,11 +125,7 @@ export default function MCPServers() {
 
   // Handlers
   const handleSearchChange = (query: string) => {
-    setState(prev => ({
-      ...prev,
-      searchQuery: query,
-      meta: { ...prev.meta, pagination: { ...prev.meta.pagination, page: 1 } },
-    }));
+    setState(prev => ({ ...prev, searchQuery: query }));
 
     if (searchDebounceRef.current) {
       clearTimeout(searchDebounceRef.current);

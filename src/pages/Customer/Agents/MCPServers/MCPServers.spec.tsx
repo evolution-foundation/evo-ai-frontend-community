@@ -242,4 +242,18 @@ describe('MCPServers page', () => {
     expect(listMCPServersPage.mock.calls[3][0]).toMatchObject({ skip: 0, limit: 20, search: '' });
     await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('1/3/45'));
   });
+
+  it('keeps the footer on the rows still shown while a search waits or fails', async () => {
+    render(<MCPServers />);
+    await userEvent.click(await screen.findByTestId('page-2'));
+    await waitFor(() => expect(screen.getByTestId('pagination')).toHaveTextContent('2/3/45'));
+
+    listMCPServersPage.mockRejectedValueOnce(new Error('offline'));
+    fireEvent.change(screen.getByTestId('search'), { target: { value: 'git' } });
+    expect(screen.getByTestId('pagination')).toHaveTextContent('2/3/45');
+
+    await waitFor(() => expect(listMCPServersPage).toHaveBeenCalledTimes(3), { timeout: 2000 });
+    await waitFor(() => expect(screen.queryByText('loading.servers')).not.toBeInTheDocument());
+    expect(screen.getByTestId('pagination')).toHaveTextContent('2/3/45');
+  });
 });
