@@ -13,9 +13,21 @@ import {
 } from '@evoapi/design-system';
 import { Search, Server, Tag, Clock, RotateCcw, Plus, Wand } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { listCustomMcpServers } from '@/services/agents';
+import { listCustomMcpServersPage } from '@/services/agents';
 import { CustomMcpServer } from '@/types/ai';
 import { useLanguage } from '@/hooks/useLanguage';
+import { fetchAllPages } from '@/utils/fetchAllPages';
+
+const SERVERS_PAGE_SIZE = 100;
+
+const listAllCustomMcpServers = () =>
+  fetchAllPages(SERVERS_PAGE_SIZE, async (page, pageSize) => {
+    const { servers, total } = await listCustomMcpServersPage({
+      skip: (page - 1) * pageSize,
+      limit: pageSize,
+    });
+    return { items: servers, total };
+  });
 
 interface CustomMCPDialogProps {
   open: boolean;
@@ -66,23 +78,31 @@ const CustomMCPDialog = ({
       return;
     }
 
+    // A load still running when the dialog closes must not fill the next opening.
+    let cancelled = false;
+
     const loadServers = async () => {
       try {
         setLoading(true);
         hasLoadedRef.current = true;
 
-        const servers = await listCustomMcpServers({ skip: 0, limit: 100 });
-        setCustomMCPServers(servers);
+        const servers = await listAllCustomMcpServers();
+        if (!cancelled) setCustomMCPServers(servers);
       } catch (error) {
         console.error('Error loading custom MCP servers:', error);
-        setCustomMCPServers([]);
+        if (!cancelled) setCustomMCPServers([]);
         hasLoadedRef.current = false;
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     loadServers();
+
+    return () => {
+      cancelled = true;
+      hasLoadedRef.current = false;
+    };
   }, [open]);
 
   const toggleServer = (serverId: string) => {
