@@ -25,35 +25,36 @@ const AgentEditHeader = ({
   const { t } = useLanguage('aiAgents');
 
   return (
-    <div className="flex flex-shrink-0 flex-wrap items-center gap-2 border-b border-border bg-card px-6">
-      <Button
-        variant="ghost"
-        onClick={onBack}
-        className="h-auto gap-2 px-2 py-0 text-sm font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground"
-      >
-        <ArrowLeft className="h-[18px] w-[18px]" strokeWidth={2.2} />
-        {t('actions.back') || 'Voltar'}
-      </Button>
+    <div className="flex flex-shrink-0 flex-wrap items-center gap-x-2 border-b border-border bg-card px-6">
+      {/* Back and name wrap as one unit, so a narrow page truncates the name instead of stacking three rows. */}
+      <div className="flex min-w-0 flex-[1_1_16rem] items-center gap-2">
+        <Button
+          variant="ghost"
+          onClick={onBack}
+          className="h-auto gap-2 px-2 py-0 text-sm font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground"
+        >
+          <ArrowLeft className="h-[18px] w-[18px]" strokeWidth={2.2} />
+          {t('actions.back') || 'Voltar'}
+        </Button>
 
-      {agentName && (
-        <div className="flex min-w-0 items-center gap-3 px-4 py-[14px]">
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[11px] border border-primary/30 bg-primary/10">
-            <span className="text-base font-extrabold text-primary">
-              {agentName.charAt(0).toUpperCase()}
-            </span>
+        {agentName && (
+          <div className="flex min-w-0 items-center gap-3 px-4 py-[14px]">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[11px] border border-primary/30 bg-primary/10">
+              <span className="text-base font-extrabold text-primary">
+                {agentName.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-[14.5px] font-bold text-foreground">{agentName}</p>
+              <p className="truncate text-xs font-normal text-muted-foreground">
+                {getAgentTypeLabel(agentType || 'llm', t)}
+              </p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <p className="truncate text-[14.5px] font-bold text-foreground">{agentName}</p>
-            <p className="truncate text-xs font-normal text-muted-foreground">
-              {getAgentTypeLabel(agentType || 'llm', t)}
-            </p>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      <div className="flex-1" />
-
-      <div className="flex items-center gap-[14px]">
+      <div className="ml-auto flex flex-wrap items-center gap-[14px] py-2">
         {onTestAgent && (
           <Button
             variant="outline"

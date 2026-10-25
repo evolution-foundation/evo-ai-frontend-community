@@ -186,6 +186,8 @@ jobs:
       #   - agent test panel: it stays an in-page side panel, never a dialog, its width
       #     stays between 360px and the smaller of half the window and what leaves the edit
       #     page 600px, and the session actions keep calling the server, not local state.
+      #   - agent Profile tab: the form/summary grid splits by its own width (container
+      #     query), not the window's, so an open test panel drops it to one column.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -316,7 +318,8 @@ jobs:
             src/pages/Customer/Agents/Agent/components/channels/AgentChannelCard.spec.tsx \
             src/components/channels/settings/AgentBotConfigurationForm.spec.tsx \
             src/pages/Customer/Channels/ChannelSettings.spec.tsx \
-            src/components/agents/AgentTestChat.spec.tsx
+            src/components/agents/AgentTestChat.spec.tsx \
+            src/pages/Customer/Agents/Agent/sections/ProfileSection.spec.tsx
 
   # Lint gate scoped to the files the PR touched.
   eslint:

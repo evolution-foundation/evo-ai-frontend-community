@@ -91,7 +91,7 @@ const ProfileSection = ({
 
   return (
     <>
-      <div>
+      <div className="@container">
         <div>
           <h2 className="text-[22px] font-extrabold tracking-[-0.3px] text-foreground">
             {t('edit.profile.title') || 'Informações pessoais'}
@@ -101,7 +101,7 @@ const ProfileSection = ({
           </p>
         </div>
 
-        <div className="grid items-start gap-11 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 items-start gap-11 @xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
           <div className="flex flex-col gap-[22px]">
           <div>
             <Label className={labelClass}>
@@ -151,12 +151,12 @@ const ProfileSection = ({
 
           {!isOrchestratorType && (
             <div>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-x-2">
                 <Label className={labelClass}>
                   {t('edit.profile.instructions') || 'Comportamento'}
                 </Label>
                 {showAIActions && (
-                  <div className="flex gap-2">
+                  <div className="mb-2 flex flex-wrap gap-2">
                     {formData.instruction && formData.instruction.trim() && (
                       <Button
                         type="button"

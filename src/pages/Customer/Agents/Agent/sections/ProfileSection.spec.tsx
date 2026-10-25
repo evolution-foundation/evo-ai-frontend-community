@@ -58,4 +58,18 @@ describe('ProfileSection', () => {
     renderProfile('task');
     expect(screen.queryByTestId('task-section')).toBeNull();
   });
+
+  // jsdom does not evaluate container queries, so the contract is pinned on the classes.
+  it('sizes the form/summary grid by its own container, not by the window', () => {
+    const { container } = renderProfile('llm');
+    const grid = [...container.querySelectorAll('div')].find(div =>
+      div.className.includes('grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]')
+    );
+    const gridClasses = [...(grid?.classList ?? [])];
+
+    expect(grid?.parentElement?.classList.contains('@container')).toBe(true);
+    expect(gridClasses).toContain('grid-cols-1');
+    expect(gridClasses.some(c => c.startsWith('@xl:grid-cols-'))).toBe(true);
+    expect(gridClasses.filter(c => /^(sm|md|lg|xl|2xl):grid-cols-/.test(c))).toEqual([]);
+  });
 });
