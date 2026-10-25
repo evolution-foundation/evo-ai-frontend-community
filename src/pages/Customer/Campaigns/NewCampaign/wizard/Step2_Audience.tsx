@@ -7,6 +7,9 @@ import { segmentsService } from '@/services/segments/segmentsService';
 import { labelsService } from '@/services/contacts/labelsService';
 import type { Segment } from '@/types/analytics';
 import type { Label as LabelType } from '@/types/settings';
+import { fetchAllPages } from '@/utils/fetchAllPages';
+
+const SEGMENTS_PAGE_SIZE = 1000;
 
 type FilterType = 'segment' | 'tag';
 type FilterOperator = 'include' | 'exclude';
@@ -42,12 +45,15 @@ const Step2_Audience = ({ data, onChange, onNext, onBack }: Step2Props) => {
       try {
         const [contactsRes, segmentsRes, labelsRes] = await Promise.all([
           contactsService.getContacts({ page: 1, per_page: 1 }),
-          segmentsService.getSegments({ limit: 1000 }),
+          fetchAllPages(SEGMENTS_PAGE_SIZE, async (page, limit) => {
+            const response = await segmentsService.getSegments({ page, limit });
+            return { items: response.data || [], total: response.meta?.pagination?.total };
+          }),
           labelsService.getLabels(),
         ]);
 
         setTotalContacts(contactsRes.meta?.pagination?.total || 0);
-        setSegments(segmentsRes.data || []);
+        setSegments(segmentsRes);
         setLabels(labelsRes.data || []);
       } catch (error) {
         console.error('Error fetching audience data:', error);
