@@ -91,6 +91,18 @@ const renderPage = () =>
 const rowOf = (name: string) => screen.getByText(name).closest('tr') as HTMLElement;
 const filterPanel = () =>
   document.querySelector('[data-custom-mcp-filter-root]') as HTMLElement;
+const footer = () => screen.getByText(/^base\.pagination\.showing/);
+
+const goToPageThree = async () => {
+  await screen.findByText('Github MCP');
+  await userEvent.click(screen.getByRole('button', { name: '3' }));
+  await waitFor(() => expect(footer()).toHaveTextContent('start=41'));
+};
+
+const pickPerPage = async (size: string) => {
+  await userEvent.click(screen.getByRole('combobox'));
+  await userEvent.click(await screen.findByRole('option', { name: size }));
+};
 
 const deferred = <T,>() => {
   let resolve!: (value: T) => void;
@@ -381,6 +393,97 @@ describe('CustomMCPServers', () => {
     expect(listCustomMcpServers.mock.lastCall![0]).toEqual(
       expect.objectContaining({ skip: 0, limit: 50, search: 'g' }),
     );
+  });
+
+  // Away from page 1 the pager fires `onPageChange(1)` right after the size change.
+  describe('page size changed away from page 1', () => {
+    beforeEach(() => {
+      listTotal = 45;
+    });
+
+    it('shows page 1 with the new size', async () => {
+      renderPage();
+      await goToPageThree();
+
+      await pickPerPage('50');
+
+      await waitFor(() =>
+        expect(footer()).toHaveTextContent('base.pagination.showing#end=45,start=1,total=45'),
+      );
+      expect(screen.getByRole('combobox')).toHaveTextContent('50');
+      expect(listCustomMcpServers.mock.lastCall![0]).toEqual(
+        expect.objectContaining({ skip: 0, limit: 50 }),
+      );
+    });
+
+    it('keeps the footer on the size still shown when the change fails, and asks for it next', async () => {
+      renderPage();
+      await goToPageThree();
+
+      listCustomMcpServers
+        .mockRejectedValueOnce(new Error('offline'))
+        .mockRejectedValueOnce(new Error('offline'));
+      await pickPerPage('50');
+      await waitFor(() => expect(error).toHaveBeenCalledWith('errors.loadError'));
+
+      expect(footer()).toHaveTextContent('base.pagination.showing#end=45,start=41,total=45');
+      expect(screen.getByRole('combobox')).toHaveTextContent('20');
+
+      await userEvent.click(screen.getByRole('button', { name: '2' }));
+      await waitFor(() => expect(listCustomMcpServers).toHaveBeenCalledTimes(5));
+      expect(listCustomMcpServers.mock.lastCall![0]).toEqual(
+        expect.objectContaining({ skip: 20, limit: 20 }),
+      );
+    });
+
+    const pickFiftyFromPageThree = async () => {
+      await goToPageThree();
+      await pickPerPage('50');
+      await waitFor(() => expect(listCustomMcpServers).toHaveBeenCalledTimes(4));
+      await screen.findByText('Github MCP');
+    };
+
+    it('asks a later search for the new size', async () => {
+      renderPage();
+      await pickFiftyFromPageThree();
+
+      await userEvent.type(screen.getByPlaceholderText('header.searchPlaceholder'), 'g');
+
+      await waitFor(() => expect(listCustomMcpServers).toHaveBeenCalledTimes(5), { timeout: 2000 });
+      expect(listCustomMcpServers.mock.lastCall![0]).toEqual(
+        expect.objectContaining({ skip: 0, limit: 50, search: 'g' }),
+      );
+    });
+
+    it('asks a later filter for the new size', async () => {
+      renderPage();
+      await pickFiftyFromPageThree();
+
+      await userEvent.click(screen.getByText('base.header.filters'));
+      await userEvent.click(within(filterPanel()).getByRole('checkbox', { name: 'docs' }));
+
+      await waitFor(() => expect(listCustomMcpServers).toHaveBeenCalledTimes(5));
+      expect(listCustomMcpServers.mock.lastCall![0]).toEqual(
+        expect.objectContaining({ skip: 0, limit: 50 }),
+      );
+    });
+
+    it('asks the reload after a delete for the new size', async () => {
+      renderPage();
+      await pickFiftyFromPageThree();
+
+      await userEvent.click(
+        rowOf('Github MCP').querySelector('[aria-haspopup="menu"]') as HTMLElement,
+      );
+      await userEvent.click(await screen.findByText('table.actions.delete'));
+      await userEvent.click(await screen.findByText('deleteDialog.confirm'));
+
+      await waitFor(() => expect(deleteCustomMcpServer).toHaveBeenCalledWith('mcp-1'));
+      await waitFor(() => expect(listCustomMcpServers).toHaveBeenCalledTimes(5));
+      expect(listCustomMcpServers.mock.lastCall![0]).toEqual(
+        expect.objectContaining({ skip: 0, limit: 50 }),
+      );
+    });
   });
 
   it('says nothing matched, instead of "create your first server", when search narrows to zero', async () => {
