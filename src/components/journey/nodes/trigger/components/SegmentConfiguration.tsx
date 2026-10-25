@@ -12,6 +12,9 @@ import {
 import { segmentsService } from '@/services/segments/segmentsService';
 import { Segment } from '@/types/analytics';
 import { useLanguage } from '@/hooks/useLanguage';
+import { fetchAllPages } from '@/utils/fetchAllPages';
+
+const SEGMENTS_PAGE_SIZE = 100;
 
 interface SegmentConfigurationProps {
   segmentId: string;
@@ -42,11 +45,15 @@ export function SegmentConfiguration({
       setError(null);
 
       try {
-        const response = await segmentsService.getSegments({
-          limit: 100, // Buscar todos os segmentos
-          status: 'running', // Apenas segmentos ativos
+        const segments = await fetchAllPages(SEGMENTS_PAGE_SIZE, async (page, limit) => {
+          const response = await segmentsService.getSegments({
+            page,
+            limit,
+            status: 'running', // Apenas segmentos ativos
+          });
+          return { items: response.data || [], total: response.meta?.pagination?.total };
         });
-        setAvailableSegments(response.data || []);
+        setAvailableSegments(segments);
       } catch (error) {
         console.error('Error loading segments:', error);
         setError(t('triggerComponents.segment.loadError'));
