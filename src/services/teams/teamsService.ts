@@ -1,5 +1,6 @@
 import api from '@/services/core/api';
 import { extractData, extractResponse } from '@/utils/apiHelpers';
+import { fetchAllPages } from '@/utils/fetchAllPages';
 import type {
   Team,
   TeamMember,
@@ -25,6 +26,16 @@ const TeamsService = {
       console.error('TeamsService.getTeams error:', error);
       throw error;
     }
+  },
+
+  /**
+   * Every page: a team picker that stops at the first one hides the rest.
+   */
+  async getAllTeams(params?: Pick<TeamsListParams, 'sort' | 'order'>): Promise<Team[]> {
+    return fetchAllPages(100, async (page, per_page) => {
+      const response = await TeamsService.getTeams({ ...params, page, per_page });
+      return { items: response.data || [], total: response.meta?.pagination?.total };
+    });
   },
 
   /**
