@@ -19,8 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@evoapi/design-system';
-import { AlertTriangle, Edit, Key, Loader2, Plus, Trash2 } from 'lucide-react';
+import { AlertTriangle, Edit, Key, Loader2, Plus, Sparkles, Trash2 } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
+import AgentToggle from '@/components/agents/configuration/AgentToggle';
+import { cn } from '@/utils/cn';
 import {
   AI_PROVIDERS,
   CUSTOM_OPENAI_PROVIDER,
@@ -46,6 +48,9 @@ interface CredentialDraft {
   key_value: string;
   base_url: string;
   scope: ApiKeyScope;
+  is_active: boolean;
+  /** State when the form opened: is_active travels only if the toggle moved off it. */
+  stored_is_active?: boolean;
 }
 
 const EMPTY_DRAFT: CredentialDraft = {
@@ -54,7 +59,41 @@ const EMPTY_DRAFT: CredentialDraft = {
   key_value: '',
   base_url: '',
   scope: 'account',
+  is_active: true,
 };
+
+// Font sizes below 14px stay on text-xs/text-sm: the shell lifts those two to its
+// accessibility floor, and an arbitrary text-[Npx] would skip it.
+
+/** `h-auto` cancels the fixed height of the design-system Button, which otherwise wins. */
+const PRIMARY_BUTTON_CLASS =
+  'h-auto rounded-[9px] px-[18px] py-[11px] text-sm font-semibold shadow-md shadow-primary/25 hover:bg-primary hover:brightness-90';
+
+const SECONDARY_BUTTON_CLASS =
+  'h-auto rounded-[9px] border-border bg-card px-[18px] py-2.5 text-sm font-semibold text-foreground shadow-none hover:bg-muted';
+
+const GREEN_SOFT_BUTTON_CLASS =
+  'h-auto rounded-[9px] border-primary/30 bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary shadow-none hover:bg-primary/15 hover:text-primary';
+
+const ICON_BUTTON_CLASS =
+  'size-8 rounded-[8px] p-0 text-muted-foreground hover:bg-muted hover:text-foreground';
+
+const SECTION_LABEL_CLASS =
+  'text-xs font-bold uppercase tracking-[0.3px] text-muted-foreground';
+
+const CARD_CLASS =
+  'rounded-[14px] border border-border bg-card shadow-[0_1px_3px_rgba(20,30,45,.05)]';
+
+const CHIP_CLASS =
+  'rounded-[7px] border-transparent px-2 py-0.5 text-xs font-bold leading-4';
+
+const LABEL_CLASS = 'text-sm font-semibold text-muted-foreground';
+
+const FIELD_CLASS =
+  'h-10 rounded-[10px] border-border bg-card px-3 text-sm shadow-none focus-visible:border-primary focus-visible:ring-primary/15';
+
+const DIALOG_CLASS =
+  'gap-5 rounded-[18px] p-6 shadow-[0_24px_60px_rgba(15,23,35,.28)] sm:max-w-[560px]';
 
 export default function AiCredentials() {
   const { t } = useLanguage('aiCredentials');
@@ -237,6 +276,8 @@ export default function AiCredentials() {
       key_value: '',
       base_url: credential.base_url ?? '',
       scope: credential.scope ?? 'account',
+      is_active: credential.is_active,
+      stored_is_active: credential.is_active,
     });
     setFormOpen(true);
   };
@@ -268,6 +309,11 @@ export default function AiCredentials() {
         // An empty field keeps the stored key: never send a blank key_value.
         if (draft.key_value.trim()) {
           payload.key_value = draft.key_value;
+        }
+        // The status read when the form opened can be stale by now (another tab,
+        // another admin): resending it untouched would undo their change.
+        if (draft.is_active !== draft.stored_is_active) {
+          payload.is_active = draft.is_active;
         }
 
         await updateApiKey(draft.id, payload);
@@ -391,49 +437,82 @@ export default function AiCredentials() {
     const writable = canUpdateInScope(scope);
 
     return (
-      <div className="overflow-x-auto border rounded-lg">
+      <div className={cn(CARD_CLASS, 'overflow-x-auto')}>
         <table className="w-full text-sm">
-          <thead className="bg-muted/50">
+          <thead className="border-b border-border bg-muted-foreground/[0.06] text-xs text-muted-foreground">
             <tr>
-              <th className="text-left p-3">{t('columns.name')}</th>
-              <th className="text-left p-3">{t('columns.provider')}</th>
-              <th className="text-left p-3">{t('columns.key')}</th>
-              <th className="text-left p-3">{t('columns.serves')}</th>
-              <th className="text-left p-3">{t('columns.status')}</th>
-              <th className="text-right p-3">{t('columns.actions')}</th>
+              <th className="px-5 py-3.5 text-left font-bold">{t('columns.name')}</th>
+              <th className="px-5 py-3.5 text-left font-bold">{t('columns.provider')}</th>
+              <th className="px-5 py-3.5 text-left font-bold">{t('columns.key')}</th>
+              <th className="px-5 py-3.5 text-left font-bold">{t('columns.serves')}</th>
+              <th className="px-5 py-3.5 text-left font-bold">{t('columns.status')}</th>
+              <th className="px-5 py-3.5 text-right font-bold">{t('columns.actions')}</th>
             </tr>
           </thead>
           <tbody>
             {rows.map(credential => (
-              <tr key={credential.id} className="border-t">
-                <td className="p-3 font-medium">{credential.name}</td>
-                <td className="p-3">
-                  <Badge variant="outline">{providerLabel(credential.provider)}</Badge>
+              <tr
+                key={credential.id}
+                className="border-b border-border/70 transition-colors duration-150 last:border-b-0 hover:bg-accent/40"
+              >
+                <td className="px-5 py-3.5">
+                  <span className="flex items-center gap-[11px]">
+                    <span className="flex size-[34px] flex-none items-center justify-center rounded-[9px] border border-primary/30 bg-primary/10 text-primary">
+                      <Key className="size-4" aria-hidden="true" />
+                    </span>
+                    <span className="max-w-[280px] truncate text-sm font-semibold text-foreground">
+                      {credential.name}
+                    </span>
+                  </span>
                 </td>
-                <td className="p-3 font-mono">{maskKey(credential.key_hint)}</td>
-                <td className="p-3">
+                <td className="px-5 py-3.5">
+                  <Badge className={cn(CHIP_CLASS, 'bg-muted-foreground/10 text-muted-foreground')}>
+                    {providerLabel(credential.provider)}
+                  </Badge>
+                </td>
+                <td className="px-5 py-3.5 font-mono text-sm text-muted-foreground">
+                  {maskKey(credential.key_hint)}
+                </td>
+                <td className="px-5 py-3.5 text-sm text-muted-foreground">
                   {servesAllFeatures(credential) ? t('serves.all') : t('serves.agentsOnly')}
                 </td>
-                <td className="p-3">
-                  <Badge variant={credential.is_active ? 'default' : 'secondary'}>
+                <td className="px-5 py-3.5">
+                  <Badge
+                    className={cn(
+                      CHIP_CLASS,
+                      'gap-1.5',
+                      credential.is_active
+                        ? 'bg-primary/10 text-primary'
+                        : 'bg-muted-foreground/10 text-muted-foreground',
+                    )}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        'size-1.5 rounded-full',
+                        credential.is_active ? 'bg-primary' : 'bg-muted-foreground/60',
+                      )}
+                    />
                     {credential.is_active ? t('status.active') : t('status.inactive')}
                   </Badge>
                 </td>
-                <td className="p-3">
-                  <div className="flex justify-end gap-2">
+                <td className="px-5 py-3.5">
+                  <div className="flex items-center justify-end gap-1">
                     {writable ? (
                       <>
                         <Button
                           variant="ghost"
                           size="sm"
+                          className={ICON_BUTTON_CLASS}
                           aria-label={t('actions.edit')}
                           onClick={() => openEditForm(credential)}
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="size-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-8 rounded-[8px] px-2.5 text-sm font-semibold text-muted-foreground hover:bg-primary/10 hover:text-primary"
                           disabled={saving}
                           onClick={() => handleToggleActive(credential)}
                         >
@@ -451,10 +530,11 @@ export default function AiCredentials() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        className={cn(ICON_BUTTON_CLASS, 'hover:bg-destructive/10 hover:text-destructive')}
                         aria-label={t('actions.delete')}
                         onClick={() => openDeleteDialog(credential)}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="size-4" />
                       </Button>
                     )}
                   </div>
@@ -471,12 +551,14 @@ export default function AiCredentials() {
     <div className="p-6 space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">{t('title')}</h1>
-          <p className="text-muted-foreground">{t('description')}</p>
+          <h1 className="text-[26px] font-bold leading-tight tracking-[-0.3px] text-foreground">
+            {t('title')}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t('description')}</p>
         </div>
         {canCreateInScope('account') && (
-          <Button onClick={() => openCreateForm('account')}>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button className={PRIMARY_BUTTON_CLASS} onClick={() => openCreateForm('account')}>
+            <Plus className="mr-2 size-4" />
             {t('actions.add')}
           </Button>
         )}
@@ -486,9 +568,14 @@ export default function AiCredentials() {
           inbox assist row and 1.4 the remaining three. */}
       <section
         aria-label={t('inUse.title')}
-        className="border rounded-lg p-4 space-y-2"
+        className={cn(CARD_CLASS, 'space-y-2.5 p-5')}
       >
-        <h2 className="text-sm font-medium">{t('inUse.title')}</h2>
+        <div className="mb-3.5 flex items-center gap-3">
+          <span className="flex size-9 flex-none items-center justify-center rounded-[10px] bg-primary/10 text-primary">
+            <Sparkles className="size-[18px]" aria-hidden="true" />
+          </span>
+          <h2 className="text-[15px] font-bold text-foreground">{t('inUse.title')}</h2>
+        </div>
 
         {featuresInUse.map(feature => (
           <div key={feature.key} className="flex items-baseline gap-2 text-sm">
@@ -497,7 +584,7 @@ export default function AiCredentials() {
               <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" aria-hidden="true" />
             ) : feature.resolution.state === 'registry' ? (
               <>
-                <span className="font-medium">{feature.resolution.credential.name}</span>
+                <span className="font-semibold text-foreground">{feature.resolution.credential.name}</span>
                 <span className="text-xs text-muted-foreground">
                   {(feature.resolution.credential.scope ?? 'account') === 'installation'
                     ? t('inUse.fromInstallation')
@@ -514,21 +601,20 @@ export default function AiCredentials() {
 
         {!accountCredentials.some(credential => credential.is_active) &&
           installationCredentials.some(credential => credential.is_active) && (
-          <p className="text-xs text-muted-foreground">{t('inUse.inheritingHint')}</p>
+          <p className="pt-1 text-xs text-muted-foreground">{t('inUse.inheritingHint')}</p>
         )}
       </section>
 
       <section aria-label={t('sections.account')} className="space-y-3">
-        <h2 className="text-sm font-medium uppercase text-muted-foreground">
-          {t('sections.account')}
-        </h2>
+        <h2 className={SECTION_LABEL_CLASS}>{t('sections.account')}</h2>
 
         {loading ? (
-          <div className="flex items-center justify-center h-40">
-            <Loader2 className="h-8 w-8 animate-spin" />
+          <div className={cn(CARD_CLASS, 'flex h-40 items-center justify-center')}>
+            <Loader2 className="size-7 animate-spin text-muted-foreground" />
           </div>
         ) : accountCredentials.length === 0 ? (
           <EmptyState
+            className={cn(CARD_CLASS, 'rounded-2xl py-12')}
             icon={Key}
             title={t('empty.title')}
             description={t('empty.description')}
@@ -545,19 +631,22 @@ export default function AiCredentials() {
 
       <section aria-label={t('sections.installation')} className="space-y-3">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-sm font-medium uppercase text-muted-foreground">
-            {t('sections.installation')}
-          </h2>
+          <h2 className={SECTION_LABEL_CLASS}>{t('sections.installation')}</h2>
           {canCreateInScope('installation') && (
-            <Button variant="outline" size="sm" onClick={() => openCreateForm('installation')}>
-              <Plus className="mr-2 h-4 w-4" />
+            <Button
+              variant="outline"
+              size="sm"
+              className={GREEN_SOFT_BUTTON_CLASS}
+              onClick={() => openCreateForm('installation')}
+            >
+              <Plus className="mr-1.5 size-4" />
               {t('actions.add')}
             </Button>
           )}
         </div>
 
         {loading ? null : installationCredentials.length === 0 ? (
-          <p className="text-sm text-muted-foreground border border-dashed rounded-lg p-4">
+          <p className="rounded-[12px] border-[1.5px] border-dashed border-border px-5 py-6 text-center text-sm text-muted-foreground">
             {t('installationEmpty')}
           </p>
         ) : (
@@ -566,27 +655,32 @@ export default function AiCredentials() {
       </section>
 
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent>
+        <DialogContent className={DIALOG_CLASS}>
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-[18px] font-bold text-foreground">
               {isEditing ? t('form.title.edit') : t('form.title.new')}
             </DialogTitle>
             <DialogDescription>{t('description')}</DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="credential-name">{t('form.labels.name')}</Label>
+            <div className="grid gap-1.5">
+              <Label htmlFor="credential-name" className={LABEL_CLASS}>
+                {t('form.labels.name')}
+              </Label>
               <Input
                 id="credential-name"
+                className={FIELD_CLASS}
                 value={draft.name}
                 placeholder={t('form.placeholders.name')}
                 onChange={event => setDraft({ ...draft, name: event.target.value })}
               />
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="credential-provider">{t('form.labels.provider')}</Label>
+            <div className="grid gap-1.5">
+              <Label htmlFor="credential-provider" className={LABEL_CLASS}>
+                {t('form.labels.provider')}
+              </Label>
               <Select
                 value={draft.provider}
                 onValueChange={value =>
@@ -597,7 +691,10 @@ export default function AiCredentials() {
                   })
                 }
               >
-                <SelectTrigger id="credential-provider">
+                <SelectTrigger
+                  id="credential-provider"
+                  className={cn(FIELD_CLASS, 'w-full data-[size=default]:h-10')}
+                >
                   <SelectValue placeholder={t('form.placeholders.provider')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -611,10 +708,13 @@ export default function AiCredentials() {
             </div>
 
             {draft.provider === CUSTOM_OPENAI_PROVIDER && (
-              <div className="grid gap-2">
-                <Label htmlFor="credential-base-url">{t('form.labels.baseUrl')}</Label>
+              <div className="grid gap-1.5">
+                <Label htmlFor="credential-base-url" className={LABEL_CLASS}>
+                  {t('form.labels.baseUrl')}
+                </Label>
                 <Input
                   id="credential-base-url"
+                  className={FIELD_CLASS}
                   value={draft.base_url}
                   placeholder="https://api.example.com/v1"
                   onChange={event => setDraft({ ...draft, base_url: event.target.value })}
@@ -622,11 +722,14 @@ export default function AiCredentials() {
               </div>
             )}
 
-            <div className="grid gap-2">
-              <Label htmlFor="credential-key">{t('form.labels.key')}</Label>
+            <div className="grid gap-1.5">
+              <Label htmlFor="credential-key" className={LABEL_CLASS}>
+                {t('form.labels.key')}
+              </Label>
               <Input
                 id="credential-key"
                 type="password"
+                className={FIELD_CLASS}
                 value={draft.key_value}
                 placeholder={
                   isEditing ? t('form.placeholders.keyEdit') : t('form.placeholders.keyNew')
@@ -635,20 +738,40 @@ export default function AiCredentials() {
               />
             </div>
 
+            {isEditing && (
+              <div className="flex items-center justify-between gap-4 rounded-[10px] border border-border px-3.5 py-3">
+                <Label htmlFor="credential-active" className="text-sm font-semibold text-foreground">
+                  {t('form.labels.active')}
+                </Label>
+                <AgentToggle
+                  id="credential-active"
+                  checked={draft.is_active}
+                  onCheckedChange={checked => setDraft({ ...draft, is_active: checked })}
+                />
+              </div>
+            )}
+
             {draftIsIncompatible && (
-              <p role="alert" className="flex gap-2 text-sm text-amber-600">
-                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+              <p
+                role="alert"
+                className="flex gap-2 rounded-[12px] border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-700 dark:text-amber-400"
+              >
+                <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                 {t('form.incompatibleWarning', { provider: providerLabel(draft.provider) })}
               </p>
             )}
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setFormOpen(false)}>
+            <Button
+              variant="outline"
+              className={SECONDARY_BUTTON_CLASS}
+              onClick={() => setFormOpen(false)}
+            >
               {t('actions.cancel')}
             </Button>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button className={PRIMARY_BUTTON_CLASS} onClick={handleSave} disabled={saving}>
+              {saving && <Loader2 className="mr-2 size-4 animate-spin" />}
               {t('actions.save')}
             </Button>
           </DialogFooter>
@@ -659,17 +782,22 @@ export default function AiCredentials() {
         open={Boolean(credentialToDelete)}
         onOpenChange={open => !open && setCredentialToDelete(null)}
       >
-        <DialogContent>
+        <DialogContent className={cn(DIALOG_CLASS, 'sm:max-w-[470px]')}>
           <DialogHeader>
-            <DialogTitle>{t('deleteDialog.title')}</DialogTitle>
+            <DialogTitle className="text-[18px] font-bold text-foreground">
+              {t('deleteDialog.title')}
+            </DialogTitle>
             <DialogDescription>
               {t('deleteDialog.description', { name: credentialToDelete?.name })}
             </DialogDescription>
           </DialogHeader>
 
           {agentsUsingCredential.length > 0 && (
-            <p role="alert" className="flex gap-2 text-sm text-amber-600">
-              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+            <p
+              role="alert"
+              className="flex gap-2 rounded-[12px] border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-700 dark:text-amber-400"
+            >
+              <AlertTriangle className="mt-0.5 size-4 shrink-0" />
               {t('deleteDialog.inUseWarning', {
                 count: agentsUsingCredential.length,
                 agents: agentsUsingCredential.join(', '),
@@ -678,11 +806,20 @@ export default function AiCredentials() {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCredentialToDelete(null)}>
+            <Button
+              variant="outline"
+              className={SECONDARY_BUTTON_CLASS}
+              onClick={() => setCredentialToDelete(null)}
+            >
               {t('deleteDialog.cancel')}
             </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm} disabled={saving}>
-              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button
+              variant="destructive"
+              className="h-auto rounded-[9px] px-[18px] py-2.5 text-sm font-semibold"
+              onClick={handleDeleteConfirm}
+              disabled={saving}
+            >
+              {saving && <Loader2 className="mr-2 size-4 animate-spin" />}
               {t('deleteDialog.confirm')}
             </Button>
           </DialogFooter>

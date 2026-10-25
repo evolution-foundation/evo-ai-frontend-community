@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { toast } from 'sonner';
 import AiCredentials from './AiCredentials';
@@ -231,6 +231,109 @@ describe('AiCredentials — editing without resending the key (AC3)', () => {
     await waitFor(() => expect(updateApiKey).toHaveBeenCalled());
     const [, payload] = updateApiKey.mock.calls[0];
     expect(payload.key_value).toBe('sk-rotated-0001');
+  });
+});
+
+// CRM-42: the edit form carries the status toggle, alongside the row's quick action.
+describe('AiCredentials — status toggle in the edit form (CRM-42)', () => {
+  const editRow = async (name: string) => {
+    const row = (await screen.findByRole('cell', { name })).closest('tr')!;
+    return within(row).getByLabelText('actions.edit');
+  };
+
+  it('starts the toggle from the stored state and offers it only when editing', async () => {
+    const user = userEvent.setup();
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+    await screen.findByLabelText('form.labels.name');
+    expect(screen.queryByRole('switch', { name: 'form.labels.active' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByText('actions.cancel'));
+    // Stored inactive.
+    await user.click(await editRow('Testes'));
+    expect(await screen.findByRole('switch', { name: 'form.labels.active' })).not.toBeChecked();
+  });
+
+  it('keeps is_active out of the create payload', async () => {
+    const user = userEvent.setup();
+    createApiKey.mockResolvedValue(OPENAI_KEY);
+    render(<AiCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getByText('actions.add'));
+    await user.type(await screen.findByLabelText('form.labels.name'), 'Nova');
+    await user.click(screen.getByLabelText('form.labels.provider'));
+    await user.click(await screen.findByRole('option', { name: 'OpenAI' }));
+    await user.type(screen.getByLabelText('form.labels.key'), 'sk-nova-0001');
+    await user.click(screen.getByText('actions.save'));
+
+    await waitFor(() => expect(createApiKey).toHaveBeenCalled());
+    expect(createApiKey.mock.calls[0][0]).not.toHaveProperty('is_active');
+  });
+
+  // The status read on open can be stale: resending it untouched would reactivate a
+  // key someone deactivated in the meantime.
+  it('leaves is_active out of the edit when the toggle was not touched', async () => {
+    const user = userEvent.setup();
+    updateApiKey.mockResolvedValue(OPENAI_KEY);
+    render(<AiCredentials />);
+
+    await user.click(await editRow('Producao'));
+    await screen.findByRole('switch', { name: 'form.labels.active' });
+    await user.click(screen.getByText('actions.save'));
+
+    await waitFor(() => expect(updateApiKey).toHaveBeenCalled());
+    expect(updateApiKey.mock.calls[0][1]).not.toHaveProperty('is_active');
+  });
+
+  it('sends is_active with the edit once the toggle is flipped', async () => {
+    const user = userEvent.setup();
+    updateApiKey.mockResolvedValue(OPENAI_KEY);
+    render(<AiCredentials />);
+
+    await user.click(await editRow('Producao'));
+    const toggle = await screen.findByRole('switch', { name: 'form.labels.active' });
+    expect(toggle).toBeChecked();
+    await user.click(toggle);
+    await user.click(screen.getByText('actions.save'));
+
+    await waitFor(() => expect(updateApiKey).toHaveBeenCalled());
+    const [id, payload] = updateApiKey.mock.calls[0];
+    expect(id).toBe('key-openai');
+    expect(payload).toMatchObject({ name: 'Producao', is_active: false });
+    expect(payload).not.toHaveProperty('key_value');
+  });
+
+  it('leaves is_active out when the toggle is flipped back to the stored state', async () => {
+    const user = userEvent.setup();
+    updateApiKey.mockResolvedValue(OPENAI_KEY);
+    render(<AiCredentials />);
+
+    await user.click(await editRow('Producao'));
+    const toggle = await screen.findByRole('switch', { name: 'form.labels.active' });
+    await user.click(toggle);
+    await user.click(toggle);
+    expect(toggle).toBeChecked();
+    await user.click(screen.getByText('actions.save'));
+
+    await waitFor(() => expect(updateApiKey).toHaveBeenCalled());
+    expect(updateApiKey.mock.calls[0][1]).not.toHaveProperty('is_active');
+  });
+
+  it('closes the form on a click outside', async () => {
+    const user = userEvent.setup();
+    render(<AiCredentials />);
+
+    await user.click(await editRow('Producao'));
+    await screen.findByLabelText('form.labels.key');
+
+    // Radix locks `pointer-events` on the body while the dialog is open, so drive the
+    // dismissable layer directly instead of through userEvent's pointer guard.
+    fireEvent.pointerDown(document.body, { bubbles: true, button: 0, ctrlKey: false });
+    await waitFor(() => expect(screen.queryByLabelText('form.labels.key')).not.toBeInTheDocument());
+    expect(updateApiKey).not.toHaveBeenCalled();
   });
 });
 
