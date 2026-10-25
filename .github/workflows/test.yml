@@ -37,7 +37,7 @@ jobs:
       #   - RolesList: the row icon keeps matching what the detail screen allows.
       #   - campaignsService (EVO-1838): the campaign endpoints keep their
       #     bare-body fallback when the backend skips the response envelope.
-      #   - campaign action gates (CRM-824): each campaign action, single or bulk,
+      #   - campaign action gates: each campaign action, single or bulk,
       #     shows only with the key the CRM proxy checks for it; with every key the
       #     screen is unchanged.
       #   - Users (EVO-1947): a list reload keeps carrying the search term and
