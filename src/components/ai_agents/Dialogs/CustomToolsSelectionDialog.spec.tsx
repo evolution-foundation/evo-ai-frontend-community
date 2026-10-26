@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent } from '@testing-library/react';
 import CustomToolsSelectionDialog from './CustomToolsSelectionDialog';
@@ -7,9 +8,9 @@ vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({ t: (key: string) => key }),
 }));
 
-const mockListCustomTools = vi.fn();
+const mockListCustomToolsPage = vi.fn();
 vi.mock('@/services/agents/customToolsService', () => ({
-  listCustomTools: (...args: unknown[]) => mockListCustomTools(...args),
+  listCustomToolsPage: (...args: unknown[]) => mockListCustomToolsPage(...args),
   createCustomTool: vi.fn(),
 }));
 
@@ -27,6 +28,22 @@ vi.mock('sonner', () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
+const tool = (n: number) => ({
+  id: `tool-${n}`,
+  name: `Tool ${n}`,
+  description: '',
+  method: 'GET',
+  endpoint: `https://api.example.com/${n}`,
+  tags: [] as string[],
+});
+
+// Answers `skip`/`limit` like the core does, out of a base of `count` tools.
+const serveTools = (count: number) =>
+  mockListCustomToolsPage.mockImplementation(async ({ skip, limit }: { skip: number; limit: number }) => ({
+    tools: Array.from({ length: Math.max(0, Math.min(limit, count - skip)) }, (_, i) => tool(skip + i + 1)),
+    total: count,
+  }));
+
 const makeProps = (overrides = {}) => ({
   open: true,
   onOpenChange: vi.fn(),
@@ -38,7 +55,7 @@ const makeProps = (overrides = {}) => ({
 describe('CustomToolsSelectionDialog', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockListCustomTools.mockResolvedValue([]);
+    mockListCustomToolsPage.mockResolvedValue({ tools: [], total: 0 });
   });
 
   it('renders "Create new tool" button in the header alongside search', async () => {
@@ -87,5 +104,20 @@ describe('CustomToolsSelectionDialog', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('custom-tool-wizard')).toBeNull();
     });
+  });
+
+  it('reaches the tool past the first page through the search and adds it', async () => {
+    serveTools(101);
+    const onSave = vi.fn();
+    const user = userEvent.setup();
+    render(<CustomToolsSelectionDialog {...makeProps({ onSave })} />);
+
+    await waitFor(() => expect(screen.getByText('Tool 1')).toBeTruthy());
+    await user.type(screen.getByPlaceholderText('dialogs.customTools.searchPlaceholder'), 'Tool 101');
+    await user.click(screen.getByText('Tool 101'));
+    await user.click(screen.getByText('dialogs.customTools.addSelected'));
+
+    expect(mockListCustomToolsPage).toHaveBeenCalledWith({ skip: 100, limit: 100 });
+    expect(onSave).toHaveBeenCalledWith([expect.objectContaining({ id: 'tool-101' })]);
   });
 });

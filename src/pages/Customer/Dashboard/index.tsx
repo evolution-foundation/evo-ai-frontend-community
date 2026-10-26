@@ -8,6 +8,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { getDateFnsLocale } from '@/lib/dateFnsLocale';
 import { pipelinesService } from '@/services/pipelines';
 import TeamsService from '@/services/teams/teamsService';
+import { fetchAllPages } from '@/utils/fetchAllPages';
 import InboxesService from '@/services/channels/inboxesService';
 import { usersService } from '@/services/users';
 import { customerDashboardService } from '@/services/dashboard/customerDashboardService';
@@ -124,14 +125,17 @@ const CustomerDashboardPage = () => {
       try {
         const [pipelinesResponse, teamsResponse, inboxesResponse, usersResponse] = await Promise.all([
           pipelinesService.getPipelines({ page: 1, per_page: 100, sort: 'name', order: 'asc' }),
-          TeamsService.getTeams({ page: 1, per_page: 100, sort: 'name', order: 'asc' }),
-          InboxesService.list(),
+          TeamsService.getAllTeams({ sort: 'name', order: 'asc' }),
+          fetchAllPages(200, async (page, per_page) => {
+            const response = await InboxesService.list({ page, per_page });
+            return { items: response.data || [], total: response.meta?.pagination?.total };
+          }),
           usersService.getAccountUsers({ sort: 'name', order: 'asc' }),
         ]);
 
         setPipelines((pipelinesResponse.data || []).map(item => ({ id: item.id, name: item.name })));
-        setTeams((teamsResponse.data || []).map(item => ({ id: item.id, name: item.name })));
-        setInboxes((inboxesResponse.data || []).map(item => ({ id: item.id, name: item.name })));
+        setTeams(teamsResponse.map(item => ({ id: item.id, name: item.name })));
+        setInboxes(inboxesResponse.map(item => ({ id: item.id, name: item.name })));
         setUsers(usersResponse.map(item => ({ id: item.id, name: item.available_name || item.name })));
       } catch (err) {
         console.error('Error loading dashboard filter options:', err);

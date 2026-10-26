@@ -12,7 +12,7 @@ vi.mock('@/services/channels/inboxesService', () => ({
   default: { list: vi.fn() },
 }));
 vi.mock('@/services/contacts/labelsService', () => ({
-  labelsService: { getLabels: vi.fn() },
+  labelsService: { getAllLabels: vi.fn() },
 }));
 vi.mock('@/services/users/usersService', () => ({
   default: { getUsers: vi.fn(), getAccountUsers: vi.fn() },
@@ -388,34 +388,83 @@ describe('EventPropertiesForm — section labels name a group (CRM-141)', () => 
   });
 });
 
-// CRM-519 review: a lookup that asks for the default page silently drops every
-// record past it (20 in the CRM, 25 in evo-flow) — the dropdown looks complete
-// and is not. Pin the page size each lookup sends.
-describe('EventPropertiesForm — lookup page sizes', () => {
-  const cases: Array<[string, string, () => ReturnType<typeof vi.fn>, unknown]> = [
-    ['conversation.created', 'inbox_id', () => asMock(InboxesService.list), { per_page: 200 }],
-    ['contact.label.added', 'labelId', () => asMock(labelsService.getLabels), { per_page: 200 }],
+// A lookup that stops at the first page drops every record past it, and the
+// dropdown looks complete. Each paged lookup walks to the last page.
+describe('EventPropertiesForm — lookups reach every page', () => {
+  // Serves `count` records `per_page` at a time, with the total in the CRM meta.
+  const pagedBy = (count: number, record: (n: number) => Record<string, unknown>) =>
+    async ({ page, per_page }: { page: number; per_page: number }) => {
+      const start = (page - 1) * per_page;
+      const length = Math.max(0, Math.min(per_page, count - start));
+      return {
+        data: Array.from({ length }, (_, i) => record(start + i + 1)),
+        meta: { pagination: { total: count } },
+      };
+    };
+
+  const cases: Array<[string, string, string, () => ReturnType<typeof vi.fn>, number, string]> = [
+    [
+      'conversation.created',
+      'inbox_id',
+      'inbox',
+      () => asMock(InboxesService.list),
+      200,
+      'Inbox',
+    ],
     // evo-flow's CampaignQueryDto rejects anything over 100.
-    ['campaign.message.sent', 'campaign_id', () => asMock(campaignsService.getCampaigns), { per_page: 100 }],
-    // message_templates has an explicit unpaginated branch for -1.
     [
       'campaign.message.sent',
-      'template_id',
-      () => asMock(GlobalMessageTemplateService.getTemplates),
-      { per_page: -1 },
+      'campaign_id',
+      'campaign',
+      () => asMock(campaignsService.getCampaigns),
+      100,
+      'Campaign',
     ],
   ];
 
-  it.each(cases)('%s → %s asks for a full page', async (eventName, key, getMock, expected) => {
-    const mock = getMock();
-    mock.mockResolvedValue({ data: [] });
+  it.each(cases)(
+    '%s → %s offers the record past the first page',
+    async (eventName, key, kind, getMock, perPage, prefix) => {
+      const last = perPage + 1;
+      getMock().mockImplementation(
+        pagedBy(last, (n) => ({ id: `${kind}-${n}`, name: `${prefix} ${n}`, title: `${prefix} ${n}` })),
+      );
+      const user = userEvent.setup();
+      render(<Harness eventName={eventName} />);
+
+      const listbox = await openPicker(user);
+      await user.click(within(listbox).getByText(key));
+      await waitFor(() => expect(getMock()).toHaveBeenCalledWith({ page: 2, per_page: perPage }));
+
+      await user.click(screen.getByTestId(`lookup-${kind}`));
+      const options = await screen.findByRole('listbox');
+      expect(within(options).getByText(`${prefix} ${last}`)).toBeTruthy();
+    },
+  );
+
+  it('contact.label.added → labelId reads every label page', async () => {
+    const mock = asMock(labelsService.getAllLabels);
+    mock.mockResolvedValue([{ id: 'l1', title: 'vip' }]);
     const user = userEvent.setup();
-    render(<Harness eventName={eventName} />);
+    render(<Harness eventName="contact.label.added" />);
 
     const listbox = await openPicker(user);
-    await user.click(within(listbox).getByText(key));
+    await user.click(within(listbox).getByText('labelId'));
 
-    await waitFor(() => expect(mock).toHaveBeenCalledWith(expected));
+    await waitFor(() => expect(mock).toHaveBeenCalledTimes(1));
+  });
+
+  // message_templates has an explicit unpaginated branch for -1.
+  it('campaign.message.sent → template_id asks for the unpaginated list', async () => {
+    const mock = asMock(GlobalMessageTemplateService.getTemplates);
+    mock.mockResolvedValue({ data: [] });
+    const user = userEvent.setup();
+    render(<Harness eventName="campaign.message.sent" />);
+
+    const listbox = await openPicker(user);
+    await user.click(within(listbox).getByText('template_id'));
+
+    await waitFor(() => expect(mock).toHaveBeenCalledWith({ per_page: -1 }));
   });
 
   // CRM-539: people come from the account directory, which walks every page

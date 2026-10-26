@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
@@ -23,6 +23,9 @@ import SegmentsHeader from '@/components/segments/SegmentsHeader';
 import SegmentsTable from '@/components/segments/SegmentsTable';
 import SegmentsPagination from '@/components/segments/SegmentsPagination';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
+import { fetchAllPages } from '@/utils/fetchAllPages';
+
+const CONTACT_IDS_PAGE_SIZE = 1000;
 
 const INITIAL_STATE: SegmentsState = {
   segments: [],
@@ -58,6 +61,8 @@ export default function Segments() {
   const [contactIdsDialogOpen, setContactIdsDialogOpen] = useState(false);
   const [selectedSegmentForIds, setSelectedSegmentForIds] = useState<Segment | null>(null);
   const [contactIds, setContactIds] = useState<string[]>([]);
+  // The segment whose ids the dialog is waiting for: a slower load of an earlier one is dropped.
+  const contactIdsRequestRef = useRef<string | null>(null);
 
   // Load segments
   const loadSegments = useCallback(async () => {
@@ -208,14 +213,19 @@ export default function Segments() {
 
   const handleViewContactIds = async (segment: Segment) => {
     setSelectedSegmentForIds(segment);
+    setContactIds([]);
     setContactIdsDialogOpen(true);
+    contactIdsRequestRef.current = segment.id;
 
     try {
-      const result = await segmentsService.getSegmentContactIds(segment.id, {
-        limit: 1000,
-        offset: 0,
+      const ids = await fetchAllPages(CONTACT_IDS_PAGE_SIZE, async (page, limit) => {
+        const result = await segmentsService.getSegmentContactIds(segment.id, {
+          limit,
+          offset: (page - 1) * limit,
+        });
+        return { items: result.contactIds, total: result.total };
       });
-      setContactIds(result.contactIds);
+      if (contactIdsRequestRef.current === segment.id) setContactIds(ids);
     } catch (error) {
       console.error('Error loading contact IDs:', error);
       toast.error(t('messages.loadContactIdsError'));

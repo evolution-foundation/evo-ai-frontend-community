@@ -12,11 +12,20 @@ import {
   Checkbox,
 } from '@evoapi/design-system';
 import { Search, Code, Tag, Plus, ExternalLink } from 'lucide-react';
-import { listCustomTools, createCustomTool } from '@/services/agents/customToolsService';
+import { listCustomToolsPage, createCustomTool } from '@/services/agents/customToolsService';
 import { CustomTool, CustomToolFormData } from '@/types/ai';
 import { useLanguage } from '@/hooks/useLanguage';
 import CustomToolWizardModal from '@/components/customTools/CustomToolWizardModal';
 import { toast } from 'sonner';
+import { fetchAllPages } from '@/utils/fetchAllPages';
+
+const TOOLS_PAGE_SIZE = 100;
+
+const listAllCustomTools = () =>
+  fetchAllPages(TOOLS_PAGE_SIZE, async (page, pageSize) => {
+    const { tools, total } = await listCustomToolsPage({ skip: (page - 1) * pageSize, limit: pageSize });
+    return { items: tools, total };
+  });
 
 interface CustomToolsSelectionDialogProps {
   open: boolean;
@@ -70,28 +79,36 @@ const CustomToolsSelectionDialog = ({
       return;
     }
 
+    // A load still running when the dialog closes must not fill the next opening.
+    let cancelled = false;
+
     const loadTools = async () => {
       try {
         setLoading(true);
         hasLoadedRef.current = true;
 
-        const tools = await listCustomTools({ skip: 0, limit: 100 });
-        setCustomTools(tools);
+        const tools = await listAllCustomTools();
+        if (!cancelled) setCustomTools(tools);
       } catch (error) {
         console.error('Error loading custom tools:', error);
-        setCustomTools([]);
+        if (!cancelled) setCustomTools([]);
         hasLoadedRef.current = false;
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     loadTools();
+
+    return () => {
+      cancelled = true;
+      hasLoadedRef.current = false;
+    };
   }, [open]);
 
   const reloadTools = async () => {
     try {
-      const tools = await listCustomTools({ skip: 0, limit: 100 });
+      const tools = await listAllCustomTools();
       setCustomTools(tools);
     } catch (error) {
       console.error('Error reloading custom tools:', error);

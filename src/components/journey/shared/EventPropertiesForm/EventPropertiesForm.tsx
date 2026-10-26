@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 import { getEvent, isCustomEvent, type FieldSpec } from '@/lib/events-manifest';
 import { useLanguage } from '@/hooks/useLanguage';
 import { toDateTimeLocalValue } from '@/utils/time/dateTimeLocal';
+import { fetchAllPages } from '@/utils/fetchAllPages';
 import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import InboxesService from '@/services/channels/inboxesService';
 import { labelsService } from '@/services/contacts/labelsService';
@@ -346,9 +347,9 @@ interface LookupOption {
   type?: string;
 }
 
-// Every paged list endpoint gets an explicit page size, or the default (20 in
-// the CRM, 25 in evo-flow) truncates the dropdown in silence. Agents cap at
-// the auth service's MAX_PAGE_SIZE of 100; pipelines and stages do not paginate.
+// Every paged list endpoint is walked to its last page, or the dropdown stops at
+// the first one in silence. evo-flow rejects a campaign page over 100; pipelines
+// and stages do not paginate.
 async function loadLookup(kind: LookupKind, pipelineId?: string): Promise<LookupOption[]> {
   switch (kind) {
     case 'pipeline': {
@@ -361,20 +362,26 @@ async function loadLookup(kind: LookupKind, pipelineId?: string): Promise<Lookup
       return (response?.data || []).map((s) => ({ id: String(s.id), name: s.name }));
     }
     case 'inbox': {
-      const response = await InboxesService.list({ per_page: 200 });
-      return (response?.data || []).map((i) => ({ id: String(i.id), name: i.name, type: i.channel_type }));
+      const inboxes = await fetchAllPages(200, async (page, per_page) => {
+        const response = await InboxesService.list({ page, per_page });
+        return { items: response?.data || [], total: response?.meta?.pagination?.total };
+      });
+      return inboxes.map((i) => ({ id: String(i.id), name: i.name, type: i.channel_type }));
     }
     case 'label': {
-      const response = await labelsService.getLabels({ per_page: 200 });
-      return (response?.data || []).map((l) => ({ id: String(l.id), name: l.title }));
+      const labels = await labelsService.getAllLabels();
+      return labels.map((l) => ({ id: String(l.id), name: l.title }));
     }
     case 'agent': {
       const users = await UsersService.getAccountUsers();
       return users.map((u) => ({ id: String(u.id), name: u.name }));
     }
     case 'campaign': {
-      const response = await campaignsService.getCampaigns({ per_page: 100 });
-      return (response?.data || []).map((c) => ({ id: String(c.id), name: c.title || c.name }));
+      const campaigns = await fetchAllPages(100, async (page, per_page) => {
+        const response = await campaignsService.getCampaigns({ page, per_page });
+        return { items: response?.data || [], total: response?.meta?.pagination?.total };
+      });
+      return campaigns.map((c) => ({ id: String(c.id), name: c.title || c.name }));
     }
     case 'template': {
       const response = await GlobalMessageTemplateService.getTemplates({ per_page: -1 });

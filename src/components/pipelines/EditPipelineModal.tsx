@@ -96,8 +96,8 @@ export default function EditPipelineModal({
   useEffect(() => {
     if (formData.visibility === 'team' && teams.length === 0) {
       setTeamsLoading(true);
-      TeamsService.getTeams({ page: 1, per_page: 100, sort: 'name', order: 'asc' })
-        .then(response => setTeams(response.data))
+      TeamsService.getAllTeams({ sort: 'name', order: 'asc' })
+        .then(setTeams)
         .catch(err => console.error('Error loading teams:', err))
         .finally(() => setTeamsLoading(false));
     }

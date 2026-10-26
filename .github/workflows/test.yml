@@ -301,6 +301,13 @@ jobs:
             src/components/journey/nodes/trigger/components/EventBasicConfig.spec.tsx \
             src/i18n/locales/journey-parity.spec.ts \
             src/pages/Customer/Campaigns/NewCampaign/wizard/Step4_Settings.spreadWindow.spec.tsx \
+            src/pages/Customer/Campaigns/NewCampaign/wizard/Step2_Audience.spec.tsx \
+            src/components/ai_agents/Dialogs/CustomToolsSelectionDialog.spec.tsx \
+            src/components/ai_agents/Dialogs/CustomMCPDialog.spec.tsx \
+            src/components/journey/nodes/trigger/components/SegmentConfiguration.spec.tsx \
+            src/pages/Customer/Settings/Segments/Segments.spec.tsx \
+            src/services/teams/teamsService.spec.ts \
+            src/utils/fetchAllPages.spec.ts \
             src/services/auth/accessTokensService.spec.ts \
             src/components/AccessTokens/ViewTokenModal.spec.tsx \
             src/services/users/usersService.spec.ts \
