@@ -155,8 +155,8 @@ describe('CRM proxy migration (EVO-2191)', () => {
     expect(api.post).toHaveBeenCalledWith('/journeys', expect.objectContaining({ name: 'x' }));
   });
 
-  // The envelope tests above only reach 8 of the 16 calls; a leftover `apiEvoFlow`
-  // in any of the others would still ship green. Drive each remaining verb and
+  // The envelope tests above only reach 8 of the 16 calls; any of the others moved
+  // off the proxy client would still ship green. Drive each remaining verb and
   // assert the mocked proxy client took the call — the migration invariant, with
   // no path string pinned (the subpath -> permission mapping is the backend's).
   it.each([
