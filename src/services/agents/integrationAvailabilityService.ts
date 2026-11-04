@@ -26,17 +26,18 @@ import api from '@/services/core/api';
 
 /**
  * Fetch the raw availability map (snake_case keys as returned by the backend).
- * Fail-safe: on any error, resolves to `{}` (nothing available) instead of
- * throwing, so the editor tabs never crash on a network/permission failure.
+ * Fail-safe: on any error, resolves to `null` instead of throwing, so the editor
+ * tabs never crash on a network/permission failure and can still tell "the check
+ * failed" apart from "not configured".
  */
-export async function getIntegrationAvailability(): Promise<Record<string, boolean>> {
+export async function getIntegrationAvailability(): Promise<Record<string, boolean> | null> {
   try {
     const res = await api.get('/integrations/availability');
     const data = res.data?.data;
     return data && typeof data === 'object' ? (data as Record<string, boolean>) : {};
   } catch (error) {
     console.error('Error loading integration availability:', error);
-    return {};
+    return null;
   }
 }
 

@@ -7,6 +7,7 @@ interface CompactIntegrationCardProps {
   name: string;
   description: string;
   action: ReactNode;
+  notice?: ReactNode;
 }
 
 /** Compact horizontal card shared by the Integrations and MCP blocks. */
@@ -15,6 +16,7 @@ export function CompactIntegrationCard({
   name,
   description,
   action,
+  notice,
 }: CompactIntegrationCardProps) {
   const hasBrandIcon = Boolean(getBrandIcon(id));
 
@@ -36,6 +38,7 @@ export function CompactIntegrationCard({
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold">{name}</p>
         <p className="line-clamp-2 text-xs text-muted-foreground">{description}</p>
+        {notice && <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">{notice}</p>}
       </div>
 
       <div className="w-full flex-shrink-0 md:w-auto">{action}</div>
