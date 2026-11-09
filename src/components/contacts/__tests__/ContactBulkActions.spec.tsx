@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ContactBulkLabelsModal from '../ContactBulkLabelsModal';
 import ContactBulkAttributeModal from '../ContactBulkAttributeModal';
@@ -8,6 +8,13 @@ vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({
     t: (key: string) => key,
   }),
+}));
+
+const mockGetCustomAttributes = vi.fn();
+vi.mock('@/services/customAttributes/customAttributesService', () => ({
+  customAttributesService: {
+    getCustomAttributes: (...args: unknown[]) => mockGetCustomAttributes(...args),
+  },
 }));
 
 let granted: string[] = [];
@@ -65,6 +72,46 @@ describe('ContactBulkLabelsModal', () => {
 });
 
 describe('ContactBulkAttributeModal', () => {
+  const renderModal = (onConfirm = vi.fn()) => {
+    render(
+      <ContactBulkAttributeModal open onOpenChange={vi.fn()} selectedCount={3} onConfirm={onConfirm} loading={false} />,
+    );
+    return onConfirm;
+  };
+
+  beforeEach(() => {
+    mockGetCustomAttributes.mockResolvedValue({
+      data: [
+        { attribute_key: 'vip', attribute_display_name: 'VIP', attribute_display_type: 'checkbox' },
+        { attribute_key: 'tier', attribute_display_name: 'Tier', attribute_display_type: 'list', attribute_values: ['gold', 'silver'] },
+      ],
+    });
+  });
+
+  it('writes a defined checkbox attribute as a boolean', async () => {
+    const onConfirm = renderModal();
+    await waitFor(() => expect(mockGetCustomAttributes).toHaveBeenCalledWith('contact_attribute'));
+
+    fireEvent.change(screen.getByLabelText('dialog.bulkAttribute.key'), { target: { value: 'vip' } });
+    fireEvent.click(await screen.findByRole('checkbox'));
+    fireEvent.click(screen.getByRole('button', { name: 'dialog.bulkAttribute.apply' }));
+
+    expect(onConfirm).toHaveBeenCalledWith('vip', true);
+  });
+
+  it('offers only the values of a defined list attribute', async () => {
+    const onConfirm = renderModal();
+    fireEvent.change(screen.getByLabelText('dialog.bulkAttribute.key'), { target: { value: 'tier' } });
+
+    await waitFor(() => expect(screen.getByLabelText('dialog.bulkAttribute.value').tagName).toBe('SELECT'));
+    const select = screen.getByLabelText('dialog.bulkAttribute.value');
+    expect(Array.from((select as HTMLSelectElement).options).map(option => option.value)).toEqual(['', 'gold', 'silver']);
+    fireEvent.change(select, { target: { value: 'silver' } });
+    fireEvent.click(screen.getByRole('button', { name: 'dialog.bulkAttribute.apply' }));
+
+    expect(onConfirm).toHaveBeenCalledWith('tier', 'silver');
+  });
+
   it('needs a key and a value, and sends them trimmed', () => {
     const onConfirm = vi.fn();
     render(

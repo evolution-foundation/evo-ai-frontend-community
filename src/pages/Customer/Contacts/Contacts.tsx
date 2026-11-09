@@ -741,7 +741,7 @@ export default function Contacts() {
     }
   };
 
-  const confirmBulkAttribute = async (key: string, value: string) => {
+  const confirmBulkAttribute = async (key: string, value: string | boolean) => {
     if (state.selectedContactIds.length === 0) return;
 
     setState(prev => ({ ...prev, loading: { ...prev.loading, bulk: true } }));
