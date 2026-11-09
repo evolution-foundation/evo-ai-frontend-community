@@ -584,4 +584,36 @@ describe('ConversationsContext reducer', () => {
       expect(next.conversations[0].contact?.name).toBe('Maria');
     });
   });
+
+  describe('SET_CONVERSATION_ASSIGNMENT', () => {
+    it('patches the listed and the selected conversation', () => {
+      const state = {
+        ...initialState,
+        conversations: [makeConversation({ id: 'conversation-1', assignee_id: 'user-1', team_id: null })],
+        selectedConversationId: 'conversation-1',
+        selectedConversationData: makeConversation({ id: 'conversation-1', assignee_id: 'user-1', team_id: null }),
+      };
+
+      const next = conversationsReducer(state, {
+        type: 'SET_CONVERSATION_ASSIGNMENT',
+        payload: { conversationId: 'conversation-1', team_id: 'team-1' },
+      });
+
+      expect(next.conversations[0].team_id).toBe('team-1');
+      expect(next.conversations[0].assignee_id).toBe('user-1');
+      expect(next.selectedConversationData?.team_id).toBe('team-1');
+    });
+
+    it('never inserts a conversation that is not loaded', () => {
+      const state = { ...initialState, conversations: [makeConversation({ id: 'conversation-1' })] };
+
+      const next = conversationsReducer(state, {
+        type: 'SET_CONVERSATION_ASSIGNMENT',
+        payload: { conversationId: 'conversation-2', assignee_id: null },
+      });
+
+      expect(next.conversations).toHaveLength(1);
+      expect(next.conversations[0].id).toBe('conversation-1');
+    });
+  });
 });

@@ -843,10 +843,11 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
   const assignAgent = useCallback(
     async (conversationId: string, assigneeId: string | null) => {
       try {
-        const updatedConversation = await conversationAPI.assignAgent(conversationId, assigneeId);
+        await conversationAPI.assignAgent(conversationId, assigneeId);
+        // The endpoint answers with the assignee alone, not the conversation.
         dispatch({
-          type: 'UPDATE_CONVERSATION',
-          payload: updatedConversation as unknown as Conversation,
+          type: 'SET_CONVERSATION_ASSIGNMENT',
+          payload: { conversationId, assignee_id: assigneeId },
         });
 
         // Assignment moves a conversation in and out of "mine".
@@ -874,12 +875,12 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
   const assignTeam = useCallback(
     async (conversationId: string, teamId: string | null) => {
       try {
-        const updatedConversation = await conversationAPI.assignTeam(conversationId, teamId);
-
-        // Update local state
+        await conversationAPI.assignTeam(conversationId, teamId);
+        // The endpoint answers with the team alone, not the conversation. A dropped
+        // agent arrives with the realtime update.
         dispatch({
-          type: 'UPDATE_CONVERSATION',
-          payload: updatedConversation as unknown as Conversation,
+          type: 'SET_CONVERSATION_ASSIGNMENT',
+          payload: { conversationId, team_id: teamId },
         });
 
         // The backend drops an agent who is not in the new team, so "mine" can change too.

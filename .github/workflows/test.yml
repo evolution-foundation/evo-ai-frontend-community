@@ -195,6 +195,8 @@ jobs:
       #     query), not the window's, so an open test panel drops it to one column.
       #   - conversation assignment: the team call sends only team_id and the agent call
       #     only assignee_id; a null assignee_id next to team_id unassigns the agent.
+      #   - conversation realtime: the agent and team ids are read from meta, where
+      #     push_event_data carries them; copying the absent top-level ids blanked them.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -329,7 +331,8 @@ jobs:
             src/pages/Customer/Channels/ChannelSettings.spec.tsx \
             src/components/agents/AgentTestChat.spec.tsx \
             src/pages/Customer/Agents/Agent/sections/ProfileSection.spec.tsx \
-            src/services/conversations/conversationService.spec.ts
+            src/services/conversations/conversationService.spec.ts \
+            src/contexts/chat/WebSocketContext.spec.tsx
 
   # Lint gate scoped to the files the PR touched.
   eslint:

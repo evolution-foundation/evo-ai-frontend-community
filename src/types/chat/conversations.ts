@@ -30,6 +30,10 @@ export type ConversationsAction =
   | { type: 'SELECT_CONVERSATION'; payload: string | null }
   | { type: 'SET_SELECTED_CONVERSATION_DATA'; payload: Conversation | null }
   | { type: 'UPDATE_CONVERSATION'; payload: Conversation }
+  | {
+      type: 'SET_CONVERSATION_ASSIGNMENT';
+      payload: { conversationId: string; assignee_id?: string | null; team_id?: string | null };
+    }
   | { type: 'UPDATE_CONTACT_IN_CONVERSATIONS'; payload: Contact }
   | { type: 'ADD_CONVERSATION'; payload: Conversation }
   | { type: 'REMOVE_CONVERSATION'; payload: string }
