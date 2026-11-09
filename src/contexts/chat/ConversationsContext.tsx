@@ -882,6 +882,9 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
           payload: updatedConversation as unknown as Conversation,
         });
 
+        // The backend drops an agent who is not in the new team, so "mine" can change too.
+        useUnansweredConversationsStore.getState().fetch();
+
         toast.success(
           teamId
             ? t('contexts.conversations.success.teamAssigned')
