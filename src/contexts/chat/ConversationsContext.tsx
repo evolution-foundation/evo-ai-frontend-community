@@ -19,6 +19,7 @@ import { Contact, Conversation, ConversationListParams, ConversationsQuery } fro
 import { PaginationMeta } from '@/types/core';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 import { matchesConversationId } from '@/utils/chat/conversationMatcher';
+import { assignmentFromConversation, type AssignmentPatch } from '@/utils/chat/assignmentFromConversation';
 
 export function ConversationsProvider({ children }: { children: React.ReactNode }) {
   const { t } = useLanguage('chat');
@@ -840,15 +841,30 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
     [t],
   );
 
+  // The assignments endpoint answers with the assignee or the team alone, and a team
+  // change can also drop the agent, so the conversation is read back to apply both
+  // ids and the assignee shown in the list. If that read fails, the sent id is applied.
+  const syncAssignment = useCallback(
+    async (
+      conversationId: string,
+      sent: { assignee_id?: string | null; team_id?: string | null },
+    ) => {
+      let patch: AssignmentPatch = sent;
+      try {
+        patch = assignmentFromConversation(await conversationAPI.getConversation(conversationId));
+      } catch (error) {
+        console.warn('Could not reload the conversation after an assignment:', error);
+      }
+      dispatch({ type: 'SET_CONVERSATION_ASSIGNMENT', payload: { conversationId, ...patch } });
+    },
+    [],
+  );
+
   const assignAgent = useCallback(
     async (conversationId: string, assigneeId: string | null) => {
       try {
         await conversationAPI.assignAgent(conversationId, assigneeId);
-        // The endpoint answers with the assignee alone, not the conversation.
-        dispatch({
-          type: 'SET_CONVERSATION_ASSIGNMENT',
-          payload: { conversationId, assignee_id: assigneeId },
-        });
+        await syncAssignment(conversationId, { assignee_id: assigneeId });
 
         // Assignment moves a conversation in and out of "mine".
         useUnansweredConversationsStore.getState().fetch();
@@ -869,19 +885,14 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         throw error;
       }
     },
-    [t],
+    [t, syncAssignment],
   );
 
   const assignTeam = useCallback(
     async (conversationId: string, teamId: string | null) => {
       try {
         await conversationAPI.assignTeam(conversationId, teamId);
-        // The endpoint answers with the team alone, not the conversation. A dropped
-        // agent arrives with the realtime update.
-        dispatch({
-          type: 'SET_CONVERSATION_ASSIGNMENT',
-          payload: { conversationId, team_id: teamId },
-        });
+        await syncAssignment(conversationId, { team_id: teamId });
 
         // The backend drops an agent who is not in the new team, so "mine" can change too.
         useUnansweredConversationsStore.getState().fetch();
@@ -902,7 +913,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         throw error;
       }
     },
-    [t],
+    [t, syncAssignment],
   );
 
   const assignLabels = useCallback(async (conversationId: string, labels: string[]) => {

@@ -604,6 +604,21 @@ describe('ConversationsContext reducer', () => {
       expect(next.selectedConversationData?.team_id).toBe('team-1');
     });
 
+    it('patches a hidden conversation too, so revealing it keeps the new assignment', () => {
+      const state = {
+        ...initialState,
+        hiddenConversations: [makeConversation({ id: 'conversation-9', assignee_id: 'user-1' })],
+      };
+
+      const next = conversationsReducer(state, {
+        type: 'SET_CONVERSATION_ASSIGNMENT',
+        payload: { conversationId: 'conversation-9', assignee_id: null, assignee: null },
+      });
+
+      expect(next.hiddenConversations[0].assignee_id).toBeNull();
+      expect(next.hiddenConversations[0].assignee).toBeNull();
+    });
+
     it('never inserts a conversation that is not loaded', () => {
       const state = { ...initialState, conversations: [makeConversation({ id: 'conversation-1' })] };
 

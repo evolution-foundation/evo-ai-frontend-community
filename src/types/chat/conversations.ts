@@ -32,7 +32,9 @@ export type ConversationsAction =
   | { type: 'UPDATE_CONVERSATION'; payload: Conversation }
   | {
       type: 'SET_CONVERSATION_ASSIGNMENT';
-      payload: { conversationId: string; assignee_id?: string | null; team_id?: string | null };
+      payload: { conversationId: string } & Partial<
+        Pick<Conversation, 'assignee_id' | 'team_id' | 'assignee' | 'team'>
+      >;
     }
   | { type: 'UPDATE_CONTACT_IN_CONVERSATIONS'; payload: Contact }
   | { type: 'ADD_CONVERSATION'; payload: Conversation }

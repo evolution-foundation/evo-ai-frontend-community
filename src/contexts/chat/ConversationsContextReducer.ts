@@ -487,6 +487,7 @@ export function conversationsReducer(
       return {
         ...state,
         conversations: state.conversations.map(conv => (conv ? patch(conv) : conv)),
+        hiddenConversations: state.hiddenConversations.map(patch),
         selectedConversationData: selected ? patch(selected) : selected,
       };
     }
