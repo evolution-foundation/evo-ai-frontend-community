@@ -262,6 +262,7 @@ jobs:
             src/components/contacts/ContactsTable.spec.tsx \
             src/components/contacts/__tests__/ContactEventCard.spec.tsx \
             src/components/contacts/__tests__/ContactEventsFilters.spec.tsx \
+            src/components/contacts/__tests__/ContactBulkActions.spec.tsx \
             src/components/scheduledActions/ScheduleActionModal.spec.tsx \
             src/components/pipelines/tasks/TaskModals.dueDate.spec.tsx \
             src/utils/time/dateTimeLocal.spec.ts \
