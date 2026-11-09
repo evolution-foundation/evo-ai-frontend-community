@@ -193,6 +193,8 @@ jobs:
       #     page 600px, and the session actions keep calling the server, not local state.
       #   - agent Profile tab: the form/summary grid splits by its own width (container
       #     query), not the window's, so an open test panel drops it to one column.
+      #   - conversation assignment: the team call sends only team_id and the agent call
+      #     only assignee_id; a null assignee_id next to team_id unassigns the agent.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -326,7 +328,8 @@ jobs:
             src/components/channels/settings/AgentBotConfigurationForm.spec.tsx \
             src/pages/Customer/Channels/ChannelSettings.spec.tsx \
             src/components/agents/AgentTestChat.spec.tsx \
-            src/pages/Customer/Agents/Agent/sections/ProfileSection.spec.tsx
+            src/pages/Customer/Agents/Agent/sections/ProfileSection.spec.tsx \
+            src/services/conversations/conversationService.spec.ts
 
   # Lint gate scoped to the files the PR touched.
   eslint:

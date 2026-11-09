@@ -843,10 +843,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
   const assignAgent = useCallback(
     async (conversationId: string, assigneeId: string | null) => {
       try {
-        const updatedConversation = await conversationAPI.assignConversation(
-          conversationId,
-          assigneeId,
-        );
+        const updatedConversation = await conversationAPI.assignAgent(conversationId, assigneeId);
         dispatch({
           type: 'UPDATE_CONVERSATION',
           payload: updatedConversation as unknown as Conversation,
@@ -877,11 +874,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
   const assignTeam = useCallback(
     async (conversationId: string, teamId: string | null) => {
       try {
-        const updatedConversation = await conversationAPI.assignConversation(
-          conversationId,
-          null,
-          teamId,
-        );
+        const updatedConversation = await conversationAPI.assignTeam(conversationId, teamId);
 
         // Update local state
         dispatch({
