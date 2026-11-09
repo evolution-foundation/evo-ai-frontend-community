@@ -1699,6 +1699,7 @@ export default function PipelineKanban() {
             setSelectedConversationForSchedule(null);
           }}
           contactId={scheduleActionContactId}
+          dealId={selectedConversationForSchedule.id}
         />
       )}
 
