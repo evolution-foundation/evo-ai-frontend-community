@@ -110,17 +110,20 @@ export const conversationAPI = {
     return extractData<MessageDeleteResponse>(response);
   },
 
-  // Assign conversation
-  async assignConversation(
-    conversationId: string,
-    assigneeId: string | null,
-    teamId?: string | null,
-  ): Promise<Conversation> {
+  // The backend picks the operation by which key is present (assignee_id wins, even
+  // when null), so each call sends only its own key.
+  async assignAgent(conversationId: string, assigneeId: string | null): Promise<Conversation> {
     const response = await api.post(`/conversations/${conversationId}/assignments`, {
       assignee_id: assigneeId,
+    });
+    return extractData<Conversation>(response);
+  },
+
+  async assignTeam(conversationId: string, teamId: string | null): Promise<Conversation> {
+    const response = await api.post(`/conversations/${conversationId}/assignments`, {
       team_id: teamId,
     });
-    return extractData<any>(response);
+    return extractData<Conversation>(response);
   },
 
   // Update conversation status

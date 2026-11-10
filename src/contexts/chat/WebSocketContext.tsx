@@ -123,6 +123,24 @@ type WebSocketAction =
       payload: { userId: string; status: 'online' | 'offline' | 'busy' };
     };
 
+type AssignmentSource = {
+  assignee_id?: string | null;
+  team_id?: string | null;
+  meta?: { assignee?: { id: string } | null; team?: { id: string } | null };
+};
+
+// Conversation events carry push_event_data, which has the agent and the team only
+// under meta. Copying the absent top-level ids would blank them in the merge, so they
+// are read from meta and left out when the payload has neither.
+function assignmentIds(data: AssignmentSource): { assignee_id?: string | null; team_id?: string | null } {
+  const ids: { assignee_id?: string | null; team_id?: string | null } = {};
+  if (data.assignee_id !== undefined) ids.assignee_id = data.assignee_id;
+  else if (data.meta && data.meta.assignee !== undefined) ids.assignee_id = data.meta.assignee?.id ?? null;
+  if (data.team_id !== undefined) ids.team_id = data.team_id;
+  else if (data.meta && data.meta.team !== undefined) ids.team_id = data.meta.team?.id ?? null;
+  return ids;
+}
+
 const initialState: WebSocketState = {
   isWebSocketConnected: false,
   typingUsers: {},
@@ -367,8 +385,8 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
               updated_at: data.updated_at,
               last_activity_at: data.last_activity_at,
               inbox_id: data.inbox_id,
-              assignee_id: data.assignee_id,
-              team_id: data.team_id,
+              assignee_id: assignmentIds(data).assignee_id ?? null,
+              team_id: assignmentIds(data).team_id ?? null,
               meta: {
                 sender: {
                   id: data.meta.sender.id,
@@ -526,8 +544,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
             updated_at: data.updated_at,
             last_activity_at: data.last_activity_at,
             inbox_id: data.inbox_id,
-            assignee_id: data.assignee_id,
-            team_id: data.team_id,
+            ...assignmentIds(data),
             unread_count: data.unread_count,
             // Grupos: mesmo gap do create — sem copiar is_group, um grupo ainda não
             // carregado que atualiza via realtime não sobe pro chip Grupos. Spread
