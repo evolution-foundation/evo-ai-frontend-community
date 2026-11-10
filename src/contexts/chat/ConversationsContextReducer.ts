@@ -477,6 +477,21 @@ export function conversationsReducer(
       };
     }
 
+    // Patches only a conversation already in state: unlike UPDATE_CONVERSATION it never
+    // inserts a row, since the payload is not a whole conversation.
+    case 'SET_CONVERSATION_ASSIGNMENT': {
+      const { conversationId, ...ids } = action.payload;
+      const patch = (conv: Conversation): Conversation =>
+        matchesConversationId(conv, conversationId) ? { ...conv, ...ids } : conv;
+      const selected = state.selectedConversationData;
+      return {
+        ...state,
+        conversations: state.conversations.map(conv => (conv ? patch(conv) : conv)),
+        hiddenConversations: state.hiddenConversations.map(patch),
+        selectedConversationData: selected ? patch(selected) : selected,
+      };
+    }
+
     case 'UPDATE_CONVERSATION_LAST_ACTIVITY': {
       const { conversationId, lastActivityAt } = action.payload;
       return {

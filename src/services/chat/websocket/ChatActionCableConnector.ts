@@ -158,8 +158,9 @@ export interface ConversationCreatedEvent {
   last_activity_at: string;
   account_id: string;
   inbox_id: string;
-  assignee_id: string | null;
-  team_id: string | null;
+  // push_event_data carries these only under meta.assignee / meta.team.
+  assignee_id?: string | null;
+  team_id?: string | null;
   meta: {
     sender: {
       id: string;
@@ -204,8 +205,9 @@ export interface ConversationUpdatedEvent {
   last_activity_at: string;
   account_id: string;
   inbox_id: string;
-  assignee_id: string | null;
-  team_id: string | null;
+  // push_event_data carries these only under meta.assignee / meta.team.
+  assignee_id?: string | null;
+  team_id?: string | null;
   meta: {
     sender: {
       id: string;
