@@ -5,6 +5,8 @@ import {
   Upload,
   Trash2,
   Merge,
+  Tag,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { BaseHeader, HeaderAction, HeaderFilter } from '@/components/base';
 import { usePermissions } from '@/contexts/PermissionsContext';
@@ -19,6 +21,8 @@ interface ContactsHeaderProps {
   onExport: () => void;
   onFilter: () => void;
   onBulkDelete: () => void;
+  onBulkLabels: () => void;
+  onBulkAttribute: () => void;
   onMergeContacts: () => void;
   onClearSelection: () => void;
   activeFilters?: HeaderFilter[];
@@ -35,6 +39,8 @@ export default function ContactsHeader({
   onExport,
   onFilter,
   onBulkDelete,
+  onBulkLabels,
+  onBulkAttribute,
   onMergeContacts,
   onClearSelection,
   activeFilters = [],
@@ -72,6 +78,22 @@ export default function ContactsHeader({
             label: t('header.mergeContacts'),
             icon: <Merge className="h-4 w-4" />,
             onClick: onMergeContacts,
+            variant: 'outline' as const,
+          },
+        ]
+      : []),
+    ...(isReady && can('contacts', 'update')
+      ? [
+          {
+            label: t('header.bulkLabels'),
+            icon: <Tag className="h-4 w-4" />,
+            onClick: onBulkLabels,
+            variant: 'outline' as const,
+          },
+          {
+            label: t('header.bulkAttribute'),
+            icon: <SlidersHorizontal className="h-4 w-4" />,
+            onClick: onBulkAttribute,
             variant: 'outline' as const,
           },
         ]

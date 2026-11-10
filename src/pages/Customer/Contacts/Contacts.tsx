@@ -32,6 +32,8 @@ import ContactsFilterPopover from '@/components/contacts/ContactsFilterPopover';
 import ContactImportModal from '@/components/contacts/ContactImportModal';
 import ContactExportModal from '@/components/contacts/ContactExportModal';
 import ContactMergeModal from '@/components/contacts/ContactMergeModal';
+import ContactBulkLabelsModal, { BulkLabelAction } from '@/components/contacts/ContactBulkLabelsModal';
+import ContactBulkAttributeModal from '@/components/contacts/ContactBulkAttributeModal';
 import { AxiosError } from 'axios';
 import { ContactsTour } from '@/tours';
 
@@ -89,8 +91,10 @@ export default function Contacts() {
   const hasCompanyFilter = activeFilters.some(f => f.attributeKey === 'company');
   // Preload company options while the filter modal is open so the applied chip
   // resolves the company name immediately on Apply (no id-then-name flicker).
-  const { companies: companyFilterOptions } = useContactFilterOptions({
-    enabled: filterModalOpen || hasCompanyFilter,
+  const [bulkLabelsOpen, setBulkLabelsOpen] = useState(false);
+  const [bulkAttributeOpen, setBulkAttributeOpen] = useState(false);
+  const { companies: companyFilterOptions, labels: labelOptions } = useContactFilterOptions({
+    enabled: filterModalOpen || hasCompanyFilter || bulkLabelsOpen,
   });
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
@@ -702,6 +706,60 @@ export default function Contacts() {
     }
   };
 
+  // Reports the contacts the API could not change instead of a blanket success.
+  const notifyBulkResult = (failedCount: number, successKey: string, errorKey: string) => {
+    const total = state.selectedContactIds.length;
+    if (failedCount === 0) {
+      toast.success(t(successKey, { count: total }));
+    } else if (failedCount < total) {
+      toast.warning(t('messages.bulkPartial', { count: total - failedCount, failed: failedCount }));
+    } else {
+      toast.error(t(errorKey));
+    }
+  };
+
+  const confirmBulkLabels = async (action: BulkLabelAction, labels: string[]) => {
+    if (state.selectedContactIds.length === 0) return;
+
+    setState(prev => ({ ...prev, loading: { ...prev.loading, bulk: true } }));
+
+    try {
+      const result = await contactsService.bulkUpdateLabels(state.selectedContactIds, labels, action);
+      notifyBulkResult(
+        result?.failed_ids?.length ?? 0,
+        action === 'add_labels' ? 'messages.bulkLabelsAdded' : 'messages.bulkLabelsRemoved',
+        'messages.bulkLabelsError',
+      );
+      setState(prev => ({ ...prev, selectedContactIds: [] }));
+      loadContacts();
+      setBulkLabelsOpen(false);
+    } catch (error) {
+      console.error('Error updating contact labels in bulk:', error);
+      toast.error(apiErrorMessage(error) || t('messages.bulkLabelsError'));
+    } finally {
+      setState(prev => ({ ...prev, loading: { ...prev.loading, bulk: false } }));
+    }
+  };
+
+  const confirmBulkAttribute = async (key: string, value: string | boolean) => {
+    if (state.selectedContactIds.length === 0) return;
+
+    setState(prev => ({ ...prev, loading: { ...prev.loading, bulk: true } }));
+
+    try {
+      const result = await contactsService.bulkUpdateCustomAttributes(state.selectedContactIds, { [key]: value });
+      notifyBulkResult(result?.failed_ids?.length ?? 0, 'messages.bulkAttributeSuccess', 'messages.bulkAttributeError');
+      setState(prev => ({ ...prev, selectedContactIds: [] }));
+      loadContacts();
+      setBulkAttributeOpen(false);
+    } catch (error) {
+      console.error('Error updating contact attributes in bulk:', error);
+      toast.error(apiErrorMessage(error) || t('messages.bulkAttributeError'));
+    } finally {
+      setState(prev => ({ ...prev, loading: { ...prev.loading, bulk: false } }));
+    }
+  };
+
   // Confirm merge contacts
   const confirmMergeContacts = async (parentContactId: string, childContactId: string) => {
     setState(prev => ({ ...prev, loading: { ...prev.loading, bulk: true } }));
@@ -846,6 +904,8 @@ export default function Contacts() {
             onExport={handleExportContacts}
             onFilter={handleOpenFilter}
             onBulkDelete={handleBulkDelete}
+            onBulkLabels={() => setBulkLabelsOpen(true)}
+            onBulkAttribute={() => setBulkAttributeOpen(true)}
             onMergeContacts={handleMergeContacts}
             onClearSelection={() => setState(prev => ({ ...prev, selectedContactIds: [] }))}
             activeFilters={appliedFilters}
@@ -1021,6 +1081,23 @@ export default function Contacts() {
         loading={state.loading.export}
         activeFilters={activeFilters}
         totalCount={state.meta.pagination.total}
+      />
+
+      <ContactBulkLabelsModal
+        open={bulkLabelsOpen}
+        onOpenChange={setBulkLabelsOpen}
+        selectedCount={state.selectedContactIds.length}
+        availableLabels={labelOptions.map(option => option.value)}
+        onConfirm={confirmBulkLabels}
+        loading={state.loading.bulk}
+      />
+
+      <ContactBulkAttributeModal
+        open={bulkAttributeOpen}
+        onOpenChange={setBulkAttributeOpen}
+        selectedCount={state.selectedContactIds.length}
+        onConfirm={confirmBulkAttribute}
+        loading={state.loading.bulk}
       />
 
       {/* Contact Merge Modal */}

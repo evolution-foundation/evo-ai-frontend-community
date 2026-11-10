@@ -82,6 +82,12 @@ function appendFormValue(formData: FormData, key: string, value: unknown, depth 
   formData.append(key, String(value));
 }
 
+// Contacts the bulk action changed and the ones it could not.
+export interface ContactBulkResult {
+  success_ids: string[];
+  failed_ids: string[];
+}
+
 class ContactsService {
   // List contacts with pagination and filters
   async getContacts(params?: ContactsListParams): Promise<ContactsResponse> {
@@ -364,7 +370,7 @@ class ContactsService {
     contactIds: string[],
     labels: string[],
     action: 'add_labels' | 'remove_labels',
-  ): Promise<{ message: string; affected_count?: number }> {
+  ): Promise<ContactBulkResult> {
     const response = await api.post(`/bulk_actions`, {
       type: 'Contact',
       ids: contactIds,
@@ -373,13 +379,13 @@ class ContactsService {
         labels,
       },
     });
-    return extractData<{ message: string; affected_count?: number }>(response);
+    return extractData<ContactBulkResult>(response);
   }
 
   async bulkUpdateCustomAttributes(
     contactIds: string[],
     customAttributes: Record<string, unknown>,
-  ): Promise<{ message: string; affected_count?: number }> {
+  ): Promise<ContactBulkResult> {
     const response = await api.post(`/bulk_actions`, {
       type: 'Contact',
       ids: contactIds,
@@ -388,7 +394,7 @@ class ContactsService {
         custom_attributes: customAttributes,
       },
     });
-    return extractData<{ message: string; affected_count?: number }>(response);
+    return extractData<ContactBulkResult>(response);
   }
 
   // Import/Export
