@@ -35,6 +35,8 @@ interface ScheduleActionModalProps {
   open: boolean;
   onClose: () => void;
   contactId?: string;
+  // The pipeline card the action is scheduled on, so it lists under that card.
+  pipelineItemId?: string;
   action?: ScheduledAction | null;
 }
 
@@ -42,6 +44,7 @@ export function ScheduleActionModal({
   open,
   onClose,
   contactId: initialContactId,
+  pipelineItemId,
   action,
 }: ScheduleActionModalProps) {
   const { t } = useLanguage('contacts');
@@ -287,6 +290,7 @@ export function ScheduleActionModal({
         scheduled_for: new Date(formData.scheduled_for).toISOString(),
         payload: {},
         recurrence_type: formData.recurrence_type,
+        ...(pipelineItemId && !action ? { pipeline_item_id: pipelineItemId } : {}),
       };
 
       // Build payload based on action type

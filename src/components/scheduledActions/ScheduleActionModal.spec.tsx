@@ -168,6 +168,28 @@ describe('ScheduleActionModal', () => {
     expect(screen.queryByRole('option', { name: /API Team/ })).toBeNull();
   });
 
+  it('links a new action to the pipeline card it was scheduled on', async () => {
+    mockedInboxesService.list.mockResolvedValue({ success: true, data: [], meta: {} as never, message: '' });
+    mockedScheduledActionsService.create.mockResolvedValue({} as never);
+
+    const { container } = render(
+      <ScheduleActionModal open onClose={vi.fn()} contactId="contact-1" pipelineItemId="card-1" />
+    );
+    await waitFor(() => expect(mockedInboxesService.list).toHaveBeenCalled());
+
+    const actionType = container.querySelector('option[value="create_task"]')!.parentElement as HTMLSelectElement;
+    fireEvent.change(actionType, { target: { value: 'create_task' } });
+    fireEvent.change(screen.getByLabelText('scheduledActions.taskTitle'), { target: { value: 'Ligar' } });
+    fireEvent.change(screen.getByLabelText('scheduledActions.dateTime'), { target: { value: '2099-03-10T09:15' } });
+    fireEvent.submit(container.querySelector('form')!);
+
+    await waitFor(() => {
+      expect(mockedScheduledActionsService.create).toHaveBeenCalledWith(
+        expect.objectContaining({ contact_id: 'contact-1', pipeline_item_id: 'card-1', action_type: 'create_task' }),
+      );
+    });
+  });
+
   describe('editing', () => {
     const scheduledFor = '2099-03-10T11:40:00.000Z';
 
