@@ -2,6 +2,7 @@
 export interface ScheduledAction {
   id: string;
   deal_id?: string;
+  pipeline_item_id?: string;
   contact_id?: string;
   conversation_id?: string;
   action_type: string;
@@ -32,6 +33,7 @@ export interface ScheduledAction {
 // Create scheduled action
 export interface CreateScheduledAction {
   deal_id?: string;
+  pipeline_item_id?: string;
   contact_id?: string;
   conversation_id?: string;
   action_type: string;

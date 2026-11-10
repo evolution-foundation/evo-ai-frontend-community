@@ -173,7 +173,7 @@ describe('ScheduleActionModal', () => {
     mockedScheduledActionsService.create.mockResolvedValue({} as never);
 
     const { container } = render(
-      <ScheduleActionModal open onClose={vi.fn()} contactId="contact-1" dealId="card-1" />
+      <ScheduleActionModal open onClose={vi.fn()} contactId="contact-1" pipelineItemId="card-1" />
     );
     await waitFor(() => expect(mockedInboxesService.list).toHaveBeenCalled());
 
@@ -185,7 +185,7 @@ describe('ScheduleActionModal', () => {
 
     await waitFor(() => {
       expect(mockedScheduledActionsService.create).toHaveBeenCalledWith(
-        expect.objectContaining({ contact_id: 'contact-1', deal_id: 'card-1', action_type: 'create_task' }),
+        expect.objectContaining({ contact_id: 'contact-1', pipeline_item_id: 'card-1', action_type: 'create_task' }),
       );
     });
   });
