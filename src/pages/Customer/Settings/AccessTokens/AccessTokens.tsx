@@ -229,7 +229,8 @@ export default function AccessTokens() {
       setState(prev => ({
         ...prev,
         tokens: prev.tokens.map(t =>
-          t.id === token.id ? { ...t, ...regenerated } : t,
+          // The value lives only in the modal opened below, not in the list.
+          t.id === token.id ? { ...t, ...regenerated, token: undefined } : t,
         ),
       }));
 
