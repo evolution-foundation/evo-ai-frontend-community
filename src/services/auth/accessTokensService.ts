@@ -48,15 +48,13 @@ export const getAccessToken = async (id: string): Promise<AccessTokenResponse> =
  * Create a new Access Token
  * Endpoint: POST /api/v1/access_tokens
  */
-export const createAccessToken = async (
-  data: AccessTokenFormData,
-): Promise<AccessTokenResponse> => {
+export const createAccessToken = async (data: AccessTokenFormData): Promise<AccessToken> => {
   const response = await apiAuth.post(
     '/access_tokens',
     { access_token: data },
     { headers: activeAccountHeaders() },
   );
-  return extractData<any>(response);
+  return extractData<{ access_token: AccessToken }>(response).access_token;
 };
 
 /**

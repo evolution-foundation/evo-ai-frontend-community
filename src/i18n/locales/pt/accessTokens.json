@@ -102,7 +102,9 @@
       "tokenId": "Identificador único para este token de acesso",
       "tokenUsage": "Envie este token no cabeçalho:",
       "scopes": "Permissões que este token tem acesso",
-      "noScopes": "Nenhum escopo configurado"
+      "noScopes": "Nenhum escopo configurado",
+      "shownOnce": "Copie agora: o valor só aparece desta vez.",
+      "valueNotStored": "O valor só aparece ao criar ou regenerar o token. Regenere-o para obter um novo valor."
     },
     "sections": {
       "tokenDetails": "Detalhes do Token",

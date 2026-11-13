@@ -132,7 +132,6 @@ export default function AccessTokens() {
       const filteredTokens = state.tokens.filter(
         token =>
           token.name.toLowerCase().includes(query.toLowerCase()) ||
-          token.token.toLowerCase().includes(query.toLowerCase()) ||
           token.scopes.toLowerCase().includes(query.toLowerCase()),
       );
       setState(prev => ({
@@ -230,7 +229,8 @@ export default function AccessTokens() {
       setState(prev => ({
         ...prev,
         tokens: prev.tokens.map(t =>
-          t.id === token.id ? { ...t, ...regenerated } : t,
+          // The value lives only in the modal opened below, not in the list.
+          t.id === token.id ? { ...t, ...regenerated, token: undefined } : t,
         ),
       }));
 
@@ -336,8 +336,10 @@ export default function AccessTokens() {
         await updateAccessToken(editingToken.id, data);
         toast.success(t('messages.updateSuccess'));
       } else {
-        // Create new token
-        await createAccessToken(data);
+        // The value comes back only now, so it opens straight away.
+        const created = await createAccessToken(data);
+        setSelectedTokenForView(created);
+        setViewTokenModalOpen(true);
         toast.success(t('messages.createSuccess'));
       }
 
@@ -429,7 +431,6 @@ export default function AccessTokens() {
             onViewToken={handleViewToken}
             onRegenerateToken={handleRegenerateToken}
             onCreateToken={handleCreateToken}
-            onCopy={handleCopy}
             sortBy={state.sortBy}
             sortOrder={state.sortOrder}
             onSort={column => {

@@ -3,7 +3,8 @@ import type { StandardResponse, PaginatedResponse, PaginationMeta } from '@/type
 export interface AccessToken {
   id: string;
   name: string;
-  token: string;
+  // Only right after create or regenerate: the auth stores a digest, never the value.
+  token?: string;
   scopes: string;
   owner_type: string;
   owner_id: string;

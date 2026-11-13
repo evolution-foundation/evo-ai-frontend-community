@@ -85,3 +85,44 @@ describe('ViewTokenModal usage examples', () => {
     expect(onCopy).toHaveBeenNthCalledWith(2, javascript, 'viewModal.examples.javascript');
   });
 });
+
+describe('ViewTokenModal token value', () => {
+  it('shows the value it was given, masked until revealed, and warns that it is shown only once', () => {
+    renderModal();
+
+    const valueInput = screen.getByDisplayValue('•'.repeat(40));
+    fireEvent.click(valueInput.parentElement!.querySelector('button')!);
+    expect(screen.getByDisplayValue(TOKEN.token!)).toBeInTheDocument();
+    expect(screen.getByText('viewModal.descriptions.shownOnce')).toBeInTheDocument();
+    expect(screen.queryByText('viewModal.descriptions.valueNotStored')).toBeNull();
+  });
+
+  // A token read back from the list has no value: the auth stores a digest.
+  it('explains how to get a value and keeps the examples on a placeholder without one', () => {
+    vi.stubEnv('VITE_API_URL', '/crm-api');
+    const stored = { ...TOKEN, token: undefined };
+    const onCopy = vi.fn();
+    render(<ViewTokenModal open onOpenChange={vi.fn()} token={stored} onCopy={onCopy} />);
+
+    expect(screen.getByText('viewModal.descriptions.valueNotStored')).toBeInTheDocument();
+    expect(screen.queryByText('viewModal.descriptions.shownOnce')).toBeNull();
+    exampleValues().forEach(value => {
+      expect(value).toContain('Api-Access-Token');
+      expect(value).toContain('YOUR_ACCESS_TOKEN');
+      expect(value).not.toContain('undefined');
+    });
+  });
+
+  it('masks the value again when another token is shown', () => {
+    const { rerender } = render(<ViewTokenModal open onOpenChange={vi.fn()} token={TOKEN} onCopy={vi.fn()} />);
+    const valueInput = screen.getByDisplayValue('•'.repeat(40));
+    fireEvent.click(valueInput.parentElement!.querySelector('button')!);
+    expect(screen.getByDisplayValue(TOKEN.token!)).toBeInTheDocument();
+
+    const next = { ...TOKEN, id: 'other-id', token: 'b'.repeat(64) };
+    rerender(<ViewTokenModal open onOpenChange={vi.fn()} token={next} onCopy={vi.fn()} />);
+
+    expect(screen.queryByDisplayValue(next.token)).toBeNull();
+    expect(screen.getByDisplayValue('•'.repeat(40))).toBeInTheDocument();
+  });
+});

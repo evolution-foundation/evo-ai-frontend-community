@@ -86,7 +86,11 @@
     },
     "copyToken": "Copia Token",
     "close": "Chiudi",
-    "tokenCopied": "Token copiato!"
+    "tokenCopied": "Token copiato!",
+    "descriptions": {
+      "shownOnce": "Copialo ora: il valore viene mostrato solo questa volta.",
+      "valueNotStored": "Il valore viene mostrato solo alla creazione o alla rigenerazione del token. Rigeneralo per ottenere un nuovo valore."
+    }
   },
   "empty": {
     "title": "Nessun token trovato",
