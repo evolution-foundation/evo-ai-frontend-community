@@ -332,6 +332,7 @@ jobs:
             src/pages/Customer/Agents/Agent/components/channels/AgentChannelCard.spec.tsx \
             src/components/channels/settings/AgentBotConfigurationForm.spec.tsx \
             src/pages/Customer/Channels/ChannelSettings.spec.tsx \
+            src/services/channels/inboxesService.spec.ts \
             src/components/agents/AgentTestChat.spec.tsx \
             src/pages/Customer/Agents/Agent/sections/ProfileSection.spec.tsx \
             src/services/conversations/conversationService.spec.ts \

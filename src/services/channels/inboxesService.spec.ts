@@ -5,6 +5,7 @@ import api from '@/services/core/api';
 vi.mock('@/services/core/api', () => ({
   default: {
     patch: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -42,7 +43,8 @@ describe('InboxesService.updateWithAvatar', () => {
     const [url, body, config] = patchMock.mock.calls[0];
     expect(url).toBe('/inboxes/inbox-1');
     expect(body).toBeInstanceOf(FormData);
-    expect(config).toBeUndefined();
+    // The api instance defaults to JSON, which would serialize the FormData and drop the file.
+    expect(config).toEqual({ headers: { 'Content-Type': 'multipart/form-data' } });
 
     const formData = body as FormData;
     expect(formData.get('name')).toBe('Website');
@@ -51,5 +53,20 @@ describe('InboxesService.updateWithAvatar', () => {
     expect(formData.getAll('channel[selected_feature_flags][]')).toEqual(['attachments', 'emoji_picker']);
     expect(formData.get('avatar')).toBe(avatar);
     expect(formData.has('business_name')).toBe(false);
+  });
+});
+
+describe('InboxesService.deleteAvatar', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('removes the stored avatar of the inbox', async () => {
+    const deleteMock = vi.mocked(api.delete);
+    deleteMock.mockResolvedValue({ data: {} } as never);
+
+    await InboxesService.deleteAvatar('inbox-1');
+
+    expect(deleteMock).toHaveBeenCalledWith('/inboxes/inbox-1/avatar');
   });
 });

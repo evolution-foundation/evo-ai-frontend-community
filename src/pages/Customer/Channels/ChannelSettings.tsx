@@ -575,7 +575,7 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
   const handleAvatarDelete = async () => {
     if (!ensureCanUpdate()) return;
     try {
-      // await InboxesService.deleteAvatar(accountId, inboxId);
+      await InboxesService.deleteAvatar(inboxId!);
       setAvatarFile(null);
       setFormData(prev => ({ ...prev, avatar_url: undefined }));
       toast.success(t('settings.success.avatarDeleteSuccess'));

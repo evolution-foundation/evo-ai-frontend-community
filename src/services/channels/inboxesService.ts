@@ -118,7 +118,9 @@ const InboxesService = {
     });
     formData.append('avatar', avatar);
 
-    const response = await api.patch(`/inboxes/${inboxId}`, formData);
+    const response = await api.patch(`/inboxes/${inboxId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return extractData<InboxResponse>(response);
   },
 

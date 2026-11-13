@@ -20,9 +20,10 @@ vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({ t, currentLanguage: 'en' }),
 }));
 
-vi.mock('sonner', () => ({
+const { toast } = vi.hoisted(() => ({
   toast: { error: vi.fn(), success: vi.fn(), info: vi.fn() },
 }));
+vi.mock('sonner', () => ({ toast }));
 
 const inbox = {
   id: 'inbox-1',
@@ -36,12 +37,14 @@ const inbox = {
 const getById = vi.fn().mockResolvedValue({ data: inbox });
 const update = vi.fn().mockResolvedValue({});
 const updateWithAvatar = vi.fn().mockResolvedValue({});
+const deleteAvatar = vi.fn().mockResolvedValue({});
 
 vi.mock('@/services/channels/inboxesService', () => ({
   default: {
     getById: (...args: unknown[]) => getById(...args),
     update: (...args: unknown[]) => update(...args),
     updateWithAvatar: (...args: unknown[]) => updateWithAvatar(...args),
+    deleteAvatar: (...args: unknown[]) => deleteAvatar(...args),
   },
 }));
 
@@ -50,7 +53,13 @@ vi.mock('@/services/channels/inboxesService', () => ({
 vi.mock('@/components/channels', () => {
   const stub = (name: string) => () => <div data-testid={name} />;
   return {
-    BasicSettingsForm: stub('BasicSettingsForm'),
+    BasicSettingsForm: ({ onAvatarDelete }: { onAvatarDelete: () => void }) => (
+      <div data-testid="BasicSettingsForm">
+        <button type="button" onClick={onAvatarDelete}>
+          remove-avatar
+        </button>
+      </div>
+    ),
     GreetingSettingsForm: stub('GreetingSettingsForm'),
     WebWidgetAdvancedForm: stub('WebWidgetAdvancedForm'),
     SenderSettingsForm: stub('SenderSettingsForm'),
@@ -134,5 +143,22 @@ describe('ChannelSettings redesign', () => {
     const saveButton = screen.getByRole('button', { name: /settings\.updateConfig/i });
     expect(saveButton).toBeDisabled();
     expect(screen.getByText('settings.info.tabSpecificSave')).toBeInTheDocument();
+  });
+
+  it('removes the stored avatar through the API before confirming', async () => {
+    await renderPage();
+    await userEvent.click(screen.getByRole('button', { name: 'remove-avatar' }));
+
+    await waitFor(() => expect(deleteAvatar).toHaveBeenCalledWith('inbox-1'));
+    expect(toast.success).toHaveBeenCalledWith('settings.success.avatarDeleteSuccess');
+  });
+
+  it('reports the failure when the avatar cannot be removed', async () => {
+    deleteAvatar.mockRejectedValueOnce(new Error('network'));
+    await renderPage();
+    await userEvent.click(screen.getByRole('button', { name: 'remove-avatar' }));
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('settings.errors.avatarDeleteError'));
+    expect(toast.success).not.toHaveBeenCalledWith('settings.success.avatarDeleteSuccess');
   });
 });
