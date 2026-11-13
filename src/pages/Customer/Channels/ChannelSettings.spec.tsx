@@ -92,6 +92,8 @@ vi.mock('@/components/channels', () => {
 });
 
 beforeAll(() => {
+  // jsdom has no object URLs; the page previews a picked avatar with one.
+  URL.createObjectURL = vi.fn(() => 'blob:avatar-preview');
   globalThis.ResizeObserver = class {
     observe() {}
     unobserve() {}
