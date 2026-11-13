@@ -1,10 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createAccessToken, activeAccountHeaders } from './accessTokensService';
+import { createAccessToken, activeAccountHeaders, regenerateAccessToken } from './accessTokensService';
 
 const post = vi.fn();
+const patch = vi.fn();
 
 vi.mock('@/services/core/apiAuth', () => ({
-  default: { post: (...args: unknown[]) => post(...args) },
+  default: {
+    post: (...args: unknown[]) => post(...args),
+    patch: (...args: unknown[]) => patch(...args),
+  },
 }));
 
 const created = { data: { data: { access_token: { id: 't-1', token: 'secret' } } } };
@@ -44,5 +48,20 @@ describe('createAccessToken', () => {
 
     expect(activeAccountHeaders()).toEqual({});
     getItem.mockRestore();
+  });
+});
+
+// The auth wraps the token as data.access_token; the screen reads the token off
+// what this returns, so returning the wrapper crashed it.
+describe('regenerateAccessToken', () => {
+  it('returns the regenerated token itself', async () => {
+    patch.mockResolvedValue({
+      data: { success: true, data: { access_token: { id: 't-1', name: 'CI', token: 'new-value' } } },
+    });
+
+    const regenerated = await regenerateAccessToken('t-1');
+
+    expect(patch).toHaveBeenCalledWith('/access_tokens/t-1/update_token');
+    expect(regenerated).toEqual({ id: 't-1', name: 'CI', token: 'new-value' });
   });
 });

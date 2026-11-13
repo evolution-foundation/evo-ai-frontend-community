@@ -224,17 +224,17 @@ export default function AccessTokens() {
 
     try {
       setState(prev => ({ ...prev, loading: { ...prev.loading, regenerateToken: true } }));
-      const response = await regenerateAccessToken(token.id);
+      const regenerated = await regenerateAccessToken(token.id);
 
       // Update the token in the list
       setState(prev => ({
         ...prev,
         tokens: prev.tokens.map(t =>
-          t.id === token.id ? { ...t, token: response.data.token } : t,
+          t.id === token.id ? { ...t, token: regenerated.token } : t,
         ),
       }));
 
-      setSelectedTokenForView(response.data);
+      setSelectedTokenForView(regenerated);
       setViewTokenModalOpen(true);
       toast.success(t('messages.regenerateSuccess'));
     } catch (error) {

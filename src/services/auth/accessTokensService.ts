@@ -85,9 +85,9 @@ export const deleteAccessToken = async (id: string): Promise<void> => {
  * Regenerate the token value for an Access Token
  * Endpoint: PATCH /api/v1/access_tokens/:id/update_token
  */
-export const regenerateAccessToken = async (id: string): Promise<AccessTokenResponse> => {
+export const regenerateAccessToken = async (id: string): Promise<AccessToken> => {
   const response = await apiAuth.patch(`/access_tokens/${id}/update_token`);
-  return extractData<any>(response);
+  return extractData<{ access_token: AccessToken }>(response).access_token;
 };
 
 /**
