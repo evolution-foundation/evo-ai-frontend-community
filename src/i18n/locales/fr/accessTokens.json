@@ -102,7 +102,9 @@
       "tokenId": "Identifiant unique pour ce jeton d'accès",
       "tokenUsage": "Envoyez ce jeton dans l'en-tête :",
       "scopes": "Permissions auxquelles ce jeton a accès",
-      "noScopes": "Aucune portée configurée"
+      "noScopes": "Aucune portée configurée",
+      "shownOnce": "Copiez-le maintenant : la valeur n'est affichée qu'une seule fois.",
+      "valueNotStored": "La valeur n'est affichée qu'à la création ou à la régénération du jeton. Régénérez-le pour obtenir une nouvelle valeur."
     },
     "sections": {
       "tokenDetails": "Détails du Jeton",

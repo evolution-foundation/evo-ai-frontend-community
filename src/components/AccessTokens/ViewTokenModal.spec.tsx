@@ -85,3 +85,28 @@ describe('ViewTokenModal usage examples', () => {
     expect(onCopy).toHaveBeenNthCalledWith(2, javascript, 'viewModal.examples.javascript');
   });
 });
+
+describe('ViewTokenModal token value', () => {
+  it('shows the value it was given and warns that it is shown only once', () => {
+    renderModal();
+
+    expect(screen.getByText('viewModal.descriptions.shownOnce')).toBeInTheDocument();
+    expect(screen.queryByText('viewModal.descriptions.valueNotStored')).toBeNull();
+  });
+
+  // A token read back from the list has no value: the auth stores a digest.
+  it('explains how to get a value and keeps the examples on a placeholder without one', () => {
+    vi.stubEnv('VITE_API_URL', '/crm-api');
+    const stored = { ...TOKEN, token: undefined };
+    const onCopy = vi.fn();
+    render(<ViewTokenModal open onOpenChange={vi.fn()} token={stored} onCopy={onCopy} />);
+
+    expect(screen.getByText('viewModal.descriptions.valueNotStored')).toBeInTheDocument();
+    expect(screen.queryByText('viewModal.descriptions.shownOnce')).toBeNull();
+    exampleValues().forEach(value => {
+      expect(value).toContain('Api-Access-Token');
+      expect(value).toContain('YOUR_ACCESS_TOKEN');
+      expect(value).not.toContain('undefined');
+    });
+  });
+});

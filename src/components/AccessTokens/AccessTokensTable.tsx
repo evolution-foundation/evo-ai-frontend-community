@@ -1,4 +1,4 @@
-import { Edit, Trash2, Eye, Key, Copy } from 'lucide-react';
+import { Edit, Trash2, Eye, Key } from 'lucide-react';
 import { Badge } from '@evoapi/design-system';
 import BaseTable from '@/components/base/BaseTable';
 import type { AccessToken } from '@/types/auth';
@@ -15,7 +15,6 @@ interface AccessTokensTableProps {
   onViewToken: (token: AccessToken) => void;
   onRegenerateToken: (token: AccessToken) => void;
   onCreateToken: () => void;
-  onCopy: (text: string, label: string) => void;
   sortBy: string;
   sortOrder: 'asc' | 'desc';
   onSort: (column: string) => void;
@@ -30,7 +29,6 @@ export default function AccessTokensTable({
   onDeleteToken,
   onViewToken,
   onRegenerateToken,
-  onCopy,
   onSort,
   sortBy,
   sortOrder,
@@ -105,11 +103,6 @@ export default function AccessTokensTable({
       label: 'View Token',
       icon: <Eye className="h-4 w-4" />,
       onClick: onViewToken,
-    },
-    {
-      label: 'Copy Token',
-      icon: <Copy className="h-4 w-4" />,
-      onClick: (token: AccessToken) => onCopy(token.token, 'Token'),
     },
     ...(can('access_tokens', 'update') ? [{
       label: 'Edit',
