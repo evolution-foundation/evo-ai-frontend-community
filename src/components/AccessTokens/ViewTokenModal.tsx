@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -29,6 +29,11 @@ export default function ViewTokenModal({
 }: ViewTokenModalProps) {
   const [showToken, setShowToken] = useState(false);
   const { t } = useTranslation('accessTokens');
+
+  // Every value starts masked, whichever token or opening it belongs to.
+  useEffect(() => {
+    setShowToken(false);
+  }, [open, token?.id, token?.token]);
 
   if (!token) return null;
 

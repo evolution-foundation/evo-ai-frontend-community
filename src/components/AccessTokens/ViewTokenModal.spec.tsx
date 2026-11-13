@@ -87,9 +87,12 @@ describe('ViewTokenModal usage examples', () => {
 });
 
 describe('ViewTokenModal token value', () => {
-  it('shows the value it was given and warns that it is shown only once', () => {
+  it('shows the value it was given, masked until revealed, and warns that it is shown only once', () => {
     renderModal();
 
+    const valueInput = screen.getByDisplayValue('•'.repeat(40));
+    fireEvent.click(valueInput.parentElement!.querySelector('button')!);
+    expect(screen.getByDisplayValue(TOKEN.token!)).toBeInTheDocument();
     expect(screen.getByText('viewModal.descriptions.shownOnce')).toBeInTheDocument();
     expect(screen.queryByText('viewModal.descriptions.valueNotStored')).toBeNull();
   });
@@ -108,5 +111,18 @@ describe('ViewTokenModal token value', () => {
       expect(value).toContain('YOUR_ACCESS_TOKEN');
       expect(value).not.toContain('undefined');
     });
+  });
+
+  it('masks the value again when another token is shown', () => {
+    const { rerender } = render(<ViewTokenModal open onOpenChange={vi.fn()} token={TOKEN} onCopy={vi.fn()} />);
+    const valueInput = screen.getByDisplayValue('•'.repeat(40));
+    fireEvent.click(valueInput.parentElement!.querySelector('button')!);
+    expect(screen.getByDisplayValue(TOKEN.token!)).toBeInTheDocument();
+
+    const next = { ...TOKEN, id: 'other-id', token: 'b'.repeat(64) };
+    rerender(<ViewTokenModal open onOpenChange={vi.fn()} token={next} onCopy={vi.fn()} />);
+
+    expect(screen.queryByDisplayValue(next.token)).toBeNull();
+    expect(screen.getByDisplayValue('•'.repeat(40))).toBeInTheDocument();
   });
 });
