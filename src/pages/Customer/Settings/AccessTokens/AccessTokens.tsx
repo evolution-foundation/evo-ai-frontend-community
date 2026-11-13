@@ -230,7 +230,7 @@ export default function AccessTokens() {
       setState(prev => ({
         ...prev,
         tokens: prev.tokens.map(t =>
-          t.id === token.id ? { ...t, token: regenerated.token } : t,
+          t.id === token.id ? { ...t, ...regenerated } : t,
         ),
       }));
 
