@@ -57,6 +57,7 @@ interface WidgetBuilderFormProps {
     };
     avatar?: File;
   }) => Promise<void>;
+  onAvatarDelete?: () => Promise<void>;
   registerSave?: (handle: TabSaveHandle | null) => void;
 }
 
@@ -64,6 +65,7 @@ export default function WidgetBuilderForm({
   inboxId,
   inbox,
   onUpdate,
+  onAvatarDelete,
   registerSave,
 }: WidgetBuilderFormProps) {
   const { t } = useLanguage('channels');
@@ -141,10 +143,16 @@ export default function WidgetBuilderForm({
     }
   };
 
-  // Handle avatar delete
-  const handleAvatarDelete = () => {
-    setAvatarFile(null);
-    handleConfigChange('avatarUrl', '');
+  // A stored avatar is removed on the server before the form lets it go.
+  const handleAvatarDelete = async () => {
+    try {
+      if (inbox?.avatar_url) await onAvatarDelete?.();
+      setAvatarFile(null);
+      handleConfigChange('avatarUrl', '');
+    } catch (error) {
+      console.error('Error deleting avatar:', error);
+      toast.error(t('settings.errors.avatarDeleteError'));
+    }
   };
 
   // Handle bubble position change

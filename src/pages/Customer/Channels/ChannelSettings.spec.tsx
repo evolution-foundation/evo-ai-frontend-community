@@ -38,6 +38,7 @@ const getById = vi.fn().mockResolvedValue({ data: inbox });
 const update = vi.fn().mockResolvedValue({});
 const updateWithAvatar = vi.fn().mockResolvedValue({});
 const deleteAvatar = vi.fn().mockResolvedValue({});
+const avatarFile = new File(['png'], 'avatar.png', { type: 'image/png' });
 
 vi.mock('@/services/channels/inboxesService', () => ({
   default: {
@@ -53,10 +54,19 @@ vi.mock('@/services/channels/inboxesService', () => ({
 vi.mock('@/components/channels', () => {
   const stub = (name: string) => () => <div data-testid={name} />;
   return {
-    BasicSettingsForm: ({ onAvatarDelete }: { onAvatarDelete: () => void }) => (
+    BasicSettingsForm: ({
+      onAvatarDelete,
+      onAvatarUpload,
+    }: {
+      onAvatarDelete: () => void;
+      onAvatarUpload: (file: File) => void;
+    }) => (
       <div data-testid="BasicSettingsForm">
         <button type="button" onClick={onAvatarDelete}>
           remove-avatar
+        </button>
+        <button type="button" onClick={() => onAvatarUpload(avatarFile)}>
+          pick-avatar
         </button>
       </div>
     ),
@@ -70,7 +80,11 @@ vi.mock('@/components/channels', () => {
     BusinessHoursForm: stub('BusinessHoursForm'),
     CSATForm: stub('CSATForm'),
     PreChatForm: stub('PreChatForm'),
-    WidgetBuilderForm: stub('WidgetBuilderForm'),
+    WidgetBuilderForm: ({ onAvatarDelete }: { onAvatarDelete: () => Promise<void> }) => (
+      <button type="button" onClick={() => void onAvatarDelete()}>
+        widget-remove-avatar
+      </button>
+    ),
     AgentBotConfigurationForm: stub('AgentBotConfigurationForm'),
     ConfigurationForm: stub('ConfigurationForm'),
     ModerationDashboard: stub('ModerationDashboard'),
@@ -146,11 +160,40 @@ describe('ChannelSettings redesign', () => {
   });
 
   it('removes the stored avatar through the API before confirming', async () => {
+    let finishDelete: (value: unknown) => void = () => {};
+    deleteAvatar.mockReturnValueOnce(new Promise(resolve => { finishDelete = resolve; }));
     await renderPage();
     await userEvent.click(screen.getByRole('button', { name: 'remove-avatar' }));
 
     await waitFor(() => expect(deleteAvatar).toHaveBeenCalledWith('inbox-1'));
-    expect(toast.success).toHaveBeenCalledWith('settings.success.avatarDeleteSuccess');
+    expect(toast.success).not.toHaveBeenCalledWith('settings.success.avatarDeleteSuccess');
+
+    finishDelete({});
+    await waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith('settings.success.avatarDeleteSuccess'),
+    );
+  });
+
+  // FormData drops nulls and empty arrays, so the settings go as JSON and the
+  // avatar alone as multipart.
+  it('saves the settings as JSON and then uploads the picked avatar alone', async () => {
+    await renderPage();
+    await userEvent.click(screen.getByRole('button', { name: 'pick-avatar' }));
+    await userEvent.click(screen.getByRole('button', { name: /settings\.updateConfig/i }));
+
+    await waitFor(() => expect(updateWithAvatar).toHaveBeenCalledWith('inbox-1', {}, avatarFile));
+    expect(update).toHaveBeenCalledWith('inbox-1', expect.objectContaining({ name: 'Support' }));
+    expect(update.mock.invocationCallOrder[0]).toBeLessThan(updateWithAvatar.mock.invocationCallOrder[0]);
+  });
+
+  it('removes the stored avatar from the Widget Builder tab through the API', async () => {
+    getById.mockResolvedValue({ data: { ...inbox, channel_type: 'Channel::WebWidget' } });
+    await renderPage();
+    await userEvent.click(screen.getByRole('tab', { name: /settings\.tabs\.widgetBuilder/i }));
+    await userEvent.click(await screen.findByRole('button', { name: 'widget-remove-avatar' }));
+
+    await waitFor(() => expect(deleteAvatar).toHaveBeenCalledWith('inbox-1'));
+    getById.mockResolvedValue({ data: inbox });
   });
 
   it('reports the failure when the avatar cannot be removed', async () => {
