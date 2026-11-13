@@ -515,10 +515,11 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
         },
       };
 
+      // Settings go as JSON and the avatar alone as multipart: FormData drops
+      // null values and empty arrays, so a field cleared in the same save would stay.
+      await InboxesService.update(inboxId!, payload);
       if (avatarFile) {
-        await InboxesService.updateWithAvatar(inboxId!, payload, avatarFile);
-      } else {
-        await InboxesService.update(inboxId!, payload);
+        await InboxesService.updateWithAvatar(inboxId!, {}, avatarFile);
       }
       setAvatarFile(null);
       await loadChannelData();
@@ -575,9 +576,11 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
   const handleAvatarDelete = async () => {
     if (!ensureCanUpdate()) return;
     try {
-      // await InboxesService.deleteAvatar(accountId, inboxId);
+      await InboxesService.deleteAvatar(inboxId!);
       setAvatarFile(null);
       setFormData(prev => ({ ...prev, avatar_url: undefined }));
+      // The Widget Builder tab starts from the inbox, not from the form.
+      setInbox(prev => (prev ? { ...prev, avatar_url: undefined } : prev));
       toast.success(t('settings.success.avatarDeleteSuccess'));
     } catch (error) {
       console.error('Error deleting avatar:', error);
@@ -911,12 +914,15 @@ export default function ChannelSettings({ inboxId: inboxIdProp, onExit }: Channe
                   web_widget_script: inbox?.web_widget_script,
                 }}
                 onUpdate={async data => {
-                  if (data.avatar instanceof File) {
-                    const { avatar, ...payload } = data;
-                    await InboxesService.updateWithAvatar(inboxId, payload, avatar);
-                  } else {
-                    await InboxesService.update(inboxId, data);
+                  const { avatar, ...payload } = data;
+                  await InboxesService.update(inboxId, payload);
+                  if (avatar instanceof File) {
+                    await InboxesService.updateWithAvatar(inboxId, {}, avatar);
                   }
+                  await loadChannelData();
+                }}
+                onAvatarDelete={async () => {
+                  await InboxesService.deleteAvatar(inboxId);
                   await loadChannelData();
                 }}
               />}
