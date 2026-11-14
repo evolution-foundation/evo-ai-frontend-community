@@ -639,8 +639,6 @@ body.authenticated-panel-density {
 .deal-card-shell.is-dragging > :not(.deal-move-handle) { visibility: hidden; }
 @media (pointer: coarse) { .deal-move-handle { opacity: 1; width: 32px; height: 32px; } .deal-card-heading { padding-left: 20px; } }
 .card-configuration-panel { translate: none !important; }
-.deal-field-title { padding-right: 52px; }
-.deal-title { padding-right: 0; }
 
 .mobile-search-toggle { display: none; }
 @media (max-width: 640px) {
