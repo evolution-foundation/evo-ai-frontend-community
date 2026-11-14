@@ -62,7 +62,7 @@ export interface ProfileMenuItem {
   onClick?: () => void;
 }
 
-export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => [
+export const getCustomerMenuItems = (t: (key: string) => string, flowConfigured = false): MenuItem[] => [
   {
     // `dashboard.read` is not a catalog resource — it lives in the auth
     // BASIC_READ_PERMISSIONS (every authenticated user holds it, it is the
@@ -133,6 +133,7 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
     action: 'read',
   },
   {
+    id: 'flow-journeys',
     name: t('menu.customer.journeys'),
     href: '/journeys',
     icon: Route,
@@ -312,7 +313,7 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
       },
     ],
   },
-];
+].filter(item => item.id !== 'flow-journeys' || flowConfigured) as MenuItem[];
 
 export const getProfileMenuItems = (
   t: (key: string) => string,

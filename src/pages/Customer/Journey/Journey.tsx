@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { isEvoFlowConfigured } from '@/services/core/apiEvoFlow';
+import { useEvoFlow } from '@/hooks/useEvoFlow';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Route, Copy, Trash2, Edit3, GitBranch } from 'lucide-react';
 import BaseHeader from '../../../components/base/BaseHeader';
@@ -28,6 +28,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 export default function JourneyPage() {
   const [journeys, setJourneys] = useState<Journey[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingJourney, setEditingJourney] = useState<Journey | null>(null);
@@ -35,6 +36,7 @@ export default function JourneyPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [journeyToDelete, setJourneyToDelete] = useState<Journey | null>(null);
 
+  const { configured: isEvoFlowConfigured, loading: flowLoading } = useEvoFlow();
   const navigate = useNavigate();
   const { can, isReady: permissionsReady } = usePermissions();
   const { t } = useLanguage('journey');
@@ -47,9 +49,11 @@ export default function JourneyPage() {
 
     try {
       setLoading(true);
+      setLoadError(false);
       const response = await journeyService.getJourneys();
       setJourneys(response.data || []);
     } catch (error) {
+      setLoadError(true);
       console.error('Erro ao carregar jornadas:', error);
       toast.error(t('messages.loadError'));
     } finally {
@@ -63,7 +67,7 @@ export default function JourneyPage() {
     }
 
     fetchJourneys();
-  }, [permissionsReady]);
+  }, [permissionsReady, isEvoFlowConfigured]);
 
   const handleToggleJourney = async (journey: Journey) => {
     if (!journey.id) return;
@@ -276,20 +280,20 @@ export default function JourneyPage() {
     },
   ];
 
+  if (flowLoading) return <div role="status" className="p-6">Carregando…</div>;
   if (!isEvoFlowConfigured) return (
     <div className="p-6 max-w-3xl">
-      <h1 className="text-2xl font-semibold mb-3">Jornadas</h1>
-      <p className="text-muted-foreground mb-6">As jornadas de relacionamento dependem do serviço Evo Flow, que ainda não está configurado nesta instalação. A criação de jornadas fica disponível após essa conexão.</p>
-      <div className="rounded-xl border p-6">
-        <h2 className="font-semibold mb-2">Quer automatizar comentários do Instagram?</h2>
-        <p className="text-muted-foreground mb-4">Configure o conteúdo, as palavras-chave, a resposta pública e o Direct em Automações do Instagram. Esse módulo já tem seu próprio fluxo de execução.</p>
-        <button className="rounded-md bg-primary text-primary-foreground px-4 py-2" onClick={() => navigate('/automations/instagram')}>Abrir automações do Instagram</button>
-      </div>
+      <h1 className="text-2xl font-semibold mb-3">Jornadas indisponíveis nesta instalação</h1>
+      <button className="rounded-md border px-4 py-2" onClick={() => navigate('/dashboard')}>Voltar</button>
     </div>
   );
 
   return (
     <div className="h-full flex flex-col p-4">
+      {loadError && <div role="alert" className="rounded-md border p-4 mb-4">
+        <p>Não foi possível conectar às jornadas.</p>
+        <button className="rounded-md border px-4 py-2 mt-2" onClick={fetchJourneys}>Tentar novamente</button>
+      </div>}
       <BaseHeader
         title={t('title')}
         subtitle={t('subtitle')}
