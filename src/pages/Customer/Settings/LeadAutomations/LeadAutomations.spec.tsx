@@ -209,6 +209,18 @@ describe('Automações de leads', () => {
     await user.selectOptions(screen.getByLabelText('Filtrar resultado'), 'error');
     await waitFor(() => expect(service.runs).toHaveBeenLastCalledWith('r1', 1, 'error'));
   });
+  it('usa a origem atual no endpoint quando a URL da API não está definida', async () => {
+    vi.stubEnv('VITE_API_URL', '');
+    try {
+      const user = userEvent.setup();
+      mount();
+      await user.click(await screen.findByRole('button', { name: 'Integração do site' }));
+      expect(screen.getByText(`${window.location.origin}/public/lead_automation_rules/r1/leads`)).toBeInTheDocument();
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it('renova token com revisão e apaga ao sair', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     vi.mocked(service.token).mockResolvedValue({ ...rule, revision: 5, token: 'synthetic-only' });

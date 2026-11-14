@@ -2,6 +2,8 @@
 
 Somente loopback, banco sintético vazio e Redis local. Não copiar dados reais. O fixture substitui autenticação e diretório do serviço Auth; CRUD, seletores do CRM, dry-run, token, ingresso público e worker são reais. Não valida login nem publicação do site.
 
+O fixture e o roteiro recusam `evo_l_test`: use exclusivamente `evo_l_ui_test`. Nunca execute o ensaio no banco da suíte RSpec. Se uma execução antiga deixou resíduos em `evo_l_test`, confirme que é o banco sintético local e remova, nesta ordem, somente os registros do ensaio de `lead_automation_runs`, `lead_automation_events`, `lead_automation_rules`, `stage_movements`, `deal_contacts`, `deal_conversations`, `pipeline_items` e `contacts` antes de rodar RSpec. Não use TRUNCATE automático nem limpe bancos compartilhados.
+
 1. Prepare um banco vazio `evo_l_ui_test` no Postgres local (porta 55439), seguindo o bootstrap L1 em `entregas/L-ajustes.md` do projeto operacional. Não recrie nem limpe bancos existentes.
 2. No worktree CRM, execute `bundle exec rails db:prepare` e depois `bundle exec rails runner <frontend>/e2e/lead-automations-local/server.rb` com `RAILS_ENV=test POSTGRES_HOST=127.0.0.1 POSTGRES_PORT=55439 POSTGRES_DATABASE=evo_l_ui_test POSTGRES_USERNAME=postgres REDIS_URL=redis://127.0.0.1:56389 SECRET_KEY_BASE=synthetic-l1-local-only CORS_ORIGINS=http://127.0.0.1:5176`.
 3. No frontend: `VITE_API_URL=http://127.0.0.1:3016 VITE_AUTH_API_URL=http://127.0.0.1:3016 npm run dev -- --host 127.0.0.1 --port 5176`.

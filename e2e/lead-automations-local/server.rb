@@ -1,5 +1,5 @@
 # Local fixture only. Never load in a deployed application.
-raise 'synthetic database only' unless Rails.env.test? && ActiveRecord::Base.connection_db_config.database.in?(%w[evo_l_test evo_l_ui_test]) && ENV['POSTGRES_HOST'] == '127.0.0.1' && ENV['REDIS_URL'] == 'redis://127.0.0.1:56389'
+raise 'synthetic database only' unless Rails.env.test? && ActiveRecord::Base.connection_db_config.database == 'evo_l_ui_test' && ENV['POSTGRES_HOST'] == '127.0.0.1' && ENV['REDIS_URL'] == 'redis://127.0.0.1:56389'
 require 'puma'
 $velma = ConnectionPool.new(size: 2) { Redis::Namespace.new('velma', redis: Redis.new(url: ENV.fetch('REDIS_URL'))) }
 ActiveJob::Base.queue_adapter = :test

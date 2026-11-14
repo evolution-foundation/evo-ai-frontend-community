@@ -5,6 +5,8 @@ import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 if (!process.env.L6_CRM_DIR || !process.env.L6_CAPTURE_DIR)
   throw new Error('Set L6_CRM_DIR and L6_CAPTURE_DIR. Use a fresh synthetic test database.');
+if (process.env.POSTGRES_DATABASE !== 'evo_l_ui_test')
+  throw new Error('POSTGRES_DATABASE must be evo_l_ui_test; never use the RSpec database.');
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1440, height: 1200 } });
 await page.goto('http://127.0.0.1:5176/e2e/lead-automations-local/index.html');

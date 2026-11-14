@@ -748,7 +748,7 @@ export function LeadAutomationsScreen({
           {panel === 'site' && (
             <>
               <p>{t('siteHelp')}</p>
-              <code>{`${import.meta.env.VITE_API_URL}/public/lead_automation_rules/${selected.id}/leads`}</code>
+              <code>{`${(import.meta.env.VITE_API_URL || window.location.origin).replace(/\/$/, '')}/public/lead_automation_rules/${selected.id}/leads`}</code>
               <p>{t('siteHeaders')}</p>
               {can('update') && !token && (
                 <Button

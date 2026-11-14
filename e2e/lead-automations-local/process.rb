@@ -1,4 +1,4 @@
-raise 'synthetic database only' unless Rails.env.test? && ActiveRecord::Base.connection_db_config.database.in?(%w[evo_l_test evo_l_ui_test]) && ENV['POSTGRES_HOST'] == '127.0.0.1'
+raise 'synthetic database only' unless Rails.env.test? && ActiveRecord::Base.connection_db_config.database == 'evo_l_ui_test' && ENV['POSTGRES_HOST'] == '127.0.0.1'
 ActiveJob::Base.queue_adapter = :test
 rule = LeadAutomationRule.find_by!(name: 'Novos leads · Ensaio local L6')
 event = LeadAutomationEvent.find_by!(source_key: "intake:#{rule.id}:#{ENV.fetch('L6_EVENT_ID')}")
