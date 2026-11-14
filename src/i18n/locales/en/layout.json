@@ -119,7 +119,8 @@
       "admin": "Admin Settings",
       "segments": "Segments",
       "crmForms": "Lead capture forms",
-      "chatPages": "Chat pages"
+      "chatPages": "Chat pages",
+      "leadAutomations": "Lead automations"
     }
   }
 }

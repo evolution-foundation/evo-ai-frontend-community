@@ -41,6 +41,7 @@ export interface MenuItem {
   permissions?: string[];
   requireAll?: boolean;
   requiredRoleKey?: string;
+  requiredRoleKeys?: string[];
   badge?: number;
 }
 
@@ -53,6 +54,7 @@ export interface SubMenuItem {
   permissions?: string[];
   requireAll?: boolean;
   requiredRoleKey?: string;
+  requiredRoleKeys?: string[];
 }
 
 export interface ProfileMenuItem {
@@ -191,6 +193,7 @@ export const getCustomerMenuItems = (t: (key: string) => string, flowConfigured 
     href: '#',
     icon: Cog,
     subItems: [
+      { name: t('menu.settings.leadAutomations'), href: '/settings/lead-automations', icon: Workflow, resource: 'automation_rules', action: 'read', requiredRoleKeys: ['super_admin', 'account_owner', 'administrator', 'admin'] },
       {
         name: t('menu.settings.account'),
         href: '/settings/account',
@@ -344,6 +347,7 @@ export const shouldShowMenuItem = (
   canAllFunction: (permissions: string[]) => boolean,
   userRoleKey?: string
 ): boolean => {
+  if (item.requiredRoleKeys && !item.requiredRoleKeys.includes(userRoleKey || '')) return false;
   // Verificar role obrigatória
   if (item.requiredRoleKey) {
     return userRoleKey === item.requiredRoleKey;

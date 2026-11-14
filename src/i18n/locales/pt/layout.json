@@ -119,7 +119,8 @@
       "admin": "Configurações Admin",
       "segments": "Segmentos",
       "crmForms": "Formulários de captura",
-      "chatPages": "Páginas de chat"
+      "chatPages": "Páginas de chat",
+      "leadAutomations": "Automações de leads"
     }
   }
 }
