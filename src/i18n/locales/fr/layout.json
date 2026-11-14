@@ -119,7 +119,8 @@
       "admin": "Paramètres Admin",
       "segments": "Segments",
       "crmForms": "Formulaires de capture",
-      "chatPages": "Pages de chat"
+      "chatPages": "Pages de chat",
+      "leadAutomations": "Automatisations des prospects"
     }
   }
 }

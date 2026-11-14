@@ -23,6 +23,7 @@ import { usePermissions } from '@/contexts/PermissionsContext';
 import { useMenuState } from '@/hooks/useMenuState';
 import { useDashboardApps } from '@/hooks/useDashboardApps';
 import { injectDashboardAppsIntoMenu } from '@/utils/injectDashboardApps';
+import { useEvoFlow } from '@/hooks/useEvoFlow';
 import { WelcomeTourModal } from '@/components/WelcomeTourModal';
 
 interface MainLayoutProps {
@@ -31,6 +32,7 @@ interface MainLayoutProps {
 
 export default function MainLayout({ children }: MainLayoutProps) {
   const { t } = useLanguage('layout');
+  const { configured: flowConfigured } = useEvoFlow();
   const { user, logout } = useAuth();
   const { can, canAny, canAll } = usePermissions();
   const navigate = useNavigate();
@@ -68,8 +70,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   // Menu items baseado no tipo de usuário e rota atual
   const getMenuItems = useCallback((): MenuItemType[] => {
-    return getCustomerMenuItems(t);
-  }, [t]);
+    return getCustomerMenuItems(t, flowConfigured);
+  }, [t, flowConfigured]);
 
   const menuItems = useMemo(() => {
     const rawMenuItems = getMenuItems();

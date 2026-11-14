@@ -1,3 +1,4 @@
+import leadAutomations from './locales/pt-BR/leadAutomations.json';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
@@ -387,6 +388,7 @@ const detectLanguage = (): Locale => {
 
 const resources = {
   'pt-BR': {
+    leadAutomations,
     auth: ptBRAuth,
     changePassword: ptBRChangePassword,
     mcpServers: ptBRMcpServers,
@@ -447,6 +449,7 @@ const resources = {
     events: ptBREvents,
   },
   pt: {
+    leadAutomations,
     auth: ptAuth,
     changePassword: ptChangePassword,
     mcpServers: ptMcpServers,
@@ -507,6 +510,7 @@ const resources = {
     events: ptEvents,
   },
   en: {
+    leadAutomations,
     auth: enAuth,
     changePassword: enChangePassword,
     mcpServers: enMcpServers,
@@ -567,6 +571,7 @@ const resources = {
     events: enEvents,
   },
   es: {
+    leadAutomations,
     auth: esAuth,
     changePassword: esChangePassword,
     mcpServers: esMcpServers,
@@ -627,6 +632,7 @@ const resources = {
     events: esEvents,
   },
   fr: {
+    leadAutomations,
     auth: frAuth,
     changePassword: frChangePassword,
     mcpServers: frMcpServers,
@@ -687,6 +693,7 @@ const resources = {
     events: frEvents,
   },
   it: {
+    leadAutomations,
     auth: itAuth,
     changePassword: itChangePassword,
     mcpServers: itMcpServers,

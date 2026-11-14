@@ -1,3 +1,4 @@
+import LeadAutomations from '@/pages/Customer/Settings/LeadAutomations/LeadAutomations';
 import VetorialAgentPage from '@/pages/Customer/Agents/VetorialAgentPage';
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -565,6 +566,7 @@ const AppRouter = () => {
             }
           /> */}
 
+          <Route path="/settings/lead-automations" element={<PrivateRoute><CustomerRoute><MainLayout><PermissionRoute resource="automation_rules" action="read"><LeadAutomations /></PermissionRoute></MainLayout></CustomerRoute></PrivateRoute>} />
           {/* Segments (settings subroute) */}
           <Route
             path="/settings/segments"

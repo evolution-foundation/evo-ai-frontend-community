@@ -26,6 +26,9 @@ export interface GlobalConfig {
   // public_config a partir da env HUB_ALLOW_EXISTING_CHANNELS.
   hubAllowExistingChannels?: boolean;
   hasTwitterConfig?: boolean;
+  evoFlowConfigured?: boolean;
+  evoFlowProxyConfigured?: boolean;
+  evoFlowPublicUrl?: string | null;
   openaiConfigured?: boolean;
   enableAccountSignup?: boolean;
   recaptchaSiteKey?: string;
@@ -33,11 +36,13 @@ export interface GlobalConfig {
 }
 
 interface GlobalConfigContextValue extends GlobalConfig {
+  configLoading?: boolean;
   setupRequired: boolean;
   setupLoading: boolean;
 }
 
 const GlobalConfigContext = createContext<GlobalConfigContextValue>({
+  configLoading: true,
   setupRequired: false,
   setupLoading: true,
 });
@@ -134,6 +139,7 @@ export const clearSetupCache = () => {
 };
 
 export const GlobalConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [configLoading, setConfigLoading] = useState(globalConfigCache === null);
   const [config, setConfig] = useState<GlobalConfig>(globalConfigCache || {});
   const [setupRequired, setSetupRequired] = useState<boolean>(setupRequiredCache ?? false);
   const [setupLoading, setSetupLoading] = useState<boolean>(setupRequiredCache === null);
@@ -145,6 +151,7 @@ export const GlobalConfigProvider: React.FC<{ children: React.ReactNode }> = ({ 
       Promise.all([fetchGlobalConfig(), fetchSetupStatus()]).then(([configData, isSetupRequired]) => {
         if (mounted) {
           setConfig(configData);
+          setConfigLoading(false);
           setSetupRequired(isSetupRequired);
           setSetupLoading(false);
           // Initialize Clarity with backend-provided project ID
@@ -180,8 +187,8 @@ export const GlobalConfigProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, []);
 
   const value = useMemo(
-    () => ({ ...config, setupRequired, setupLoading }),
-    [config, setupRequired, setupLoading],
+    () => ({ ...config, configLoading, setupRequired, setupLoading }),
+    [config, configLoading, setupRequired, setupLoading],
   );
 
   return <GlobalConfigContext.Provider value={value}>{children}</GlobalConfigContext.Provider>;

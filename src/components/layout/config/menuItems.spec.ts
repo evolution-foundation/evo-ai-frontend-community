@@ -120,3 +120,10 @@ describe('menuItems — EVO-1938 admin Settings gating for the default agent', (
     expect(isVisible(findSubItem('/settings/segments'), adminGranted)).toBe(true);
   });
 });
+
+describe('Automações de leads — administração e permissão', () => {
+  const item = findSubItem('/settings/lead-automations');
+  it('requires administrator role even with read permission', () => { expect(shouldShowMenuItem(item, () => true, () => true, () => true, 'agent')).toBe(false); });
+  it('requires read permission even for administrator', () => { expect(shouldShowMenuItem(item, () => false, () => false, () => false, 'administrator')).toBe(false); });
+  it.each(['super_admin', 'account_owner', 'administrator', 'admin'])('allows %s with permission', role => { expect(shouldShowMenuItem(item, () => true, () => true, () => true, role)).toBe(true); });
+});

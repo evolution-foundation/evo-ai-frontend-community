@@ -1,0 +1,163 @@
+.la-page {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  padding: 28px;
+  max-width: 1200px;
+  margin: auto;
+  color: var(--foreground);
+  display: grid;
+  gap: 20px;
+}
+.la-header,
+.la-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.la-page h1 {
+  font-size: 26px;
+  font-weight: 650;
+}
+.la-page h2 {
+  font-size: 19px;
+  font-weight: 600;
+}
+.la-page p {
+  color: var(--muted-foreground);
+}
+.la-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.la-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.la-page label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+.la-page input:not([type='checkbox']),
+.la-page select,
+.la-page textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--background);
+  padding: 9px;
+  color: var(--foreground);
+}
+.la-page input[type='checkbox'] {
+  margin-right: 8px;
+}
+.la-check {
+  display: flex !important;
+  align-items: center;
+}
+.la-page button {
+  cursor: pointer;
+}
+.la-page button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.la-page :focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+.la-badge {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 12px;
+}
+.la-active {
+  color: var(--primary);
+  background: var(--accent);
+}
+.la-error {
+  border-left: 3px solid var(--destructive);
+  padding: 12px;
+  background: var(--muted);
+}
+.la-notice {
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--muted);
+}
+.la-rule {
+  display: grid;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+}
+.la-rule:last-child {
+  border: 0;
+  padding: 0;
+}
+.la-page code {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.la-log {
+  display: grid;
+  gap: 7px;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+}
+.la-page a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.la-reasons {
+  font-size: 14px;
+}
+.la-page small {
+  color: var(--muted-foreground);
+}
+@media (max-width: 640px) {
+  .la-page {
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
+    padding: 16px;
+    gap: 16px;
+  }
+  .la-grid {
+    grid-template-columns: 1fr;
+  }
+  .la-panel {
+    padding: 16px;
+  }
+  .la-page h1 {
+    font-size: 23px;
+  }
+  .la-actions {
+    justify-content: flex-start;
+  }
+}
+.la-page,
+.la-panel,
+.la-page label {
+  align-content: start;
+}
+.la-actions {
+  justify-content: flex-start;
+}
+.la-active {
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+}
+.la-page input[type='checkbox'] {
+  accent-color: var(--primary);
+}
