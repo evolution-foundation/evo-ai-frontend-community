@@ -88,6 +88,7 @@ describe('ContactAvatar (EVO-1012)', () => {
   it('skips <img> entirely when no avatar field is populated and shows initials fallback', () => {
     render(
       <ContactAvatar
+        showColoredFallback
         contact={{ id: '4', name: 'Alice Smith', avatar_url: null, thumbnail: null, avatar: null }}
       />,
     );

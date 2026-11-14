@@ -30,4 +30,24 @@ describe('configured board and preview renderer', () => {
     expect(container.querySelector('img')).toBeNull(); expect(screen.getByText('<img src=x onerror=alert(1)>')).toBeInTheDocument(); expect(screen.getByText('Não')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Ativo:'));
   });
+  it('shows the primary contact photo and initials after load failure, then recovers for a new URL', () => {
+    const contact = { id: 'c', name: 'Contato Sintético', avatar_url: '/photo.png' };
+    const view = (avatar_url?: string) => <MemoryRouter><ConfiguredDealCard item={{...item, primary_contact: {...contact, avatar_url}} as PipelineItem} configuration={defaultConfiguration()} definitions={nativeFields} /></MemoryRouter>;
+    const {container, rerender} = render(view('/photo.png'));
+    expect(container.querySelector('.deal-contact-avatar img')).toHaveAttribute('src', '/photo.png');
+    fireEvent.error(container.querySelector('.deal-contact-avatar img')!);
+    expect(container.querySelector('.deal-contact-avatar')).toHaveTextContent('CS');
+    expect(container.querySelector('.deal-contact-avatar img')).toBeNull();
+    rerender(view('/new.png'));
+    expect(container.querySelector('.deal-contact-avatar img')).toHaveAttribute('src', '/new.png');
+  });
+  it('uses legacy contact thumbnail and initials when no photo exists', () => {
+    const contact = { id: 'legacy', name: 'Lead Sintético', thumbnail: '/thumb.png' };
+    const view = (thumbnail?: string) => <MemoryRouter><ConfiguredDealCard item={{...item, contact: {...contact, thumbnail}} as PipelineItem} configuration={defaultConfiguration()} definitions={nativeFields} preview /></MemoryRouter>;
+    const {container, rerender} = render(view('/thumb.png'));
+    expect(container.querySelector('.deal-contact-avatar img')).toHaveAttribute('src', '/thumb.png');
+    rerender(view());
+    expect(container.querySelector('.deal-contact-avatar')).toHaveTextContent('LS');
+  });
+
 });
