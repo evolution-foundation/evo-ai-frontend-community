@@ -592,7 +592,10 @@ body.authenticated-panel-density {
 .configured-deal-card { padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
 .configured-deal-card.compact { padding: 8px; gap: 4px; }
 .deal-field { min-width: 0; overflow-wrap: anywhere; }
-.deal-title { padding-right: 46px; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--foreground); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.deal-card-heading { display: flex; align-items: flex-start; gap: 8px; min-width: 0; padding-right: 64px; min-height: 26px; }
+.deal-heading-title { min-width: 0; flex: 1; }
+.deal-card-heading .deal-contact-avatar { width: 26px; height: 26px; flex: 0 0 26px; }
+.deal-title { min-width: 0; overflow-wrap: anywhere; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--foreground); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 .deal-value { font-size: 14px; line-height: 20px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--foreground); }
 .deal-field-contact, .deal-field-company { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .deal-field-last_message { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -634,7 +637,7 @@ body.authenticated-panel-density {
 .deal-move-handle { position: absolute; left: 0; top: 0; width: 20px; height: 20px; opacity: 0; cursor: grab; touch-action: none; color: var(--muted-foreground); z-index: 1; }
 .deal-card-shell:hover .deal-move-handle, .deal-move-handle:focus-visible { opacity: 1; }
 .deal-card-shell.is-dragging > :not(.deal-move-handle) { visibility: hidden; }
-@media (pointer: coarse) { .deal-move-handle { opacity: 1; width: 32px; height: 32px; } .deal-title { padding-left: 20px; } }
+@media (pointer: coarse) { .deal-move-handle { opacity: 1; width: 32px; height: 32px; } .deal-card-heading { padding-left: 20px; } }
 .card-configuration-panel { translate: none !important; }
 .deal-field-title { padding-right: 52px; }
 .deal-title { padding-right: 0; }

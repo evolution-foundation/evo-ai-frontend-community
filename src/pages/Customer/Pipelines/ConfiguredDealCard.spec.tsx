@@ -30,6 +30,18 @@ describe('configured board and preview renderer', () => {
     expect(container.querySelector('img')).toBeNull(); expect(screen.getByText('<img src=x onerror=alert(1)>')).toBeInTheDocument(); expect(screen.getByText('Não')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Ativo:'));
   });
+  it('keeps one header photo and title when configurable contact/title fields are hidden', () => {
+    const config = defaultConfiguration(); config.fields.forEach(field => { if (['contact', 'title'].includes(field.id)) field.visible = false; });
+    const {container} = render(<MemoryRouter><ConfiguredDealCard item={{...item, primary_contact: {id: 'c', name: 'Contato Sintético', avatar_url: '/photo.png'}} as PipelineItem} configuration={config} definitions={nativeFields} /></MemoryRouter>);
+    expect(container.querySelector('.deal-card-heading img')).toHaveAttribute('src', '/photo.png');
+    expect(container.querySelectorAll('.deal-contact-avatar')).toHaveLength(1);
+    expect(screen.getByRole('link', {name: item.title})).toBeInTheDocument();
+  });
+  it('uses initials for an empty photo URL', () => {
+    const {container} = render(<MemoryRouter><ConfiguredDealCard item={{...item, primary_contact: {id: 'c', name: 'Contato Sintético', avatar_url: ' '}} as PipelineItem} configuration={defaultConfiguration()} definitions={nativeFields} /></MemoryRouter>);
+    expect(container.querySelector('.deal-card-heading img')).toBeNull();
+    expect(container.querySelector('.deal-contact-avatar')).toHaveTextContent('CS');
+  });
   it('shows the primary contact photo and initials after load failure, then recovers for a new URL', () => {
     const contact = { id: 'c', name: 'Contato Sintético', avatar_url: '/photo.png' };
     const view = (avatar_url?: string) => <MemoryRouter><ConfiguredDealCard item={{...item, primary_contact: {...contact, avatar_url}} as PipelineItem} configuration={defaultConfiguration()} definitions={nativeFields} /></MemoryRouter>;

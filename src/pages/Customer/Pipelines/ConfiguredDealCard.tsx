@@ -8,7 +8,7 @@ import { dateValue, fieldText, formatDate, money } from './cardConfiguration';
 function CardContactAvatar({ url, name }: { url?: string; name?: string | null }) {
   const [failedUrl, setFailedUrl] = useState<string>();
   return <span className="deal-contact-avatar" aria-hidden="true">
-    {url && failedUrl !== url ? <img src={url} alt="" onError={() => setFailedUrl(url)} /> : getContactInitials(name) || '?'}
+    {url?.trim() && failedUrl !== url ? <img src={url} alt="" onError={() => setFailedUrl(url)} /> : getContactInitials(name) || '?'}
   </span>;
 }
 
@@ -24,7 +24,7 @@ export default function ConfiguredDealCard({ item, configuration, definitions, p
     switch (id) {
       case 'title': return preview ? <span className="deal-title">{card.title}</span> : <Link className="deal-title" to={href} state={{ returnTo: location.pathname + location.search }} onClick={event => { const board = event.currentTarget.closest<HTMLElement>('.kanban-scroll'); if (board) sessionStorage.setItem(`pipeline-scroll:${item.pipeline_id}`, String(board.scrollLeft)); }}>{card.title}</Link>;
       case 'value': return <span className="deal-value">{item.value == null ? 'Não informado' : money(item.value, card.currency)}</span>;
-      case 'contact': return card.contact ? <span className="deal-contact-line"><CardContactAvatar key={card.contact.id} url={card.avatarUrl} name={card.contact.name} />{preview ? <span>{card.contact.name}</span> : <Link to={`/contacts/${card.contact.id}`}>{card.contact.name}{card.additionalContacts > 0 ? ` +${card.additionalContacts}` : ''}</Link>}</span> : (preview ? 'Vincular contato' : <Link className="deal-contact-action" to={`${href}?tab=contacts`}>Vincular contato</Link>);
+      case 'contact': return card.contact ? <span className="deal-contact-line">{preview ? <span>{card.contact.name}</span> : <Link to={`/contacts/${card.contact.id}`}>{card.contact.name}{card.additionalContacts > 0 ? ` +${card.additionalContacts}` : ''}</Link>}</span> : (preview ? 'Vincular contato' : <Link className="deal-contact-action" to={`${href}?tab=contacts`}>Vincular contato</Link>);
       case 'company': return item.company?.name || 'Não informado';
       case 'labels': return card.labels.length ? <span className="deal-labels">{card.labels.slice(0, 2).map(label => <span className="deal-label" key={label.name}><i style={{ background: label.color || '#55768A' }} />{label.name}</span>)}{card.labels.length > 2 ? <details><summary>+{card.labels.length - 2}</summary>{card.labels.slice(2).map(label => <div key={label.name}>{label.name}</div>)}</details> : null}</span> : 'Sem etiquetas';
       case 'owner': return <span className="deal-owner">{card.owner?.avatar_url ? <img src={card.owner.avatar_url} alt="" /> : card.owner ? <span className="deal-owner-avatar">{card.owner.name.slice(0, 1)}</span> : null}<span>{card.owner?.name || 'Sem responsável'}</span></span>;
@@ -47,7 +47,8 @@ export default function ConfiguredDealCard({ item, configuration, definitions, p
     }
   };
   return <div className={`configured-deal-card ${configuration.density}`}>
-    {enabled.filter(field => !['owner', 'stage_age'].includes(field.id)).map(field => <div className={`deal-field deal-field-${field.id.split(':')[0]}`} title={field.id === 'last_message' ? `Conversa: ${card.message?.conversation_id || 'não informada'}` : field.id === 'channel_origin' ? `Conversa: ${item.channel_origin?.conversation_id || 'não informada'}` : undefined} key={field.id}>{renderField(field.id)}</div>)}
+    <div className="deal-card-heading"><CardContactAvatar key={card.contact?.id || 'none'} url={card.avatarUrl} name={card.contact?.name} /><div className="deal-heading-title">{renderField('title')}</div></div>
+    {enabled.filter(field => !['title', 'owner', 'stage_age'].includes(field.id)).map(field => <div className={`deal-field deal-field-${field.id.split(':')[0]}`} title={field.id === 'last_message' ? `Conversa: ${card.message?.conversation_id || 'não informada'}` : field.id === 'channel_origin' ? `Conversa: ${item.channel_origin?.conversation_id || 'não informada'}` : undefined} key={field.id}>{renderField(field.id)}</div>)}
     {enabled.some(field => ['owner', 'stage_age'].includes(field.id)) ? <div className="deal-footer">{['owner', 'stage_age'].filter(id => enabled.some(field => field.id === id)).map(id => <div key={id}>{renderField(id)}</div>)}</div> : null}
   </div>;
 }
