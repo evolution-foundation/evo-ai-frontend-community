@@ -146,7 +146,7 @@
       }
     },
     "results": {
-      "invited": "Inviti Inviati ({{count}})",
+      "invited": "Inviti richiesti ({{count}})",
       "failed": "Inviti Falliti ({{count}})"
     },
     "actions": {
@@ -159,8 +159,8 @@
     "messages": {
       "enterEmail": "Inserisci almeno un'email",
       "noValidEmail": "Nessuna email valida trovata",
-      "allSuccess": "{{count}} invito/i inviato/i con successo",
-      "partialSuccess": "{{successCount}} invito/i inviato/i, {{failedCount}} fallito/i",
+      "allSuccess": "Inviti richiesti ({{count}})",
+      "partialSuccess": "Inviti richiesti ({{successCount}}); Inviti Falliti ({{failedCount}})",
       "allFailed": "Impossibile inviare {{count}} invito/i",
       "sendError": "Errore durante l'invio degli inviti"
     }
@@ -234,6 +234,31 @@
       "cancel": "Annulla",
       "deleting": "Eliminazione...",
       "confirm": "Elimina Tutti"
+    }
+  },
+  "invitation": {
+    "pending": "Invito in attesa",
+    "resend": "Invia di nuovo l’invito",
+    "lastSent": "Ultimo invio: {{date}}",
+    "neverSent": "Non ancora inviato",
+    "queued": "Invito richiesto. In attesa di elaborazione.",
+    "sending": "Invio in corso.",
+    "sent": "Invito inviato.",
+    "failed": "Impossibile inviare l’invito. Il servizio email non è disponibile. Riprova più tardi.",
+    "uncertain": "Impossibile confermare l’invio. Controlla la ricezione prima di riprovare.",
+    "cancelled": "Invio annullato.",
+    "cooldown": "Attendi fino alle {{time}} per riprovare.",
+    "rateLimited": "Limite di inviti raggiunto. Riprova più tardi.",
+    "ineligible": "Questo utente ha già impostato la password o effettuato l’accesso.",
+    "requested": "Nuovo invio richiesto.",
+    "timeout": "Invio ancora non confermato. Aggiorna l’elenco.",
+    "passwordHint": "Lascia vuoto per inviare un invito via email.",
+    "passwordRules": "Usa da 8 a 128 caratteri con maiuscola, minuscola, numero e simbolo.",
+    "bulkLimit": "Inserisci al massimo 50 indirizzi.",
+    "confirm": {
+      "title": "Inviare di nuovo l’invito?",
+      "description": "Un nuovo link verrà inviato a {{email}}. Il link precedente non funzionerà più.",
+      "cancel": "Annulla"
     }
   }
 }

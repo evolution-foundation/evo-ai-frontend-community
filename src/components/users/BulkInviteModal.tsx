@@ -48,14 +48,16 @@ export default function BulkInviteModal({ isOpen, onClose, onSuccess }: BulkInvi
     }
 
     // Remover duplicatas
-    const uniqueEmails = [...new Set(emails)];
+    const uniqueEmails = [...new Set(emails.map(email => email.toLowerCase()))];
 
+    if (uniqueEmails.length > 50) { toast.error(t('invitation.bulkLimit')); return; }
     setLoading(true);
     try {
       const response = await usersService.bulkInvite({
         emails: uniqueEmails,
       });
 
+      onSuccess();
       setResult({
         invited: response.invited_users || [],
         failed: response.failed_invitations || [],
@@ -73,7 +75,7 @@ export default function BulkInviteModal({ isOpen, onClose, onSuccess }: BulkInvi
       }
     } catch (error: any) {
       console.error('Erro no convite em massa:', error);
-      toast.error(error.message || t('bulkInvite.messages.sendError'));
+      toast.error(t('invitation.failed'));
     } finally {
       setLoading(false);
     }
@@ -96,7 +98,7 @@ export default function BulkInviteModal({ isOpen, onClose, onSuccess }: BulkInvi
   if (result) {
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="bg-sidebar border-sidebar-border max-w-lg">
+        <DialogContent className="bg-sidebar border-sidebar-border max-w-lg max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-sidebar-foreground flex items-center gap-2">
               <Mail className="h-5 w-5" />
@@ -165,7 +167,7 @@ export default function BulkInviteModal({ isOpen, onClose, onSuccess }: BulkInvi
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="bg-sidebar border-sidebar-border max-w-lg">
+      <DialogContent className="bg-sidebar border-sidebar-border max-w-lg max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-sidebar-foreground flex items-center gap-2">
             <Mail className="h-5 w-5" />
@@ -196,7 +198,7 @@ export default function BulkInviteModal({ isOpen, onClose, onSuccess }: BulkInvi
               placeholder={`usuario1@exemplo.com
 usuario2@exemplo.com, usuario3@exemplo.com
 usuario4@exemplo.com`}
-              className="bg-sidebar border-sidebar-border text-sidebar-foreground min-h-[120px]"
+              className="bg-sidebar border-sidebar-border text-sidebar-foreground min-h-[120px] max-h-48 overflow-y-auto"
               disabled={loading}
             />
             <p className="text-xs text-sidebar-foreground/60">

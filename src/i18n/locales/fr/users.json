@@ -146,7 +146,7 @@
       }
     },
     "results": {
-      "invited": "Invitations Envoyées ({{count}})",
+      "invited": "Invitations demandées ({{count}})",
       "failed": "Échecs des Invitations ({{count}})"
     },
     "actions": {
@@ -159,8 +159,8 @@
     "messages": {
       "enterEmail": "Saisissez au moins un e-mail",
       "noValidEmail": "Aucun e-mail valide trouvé",
-      "allSuccess": "{{count}} invitation(s) envoyée(s) avec succès",
-      "partialSuccess": "{{successCount}} invitation(s) envoyée(s), {{failedCount}} échouée(s)",
+      "allSuccess": "Invitations demandées ({{count}})",
+      "partialSuccess": "Invitations demandées ({{successCount}}); Échecs des Invitations ({{failedCount}})",
       "allFailed": "Échec de l'envoi de {{count}} invitation(s)",
       "sendError": "Erreur lors de l'envoi des invitations"
     }
@@ -234,6 +234,31 @@
       "cancel": "Annuler",
       "deleting": "Suppression en cours...",
       "confirm": "Supprimer Tous"
+    }
+  },
+  "invitation": {
+    "pending": "Invitation en attente",
+    "resend": "Renvoyer l’invitation",
+    "lastSent": "Dernier envoi : {{date}}",
+    "neverSent": "Pas encore envoyée",
+    "queued": "Invitation demandée. En attente de traitement.",
+    "sending": "Envoi en cours.",
+    "sent": "Invitation envoyée.",
+    "failed": "Impossible d’envoyer l’invitation. Le service de messagerie est indisponible. Réessayez plus tard.",
+    "uncertain": "Impossible de confirmer l’envoi. Vérifiez la réception avant de renvoyer.",
+    "cancelled": "Envoi annulé.",
+    "cooldown": "Attendez {{time}} pour renvoyer.",
+    "rateLimited": "Limite d’invitations atteinte. Réessayez plus tard.",
+    "ineligible": "Cet utilisateur a déjà défini son mot de passe ou s’est connecté.",
+    "requested": "Renvoi demandé.",
+    "timeout": "Envoi toujours non confirmé. Actualisez la liste.",
+    "passwordHint": "Laissez vide pour envoyer une invitation par e-mail.",
+    "passwordRules": "Utilisez 8 à 128 caractères avec majuscule, minuscule, chiffre et symbole.",
+    "bulkLimit": "Saisissez au maximum 50 adresses.",
+    "confirm": {
+      "title": "Renvoyer l’invitation ?",
+      "description": "Un nouveau lien sera envoyé à {{email}}. Le lien précédent ne fonctionnera plus.",
+      "cancel": "Annuler"
     }
   }
 }

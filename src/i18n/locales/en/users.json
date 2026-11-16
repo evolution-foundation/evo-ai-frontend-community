@@ -146,7 +146,7 @@
       }
     },
     "results": {
-      "invited": "Invites Sent ({{count}})",
+      "invited": "Invitations requested ({{count}})",
       "failed": "Failed Invites ({{count}})"
     },
     "actions": {
@@ -159,8 +159,8 @@
     "messages": {
       "enterEmail": "Enter at least one email",
       "noValidEmail": "No valid email found",
-      "allSuccess": "{{count}} invite(s) sent successfully",
-      "partialSuccess": "{{successCount}} invite(s) sent, {{failedCount}} failed",
+      "allSuccess": "Invitations requested ({{count}})",
+      "partialSuccess": "Invitations requested ({{successCount}}); Failed Invites ({{failedCount}})",
       "allFailed": "Failed to send {{count}} invite(s)",
       "sendError": "Failed to send invites"
     }
@@ -234,6 +234,31 @@
       "cancel": "Cancel",
       "deleting": "Deleting...",
       "confirm": "Delete All"
+    }
+  },
+  "invitation": {
+    "pending": "Invitation pending",
+    "resend": "Resend invitation",
+    "lastSent": "Last sent: {{date}}",
+    "neverSent": "Not sent yet",
+    "queued": "Invitation requested. Waiting for processing.",
+    "sending": "Sending invitation.",
+    "sent": "Invitation sent.",
+    "failed": "Could not send the invitation. The email service is unavailable. Please try again later.",
+    "uncertain": "Could not confirm sending. Check your inbox before resending.",
+    "cancelled": "Sending cancelled.",
+    "cooldown": "Wait until {{time}} to resend.",
+    "rateLimited": "Invitation limit reached. Please try again later.",
+    "ineligible": "This user has already set a password or signed in.",
+    "requested": "Resend requested.",
+    "timeout": "Sending is still unconfirmed. Refresh the list.",
+    "passwordHint": "Leave blank to send an email invitation.",
+    "passwordRules": "Use 8–128 characters, including uppercase, lowercase, a number and a symbol.",
+    "bulkLimit": "Enter at most 50 addresses.",
+    "confirm": {
+      "title": "Resend invitation?",
+      "description": "A new link will be sent to {{email}}. The previous link will stop working.",
+      "cancel": "Cancel"
     }
   }
 }

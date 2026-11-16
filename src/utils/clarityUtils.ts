@@ -13,6 +13,8 @@ declare global {
 }
 
 export const initClarity = (configProjectId?: string | null): void => {
+  if (window.location.pathname.replace(/\/$/, '') === '/auth/reset-password') return;
+
   const projectId = configProjectId || import.meta.env.VITE_CLARITY_PROJECT_ID;
 
   // Only initialize in production with valid project ID

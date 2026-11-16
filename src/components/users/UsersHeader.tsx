@@ -9,6 +9,7 @@ import { usePermissions } from '@/contexts/PermissionsContext';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface UsersHeaderProps {
+  invitationsEnabled?: boolean;
   totalCount: number;
   selectedCount: number;
   searchValue: string;
@@ -23,6 +24,7 @@ interface UsersHeaderProps {
 }
 
 export default function UsersHeader({
+  invitationsEnabled = false,
   totalCount,
   selectedCount,
   searchValue,
@@ -45,7 +47,7 @@ export default function UsersHeader({
   } : undefined;
 
   const secondaryActions: HeaderAction[] = [
-    ...(can('users', 'create') ? [{
+    ...(invitationsEnabled && can('users', 'create') && can('users', 'manage') && can('users', 'bulk_operations') ? [{
       label: t('header.bulkInvite'),
       icon: <Mail className="h-4 w-4" />,
       onClick: onBulkInvite,

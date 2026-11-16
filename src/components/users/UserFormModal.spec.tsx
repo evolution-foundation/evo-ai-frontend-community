@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import type { Role } from '@/types/auth/rbac';
 
@@ -107,5 +107,37 @@ describe('UserFormModal — account roles in the create-agent modal (AC8)', () =
     expect(values).toContain('gerente');
     // no duplicate keys
     expect(new Set(values).size).toBe(values.length);
+  });
+});
+
+
+import usersService from '@/services/users/usersService';
+describe('invitation creation', () => {
+  const fillIdentity = (container: HTMLElement) => {
+    fireEvent.change(container.querySelector('#name')!, { target: { value: 'Pessoa sintética' } });
+    fireEvent.change(container.querySelector('#email')!, { target: { value: 'synthetic@example.invalid' } });
+  };
+  it('allows blank password only with capability enabled', async () => {
+    vi.mocked(usersService.createUser).mockResolvedValue({ id: 'synthetic' } as Awaited<ReturnType<typeof usersService.createUser>>);
+    const { container } = render(<UserFormModal invitationsEnabled isOpen user={null} onClose={vi.fn()} onSuccess={vi.fn()} />);
+    fillIdentity(container);
+    fireEvent.submit(container.querySelector('form')!);
+    await waitFor(() => expect(usersService.createUser).toHaveBeenCalledTimes(1));
+  });
+  it('requires a password when invitations are off', () => {
+    const { container } = render(<UserFormModal isOpen user={null} onClose={vi.fn()} onSuccess={vi.fn()} />);
+    fillIdentity(container);
+    fireEvent.submit(container.querySelector('form')!);
+    expect(usersService.createUser).not.toHaveBeenCalled();
+    expect(screen.getByText('form.validation.passwordRequired')).toBeVisible();
+  });
+  it('rejects weak explicit passwords even with capability enabled', () => {
+    const { container } = render(<UserFormModal invitationsEnabled isOpen user={null} onClose={vi.fn()} onSuccess={vi.fn()} />);
+    fillIdentity(container);
+    fireEvent.change(container.querySelector('#password')!, { target: { value: 'weakpass' } });
+    fireEvent.change(container.querySelector('#confirmPassword')!, { target: { value: 'weakpass' } });
+    fireEvent.submit(container.querySelector('form')!);
+    expect(usersService.createUser).not.toHaveBeenCalled();
+    expect(screen.getByText('invitation.passwordRules')).toBeVisible();
   });
 });

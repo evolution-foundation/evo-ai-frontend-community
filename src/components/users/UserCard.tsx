@@ -1,3 +1,4 @@
+import UserInvitation from './UserInvitation';
 import { Button, Card, CardContent, Avatar, AvatarFallback } from '@evoapi/design-system';
 import { Edit, MessageSquare, Trash2 } from 'lucide-react';
 import { User } from '@/types/users';
@@ -5,6 +6,7 @@ import UserStatusBadge from './UserStatusBadge';
 import { useLanguage } from '@/hooks/useLanguage';
 
 type UserCardProps = {
+  onResendInvite?: (user: User) => void;
   user: User;
   onStartConversation?: (user: User) => void;
   onEdit?: (user: User) => void;
@@ -13,6 +15,7 @@ type UserCardProps = {
 };
 
 export default function UserCard({
+  onResendInvite,
   user,
   onStartConversation,
   onEdit,
@@ -69,10 +72,11 @@ export default function UserCard({
           />
         </div>
 
+        <div className="px-4"><UserInvitation user={user} onResend={onResendInvite} /></div>
         <div className="px-4 py-3 text-xs text-sidebar-foreground/70">
           <div className="flex items-center justify-between">
             <span>{t('card.id')}</span>
-            <span className="font-mono">{user.id}</span>
+            <span className="font-mono min-w-0 break-all text-right ml-2">{user.id}</span>
           </div>
           <div className="flex items-center justify-between">
             <span>{t('card.role')}</span>
@@ -80,7 +84,7 @@ export default function UserCard({
           </div>
         </div>
 
-        <div className="flex border-t border-sidebar-border opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="flex border-t border-sidebar-border opacity-100 transition-opacity duration-200">
           {onStartConversation && (
             <>
               <Button

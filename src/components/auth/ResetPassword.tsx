@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   Button,
@@ -42,13 +42,16 @@ type ResetPasswordFormData = {
 const ResetPassword = () => {
   const { t } = useLanguage('auth');
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
 
-  const resetToken = searchParams.get('reset_password_token');
+  const [resetToken] = useState(() => searchParams.get('reset_password_token'));
+  const [isInvite] = useState(() => searchParams.get('purpose') === 'invite');
+  useEffect(() => {
+    window.history.replaceState(window.history.state, '', window.location.pathname);
+  }, []);
 
   const form = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema(t)),
@@ -80,8 +83,8 @@ const ResetPassword = () => {
         password_confirmation: data.password_confirmation,
       });
 
-      toast.success(t('auth.resetPassword.success'));
-      navigate('/login');
+      toast.success(t(isInvite ? 'invitation.success' : 'auth.resetPassword.success'));
+      window.location.assign('/login');
     } catch (error: any) {
       const apiError = error?.response?.data?.error;
       const detailMessages = Array.isArray(apiError?.details)
@@ -94,8 +97,9 @@ const ResetPassword = () => {
         apiError?.message ||
         error?.response?.data?.message ||
         t('auth.resetPassword.error');
-      setError(errorMessage);
-      toast.error(errorMessage);
+      const safeMessage = isInvite ? t('invitation.invalid') : errorMessage;
+      setError(safeMessage);
+      toast.error(safeMessage);
     } finally {
       setIsLoading(false);
     }
@@ -114,7 +118,7 @@ const ResetPassword = () => {
               <Lock className="h-12 w-12 text-destructive mx-auto mb-4" />
               <h2 className="text-2xl font-bold">{t('auth.resetPassword.tokenInvalid.title')}</h2>
               <p className="text-muted-foreground mt-2">
-                {t('auth.resetPassword.tokenInvalid.description')}
+                {t(isInvite ? 'invitation.invalid' : 'auth.resetPassword.tokenInvalid.description')}
               </p>
             </div>
 
@@ -126,7 +130,7 @@ const ResetPassword = () => {
               </Alert>
 
               <Button
-                onClick={() => navigate('/login')}
+                onClick={() => window.location.assign('/login')}
                 className="w-full"
               >
                 {t('auth.resetPassword.tokenInvalid.button')}
@@ -153,7 +157,7 @@ const ResetPassword = () => {
               <Lock className="h-6 w-6 text-primary" />
             </div>
             <h2 className="text-2xl font-bold">
-              {t('auth.resetPassword.title')}
+              {t(isInvite ? 'invitation.title' : 'auth.resetPassword.title')}
             </h2>
             <p className="text-muted-foreground mt-2">
               {t('auth.resetPassword.subtitle')}
@@ -226,14 +230,14 @@ const ResetPassword = () => {
             </div>
 
             <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading ? t('auth.resetPassword.resetting') : t('auth.resetPassword.button')}
+              {isLoading ? t('auth.resetPassword.resetting') : t(isInvite ? 'invitation.save' : 'auth.resetPassword.button')}
             </Button>
 
             <div className="text-center">
               <Button
                 type="button"
                 variant="link"
-                onClick={() => navigate('/login')}
+                onClick={() => window.location.assign('/login')}
                 className="text-sm"
               >
                 {t('auth.resetPassword.backToLogin')}
