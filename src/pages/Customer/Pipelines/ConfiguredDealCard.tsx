@@ -1,3 +1,4 @@
+import { craFieldText } from '@/components/pipelines/craAcquisition';
 import { useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import type { CardConfiguration, CardFieldDefinition, PipelineItem } from '@/types/analytics/pipelines';
@@ -42,7 +43,7 @@ export default function ConfiguredDealCard({ item, configuration, definitions, p
         const definition = definitionMap.get(id);
         const [source, ...parts] = id.split(':');
         const key = parts.join(':');
-        return <span><span className="deal-field-label">{definition?.label}: </span>{fieldText(source === 'contact_attribute' ? item.primary_contact?.custom_attributes?.[key] : item.custom_fields?.[key], definition?.type)}</span>;
+        return <span><span className="deal-field-label">{definition?.label}: </span>{key.startsWith('cra_') && source === 'deal_attribute' ? craFieldText(item.custom_fields || {}, key) : fieldText(source === 'contact_attribute' ? item.primary_contact?.custom_attributes?.[key] : item.custom_fields?.[key], definition?.type)}</span>;
       }
     }
   };

@@ -1,3 +1,4 @@
+import { craTechnical, craPrivate, craFieldText } from './craAcquisition';
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -519,7 +520,7 @@ export default function PipelineCustomAttributesForm({
   };
 
   const attributeEntries = Object.entries(attributes || {});
-  const definedAttributeKeys = definedAttributes.map(attr => attr.attribute_key);
+  const definedAttributeKeys = [...definedAttributes.map(attr => attr.attribute_key), ...craPrivate];
   const adHocAttributes = attributeEntries.filter(([key]) => !definedAttributeKeys.includes(key));
   const contextLevel = getCurrentContextLevel();
 
@@ -541,8 +542,8 @@ export default function PipelineCustomAttributesForm({
             </Label>
           </div>
           <div className="space-y-2">
-            {definedAttributes.map(attribute => {
-              const canEdit = canEditAttributeValue();
+            {definedAttributes.filter(attribute => !craPrivate.has(attribute.attribute_key)).map(attribute => {
+              const canEdit = canEditAttributeValue() && !(contextLevel === 'item' && craTechnical.has(attribute.attribute_key));
               const isShared = contextLevel !== 'item';
               const attributeOrigin = getAttributeOrigin(attribute);
               const isGlobalAttribute = !attribute.id.startsWith('placeholder-');
@@ -594,7 +595,7 @@ export default function PipelineCustomAttributesForm({
                         </p>
                       )}
                       {/* Only render input field if it can be edited (not shared attributes in pipeline/stage) */}
-                      {canEdit && renderFormField(attribute)}
+                      {canEdit ? renderFormField(attribute) : <p>{attribute.attribute_key.startsWith('cra_') ? craFieldText(attributes || {}, attribute.attribute_key) : valueToString(attributes?.[attribute.attribute_key])}</p>}
                     </div>
                 </div>
               );
