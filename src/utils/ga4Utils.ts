@@ -25,6 +25,8 @@ const LINKER_DOMAINS = [
 const GA4_MEASUREMENT_ID = 'G-DKSKFWQWVK';
 
 export const initGA4 = (): void => {
+  if (window.location.pathname.replace(/\/$/, '') === '/auth/reset-password') return;
+
   // Only initialize in production
   if (import.meta.env.DEV) {
     return;

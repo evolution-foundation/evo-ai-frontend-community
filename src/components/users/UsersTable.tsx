@@ -1,3 +1,4 @@
+import UserInvitation from './UserInvitation';
 import { Avatar, AvatarFallback, Badge } from '@evoapi/design-system';
 import { Edit, Trash2, Shield } from 'lucide-react';
 import { User } from '@/types/users';
@@ -6,6 +7,7 @@ import { usePermissions } from '@/contexts/PermissionsContext';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface UsersTableProps {
+  onResendInvite?: (user: User) => void;
   users: User[];
   selectedUsers: User[];
   loading?: boolean;
@@ -21,6 +23,7 @@ interface UsersTableProps {
 }
 
 export default function UsersTable({
+  onResendInvite,
   users,
   selectedUsers,
   loading,
@@ -94,6 +97,7 @@ export default function UsersTable({
           <div className="min-w-0 flex-1">
             <div className="font-medium text-foreground truncate">{user.name}</div>
             <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+            <UserInvitation user={user} onResend={onResendInvite} />
           </div>
         </div>
       ),

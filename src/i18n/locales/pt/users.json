@@ -146,7 +146,7 @@
       }
     },
     "results": {
-      "invited": "Convites Enviados ({{count}})",
+      "invited": "Convites solicitados ({{count}})",
       "failed": "Falhas nos Convites ({{count}})"
     },
     "actions": {
@@ -159,8 +159,8 @@
     "messages": {
       "enterEmail": "Digite pelo menos um email",
       "noValidEmail": "Nenhum email válido encontrado",
-      "allSuccess": "{{count}} convite(s) enviado(s) com sucesso",
-      "partialSuccess": "{{successCount}} convite(s) enviado(s), {{failedCount}} falhou(ram)",
+      "allSuccess": "Convites solicitados ({{count}})",
+      "partialSuccess": "Convites solicitados ({{successCount}}); Falhas nos Convites ({{failedCount}})",
       "allFailed": "Falha ao enviar {{count}} convite(s)",
       "sendError": "Erro ao enviar convites"
     }
@@ -234,6 +234,31 @@
       "cancel": "Cancelar",
       "deleting": "Deletando...",
       "confirm": "Deletar Todos"
+    }
+  },
+  "invitation": {
+    "pending": "Convite pendente",
+    "resend": "Reenviar convite",
+    "lastSent": "Último envio: {{date}}",
+    "neverSent": "Ainda não enviado",
+    "queued": "Envio solicitado. Aguardando processamento.",
+    "sending": "Enviando convite.",
+    "sent": "Convite enviado.",
+    "failed": "Não foi possível enviar o convite. O serviço de e-mail está indisponível. Tente novamente mais tarde.",
+    "uncertain": "Não foi possível confirmar o envio. Confira o recebimento antes de reenviar.",
+    "cancelled": "Envio cancelado.",
+    "cooldown": "Aguarde até {{time}} para reenviar.",
+    "rateLimited": "Limite de convites atingido. Tente novamente mais tarde.",
+    "ineligible": "Este usuário já definiu a senha ou acessou o sistema.",
+    "requested": "Reenvio solicitado.",
+    "timeout": "Envio ainda não confirmado. Atualize a lista.",
+    "passwordHint": "Deixe em branco para enviar um convite por e-mail.",
+    "passwordRules": "Use de 8 a 128 caracteres, com maiúscula, minúscula, número e símbolo.",
+    "bulkLimit": "Informe no máximo 50 endereços.",
+    "confirm": {
+      "title": "Reenviar convite?",
+      "description": "Um novo link será enviado para {{email}}. O link anterior deixará de funcionar.",
+      "cancel": "Cancelar"
     }
   }
 }

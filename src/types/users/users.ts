@@ -4,6 +4,14 @@ import type { PaginatedResponse, StandardResponse, PaginationMeta } from '@/type
 
 export interface User {
   id: string;
+  invitation_status?: 'not_invited' | 'pending' | 'accepted';
+  invitation_sent_at?: string | null;
+  invitation_last_requested_at?: string | null;
+  invitation_delivery_status?: 'queued' | 'sending' | 'sent' | 'failed' | 'uncertain' | 'cancelled';
+  invitation_request_id?: string;
+  invitation_error_code?: string;
+  next_resend_at?: string | null;
+  can_resend_invite?: boolean;
   uid?: string; // OAuth provider UID
   name: string;
   email: string;
@@ -57,6 +65,7 @@ export interface BulkInviteParams {
 }
 
 export interface BulkInviteResponse {
+  count: number;
   success: boolean;
   message: string;
   invited_users: User[];

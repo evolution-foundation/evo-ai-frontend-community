@@ -11,6 +11,15 @@ import type {
 } from '@/types/users';
 
 class UsersService {
+  async invitationCapabilities(): Promise<boolean> {
+    const response = await apiAuth.get('/users/invitation_capabilities');
+    return extractData<{ user_invitations_enabled: boolean }>(response).user_invitations_enabled === true;
+  }
+
+  async resendInvite(id: string): Promise<{ request_id: string; next_resend_at: string }> {
+    return extractData(await apiAuth.post(`/users/${encodeURIComponent(id)}/resend_invite`, {}));
+  }
+
   // List users with pagination and filters
   async getUsers(params?: UsersListParams): Promise<UsersResponse> {
     const response = await apiAuth.get('/users', {
@@ -29,6 +38,8 @@ class UsersService {
   // Create user (with optional file upload)
   async createUser(userData: UserFormData): Promise<User> {
     const { avatar, ...data } = userData;
+    delete data.confirmPassword;
+    if (!data.password) delete data.password;
 
     if (avatar) {
       const formData = new FormData();
@@ -48,10 +59,10 @@ class UsersService {
           'Content-Type': 'multipart/form-data',
         },
       });
-      return extractData<User>(response);
+      return extractData<{ user: User }>(response).user;
     } else {
       const response = await apiAuth.post('/users', data);
-      return extractData<User>(response);
+      return extractData<{ user: User }>(response).user;
     }
   }
 

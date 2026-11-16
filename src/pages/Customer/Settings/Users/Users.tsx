@@ -1,3 +1,4 @@
+import { useInvitationPolling } from '@/hooks/useInvitationPolling';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { SettingsAgentsTour } from '@/tours';
@@ -82,13 +83,13 @@ export default function Users() {
 
   // Load users
   const loadUsers = useCallback(
-    async (params?: Partial<UsersListParams>) => {
+    async (params?: Partial<UsersListParams>, quiet = false) => {
       if (!can('users', 'read')) {
         toast.error(t('messages.permissionDenied.read'));
         return;
       }
 
-      setState(prev => ({ ...prev, loading: { ...prev.loading, list: true } }));
+      if (!quiet) setState(prev => ({ ...prev, loading: { ...prev.loading, list: true } }));
 
       try {
         const requestParams: UsersListParams = {
@@ -135,6 +136,54 @@ export default function Users() {
     },
     [activeFilters, can, t],
   );
+
+  const [invitationsEnabled, setInvitationsEnabled] = useState(false);
+  const [resendTarget, setResendTarget] = useState<User | null>(null);
+  const [resending, setResending] = useState(false);
+  const resendLock = useRef(false);
+  const canResend = invitationsEnabled && can('users', 'manage') && can('users', 'update');
+  useEffect(() => {
+    let active = true;
+    setInvitationsEnabled(false);
+    if (permissionsReady && can('users', 'manage')) {
+      usersService.invitationCapabilities().then(enabled => { if (active) setInvitationsEnabled(enabled); }).catch(() => { if (active) setInvitationsEnabled(false); });
+    }
+    return () => { active = false; };
+  }, [permissionsReady, can]);
+
+  const refreshInvitations = useCallback(() => loadUsers({
+    page: state.meta.pagination.page, per_page: state.meta.pagination.page_size,
+    q: state.searchQuery || undefined, sort: state.sortBy as UsersListParams['sort'], order: state.sortOrder,
+  }, true), [loadUsers, state.meta.pagination.page, state.meta.pagination.page_size, state.searchQuery, state.sortBy, state.sortOrder]);
+  const trackInvitation = useInvitationPolling(state.users, canResend, refreshInvitations, t);
+
+  const confirmResend = async () => {
+    if (!resendTarget || resendLock.current) return;
+    resendLock.current = true;
+    setResending(true);
+    try {
+      const result = await usersService.resendInvite(resendTarget.id);
+      trackInvitation(result.request_id);
+      setState(prev => ({ ...prev, users: prev.users.map(user => user.id === resendTarget.id ? {
+        ...user, invitation_delivery_status: 'queued', invitation_request_id: result.request_id,
+        next_resend_at: result.next_resend_at, can_resend_invite: false,
+      } : user) }));
+      toast.success(t('invitation.requested'));
+    } catch (error: unknown) {
+      const response = (error as { response?: { status: number; data?: { error?: { code?: string; details?: { next_resend_at?: string } } } } }).response;
+      const code = response?.data?.error?.code;
+      if (response?.status === 429) {
+        const date = response.data?.error?.details?.next_resend_at;
+        toast.error(date ? t('invitation.cooldown', { time: new Date(date).toLocaleString() }) : t('invitation.rateLimited'));
+      } else if (code === 'INVITE_NOT_ELIGIBLE') toast.error(t('invitation.ineligible'));
+      else if (code === 'INVITE_IN_PROGRESS') toast.info(t('invitation.queued'));
+      else if (response?.status === 401 || response?.status === 403) toast.error(t('messages.permissionDenied.read'));
+      else toast.error(t('invitation.failed'));
+    } finally {
+      setResending(false); resendLock.current = false; setResendTarget(null);
+      void refreshInvitations();
+    }
+  };
 
   // Initial load
   useEffect(() => {
@@ -361,7 +410,6 @@ export default function Users() {
   };
 
   const handleBulkInviteSuccess = () => {
-    setBulkInviteModalOpen(false);
     loadUsers();
   };
 
@@ -390,6 +438,7 @@ export default function Users() {
           searchValue={state.searchQuery}
           onSearchChange={handleSearchChange}
           onNewUser={handleCreateUser}
+          invitationsEnabled={invitationsEnabled}
           onBulkInvite={handleBulkInvite}
           onFilter={handleOpenFilter}
           onBulkDelete={handleBulkDelete}
@@ -444,6 +493,7 @@ export default function Users() {
               <UserCard
                 key={user.id}
                 user={user}
+                onResendInvite={canResend ? setResendTarget : undefined}
                 onEdit={handleEditUser}
                 onDelete={handleDeleteUser}
                 canDelete={canDeleteUser(user)}
@@ -452,6 +502,7 @@ export default function Users() {
           </div>
         ) : (
           <UsersTable
+            onResendInvite={canResend ? setResendTarget : undefined}
             users={state.users}
             selectedUsers={state.users.filter(user => state.selectedUserIds.includes(user.id))}
             loading={state.loading.list}
@@ -548,7 +599,18 @@ export default function Users() {
       </Dialog>
 
       {/* User Modal */}
+      <Dialog open={!!resendTarget} onOpenChange={open => { if (!open && !resending) setResendTarget(null); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>{t('invitation.confirm.title')}</DialogTitle>
+          <DialogDescription>{t('invitation.confirm.description', { email: resendTarget?.email })}</DialogDescription></DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" disabled={resending} onClick={() => setResendTarget(null)}>{t('invitation.confirm.cancel')}</Button>
+            <Button disabled={resending} onClick={confirmResend}>{t(resending ? 'invitation.queued' : 'invitation.resend')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <UserFormModal
+        invitationsEnabled={invitationsEnabled}
         isOpen={userModalOpen}
         onClose={() => setUserModalOpen(false)}
         user={editingUser}

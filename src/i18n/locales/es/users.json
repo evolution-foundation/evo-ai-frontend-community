@@ -146,7 +146,7 @@
       }
     },
     "results": {
-      "invited": "Invitaciones Enviadas ({{count}})",
+      "invited": "Invitaciones solicitadas ({{count}})",
       "failed": "Fallas en las Invitaciones ({{count}})"
     },
     "actions": {
@@ -159,8 +159,8 @@
     "messages": {
       "enterEmail": "Digite al menos un email",
       "noValidEmail": "Ningún email válido encontrado",
-      "allSuccess": "{{count}} invitación(es) enviada(s) con éxito",
-      "partialSuccess": "{{successCount}} invitación(es) enviada(s), {{failedCount}} falló(fallaron)",
+      "allSuccess": "Invitaciones solicitadas ({{count}})",
+      "partialSuccess": "Invitaciones solicitadas ({{successCount}}); Fallas en las Invitaciones ({{failedCount}})",
       "allFailed": "Falla al enviar {{count}} invitación(es)",
       "sendError": "Error al enviar invitaciones"
     }
@@ -234,6 +234,31 @@
       "cancel": "Cancelar",
       "deleting": "Eliminando...",
       "confirm": "Eliminar Todos"
+    }
+  },
+  "invitation": {
+    "pending": "Invitación pendiente",
+    "resend": "Reenviar invitación",
+    "lastSent": "Último envío: {{date}}",
+    "neverSent": "Aún no enviada",
+    "queued": "Invitación solicitada. En espera.",
+    "sending": "Enviando invitación.",
+    "sent": "Invitación enviada.",
+    "failed": "No se pudo enviar la invitación. El servicio de correo no está disponible. Inténtalo más tarde.",
+    "uncertain": "No se pudo confirmar el envío. Revisa el correo antes de reenviar.",
+    "cancelled": "Envío cancelado.",
+    "cooldown": "Espera hasta {{time}} para reenviar.",
+    "rateLimited": "Límite de invitaciones alcanzado. Inténtalo más tarde.",
+    "ineligible": "Este usuario ya definió su contraseña o inició sesión.",
+    "requested": "Reenvío solicitado.",
+    "timeout": "Envío aún no confirmado. Actualiza la lista.",
+    "passwordHint": "Déjalo vacío para enviar una invitación por correo.",
+    "passwordRules": "Usa de 8 a 128 caracteres, con mayúscula, minúscula, número y símbolo.",
+    "bulkLimit": "Introduce como máximo 50 direcciones.",
+    "confirm": {
+      "title": "¿Reenviar invitación?",
+      "description": "Se enviará un nuevo enlace a {{email}}. El enlace anterior dejará de funcionar.",
+      "cancel": "Cancelar"
     }
   }
 }

@@ -26,9 +26,10 @@ interface UserFormModalProps {
   onClose: () => void;
   user: User | null;
   onSuccess: () => void;
+  invitationsEnabled?: boolean;
 }
 
-export default function UserFormModal({ isOpen, onClose, user, onSuccess }: UserFormModalProps) {
+export default function UserFormModal({ isOpen, onClose, user, onSuccess, invitationsEnabled = false }: UserFormModalProps) {
   const { t } = useLanguage('users');
 
   // Buscar system roles (todos os tipos) + roles customizadas type:'account'.
@@ -129,19 +130,10 @@ export default function UserFormModal({ isOpen, onClose, user, onSuccess }: User
 
     if (!user) {
       // Validações apenas para criação
-      if (!formData.password) {
+      if (!formData.password && !invitationsEnabled) {
         newErrors.password = t('form.validation.passwordRequired');
-      } else if (formData.password.length < 6) {
-        newErrors.password = t('form.validation.passwordMinLength');
-      }
-
-      if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = t('form.validation.passwordMismatch');
-      }
-    } else if (formData.password) {
-      // Validações para atualização (senha opcional)
-      if (formData.password.length < 6) {
-        newErrors.password = t('form.validation.passwordMinLength');
+      } else if (formData.password && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,128}$/.test(formData.password)) {
+        newErrors.password = t('invitation.passwordRules');
       }
 
       if (formData.password !== formData.confirmPassword) {
@@ -213,7 +205,7 @@ export default function UserFormModal({ isOpen, onClose, user, onSuccess }: User
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-sidebar border-sidebar-border max-w-md">
+      <DialogContent className="bg-sidebar border-sidebar-border max-w-md max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-sidebar-foreground">
             {user ? t('form.title.edit') : t('form.title.create')}
@@ -301,7 +293,7 @@ export default function UserFormModal({ isOpen, onClose, user, onSuccess }: User
             </Select>
           </div>
 
-          {(!user || formData.password) && (
+          {!user && (
             <>
               <div className="space-y-2">
                 <Label htmlFor="password">
@@ -318,6 +310,7 @@ export default function UserFormModal({ isOpen, onClose, user, onSuccess }: User
                   }`}
                   disabled={loading}
                 />
+                {invitationsEnabled && <p className="text-xs text-muted-foreground">{t('invitation.passwordHint')}</p>}
                 {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
               </div>
 
