@@ -6,6 +6,8 @@ import { getDealCardPresentation } from './dealCardPresentation';
 import { getContactAvatarStyle, getContactDisplayName, getContactInitials } from '@/utils/chat/avatarHelpers';
 import { dateValue, fieldText, formatDate, money } from './cardConfiguration';
 import type { DealTabId } from './deal/dealContext';
+import DealConversationButton from './deal/DealConversationButton';
+import type { DealConversationSummary } from '@/types/analytics/pipelines';
 
 function CardContactAvatar({ url, name }: { url?: string; name?: string | null }) {
   const [failedUrl, setFailedUrl] = useState<string>();
@@ -15,7 +17,7 @@ function CardContactAvatar({ url, name }: { url?: string; name?: string | null }
   </span>;
 }
 
-export default function ConfiguredDealCard({ item, configuration, definitions, preview = false, onOpen }: { item: PipelineItem; configuration: CardConfiguration; definitions: CardFieldDefinition[]; preview?: boolean; onOpen?: (item: PipelineItem, tab?: DealTabId) => void }) {
+export default function ConfiguredDealCard({ item, configuration, definitions, preview = false, onOpen, onOpenConversation, onConversationChanged, canConfigureNumbers = false, onConfigureNumbers }: { item: PipelineItem; configuration: CardConfiguration; definitions: CardFieldDefinition[]; preview?: boolean; onOpen?: (item: PipelineItem, tab?: DealTabId) => void; onOpenConversation?: (item: PipelineItem, conversationId: string, displayId?: number | string | null) => void; onConversationChanged?: (item: PipelineItem, summary: DealConversationSummary) => void; canConfigureNumbers?: boolean; onConfigureNumbers?: (item: PipelineItem) => void }) {
   const card = getDealCardPresentation(item);
   const definitionMap = useMemo(() => new Map(definitions.map(field => [field.id, field])), [definitions]);
   const enabled = configuration.fields.filter(field => field.visible && definitionMap.has(field.id));
@@ -51,5 +53,6 @@ export default function ConfiguredDealCard({ item, configuration, definitions, p
     <div className="deal-card-heading"><CardContactAvatar key={card.contact?.id || 'none'} url={card.avatarUrl} name={card.contact?.name} /><div className="deal-heading-title">{renderField('title')}</div></div>
     {enabled.filter(field => !['title', 'owner', 'stage_age'].includes(field.id)).map(field => <div className={`deal-field deal-field-${field.id.split(':')[0]}`} title={field.id === 'last_message' ? `Conversa: ${card.message?.conversation_id || 'não informada'}` : field.id === 'channel_origin' ? `Conversa: ${item.channel_origin?.conversation_id || 'não informada'}` : undefined} key={field.id}>{renderField(field.id)}</div>)}
     {enabled.some(field => ['owner', 'stage_age'].includes(field.id)) ? <div className="deal-footer">{['owner', 'stage_age'].filter(id => enabled.some(field => field.id === id)).map(id => <div key={id}>{renderField(id)}</div>)}</div> : null}
+    {!preview && onOpenConversation ? <div className="deal-card-actions"><DealConversationButton dealId={item.deal_id || item.id} summary={item.conversation_summary} variant="card" canConfigure={canConfigureNumbers} onOpenConversation={(id, displayId) => onOpenConversation(item, id, displayId)} onConfigureNumbers={() => onConfigureNumbers?.(item)} onChanged={summary => onConversationChanged?.(item, summary)} /></div> : null}
   </div>;
 }

@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
-import { ExternalLink, MessageSquare, Plus, Trash2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { MessageSquare, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@evoapi/design-system';
 import { toast } from 'sonner';
 import { pipelinesService } from '@/services/pipelines';
@@ -9,6 +8,9 @@ import { getContactDisplayName } from '@/utils/chat/avatarHelpers';
 import type { DealTabProps } from '../dealContext';
 import { HeaderAvatar } from '../HeaderAvatar';
 import { formatDateTime } from '../dealFormat';
+import EmbeddedConversation from '../EmbeddedConversation';
+import DealConversationButton from '../DealConversationButton';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const STATUS: Record<string, string> = { open: 'Em aberto', resolved: 'Resolvida', pending: 'Pendente', snoozed: 'Adiada' };
 
@@ -16,9 +18,9 @@ const STATUS: Record<string, string> = { open: 'Em aberto', resolved: 'Resolvida
  * Lista de sessões à esquerda e painel à direita (wireframe 5).
  * A conversa embutida e o modo espião entram na S4: o painel é o ponto de encaixe.
  */
-export default function ConversationsTab({ deal, pipelineId, replaceDeal }: DealTabProps) {
-  const navigate = useNavigate();
-  const conversations = deal.conversations || [];
+export default function ConversationsTab({ deal, pipelineId, replaceDeal, reload, canConfigureNumbers, onConfigureNumbers }: DealTabProps) {
+  const { t } = useLanguage('pipelines');
+  const conversations = useMemo(() => deal.conversations || [], [deal.conversations]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [available, setAvailable] = useState<ConversationForModal[]>([]);
   const [pick, setPick] = useState('');
@@ -53,6 +55,7 @@ export default function ConversationsTab({ deal, pipelineId, replaceDeal }: Deal
       <section className="deal-conversations-list" aria-label="Sessões de conversa">
         <header>
           <h2>{conversations.length} {conversations.length === 1 ? 'sessão' : 'sessões'}</h2>
+          <DealConversationButton dealId={deal.id} summary={deal.conversation_summary} variant="header" canConfigure={canConfigureNumbers} onConfigureNumbers={onConfigureNumbers} onOpenConversation={id => { setSelectedId(id); void reload(); }} />
         </header>
         <div className="deal-associate is-stacked">
           <select aria-label="Selecionar conversa" value={pick} onChange={event => setPick(event.target.value)}>
@@ -81,18 +84,15 @@ export default function ConversationsTab({ deal, pipelineId, replaceDeal }: Deal
         </ul>
         {conversations.length === 0 && <p className="deal-empty-note">Nenhuma conversa associada.</p>}
       </section>
-      <section className="deal-conversation-panel" aria-label="Conversa" data-slot="deal-conversation-panel">
-        <div className="deal-detail-empty">
-          <span className="deal-empty-icon" aria-hidden="true"><MessageSquare className="h-6 w-6" /></span>
-          {selected ? (
-            <>
-              <p><strong>#{selected.display_id} · {getContactDisplayName(selected.contact?.name)}</strong><br />{selected.latest_message?.content || 'Sem mensagens'}</p>
-              <Button onClick={() => navigate(`/conversations/${selected.id}`)}><ExternalLink className="mr-2 h-4 w-4" />Abrir conversa</Button>
-            </>
-          ) : (
-            <p><strong>Selecione uma conversa</strong><br />Escolha uma conversa ao lado para ver os detalhes.</p>
-          )}
-        </div>
+      <section className="deal-conversation-panel" aria-label={t('dealConversation.panelLabel')} data-slot="deal-conversation-panel">
+        {selected ? (
+          <EmbeddedConversation key={selected.id} conversationId={selected.id} />
+        ) : (
+          <div className="deal-detail-empty">
+            <span className="deal-empty-icon" aria-hidden="true"><MessageSquare className="h-6 w-6" /></span>
+            <p><strong>{t('dealConversation.selectTitle')}</strong><br />{t('dealConversation.selectHint')}</p>
+          </div>
+        )}
       </section>
     </div>
   );

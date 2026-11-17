@@ -226,7 +226,64 @@ export interface PipelineStats {
   active_pipelines: number;
 }
 
+export type DealConversationReason = 'no_contact' | 'no_inbox_configured' | 'contact_without_phone' | 'contact_blocked';
+
+/** Resumo calculado em lote pelo CRM (S3) para o botão de conversa do cartão. */
+export interface DealConversationSummary {
+  has_active: boolean;
+  conversation_id?: string | null;
+  display_id?: number | string | null;
+  inbox_id?: string | null;
+  status?: string | null;
+  last_activity_at?: string | number | null;
+  can_start: boolean;
+  reason?: DealConversationReason | null;
+  allowed_inbox_count?: number;
+}
+
+export interface WhatsappInboxInfo {
+  id: string;
+  name: string;
+  phone_number?: string | null;
+  provider?: string | null;
+  connected: boolean;
+  connection?: string | null;
+  is_default?: boolean;
+  allowed?: boolean;
+}
+
+export interface PipelineWhatsappInboxes {
+  pipeline_id: string;
+  configured: boolean;
+  default_inbox_id: string | null;
+  allowed: WhatsappInboxInfo[];
+  eligible: WhatsappInboxInfo[];
+}
+
+export interface DealConversationStatus {
+  deal_id: string;
+  pipeline_id: string;
+  has_active: boolean;
+  conversation: {
+    id: string;
+    display_id?: number | string;
+    status: string;
+    inbox?: { id?: string; name?: string } | null;
+    last_activity_at?: string | number | null;
+    last_message?: { id: string; content?: string | null; message_type?: string; created_at?: string | number } | null;
+    path: string;
+  } | null;
+  can_start: boolean;
+  reason?: DealConversationReason | null;
+  contact?: { id: string; name?: string; phone_number?: string } | null;
+  allowed_inboxes: WhatsappInboxInfo[];
+  default_inbox_id: string | null;
+  created?: boolean;
+  conversation_id?: string;
+}
+
 export interface PipelineItem {
+  conversation_summary?: DealConversationSummary | null;
   channel_origin?: { channel?: string | null; origin?: string | null; conversation_id?: string | null };
   last_activity?: { occurred_at?: string | null; summary: string } | null;
   next_task?: { id: string; title: string; due_at?: string | null; status: string } | null;

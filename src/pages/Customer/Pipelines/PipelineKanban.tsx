@@ -65,10 +65,12 @@ import { rememberStageCount } from './pipelineStageCount';
 import { configurationFor, nativeFields, stageTotal } from './cardConfiguration';
 import { invalidateDeal, prefetchDeal } from './deal/dealCache';
 import { isDealTab, type DealTabId } from './deal/dealContext';
-import type { Deal } from '@/types/analytics';
+import type { Deal, DealConversationSummary } from '@/types/analytics';
+import { usePermissions } from '@/contexts/PermissionsContext';
 
 // O modal é um chunk à parte, carregado sob demanda. Guardamos o componente já resolvido em estado
 // (em vez de React.lazy): lazy dentro de uma navegação seguraria a abertura por ~300 ms.
+const loadConversationDrawer = () => import('./deal/DealConversationDrawer');
 const loadDealModal = () => import('./deal/DealModal');
 type DealModalComponent = Awaited<ReturnType<typeof loadDealModal>>['default'];
 
@@ -99,6 +101,7 @@ const PRIORITY_HEX: Record<string, string> = {
 };
 export default function PipelineKanban() {
   const { t } = useLanguage('pipelines');
+  const { can } = usePermissions();
   const { pipelineId } = useParams<{ pipelineId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -194,6 +197,9 @@ export default function PipelineKanban() {
     selectedConversationForSchedule?.contact?.id;
 
   // Load pipeline data
+  const [conversationPanel, setConversationPanel] = useState<{ id: string; title: string } | null>(null);
+  const [DrawerComponent, setDrawerComponent] = useState<Awaited<ReturnType<typeof loadConversationDrawer>>['default'] | null>(null);
+  const [editPipelineTab, setEditPipelineTab] = useState<'details' | 'whatsapp'>('details');
   const [ModalComponent, setModalComponent] = useState<DealModalComponent | null>(null);
   const ensureModal = useCallback(() => {
     void loadDealModal().then(module => setModalComponent(() => module.default)).catch(() => undefined);
@@ -525,6 +531,7 @@ export default function PipelineKanban() {
 
   // Pipeline management handlers
   const handleEditPipeline = () => {
+    setEditPipelineTab('details');
     setShowEditPipelineModal(true);
   };
 
@@ -720,11 +727,28 @@ export default function PipelineKanban() {
         assign('contact_count', deal.contact_count);
         assign('conversation_count', deal.conversation_count);
         assign('file_count', deal.file_count);
+        assign('conversation_summary', deal.conversation_summary);
         return merged;
       }),
     })));
     if (info.stageChanged) void loadPipelineData(true);
   }, [loadPipelineData]);
+
+  const openConversationPanel = useCallback((item: PipelineItem, conversationId: string, displayId?: number | string | null) => {
+    void loadConversationDrawer().then(module => setDrawerComponent(() => module.default));
+    const name = item.primary_contact?.name || item.contact?.name || item.title || '';
+    setConversationPanel({ id: conversationId, title: displayId ? `#${displayId} · ${name}` : name });
+  }, []);
+  const updateConversationSummary = useCallback((dealId: string, summary: DealConversationSummary) => {
+    setStages(current => current.map(stage => ({
+      ...stage,
+      items: (stage.items || []).map(entry => ((entry.deal_id || entry.id) === dealId ? { ...entry, conversation_summary: summary } : entry)),
+    })));
+  }, []);
+  const configureNumbers = useCallback(() => {
+    setEditPipelineTab('whatsapp');
+    setShowEditPipelineModal(true);
+  }, []);
 
   const openedItem = useMemo(() => {
     if (!dealParam) return undefined;
@@ -1379,7 +1403,7 @@ export default function PipelineKanban() {
                             </DropdownMenu>
                           </div>
 
-                          <ConfiguredDealCard item={item} configuration={configurationFor(pipeline!)} definitions={pipeline!.card_field_definitions || nativeFields} onOpen={openDeal} />
+                          <ConfiguredDealCard item={item} configuration={configurationFor(pipeline!)} definitions={pipeline!.card_field_definitions || nativeFields} onOpen={openDeal} onOpenConversation={openConversationPanel} onConversationChanged={(entry, summary) => updateConversationSummary(dealIdOf(entry), summary)} canConfigureNumbers={can('pipelines', 'update')} onConfigureNumbers={configureNumbers} />
                         </div>
                         );
                       })}
@@ -1440,6 +1464,7 @@ export default function PipelineKanban() {
           open={showEditPipelineModal}
           onOpenChange={setShowEditPipelineModal}
           pipeline={pipeline}
+          defaultTab={editPipelineTab}
           onSubmit={handleUpdatePipeline}
           loading={isUpdatingPipeline}
         />
@@ -1528,8 +1553,15 @@ export default function PipelineKanban() {
             onTabChange={changeDealTab}
             onClose={closeDeal}
             onDealChange={handleDealChange}
+            onOpenConversation={openConversationPanel}
+            canConfigureNumbers={can('pipelines', 'update')}
+            onConfigureNumbers={configureNumbers}
           />
         </>
+      )}
+
+      {conversationPanel && DrawerComponent && (
+        <DrawerComponent conversationId={conversationPanel.id} title={conversationPanel.title} onClose={() => setConversationPanel(null)} />
       )}
 
       {/* Schedule Action Modal */}

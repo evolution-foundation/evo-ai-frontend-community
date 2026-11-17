@@ -741,3 +741,13 @@ body.authenticated-panel-density {
 /* Avatar com cor estável por nome (variável --av-h = matiz); legível em claro e escuro */
 .av-hue { background: hsl(var(--av-h) 60% 50% / 0.2); color: hsl(var(--av-h) 55% 36%); }
 .dark .av-hue { background: hsl(var(--av-h) 55% 55% / 0.28); color: hsl(var(--av-h) 75% 78%); }
+
+/* ── Ação de conversa no cartão do kanban (S4) ── */
+.configured-deal-card .deal-card-actions { display: flex; margin-top: 6px; }
+.deal-conversation-action { display: inline-flex; align-items: center; gap: 6px; color: #128c4a; font-size: 12px; font-weight: 600; border-radius: 8px; }
+.dark .deal-conversation-action { color: #4ade80; }
+.deal-conversation-action.is-card { padding: 4px 8px; border: 1px solid color-mix(in srgb, currentColor 35%, transparent); background: color-mix(in srgb, currentColor 8%, transparent); max-width: 100%; }
+.deal-conversation-action:hover:not([aria-disabled="true"]) { background: color-mix(in srgb, currentColor 16%, transparent); }
+.deal-conversation-action:focus-visible { outline: 2px solid var(--ring, currentColor); outline-offset: 2px; }
+.deal-conversation-action[aria-disabled="true"] { color: var(--muted-foreground); border-color: var(--border); background: transparent; cursor: not-allowed; }
+.deal-conversation-action-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

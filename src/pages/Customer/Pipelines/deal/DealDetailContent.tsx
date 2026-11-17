@@ -11,6 +11,7 @@ import { getContactDisplayName } from '@/utils/chat/avatarHelpers';
 import { loadDeal, peekDeal, setCachedDeal } from './dealCache';
 import { formatMoney } from './dealFormat';
 import { HeaderAvatar } from './HeaderAvatar';
+import DealConversationButton from './DealConversationButton';
 import { DEAL_TABS, type DealTabId, type DealTabProps } from './dealContext';
 
 import ActivitiesTab from './tabs/ActivitiesTab';
@@ -70,9 +71,13 @@ export interface DealDetailContentProps {
   onDealChange?: (deal: Deal, info: { stageChanged: boolean }) => void;
   /** Área reservada para as ações de conversa (S4). */
   quickActions?: React.ReactNode;
+  /** Painel lateral de conversa do kanban; sem ele a conversa abre na aba Conversas. */
+  onOpenConversation?: (item: PipelineItem, conversationId: string, displayId?: number | string | null) => void;
+  canConfigureNumbers?: boolean;
+  onConfigureNumbers?: () => void;
 }
 
-export default function DealDetailContent({ pipelineId, dealId, seed, pipeline: pipelineProp, tab, onTabChange, onClose, onDealChange, quickActions }: DealDetailContentProps) {
+export default function DealDetailContent({ pipelineId, dealId, seed, pipeline: pipelineProp, tab, onTabChange, onClose, onDealChange, quickActions, onOpenConversation, canConfigureNumbers, onConfigureNumbers }: DealDetailContentProps) {
   const cached = peekDeal(dealId);
   const [deal, setDeal] = useState<Deal | null>(cached ?? (seed ? seedToDeal(seed) : null));
   const [full, setFull] = useState(Boolean(cached));
@@ -207,7 +212,7 @@ export default function DealDetailContent({ pipelineId, dealId, seed, pipeline: 
   const stages = pipeline?.stages || [];
   const owner = deal.owner as { id?: string; name?: string; avatar_url?: string } | null | undefined;
   const ActiveTab = TAB_COMPONENTS[tab];
-  const tabProps: DealTabProps = { deal, pipeline, pipelineId, patchDeal, replaceDeal, reload: () => load(true), setTab: onTabChange, primary: primary as DealContact | null };
+  const tabProps: DealTabProps = { deal, pipeline, pipelineId, patchDeal, replaceDeal, reload: () => load(true), setTab: onTabChange, primary: primary as DealContact | null, onOpenConversation: (id, displayId) => (onOpenConversation && deal ? onOpenConversation(deal, id, displayId) : onTabChange('conversations')), canConfigureNumbers, onConfigureNumbers };
 
   return (
     <div className="deal-modal-body" data-loaded={full || undefined}>
@@ -275,6 +280,15 @@ export default function DealDetailContent({ pipelineId, dealId, seed, pipeline: 
           <button type="button" className="deal-quick" aria-label="Agendar atividade" title="Agendar atividade" onClick={() => onTabChange('activities')}><CalendarPlus className="h-4 w-4" /></button>
           <button type="button" className="deal-quick" aria-label="Ir para anotações" title="Anotações" onClick={() => onTabChange('deal')}><StickyNote className="h-4 w-4" /></button>
           <button type="button" className="deal-quick" aria-label="Lembretes" title="Lembretes e ações agendadas" onClick={() => onTabChange('activities')}><Bell className="h-4 w-4" /></button>
+          <DealConversationButton
+            dealId={deal.id}
+            summary={deal.conversation_summary}
+            variant="header"
+            canConfigure={canConfigureNumbers}
+            onOpenConversation={(id, displayId) => (onOpenConversation ? onOpenConversation(deal, id, displayId) : onTabChange('conversations'))}
+            onConfigureNumbers={onConfigureNumbers}
+            onChanged={summary => { onChangeRef.current?.({ ...deal, conversation_summary: summary } as Deal, { stageChanged: false }); void load(true); }}
+          />
           {quickActions}
         </div>
         <div className="deal-modal-tags">

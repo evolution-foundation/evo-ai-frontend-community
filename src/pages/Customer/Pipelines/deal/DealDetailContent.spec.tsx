@@ -20,11 +20,17 @@ const pipelineServiceMocks = vi.hoisted(() => ({
   removeDealConversation: vi.fn(),
   uploadDealFiles: vi.fn(),
   removeDealFile: vi.fn(),
+  getDealConversationStatus: vi.fn(),
+  startDealConversation: vi.fn(),
 }));
 const taskMocks = vi.hoisted(() => ({ getTasksForItem: vi.fn(), createTask: vi.fn(), completeTask: vi.fn() }));
 const labelServiceMocks = vi.hoisted(() => ({ getLabels: vi.fn() }));
 const fetchAgents = vi.hoisted(() => vi.fn());
 
+vi.mock('@/hooks/useLanguage', async () => { const { pipelinesT } = await import('@/test/pipelinesI18n'); return { useLanguage: () => ({ t: pipelinesT }) }; });
+vi.mock('@/contexts/PermissionsContext', () => ({ usePermissions: () => ({ can: () => true }) }));
+vi.mock('@/components/chat/messages/MessageList', () => ({ default: () => null }));
+vi.mock('@/services/chat/chatService', () => ({ default: { getConversation: vi.fn().mockResolvedValue(null), getMessages: vi.fn().mockResolvedValue([]), markConversationAsRead: vi.fn().mockResolvedValue(undefined), sendMessage: vi.fn() } }));
 vi.mock('@/services/pipelines', () => ({ pipelinesService: pipelineServiceMocks }));
 vi.mock('@/services/pipelines/pipelineTasksService', () => ({ pipelineTasksService: taskMocks }));
 vi.mock('@/services/contacts/labelsService', () => ({ labelsService: labelServiceMocks }));
@@ -84,6 +90,7 @@ describe('DealDetailContent', () => {
     pipelineServiceMocks.getPipeline.mockResolvedValue(pipeline);
     pipelineServiceMocks.getAvailableContacts.mockResolvedValue([]);
     pipelineServiceMocks.getAvailableConversations.mockResolvedValue([]);
+    pipelineServiceMocks.getDealConversationStatus.mockResolvedValue({ deal_id: 'deal-1', pipeline_id: 'pipeline-1', has_active: false, conversation: null, can_start: false, reason: 'no_contact', allowed_inboxes: [], default_inbox_id: null });
     labelServiceMocks.getLabels.mockResolvedValue({ data: [{ id: 'label-1', title: 'Expansão', color: '#7c3aed' }, { id: 'label-2', title: 'Quente', color: '#ef4444' }] });
     taskMocks.getTasksForItem.mockResolvedValue({ data: [] });
     fetchAgents.mockResolvedValue(undefined);

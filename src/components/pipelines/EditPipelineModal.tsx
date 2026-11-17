@@ -27,6 +27,7 @@ import TeamsService from '@/services/teams/teamsService';
 import { Team } from '@/types/users/teams';
 import { LocalAttributeDefinition, LocalAttributeDefinitionPayload } from '@/types/pipelines/localAttributeDefinition';
 import PipelineCustomAttributes from './PipelineCustomAttributes';
+import WhatsappInboxesSettings from './WhatsappInboxesSettings';
 
 interface EditPipelineModalProps {
   open: boolean;
@@ -34,6 +35,7 @@ interface EditPipelineModalProps {
   pipeline: Pipeline;
   onSubmit: (data: UpdatePipelineData) => void;
   loading: boolean;
+  defaultTab?: 'details' | 'attributes' | 'whatsapp';
 }
 
 export default function EditPipelineModal({
@@ -42,6 +44,7 @@ export default function EditPipelineModal({
   pipeline,
   onSubmit,
   loading,
+  defaultTab = 'details',
 }: EditPipelineModalProps) {
   const { t } = useLanguage('pipelines');
   const [formData, setFormData] = useState<UpdatePipelineData>({
@@ -161,10 +164,11 @@ export default function EditPipelineModal({
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs defaultValue="details" className="flex-1 flex flex-col min-h-0">
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs key={`${open}-${defaultTab}`} defaultValue={defaultTab} className="flex-1 flex flex-col min-h-0">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="details">{t('editPipeline.details')}</TabsTrigger>
               <TabsTrigger value="attributes">{t('editPipeline.customAttributes')}</TabsTrigger>
+              <TabsTrigger value="whatsapp">{t('whatsappInboxes.tab')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="details" className="py-4 overflow-y-auto flex-1">
@@ -324,6 +328,10 @@ export default function EditPipelineModal({
                 disabled={loading}
                 pipelineId={pipeline.id}
               />
+            </TabsContent>
+
+            <TabsContent value="whatsapp" className="py-4 overflow-y-auto flex-1">
+              <WhatsappInboxesSettings pipelineId={pipeline.id} />
             </TabsContent>
           </Tabs>
 
