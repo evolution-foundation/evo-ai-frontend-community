@@ -25,4 +25,8 @@ export interface DealTabProps {
   reload: () => Promise<void>;
   setTab: (tab: DealTabId) => void;
   primary?: DealContact | null;
+  /** Abre a conversa no painel (o negócio continua sobre o kanban). */
+  onOpenConversation?: (conversationId: string, displayId?: number | string | null) => void;
+  canConfigureNumbers?: boolean;
+  onConfigureNumbers?: () => void;
 }

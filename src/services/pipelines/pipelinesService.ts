@@ -22,10 +22,36 @@ import type {
   DealFile,
   CreateDealData,
   UpdateDealData,
+  DealConversationStatus,
+  PipelineWhatsappInboxes,
 } from '@/types/analytics';
 import { Contact } from '@/types';
 
 class PipelinesService {
+  async getDealConversationStatus(dealId: string): Promise<DealConversationStatus> {
+    const response = await api.get(`/deals/${dealId}/conversation_status`);
+    return extractData<DealConversationStatus>(response);
+  }
+
+  /** Abre a conversa ativa ou inicia uma nova (idempotente). Sem mensagem automática. */
+  async startDealConversation(dealId: string, inboxId?: string): Promise<DealConversationStatus> {
+    const response = await api.post(`/deals/${dealId}/conversation`, inboxId ? { inbox_id: inboxId } : {});
+    return extractData<DealConversationStatus>(response);
+  }
+
+  async getWhatsappInboxes(pipelineId: string): Promise<PipelineWhatsappInboxes> {
+    const response = await api.get(`/pipelines/${pipelineId}/whatsapp_inboxes`);
+    return extractData<PipelineWhatsappInboxes>(response);
+  }
+
+  async saveWhatsappInboxes(pipelineId: string, inboxIds: string[], defaultInboxId?: string | null): Promise<PipelineWhatsappInboxes> {
+    const response = await api.put(`/pipelines/${pipelineId}/whatsapp_inboxes`, {
+      inbox_ids: inboxIds,
+      ...(defaultInboxId ? { default_inbox_id: defaultInboxId } : {}),
+    });
+    return extractData<PipelineWhatsappInboxes>(response);
+  }
+
   async getDeal(dealId: string): Promise<Deal> {
     const response = await api.get(`/deals/${dealId}`);
     return extractData<Deal>(response);
