@@ -44,6 +44,7 @@ import pipelineServiceDefinitionsService from '@/services/pipelines/pipelineServ
 import { getContactColor } from '@/utils/avatar';
 import { cn } from '@/lib/utils';
 import PipelineItemCustomAttributes from './PipelineItemCustomAttributes';
+import CraAcquisitionDetails from './CraAcquisitionDetails';
 import PipelineTasksList, { PipelineTasksListRef } from './tasks/PipelineTasksList';
 import CreateTaskModal from './tasks/CreateTaskModal';
 import EditTaskModal from './tasks/EditTaskModal';
@@ -319,6 +320,7 @@ export default function EditItemModal({
             <div className="h-full overflow-y-auto pr-1">
               {/* Details */}
               <TabsContent value="details" className="mt-0">
+                <CraAcquisitionDetails fields={item.custom_fields || {}} pipelineId={item.pipeline_id} itemId={item.id} />
                 <div className={cn(sectionCard, 'space-y-5')}>
                   <div className="grid gap-2">
                     <Label className="text-[12.5px] font-bold uppercase tracking-wide text-muted-foreground">
