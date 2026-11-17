@@ -42,10 +42,10 @@ body.authenticated-panel-density {
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
+  --radius-sm: calc(var(--radius) - 3px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 2px);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -109,6 +109,8 @@ body.authenticated-panel-density {
 
 :root {
   --shell-scale: 1;
+  /* R3: raio base 6px (antes 10px do design system). */
+  --radius: 0.375rem;
   /* Agência Vetorial — premium editorial palette. These override the
      Evolution design-system defaults imported before this file. */
   --brand-sienna: #B45417;
@@ -118,47 +120,47 @@ body.authenticated-panel-density {
   --brand-dark-teal: #1A4F4F;
   --brand-steel-blue: #55768A;
 
-  --background: #F2EFE8;
+  --background: #F4F5F6;
   --foreground: #0E0E0E;
-  --card: #FCFAF5;
+  --card: #FFFFFF;
   --card-foreground: #0E0E0E;
-  --popover: #FCFAF5;
+  --popover: #FFFFFF;
   --popover-foreground: #0E0E0E;
-  --primary: #B45417;
-  --primary-foreground: #FFF9F0;
-  --secondary: #D8E0E3;
-  --secondary-foreground: #203945;
-  --muted: #E4E0D8;
-  --muted-foreground: #625D55;
-  --accent: #D6E0E5;
-  --accent-foreground: #203945;
-  --border: #E2DCD2;
-  --surface-sunken: #EAE6DE;
-  --card-hover: #FFFFFF;
-  --border-strong: #D0C9BF;
-  --shadow-1: 0 1px 2px rgba(14,14,14,.06);
-  --shadow-2: 0 4px 12px rgba(14,14,14,.08);
-  --shadow-3: 0 12px 28px rgba(14,14,14,.18);
+  --primary: #C2530A;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E8EAED;
+  --secondary-foreground: #2A2A2A;
+  --muted: #EDEEF0;
+  --muted-foreground: #5B6168;
+  --accent: #EDEEF0;
+  --accent-foreground: #0E0E0E;
+  --border: #E1E3E6;
+  --surface-sunken: #ECEDEF;
+  --card-hover: #FAFAFB;
+  --border-strong: #CDD1D6;
+  --shadow-1: none;
+  --shadow-2: 0 2px 8px rgba(14,14,14,.08);
+  --shadow-3: 0 8px 24px rgba(14,14,14,.14);
   --info: #55768A;
   --success-text: #1A4F4F;
   --warning-text: #8A5A00;
   --danger-text: #A3321F;
-  --primary-text: #984311;
-  --input: #C8C1B7;
-  --ring: #B45417;
-  --chart-1: #B45417;
+  --primary-text: #A8460A;
+  --input: #C4C9CF;
+  --ring: #C2530A;
+  --chart-1: #C2530A;
   --chart-2: #55768A;
   --chart-3: #1A4F4F;
   --chart-4: #C58B55;
   --chart-5: #7893A2;
-  --sidebar: #FCFAF5;
+  --sidebar: #FFFFFF;
   --sidebar-foreground: #0E0E0E;
-  --sidebar-primary: #B45417;
-  --sidebar-primary-foreground: #FFF9F0;
-  --sidebar-accent: #E4E0D8;
-  --sidebar-accent-foreground: #203945;
-  --sidebar-border: #D0C9BF;
-  --sidebar-ring: #B45417;
+  --sidebar-primary: #C2530A;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #EDEEF0;
+  --sidebar-accent-foreground: #0E0E0E;
+  --sidebar-border: #E1E3E6;
+  --sidebar-ring: #C2530A;
 
   /* Flow Builder design tokens — LIGHT mode values (EVO-1253). */
   --flow-node-trigger-bg: oklch(0.95 0.05 150);
@@ -213,23 +215,23 @@ body.authenticated-panel-density {
 
 .dark {
   --background: #0E0E0E;
-  --foreground: #F2EFE8;
-  --card: #1C1B1A;
-  --card-foreground: #F2EFE8;
-  --popover: #1B1B1B;
-  --popover-foreground: #F2EFE8;
-  --primary: #B45417;
-  --primary-foreground: #FFF9F0;
-  --secondary: #1A4F4F;
-  --secondary-foreground: #F2EFE8;
-  --muted: #242321;
-  --muted-foreground: #B8B1A7;
-  --accent: #203945;
-  --accent-foreground: #F2EFE8;
-  --border: #2A2724;
-  --surface-sunken: #141414;
-  --card-hover: #222120;
-  --border-strong: #3A3530;
+  --foreground: #EDEDED;
+  --card: #171717;
+  --card-foreground: #EDEDED;
+  --popover: #171717;
+  --popover-foreground: #EDEDED;
+  --primary: #E8791F;
+  --primary-foreground: #0E0E0E;
+  --secondary: #232323;
+  --secondary-foreground: #EDEDED;
+  --muted: #1F1F1F;
+  --muted-foreground: #A8ADB3;
+  --accent: #1F1F1F;
+  --accent-foreground: #EDEDED;
+  --border: #262626;
+  --surface-sunken: #121212;
+  --card-hover: #1D1D1D;
+  --border-strong: #3A3A3A;
   --shadow-1: none;
   --shadow-2: 0 4px 12px rgba(0,0,0,.4);
   --shadow-3: 0 12px 28px rgba(0,0,0,.6);
@@ -237,22 +239,22 @@ body.authenticated-panel-density {
   --success-text: #5FA3A3;
   --warning-text: #E0A84A;
   --danger-text: #E07A66;
-  --primary-text: #D9773A;
-  --input: #3B3631;
-  --ring: #C66B2C;
-  --chart-1: #C66B2C;
+  --primary-text: #F08A3C;
+  --input: #383838;
+  --ring: #F08A3C;
+  --chart-1: #E8791F;
   --chart-2: #6F91A3;
   --chart-3: #397979;
   --chart-4: #D5A06B;
   --chart-5: #8EA6B3;
-  --sidebar: #141414;
-  --sidebar-foreground: #F2EFE8;
-  --sidebar-primary: #B45417;
-  --sidebar-primary-foreground: #FFF9F0;
-  --sidebar-accent: #1A4F4F;
-  --sidebar-accent-foreground: #F2EFE8;
-  --sidebar-border: #302D2A;
-  --sidebar-ring: #C66B2C;
+  --sidebar: #121212;
+  --sidebar-foreground: #EDEDED;
+  --sidebar-primary: #E8791F;
+  --sidebar-primary-foreground: #0E0E0E;
+  --sidebar-accent: #1F1F1F;
+  --sidebar-accent-foreground: #EDEDED;
+  --sidebar-border: #262626;
+  --sidebar-ring: #F08A3C;
 
   /* Flow Builder design tokens — DARK mode overrides (EVO-1253). */
   --flow-node-trigger-bg: oklch(0.22 0.05 150);
@@ -582,12 +584,12 @@ body.authenticated-panel-density {
 .card-personalize-toolbar { padding: 8px 24px; background: var(--background); }
 .kanban-scroll { overscroll-behavior: contain; scroll-behavior: smooth; }
 .kanban-column { flex: 0 0 304px; width: 304px; min-width: 304px; max-width: 304px; }
-.kanban-column-surface { background: var(--surface-sunken); border-radius: 12px; }
+.kanban-column-surface { background: var(--surface-sunken); border-radius: 8px; }
 .kanban-column-header { min-height: 64px; }
 .kanban-dropzone { overscroll-behavior: contain; border: 2px solid transparent; border-radius: 8px; }
 .kanban-dropzone.is-drop-target { border-color: var(--ring); background: var(--accent); }
-.deal-card-shell { background: var(--card); color: var(--foreground); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-1); transition: box-shadow 150ms, border-color 150ms, transform 150ms; }
-.deal-card-shell:hover { box-shadow: var(--shadow-2); background: var(--card-hover); border-color: var(--border-strong); transform: translateY(-1px); }
+.deal-card-shell { background: var(--card); color: var(--foreground); border: 1px solid var(--border); border-radius: 6px; box-shadow: var(--shadow-1); transition: border-color 150ms, background-color 150ms; }
+.deal-card-shell:hover { background: var(--card-hover); border-color: var(--border-strong); }
 .deal-card-shell.is-dragging { opacity: .4; border-style: dashed; box-shadow: var(--shadow-3); }
 /* S2: a coluna só rola na vertical; o único scroll horizontal é o do quadro (barra sempre visível). */
 .kanban-dropzone { overflow-x: hidden; }
@@ -620,7 +622,7 @@ body.authenticated-panel-density {
 .deal-field-last_message { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .deal-contact-action { color: var(--primary-text); }
 .deal-labels { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-.deal-label { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; max-width: 114px; overflow: hidden; border-radius: 6px; background: var(--muted); color: var(--foreground); }
+.deal-label { display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; max-width: 114px; overflow: hidden; border-radius: 4px; background: var(--muted); color: var(--foreground); }
 .deal-label i { width: 6px; height: 6px; border-radius: 100%; flex-shrink: 0; }
 .deal-footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
 .deal-footer > div { min-width: 0; }
@@ -683,14 +685,14 @@ body.authenticated-panel-density {
 @media (max-width: 640px) { .kanban-mobile-pipeline { display: block; flex: 1; min-width: 0; max-width: 150px; height: 44px; font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; } .search-expanded .kanban-mobile-pipeline { display: none; } }
 
 /* U4: board hierarchy, empty/loading states and semantic focus. */
-.kanban-title { font-size: 20px; line-height: 28px; font-weight: 600; }
+.kanban-title { font-size: 16px; line-height: 24px; font-weight: 600; }
 .kanban-summary-actions, .kanban-kpis { display: flex; align-items: center; gap: 24px; }
 .kanban-kpis dd { font-size: 16px; line-height: 24px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .kanban-kpis dt { font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
-.kanban-add-button { margin-left: auto; height: 36px; white-space: nowrap; }
+.kanban-add-button { margin-left: auto; height: 32px; white-space: nowrap; }
 .kanban-actions { flex-wrap: wrap; gap: 8px; }
-.kanban-customize-button { height: 36px; white-space: nowrap; }
-.kanban-stage-empty { min-height: 88px; border: 1px dashed var(--border); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 8px; color: var(--muted-foreground); font-size: 12px; line-height: 16px; text-align: center; }
+.kanban-customize-button { height: 32px; white-space: nowrap; }
+.kanban-stage-empty { min-height: 72px; border: 1px dashed var(--border-strong); border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 8px; color: var(--muted-foreground); font-size: 12px; line-height: 16px; text-align: center; }
 .kanban-stage-empty button { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 4px 8px; border-radius: 6px; color: var(--primary-text); }
 .kanban-stage-empty button:hover { background: var(--muted); }
 .pipeline-board-root :is(input,select):focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
