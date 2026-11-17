@@ -51,7 +51,7 @@ export default function HistoryTab({ deal }: DealTabProps) {
                 <li key={`${event.action}-${event.id}`} className="deal-history-item">
                   <span className="deal-history-icon" aria-hidden="true"><Icon className="h-4 w-4" /></span>
                   <div>
-                    <p><strong>{actionLabel(event.action)}</strong><span className="deal-chip is-wait">{event.source}</span></p>
+                    <p><strong>{actionLabel(event.action)}</strong><span className="deal-history-source">{event.source}</span></p>
                     {changes.length > 0 && <p className="deal-history-changes">{changes.join(' · ')}</p>}
                     <p className="deal-history-meta"><time dateTime={event.created_at} title={formatDateTime(event.created_at)}>{relativeTime(event.created_at)}</time> · {event.actor?.name || 'Sistema'}</p>
                   </div>

@@ -57,12 +57,12 @@ export default function ConversationsTab({ deal, pipelineId, replaceDeal, reload
           <h2>{conversations.length} {conversations.length === 1 ? 'sessão' : 'sessões'}</h2>
           <DealConversationButton dealId={deal.id} summary={deal.conversation_summary} variant="header" canConfigure={canConfigureNumbers} onConfigureNumbers={onConfigureNumbers} onOpenConversation={id => { setSelectedId(id); void reload(); }} />
         </header>
-        <div className="deal-associate is-stacked">
+        <div className="deal-associate">
           <select aria-label="Selecionar conversa" value={pick} onChange={event => setPick(event.target.value)}>
             <option value="">Associar uma conversa…</option>
             {available.filter(item => !conversations.some(linked => linked.id === item.id)).map(item => <option key={item.id} value={item.id}>#{item.display_id} · {item.contact?.name || 'Sem contato'}</option>)}
           </select>
-          <Button size="sm" onClick={() => void associate()} disabled={!pick}><Plus className="mr-1 h-4 w-4" />Associar</Button>
+          <Button size="sm" variant="outline" onClick={() => void associate()} disabled={!pick}><Plus className="mr-1 h-4 w-4" />Associar</Button>
         </div>
         <ul>
           {conversations.map(conversation => {
