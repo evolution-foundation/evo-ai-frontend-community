@@ -1,4 +1,5 @@
 import type { PipelineItem } from '@/types/analytics';
+import { getContactDisplayName } from '@/utils/chat/avatarHelpers';
 
 export function getDealCardPresentation(item: PipelineItem) {
   const contact = item.primary_contact || item.contact;
@@ -21,9 +22,9 @@ export function getDealCardPresentation(item: PipelineItem) {
     labels,
     message,
     avatarUrl: contact?.avatar_url || contact?.thumbnail,
-    title: item.title || `Negócio - ${contact?.name || 'Contato desconhecido'}`,
+    title: item.title || `Negócio - ${getContactDisplayName(contact?.name) || 'Contato desconhecido'}`,
     secondary:
-      [item.company?.name, contact?.name].filter(Boolean).join(' · ') || 'Sem contato associado',
+      [item.company?.name, getContactDisplayName(contact?.name)].filter(Boolean).join(' · ') || 'Sem contato associado',
     additionalContacts: Math.max((item.contact_count || 1) - 1, 0),
     value: item.value || 0,
     currency: item.currency || 'BRL',

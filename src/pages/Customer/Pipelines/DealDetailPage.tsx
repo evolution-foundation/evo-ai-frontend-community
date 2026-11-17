@@ -34,6 +34,11 @@ import type {
 } from '@/types/analytics';
 import type { Label } from '@/types/settings';
 import CustomAttributes from '@/components/contacts/CustomAttributes';
+import {
+  getContactAvatarStyle,
+  getContactDisplayName,
+  getContactInitials,
+} from '@/utils/chat/avatarHelpers';
 
 const TABS = [
   { id: 'activities', label: 'Atividades', icon: CalendarCheck },
@@ -66,6 +71,7 @@ function ContactAvatar({
   size?: string;
 }) {
   const image = avatarUrl(contact);
+  const hueStyle = getContactAvatarStyle(contact?.name);
   if (image)
     return (
       <img
@@ -76,9 +82,10 @@ function ContactAvatar({
     );
   return (
     <div
-      className={`${size} rounded-full bg-primary/15 text-primary flex items-center justify-center font-bold`}
+      className={`${size} rounded-full ${hueStyle ? 'av-hue' : 'bg-primary/15 text-primary'} flex items-center justify-center font-bold`}
+      style={hueStyle}
     >
-      {contact?.name?.trim()?.[0]?.toUpperCase() || '?'}
+      {getContactInitials(contact?.name) || '?'}
     </div>
   );
 }
@@ -921,7 +928,7 @@ function ContactEditor({
       <div className="mb-4 flex items-center gap-3">
         <ContactAvatar contact={contact} />
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold">{contact.name}</p>
+          <p className="truncate font-semibold">{getContactDisplayName(contact.name)}</p>
           <p className="text-xs text-muted-foreground">
             {primary
               ? 'Contato principal'
