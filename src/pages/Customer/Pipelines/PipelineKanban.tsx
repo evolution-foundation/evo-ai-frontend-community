@@ -945,7 +945,6 @@ export default function PipelineKanban() {
               <div className="kanban-summary-actions">
                 <dl className="kanban-kpis">
                   <div><dd>{totalItemCount}</dd><dt>{t('kanban.board.deals', { defaultValue: 'Negócios' })}</dt></div>
-                  <div><dd>{stages.length}</dd><dt>{t('kanban.header.stages')}</dt></div>
                   <div><dd>{stageTotal(stages.flatMap(stage => stage.items || []))}</dd><dt>{t('kanban.header.totalValue')}</dt></div>
                 </dl>
                 {/* Pipeline Options Menu */}
@@ -1211,7 +1210,7 @@ export default function PipelineKanban() {
                     </div>
                   </PopoverContent>
                 </Popover>
-                <Button ref={personalizeButtonRef} className="kanban-customize-button" aria-label="Personalizar cartões" variant="outline" onClick={() => setPersonalizingCards(true)}><SlidersHorizontal className="w-4 h-4" /><span className="kanban-action-label">Personalizar cartões</span></Button>
+                <Button ref={personalizeButtonRef} className="kanban-customize-button" aria-label="Personalizar cartões" title="Personalizar cartões" variant="outline" onClick={() => setPersonalizingCards(true)}><SlidersHorizontal className="w-4 h-4" /></Button>
                 <div className="kanban-toolbar-end">
                   {hasActiveFilters && <span className="kanban-results-count" aria-live="polite">{totalFilteredCount} de {totalItemCount} negócios</span>}
                   <DropdownMenu>
@@ -1245,12 +1244,6 @@ export default function PipelineKanban() {
                   </Button>
                 )}
 
-                {/* Results summary */}
-                {hasActiveFilters && (
-                  <span className="kanban-results text-xs text-muted-foreground">
-                    {totalFilteredCount} de {totalItemCount} negócios
-                  </span>
-                )}
                 <Button className="kanban-add-button" aria-label="Adicionar negócio" disabled={!stages.length} onClick={() => { if (stages[0]) handleAddItem(stages[0]); }}><Plus className="w-4 h-4" /><span className="kanban-action-label">Adicionar negócio</span></Button>
               </div>
 
@@ -1396,7 +1389,7 @@ export default function PipelineKanban() {
                             onPointerCancel={() => { if (!touchDrag.current) return; clearTimeout(touchDrag.current.timer); touchDrag.current = null; handleDragEnd(); }}>⠿</button>}
                           {/* Card menus: move + ⋮ */}
                           <div
-                            className="absolute top-2 right-2 flex items-center gap-0.5 opacity-100"
+                            className="deal-card-menu absolute top-2 right-2 flex items-center gap-0.5"
                             onClick={e => e.stopPropagation()}
                           >
                             {moveTargets.length > 0 && isOpenDeal(item) && (
