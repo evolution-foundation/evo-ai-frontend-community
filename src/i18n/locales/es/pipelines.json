@@ -576,7 +576,7 @@
       "resultsCount": "Mostrando {{count}} de {{total}} tarjetas en {{stages}} etapa(s)",
       "loadingAgents": "Cargando equipo...",
       "noAgents": "No se encontraron miembros del equipo",
-      "statusFilter": "Estado",
+      "statusFilter": "Conversación",
       "dateRangeFilter": "Rango de fechas",
       "dateFrom": "Desde",
       "dateTo": "Hasta",
@@ -692,6 +692,15 @@
     "tasks": {
       "pending": "pendientes",
       "overdue": "atrasadas"
+    },
+    "dealStatus": {
+      "label": "Estado del negocio",
+      "open": "Abiertos",
+      "won": "Ganados",
+      "lost": "Perdidos",
+      "all": "Todos",
+      "emptyWon": "Ningún negocio ganado en esta etapa",
+      "emptyLost": "Ningún negocio perdido en esta etapa"
     }
   },
   "tasks": {

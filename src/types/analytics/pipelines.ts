@@ -138,6 +138,7 @@ export interface Pipeline {
   items?: PipelineItem[]; // Only returned when stages are not included
   conversations_count?: number;
   item_count?: number;
+  deal_status_counts?: Record<DealStatus, number>;
   services_info?: {
     total_value: number;
     formatted_total?: string;
@@ -282,7 +283,14 @@ export interface DealConversationStatus {
   conversation_id?: string;
 }
 
+/** Status do negócio (não confundir com o status da conversa). */
+export type DealStatus = 'open' | 'won' | 'lost';
+export type DealStatusFilter = DealStatus | 'all';
+
 export interface PipelineItem {
+  deal_status?: DealStatus;
+  lost_reason?: string | null;
+  closed_by_id?: string | null;
   conversation_summary?: DealConversationSummary | null;
   channel_origin?: { channel?: string | null; origin?: string | null; conversation_id?: string | null };
   last_activity?: { occurred_at?: string | null; summary: string } | null;

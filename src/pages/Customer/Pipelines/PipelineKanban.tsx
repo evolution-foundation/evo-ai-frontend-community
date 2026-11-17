@@ -47,6 +47,7 @@ import {
   PipelineItem,
   UpdatePipelineData,
   CreateStageData,
+  DealStatusFilter,
 } from '@/types/analytics';
 import EditPipelineModal from '@/components/pipelines/EditPipelineModal';
 import CreateStageModal from '@/components/pipelines/CreateStageModal';
@@ -110,6 +111,16 @@ export default function PipelineKanban() {
   const searchQuery = searchParams.get('search') ?? '';
   const assigneeFilter = searchParams.get('assignee') ?? '';
   const statusFilter = searchParams.get('status') ?? '';
+  // Status do NEGÓCIO (aberto/ganho/perdido) vai ao servidor; padrão "aberto" não polui a URL.
+  const dealStatusParam = searchParams.get('deal_status');
+  const dealStatus: DealStatusFilter = dealStatusParam === 'won' || dealStatusParam === 'lost' || dealStatusParam === 'all' ? dealStatusParam : 'open';
+  const setDealStatus = (next: DealStatusFilter) => setSearchParams(prev => {
+    const n = new URLSearchParams(prev);
+    if (next === 'open') n.delete('deal_status'); else n.set('deal_status', next);
+    n.delete('deal'); n.delete('tab');
+    return n;
+  }, { replace: true });
+  const isOpenDeal = (item: PipelineItem) => (item.deal_status ?? 'open') === 'open';
   const dateFrom = searchParams.get('dateFrom') ?? '';
   const dateTo = searchParams.get('dateTo') ?? '';
   const labelFilter = searchParams.get('label') ?? '';
@@ -242,7 +253,7 @@ export default function PipelineKanban() {
     setLoadError(false);
     try {
       // Load pipeline with all data (stages, items, tasks_info, services_info)
-      const pipelineData = await pipelinesService.getPipeline(pipelineId);
+      const pipelineData = await pipelinesService.getPipeline(pipelineId, dealStatus);
 
       setPipeline(pipelineData);
       setStages(pipelineData.stages || []);
@@ -252,7 +263,7 @@ export default function PipelineKanban() {
     } finally {
       setLoading(false);
     }
-  }, [pipelineId]);
+  }, [pipelineId, dealStatus]);
 
   // Load all pipelines for selector
   const loadAllPipelines = useCallback(async () => {
@@ -516,7 +527,7 @@ export default function PipelineKanban() {
   // Move a card to a target stage from the card menu (mirrors the drag-and-drop
   // moveItem path; both call pipelinesService.moveItem then reload).
   const moveItemToStage = async (item: PipelineItem, targetStageId: string) => {
-    if (!pipelineId || item.stage_id === targetStageId || movingIds.current.size > 0) return;
+    if (!pipelineId || item.stage_id === targetStageId || movingIds.current.size > 0 || !isOpenDeal(item)) return;
     movingIds.current.add(item.id);
     const previous = stages;
     setStages(current => current.map(stage => ({ ...stage, items: stage.id === targetStageId
@@ -725,7 +736,7 @@ export default function PipelineKanban() {
     if (immediate) prefetchDeal(dealIdOf(item));
     else hoverTimer.current = setTimeout(() => prefetchDeal(dealIdOf(item)), 100);
   };
-  const handleDealChange = useCallback((deal: Deal, info: { stageChanged: boolean }) => {
+  const handleDealChange = useCallback((deal: Deal, info: { stageChanged: boolean; statusChanged?: boolean }) => {
     const sameDeal = (entry: PipelineItem) => (entry.deal_id || entry.id) === deal.id;
     setStages(current => current.map(stage => ({
       ...stage,
@@ -733,6 +744,8 @@ export default function PipelineKanban() {
         if (!sameDeal(entry)) return entry;
         const merged: PipelineItem = { ...entry };
         const assign = <K extends keyof PipelineItem>(key: K, value: PipelineItem[K] | undefined) => { if (value !== undefined) merged[key] = value; };
+        assign('deal_status', deal.deal_status);
+        assign('lost_reason', deal.lost_reason);
         assign('title', deal.title);
         assign('value', deal.value);
         assign('currency', deal.currency);
@@ -750,7 +763,7 @@ export default function PipelineKanban() {
         return merged;
       }),
     })));
-    if (info.stageChanged) void loadPipelineData(true);
+    if (info.stageChanged || info.statusChanged) void loadPipelineData(true);
   }, [loadPipelineData]);
 
   const openConversationPanel = useCallback((item: PipelineItem, conversationId: string, displayId?: number | string | null) => {
@@ -998,6 +1011,19 @@ export default function PipelineKanban() {
                       <X className="w-3.5 h-3.5" />
                     </button>
                   )}
+                </div>
+
+                {/* Status do negócio: Abertos (padrão) / Ganhos / Perdidos / Todos */}
+                <div className="kanban-deal-status" role="group" aria-label={t('kanban.dealStatus.label')}>
+                  {(['open', 'won', 'lost', 'all'] as const).map(option => {
+                    const counts = pipeline?.deal_status_counts;
+                    const count = counts ? (option === 'all' ? counts.open + counts.won + counts.lost : counts[option]) : undefined;
+                    return (
+                      <button key={option} type="button" data-deal-status={option} aria-pressed={dealStatus === option} onClick={() => setDealStatus(option)}>
+                        {t(`kanban.dealStatus.${option}`)}{count !== undefined && <span className="kanban-deal-status-count">{count}</span>}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {/* Consolidated Filtros popover */}
@@ -1335,7 +1361,7 @@ export default function PipelineKanban() {
                           key={item.id}
                           data-deal-id={item.id}
                           className={`deal-card-shell group relative min-w-0 ${draggedItem?.id === item.id ? "is-dragging" : ""}`}
-                          draggable={!movingIds.current.has(item.id)}
+                          draggable={!movingIds.current.has(item.id) && isOpenDeal(item)}
                           onDragStart={() => handleDragStart(item)}
                           onDragEnd={handleDragEnd}
                           onPointerEnter={() => warmDeal(item)}
@@ -1348,7 +1374,7 @@ export default function PipelineKanban() {
                           }}
 
                         >
-                          <button className="deal-move-handle" aria-label={`Arrastar ${item.title || 'negócio'}`} draggable
+                          {isOpenDeal(item) && <button className="deal-move-handle" aria-label={`Arrastar ${item.title || 'negócio'}`} draggable
                             onDragStart={event => { event.stopPropagation(); if (event.currentTarget.parentElement) event.dataTransfer.setDragImage(event.currentTarget.parentElement, 16, 16); handleDragStart(item); }}
                             onPointerDown={event => {
                               if (event.pointerType === 'mouse') return;
@@ -1368,13 +1394,13 @@ export default function PipelineKanban() {
                               if (state.active && draggedItem && dropTarget) void moveItemToStage(item, dropTarget);
                               touchDrag.current = null; handleDragEnd(); if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
                             }}
-                            onPointerCancel={() => { if (!touchDrag.current) return; clearTimeout(touchDrag.current.timer); touchDrag.current = null; handleDragEnd(); }}>⠿</button>
+                            onPointerCancel={() => { if (!touchDrag.current) return; clearTimeout(touchDrag.current.timer); touchDrag.current = null; handleDragEnd(); }}>⠿</button>}
                           {/* Card menus: move + ⋮ */}
                           <div
                             className="absolute top-2 right-2 flex items-center gap-0.5 opacity-100"
                             onClick={e => e.stopPropagation()}
                           >
-                            {moveTargets.length > 0 && (
+                            {moveTargets.length > 0 && isOpenDeal(item) && (
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <Button variant="ghost" size="sm" className="h-auto p-1 text-muted-foreground hover:bg-muted" aria-label={t('kanban.item.moveCard')}>
@@ -1448,13 +1474,13 @@ export default function PipelineKanban() {
                       {/* Empty note */}
                       {stageItems.length === 0 && (
                         <div className="kanban-stage-empty">
-                          <span>{hasActiveFilters ? t('kanban.board.noResults', { defaultValue: 'Nenhum negócio com esses filtros' }) : t('kanban.board.emptyStage', { defaultValue: 'Nenhum negócio nesta etapa' })}</span>
-                          <button onClick={() => handleAddItem(stage)}><Plus size={16} />{t('kanban.board.addDeal', { defaultValue: 'Adicionar negócio' })}</button>
+                          <span>{hasActiveFilters ? t('kanban.board.noResults', { defaultValue: 'Nenhum negócio com esses filtros' }) : dealStatus === 'won' ? t('kanban.dealStatus.emptyWon') : dealStatus === 'lost' ? t('kanban.dealStatus.emptyLost') : t('kanban.board.emptyStage', { defaultValue: 'Nenhum negócio nesta etapa' })}</span>
+                          {dealStatus === 'open' && <button onClick={() => handleAddItem(stage)}><Plus size={16} />{t('kanban.board.addDeal', { defaultValue: 'Adicionar negócio' })}</button>}
                         </div>
                       )}
 
                       {/* '+' ghost add row */}
-                      {stageItems.length > 0 && <button
+                      {stageItems.length > 0 && dealStatus === 'open' && <button
                         type="button"
                         onClick={() => handleAddItem(stage)}
                         className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-[13.5px] font-semibold text-muted-foreground hover:bg-primary/10 hover:text-[var(--primary-text)] hover:border-primary/20 transition-colors"

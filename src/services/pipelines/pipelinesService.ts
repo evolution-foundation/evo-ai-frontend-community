@@ -24,6 +24,8 @@ import type {
   UpdateDealData,
   DealConversationStatus,
   PipelineWhatsappInboxes,
+  DealStatus,
+  DealStatusFilter,
 } from '@/types/analytics';
 import { Contact } from '@/types';
 
@@ -59,6 +61,12 @@ class PipelinesService {
 
   async createDeal(pipelineId: string, data: CreateDealData): Promise<Deal> {
     const response = await api.post(`/pipelines/${pipelineId}/deals`, { deal: data });
+    return extractData<Deal>(response);
+  }
+
+  /** Marca o negócio como ganho/perdido ou reabre (status do negócio, não da conversa). */
+  async changeDealStatus(dealId: string, status: DealStatus, lostReason?: string): Promise<Deal> {
+    const response = await api.patch(`/deals/${dealId}/status`, { status, ...(status === 'lost' && lostReason?.trim() ? { lost_reason: lostReason.trim() } : {}) });
     return extractData<Deal>(response);
   }
 
@@ -107,8 +115,8 @@ class PipelinesService {
   }
 
   // Get single pipeline
-  async getPipeline(pipelineId: string): Promise<Pipeline> {
-    const response = await api.get(`/pipelines/${pipelineId}`);
+  async getPipeline(pipelineId: string, dealStatus: DealStatusFilter = 'open'): Promise<Pipeline> {
+    const response = await api.get(`/pipelines/${pipelineId}`, { params: { deal_status: dealStatus } });
     return extractData<Pipeline>(response);
   }
 
