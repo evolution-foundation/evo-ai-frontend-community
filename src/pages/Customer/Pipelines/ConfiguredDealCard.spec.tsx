@@ -1,17 +1,20 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import type { PipelineItem } from '@/types/analytics/pipelines';
 import { defaultConfiguration, nativeFields } from './cardConfiguration';
 import ConfiguredDealCard from './ConfiguredDealCard';
 
 const item = { id: 'deal', pipeline_id: 'pipeline', title: 'Título muito longo', value: 0, currency: 'BRL', owner: null, custom_fields: { active: false } } as PipelineItem;
 describe('configured board and preview renderer', () => {
-  it('renders a real title link, zero value and actionable missing contact', () => {
-    render(<MemoryRouter><ConfiguredDealCard item={item} configuration={defaultConfiguration()} definitions={nativeFields} /></MemoryRouter>);
-    expect(screen.getByRole('link', {name:item.title})).toHaveAttribute('href','/pipelines/pipeline/deals/deal');
+  it('opens the deal modal from the title and the missing-contact action, with zero value', () => {
+    const onOpen = vi.fn();
+    render(<MemoryRouter><ConfiguredDealCard item={item} configuration={defaultConfiguration()} definitions={nativeFields} onOpen={onOpen} /></MemoryRouter>);
+    fireEvent.click(screen.getByRole('button', {name:item.title}));
+    expect(onOpen).toHaveBeenCalledWith(item);
     expect(screen.getByText(/R\$.*0,00/)).toBeInTheDocument();
-    expect(screen.getByRole('link', {name:'Vincular contato'})).toHaveAttribute('href','/pipelines/pipeline/deals/deal?tab=contacts');
+    fireEvent.click(screen.getByRole('button', {name:'Vincular contato'}));
+    expect(onOpen).toHaveBeenLastCalledWith(item, 'contacts');
     expect(screen.getByText('Sem responsável')).toBeInTheDocument();
   });
   it('honors density, hides disabled fields and anchors owner to footer regardless of order', () => {
@@ -35,7 +38,7 @@ describe('configured board and preview renderer', () => {
     const {container} = render(<MemoryRouter><ConfiguredDealCard item={{...item, primary_contact: {id: 'c', name: 'Contato Sintético', avatar_url: '/photo.png'}} as PipelineItem} configuration={config} definitions={nativeFields} /></MemoryRouter>);
     expect(container.querySelector('.deal-card-heading img')).toHaveAttribute('src', '/photo.png');
     expect(container.querySelectorAll('.deal-contact-avatar')).toHaveLength(1);
-    expect(screen.getByRole('link', {name: item.title})).toBeInTheDocument();
+    expect(screen.getByRole('button', {name: item.title})).toBeInTheDocument();
   });
   it('uses initials for an empty photo URL', () => {
     const {container} = render(<MemoryRouter><ConfiguredDealCard item={{...item, primary_contact: {id: 'c', name: 'Contato Sintético', avatar_url: ' '}} as PipelineItem} configuration={defaultConfiguration()} definitions={nativeFields} /></MemoryRouter>);

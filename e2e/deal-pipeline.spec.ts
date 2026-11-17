@@ -300,12 +300,12 @@ for (const { width, theme } of scenarios) {
       .locator('.authenticated-shell')
       .evaluate(element => Number.parseFloat(getComputedStyle(element).width));
     expect(shellWidth).toBeCloseTo(width / 0.9, 1);
-    const stageWidths = await page.locator('div[style*="flex: 0 0 340px"]').evaluateAll(elements =>
+    const stageWidths = await page.locator('section.kanban-column[data-stage-id]').evaluateAll(elements =>
       elements.map(element => getComputedStyle(element).width),
     );
-    expect(stageWidths).toEqual(['340px', '340px']);
+    expect(stageWidths).toEqual(['304px', '304px']);
 
-    await page.getByRole('button', { name: 'Adicionar Item' }).first().click();
+    await page.getByRole('button', { name: 'Adicionar negócio' }).first().click();
     await page.getByLabel('Título do negócio').fill('Expansão anual');
     await page.getByLabel('Valor (BRL)').fill('12500');
     await page.getByRole('button', { name: 'Adicionar Item', exact: true }).last().click();
@@ -315,60 +315,70 @@ for (const { width, theme } of scenarios) {
     await page.getByRole('menuitem', { name: 'Proposta' }).click();
     await expect(page.getByText('Expansão anual')).toBeVisible();
 
-    await page.getByText('Expansão anual').click();
-    await expect(page).toHaveURL(/\/pipelines\/pipeline-1\/deals\/deal-1\?tab=activities/);
-    const dealTabs = page.getByRole('navigation', { name: 'Seções do negócio' });
+    // O negócio abre como modal sobre o quadro (URL ?deal=&tab=), sem sair do kanban.
+    await page.getByRole('button', { name: 'Expansão anual', exact: true }).click();
+    await expect(page).toHaveURL(/\/pipelines\/pipeline-1\?deal=deal-1&tab=activities/);
+    const modal = page.getByRole('dialog');
+    const dealTabs = modal.getByRole('navigation', { name: 'Seções do negócio' });
 
-    await dealTabs.getByRole('button', { name: 'Contatos', exact: true }).click();
-    await page.getByLabel('Selecionar contato').selectOption('contact-1');
-    await page.getByRole('button', { name: 'Associar como principal' }).click();
-    await expect(page.getByText('Contato principal', { exact: true })).toBeVisible();
+    await dealTabs.getByRole('button', { name: 'Contato', exact: true }).click();
+    await modal.getByLabel('Selecionar contato').selectOption('contact-1');
+    await modal.getByRole('button', { name: 'Associar como principal' }).click();
+    await expect(modal.getByText('Contato principal', { exact: true })).toBeVisible();
 
     await dealTabs.getByRole('button', { name: 'Empresa', exact: true }).click();
-    await page.getByLabel('Selecionar empresa').selectOption('company-1');
-    await page.getByRole('button', { name: 'Associar empresa' }).click();
-    await expect(page.getByText('Acme Ltda.').first()).toBeVisible();
+    await modal.getByLabel('Selecionar empresa').selectOption('company-1');
+    await modal.getByRole('button', { name: 'Associar empresa' }).click();
+    await expect(modal.getByText('Acme Ltda.').first()).toBeVisible();
 
+    // edição inline: cada campo salva ao confirmar (Enter/sair do campo)
     await dealTabs.getByRole('button', { name: 'Negócio', exact: true }).click();
-    await page.getByLabel('Título').fill('Expansão enterprise');
-    await page.getByLabel('Valor').fill('18000');
-    await page.getByLabel('utm_source').fill('playwright');
-    await page.getByLabel('Anotações').fill('Próximo passo: enviar contrato.');
-    await page.getByRole('button', { name: 'Expansão' }).click();
-    const saveButton = page.getByRole('button', { name: 'Salvar' });
-    await saveButton.click();
-    await expect(saveButton).toBeEnabled();
-    await expect(page.getByText('Expansão enterprise').first()).toBeVisible();
+    const edit = async (label: string, value: string) => {
+      await modal.getByRole('button', { name: label, exact: true }).click();
+      const input = modal.getByRole('textbox', { name: label }).or(modal.getByRole('spinbutton', { name: label }));
+      await input.fill(value);
+      await input.press(label === 'Anotações' ? 'Control+Enter' : 'Enter'); // texto longo: Ctrl+Enter (ou sair do campo)
+    };
+    await edit('Título', 'Expansão enterprise');
+    await edit('Valor', '18000');
+    await modal.getByRole('button', { name: 'Campos do pipeline' }).click();
+    await edit('utm_source', 'playwright');
+    await modal.getByRole('button', { name: 'Informações gerais' }).click();
+    await edit('Anotações', 'Próximo passo: enviar contrato.');
+    await modal.getByRole('button', { name: 'Adicionar tag' }).click();
+    await modal.getByRole('button', { name: 'Expansão', exact: true }).click();
+    await page.keyboard.press('Escape'); // fecha só o menu de tags; o modal continua aberto
+    await expect(modal.getByRole('group', { name: 'Tags disponíveis' })).toHaveCount(0);
+    await expect(modal.getByRole('heading', { name: /Expansão enterprise/ })).toBeVisible();
+    await expect.poll(() => state.getDeal().notes).toBe('Próximo passo: enviar contrato.');
+    await expect.poll(() => state.getDeal().labels.map(label => label.title)).toEqual(['Expansão']);
 
     await dealTabs.getByRole('button', { name: 'Conversas', exact: true }).click();
     await expect(page).toHaveURL(/tab=conversations/);
-    await page.getByLabel('Selecionar conversa').selectOption('conversation-1');
-    await page.getByRole('button', { name: 'Associar', exact: true }).click();
-    await expect(page.getByRole('paragraph').filter({ hasText: '#42 · Marina Costa' })).toBeVisible();
+    await modal.getByLabel('Selecionar conversa').selectOption('conversation-1');
+    await modal.getByRole('button', { name: 'Associar', exact: true }).click();
+    await expect(modal.getByText('#42 · Marina Costa')).toBeVisible();
 
     await dealTabs.getByRole('button', { name: 'Arquivos', exact: true }).click();
-    await page.locator('input[type="file"]').setInputFiles({
+    await modal.locator('input[type="file"]').setInputFiles({
       name: 'proposta.txt',
       mimeType: 'text/plain',
       buffer: Buffer.from('proposta enterprise'),
     });
-    await expect(page.getByText('proposta.txt')).toBeVisible();
+    await expect(modal.getByText('proposta.txt')).toBeVisible();
     expect(state.getFile()).not.toBeNull();
-    await page.getByText('proposta.txt').locator('../..').getByRole('button').click();
-    await expect(page.getByText('proposta.txt')).toHaveCount(0);
+    await modal.getByRole('button', { name: 'Remover proposta.txt' }).click();
+    await expect(modal.getByText('proposta.txt')).toHaveCount(0);
     expect(state.getFile()).toBeNull();
 
     await dealTabs.getByRole('button', { name: 'Histórico', exact: true }).click();
-    await expect(page.getByText('deal created')).toBeVisible();
-    await expect(page.getByText('stage changed')).toBeVisible();
-    await expect(page.getByText('contact linked')).toBeVisible();
-    await expect(page.getByText('conversation linked')).toBeVisible();
-    await expect(page.getByText('files attached')).toBeVisible();
-    await expect(page.getByText('file removed')).toBeVisible();
+    for (const label of ['Negócio criado', 'Mudou de etapa', 'Contato associado', 'Conversa associada', 'Arquivos anexados', 'Arquivo removido'])
+      await expect(modal.getByText(label, { exact: true }).first()).toBeVisible();
 
-    await page.getByRole('button', { name: 'Voltar ao pipeline' }).click();
+    await modal.getByRole('button', { name: 'Fechar negócio' }).click();
+    await expect(modal).toBeHidden();
     await expect(page).toHaveURL(/\/pipelines\/pipeline-1$/);
-    await expect(page.getByRole('heading', { name: 'Expansão enterprise', level: 4 })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Expansão enterprise', exact: true })).toBeVisible();
     await expect(page.getByText('Expansão', { exact: true })).toBeVisible();
     await expect(page.getByText('Tag exclusiva do contato')).toHaveCount(0);
     expect(state.getDeal().labels.map(label => label.title)).toEqual(['Expansão']);

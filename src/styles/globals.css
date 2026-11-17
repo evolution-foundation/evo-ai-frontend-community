@@ -589,6 +589,25 @@ body.authenticated-panel-density {
 .deal-card-shell { background: var(--card); color: var(--foreground); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-1); transition: box-shadow 150ms, border-color 150ms, transform 150ms; }
 .deal-card-shell:hover { box-shadow: var(--shadow-2); background: var(--card-hover); border-color: var(--border-strong); transform: translateY(-1px); }
 .deal-card-shell.is-dragging { opacity: .4; border-style: dashed; box-shadow: var(--shadow-3); }
+/* S2: a coluna só rola na vertical; o único scroll horizontal é o do quadro (barra sempre visível). */
+.kanban-dropzone { overflow-x: hidden; }
+.kanban-column, .kanban-column-surface, .deal-card-shell, .configured-deal-card, .deal-heading-title, .deal-field { min-width: 0; max-width: 100%; }
+.deal-card-shell { cursor: pointer; }
+.deal-title { text-align: left; width: 100%; cursor: pointer; background: none; border: 0; padding: 0; }
+.deal-title:hover { color: var(--primary-text); }
+.configured-deal-card details, .configured-deal-card summary { max-width: 100%; min-width: 0; }
+.configured-deal-card summary { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.configured-deal-card details[open] { overflow-wrap: anywhere; }
+.deal-contact-action { background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+.deal-label { min-width: 0; max-width: 100%; white-space: nowrap; text-overflow: ellipsis; }
+.deal-labels { min-width: 0; max-width: 100%; }
+.deal-footer .deal-owner { max-width: 150px; }
+.kanban-scroll { scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; overflow-x: scroll; cursor: auto; }
+.kanban-scroll::-webkit-scrollbar { height: 12px; }
+.kanban-scroll::-webkit-scrollbar-track { background: var(--surface-sunken); border-radius: 6px; }
+.kanban-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 6px; border: 2px solid var(--surface-sunken); }
+.kanban-scroll::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+.kanban-scroll.is-panning { cursor: grabbing; scroll-behavior: auto; user-select: none; }
 .configured-deal-card { padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
 .configured-deal-card.compact { padding: 8px; gap: 4px; }
 .deal-field { min-width: 0; overflow-wrap: anywhere; }
