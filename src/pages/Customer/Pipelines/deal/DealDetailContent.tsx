@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AlertCircle, Bell, CalendarPlus, Mail, MessageSquare, Pencil, Phone, Plus, StickyNote, Tag, X } from 'lucide-react';
+import { AlertCircle, Bell, CalendarPlus, Mail, MessageSquare, Pencil, Phone, Plus, StickyNote, X } from 'lucide-react';
 import { Button } from '@evoapi/design-system';
 import { toast } from 'sonner';
 import { pipelinesService } from '@/services/pipelines';
@@ -348,8 +348,8 @@ export default function DealDetailContent({ pipelineId, dealId, seed, pipeline: 
           {(deal.labels || []).map(label => {
             const color = label.color || '#1f93ff';
             return (
-              <span key={label.id || label.name} className="deal-tag" style={{ borderColor: color, backgroundColor: `${color}18`, color }}>
-                <Tag className="h-3 w-3" aria-hidden="true" />
+              <span key={label.id || label.name} className="deal-tag">
+                <i style={{ backgroundColor: color }} aria-hidden="true" />
                 <span>{label.title || label.name}</span>
                 {full && <button type="button" aria-label={`Remover tag ${label.title || label.name}`} onClick={() => void removeLabel(label)}><X className="h-3 w-3" /></button>}
               </span>

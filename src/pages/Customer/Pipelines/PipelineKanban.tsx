@@ -866,7 +866,7 @@ export default function PipelineKanban() {
       {personalizingCards && pipeline ? <CardConfigurationPanel pipeline={pipeline} onClose={() => { setPersonalizingCards(false); requestAnimationFrame(() => personalizeButtonRef.current?.focus()); }} onSaved={saved => { setPipeline(current => current ? { ...current, card_configuration: saved.card_configuration, card_configuration_revision: saved.card_configuration_revision } : current); toast.success("Cartões atualizados para a equipe"); }} /> : null}
       <div className="flex-1 h-full flex flex-col bg-muted/30 min-w-0">
         {/* Header */}
-        <div className="flex-shrink-0 bg-background border-b border-border shadow-sm">
+        <div className="flex-shrink-0 bg-background border-b border-border">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="kanban-header-summary flex flex-col gap-3 py-3 lg:flex-row lg:items-center lg:justify-between lg:py-3">
               {/* Navigation and Pipeline Info */}
@@ -916,12 +916,12 @@ export default function PipelineKanban() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                     {pipeline && !pipeline.is_active && (
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-muted text-muted-foreground shrink-0">
+                      <span className="text-[11px] font-medium px-1.5 py-0.5 rounded border border-border bg-muted text-muted-foreground shrink-0">
                         {t('pipelinesTable.status.inactive')}
                       </span>
                     )}
                     {pipeline?.is_default && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 shrink-0">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-border bg-muted text-muted-foreground shrink-0">
                         <Star className="w-3 h-3 fill-current" />
                         {t('pipelinesTable.default')}
                       </span>
@@ -1000,7 +1000,7 @@ export default function PipelineKanban() {
                     placeholder={t('kanban.search.placeholder')}
                     value={searchInput}
                     onChange={e => handleSearchChange(e.target.value)}
-                    className="pl-9 h-9 text-sm"
+                    className="pl-9 h-8 text-sm"
                   />
                   {(searchInput || mobileSearchOpen) && (
                     <button
@@ -1031,12 +1031,12 @@ export default function PipelineKanban() {
                     <Button
                       variant="outline"
                       size="sm"
-                      aria-label="Filtros" className={`kanban-filter-button h-9 gap-2 whitespace-nowrap ${activeFilterCount > 0 ? 'border-primary/40 bg-primary/5 text-[var(--primary-text)]' : ''}`}
+                      aria-label="Filtros" className={`kanban-filter-button h-8 gap-2 whitespace-nowrap ${activeFilterCount > 0 ? 'border-primary/40 bg-primary/5 text-[var(--primary-text)]' : ''}`}
                     >
                       <Filter className="w-4 h-4" />
                       <span className="kanban-action-label">{t('kanban.search.filters')}</span>
                       {activeFilterCount > 0 && (
-                        <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[11px] font-bold">
+                        <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded bg-primary text-primary-foreground text-[11px] font-semibold">
                           {activeFilterCount}
                         </span>
                       )}
@@ -1216,7 +1216,7 @@ export default function PipelineKanban() {
                   {hasActiveFilters && <span className="kanban-results-count" aria-live="polite">{totalFilteredCount} de {totalItemCount} negócios</span>}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className={`kanban-sort-button h-9 gap-2 ${sortKey ? 'border-primary/40 bg-primary/5 text-[var(--primary-text)]' : ''}`} aria-label="Ordenar negócios"><ArrowUpDown className="w-4 h-4" /><span className="kanban-action-label">{({ age_desc: 'Mais tempo na etapa', age_asc: 'Menos tempo na etapa', value_desc: 'Maior valor', title: 'Nome (A–Z)' } as Record<string, string>)[sortKey] || 'Ordenar'}</span></Button>
+                      <Button variant="outline" size="sm" className={`kanban-sort-button h-8 gap-2 ${sortKey ? 'border-primary/40 bg-primary/5 text-[var(--primary-text)]' : ''}`} aria-label="Ordenar negócios"><ArrowUpDown className="w-4 h-4" /><span className="kanban-action-label">{({ age_desc: 'Mais tempo na etapa', age_asc: 'Menos tempo na etapa', value_desc: 'Maior valor', title: 'Nome (A–Z)' } as Record<string, string>)[sortKey] || 'Ordenar'}</span></Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
                       {([['', 'Posição na etapa'], ['age_desc', 'Mais tempo na etapa'], ['age_asc', 'Menos tempo na etapa'], ['value_desc', 'Maior valor'], ['title', 'Nome (A–Z)']] as const).map(([key, label]) => (
@@ -1237,7 +1237,7 @@ export default function PipelineKanban() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="kanban-clear-filters h-9 text-[var(--primary-text)] hover:bg-primary/10"
+                    className="kanban-clear-filters h-8 text-[var(--primary-text)] hover:bg-primary/10"
                     onClick={clearFilters}
                   >
                     <X className="w-4 h-4 mr-1.5" />

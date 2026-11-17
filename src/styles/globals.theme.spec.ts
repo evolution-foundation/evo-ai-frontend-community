@@ -45,16 +45,33 @@ describe('global shell theme tokens', () => {
   const dark = parseSidebarTokens('.dark');
 
   it('uses a light surface and dark text for the light theme shell', () => {
-    expect(light.sidebar).toBe('#FCFAF5');
+    expect(light.sidebar).toBe('#FFFFFF');
     expect(light['sidebar-foreground']).toBe('#0E0E0E');
-    expect(light['sidebar-border']).toBe('#D0C9BF');
+    expect(light['sidebar-border']).toBe('#E1E3E6');
     expect(contrast(light['sidebar-foreground'], light.sidebar)).toBeGreaterThanOrEqual(4.5);
   });
 
   it('keeps the dark theme shell independent from the light theme', () => {
-    expect(dark.sidebar).toBe('#141414');
-    expect(dark['sidebar-foreground']).toBe('#F2EFE8');
+    expect(dark.sidebar).toBe('#121212');
+    expect(dark['sidebar-foreground']).toBe('#EDEDED');
     expect(light.sidebar).not.toBe(dark.sidebar);
     expect(contrast(dark['sidebar-foreground'], dark.sidebar)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('uses the Vetorial orange as the action color with AA contrast, never wine', () => {
+    const block = (selector: ':root' | '.dark') => {
+      const start = globalsCss.indexOf(`${selector} {`);
+      return globalsCss.slice(start, globalsCss.indexOf('/* Flow Builder design tokens', start));
+    };
+    const token = (selector: ':root' | '.dark', name: string) =>
+      new RegExp(`\\n  --${name}:\\s*(#[0-9A-Fa-f]{6})`).exec(block(selector))![1];
+    for (const theme of [':root', '.dark'] as const) {
+      const primary = token(theme, 'primary');
+      expect(primary).not.toMatch(/5D0507/i);
+      expect(contrast(token(theme, 'primary-foreground'), primary)).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(token(theme, 'primary-text'), token(theme, 'background'))).toBeGreaterThanOrEqual(4.5);
+    }
+    expect(token(':root', 'primary')).toBe('#C2530A');
+    expect(token('.dark', 'primary')).toBe('#E8791F');
   });
 });
