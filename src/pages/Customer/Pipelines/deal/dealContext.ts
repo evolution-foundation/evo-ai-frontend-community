@@ -2,8 +2,7 @@ import type { Deal, DealContact, Pipeline, UpdateDealData } from '@/types/analyt
 
 export const DEAL_TABS = [
   { id: 'activities', label: 'Atividades' },
-  { id: 'contacts', label: 'Contato' },
-  { id: 'company', label: 'Empresa' },
+  { id: 'contacts', label: 'Contatos' },
   { id: 'deal', label: 'Negócio' },
   { id: 'conversations', label: 'Conversas' },
   { id: 'files', label: 'Arquivos' },

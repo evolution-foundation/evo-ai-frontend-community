@@ -329,15 +329,6 @@ export interface PipelineItem {
     labels?: Array<{ name: string; color?: string }>;
     custom_attributes?: Record<string, unknown>;
   };
-  company?: {
-    id: string;
-    name: string;
-    email?: string;
-    phone_number?: string;
-    website?: string;
-    industry?: string;
-    custom_attributes?: Record<string, unknown>;
-  };
   owner?: {
     id: string;
     name: string;
@@ -514,7 +505,6 @@ export interface CreateDealData {
   notes?: string;
   pipeline_stage_id?: string;
   owner_id?: string | null;
-  company_id?: string | null;
   labels?: string[];
   contact_ids?: string[];
   conversation_ids?: string[];

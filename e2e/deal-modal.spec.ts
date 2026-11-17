@@ -27,7 +27,6 @@ function makeDeals() {
     notes: '',
     custom_fields: { utm_source: 'Instagram_Feed', utm_campaign: 'name:03/11/2026 [Incon] [Etapa 3] [Leads] [Schedule] [Bidcap] [Funil Respondi] [CONG] - Copia' },
     owner: { id: 'owner-1', name: 'Eduardo Nunes' },
-    company: index === 1 ? { id: 'company-1', name: 'Acme Ltda.', email: null, phone_number: null, type: 'company', custom_attributes: {} } : null,
     primary_contact: { id: `c-${index}`, name: index === 0 ? '5511999990000' : name, email: index === 0 ? LONG_EMAIL : `contato${index}@example.com`, phone_number: '+5511999990000', type: 'person', avatar_url: null },
     contacts: [{ id: `c-${index}`, name: index === 0 ? '5511999990000' : name, email: `contato${index}@example.com`, phone_number: '+5511999990000', type: 'person' }],
     conversations: index % 2 ? [{ id: `conv-${index}`, display_id: index, status: 'open', contact: { id: `c-${index}`, name }, latest_message: { content: 'AULA AO VIVO COMEÇANDO AGORA', created_at: '2026-11-09T12:00:00Z' } }] : [],
@@ -157,7 +156,7 @@ for (const theme of ['light', 'dark'] as const) {
     await shot(page, `modal-atividades-1440-${theme}`);
 
     const tabs = dialog.getByRole('navigation', { name: 'Seções do negócio' });
-    for (const [tab, marker, file] of [['Contato', 'Campos de contato', 'contato'], ['Empresa', 'Campos de empresa', 'empresa'], ['Negócio', 'Campos de negócio', 'negocio'], ['Conversas', 'Sessões de conversa', 'conversas'], ['Arquivos', 'Arquivos do negócio', 'arquivos'], ['Histórico', 'Histórico do negócio', 'historico']] as const) {
+    for (const [tab, marker, file] of [['Contatos', 'Campos de contato', 'contato'], ['Negócio', 'Campos de negócio', 'negocio'], ['Conversas', 'Sessões de conversa', 'conversas'], ['Arquivos', 'Arquivos do negócio', 'arquivos'], ['Histórico', 'Histórico do negócio', 'historico']] as const) {
       await tabs.getByRole('button', { name: tab, exact: true }).click();
       await expect(dialog.getByLabel(marker).first()).toBeVisible();
       await shot(page, `modal-${file}-1440-${theme}`);

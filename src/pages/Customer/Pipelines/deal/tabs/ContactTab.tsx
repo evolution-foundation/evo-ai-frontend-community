@@ -15,7 +15,7 @@ import { phoneDisplay, phoneFlag } from '../dealFormat';
 const text = (value: unknown) => (value == null ? '' : typeof value === 'object' ? JSON.stringify(value) : String(value));
 
 export default function ContactTab({ deal, pipelineId, replaceDeal, reload, primary }: DealTabProps) {
-  const people = useMemo(() => (deal.contacts || []).filter(contact => contact.type !== 'company'), [deal.contacts]);
+  const people = useMemo(() => deal.contacts || [], [deal.contacts]);
   const [selectedId, setSelectedId] = useState<string | undefined>(primary?.id || people[0]?.id);
   const [available, setAvailable] = useState<DealContact[]>([]);
   const [pick, setPick] = useState('');
@@ -69,7 +69,7 @@ export default function ContactTab({ deal, pipelineId, replaceDeal, reload, prim
     }
   };
 
-  const options = available.filter(item => item.type !== 'company' && !deal.contacts?.some(linked => linked.id === item.id));
+  const options = available.filter(item => !deal.contacts?.some(linked => linked.id === item.id));
   const custom = contact?.custom_attributes || {};
   const groups: FieldGroup[] = contact
     ? [

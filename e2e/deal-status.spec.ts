@@ -11,7 +11,7 @@ type Deal = Record<string, unknown> & { id: string; deal_status: Status; stage_i
 async function installApi(page: Page) {
   const mk = (id: string, title: string, stage: string, status: Status, value: number, extra: Partial<Deal> = {}): Deal => ({
     id, deal_id: id, pipeline_id: 'pipeline-1', pipeline_stage_id: stage, stage_id: stage, title, value, currency: 'BRL', notes: '',
-    custom_fields: {}, owner: null, company: null, primary_contact: null, contacts: [], conversations: [], labels: [], files: [], history: [], tasks: [], scheduled_actions: [],
+    custom_fields: {}, owner: null, primary_contact: null, contacts: [], conversations: [], labels: [], files: [], history: [], tasks: [], scheduled_actions: [],
     contact_count: 0, conversation_count: 0, file_count: 0, is_lead: false, item_id: id, type: 'deal', entered_at: 1788091200,
     created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z', deal_status: status, lost_reason: null, completed_at: status === 'open' ? null : 1788177600,
     tasks_info: { pending_count: 0, overdue_count: 0, due_soon_count: 0, completed_count: 0, total_count: 0 }, ...extra,

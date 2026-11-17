@@ -753,7 +753,6 @@ export default function PipelineKanban() {
         assign('notes', deal.notes);
         assign('custom_fields', deal.custom_fields);
         assign('owner', deal.owner);
-        assign('company', deal.company);
         assign('primary_contact', deal.primary_contact);
         assign('contact', deal.primary_contact ? { ...(entry.contact || {}), ...deal.primary_contact } as PipelineItem['contact'] : entry.contact);
         assign('contact_count', deal.contact_count);

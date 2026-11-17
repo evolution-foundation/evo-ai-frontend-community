@@ -1,6 +1,6 @@
 import type { CardConfiguration, CardFieldDefinition, Pipeline, PipelineItem } from '@/types/analytics/pipelines';
 
-export const nativeFields: CardFieldDefinition[] = Object.entries({ title: 'Título', value: 'Valor', contact: 'Contato', company: 'Empresa', owner: 'Responsável', labels: 'Etiquetas', channel_origin: 'Canal e origem', utm: 'Campanha (UTM)', stage_age: 'Tempo na etapa', last_activity: 'Última atividade', last_message: 'Última mensagem', next_task: 'Próxima tarefa', created_at: 'Data de criação' }).map(([id, label]) => ({ id, label, type: 'text', source: 'native' }));
+export const nativeFields: CardFieldDefinition[] = Object.entries({ title: 'Título', value: 'Valor', contact: 'Contato', owner: 'Responsável', labels: 'Etiquetas', channel_origin: 'Canal e origem', utm: 'Campanha (UTM)', stage_age: 'Tempo na etapa', last_activity: 'Última atividade', last_message: 'Última mensagem', next_task: 'Próxima tarefa', created_at: 'Data de criação' }).map(([id, label]) => ({ id, label, type: 'text', source: 'native' }));
 export const fixedFields = new Set(['title', 'owner', 'stage_age']);
 export function defaultConfiguration(definitions: CardFieldDefinition[] = nativeFields): CardConfiguration {
   const initial = ['title', 'value', 'contact', 'labels', 'owner', 'stage_age'];
@@ -12,7 +12,10 @@ export function configurationFor(pipeline: Pipeline): CardConfiguration {
   const saved = pipeline.card_configuration;
   const definitions = pipeline.card_field_definitions || nativeFields;
   if (!saved?.fields || saved.version !== 1 || !saved.density) return defaultConfiguration(definitions);
-  return { version: 1, density: saved.density, fields: [...saved.fields, ...definitions.filter(field => !saved.fields.some(savedField => savedField.id === field.id)).map(field => ({ id: field.id, visible: false }))] };
+  // Layouts salvos antes da R2 podem citar 'company' (campo removido): chaves sem definição são ignoradas.
+  const known = new Set(definitions.map(field => field.id));
+  const kept = saved.fields.filter(field => known.has(field.id) || fixedFields.has(field.id));
+  return { version: 1, density: saved.density, fields: [...kept, ...definitions.filter(field => !kept.some(savedField => savedField.id === field.id)).map(field => ({ id: field.id, visible: false }))] };
 }
 export function dateValue(value: unknown): Date | null {
   if (value == null || value === '') return null;

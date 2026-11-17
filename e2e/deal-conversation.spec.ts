@@ -28,7 +28,7 @@ function makeDeals(summaries: Record<string, Record<string, unknown>>) {
   const names = ['Maria Vitória', 'João Pereira', 'Luana Tomaz', 'Agatha França'];
   return names.map((name, index) => ({
     id: `deal-${index + 1}`, deal_id: `deal-${index + 1}`, pipeline_id: 'pipeline-1', pipeline_stage_id: 'stage-1', stage_id: 'stage-1',
-    title: name, value: 1000 * (index + 1), currency: 'BRL', notes: '', custom_fields: {}, owner: { id: 'owner-1', name: 'Eduardo Nunes' }, company: null,
+    title: name, value: 1000 * (index + 1), currency: 'BRL', notes: '', custom_fields: {}, owner: { id: 'owner-1', name: 'Eduardo Nunes' },
     primary_contact: { id: `c-${index}`, name, email: `c${index}@example.com`, phone_number: index === 3 ? null : '+5511999990000', type: 'person', avatar_url: null },
     contacts: [{ id: `c-${index}`, name, email: `c${index}@example.com`, phone_number: '+5511999990000', type: 'person' }],
     conversations: index === 0 ? [{ id: 'conv-1', display_id: 41, status: 'open', contact: { id: 'c-0', name }, latest_message: { content: 'AULA AO VIVO COMEÇANDO AGORA', created_at: '2026-11-09T12:00:00Z' } }] : [],

@@ -16,7 +16,6 @@ import { DEAL_TABS, type DealTabId, type DealTabProps } from './dealContext';
 
 import ActivitiesTab from './tabs/ActivitiesTab';
 import ContactTab from './tabs/ContactTab';
-import CompanyTab from './tabs/CompanyTab';
 import DealFieldsTab from './tabs/DealFieldsTab';
 import ConversationsTab from './tabs/ConversationsTab';
 import FilesTab from './tabs/FilesTab';
@@ -27,7 +26,6 @@ import HistoryTab from './tabs/HistoryTab';
 const TAB_COMPONENTS: Record<DealTabId, (props: DealTabProps) => React.ReactElement> = {
   activities: ActivitiesTab,
   contacts: ContactTab,
-  company: CompanyTab,
   deal: DealFieldsTab,
   conversations: ConversationsTab,
   files: FilesTab,
@@ -267,7 +265,7 @@ export default function DealDetailContent({ pipelineId, dealId, seed, pipeline: 
               </h2>
             )}
             <p className="deal-modal-subtitle">
-              {[deal.company?.name, primary?.name && getContactDisplayName(primary.name) !== getContactDisplayName(deal.title) ? getContactDisplayName(primary.name) : null, formatMoney(deal.value, deal.currency)].filter(Boolean).join(' · ')}
+              {[primary?.name && getContactDisplayName(primary.name) !== getContactDisplayName(deal.title) ? getContactDisplayName(primary.name) : null, formatMoney(deal.value, deal.currency)].filter(Boolean).join(' · ')}
               {(deal.contact_count || 0) > 1 ? <span className="deal-modal-count">+{(deal.contact_count || 1) - 1}</span> : null}
             </p>
           </div>

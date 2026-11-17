@@ -39,7 +39,7 @@ export default function DealModal({ onClose, neighbors, onNavigate, ...content }
       >
         <DialogTitle className="sr-only">Detalhe do negócio</DialogTitle>
         <DialogDescription id="deal-modal-description" className="sr-only">
-          Abas de atividades, contato, empresa, negócio, conversas, arquivos e histórico. Pressione Esc para voltar ao quadro.
+          Abas de atividades, contatos, negócio, conversas, arquivos e histórico. Pressione Esc para voltar ao quadro.
         </DialogDescription>
         {neighbors && onNavigate && (
           <div className="deal-modal-pager" role="group" aria-label="Navegar entre negócios da etapa">
