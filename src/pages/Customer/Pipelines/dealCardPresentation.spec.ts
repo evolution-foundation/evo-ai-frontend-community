@@ -29,7 +29,6 @@ describe('getDealCardPresentation', () => {
       currency: 'BRL',
       contact_count: 3,
       labels: [{ id: 'label-1', name: 'VIP', color: '#ff00aa' }],
-      company: { id: 'company-1', name: 'Acme' },
       primary_contact: {
         id: 'contact-1',
         name: 'Ana',
@@ -47,7 +46,7 @@ describe('getDealCardPresentation', () => {
 
     expect(view).toMatchObject({
       title: 'Renovação anual',
-      secondary: 'Acme · Ana',
+      secondary: 'Ana',
       avatarUrl: '/ana.jpg',
       additionalContacts: 2,
       value: 12500,

@@ -28,14 +28,6 @@ async function installApi(page: Page) {
     labels: [{ id: 'contact-tag', title: 'Tag exclusiva do contato', color: '#ef4444' }],
     custom_attributes: {},
   };
-  const company = {
-    id: 'company-1',
-    name: 'Acme Ltda.',
-    email: null,
-    phone_number: null,
-    type: 'company',
-    custom_attributes: {},
-  };
   const conversation = {
     id: 'conversation-1',
     uuid: 'conversation-1',
@@ -68,7 +60,6 @@ async function installApi(page: Page) {
     notes: '',
     custom_fields: { utm_source: '' },
     owner: null,
-    company: null as typeof company | null,
     primary_contact: null as typeof primaryContact | null,
     contacts: [] as Array<typeof primaryContact>,
     conversations: [] as Array<typeof conversation>,
@@ -189,7 +180,7 @@ async function installApi(page: Page) {
       return json(route, ok([{ id: 'deal-tag', title: 'Expansão', color: '#7c3aed' }]));
     }
     if (path.endsWith('/pipelines/pipeline-1/pipeline_items/available_contacts')) {
-      return json(route, ok([primaryContact, company]));
+      return json(route, ok([primaryContact]));
     }
     if (path.endsWith('/pipelines/pipeline-1/pipeline_items/available_conversations')) {
       return json(route, ok([conversation]));
@@ -216,7 +207,6 @@ async function installApi(page: Page) {
     if (path.endsWith('/deals/deal-1') && method === 'PATCH') {
       const payload = request.postDataJSON() as { deal: Record<string, unknown> };
       const changes = payload.deal;
-      if ('company_id' in changes) deal.company = changes.company_id ? company : null;
       if (Array.isArray(changes.labels)) {
         deal.labels = changes.labels.includes('deal-tag')
           ? [{ id: 'deal-tag', name: 'Expansão', title: 'Expansão', color: '#7c3aed' }]
@@ -225,7 +215,6 @@ async function installApi(page: Page) {
       deal = {
         ...deal,
         ...changes,
-        company: deal.company,
         labels: deal.labels,
         pipeline_stage_id: String(changes.pipeline_stage_id || deal.pipeline_stage_id),
         stage_id: String(changes.pipeline_stage_id || deal.stage_id),
@@ -321,15 +310,13 @@ for (const { width, theme } of scenarios) {
     const modal = page.getByRole('dialog');
     const dealTabs = modal.getByRole('navigation', { name: 'Seções do negócio' });
 
-    await dealTabs.getByRole('button', { name: 'Contato', exact: true }).click();
+    await dealTabs.getByRole('button', { name: 'Contatos', exact: true }).click();
     await modal.getByLabel('Selecionar contato').selectOption('contact-1');
     await modal.getByRole('button', { name: 'Associar como principal' }).click();
     await expect(modal.getByText('Contato principal', { exact: true })).toBeVisible();
 
-    await dealTabs.getByRole('button', { name: 'Empresa', exact: true }).click();
-    await modal.getByLabel('Selecionar empresa').selectOption('company-1');
-    await modal.getByRole('button', { name: 'Associar empresa' }).click();
-    await expect(modal.getByText('Acme Ltda.').first()).toBeVisible();
+    await expect(dealTabs.getByRole('button', { name: 'Empresa' })).toHaveCount(0);
+    await expect(modal.getByText(/empresa/i)).toHaveCount(0);
 
     // edição inline: cada campo salva ao confirmar (Enter/sair do campo)
     await dealTabs.getByRole('button', { name: 'Negócio', exact: true }).click();

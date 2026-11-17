@@ -24,7 +24,7 @@ export function getDealCardPresentation(item: PipelineItem) {
     avatarUrl: contact?.avatar_url || contact?.thumbnail,
     title: item.title || `Negócio - ${getContactDisplayName(contact?.name) || 'Contato desconhecido'}`,
     secondary:
-      [item.company?.name, getContactDisplayName(contact?.name)].filter(Boolean).join(' · ') || 'Sem contato associado',
+      getContactDisplayName(contact?.name) || 'Sem contato associado',
     additionalContacts: Math.max((item.contact_count || 1) - 1, 0),
     value: item.value || 0,
     currency: item.currency || 'BRL',

@@ -16,6 +16,13 @@ describe('shared pipeline card configuration', () => {
     expect(config.fields.slice(0,2)).toEqual(saved.fields);
     expect(config.fields.find(field => field.id === 'value')?.visible).toBe(false);
   });
+  it('ignores legacy saved company field and never offers it', () => {
+    expect(nativeFields.some(field => field.id === 'company')).toBe(false);
+    const saved = { version: 1, density: 'comfortable', fields: [{ id: 'title', visible: true }, { id: 'company', visible: true }, { id: 'contact', visible: true }] };
+    const config = configurationFor({ card_configuration: saved, card_field_definitions: nativeFields } as Pipeline);
+    expect(config.fields.some(field => field.id === 'company')).toBe(false);
+    expect(config.fields.slice(0, 2)).toEqual([{ id: 'title', visible: true }, { id: 'contact', visible: true }]);
+  });
   it('keeps zero and false and refuses invalid timestamps', () => {
     expect(fieldText(false)).toBe('Não'); expect(fieldText(0)).toBe('0');
     expect(fieldText(null)).toBe('Não informado');

@@ -115,17 +115,17 @@ describe('DealDetailContent', () => {
     expect(screen.getByRole('status', { name: 'Carregando aba' })).toBeInTheDocument();
   });
 
-  it('exposes all seven tabs and loads each on demand', async () => {
+  it('exposes all six tabs and loads each on demand', async () => {
     pipelineServiceMocks.getDeal.mockResolvedValue(deal);
     renderContent({ initial: 'activities' });
     const nav = await screen.findByRole('navigation', { name: 'Seções do negócio' });
-    expect(within(nav).getAllByRole('button').map(button => button.textContent)).toEqual(['Atividades', 'Contato', 'Empresa', 'Negócio', 'Conversas', 'Arquivos', 'Histórico']);
+    expect(within(nav).getAllByRole('button').map(button => button.textContent)).toEqual(['Atividades', 'Contatos', 'Negócio', 'Conversas', 'Arquivos', 'Histórico']);
     expect(await screen.findByRole('list', { name: 'Etapas do pipeline' })).toBeInTheDocument();
     fireEvent.click(within(nav).getByRole('button', { name: 'Histórico' }));
     expect(await screen.findByText('Mudou de etapa')).toBeInTheDocument();
     fireEvent.click(within(nav).getByRole('button', { name: 'Conversas' }));
     expect(await screen.findByText('Selecione uma conversa')).toBeInTheDocument();
-    fireEvent.click(within(nav).getByRole('button', { name: 'Contato' }));
+    fireEvent.click(within(nav).getByRole('button', { name: 'Contatos' }));
     expect(await screen.findByText('Campos de contato')).toBeInTheDocument();
   });
 
