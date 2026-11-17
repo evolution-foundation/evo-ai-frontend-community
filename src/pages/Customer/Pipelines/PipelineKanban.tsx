@@ -63,6 +63,14 @@ import CardConfigurationPanel from './CardConfigurationPanel';
 import PipelineBoardLoading from './PipelineBoardLoading';
 import { rememberStageCount } from './pipelineStageCount';
 import { configurationFor, nativeFields, stageTotal } from './cardConfiguration';
+import { invalidateDeal, prefetchDeal } from './deal/dealCache';
+import { isDealTab, type DealTabId } from './deal/dealContext';
+import type { Deal } from '@/types/analytics';
+
+// O modal é um chunk à parte, carregado sob demanda. Guardamos o componente já resolvido em estado
+// (em vez de React.lazy): lazy dentro de uma navegação seguraria a abertura por ~300 ms.
+const loadDealModal = () => import('./deal/DealModal');
+type DealModalComponent = Awaited<ReturnType<typeof loadDealModal>>['default'];
 
 // Status/priority badge styles use the design system's semantic Tailwind classes
 // (same palette Chat/Contacts use), with dark-mode variants — NOT arbitrary hex.
@@ -107,6 +115,10 @@ export default function PipelineKanban() {
   const originLower = originFilter.toLowerCase();
   // Período preset bucket ('today' | '7d' | '30d' | 'month'); drives dateFrom/dateTo.
   const periodFilter = searchParams.get('period') ?? '';
+  // Negócio aberto como modal sobre o quadro: ?deal=<id>&tab=<aba> (deep link e voltar do navegador)
+  const dealParam = searchParams.get('deal') ?? '';
+  const tabParam = searchParams.get('tab');
+  const dealTab: DealTabId = isDealTab(tabParam) ? tabParam : 'activities';
 
   // Local state for the search input (immediate UI feedback; URL update is debounced)
   const [searchInput, setSearchInput] = useState(() => searchParams.get('search') ?? '');
@@ -182,6 +194,35 @@ export default function PipelineKanban() {
     selectedConversationForSchedule?.contact?.id;
 
   // Load pipeline data
+  const [ModalComponent, setModalComponent] = useState<DealModalComponent | null>(null);
+  const ensureModal = useCallback(() => {
+    void loadDealModal().then(module => setModalComponent(() => module.default)).catch(() => undefined);
+  }, []);
+  // Aquece o código do modal quando o quadro fica ocioso: o primeiro clique não paga o download.
+  useEffect(() => {
+    const timer = window.setTimeout(ensureModal, 1200);
+    return () => window.clearTimeout(timer);
+  }, [ensureModal]);
+  useEffect(() => {
+    if (dealParam) ensureModal();
+  }, [dealParam, ensureModal]);
+  // Ao fechar (Esc, botão, voltar do navegador) o foco volta ao título do cartão que abriu o modal.
+  const lastOpenedDeal = useRef('');
+  useEffect(() => {
+    if (dealParam) {
+      lastOpenedDeal.current = dealParam;
+      return;
+    }
+    const id = lastOpenedDeal.current;
+    lastOpenedDeal.current = '';
+    if (!id) return;
+    const frame = requestAnimationFrame(() => {
+      const target = Array.from(document.querySelectorAll<HTMLElement>('[data-deal-id]')).find(node => node.dataset.dealId === id)?.querySelector<HTMLElement>('.deal-title');
+      target?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [dealParam]);
+
   const loadPipelineData = useCallback(async (background = false) => {
     if (!pipelineId) return;
 
@@ -468,6 +509,7 @@ export default function PipelineKanban() {
       : (stage.items || []).filter(entry => entry.id !== item.id) })));
     try {
       await pipelinesService.moveItem({ item_id: item.id, pipeline_id: pipelineId, from_stage_id: item.stage_id, to_stage_id: targetStageId });
+      invalidateDeal(item.deal_id || item.id);
       await loadPipelineData(true);
       setMoveAnnouncement(`Negócio movido para ${stages.find(stage => stage.id === targetStageId)?.name || 'outra etapa'}`);
       toast.success(t('kanban.messages.itemMoved'));
@@ -612,14 +654,86 @@ export default function PipelineKanban() {
     }
   };
 
-  const handleEditItem = (item: PipelineItem) => {
-    if (!pipelineId) return;
-    if (boardScrollRef.current) sessionStorage.setItem(`pipeline-scroll:${pipelineId}`, String(boardScrollRef.current.scrollLeft));
-    const returnTo = `${location.pathname}${location.search}`;
-    navigate(`/pipelines/${pipelineId}/deals/${item.deal_id || item.id}?tab=activities&returnTo=${encodeURIComponent(returnTo)}`, {
-      state: { returnTo },
-    });
+  const dealIdOf = (item: PipelineItem) => item.deal_id || item.id;
+  const openDeal = (item: PipelineItem, tab: DealTabId = 'activities') => {
+    setSearchParams(
+      prev => {
+        const next = new URLSearchParams(prev);
+        next.set('deal', dealIdOf(item));
+        next.set('tab', tab);
+        return next;
+      },
+      { state: { dealModal: true } },
+    );
   };
+  const handleEditItem = (item: PipelineItem) => openDeal(item);
+  const closeDeal = () => {
+    // Abriu por clique no quadro: voltar do histórico desfaz exatamente a abertura.
+    if ((location.state as { dealModal?: boolean } | null)?.dealModal) {
+      navigate(-1);
+      return;
+    }
+    setSearchParams(
+      prev => {
+        const next = new URLSearchParams(prev);
+        next.delete('deal');
+        next.delete('tab');
+        return next;
+      },
+      { replace: true },
+    );
+  };
+  const changeDealTab = (tab: DealTabId) =>
+    setSearchParams(
+      prev => {
+        const next = new URLSearchParams(prev);
+        next.set('tab', tab);
+        return next;
+      },
+      { replace: true, state: location.state },
+    );
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const warmDeal = (item: PipelineItem, immediate = false) => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    ensureModal();
+    if (immediate) prefetchDeal(dealIdOf(item));
+    else hoverTimer.current = setTimeout(() => prefetchDeal(dealIdOf(item)), 100);
+  };
+  const handleDealChange = useCallback((deal: Deal, info: { stageChanged: boolean }) => {
+    const sameDeal = (entry: PipelineItem) => (entry.deal_id || entry.id) === deal.id;
+    setStages(current => current.map(stage => ({
+      ...stage,
+      items: (stage.items || []).map(entry => {
+        if (!sameDeal(entry)) return entry;
+        const merged: PipelineItem = { ...entry };
+        const assign = <K extends keyof PipelineItem>(key: K, value: PipelineItem[K] | undefined) => { if (value !== undefined) merged[key] = value; };
+        assign('title', deal.title);
+        assign('value', deal.value);
+        assign('currency', deal.currency);
+        assign('labels', deal.labels);
+        assign('notes', deal.notes);
+        assign('custom_fields', deal.custom_fields);
+        assign('owner', deal.owner);
+        assign('company', deal.company);
+        assign('primary_contact', deal.primary_contact);
+        assign('contact', deal.primary_contact ? { ...(entry.contact || {}), ...deal.primary_contact } as PipelineItem['contact'] : entry.contact);
+        assign('contact_count', deal.contact_count);
+        assign('conversation_count', deal.conversation_count);
+        assign('file_count', deal.file_count);
+        return merged;
+      }),
+    })));
+    if (info.stageChanged) void loadPipelineData(true);
+  }, [loadPipelineData]);
+
+  const openedItem = useMemo(() => {
+    if (!dealParam) return undefined;
+    for (const stage of stages) {
+      const hit = (stage.items || []).find(entry => (entry.deal_id || entry.id) === dealParam || entry.id === dealParam);
+      if (hit) return hit;
+    }
+    return undefined;
+  }, [dealParam, stages]);
 
   // Stage management handlers
   const handleEditStage = (stage: PipelineStage) => {
@@ -1060,7 +1174,32 @@ export default function PipelineKanban() {
 
         {/* Kanban Board */}
         <div className="flex-1 min-h-0 overflow-hidden">
-          <div ref={boardScrollRef} aria-label="Quadro de negócios" className="kanban-scroll h-full overflow-x-auto overflow-y-hidden p-4 sm:p-6">
+          <div
+            ref={boardScrollRef}
+            aria-label="Quadro de negócios"
+            className="kanban-scroll h-full overflow-x-auto overflow-y-hidden p-4 sm:p-6"
+            onPointerDown={event => {
+              // arrastar no fundo do quadro (fora de colunas/cartões) rola na horizontal
+              const target = event.target as HTMLElement;
+              if (event.pointerType !== 'mouse' || event.button !== 0 || target.closest('.kanban-column')) return;
+              const board = event.currentTarget;
+              const startX = event.clientX;
+              const startLeft = board.scrollLeft;
+              board.classList.add('is-panning');
+              const move = (moveEvent: PointerEvent) => { board.scrollLeft = startLeft - (moveEvent.clientX - startX); };
+              const stop = () => { board.classList.remove('is-panning'); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', stop); window.removeEventListener('pointercancel', stop); };
+              window.addEventListener('pointermove', move);
+              window.addEventListener('pointerup', stop);
+              window.addEventListener('pointercancel', stop);
+            }}
+            onKeyDown={event => {
+              // Alt+←/→ rola o quadro uma coluna por vez (atalho de rolagem lateral)
+              if (event.altKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+                event.preventDefault();
+                event.currentTarget.scrollBy({ left: event.key === 'ArrowLeft' ? -320 : 320, behavior: 'smooth' });
+              }
+            }}
+          >
             {/* Kanban Content */}
             <div
               className="flex gap-4 h-full"
@@ -1138,6 +1277,14 @@ export default function PipelineKanban() {
                           draggable={!movingIds.current.has(item.id)}
                           onDragStart={() => handleDragStart(item)}
                           onDragEnd={handleDragEnd}
+                          onPointerEnter={() => warmDeal(item)}
+                          onPointerLeave={() => { if (hoverTimer.current) clearTimeout(hoverTimer.current); }}
+                          onFocus={() => warmDeal(item, true)}
+                          onClick={event => {
+                            if (Date.now() < suppressClickUntilRef.current || isDraggingRef.current) return;
+                            if ((event.target as HTMLElement).closest('a,button,summary,details,input,select,textarea,[role="menuitem"]')) return;
+                            openDeal(item);
+                          }}
 
                         >
                           <button className="deal-move-handle" aria-label={`Arrastar ${item.title || 'negócio'}`} draggable
@@ -1232,7 +1379,7 @@ export default function PipelineKanban() {
                             </DropdownMenu>
                           </div>
 
-                          <ConfiguredDealCard item={item} configuration={configurationFor(pipeline!)} definitions={pipeline!.card_field_definitions || nativeFields} />
+                          <ConfiguredDealCard item={item} configuration={configurationFor(pipeline!)} definitions={pipeline!.card_field_definitions || nativeFields} onOpen={openDeal} />
                         </div>
                         );
                       })}
@@ -1367,6 +1514,23 @@ export default function PipelineKanban() {
         onSubmit={handleUpdateStageOrder}
         loading={isReorderingStages}
       />
+
+      {/* Negócio em modal sobre o quadro (URL: ?deal=<id>&tab=<aba>) */}
+      {dealParam && pipelineId && ModalComponent && (
+        <>
+          <ModalComponent
+            key={dealParam}
+            pipelineId={pipelineId}
+            dealId={dealParam}
+            seed={openedItem}
+            pipeline={pipeline}
+            tab={dealTab}
+            onTabChange={changeDealTab}
+            onClose={closeDeal}
+            onDealChange={handleDealChange}
+          />
+        </>
+      )}
 
       {/* Schedule Action Modal */}
       {selectedConversationForSchedule && scheduleActionContactId && (
