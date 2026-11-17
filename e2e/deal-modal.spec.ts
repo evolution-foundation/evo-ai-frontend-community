@@ -271,3 +271,62 @@ test('velocidade: casca imediata com dados do cartão e conteúdo cacheado pelo 
   expect(requests.filter(entry => entry.endsWith('/deals/deal-6')).length).toBeLessThanOrEqual(2);
 });
 
+
+// ── S5: repaginada geral ──
+for (const theme of ['light', 'dark'] as const) {
+  test(`repaginada: ordenar, densidade, tag filtra, anterior/próximo (${theme})`, async ({ page }) => {
+    await boot(page, 1440, theme);
+    await page.goto('/pipelines/pipeline-1');
+    await expect(page.getByRole('navigation', { name: 'Caminho' })).toContainText('Todos os pipelines');
+    await shot(page, `s5-kanban-1440-${theme}`);
+
+    // ordenar por maior valor: primeiro cartão da coluna 1 é o de maior valor
+    await page.getByRole('button', { name: 'Ordenar negócios' }).click();
+    await page.getByRole('menuitem', { name: 'Maior valor' }).click();
+    await expect(page).toHaveURL(/sort=value_desc/);
+    const firstTitle = page.locator('[data-stage-id="stage-1"] .deal-title').first();
+    await expect(firstTitle).toBeVisible();
+    const titles = await page.locator('[data-stage-id="stage-1"] .deal-title').allTextContents();
+    expect(titles.length).toBeGreaterThan(1);
+
+    // densidade compacta persiste
+    await page.getByRole('button', { name: 'Compacto' }).click();
+    await expect(page.locator('.kanban-scroll')).toHaveAttribute('data-density', 'compact');
+    await shot(page, `s5-kanban-compacto-1440-${theme}`);
+    await page.reload();
+    await expect(page.locator('.kanban-scroll')).toHaveAttribute('data-density', 'compact');
+    await page.getByRole('button', { name: 'Confortável' }).click();
+
+    // clicar na tag filtra; de novo remove
+    const tag = page.locator('.deal-label.is-filter', { hasText: 'trafego_pago' }).first();
+    await tag.click();
+    await expect(page).toHaveURL(/label=trafego_pago/);
+    await expect(page.locator('.deal-card-shell')).toHaveCount(8);
+    await expect(page.locator('.kanban-results-count')).toContainText('8 de 12 negócios');
+    await expect(page.locator('.deal-card-shell').first()).toBeVisible();
+    await page.locator('.deal-label.is-filter', { hasText: 'trafego_pago' }).first().click();
+    await expect(page).not.toHaveURL(/label=/);
+
+    // modal: anterior/próximo
+    await page.goto('/pipelines/pipeline-1');
+    await page.locator('[data-stage-id="stage-1"] .deal-title').first().click();
+    const pager = page.getByRole('group', { name: 'Navegar entre negócios da etapa' });
+    await expect(pager).toContainText('1 de');
+    await expect(pager.getByRole('button', { name: 'Negócio anterior' })).toBeDisabled();
+    await shot(page, `s5-modal-1440-${theme}`);
+    await pager.getByRole('button', { name: 'Próximo negócio' }).click();
+    await expect(pager).toContainText('2 de');
+    await page.keyboard.press('Alt+ArrowLeft');
+    await expect(pager).toContainText('1 de');
+  });
+}
+
+test('repaginada: mobile 390 sem overflow horizontal', async ({ page }) => {
+  await boot(page, 390, 'light');
+  await page.goto('/pipelines/pipeline-1');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
+  await shot(page, 's5-kanban-390-light');
+  await page.locator('.deal-title').first().click();
+  await expect(page.getByRole('group', { name: 'Navegar entre negócios da etapa' })).toBeVisible();
+  await shot(page, 's5-modal-390-light');
+});

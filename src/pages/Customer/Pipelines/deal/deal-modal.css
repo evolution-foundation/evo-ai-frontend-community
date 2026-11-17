@@ -251,3 +251,13 @@ button.deal-activity-item:hover { background: var(--muted); }
   .deal-conversations { height: 70dvh; }
   .deal-conversation-action { min-height: 44px; }
 }
+
+/* ── S5: navegação anterior/próximo e acabamento do cabeçalho ── */
+.deal-modal-pager { position: absolute; top: 14px; right: 62px; z-index: 5; height: 36px; display: inline-flex; align-items: center; gap: 2px; padding: 0 2px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--muted-foreground); font-size: 12px; font-variant-numeric: tabular-nums; }
+.deal-modal-pager button { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 6px; }
+.deal-modal-pager button:hover:not(:disabled) { background: var(--muted); color: var(--foreground); }
+.deal-modal-pager button:disabled { opacity: .35; cursor: not-allowed; }
+.deal-modal-pager span { padding: 0 4px; white-space: nowrap; }
+.deal-modal-header { padding-right: 190px; border-bottom: 1px solid var(--border); }
+.deal-modal-avatar { width: 48px; height: 48px; flex-basis: 48px; }
+@media (max-width: 760px) { .deal-modal-pager { top: 10px; right: 56px; } .deal-modal-pager span { display: none; } .deal-modal-header { padding-right: 140px; } .deal-modal-pager button { min-width: 44px; min-height: 36px; } }

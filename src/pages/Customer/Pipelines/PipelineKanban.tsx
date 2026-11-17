@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { getContactColor } from '@/utils/avatar';
-import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { Link, useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -155,6 +155,12 @@ export default function PipelineKanban() {
   const [loadError, setLoadError] = useState(false);
   const [personalizingCards, setPersonalizingCards] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const sortKey = (searchParams.get('sort') ?? '') as '' | 'age_desc' | 'age_asc' | 'value_desc' | 'title';
+  const [density, setDensityState] = useState<'comfortable' | 'compact'>(() => {
+    try { return localStorage.getItem('evo.kanban.density') === 'compact' ? 'compact' : 'comfortable'; } catch { return 'comfortable'; }
+  });
+  const setDensity = (next: 'comfortable' | 'compact') => { setDensityState(next); try { localStorage.setItem('evo.kanban.density', next); } catch { /* ignore */ } };
+  const setSort = (next: string) => setSearchParams(prev => { const n = new URLSearchParams(prev); if (next) n.set('sort', next); else n.delete('sort'); return n; }, { replace: true });
   const personalizeButtonRef = useRef<HTMLButtonElement>(null);
   const movingIds = useRef(new Set<string>());
   const touchDrag = useRef<{ timer: ReturnType<typeof setTimeout>; x: number; y: number; active: boolean } | null>(null);
@@ -443,7 +449,8 @@ export default function PipelineKanban() {
 
         const matchesLabel =
           !labelFilter ||
-          (item.conversation?.labels ?? []).some(l => l.title === labelFilter);
+          (item.conversation?.labels ?? []).some(l => l.title === labelFilter) ||
+          (item.labels ?? []).some(l => l.name === labelFilter);
 
         // Chatwoot priority (urgent/high/medium/low) collapsed into the mockup's
         // 3 buckets: urgent+high → alta, medium → media, low → baixa.
@@ -489,10 +496,12 @@ export default function PipelineKanban() {
   const filteredItemsByStage = useMemo(() => {
     const map = new Map<string, PipelineItem[]>();
     for (const stage of stages) {
-      map.set(stage.id, filterItems(stage.items || []));
+      const list = filterItems(stage.items || []);
+      const ts = (item: PipelineItem) => { const v = item.entered_at as unknown; const d = typeof v === 'number' ? v * (v < 1e12 ? 1000 : 1) : new Date(String(v ?? '')).getTime(); return Number.isFinite(d) ? d : 0; };
+      map.set(stage.id, !sortKey ? list : [...list].sort((a, b) => sortKey === 'age_desc' ? ts(a) - ts(b) : sortKey === 'age_asc' ? ts(b) - ts(a) : sortKey === 'value_desc' ? Number(b.value || 0) - Number(a.value || 0) : String(a.title || '').localeCompare(String(b.title || ''), 'pt-BR')));
     }
     return map;
-  }, [stages, filterItems]);
+  }, [stages, filterItems, sortKey]);
 
   const totalFilteredCount = useMemo(
     () => Array.from(filteredItemsByStage.values()).reduce((t, items) => t + items.length, 0),
@@ -674,6 +683,16 @@ export default function PipelineKanban() {
     );
   };
   const handleEditItem = (item: PipelineItem) => openDeal(item);
+  // Anterior/próximo negócio na mesma etapa, na ordem exibida (filtros e ordenação respeitados)
+  const dealNeighbors = useMemo(() => {
+    if (!dealParam) return undefined;
+    for (const stage of stages) {
+      const list = filteredItemsByStage.get(stage.id) || [];
+      const index = list.findIndex(entry => dealIdOf(entry) === dealParam || entry.id === dealParam);
+      if (index >= 0) return { prev: list[index - 1], next: list[index + 1], position: `${index + 1} de ${list.length}`, stageName: stage.name };
+    }
+    return undefined;
+  }, [dealParam, stages, filteredItemsByStage]);
   const closeDeal = () => {
     // Abriu por clique no quadro: voltar do histórico desfaz exatamente a abertura.
     if ((location.state as { dealModal?: boolean } | null)?.dealModal) {
@@ -850,6 +869,7 @@ export default function PipelineKanban() {
                 </Button>
 
                 <div className="min-w-0">
+                  <nav aria-label="Caminho" className="kanban-breadcrumb"><Link to="/pipelines">Todos os pipelines</Link></nav>
                   <div className="flex items-center gap-2">
                     {pipeline?.visibility === 'private' && (
                       <Lock className="w-4 h-4 text-muted-foreground shrink-0" aria-label={t('kanban.header.private')} />
@@ -1167,6 +1187,23 @@ export default function PipelineKanban() {
                   </PopoverContent>
                 </Popover>
                 <Button ref={personalizeButtonRef} className="kanban-customize-button" aria-label="Personalizar cartões" variant="outline" onClick={() => setPersonalizingCards(true)}><SlidersHorizontal className="w-4 h-4" /><span className="kanban-action-label">Personalizar cartões</span></Button>
+                <div className="kanban-toolbar-end">
+                  {hasActiveFilters && <span className="kanban-results-count" aria-live="polite">{totalFilteredCount} de {totalItemCount} negócios</span>}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className={`kanban-sort-button h-9 gap-2 ${sortKey ? 'border-primary/40 bg-primary/5 text-[var(--primary-text)]' : ''}`} aria-label="Ordenar negócios"><ArrowUpDown className="w-4 h-4" /><span className="kanban-action-label">{({ age_desc: 'Mais tempo na etapa', age_asc: 'Menos tempo na etapa', value_desc: 'Maior valor', title: 'Nome (A–Z)' } as Record<string, string>)[sortKey] || 'Ordenar'}</span></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      {([['', 'Posição na etapa'], ['age_desc', 'Mais tempo na etapa'], ['age_asc', 'Menos tempo na etapa'], ['value_desc', 'Maior valor'], ['title', 'Nome (A–Z)']] as const).map(([key, label]) => (
+                        <DropdownMenuItem key={key || 'none'} onClick={() => setSort(key)}>{label}{sortKey === key && <Check className="h-3.5 w-3.5 ml-auto" />}</DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <div className="kanban-density" role="group" aria-label="Densidade dos cartões">
+                    <button type="button" aria-pressed={density === 'comfortable'} onClick={() => setDensity('comfortable')} title="Confortável">Confortável</button>
+                    <button type="button" aria-pressed={density === 'compact'} onClick={() => setDensity('compact')} title="Compacto">Compacto</button>
+                  </div>
+                </div>
 
 
 
@@ -1201,7 +1238,7 @@ export default function PipelineKanban() {
           <div
             ref={boardScrollRef}
             aria-label="Quadro de negócios"
-            className="kanban-scroll h-full overflow-x-auto overflow-y-hidden p-4 sm:p-6"
+            className="kanban-scroll h-full overflow-x-auto overflow-y-hidden p-4 sm:p-6" data-density={density}
             onPointerDown={event => {
               // arrastar no fundo do quadro (fora de colunas/cartões) rola na horizontal
               const target = event.target as HTMLElement;
@@ -1403,7 +1440,7 @@ export default function PipelineKanban() {
                             </DropdownMenu>
                           </div>
 
-                          <ConfiguredDealCard item={item} configuration={configurationFor(pipeline!)} definitions={pipeline!.card_field_definitions || nativeFields} onOpen={openDeal} onOpenConversation={openConversationPanel} onConversationChanged={(entry, summary) => updateConversationSummary(dealIdOf(entry), summary)} canConfigureNumbers={can('pipelines', 'update')} onConfigureNumbers={configureNumbers} />
+                          <ConfiguredDealCard onFilterLabel={name => updateFilters({ label: labelFilter === name ? '' : name })} activeLabel={labelFilter} item={item} configuration={configurationFor(pipeline!)} definitions={pipeline!.card_field_definitions || nativeFields} onOpen={openDeal} onOpenConversation={openConversationPanel} onConversationChanged={(entry, summary) => updateConversationSummary(dealIdOf(entry), summary)} canConfigureNumbers={can('pipelines', 'update')} onConfigureNumbers={configureNumbers} />
                         </div>
                         );
                       })}
@@ -1545,6 +1582,8 @@ export default function PipelineKanban() {
         <>
           <ModalComponent
             key={dealParam}
+            neighbors={dealNeighbors}
+            onNavigate={item => setSearchParams(prev => { const n = new URLSearchParams(prev); n.set('deal', dealIdOf(item)); return n; }, { replace: true, state: location.state })}
             pipelineId={pipelineId}
             dealId={dealParam}
             seed={openedItem}

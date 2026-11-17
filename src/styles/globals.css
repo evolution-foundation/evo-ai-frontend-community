@@ -751,3 +751,32 @@ body.authenticated-panel-density {
 .deal-conversation-action:focus-visible { outline: 2px solid var(--ring, currentColor); outline-offset: 2px; }
 .deal-conversation-action[aria-disabled="true"] { color: var(--muted-foreground); border-color: var(--border); background: transparent; cursor: not-allowed; }
 .deal-conversation-action-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Repaginada (S5): cabeçalho, barra de ferramentas, densidade, tags filtráveis ── */
+.kanban-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; line-height: 16px; color: var(--muted-foreground); margin-bottom: 2px; min-width: 0; }
+.kanban-breadcrumb a { color: var(--muted-foreground); }
+.kanban-breadcrumb a:hover { color: var(--primary-text); text-decoration: underline; }
+.kanban-breadcrumb [aria-current] { color: var(--foreground); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kanban-title { font-size: 18px; line-height: 26px; }
+.kanban-toolbar-end { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.kanban-results-count { font-size: 13px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; white-space: nowrap; padding-right: 4px; }
+.kanban-sort-button { white-space: nowrap; }
+.kanban-density { display: inline-flex; padding: 2px; gap: 2px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-sunken, var(--muted)); }
+.kanban-density button { font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 6px; color: var(--muted-foreground); }
+.kanban-density button[aria-pressed="true"] { background: var(--card); color: var(--foreground); box-shadow: var(--shadow-1); }
+.kanban-density button:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+.kanban-column-header h3 { font-size: 14px; font-weight: 600; }
+.kanban-column-header h3 + span { min-width: 22px; height: 20px; padding: 0 7px; display: inline-grid; place-items: center; border-radius: 999px; background: var(--muted); color: var(--foreground); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.deal-label.is-filter { cursor: pointer; border: 1px solid transparent; transition: border-color 120ms, background 120ms; }
+.deal-label.is-filter:hover { border-color: var(--border-strong); }
+.deal-label.is-filter.is-active { border-color: var(--primary-text); background: color-mix(in srgb, var(--primary-text) 12%, transparent); }
+.deal-label.is-filter:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+.deal-card-heading .deal-contact-avatar { width: 32px; height: 32px; flex-basis: 32px; font-size: 11px; }
+.deal-age-danger, .deal-age-warning { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 999px; font-weight: 600; background: color-mix(in srgb, currentColor 12%, transparent); }
+.kanban-scroll[data-density="compact"] .configured-deal-card { padding: 8px 10px; gap: 4px; }
+.kanban-scroll[data-density="compact"] .deal-card-heading .deal-contact-avatar { width: 22px; height: 22px; flex-basis: 22px; font-size: 9px; }
+.kanban-scroll[data-density="compact"] .deal-title { font-size: 13px; line-height: 18px; -webkit-line-clamp: 1; }
+.kanban-scroll[data-density="compact"] .deal-field-last_message, .kanban-scroll[data-density="compact"] .deal-field-company { display: none; }
+@media (max-width: 760px) { .kanban-density { display: none; } .kanban-toolbar-end { margin-left: auto; gap: 4px; } .kanban-results-count { font-size: 12px; } .kanban-density button { min-height: 36px; } .kanban-breadcrumb { display: none; } }
+@media (prefers-reduced-motion: reduce) { .deal-label.is-filter { transition: none; } }
+.deal-tasks-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--muted-foreground); }
