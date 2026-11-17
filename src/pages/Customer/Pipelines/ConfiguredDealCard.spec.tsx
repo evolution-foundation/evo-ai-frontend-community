@@ -65,4 +65,15 @@ describe('configured board and preview renderer', () => {
     expect(container.querySelector('.deal-contact-avatar')).toHaveTextContent('LS');
   });
 
+  it('mostra selo discreto só quando o negócio não está aberto', () => {
+    const render1 = (extra: Partial<PipelineItem>) => render(<MemoryRouter><ConfiguredDealCard item={{ ...item, ...extra } as PipelineItem} configuration={defaultConfiguration()} definitions={nativeFields} /></MemoryRouter>);
+    const open = render1({ deal_status: 'open' });
+    expect(open.container.querySelector('.deal-status-seal')).toBeNull();
+    open.unmount();
+    const won = render1({ deal_status: 'won', completed_at: 1788177600 });
+    expect(won.container.querySelector('.deal-status-seal.is-won')).toHaveTextContent(/^Ganho · /);
+    won.unmount();
+    const lost = render1({ deal_status: 'lost', lost_reason: 'Sem orçamento' });
+    expect(lost.container.querySelector('.deal-status-seal.is-lost')).toHaveAttribute('title', 'Motivo: Sem orçamento');
+  });
 });

@@ -556,7 +556,7 @@
       "resultsCount": "Affichage de {{count}} sur {{total}} cartes dans {{stages}} étape(s)",
       "loadingAgents": "Chargement de l'équipe...",
       "noAgents": "Aucun membre de l'équipe trouvé",
-      "statusFilter": "Statut",
+      "statusFilter": "Conversation",
       "dateRangeFilter": "Plage de dates",
       "dateFrom": "Du",
       "dateTo": "Au",
@@ -672,6 +672,15 @@
     "tasks": {
       "pending": "en attente",
       "overdue": "en retard"
+    },
+    "dealStatus": {
+      "label": "Statut de l’affaire",
+      "open": "Ouvertes",
+      "won": "Gagnées",
+      "lost": "Perdues",
+      "all": "Toutes",
+      "emptyWon": "Aucune affaire gagnée dans cette étape",
+      "emptyLost": "Aucune affaire perdue dans cette étape"
     }
   },
   "tasks": {

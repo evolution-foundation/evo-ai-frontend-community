@@ -615,7 +615,7 @@
       "resultsCount": "Mostrando {{count}} de {{total}} cards em {{stages}} etapa(s)",
       "loadingAgents": "Carregando equipe...",
       "noAgents": "Nenhum membro da equipe encontrado",
-      "statusFilter": "Status",
+      "statusFilter": "Conversa",
       "dateRangeFilter": "Período",
       "dateFrom": "De",
       "dateTo": "Até",
@@ -746,6 +746,15 @@
       "addDeal": "Adicionar negócio",
       "noStagesTitle": "Crie a primeira etapa",
       "noStagesDescription": "Organize os negócios conforme avançam no seu processo comercial."
+    },
+    "dealStatus": {
+      "label": "Situação do negócio",
+      "open": "Abertos",
+      "won": "Ganhos",
+      "lost": "Perdidos",
+      "all": "Todos",
+      "emptyWon": "Nenhum negócio ganho nesta etapa",
+      "emptyLost": "Nenhum negócio perdido nesta etapa"
     }
   },
   "tasks": {

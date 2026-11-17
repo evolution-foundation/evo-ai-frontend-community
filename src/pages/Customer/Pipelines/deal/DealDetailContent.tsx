@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { pipelinesService } from '@/services/pipelines';
 import { labelsService } from '@/services/contacts/labelsService';
 import { useAppDataStore } from '@/store/appDataStore';
-import type { Deal, DealContact, DealLabel, Pipeline, PipelineItem, UpdateDealData } from '@/types/analytics';
+import type { Deal, DealContact, DealStatus, DealLabel, Pipeline, PipelineItem, UpdateDealData } from '@/types/analytics';
 import type { Label } from '@/types/settings';
 import { getContactDisplayName } from '@/utils/chat/avatarHelpers';
 import { loadDeal, peekDeal, setCachedDeal } from './dealCache';
@@ -68,7 +68,7 @@ export interface DealDetailContentProps {
   onTabChange: (tab: DealTabId) => void;
   onClose?: () => void;
   /** Avisa o kanban para refletir a mudança no cartão sem recarregar. */
-  onDealChange?: (deal: Deal, info: { stageChanged: boolean }) => void;
+  onDealChange?: (deal: Deal, info: { stageChanged: boolean; statusChanged?: boolean }) => void;
   /** Área reservada para as ações de conversa (S4). */
   quickActions?: React.ReactNode;
   /** Painel lateral de conversa do kanban; sem ele a conversa abre na aba Conversas. */
@@ -140,9 +140,9 @@ export default function DealDetailContent({ pipelineId, dealId, seed, pipeline: 
     void labelsService.getLabels({ per_page: 100 }).then(result => setLabels(result.data || [])).catch(() => toast.error('Não foi possível carregar as tags.'));
   }, [labelMenu, labels]);
 
-  const publish = useCallback((next: Deal, stageChanged: boolean) => {
+  const publish = useCallback((next: Deal, stageChanged: boolean, statusChanged = false) => {
     setCachedDeal(next);
-    onChangeRef.current?.(next, { stageChanged });
+    onChangeRef.current?.(next, statusChanged ? { stageChanged, statusChanged } : { stageChanged });
   }, []);
 
   const replaceDeal = useCallback((next: Deal) => {
@@ -169,6 +169,29 @@ export default function DealDetailContent({ pipelineId, dealId, seed, pipeline: 
       return false;
     }
   }, [dealId, publish]);
+
+  // Status do negócio: ganho / perdido (motivo opcional) / reabrir. Não mexe no status da conversa.
+  const [statusBusy, setStatusBusy] = useState(false);
+  const [lostFormOpen, setLostFormOpen] = useState(false);
+  const [lostReason, setLostReason] = useState('');
+  const changeStatus = async (status: DealStatus, reason?: string) => {
+    const previous = dealRef.current;
+    if (!previous || statusBusy) return;
+    setStatusBusy(true);
+    try {
+      const updated = await pipelinesService.changeDealStatus(dealId, status, reason);
+      setDeal(updated);
+      publish(updated, false, true);
+      setLostFormOpen(false);
+      setLostReason('');
+      toast.success(status === 'won' ? 'Negócio marcado como ganho.' : status === 'lost' ? 'Negócio marcado como perdido.' : 'Negócio reaberto.');
+    } catch (err) {
+      console.error(err);
+      toast.error('Não foi possível alterar o status do negócio.');
+    } finally {
+      setStatusBusy(false);
+    }
+  };
 
   const labelsOf = (current: Deal) => current.labels || [];
   const toggleLabel = async (label: Label) => {
@@ -250,10 +273,42 @@ export default function DealDetailContent({ pipelineId, dealId, seed, pipeline: 
           </div>
         </div>
         <div className="deal-modal-controls">
+          <div className="deal-modal-status" data-deal-status={deal.deal_status ?? 'open'}>
+            {(deal.deal_status ?? 'open') !== 'open' && (
+              <span className={`deal-status-seal deal-status-seal-inline is-${deal.deal_status}`} title={deal.lost_reason ? `Motivo: ${deal.lost_reason}` : undefined}>
+                {deal.deal_status === 'won' ? 'Ganho' : 'Perdido'}{deal.lost_reason ? ` · ${deal.lost_reason}` : ''}
+              </span>
+            )}
+            <div className="deal-status-actions" role="group" aria-label="Status do negócio">
+              {(deal.deal_status ?? 'open') === 'open' ? (
+                <>
+                  <button type="button" disabled={!full || statusBusy} onClick={() => void changeStatus('won')}>Marcar como ganho</button>
+                  <button type="button" disabled={!full || statusBusy} aria-expanded={lostFormOpen} onClick={() => setLostFormOpen(open => !open)}>Marcar como perdido</button>
+                </>
+              ) : (
+                <>
+                  <button type="button" disabled={statusBusy} onClick={() => void changeStatus('open')}>Reabrir</button>
+                  {deal.deal_status === 'won'
+                    ? <button type="button" disabled={statusBusy} aria-expanded={lostFormOpen} onClick={() => setLostFormOpen(open => !open)}>Marcar como perdido</button>
+                    : <button type="button" disabled={statusBusy} onClick={() => void changeStatus('won')}>Marcar como ganho</button>}
+                </>
+              )}
+            </div>
+            {lostFormOpen && (
+              <form className="deal-lost-form" onSubmit={event => { event.preventDefault(); void changeStatus('lost', lostReason); }}>
+                <label htmlFor="deal-lost-reason">Motivo da perda (opcional)</label>
+                <textarea id="deal-lost-reason" value={lostReason} maxLength={500} autoFocus onChange={event => setLostReason(event.target.value)} />
+                <div>
+                  <button type="button" onClick={() => setLostFormOpen(false)}>Cancelar</button>
+                  <button type="submit" disabled={statusBusy}>Confirmar perdido</button>
+                </div>
+              </form>
+            )}
+          </div>
           {stages.length > 0 && (
             <label className="deal-modal-stage">
               <span className="sr-only">Etapa</span>
-              <select aria-label="Etapa do negócio" value={stageId} disabled={!full} onChange={event => void patchDeal({ pipeline_stage_id: event.target.value }, { pipeline_stage_id: event.target.value, stage_id: event.target.value })}>
+              <select aria-label="Etapa do negócio" value={stageId} disabled={!full || (deal.deal_status ?? 'open') !== 'open'} title={(deal.deal_status ?? 'open') !== 'open' ? 'Reabra o negócio para mudar de etapa' : undefined} onChange={event => void patchDeal({ pipeline_stage_id: event.target.value }, { pipeline_stage_id: event.target.value, stage_id: event.target.value })}>
                 {stages.map(stage => <option key={stage.id} value={stage.id}>{stage.name}</option>)}
               </select>
             </label>

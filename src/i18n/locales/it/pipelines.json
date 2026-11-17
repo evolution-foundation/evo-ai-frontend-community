@@ -553,7 +553,7 @@
       "resultsCount": "Visualizzazione di {{count}} su {{total}} schede in {{stages}} fase/i",
       "loadingAgents": "Caricamento del team...",
       "noAgents": "Nessun membro del team trovato",
-      "statusFilter": "Stato",
+      "statusFilter": "Conversazione",
       "dateRangeFilter": "Intervallo di date",
       "dateFrom": "Dal",
       "dateTo": "Al",
@@ -669,6 +669,15 @@
     "tasks": {
       "pending": "in sospeso",
       "overdue": "in ritardo"
+    },
+    "dealStatus": {
+      "label": "Stato della trattativa",
+      "open": "Aperte",
+      "won": "Vinte",
+      "lost": "Perse",
+      "all": "Tutte",
+      "emptyWon": "Nessuna trattativa vinta in questa fase",
+      "emptyLost": "Nessuna trattativa persa in questa fase"
     }
   },
   "tasks": {

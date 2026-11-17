@@ -615,7 +615,7 @@
       "resultsCount": "Showing {{count}} of {{total}} cards across {{stages}} stage(s)",
       "loadingAgents": "Loading team...",
       "noAgents": "No team members found",
-      "statusFilter": "Status",
+      "statusFilter": "Conversation",
       "dateRangeFilter": "Date range",
       "dateFrom": "From",
       "dateTo": "To",
@@ -734,6 +734,15 @@
     "tasks": {
       "pending": "pending",
       "overdue": "overdue"
+    },
+    "dealStatus": {
+      "label": "Deal status",
+      "open": "Open",
+      "won": "Won",
+      "lost": "Lost",
+      "all": "All",
+      "emptyWon": "No won deals in this stage",
+      "emptyLost": "No lost deals in this stage"
     }
   },
   "tasks": {

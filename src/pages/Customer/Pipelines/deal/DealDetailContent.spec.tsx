@@ -22,6 +22,7 @@ const pipelineServiceMocks = vi.hoisted(() => ({
   removeDealFile: vi.fn(),
   getDealConversationStatus: vi.fn(),
   startDealConversation: vi.fn(),
+  changeDealStatus: vi.fn(),
 }));
 const taskMocks = vi.hoisted(() => ({ getTasksForItem: vi.fn(), createTask: vi.fn(), completeTask: vi.fn() }));
 const labelServiceMocks = vi.hoisted(() => ({ getLabels: vi.fn() }));
@@ -213,5 +214,48 @@ describe('DealModal', () => {
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
     fireEvent.click(screen.getByRole('button', { name: 'Fechar negócio' }));
     expect(onClose).toHaveBeenCalledTimes(2);
+  });
+
+  describe('status do negócio', () => {
+    it('marca como ganho, avisa o quadro e trava a troca de etapa', async () => {
+      pipelineServiceMocks.getDeal.mockResolvedValue({ ...deal, deal_status: 'open' });
+      pipelineServiceMocks.changeDealStatus.mockResolvedValue({ ...deal, deal_status: 'won' });
+      const onChange = vi.fn();
+      renderContent({ onChange });
+      fireEvent.click(await screen.findByRole('button', { name: 'Marcar como ganho' }));
+      await waitFor(() => expect(pipelineServiceMocks.changeDealStatus).toHaveBeenCalledWith('deal-1', 'won', undefined));
+      expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ deal_status: 'won' }), { stageChanged: false, statusChanged: true });
+      expect(await screen.findByRole('button', { name: 'Reabrir' })).toBeInTheDocument();
+      expect(screen.getByLabelText('Etapa do negócio')).toBeDisabled();
+    });
+
+    it('marca como perdido com motivo opcional e mostra o selo', async () => {
+      pipelineServiceMocks.getDeal.mockResolvedValue({ ...deal, deal_status: 'open' });
+      pipelineServiceMocks.changeDealStatus.mockResolvedValue({ ...deal, deal_status: 'lost', lost_reason: 'Sem orçamento' });
+      renderContent();
+      fireEvent.click(await screen.findByRole('button', { name: 'Marcar como perdido' }));
+      fireEvent.change(screen.getByLabelText('Motivo da perda (opcional)'), { target: { value: 'Sem orçamento' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Confirmar perdido' }));
+      await waitFor(() => expect(pipelineServiceMocks.changeDealStatus).toHaveBeenCalledWith('deal-1', 'lost', 'Sem orçamento'));
+      expect(await screen.findByText(/Perdido · Sem orçamento/)).toBeInTheDocument();
+    });
+
+    it('reabre um negócio perdido', async () => {
+      pipelineServiceMocks.getDeal.mockResolvedValue({ ...deal, deal_status: 'lost' });
+      pipelineServiceMocks.changeDealStatus.mockResolvedValue({ ...deal, deal_status: 'open' });
+      renderContent();
+      fireEvent.click(await screen.findByRole('button', { name: 'Reabrir' }));
+      await waitFor(() => expect(pipelineServiceMocks.changeDealStatus).toHaveBeenCalledWith('deal-1', 'open', undefined));
+      expect(await screen.findByRole('button', { name: 'Marcar como ganho' })).toBeInTheDocument();
+    });
+
+    it('mantém o estado anterior quando a API falha', async () => {
+      pipelineServiceMocks.getDeal.mockResolvedValue({ ...deal, deal_status: 'open' });
+      pipelineServiceMocks.changeDealStatus.mockRejectedValue(new Error('x'));
+      renderContent();
+      fireEvent.click(await screen.findByRole('button', { name: 'Marcar como ganho' }));
+      await waitFor(() => expect(pipelineServiceMocks.changeDealStatus).toHaveBeenCalled());
+      expect(await screen.findByRole('button', { name: 'Marcar como ganho' })).toBeInTheDocument();
+    });
   });
 });

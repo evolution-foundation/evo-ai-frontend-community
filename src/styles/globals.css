@@ -765,6 +765,24 @@ body.authenticated-panel-density {
 .kanban-density button { font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 6px; color: var(--muted-foreground); }
 .kanban-density button[aria-pressed="true"] { background: var(--card); color: var(--foreground); box-shadow: var(--shadow-1); }
 .kanban-density button:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+.kanban-deal-status { display: inline-flex; padding: 2px; gap: 2px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-sunken, var(--muted)); flex-shrink: 0; }
+.kanban-deal-status button { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; padding: 5px 10px; border-radius: 6px; color: var(--muted-foreground); white-space: nowrap; }
+.kanban-deal-status button[aria-pressed="true"] { background: var(--card); color: var(--foreground); box-shadow: var(--shadow-1); }
+.kanban-deal-status button:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+.kanban-deal-status-count { font-size: 11px; font-variant-numeric: tabular-nums; color: var(--muted-foreground); }
+.deal-status-seal { display: inline-flex; align-self: flex-start; font-size: 11px; font-weight: 600; line-height: 16px; padding: 1px 6px; border-radius: 4px; border: 1px solid currentColor; margin-bottom: 6px; }
+.deal-status-seal.is-won { color: var(--success-text); }
+.deal-status-seal.is-lost { color: var(--danger-text); }
+.deal-modal-status { display: inline-flex; align-items: center; gap: 6px; }
+.deal-status-seal-inline { margin: 0; }
+.deal-status-actions { display: inline-flex; gap: 6px; align-items: center; }
+.deal-status-actions button { font-size: 13px; font-weight: 500; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card); color: var(--foreground); }
+.deal-status-actions button:hover:not(:disabled) { border-color: var(--border-strong); }
+.deal-status-actions button:disabled { opacity: .5; cursor: not-allowed; }
+.deal-status-actions button:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+.deal-lost-form { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); width: 280px; }
+.deal-lost-form textarea { font-size: 13px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--background); color: var(--foreground); resize: vertical; min-height: 56px; }
+.deal-lost-form div { display: flex; gap: 6px; justify-content: flex-end; }
 .kanban-column-header h3 { font-size: 14px; font-weight: 600; }
 .kanban-column-header h3 + span { min-width: 22px; height: 20px; padding: 0 7px; display: inline-grid; place-items: center; border-radius: 999px; background: var(--muted); color: var(--foreground); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .deal-label.is-filter { cursor: pointer; border: 1px solid transparent; transition: border-color 120ms, background 120ms; }
