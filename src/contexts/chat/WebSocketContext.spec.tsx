@@ -33,6 +33,21 @@ function RegisterExternalHandler({ onContactUpdated }: { onContactUpdated: (c: C
   return null;
 }
 
+function RegisterAssignmentHandler({ handler }: { handler: () => void }) {
+  const ws = useWebSocketContext();
+  React.useEffect(() => {
+    ws.registerHandlers({ onAssigneeChanged: handler });
+  }, [ws, handler]);
+  return null;
+}
+
+it('forwards assignee.changed to registered consumers so filtered lists can reconcile', () => {
+  const handler = vi.fn();
+  render(<WebSocketProvider><RegisterAssignmentHandler handler={handler} /></WebSocketProvider>);
+  capturedHandlers.onAssigneeChanged?.({ id: 'conversation-1', assignee_id: 'agent-b' });
+  expect(handler).toHaveBeenCalledWith({ id: 'conversation-1', assignee_id: 'agent-b' });
+});
+
 describe('WebSocketContext contact.updated wiring', () => {
   beforeEach(() => {
     capturedHandlers = {};
