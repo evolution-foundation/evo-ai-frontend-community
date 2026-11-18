@@ -405,6 +405,16 @@ const AgentWizardModal = ({ open, onOpenChange, onAgentCreated, embedded = false
             config.apiVersion = extConfig.typebot_apiVersion || 'latest';
           }
 
+          // Vault reference (story 2.3): the runtime resolves the secret by
+          // credential_id, so it must be persisted like in the edit form.
+          if (wizardData.provider !== 'typebot' && extConfig.credential_id?.trim()) {
+            config.credential_id = extConfig.credential_id;
+          }
+          // Secrets only when non-empty, so a blank never shadows the vault.
+          if (!config.apiKey?.trim()) {
+            delete config.apiKey;
+          }
+
           await integrationService.upsertIntegration(createdAgent.id, {
             provider: wizardData.provider,
             config,
