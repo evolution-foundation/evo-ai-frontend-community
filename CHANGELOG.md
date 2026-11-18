@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **CRM-42 — AI Credentials screen re-skinned to the design guide.** Header, "in use" panel, credential tables, provider and status chips, and the form and delete dialogs follow `PADRAO-DE-DESIGN.md` with design-system tokens. The Edit form gains an "Active credential" toggle; `is_active` is sent only when the toggle moves, so saving a rename does not undo a status change made elsewhere. The `ApiKeysModal` shortcut (the agents toolbar's "Manage API keys") gets the same dialog and button styles. The row's activate/deactivate action and the provider list are unchanged.
 - **CRM-817 — campaigns go through the CRM.** `campaignsService` calls `/api/v1/campaigns*` on the CRM API, which proxies to evo-flow with the account and the RBAC gate, like journeys and segments. The build no longer reads `VITE_EVOFLOW_API_URL`, so deployments can drop it. ⚠️ Needs the `evo-ai-crm-community` release that serves `/api/v1/campaigns`: against an older CRM the campaigns screen gets 404.
 
 ### Removed

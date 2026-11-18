@@ -39,25 +39,34 @@ export function ApiKeysModal({ open, onOpenChange, onApiKeysChange }: ApiKeysMod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="gap-5 rounded-[18px] p-6 shadow-[0_24px_60px_rgba(15,23,35,.28)] sm:max-w-[470px]">
         <DialogHeader>
-          <DialogTitle>{t('title')}</DialogTitle>
-          <DialogDescription>{t('description')}</DialogDescription>
+          <DialogTitle className="text-[18px] font-bold text-foreground">{t('title')}</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            {t('description')}
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col items-center gap-4 py-6 text-center">
-          <KeyRound className="h-12 w-12 text-muted-foreground/60" />
-          <p className="text-sm text-muted-foreground max-w-sm">
-            {t('empty.description')}
-          </p>
+        <div className="flex flex-col items-center gap-3 py-4 text-center">
+          <span className="flex size-12 items-center justify-center rounded-[12px] bg-primary/10 text-primary">
+            <KeyRound className="size-6" aria-hidden="true" />
+          </span>
+          <p className="max-w-sm text-sm text-muted-foreground">{t('empty.description')}</p>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            className="h-auto rounded-[9px] border-border bg-card px-[18px] py-2.5 text-sm font-semibold text-foreground shadow-none hover:bg-muted"
+            onClick={() => onOpenChange(false)}
+          >
             {t('actions.cancel')}
           </Button>
-          <Button onClick={goToCredentials}>
-            <ExternalLink className="mr-2 h-4 w-4" />
+          <Button
+            className="h-auto rounded-[9px] px-[18px] py-[11px] text-sm font-semibold shadow-md shadow-primary/25 hover:bg-primary hover:brightness-90"
+            onClick={goToCredentials}
+          >
+            <ExternalLink className="mr-2 size-4" />
             {t('title')}
           </Button>
         </DialogFooter>
