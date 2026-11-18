@@ -886,6 +886,10 @@
       "active": "Activé",
       "configure": "Configurer",
       "notAvailable": "Bientôt",
+      "credentialMissing": "Aucun identifiant",
+      "googleCredentialMissing": "Identifiants Google manquants. Renseignez le Client ID et le Client Secret dans les intégrations du CRM.",
+      "credentialUnchecked": "Non vérifié",
+      "googleCredentialUnchecked": "Impossible de vérifier les identifiants Google. Rechargez la page pour réessayer.",
       "elevenlabs": {
         "description": "Avec ElevenLabs, vous donnez à votre agent la capacité de répondre à vos clients en audio, le rendant encore plus humanisé."
       },

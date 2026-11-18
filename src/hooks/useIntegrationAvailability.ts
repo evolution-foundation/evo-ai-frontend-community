@@ -9,6 +9,8 @@ interface UseIntegrationAvailabilityReturn {
    */
   available: Record<string, boolean>;
   isLoadingAvailability: boolean;
+  /** The check itself failed, so an unavailable provider may still be configured. */
+  availabilityFailed: boolean;
 }
 
 /**
@@ -23,6 +25,7 @@ interface UseIntegrationAvailabilityReturn {
 export function useIntegrationAvailability(): UseIntegrationAvailabilityReturn {
   const [available, setAvailable] = useState<Record<string, boolean>>({});
   const [isLoadingAvailability, setIsLoadingAvailability] = useState(true);
+  const [availabilityFailed, setAvailabilityFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,12 +36,13 @@ export function useIntegrationAvailability(): UseIntegrationAvailabilityReturn {
       // Normalize snake_case → hyphen-case to match the tab ids
       // (google_calendar → google-calendar; single-word keys are unchanged).
       const normalized: Record<string, boolean> = {};
-      Object.entries(raw).forEach(([key, value]) => {
+      Object.entries(raw ?? {}).forEach(([key, value]) => {
         normalized[key.replace(/_/g, '-')] = Boolean(value);
       });
 
       if (!cancelled) {
         setAvailable(normalized);
+        setAvailabilityFailed(raw === null);
         setIsLoadingAvailability(false);
       }
     })();
@@ -48,7 +52,7 @@ export function useIntegrationAvailability(): UseIntegrationAvailabilityReturn {
     };
   }, []);
 
-  return { available, isLoadingAvailability };
+  return { available, isLoadingAvailability, availabilityFailed };
 }
 
 export default useIntegrationAvailability;
