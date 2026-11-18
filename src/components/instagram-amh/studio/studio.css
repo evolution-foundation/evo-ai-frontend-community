@@ -4,15 +4,15 @@
   --st-muted: var(--muted-foreground, #635c52);
   --st-border: var(--border, #d6cfc4);
   --st-border-strong: #c2b9ac;
-  --st-accent: var(--primary, #b45417);
-  --st-accent-hover: var(--brand-sienna-dark, #8c4011);
+  --st-accent: var(--primary, #5D0507);
+  --st-accent-hover: var(--brand-sienna-dark, #3F0305);
   --st-soft: var(--muted, #e9e4db);
   --st-surface: #f6f3ec;
   --st-card: var(--card, #fcfaf6);
   --st-canvas: var(--background, #f1ede4);
   --st-teal: var(--brand-dark-teal, #1a4f4f);
   --st-steel: var(--brand-steel-blue, #426174);
-  --st-edge: #8c4011;
+  --st-edge: #3F0305;
   --st-edge-muted: #b8afa2;
   --st-grid: #d2cbc0;
   color: var(--st-ink);
@@ -288,7 +288,7 @@ body:has(#preview-note) .instagram-studio {
 
 .studio-view-actions button[aria-pressed='true'] {
   color: var(--st-accent);
-  background: #f9ebe1;
+  background: #F4E9E9;
   border-color: #dfae8d;
   font-weight: 650;
 }
@@ -911,7 +911,7 @@ body:has(#preview-note) .instagram-studio {
   font-size: 11.5px;
   font-weight: 650;
   color: var(--st-accent);
-  background: #f9ebe1;
+  background: #F4E9E9;
   border: 1px solid #e6be9f;
   border-radius: 6px;
 }
@@ -1378,7 +1378,7 @@ body:has(#preview-note) .instagram-studio {
 }
 
 .studio-receipt-list button[aria-pressed='true'] {
-  background: #f9ebe1;
+  background: #F4E9E9;
   border-color: var(--st-accent);
 }
 
@@ -1708,7 +1708,7 @@ body:has(#preview-note) .instagram-studio {
   }
   .studio-node-list button[aria-current] {
     border-color: var(--st-accent);
-    background: #f9ebe1;
+    background: #F4E9E9;
   }
   .studio-node-list small {
     font-size: 11px;
