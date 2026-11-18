@@ -26,6 +26,12 @@ import { injectDashboardAppsIntoMenu } from '@/utils/injectDashboardApps';
 import { WelcomeTourModal } from '@/components/WelcomeTourModal';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
+// A path segment that is a record id rather than part of the page's identity:
+// a UUID (/conversations/:conversationId, /pipelines/:pipelineId, ...) or a
+// numeric id (/settings/roles/:id, ...).
+const ROUTE_PARAM_SEGMENT =
+  /^(?:[0-9]+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+
 interface MainLayoutProps {
   children: React.ReactNode;
 }
@@ -37,6 +43,21 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const pathname = location.pathname;
+
+  // Identifies the *page*, not the exact URL: route params are dropped so that
+  // /conversations/<id-A> and /conversations/<id-B> produce the same key.
+  // Keying the ErrorBoundary below by the raw pathname made every param change
+  // a full remount of the page subtree — picking another conversation threw
+  // away all chat state, re-ran every mount fetch and loaded the messages twice
+  // (the second load is what made the list flash back to its skeleton).
+  const pageKey = useMemo(
+    () =>
+      pathname
+        .split('/')
+        .filter(segment => !ROUTE_PARAM_SEGMENT.test(segment))
+        .join('/'),
+    [pathname],
+  );
 
   // Estados do layout
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -141,9 +162,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
         {/* Main Content */}
         <main className="flex-1 min-h-0 overflow-auto bg-background transition-colors duration-150 ease-in-out">
-          {/* Keyed by path so a crashed page does not keep the fallback up after navigating away */}
+          {/* Keyed by page so a crashed page does not keep the fallback up after navigating away */}
           <div className="h-full">
-            <ErrorBoundary key={pathname}>{children}</ErrorBoundary>
+            <ErrorBoundary key={pageKey}>{children}</ErrorBoundary>
           </div>
         </main>
 
