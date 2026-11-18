@@ -5,6 +5,7 @@ import { useChannelSubmission } from './useChannelSubmission';
 import InboxesService from '@/services/channels/inboxesService';
 import EvolutionService from '@/services/channels/evolutionService';
 import EvolutionGoService from '@/services/channels/evolutionGoService';
+import i18n from '@/i18n/config';
 
 vi.mock('react-router-dom', () => ({ useNavigate: () => vi.fn() }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() } }));
@@ -55,7 +56,8 @@ const submit = async (channelType: string, providerId: string, form: Record<stri
 };
 
 describe('useChannelSubmission.submitCreate', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('en');
     vi.clearAllMocks();
     createChannelMock.mockResolvedValue({ data: { id: 'inbox-1' } } as never);
   });
@@ -140,10 +142,49 @@ describe('useChannelSubmission.submitCreate', () => {
     });
   });
 
+  it('uses read-only tests before creating the Evolution channel once with the same instance name', async () => {
+    vi.mocked(EvolutionService.verifyConnection).mockResolvedValue({} as never);
+    const form = { name: 'Display label', instance_name: 'shimon', phone_number: '+333' };
+    const channel = { type: 'whatsapp' } as never;
+    const provider = { id: 'evolution' } as never;
+    const config = { hasEvolutionConfig: true, hasEvolutionGoConfig: false };
+    const { result } = renderHook(() => useChannelSubmission(form as never));
+
+    await act(async () => {
+      await result.current.testConnection(channel, provider, form as never, config);
+      await result.current.testConnection(channel, provider, form as never, config);
+    });
+    expect(createChannelMock).not.toHaveBeenCalled();
+    expect(EvolutionService.verifyConnection).toHaveBeenNthCalledWith(1, expect.objectContaining({ mode: 'test', instanceName: 'shimon' }));
+    expect(EvolutionService.verifyConnection).toHaveBeenNthCalledWith(2, expect.objectContaining({ mode: 'test', instanceName: 'shimon' }));
+    expect(toast.success).toHaveBeenCalledWith('Connection verified successfully');
+
+    await act(async () => {
+      await result.current.submitCreate(channel, provider, form as never, config);
+    });
+    expect(EvolutionService.verifyConnection).toHaveBeenNthCalledWith(3, expect.objectContaining({ mode: 'create', instanceName: 'shimon' }));
+    expect(createChannelMock).toHaveBeenCalledTimes(1);
+    expect(createChannelMock).toHaveBeenCalledWith(expect.objectContaining({
+      channel: expect.objectContaining({ provider_config: expect.objectContaining({ instance_name: 'shimon' }) }),
+    }));
+  });
+
+  it('keeps the connection confirmation translated in Portuguese', async () => {
+    await i18n.changeLanguage('pt-BR');
+    vi.mocked(EvolutionService.verifyConnection).mockResolvedValue({} as never);
+    const { result } = renderHook(() => useChannelSubmission());
+
+    await act(async () => {
+      await result.current.testConnection({ type: 'whatsapp' } as never, { id: 'evolution' } as never,
+        { name: 'test', phone_number: '+333' } as never, { hasEvolutionConfig: true, hasEvolutionGoConfig: false });
+    });
+    expect(toast.success).toHaveBeenCalledWith('Conexão verificada com sucesso');
+  });
+
   it('confirms the creation on screen', async () => {
     await submit('api', 'api', { name: 'api-inbox', webhook_url: 'https://hook' });
 
-    expect(toast.success).toHaveBeenCalledWith('Canal criado com sucesso');
+    expect(toast.success).toHaveBeenCalledWith('Channel created successfully');
   });
 
   it('shows the reason the backend gave for refusing the create', async () => {
