@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
 import HubConnectButton from '@/components/inbox/HubConnectButton';
 import { FormActionBar } from '@/components/channels/shared/FormActionBar';
+import { parseFacebookPagesResponse } from '@/utils/facebookPages';
 
 // Facebook SDK types
 declare global {
@@ -224,10 +225,12 @@ export default function FacebookChannelForm({ onSuccess, onCancel }: FacebookCha
     try {
       const fbPages = await ChannelsService.fetchFacebookPages(accessToken);
 
-      const pageDetails = fbPages?.data?.page_details || [];
-      const availablePages = pageDetails.filter((p: any) => !p.exists);
+      const { pages: availablePages, userAccessToken: pagesToken } = parseFacebookPagesResponse(
+        fbPages,
+        accessToken,
+      );
 
-      setUserAccessToken(fbPages?.data?.user_access_token || accessToken);
+      setUserAccessToken(pagesToken);
       setPages(availablePages);
       setIsLoading(false);
 
