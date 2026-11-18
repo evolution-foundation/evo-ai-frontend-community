@@ -320,12 +320,14 @@ for (const theme of ['light', 'dark'] as const) {
   });
 }
 
-test('repaginada: mobile 390 sem overflow horizontal', async ({ page }) => {
-  await boot(page, 390, 'light');
-  await page.goto('/pipelines/pipeline-1');
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
-  await shot(page, 's5-kanban-390-light');
-  await page.locator('.deal-title').first().click();
-  await expect(page.getByRole('group', { name: 'Navegar entre negócios da etapa' })).toBeVisible();
-  await shot(page, 's5-modal-390-light');
-});
+for (const theme of ['light', 'dark'] as const) {
+  test(`repaginada: mobile 390 sem overflow horizontal (${theme})`, async ({ page }) => {
+    await boot(page, 390, theme);
+    await page.goto('/pipelines/pipeline-1');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
+    await shot(page, `s5-kanban-390-${theme}`);
+    await page.locator('.deal-title').first().click();
+    await expect(page.getByRole('group', { name: 'Navegar entre negócios da etapa' })).toBeVisible();
+    await shot(page, `s5-modal-390-${theme}`);
+  });
+}

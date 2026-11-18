@@ -136,7 +136,7 @@ export function StudioCanvas({ graph, change, selected, select, issues, run, rea
     const isFallback = ['no_match', 'failed', 'blocked'].includes(e.sourceHandle || '') && (e.target === 'stop' || graph.nodes.find(n => n.id === e.target)?.type === 'end');
     const isFocused = e.source === selected || e.target === selected;
     const isTraced = Boolean(run?.trace.some(t => t.node === e.source && t.port === e.sourceHandle));
-    const color = isTraced ? '#16795b' : isFocused ? '#b45417' : isFallback ? '#bfb6a8' : '#8c4011';
+    const color = isTraced ? '#16795b' : isFocused ? '#5D0507' : isFallback ? '#bfb6a8' : '#3F0305';
     return {
       ...e,
       type: 'studio',

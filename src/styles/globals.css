@@ -113,8 +113,8 @@ body.authenticated-panel-density {
   --radius: 0.375rem;
   /* Agência Vetorial — premium editorial palette. These override the
      Evolution design-system defaults imported before this file. */
-  --brand-sienna: #B45417;
-  --brand-sienna-dark: #8C4011;
+  --brand-sienna: #5D0507; /* vinho Vetorial (nome legado) */
+  --brand-sienna-dark: #3F0305;
   --brand-ivory: #F2EFE8;
   --brand-charcoal: #0E0E0E;
   --brand-dark-teal: #1A4F4F;
@@ -126,7 +126,7 @@ body.authenticated-panel-density {
   --card-foreground: #0E0E0E;
   --popover: #FFFFFF;
   --popover-foreground: #0E0E0E;
-  --primary: #C2530A;
+  --primary: #5D0507;
   --primary-foreground: #FFFFFF;
   --secondary: #E8EAED;
   --secondary-foreground: #2A2A2A;
@@ -145,22 +145,22 @@ body.authenticated-panel-density {
   --success-text: #1A4F4F;
   --warning-text: #8A5A00;
   --danger-text: #A3321F;
-  --primary-text: #A8460A;
+  --primary-text: #5D0507;
   --input: #C4C9CF;
-  --ring: #C2530A;
-  --chart-1: #C2530A;
+  --ring: #5D0507;
+  --chart-1: #5D0507;
   --chart-2: #55768A;
   --chart-3: #1A4F4F;
-  --chart-4: #C58B55;
+  --chart-4: #8E8A86;
   --chart-5: #7893A2;
   --sidebar: #FFFFFF;
   --sidebar-foreground: #0E0E0E;
-  --sidebar-primary: #C2530A;
+  --sidebar-primary: #5D0507;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #EDEEF0;
   --sidebar-accent-foreground: #0E0E0E;
   --sidebar-border: #E1E3E6;
-  --sidebar-ring: #C2530A;
+  --sidebar-ring: #5D0507;
 
   /* Flow Builder design tokens — LIGHT mode values (EVO-1253). */
   --flow-node-trigger-bg: oklch(0.95 0.05 150);
@@ -220,8 +220,8 @@ body.authenticated-panel-density {
   --card-foreground: #EDEDED;
   --popover: #171717;
   --popover-foreground: #EDEDED;
-  --primary: #E8791F;
-  --primary-foreground: #0E0E0E;
+  --primary: #B0323A;
+  --primary-foreground: #FFFFFF;
   --secondary: #232323;
   --secondary-foreground: #EDEDED;
   --muted: #1F1F1F;
@@ -239,22 +239,22 @@ body.authenticated-panel-density {
   --success-text: #5FA3A3;
   --warning-text: #E0A84A;
   --danger-text: #E07A66;
-  --primary-text: #F08A3C;
+  --primary-text: #E57A88;
   --input: #383838;
-  --ring: #F08A3C;
-  --chart-1: #E8791F;
+  --ring: #E57A88;
+  --chart-1: #B0323A;
   --chart-2: #6F91A3;
   --chart-3: #397979;
-  --chart-4: #D5A06B;
+  --chart-4: #9A9692;
   --chart-5: #8EA6B3;
   --sidebar: #121212;
   --sidebar-foreground: #EDEDED;
-  --sidebar-primary: #E8791F;
-  --sidebar-primary-foreground: #0E0E0E;
+  --sidebar-primary: #B0323A;
+  --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #1F1F1F;
   --sidebar-accent-foreground: #EDEDED;
   --sidebar-border: #262626;
-  --sidebar-ring: #F08A3C;
+  --sidebar-ring: #E57A88;
 
   /* Flow Builder design tokens — DARK mode overrides (EVO-1253). */
   --flow-node-trigger-bg: oklch(0.22 0.05 150);
