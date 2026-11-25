@@ -1193,7 +1193,7 @@
   },
   "src/services/auth/accessTokensService.ts": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 3
+      "count": 2
     }
   },
   "src/services/auth/authService.ts": {

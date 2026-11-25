@@ -102,7 +102,9 @@
       "tokenId": "Unique identifier for this access token",
       "tokenUsage": "Send this token in the header:",
       "scopes": "Permissions that this token has access to",
-      "noScopes": "No scopes configured"
+      "noScopes": "No scopes configured",
+      "shownOnce": "Copy it now: the value is shown only this time.",
+      "valueNotStored": "The value is shown only when the token is created or regenerated. Regenerate it to get a new value."
     },
     "sections": {
       "tokenDetails": "Token Details",

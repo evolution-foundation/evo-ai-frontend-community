@@ -27,8 +27,18 @@ export default function ViewTokenModal({
   token,
   onCopy,
 }: ViewTokenModalProps) {
-  const [showToken, setShowToken] = useState(false);
   const { t } = useTranslation('accessTokens');
+
+  // A reveal belongs to one opening of one value. Comparing against the
+  // current view keeps a new value masked from its very first render.
+  const viewKey = open && token?.token ? `${token.id}:${token.token}` : null;
+  const [revealedFor, setRevealedFor] = useState<string | null>(null);
+  const [lastViewKey, setLastViewKey] = useState(viewKey);
+  if (viewKey !== lastViewKey) {
+    setLastViewKey(viewKey);
+    setRevealedFor(null);
+  }
+  const showToken = viewKey !== null && revealedFor === viewKey;
 
   if (!token) return null;
 
@@ -36,15 +46,19 @@ export default function ViewTokenModal({
     onCopy(text, label);
   };
 
-  const maskedToken = token.token ? '•'.repeat(Math.min(token.token.length, 40)) : '';
+  // The auth returns the value only on create and regenerate; afterwards, and
+  // while the value is masked, the examples carry a placeholder.
+  const tokenValue = token.token;
+  const exampleToken = showToken && tokenValue ? tokenValue : 'YOUR_ACCESS_TOKEN';
+  const maskedToken = tokenValue ? '•'.repeat(Math.min(tokenValue.length, 40)) : '';
   const scopes = parseScopesFromAPI(token.scopes);
   // VITE_API_URL is relative ("/crm-api") when the CRM is served inside the shell.
   const apiBase = String(import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '');
   const exampleUrl = new URL(`${apiBase}/api/v1/contacts`, window.location.origin).href;
   // Hyphens, not underscores: nginx drops underscored request headers unless
   // underscores_in_headers is on. Rails reads both as HTTP_API_ACCESS_TOKEN.
-  const curlExample = `curl -H "Api-Access-Token: ${token.token}" ${exampleUrl}`;
-  const javascriptExample = `fetch('${exampleUrl}', { headers: { 'Api-Access-Token': '${token.token}' } })`;
+  const curlExample = `curl -H "Api-Access-Token: ${exampleToken}" ${exampleUrl}`;
+  const javascriptExample = `fetch('${exampleUrl}', { headers: { 'Api-Access-Token': '${exampleToken}' } })`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -106,10 +120,12 @@ export default function ViewTokenModal({
           {/* Access Token */}
           <div className="space-y-2">
             <label className="text-sm font-medium">{t('viewModal.labels.token')}</label>
+            {tokenValue ? (
+            <>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Input
-                  value={showToken ? token.token : maskedToken}
+                  value={showToken ? tokenValue : maskedToken}
                   readOnly
                   className="font-mono text-sm pr-10"
                   type={showToken ? 'text' : 'password'}
@@ -119,7 +135,7 @@ export default function ViewTokenModal({
                   variant="ghost"
                   size="sm"
                   className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0"
-                  onClick={() => setShowToken(!showToken)}
+                  onClick={() => setRevealedFor(showToken ? null : viewKey)}
                 >
                   {showToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
@@ -128,14 +144,21 @@ export default function ViewTokenModal({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => handleCopy(token.token, t('viewModal.copyToken'))}
+                onClick={() => handleCopy(tokenValue, t('viewModal.copyToken'))}
               >
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              {t('viewModal.descriptions.tokenUsage')} <code>Api-Access-Token: {token.token.substring(0, 20)}...</code>
+              {t('viewModal.descriptions.tokenUsage')} <code>Api-Access-Token: {showToken ? `${tokenValue.substring(0, 20)}...` : exampleToken}</code>
             </p>
+            <p className="text-xs font-medium text-yellow-700 dark:text-yellow-300">
+              {t('viewModal.descriptions.shownOnce')}
+            </p>
+            </>
+            ) : (
+              <p className="text-sm text-muted-foreground">{t('viewModal.descriptions.valueNotStored')}</p>
+            )}
           </div>
 
           {/* Scopes */}

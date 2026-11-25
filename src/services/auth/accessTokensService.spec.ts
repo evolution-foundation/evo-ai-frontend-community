@@ -35,6 +35,12 @@ describe('createAccessToken', () => {
     );
   });
 
+  it('returns the created token, with the value the auth shows only now', async () => {
+    const createdToken = await createAccessToken({ name: 'CI', scopes: 'contacts.read' } as never);
+
+    expect(createdToken).toEqual({ id: 't-1', token: 'secret' });
+  });
+
   it('sends no account header on a standalone install', async () => {
     await createAccessToken({ name: 'CI', scopes: 'contacts.read' } as never);
 

@@ -313,6 +313,7 @@ jobs:
             src/pages/Customer/Campaigns/NewCampaign/wizard/Step4_Settings.spreadWindow.spec.tsx \
             src/services/auth/accessTokensService.spec.ts \
             src/components/AccessTokens/ViewTokenModal.spec.tsx \
+            src/pages/Customer/Settings/AccessTokens/AccessTokens.spec.tsx \
             src/services/users/usersService.spec.ts \
             src/components/channels/settings/CollaboratorsForm.spec.tsx \
             src/components/channels/settings/helpers/widgetHelpers.spec.ts \

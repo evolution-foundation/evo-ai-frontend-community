@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { SettingsAccessTokensTour } from '@/tours';
 import {
@@ -69,6 +69,15 @@ export default function AccessTokens() {
   const [editingToken, setEditingToken] = useState<AccessToken | null>(null);
   const [viewTokenModalOpen, setViewTokenModalOpen] = useState(false);
   const [selectedTokenForView, setSelectedTokenForView] = useState<AccessToken | null>(null);
+  // Each regenerate revokes the previous value: a second one in flight for
+  // the same token could land first and leave the modal on a dead value.
+  const regeneratingTokenIds = useRef(new Set<string>());
+
+  // A created or regenerated value is shown once; closing the modal drops it.
+  const handleViewTokenModalChange = (open: boolean) => {
+    setViewTokenModalOpen(open);
+    if (!open) setSelectedTokenForView(null);
+  };
 
   // Load tokens
   const loadTokens = useCallback(
@@ -132,7 +141,6 @@ export default function AccessTokens() {
       const filteredTokens = state.tokens.filter(
         token =>
           token.name.toLowerCase().includes(query.toLowerCase()) ||
-          token.token.toLowerCase().includes(query.toLowerCase()) ||
           token.scopes.toLowerCase().includes(query.toLowerCase()),
       );
       setState(prev => ({
@@ -221,6 +229,8 @@ export default function AccessTokens() {
       toast.error(t('messages.permissionDenied', { action: 'regenerar' }));
       return;
     }
+    if (regeneratingTokenIds.current.has(token.id)) return;
+    regeneratingTokenIds.current.add(token.id);
 
     try {
       setState(prev => ({ ...prev, loading: { ...prev.loading, regenerateToken: true } }));
@@ -230,7 +240,8 @@ export default function AccessTokens() {
       setState(prev => ({
         ...prev,
         tokens: prev.tokens.map(t =>
-          t.id === token.id ? { ...t, ...regenerated } : t,
+          // The value lives only in the modal opened below, not in the list.
+          t.id === token.id ? { ...t, ...regenerated, token: undefined } : t,
         ),
       }));
 
@@ -241,6 +252,7 @@ export default function AccessTokens() {
       console.error('Error regenerating token:', error);
       toast.error(t('messages.regenerateError'));
     } finally {
+      regeneratingTokenIds.current.delete(token.id);
       setState(prev => ({ ...prev, loading: { ...prev.loading, regenerateToken: false } }));
     }
   };
@@ -336,8 +348,10 @@ export default function AccessTokens() {
         await updateAccessToken(editingToken.id, data);
         toast.success(t('messages.updateSuccess'));
       } else {
-        // Create new token
-        await createAccessToken(data);
+        // The value comes back only now, so it opens straight away.
+        const created = await createAccessToken(data);
+        setSelectedTokenForView(created);
+        setViewTokenModalOpen(true);
         toast.success(t('messages.createSuccess'));
       }
 
@@ -429,7 +443,6 @@ export default function AccessTokens() {
             onViewToken={handleViewToken}
             onRegenerateToken={handleRegenerateToken}
             onCreateToken={handleCreateToken}
-            onCopy={handleCopy}
             sortBy={state.sortBy}
             sortOrder={state.sortOrder}
             onSort={column => {
@@ -524,7 +537,7 @@ export default function AccessTokens() {
       {/* View Token Modal */}
       <ViewTokenModal
         open={viewTokenModalOpen}
-        onOpenChange={setViewTokenModalOpen}
+        onOpenChange={handleViewTokenModalChange}
         token={selectedTokenForView}
         onCopy={handleCopy}
       />
