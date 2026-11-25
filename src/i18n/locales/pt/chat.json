@@ -11,12 +11,49 @@
       "playbackError": "Erro ao reproduzir áudio",
       "playbackErrorDescription": "Não foi possível reproduzir este arquivo de áudio"
     },
+    "forward": {
+      "title": "Reencaminhar mensagem",
+      "description": "Escolha até {{max}} conversas de WhatsApp.",
+      "search": "Procurar por nome ou número",
+      "searching": "A procurar…",
+      "empty": "Nenhuma conversa de WhatsApp encontrada.",
+      "searchError": "Não foi possível procurar as conversas.",
+      "selected": "{{total}} de {{max}} selecionadas",
+      "remove": "Remover {{name}}",
+      "confirm": "Reencaminhar",
+      "sending": "A reencaminhar…",
+      "sent": "A reencaminhar para {{names}}.",
+      "errors": {
+        "invalid_target": "Uma das conversas não está disponível. Escolha outra.",
+        "unsupported_channel": "Só é possível reencaminhar para conversas de WhatsApp.",
+        "unsupported_message": "Esta mensagem não pode ser reencaminhada.",
+        "unsupported_content": "Este conteúdo não pode ser reencaminhado.",
+        "creation_failed": "Não foi possível criar o envio (pode ser o limite por minuto). Nada foi enviado.",
+        "generic": "Não foi possível reencaminhar. Tente novamente."
+      }
+    },
     "messageBubble": {
+      "actions": "Mais ações",
       "contextMenu": {
+        "react": "Reagir",
+        "forward": "Reencaminhar",
         "reply": "Responder",
         "copy": "Copiar mensagem",
         "delete": "Excluir mensagem"
       },
+      "sharedContact": {
+        "copy": "Copiar número",
+        "copied": "Número copiado",
+        "copyError": "Não foi possível copiar o número.",
+        "noName": "Contacto sem nome"
+      },
+      "reactions": {
+        "more": "Mais emojis",
+        "remove": "Remover a minha reação",
+        "picker": "Escolher reação",
+        "error": "Não foi possível reagir. Tente novamente."
+      },
+      "forwarded": "Reencaminhada",
       "userFallback": "Usuário",
       "agent": {
         "badge": "Atendente",
@@ -97,6 +134,7 @@
       "tryAgain": "Tentar novamente"
     },
     "replyPreview": {
+      "cancel": "Cancelar resposta",
       "imageAttachment": "📷 Imagem",
       "audioAttachment": "🎵 Áudio",
       "videoAttachment": "🎥 Vídeo",

@@ -2,14 +2,42 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import EmbeddedConversation from './EmbeddedConversation';
 
-const chat = vi.hoisted(() => ({ getConversation: vi.fn(), getMessages: vi.fn(), markConversationAsRead: vi.fn(), sendMessage: vi.fn() }));
+const chat = vi.hoisted(() => ({ getConversation: vi.fn(), getMessages: vi.fn(), markConversationAsRead: vi.fn(), sendMessage: vi.fn(), reactToMessage: vi.fn() }));
 const perms = vi.hoisted(() => ({ can: vi.fn() }));
-vi.mock('@/hooks/useLanguage', async () => { const { pipelinesT } = await import('@/test/pipelinesI18n'); return { useLanguage: () => ({ t: pipelinesT }) }; });
+vi.mock('@/hooks/useLanguage', async () => {
+  const { pipelinesT } = await import('@/test/pipelinesI18n');
+  const chatLocale = (await import('@/i18n/locales/pt-BR/chat.json')).default;
+  const chatT = (key: string) => {
+    const value = key.split('.').reduce<unknown>((acc, part) => (acc as Record<string, unknown> | undefined)?.[part], chatLocale);
+    return typeof value === 'string' ? value : key;
+  };
+  return { useLanguage: (namespace: string) => ({ t: namespace === 'chat' ? chatT : pipelinesT }) };
+});
 vi.mock('@/services/chat/chatService', () => ({ default: chat }));
 vi.mock('@/contexts/PermissionsContext', () => ({ usePermissions: () => ({ can: perms.can }) }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock('@/components/chat/messages/ForwardDialog', () => ({
+  default: ({ conversationId, message, onForwarded, onClose }: { conversationId: string; message: { id: string }; onForwarded: (m: unknown[]) => void; onClose: () => void }) => (
+    <div role="dialog">
+      encaminhando {message.id} de {conversationId}
+      <button type="button" onClick={() => { onForwarded([{ id: 'f1', content: 'Cópia aqui', conversation_id: 'c1' }, { id: 'f2', content: 'Cópia alheia', conversation_id: 'c2' }]); onClose(); }}>concluir</button>
+    </div>
+  ),
+}));
 vi.mock('@/components/chat/messages/MessageList', () => ({
-  default: ({ messages }: { messages: Array<{ id: string; content: string }> }) => <ul>{messages.map(m => <li key={m.id}>{m.content}</li>)}</ul>,
+  default: ({ messages, onReplyToMessage, onDeleteMessage, onReactToMessage, onForwardMessage }: { messages: Array<{ id: string; content: string; content_attributes?: { reactions?: Array<{ emoji: string; from: string }> } }>; onReplyToMessage?: (m: unknown) => void; onDeleteMessage?: unknown; onReactToMessage?: (m: unknown, emoji: string) => void; onForwardMessage?: (m: unknown) => void }) => (
+    <ul data-testid="list" data-can-delete={String(Boolean(onDeleteMessage))}>
+      {messages.map(m => (
+        <li key={m.id}>
+          <span>{m.content}</span>
+          <span data-testid={`reactions-${m.id}`}>{m.content_attributes?.reactions?.map(r => `${r.from}:${r.emoji}`).join(' ')}</span>
+          {onReactToMessage && <button type="button" onClick={() => onReactToMessage(m, '👍')}>reagir {m.id}</button>}
+          {onForwardMessage && <button type="button" onClick={() => onForwardMessage(m)}>encaminhar {m.id}</button>}
+          {onReplyToMessage && <button type="button" onClick={() => onReplyToMessage(m)}>responder {m.id}</button>}
+        </li>
+      ))}
+    </ul>
+  ),
 }));
 
 describe('EmbeddedConversation', () => {
@@ -73,5 +101,163 @@ describe('EmbeddedConversation', () => {
     render(<EmbeddedConversation conversationId="c1" spyDefault />);
     fireEvent.click(await screen.findByRole('button', { name: 'Tentar de novo' }));
     expect(await screen.findByText('Olá!')).toBeInTheDocument();
+  });
+
+  const cancelName = { name: 'Cancelar resposta' };
+  const type = (value: string) => fireEvent.change(screen.getByLabelText('Mensagem'), { target: { value } });
+  const pressEnter = () => fireEvent.keyDown(screen.getByLabelText('Mensagem'), { key: 'Enter' });
+  const reply = async () => fireEvent.click(await screen.findByRole('button', { name: 'responder m1' }));
+
+  it('sends with the quoted message and clears the quote', async () => {
+    chat.sendMessage.mockResolvedValue({ id: 'm2', content: 'Claro' });
+    render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    await reply();
+    expect(screen.getByRole('button', cancelName)).toBeInTheDocument();
+    type('Claro');
+    pressEnter();
+    await waitFor(() => expect(chat.sendMessage).toHaveBeenCalledWith('c1', expect.objectContaining({ content_attributes: { in_reply_to: 'm1' } })));
+    await waitFor(() => expect(screen.queryByRole('button', cancelName)).toBeNull());
+  });
+
+  it('cancel removes the quote and keeps the draft', async () => {
+    chat.sendMessage.mockResolvedValue({ id: 'm2', content: 'Claro' });
+    render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    await reply();
+    type('Claro');
+    fireEvent.click(screen.getByRole('button', cancelName));
+    expect(screen.queryByRole('button', cancelName)).toBeNull();
+    expect(screen.getByLabelText('Mensagem')).toHaveValue('Claro');
+    pressEnter();
+    await waitFor(() => expect(chat.sendMessage).toHaveBeenCalledTimes(1));
+    expect(chat.sendMessage.mock.calls[0][1].content_attributes).toBeUndefined();
+  });
+
+  it('keeps draft and quote when sending fails', async () => {
+    chat.sendMessage.mockRejectedValue(new Error('x'));
+    render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    await reply();
+    type('Claro');
+    pressEnter();
+    await waitFor(() => expect(chat.sendMessage).toHaveBeenCalled());
+    await new Promise(resolve => setTimeout(resolve, 20));
+    expect(screen.getByRole('button', cancelName)).toBeInTheDocument();
+    expect(screen.getByLabelText('Mensagem')).toHaveValue('Claro');
+  });
+
+  it('drops the quote when the conversation changes', async () => {
+    const { rerender } = render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    await reply();
+    rerender(<EmbeddedConversation conversationId="c2" spyDefault />);
+    await screen.findByRole('button', { name: 'responder m1' });
+    expect(screen.queryByRole('button', cancelName)).toBeNull();
+  });
+
+  it('a send that finishes after the conversation changed does not touch the new one', async () => {
+    let finish: (value: unknown) => void = () => undefined;
+    chat.sendMessage.mockReturnValue(new Promise(resolve => { finish = resolve; }));
+    const { rerender } = render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    await reply();
+    type('Claro');
+    pressEnter();
+    chat.getMessages.mockResolvedValue({ success: true, data: [{ id: 'n1', content: 'Outra conversa' }] });
+    rerender(<EmbeddedConversation conversationId="c2" spyDefault />);
+    fireEvent.click(await screen.findByRole('button', { name: 'responder n1' }));
+    type('rascunho novo');
+    finish({ id: 'm2', content: 'Claro' });
+    await new Promise(resolve => setTimeout(resolve, 20));
+    expect(screen.queryByText('Claro')).toBeNull();
+    expect(screen.getByLabelText('Mensagem')).toHaveValue('rascunho novo');
+    expect(screen.getByRole('button', cancelName)).toBeInTheDocument();
+  });
+
+  it('offers no delete, and no reply when it cannot send', async () => {
+    perms.can.mockReturnValue(false);
+    render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    await screen.findByText('Olá!');
+    expect(screen.getByTestId('list')).toHaveAttribute('data-can-delete', 'false');
+    expect(screen.queryByRole('button', { name: 'responder m1' })).toBeNull();
+  });
+
+  const evolution = { id: 'c1', can_reply: true, inbox: { channel_type: 'Channel::Whatsapp', provider: 'evolution' } };
+  const reactions = () => screen.getByTestId('reactions-m1');
+
+  it('reacts at once and keeps the reaction the server saved', async () => {
+    chat.getConversation.mockResolvedValue(evolution);
+    chat.reactToMessage.mockResolvedValue({ content_attributes: { reactions: [{ emoji: '👍', from: 'me' }] } });
+    render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    fireEvent.click(await screen.findByRole('button', { name: 'reagir m1' }));
+    expect(reactions()).toHaveTextContent('me:👍');
+    await waitFor(() => expect(chat.reactToMessage).toHaveBeenCalledWith('c1', 'm1', '👍'));
+    expect(reactions()).toHaveTextContent('me:👍');
+  });
+
+  it('undoes the reaction when the send fails', async () => {
+    chat.getConversation.mockResolvedValue(evolution);
+    chat.reactToMessage.mockRejectedValue(new Error('x'));
+    render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    fireEvent.click(await screen.findByRole('button', { name: 'reagir m1' }));
+    await waitFor(() => expect(chat.reactToMessage).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(reactions().textContent).toBe(''));
+  });
+
+  it('does not offer reacting on other channels or without permission', async () => {
+    const { unmount } = render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    await screen.findByText('Olá!');
+    expect(screen.queryByRole('button', { name: 'reagir m1' })).toBeNull();
+    unmount();
+    perms.can.mockReturnValue(false);
+    chat.getConversation.mockResolvedValue(evolution);
+    render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    await screen.findByText('Olá!');
+    await waitFor(() => expect(chat.getConversation).toHaveBeenCalledTimes(2));
+    expect(screen.queryByRole('button', { name: 'reagir m1' })).toBeNull();
+  });
+
+  it('refreshes reactions of loaded messages through polling', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      render(<EmbeddedConversation conversationId="c1" spyDefault />);
+      await screen.findByText('Olá!');
+      chat.getMessages.mockResolvedValue({ success: true, data: [{ id: 'm1', content: 'Olá!', content_attributes: { reactions: [{ emoji: '❤️', from: 'contact' }] } }] });
+      await vi.advanceTimersByTimeAsync(10_000);
+      await waitFor(() => expect(reactions()).toHaveTextContent('contact:❤️'));
+      expect(screen.getAllByText('Olá!')).toHaveLength(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+describe('EmbeddedConversation forwarding', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+    perms.can.mockReturnValue(true);
+    chat.getConversation.mockResolvedValue({ id: 'c1', can_reply: false, inbox: { channel_type: 'Channel::Whatsapp', provider: 'evolution' } });
+    chat.getMessages.mockResolvedValue({ success: true, data: [{ id: 'm1', content: 'Olá!' }] });
+  });
+
+  it('opens the picker and shows only the copy that belongs to this conversation', async () => {
+    render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    fireEvent.click(await screen.findByRole('button', { name: 'encaminhar m1' }));
+    expect(screen.getByRole('dialog')).toHaveTextContent('encaminhando m1 de c1');
+    fireEvent.click(screen.getByRole('button', { name: 'concluir' }));
+    expect(screen.getByText('Cópia aqui')).toBeInTheDocument();
+    expect(screen.queryByText('Cópia alheia')).toBeNull();
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('closes the picker when the panel changes conversation', async () => {
+    const { rerender } = render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    fireEvent.click(await screen.findByRole('button', { name: 'encaminhar m1' }));
+    rerender(<EmbeddedConversation conversationId="c2" spyDefault />);
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('hides forwarding without permission', async () => {
+    perms.can.mockReturnValue(false);
+    render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    await screen.findByText('Olá!');
+    expect(screen.queryByRole('button', { name: 'encaminhar m1' })).toBeNull();
   });
 });

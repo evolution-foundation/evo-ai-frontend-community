@@ -3,7 +3,9 @@ import React, { createContext, useContext, useReducer, useCallback, useRef } fro
 import { toast } from 'sonner';
 import { chatService } from '@/services/chat/chatService';
 import { extractMessagesData } from '@/utils/chat/responseHelpers';
-import { Attachment, Message, MessageSender, MessageTypeValue } from '@/types/chat/api';
+import { Attachment, Message, MessageSender, MessageTypeValue, MessageReaction } from '@/types/chat/api';
+import { withMyReaction } from '@/components/chat/messages/utils/reactions';
+import { keepUnmaskedContacts } from '@/components/chat/messages/utils/sharedContacts';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface MessagesState {
@@ -30,6 +32,7 @@ type MessagesAction =
   | { type: 'SET_MESSAGES_ERROR'; payload: { conversationId: string; error: string | null } }
   | { type: 'ADD_MESSAGE'; payload: { conversationId: string; message: Message } }
   | { type: 'UPDATE_MESSAGE'; payload: { conversationId: string; message: Message } }
+  | { type: 'SET_MY_REACTION'; payload: { conversationId: string; messageId: string; reaction: MessageReaction | null } }
   | {
       type: 'REPLACE_MESSAGE';
       payload: { conversationId: string; tempId: string; message: Message };
@@ -251,8 +254,8 @@ function messagesReducer(state: MessagesState, action: MessagesAction): Messages
 
     case 'UPDATE_MESSAGE': {
       const conversationMessages = state.messages[action.payload.conversationId] || [];
-      const newMessage = action.payload.message;
-      const existingMessage = conversationMessages.find(msg => msg.id === newMessage.id);
+      const existingMessage = conversationMessages.find(msg => msg.id === action.payload.message.id);
+      const newMessage = keepUnmaskedContacts(existingMessage, action.payload.message);
 
       // Se mensagem existe e é outgoing, preservar message_type e sender.type
       const mergedMessage: Message =
@@ -278,6 +281,19 @@ function messagesReducer(state: MessagesState, action: MessagesAction): Messages
         messages: {
           ...state.messages,
           [action.payload.conversationId]: updatedMessages,
+        },
+      };
+    }
+
+    case 'SET_MY_REACTION': {
+      const { conversationId, messageId, reaction } = action.payload;
+      return {
+        ...state,
+        messages: {
+          ...state.messages,
+          [conversationId]: (state.messages[conversationId] || []).map(msg =>
+            msg.id === messageId ? withMyReaction(msg, reaction) : msg,
+          ),
         },
       };
     }
@@ -407,6 +423,7 @@ interface MessagesContextValue {
   setMessages: (conversationId: string, messages: Message[]) => void;
   addMessage: (conversationId: string, message: Message) => void;
   updateMessage: (conversationId: string, message: Message) => void;
+  setMyReaction: (conversationId: string, messageId: string, reaction: MessageReaction | null) => void;
   replaceMessage: (conversationId: string, tempId: string, message: Message) => void;
   addPreviousMessages: (conversationId: string, previousMessages: Message[]) => void;
   clearConversationMessages: (conversationId: string) => void;
@@ -853,6 +870,10 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const setMyReaction = useCallback((conversationId: string, messageId: string, reaction: MessageReaction | null) => {
+    dispatch({ type: 'SET_MY_REACTION', payload: { conversationId, messageId, reaction } });
+  }, []);
+
   const replaceMessage = useCallback((conversationId: string, tempId: string, message: Message) => {
     dispatch({
       type: 'REPLACE_MESSAGE',
@@ -943,6 +964,7 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
     setMessages,
     addMessage,
     updateMessage,
+    setMyReaction,
     replaceMessage,
     addPreviousMessages,
     clearConversationMessages,

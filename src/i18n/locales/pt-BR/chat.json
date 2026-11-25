@@ -12,12 +12,49 @@
       "playbackErrorDescription": "Não foi possível reproduzir este arquivo de áudio",
       "transcription": "Transcrição"
     },
+    "forward": {
+      "title": "Encaminhar mensagem",
+      "description": "Escolha até {{max}} conversas de WhatsApp.",
+      "search": "Buscar por nome ou número",
+      "searching": "Buscando…",
+      "empty": "Nenhuma conversa de WhatsApp encontrada.",
+      "searchError": "Não foi possível buscar as conversas.",
+      "selected": "{{total}} de {{max}} selecionadas",
+      "remove": "Remover {{name}}",
+      "confirm": "Encaminhar",
+      "sending": "Encaminhando…",
+      "sent": "Encaminhando para {{names}}.",
+      "errors": {
+        "invalid_target": "Uma das conversas não está disponível. Escolha outra.",
+        "unsupported_channel": "Só dá para encaminhar para conversas de WhatsApp.",
+        "unsupported_message": "Esta mensagem não pode ser encaminhada.",
+        "unsupported_content": "Este conteúdo não pode ser encaminhado.",
+        "creation_failed": "Não deu para criar o envio (pode ser o limite por minuto). Nada foi enviado.",
+        "generic": "Não foi possível encaminhar. Tente de novo."
+      }
+    },
     "messageBubble": {
+      "actions": "Mais ações",
       "contextMenu": {
+        "react": "Reagir",
+        "forward": "Encaminhar",
         "reply": "Responder",
         "copy": "Copiar mensagem",
         "delete": "Excluir mensagem"
       },
+      "sharedContact": {
+        "copy": "Copiar número",
+        "copied": "Número copiado",
+        "copyError": "Não foi possível copiar o número.",
+        "noName": "Contato sem nome"
+      },
+      "reactions": {
+        "more": "Mais emojis",
+        "remove": "Remover minha reação",
+        "picker": "Escolher reação",
+        "error": "Não foi possível reagir. Tente de novo."
+      },
+      "forwarded": "Encaminhada",
       "userFallback": "Usuário",
       "agent": {
         "badge": "Atendente",
@@ -98,6 +135,7 @@
       "tryAgain": "Tentar novamente"
     },
     "replyPreview": {
+      "cancel": "Cancelar resposta",
       "imageAttachment": "📷 Imagem",
       "audioAttachment": "🎵 Áudio",
       "videoAttachment": "🎥 Vídeo",

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Badge } from '@evoapi/design-system/badge';
 import {
   ContextMenu,
@@ -7,6 +7,13 @@ import {
   ContextMenuItem,
   ContextMenuSeparator,
 } from '@evoapi/design-system/context-menu';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@evoapi/design-system/dropdown-menu';
+import { Popover, PopoverContent, PopoverTrigger } from '@evoapi/design-system/popover';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@evoapi/design-system/alert-dialog';
-import { LockIcon, Reply, Copy, Trash2, AlertTriangle, Shield, Ban } from 'lucide-react';
+import { LockIcon, Reply, Copy, Trash2, AlertTriangle, Shield, Ban, ChevronDown, SmilePlus, Forward } from 'lucide-react';
 import { Message, MESSAGE_TYPE } from '@/types/chat/api';
 import { useLanguage } from '@/hooks/useLanguage';
 import MessageText from '@/components/chat/messages/MessageText';
@@ -29,9 +36,14 @@ import MessageInputSelect from '@/components/chat/messages/MessageInputSelect';
 import MessageLocation from '@/components/chat/messages/MessageLocation';
 import MessageInstagramReel from '@/components/chat/messages/MessageInstagramReel';
 import MessageCarousel from '@/components/chat/messages/MessageCarousel';
+import MessageContacts from '@/components/chat/messages/MessageContacts';
 import MessageStatus from '@/components/chat/messages/MessageStatus';
 import SystemMessage from '@/components/chat/messages/SystemMessage';
 import ReplyPreview from '@/components/chat/messages/ReplyPreview';
+import MessageReactions from '@/components/chat/messages/MessageReactions';
+import ReactionPicker from '@/components/chat/messages/ReactionPicker';
+import { canReactTo, myReaction } from '@/components/chat/messages/utils/reactions';
+import { canForward } from '@/components/chat/messages/utils/forward';
 import { FacebookCommentModeration } from '@/types/channels/inbox';
 
 interface MessageBubbleProps {
@@ -52,6 +64,10 @@ interface MessageBubbleProps {
   onReply?: (message: Message) => void;
   onCopy?: (message: Message) => void;
   onDelete?: (message: Message) => void;
+  /** Emoji vazio remove a minha reação. */
+  onReact?: (message: Message, emoji: string) => void;
+  /** Abre o seletor de destinos. */
+  onForward?: (message: Message) => void;
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -72,6 +88,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   onReply,
   onCopy,
   onDelete,
+  onReact,
+  onForward,
 }) => {
   const { t } = useLanguage('chat');
   const isTemplate = message.message_type === MESSAGE_TYPE.TEMPLATE;
@@ -113,9 +131,51 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     onCopy?.(message);
   };
 
+  // Itens que levam o foco para outro lugar (compositor, seletor de reação).
+  const keepFocusRef = useRef(false);
   const handleReplyMessage = () => {
+    keepFocusRef.current = true;
     onReply?.(message);
   };
+
+  // Sem isto o menu, ao fechar, devolve o foco à bolha (e fecharia o seletor de reação).
+  const handleMenuCloseAutoFocus = (event: Event) => {
+    if (keepFocusRef.current) event.preventDefault();
+    keepFocusRef.current = false;
+  };
+
+  const [showReactionPicker, setShowReactionPicker] = useState(false);
+  const canReact = Boolean(onReact) && !isDeleted && canReactTo(message);
+  const currentReaction = myReaction(message.content_attributes?.reactions)?.emoji;
+  const handleReactMessage = () => {
+    keepFocusRef.current = true;
+    setShowReactionPicker(true);
+  };
+  const react = (emoji: string) => {
+    setShowReactionPicker(false);
+    onReact?.(message, emoji);
+  };
+  const renderReactions = (alignEnd: boolean) =>
+    !isDeleted && (
+      <MessageReactions
+        reactions={message.content_attributes?.reactions}
+        alignEnd={alignEnd}
+        onRemoveMine={canReact ? () => react('') : undefined}
+      />
+    );
+
+  const handleForwardMessage = () => {
+    // O foco vai para o seletor de destinos.
+    keepFocusRef.current = true;
+    onForward?.(message);
+  };
+
+  const forwardedLabel = !isDeleted && message.content_attributes?.forwarded === true && (
+    <div className="mb-1 flex items-center gap-1 text-xs italic opacity-75">
+      <Forward className="h-3 w-3" aria-hidden="true" />
+      {t('messages.messageBubble.forwarded')}
+    </div>
+  );
 
   const handleDeleteMessage = () => {
     setShowDeleteDialog(true);
@@ -126,40 +186,136 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     await onDelete?.(message);
   };
 
-  const renderContextMenu = (children: React.ReactNode) => {
-    // Template, Activity messages e mensagens deletadas não têm context menu
+  // Ações da mensagem: fonte única do botão direito e do botão visível na bolha.
+  // Novas ações entram nesta lista.
+  // REGRA EVOLUTION: notas privadas não podem ser respondidas; mensagem em envio ou
+  // com falha ainda não existe no destino, então também não oferece "Responder".
+  const canReply =
+    Boolean(onReply) && !isPrivate && message.status !== 'failed' && message.status !== 'progress';
+  const actions = [
+    canReply && {
+      key: 'reply',
+      icon: Reply,
+      label: t('messages.messageBubble.contextMenu.reply'),
+      onSelect: handleReplyMessage,
+    },
+    canReact && {
+      key: 'react',
+      icon: SmilePlus,
+      label: t('messages.messageBubble.contextMenu.react'),
+      onSelect: handleReactMessage,
+    },
+    onForward && canForward(message) && {
+      key: 'forward',
+      icon: Forward,
+      label: t('messages.messageBubble.contextMenu.forward'),
+      onSelect: handleForwardMessage,
+    },
+    {
+      key: 'copy',
+      icon: Copy,
+      label: t('messages.messageBubble.contextMenu.copy'),
+      onSelect: handleCopyMessage,
+    },
+    onDelete && {
+      key: 'delete',
+      icon: Trash2,
+      label: t('messages.messageBubble.contextMenu.delete'),
+      onSelect: handleDeleteMessage,
+      destructive: true,
+    },
+  ].filter(action => !!action);
+
+  const actionButtonClass =
+    'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground opacity-0 transition-opacity hover:bg-muted group-hover/bubble:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 [@media(hover:none)]:opacity-100';
+
+  // alignEnd: bolha própria (à direita) leva o botão do lado esquerdo dela.
+  const renderWithActions = (children: React.ReactNode, alignEnd: boolean) => {
+    // Template, Activity messages e mensagens deletadas não têm ações
     if (isTemplate || isActivity || isDeleted) {
       return children;
     }
 
-    // REGRA EVOLUTION: Mensagens privadas não podem ser respondidas
-    const canReply = !isPrivate;
-
     return (
-      <ContextMenu>
-        <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
-        <ContextMenuContent className="w-48">
-          {canReply && (
-            <ContextMenuItem onClick={handleReplyMessage} className="flex items-center gap-2">
-              <Reply className="h-4 w-4" />
-              {t('messages.messageBubble.contextMenu.reply')}
-            </ContextMenuItem>
-          )}
-          <ContextMenuItem onClick={handleCopyMessage} className="flex items-center gap-2">
-            <Copy className="h-4 w-4" />
-            {t('messages.messageBubble.contextMenu.copy')}
-          </ContextMenuItem>
-          <ContextMenuSeparator />
-          <ContextMenuItem
-            onClick={handleDeleteMessage}
-            className="flex items-center gap-2"
-            variant="destructive"
+      <div className={`group/bubble flex items-start gap-1 ${alignEnd ? 'flex-row-reverse' : ''}`}>
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <div className="min-w-0 flex-1">{children}</div>
+          </ContextMenuTrigger>
+          <ContextMenuContent
+            className="message-actions-menu w-48"
+            onCloseAutoFocus={handleMenuCloseAutoFocus}
           >
-            <Trash2 className="h-4 w-4" />
-            {t('messages.messageBubble.contextMenu.delete')}
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
+            {actions.map(({ key, icon: Icon, label, onSelect, destructive }) => (
+              <React.Fragment key={key}>
+                {destructive && <ContextMenuSeparator />}
+                <ContextMenuItem
+                  onClick={onSelect}
+                  className="flex items-center gap-2"
+                  variant={destructive ? 'destructive' : 'default'}
+                >
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </ContextMenuItem>
+              </React.Fragment>
+            ))}
+          </ContextMenuContent>
+        </ContextMenu>
+        {canReact && (
+          <Popover open={showReactionPicker} onOpenChange={setShowReactionPicker}>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                aria-label={t('messages.messageBubble.contextMenu.react')}
+                title={t('messages.messageBubble.contextMenu.react')}
+                className={actionButtonClass}
+              >
+                <SmilePlus className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="message-actions-menu w-auto border-0 bg-transparent p-0 shadow-none"
+              align={alignEnd ? 'end' : 'start'}
+              collisionPadding={8}
+              // O menu que ainda está fechando (e o painel lateral) mexem no foco; só clique
+              // fora, Esc ou a escolha fecham o seletor.
+              onFocusOutside={event => event.preventDefault()}
+              aria-label={t('messages.messageBubble.reactions.picker')}
+            >
+              <ReactionPicker current={currentReaction} onSelect={react} onClose={() => setShowReactionPicker(false)} />
+            </PopoverContent>
+          </Popover>
+        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={t('messages.messageBubble.actions')}
+              title={t('messages.messageBubble.actions')}
+              className={actionButtonClass}
+            >
+              <ChevronDown className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="message-actions-menu w-48"
+            align={alignEnd ? 'end' : 'start'}
+            onCloseAutoFocus={handleMenuCloseAutoFocus}
+          >
+            {actions.map(({ key, icon: Icon, label, onSelect, destructive }) => (
+              <DropdownMenuItem
+                key={key}
+                onSelect={onSelect}
+                className="flex items-center gap-2"
+                variant={destructive ? 'destructive' : 'default'}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     );
   };
 
@@ -167,8 +323,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   // sentido pra texto puro — mídia/cards/preview usam 'default' (bloco abaixo do conteúdo),
   // que é como o protótipo trata a bolha alta (LinkedIn preview).
   const hasAttachments = Boolean(message.attachments && message.attachments.length > 0);
+  const sharedContacts = isDeleted ? undefined : message.content_attributes?.shared_contacts;
+  const hasSharedContacts = Boolean(sharedContacts?.length);
   const isPlainTextContent =
     !hasAttachments &&
+    !hasSharedContacts &&
     (message.content_type === 'text' ||
       message.content_type === 'incoming_email' ||
       !message.content_type);
@@ -188,6 +347,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     isPlainTextContent || isAudioOnly ? 'tuck' : 'default';
 
   const renderMessageContent = () => {
+    // O `content` de um contato são só os nomes; o cartão o substitui.
+    if (sharedContacts?.length) return <MessageContacts contacts={sharedContacts} />;
+
     // 🎯 CORREÇÃO: Detectar attachments automaticamente
 
     if (hasAttachments) {
@@ -344,7 +506,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     return (
       <>
         <div className="mb-1">
-          {renderContextMenu(
+          {renderWithActions(
             <div
               className={`rounded-lg px-3 py-1.5 ${isDeleted ? 'cursor-default' : 'cursor-pointer'} ${isPrivate
                 ? 'bg-orange-50 border border-orange-200 dark:bg-orange-950/20 dark:border-orange-800/50'
@@ -380,6 +542,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 </div>
               )}
 
+              {forwardedLabel}
+
               {hasReplyReference && !isPrivate && (
                 <ReplyPreview message={replyToMessage} isOwn={false} />
               )}
@@ -405,7 +569,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 <MessageStatus message={message} isOwn={false} onRetry={onRetry} variant="default" />
               )}
             </div>,
+            false,
           )}
+          {renderReactions(false)}
         </div>
 
         {/* Alert Dialog para confirmação de exclusão */}
@@ -485,7 +651,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           </div>
         )}
 
-        {renderContextMenu(
+        {renderWithActions(
           <div
             className={`rounded-lg px-3 py-2 ${isDeleted ? 'cursor-default' : 'cursor-pointer'} ${
               isOwn ? 'rounded-tr-[4px]' : isThreadReply ? 'rounded-tl-md' : ''
@@ -541,6 +707,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               </div>
             )}
 
+            {forwardedLabel}
+
             {hasReplyReference && !isPrivate && (
               <ReplyPreview message={replyToMessage} isOwn={isOwn} />
             )}
@@ -566,7 +734,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               <MessageStatus message={message} isOwn={isOwn} onRetry={onRetry} variant="default" />
             )}
           </div>,
+          isOwn,
         )}
+        {renderReactions(isOwn)}
       </div>
 
       {/* Alert Dialog para confirmação de exclusão */}

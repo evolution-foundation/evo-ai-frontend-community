@@ -12,6 +12,12 @@ body.authenticated-panel-density {
   overflow: hidden;
 }
 
+/* O posicionador do Radix calcula em pixels da tela e, dentro do body com zoom,
+   o menu saía deslocado (caía sob o cursor e o clique escolhia um item).
+   O posicionador volta à escala 1 e o conteúdo mantém a densidade. */
+[data-radix-popper-content-wrapper]:has(> .message-actions-menu) { zoom: calc(1 / var(--shell-scale, 1)); }
+.message-actions-menu { zoom: var(--shell-scale, 1); }
+
 .authenticated-shell {
   width: calc(100vw / 0.9);
   height: calc(100dvh / 0.9);

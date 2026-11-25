@@ -192,13 +192,33 @@ export interface Attachment {
 // Known fields the backend tags on `Message.content_attributes`. The shape stays
 // open (`Record<string, unknown>`) for forward compatibility, but these named
 // fields let consumers read them without unsafe `as string` casts.
+/** No máximo uma por autor (`from`); `at` em segundos Unix. */
+export interface MessageReaction {
+  emoji: string;
+  from: 'contact' | 'me';
+  user_id: string | null;
+  at: number;
+}
+
+/** Contato recebido por vCard; `phones` vem mascarado (`*`) com `mask_contact_pii`. */
+export interface SharedContact {
+  name: string;
+  phones: string[];
+  organization: string | null;
+}
+
 export interface MessageContentAttributes extends Record<string, unknown> {
   sender_name?: string;
   media_type?: 'image' | 'video' | 'audio' | 'file' | 'sticker' | 'location' | 'contact';
   in_reply_to?: string | number;
   in_reply_to_external_id?: string;
   is_reaction?: boolean;
+  reactions?: MessageReaction[];
+  shared_contacts?: SharedContact[];
   is_unsupported?: boolean;
+  forwarded?: boolean;
+  media_unavailable?: boolean;
+  revoked_by_contact?: boolean;
   deleted?: boolean;
   external_created_at?: number;
 }

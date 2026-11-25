@@ -11,12 +11,49 @@
       "playbackError": "Error al reproducir audio",
       "playbackErrorDescription": "No se pudo reproducir este archivo de audio"
     },
+    "forward": {
+      "title": "Reenviar mensaje",
+      "description": "Elige hasta {{max}} conversaciones de WhatsApp.",
+      "search": "Buscar por nombre o número",
+      "searching": "Buscando…",
+      "empty": "No se encontró ninguna conversación de WhatsApp.",
+      "searchError": "No se pudieron buscar las conversaciones.",
+      "selected": "{{total}} de {{max}} seleccionadas",
+      "remove": "Quitar {{name}}",
+      "confirm": "Reenviar",
+      "sending": "Reenviando…",
+      "sent": "Reenviando a {{names}}.",
+      "errors": {
+        "invalid_target": "Una de las conversaciones no está disponible. Elige otra.",
+        "unsupported_channel": "Solo se puede reenviar a conversaciones de WhatsApp.",
+        "unsupported_message": "Este mensaje no se puede reenviar.",
+        "unsupported_content": "Este contenido no se puede reenviar.",
+        "creation_failed": "No se pudo crear el envío (puede ser el límite por minuto). No se envió nada.",
+        "generic": "No se pudo reenviar. Inténtalo de nuevo."
+      }
+    },
     "messageBubble": {
+      "actions": "Más acciones",
       "contextMenu": {
+        "react": "Reaccionar",
+        "forward": "Reenviar",
         "reply": "Responder",
         "copy": "Copiar mensaje",
         "delete": "Eliminar mensaje"
       },
+      "sharedContact": {
+        "copy": "Copiar número",
+        "copied": "Número copiado",
+        "copyError": "No se pudo copiar el número.",
+        "noName": "Contacto sin nombre"
+      },
+      "reactions": {
+        "more": "Más emojis",
+        "remove": "Quitar mi reacción",
+        "picker": "Elegir reacción",
+        "error": "No se pudo reaccionar. Inténtalo de nuevo."
+      },
+      "forwarded": "Reenviado",
       "userFallback": "Usuario",
       "agent": {
         "badge": "Agente",
@@ -97,6 +134,7 @@
       "tryAgain": "Intentar de nuevo"
     },
     "replyPreview": {
+      "cancel": "Cancelar respuesta",
       "imageAttachment": "📷 Imagen",
       "audioAttachment": "🎵 Audio",
       "videoAttachment": "🎥 Video",

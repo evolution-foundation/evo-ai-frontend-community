@@ -221,6 +221,8 @@ button.deal-activity-item:hover { background: var(--muted); }
 .deal-spy-toggle { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; color: var(--primary-text, var(--primary)); text-decoration: underline; text-underline-offset: 2px; border-radius: 6px; padding: 2px 4px; }
 .deal-spy-toggle:focus-visible { outline: 2px solid var(--ring, var(--primary)); outline-offset: 2px; }
 .deal-embedded-messages { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.deal-embedded-reply { padding: 8px 12px 0; border-top: 1px solid var(--border); background: var(--card); }
+.deal-embedded-reply > div { margin-bottom: 0; }
 .deal-embedded-composer { display: flex; align-items: flex-end; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--border); background: var(--card); }
 .deal-embedded-composer textarea { flex: 1; resize: none; min-height: 44px; max-height: 120px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--background); color: var(--foreground); font-size: 14px; }
 .deal-embedded-composer textarea:focus-visible { outline: 2px solid var(--ring, var(--primary)); outline-offset: 1px; }

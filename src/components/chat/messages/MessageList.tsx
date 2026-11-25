@@ -62,9 +62,13 @@ interface MessageListProps {
   messageModerations?: Map<string, FacebookCommentModeration>; // Map of message_id -> moderation
   onLoadMore: () => void;
   onRetryMessage: (messageId: string) => void;
-  onReplyToMessage: (message: Message) => void;
+  /** Sem handler, a ação correspondente não aparece na bolha. */
+  onReplyToMessage?: (message: Message) => void;
   onCopyMessage: (message: Message) => void;
-  onDeleteMessage: (message: Message) => Promise<void>;
+  onDeleteMessage?: (message: Message) => Promise<void>;
+  /** Emoji vazio remove a minha reação. */
+  onReactToMessage?: (message: Message, emoji: string) => void;
+  onForwardMessage?: (message: Message) => void;
 }
 
 // Helper function para normalizar timestamp de mensagens (mesma lógica do MessagesContext)
@@ -122,6 +126,8 @@ const MessageList: React.FC<MessageListProps> = ({
   onReplyToMessage,
   onCopyMessage,
   onDeleteMessage,
+  onReactToMessage,
+  onForwardMessage,
 }) => {
   const { t } = useLanguage('chat');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -464,6 +470,8 @@ const MessageList: React.FC<MessageListProps> = ({
                           onReply={onReplyToMessage}
                           onCopy={onCopyMessage}
                           onDelete={onDeleteMessage}
+                          onReact={onReactToMessage}
+                          onForward={onForwardMessage}
                         />
 
                         {/* Renderizar respostas aninhadas recursivamente */}
@@ -547,6 +555,8 @@ const MessageList: React.FC<MessageListProps> = ({
                           onReply={onReplyToMessage}
                           onCopy={onCopyMessage}
                           onDelete={onDeleteMessage}
+                          onReact={onReactToMessage}
+                          onForward={onForwardMessage}
                         />
                       </div>
                     </div>
@@ -601,6 +611,8 @@ const MessageList: React.FC<MessageListProps> = ({
                     onReply={onReplyToMessage}
                     onCopy={onCopyMessage}
                     onDelete={onDeleteMessage}
+                    onReact={onReactToMessage}
+                    onForward={onForwardMessage}
                   />
                 </div>
               );

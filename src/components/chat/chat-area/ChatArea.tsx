@@ -6,6 +6,10 @@ import { useChatContext } from '@/contexts/chat/ChatContext';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useConversationModerations } from '@/hooks/chat/useConversationModerations';
 import { useAppDataStore } from '@/store/appDataStore';
+import { usePermissions } from '@/contexts/PermissionsContext';
+import { useMessageReaction } from '@/hooks/chat/useMessageReaction';
+import ForwardDialog from '../messages/ForwardDialog';
+import { supportsReactions } from '../messages/utils/reactions';
 
 import { MessageCircle } from 'lucide-react';
 
@@ -160,6 +164,26 @@ const ChatArea = ({
     },
     [selectedConversationId, messages],
   );
+
+  const { can } = usePermissions();
+  const { setMyReaction } = messages;
+  const reactToMessage = useMessageReaction(setMyReaction);
+  const handleReactToMessage = useCallback(
+    (message: Message, emoji: string) => {
+      if (selectedConversationId) void reactToMessage(selectedConversationId, message, emoji);
+    },
+    [selectedConversationId, reactToMessage],
+  );
+
+  // Guarda a conversa de origem junto: trocar de conversa fecha o seletor.
+  const [forwarding, setForwarding] = useState<{ conversationId: string; message: Message } | null>(null);
+  const handleForwardMessage = useCallback(
+    (message: Message) => {
+      if (selectedConversationId) setForwarding({ conversationId: selectedConversationId, message });
+    },
+    [selectedConversationId],
+  );
+  useEffect(() => setForwarding(null), [selectedConversationId]);
 
   const handleCancelReply = useCallback(() => {
     messages.onCancelReply();
@@ -394,6 +418,16 @@ const ChatArea = ({
             onReplyToMessage={handleReplyToMessage}
             onCopyMessage={handleCopyMessage}
             onDeleteMessage={handleDeleteMessage}
+            onReactToMessage={
+              can('conversations', 'update') && supportsReactions(selectedConversation, inbox?.provider)
+                ? handleReactToMessage
+                : undefined
+            }
+            onForwardMessage={
+              can('conversations', 'update') && supportsReactions(selectedConversation, inbox?.provider)
+                ? handleForwardMessage
+                : undefined
+            }
           />
         </>
       )}
@@ -424,6 +458,14 @@ const ChatArea = ({
           channelProvider={channelProvider}
         />
       </div>
+
+      {forwarding && (
+        <ForwardDialog
+          conversationId={forwarding.conversationId}
+          message={forwarding.message}
+          onClose={() => setForwarding(null)}
+        />
+      )}
     </div>
   );
 };

@@ -42,10 +42,10 @@ function makeDeals(summaries: Record<string, Record<string, unknown>>) {
 const message = (id: string, content: string, type: 'incoming' | 'outgoing', minutes: number) => ({
   id, content, content_attributes: {}, content_type: 'text', conversation_id: 'conv-1', created_at: 1788091200 + minutes * 60, external_source_ids: {},
   message_type: type, private: false, sender: { id: type === 'incoming' ? 'c-0' : 'owner-1', name: type === 'incoming' ? 'Maria Vitória' : 'Eduardo Nunes', type: type === 'incoming' ? 'contact' : 'user' },
-  sender_type: type === 'incoming' ? 'contact' : 'user', source_id: null, status: 'read', attachments: [],
+  sender_type: type === 'incoming' ? 'contact' : 'user', source_id: `wa-${id}`, status: 'read', attachments: [],
 });
 
-async function installApi(page: Page, opts: { canUpdate?: boolean; allowed?: string[]; defaultInbox?: string | null } = {}) {
+async function installApi(page: Page, opts: { canUpdate?: boolean; allowed?: string[]; defaultInbox?: string | null; reactions?: unknown[]; contacts?: unknown[] } = {}) {
   const summaries = initialSummaries();
   const deals = makeDeals(summaries);
   const state = { allowed: opts.allowed ?? ['inbox-1', 'inbox-2'], defaultInbox: opts.defaultInbox === undefined ? 'inbox-1' : opts.defaultInbox };
@@ -67,6 +67,19 @@ async function installApi(page: Page, opts: { canUpdate?: boolean; allowed?: str
     if (p.includes('/unread_count')) return json(route, ok({ count: 0 }));
     if (p.endsWith('/users')) return json(route, ok([{ id: 'owner-1', name: 'Eduardo Nunes' }]));
     if (p.endsWith('/labels')) return json(route, ok([]));
+    if (p.endsWith('/api/v1/inboxes')) return json(route, ok(inboxes));
+    if (p.endsWith('/search/conversations')) {
+      const found = ['Ana Sintética', 'Beto Sintético', 'Carla Sintética', 'Davi Sintético', 'Elis Sintética', 'Fábio Sintético']
+        .map((name, index) => ({ id: index === 0 ? 'conv-1' : `dest-${index}`, display_id: 50 + index, created_at: 1788091200, contact: { id: `d-${index}`, name, phone_number: `+55119999900${index}0` }, inbox: { id: 'inbox-1', name: 'Comercial 1', channel_type: 'Channel::Whatsapp' } }));
+      const q = (new URL(request.url()).searchParams.get('q') ?? '').toLowerCase();
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ payload: { conversations: found.filter(item => item.contact.name.toLowerCase().includes(q)) } }) });
+    }
+    if (/\/conversations\/conv-1\/messages\/m\d+\/forward$/.test(p) && method === 'POST') {
+      const { target_conversation_ids: ids } = request.postDataJSON() as { target_conversation_ids: string[] };
+      bodies.forward = ids;
+      if (ids.includes('dest-5')) return json(route, { success: false, error: { code: 'VALIDATION_ERROR', details: 'creation_failed' } }, 422);
+      return json(route, ok(ids.map((id, index) => ({ ...message(`f${index}`, 'Oi! Vi o convite da aula ao vivo.', 'outgoing', 40), conversation_id: id, content_attributes: { forwarded: true } }))), 201);
+    }
     if (p.endsWith('/available_contacts') || p.endsWith('/available_conversations')) return json(route, ok([]));
     if (/\/pipeline_items\/deal-\d+\/tasks$/.test(p)) return json(route, { success: true, data: [], meta: { pagination: { page: 1, per_page: 25, total: 0, total_pages: 1 } } });
     let m = p.match(/\/deals\/(deal-\d+)\/conversation_status$/);
@@ -90,12 +103,19 @@ async function installApi(page: Page, opts: { canUpdate?: boolean; allowed?: str
       }
       return json(route, ok(inboxPayload()));
     }
+    m = p.match(/\/conversations\/conv-1\/messages\/(m\d+)\/reaction$/);
+    if (m && method === 'POST') {
+      const { emoji } = request.postDataJSON() as { emoji: string };
+      bodies.reaction = { id: m[1], emoji };
+      if (emoji === '😢') return json(route, { success: false, error: { code: 'VALIDATION_ERROR', details: 'provider_failed' } }, 422);
+      return json(route, ok({ ...message(m[1], 'x', 'incoming', 0), content_attributes: { reactions: emoji ? [{ emoji, from: 'me', user_id: 'user-1', at: 1788092000 }] : [] } }));
+    }
     if (/\/conversations\/conv-1\/messages$/.test(p)) {
       if (method === 'POST') { bodies.sendMessage = request.postDataJSON(); return json(route, ok(message('m9', (request.postDataJSON() as { content: string }).content, 'outgoing', 30)), 201); }
-      return json(route, ok([message('m1', 'Oi! Vi o convite da aula ao vivo.', 'incoming', 0), message('m2', 'Olá, Maria! Que bom ter você aqui. Posso te ajudar?', 'outgoing', 5), message('m3', 'Quero entender como funciona o consignado.', 'incoming', 12)]));
+      return json(route, ok([{ ...message('m1', 'Oi! Vi o convite da aula ao vivo.', 'incoming', 0), content_attributes: opts.reactions ? { reactions: opts.reactions } : {} }, message('m2', 'Olá, Maria! Que bom ter você aqui. Posso te ajudar?', 'outgoing', 5), message('m3', 'Quero entender como funciona o consignado.', 'incoming', 12), ...(opts.contacts ? [{ ...message('m4', 'Ana Sintética, Beto Sintético', 'incoming', 14), content_attributes: { shared_contacts: opts.contacts } }, { ...message('m5', 'Carla Sintética', 'outgoing', 15), content_attributes: { shared_contacts: [{ name: 'Carla Sintética', phones: ['+*********0003'], organization: null }] } }] : [])]));
     }
     if (/\/conversations\/conv-1\/update_last_seen$/.test(p)) { calls.push('MARK_READ'); return json(route, ok({})); }
-    if (/\/conversations\/conv-1$/.test(p)) return json(route, ok({ id: 'conv-1', display_id: 41, status: 'open', can_reply: true, inbox_id: 'inbox-1', inbox: { id: 'inbox-1', channel_type: 'Channel::Whatsapp' }, messages: [], meta: { sender: { id: 'c-0', name: 'Maria Vitória' } } }));
+    if (/\/conversations\/conv-1$/.test(p)) return json(route, ok({ id: 'conv-1', display_id: 41, status: 'open', can_reply: true, inbox_id: 'inbox-1', inbox: { id: 'inbox-1', channel_type: 'Channel::Whatsapp', provider: 'evolution' }, messages: [], meta: { sender: { id: 'c-0', name: 'Maria Vitória' } } }));
     m = p.match(/\/deals\/(deal-\d+)$/);
     if (m && method === 'GET') return json(route, ok({ ...deals.find(d => d.id === m![1]), conversation_summary: summaries[m![1]] }));
     if (p.endsWith('/pipelines/pipeline-1') && method === 'GET') return json(route, ok(pipeline()));
@@ -236,3 +256,197 @@ test('mobile 390: painel de conversa em tela cheia, sem overflow', async ({ page
   await expect(page.getByRole('dialog').getByTestId('deal-conversation-action').first()).toBeVisible();
   await shot(page, 'modal-cabecalho-390-light');
 });
+
+test('responder pelo botão da bolha: o menu não cai sob o cursor e o envio leva a citação', async ({ page }) => {
+  test.setTimeout(90_000);
+  const api = await boot(page, 1440, 'light');
+  await page.goto('/pipelines/pipeline-1');
+  await page.locator('[data-deal-id="deal-1"]').getByTestId('deal-conversation-action').click();
+  const drawer = page.locator('.deal-conversation-drawer');
+  const first = drawer.getByText('Oi! Vi o convite da aula ao vivo.');
+  await first.hover();
+  const button = drawer.getByRole('button', { name: 'Mais ações' }).first();
+  const trigger = (await button.boundingBox())!;
+  await button.click();
+  const menu = page.getByRole('menu');
+  await expect(menu).toBeVisible();
+  // continua aberto (o clique que abre não escolhe item) e abaixo do botão
+  await page.waitForTimeout(400);
+  const box = (await menu.boundingBox())!;
+  expect(box.y).toBeGreaterThanOrEqual(trigger.y + trigger.height - 1);
+  expect(Math.abs(box.x - trigger.x)).toBeLessThan(4);
+  await expect(page.getByRole('menuitem', { name: 'Excluir mensagem' })).toHaveCount(0);
+  await shot(page, 'responder-menu-1440-light');
+  await page.getByRole('menuitem', { name: 'Responder' }).click();
+  await expect(drawer.getByRole('button', { name: 'Cancelar resposta' })).toBeVisible();
+  await expect(drawer.getByLabel('Mensagem')).toBeFocused();
+  await drawer.getByLabel('Mensagem').fill('Claro, Maria. Te explico.');
+  await shot(page, 'responder-citacao-1440-light');
+  await drawer.getByLabel('Mensagem').press('Enter');
+  await expect.poll(() => (api.bodies.sendMessage as { content_attributes?: unknown } | undefined)?.content_attributes).toEqual({ in_reply_to: 'm1' });
+  await expect(drawer.getByRole('button', { name: 'Cancelar resposta' })).toHaveCount(0);
+});
+
+for (const [width, name] of [[1440, 'desktop'], [390, 'celular']] as const) {
+  test(`reagir pela bolha: seletor, chip, remover e desfazer no erro (${name})`, async ({ page }) => {
+    test.setTimeout(90_000);
+    const api = await boot(page, width, 'light', { reactions: [{ emoji: '❤️', from: 'contact', user_id: null, at: 1788091300 }] });
+    await page.goto('/pipelines/pipeline-1');
+    await page.locator('[data-deal-id="deal-1"]').getByTestId('deal-conversation-action').click();
+    const drawer = page.locator('.deal-conversation-drawer');
+    const bubble = drawer.locator('[data-message-id="m1"]');
+    await expect(bubble.getByText('❤️')).toBeVisible();
+    await bubble.getByText('Oi! Vi o convite da aula ao vivo.').hover();
+    const trigger = (await bubble.getByRole('button', { name: 'Reagir' }).boundingBox())!;
+    await bubble.getByRole('button', { name: 'Reagir' }).click();
+    const picker = page.getByRole('dialog', { name: 'Escolher reação' });
+    await expect(picker).toBeVisible();
+    await page.waitForTimeout(400);
+    const box = (await picker.boundingBox())!;
+    // o seletor não cobre o próprio botão (zoom do painel) e cabe na tela
+    expect(box.y >= trigger.y + trigger.height - 1 || box.y + box.height <= trigger.y + 1).toBe(true);
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(width + 1);
+    await shot(page, `reagir-seletor-${name}`);
+    await picker.getByRole('button', { name: '👍' }).click();
+    await expect.poll(() => api.bodies.reaction).toEqual({ id: 'm1', emoji: '👍' });
+    const mine = bubble.getByRole('button', { name: 'Remover minha reação 👍' });
+    await expect(mine).toBeVisible();
+    await shot(page, `reagir-chips-${name}`);
+    await mine.click();
+    await expect.poll(() => api.bodies.reaction).toEqual({ id: 'm1', emoji: '' });
+    await expect(mine).toHaveCount(0);
+    // pelo menu, com falha: avisa e desfaz
+    await bubble.getByRole('button', { name: 'Mais ações' }).click();
+    await page.getByRole('menuitem', { name: 'Reagir' }).click();
+    await page.getByRole('dialog', { name: 'Escolher reação' }).getByRole('button', { name: '😢' }).click();
+    await expect(page.getByText('Não foi possível reagir. Tente de novo.')).toBeVisible();
+    await expect(bubble.getByText('😢')).toHaveCount(0);
+    // seletor completo
+    await bubble.getByRole('button', { name: 'Mais ações' }).click();
+    await page.getByRole('menuitem', { name: 'Reagir' }).click();
+    await page.getByRole('button', { name: 'Mais emojis' }).click();
+    const full = page.locator('.EmojiPickerReact');
+    await expect(full).toBeVisible();
+    await page.waitForTimeout(600);
+    const fullBox = (await full.boundingBox())!;
+    expect(fullBox.x).toBeGreaterThanOrEqual(0);
+    expect(fullBox.x + fullBox.width).toBeLessThanOrEqual(width + 1);
+    await shot(page, `reagir-todos-emojis-${name}`);
+    const search = full.getByRole('textbox');
+    await search.click();
+    await search.pressSequentially('rocket');
+    await expect(search).toHaveValue('rocket');
+    await full.getByRole('button', { name: /rocket/i }).first().click();
+    await expect(full).toBeHidden();
+    await expect.poll(() => (api.bodies.reaction as { emoji: string }).emoji).toBe('🚀');
+  });
+}
+
+for (const [name, width, theme] of [['desktop', 1440, 'light'], ['celular', 390, 'light'], ['desktop-escuro', 1440, 'dark']] as const) {
+  test(`encaminhar pela bolha: escolhe destinos, envia e marca a cópia (${name})`, async ({ page }) => {
+    test.setTimeout(90_000);
+    const api = await boot(page, width, theme);
+    await page.goto('/pipelines/pipeline-1');
+    await page.locator('[data-deal-id="deal-1"]').getByTestId('deal-conversation-action').click();
+    const bubble = page.locator('.deal-conversation-drawer [data-message-id="m1"]');
+    await bubble.getByText('Oi! Vi o convite da aula ao vivo.').hover();
+    await bubble.getByRole('button', { name: 'Mais ações' }).click();
+    await page.getByRole('menuitem', { name: 'Encaminhar' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Encaminhar mensagem' });
+    await expect(dialog.getByRole('searchbox')).toBeFocused();
+    const check = (who: string) => dialog.getByRole('checkbox', { name: new RegExp(`^${who}`) });
+    await check('Ana').check();
+    await dialog.getByRole('searchbox').fill('fábio');
+    await expect(dialog.getByRole('checkbox')).toHaveCount(1);
+    await check('Fábio').check();
+    // falha: mostra o motivo e mantém a escolha
+    const confirm = dialog.getByRole('button', { name: 'Encaminhar', exact: true });
+    await confirm.click();
+    await expect(dialog.getByRole('alert')).toContainText('Nada foi enviado');
+    await shot(page, `encaminhar-erro-${name}`);
+    await dialog.getByRole('button', { name: 'Remover Fábio Sintético' }).click();
+    await dialog.getByRole('searchbox').fill('');
+    await check('Beto').check();
+    const box = (await dialog.boundingBox())!;
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(width + 1);
+    await shot(page, `encaminhar-seletor-${name}`);
+    await confirm.click();
+    await expect(dialog).toHaveCount(0);
+    expect(api.bodies.forward).toEqual(['conv-1', 'dest-1']);
+    await expect(page.getByText('Encaminhando para Ana Sintética, Beto Sintético.')).toBeVisible();
+    // só a cópia desta conversa aparece, marcada; o painel continua aberto
+    await expect(page.locator('.deal-conversation-drawer').getByText('Encaminhada', { exact: true })).toHaveCount(1);
+    await shot(page, `encaminhar-copia-${name}`);
+  });
+}
+
+for (const [name, width, theme] of [['desktop', 1440, 'light'], ['celular', 390, 'light'], ['desktop-escuro', 1440, 'dark']] as const) {
+  test(`cartão de contato: mostra os cartões e copia o número (${name})`, async ({ page, context }) => {
+    test.setTimeout(90_000);
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await boot(page, width, theme, {
+      contacts: [
+        { name: 'Ana Sintética', phones: ['+55 11 90000-0001', '+551130000000'], organization: 'Clínica Exemplo' },
+        { name: 'Beto Sintético', phones: [], organization: null },
+      ],
+    });
+    await page.goto('/pipelines/pipeline-1');
+    await page.locator('[data-deal-id="deal-1"]').getByTestId('deal-conversation-action').click();
+    const drawer = page.locator('.deal-conversation-drawer');
+    const bubble = drawer.locator('[data-message-id="m4"]');
+    await expect(bubble.getByTestId('shared-contact')).toHaveCount(2);
+    await bubble.getByRole('button', { name: 'Copiar número +551130000000' }).click();
+    await expect(page.getByText('Número copiado')).toBeVisible();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('+551130000000');
+    const sent = drawer.locator('[data-message-id="m5"]');
+    await expect(sent.getByText('+*********0003')).toBeVisible();
+    await expect(sent.getByRole('button', { name: /Copiar número/ })).toHaveCount(0);
+    for (const card of await drawer.getByTestId('shared-contact').all()) {
+      const box = (await card.boundingBox())!;
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(width + 1);
+    }
+    // número numa linha só (sem quebrar no meio dos dígitos)
+    for (const phone of ['+55 11 90000-0001', '+551130000000', '+*********0003']) {
+      const lines = await drawer.getByText(phone, { exact: true }).evaluate(el => { const range = document.createRange(); range.selectNodeContents(el); return range.getClientRects().length; });
+      expect(lines).toBe(1);
+    }
+    await sent.scrollIntoViewIfNeeded();
+    await shot(page, `contato-${name}`);
+  });
+}
+
+for (const theme of ['light', 'dark'] as const) {
+  test(`checks na bolha: visíveis e "lido" com cor própria (${theme})`, async ({ page }) => {
+    test.setTimeout(90_000);
+    await boot(page, 1440, theme);
+    await page.goto('/pipelines/pipeline-1');
+    await page.locator('[data-deal-id="deal-1"]').getByTestId('deal-conversation-action').click();
+    const bubble = page.locator('.deal-conversation-drawer [data-message-id="m2"]');
+    const icon = bubble.locator('svg.lucide-check-check');
+    await expect(icon).toBeVisible();
+    // cor do ícone x cor do primeiro fundo opaco atrás dele
+    const colors = await icon.evaluate(node => {
+      let el: Element | null = node;
+      while (el && ['rgba(0, 0, 0, 0)', 'transparent'].includes(getComputedStyle(el).backgroundColor)) el = el.parentElement;
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 1;
+      const context = canvas.getContext('2d')!;
+      const rgb = (color: string) => {
+        context.fillStyle = color;
+        context.fillRect(0, 0, 1, 1);
+        return Array.from(context.getImageData(0, 0, 1, 1).data).slice(0, 3);
+      };
+      return { icon: rgb(getComputedStyle(node).color), background: rgb(getComputedStyle(el!).backgroundColor) };
+    });
+    const luminance = (rgb: number[]) => rgb.map(v => (v / 255 <= 0.03928 ? v / 255 / 12.92 : ((v / 255 + 0.055) / 1.055) ** 2.4))
+      .reduce((sum, v, i) => sum + v * [0.2126, 0.7152, 0.0722][i], 0);
+    const [high, low] = [luminance(colors.icon), luminance(colors.background)].sort((a, b) => b - a);
+    expect((high + 0.05) / (low + 0.05), JSON.stringify(colors)).toBeGreaterThanOrEqual(3);
+    const [red, , blue] = colors.icon;
+    expect(blue).toBeGreaterThan(red); // azul, não laranja
+    await shot(page, `checks-lido-1440-${theme}`);
+  });
+}

@@ -279,6 +279,20 @@ class ChatService {
     });
   }
 
+  /** Emoji vazio remove a minha reação. */
+  async reactToMessage(conversationId: string, messageId: string, emoji: string): Promise<Message> {
+    const response = await api.post(`/conversations/${conversationId}/messages/${messageId}/reaction`, { emoji });
+    return extractData<Message>(response);
+  }
+
+  /** Sem nova tentativa automática: repetir duplicaria o envio. */
+  async forwardMessage(conversationId: string, messageId: string, targetConversationIds: string[]): Promise<Message[]> {
+    const response = await api.post(`/conversations/${conversationId}/messages/${messageId}/forward`, {
+      target_conversation_ids: targetConversationIds,
+    });
+    return extractData<Message[]>(response);
+  }
+
   async updateMessage(
     conversationId: string,
     messageId: string,

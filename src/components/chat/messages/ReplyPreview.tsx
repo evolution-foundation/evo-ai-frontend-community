@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Reply } from 'lucide-react';
+import { Reply, X } from 'lucide-react';
 import { Message } from '@/types/chat/api';
 import { useLanguage } from '@/hooks/useLanguage';
 import { stripHtml } from '@/utils/stripHtml';
@@ -12,9 +12,11 @@ import {
 interface ReplyPreviewProps {
   message?: Message | null;
   isOwn: boolean;
+  /** No compositor: mostra o botão de cancelar a resposta. */
+  onCancel?: () => void;
 }
 
-const ReplyPreview: React.FC<ReplyPreviewProps> = ({ message, isOwn }) => {
+const ReplyPreview: React.FC<ReplyPreviewProps> = ({ message, isOwn, onCancel }) => {
   const { t } = useLanguage('chat');
 
   const previewContent = useMemo(() => {
@@ -100,6 +102,19 @@ const ReplyPreview: React.FC<ReplyPreviewProps> = ({ message, isOwn }) => {
             {previewContent}
           </div>
         </div>
+        {onCancel && (
+          <button
+            type="button"
+            className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded hover:bg-muted"
+            aria-label={t('messages.replyPreview.cancel')}
+            onClick={event => {
+              event.stopPropagation();
+              onCancel();
+            }}
+          >
+            <X className="h-3.5 w-3.5" aria-hidden="true" />
+          </button>
+        )}
       </div>
     </div>
   );

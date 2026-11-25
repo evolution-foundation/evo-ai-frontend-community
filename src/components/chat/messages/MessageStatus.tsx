@@ -25,6 +25,10 @@ const MessageStatus: React.FC<MessageStatusProps> = ({ message, isOwn, onRetry, 
   const isOnColoredBubble = isOwn && !message.private;
   const timeTextClass = isOnColoredBubble ? 'text-white/70' : 'text-muted-foreground';
 
+  // Sobre a bolha colorida (primary ou roxa) nada pode usar a cor da bolha; "lido" tem cor própria.
+  const iconClass = isOnColoredBubble ? 'h-3 w-3 text-white/70' : 'h-3 w-3 text-muted-foreground';
+  const readIconClass = isOnColoredBubble ? 'h-3 w-3 text-sky-300' : 'h-3 w-3 text-sky-500';
+
   const getStatusIcon = () => {
     if (!isOwn) return null;
 
@@ -73,13 +77,13 @@ const MessageStatus: React.FC<MessageStatusProps> = ({ message, isOwn, onRetry, 
       case 'sent':
         // Para mensagens privadas, 'sent' é o status final correto
         // Para mensagens públicas, 'sent' indica que foi enviada para o canal
-        return <Check className="h-3 w-3 text-muted-foreground" />;
+        return <Check className={iconClass} />;
       case 'delivered':
-        return <CheckCheck className="h-3 w-3 text-muted-foreground" />;
+        return <CheckCheck className={iconClass} />;
       case 'read':
-        return <CheckCheck className="h-3 w-3 text-primary" />;
+        return <CheckCheck className={readIconClass} />;
       case 'progress':
-        return <Loader2 className="h-3 w-3 text-blue-500 animate-spin" />;
+        return <Loader2 className={`${iconClass} animate-spin`} />;
       case 'failed':
         return (
           <Button
@@ -100,7 +104,7 @@ const MessageStatus: React.FC<MessageStatusProps> = ({ message, isOwn, onRetry, 
           </Button>
         );
       default:
-        return <Clock className="h-3 w-3 text-muted-foreground animate-pulse" />;
+        return <Clock className={`${iconClass} animate-pulse`} />;
     }
   };
 
@@ -122,7 +126,7 @@ const MessageStatus: React.FC<MessageStatusProps> = ({ message, isOwn, onRetry, 
     <div
       className={`flex items-center gap-1 mt-1.5 text-xs ${isOwn ? 'justify-end' : 'justify-start'}`}
     >
-      <span className="text-muted-foreground">{formatMessageTime(message.created_at)}</span>
+      <span className={timeTextClass}>{formatMessageTime(message.created_at)}</span>
       {getStatusIcon()}
     </div>
   );
