@@ -417,3 +417,36 @@ for (const [name, width, theme] of [['desktop', 1440, 'light'], ['celular', 390,
     await shot(page, `contato-${name}`);
   });
 }
+
+for (const theme of ['light', 'dark'] as const) {
+  test(`checks na bolha: visíveis e "lido" com cor própria (${theme})`, async ({ page }) => {
+    test.setTimeout(90_000);
+    await boot(page, 1440, theme);
+    await page.goto('/pipelines/pipeline-1');
+    await page.locator('[data-deal-id="deal-1"]').getByTestId('deal-conversation-action').click();
+    const bubble = page.locator('.deal-conversation-drawer [data-message-id="m2"]');
+    const icon = bubble.locator('svg.lucide-check-check');
+    await expect(icon).toBeVisible();
+    // cor do ícone x cor do primeiro fundo opaco atrás dele
+    const colors = await icon.evaluate(node => {
+      let el: Element | null = node;
+      while (el && ['rgba(0, 0, 0, 0)', 'transparent'].includes(getComputedStyle(el).backgroundColor)) el = el.parentElement;
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 1;
+      const context = canvas.getContext('2d')!;
+      const rgb = (color: string) => {
+        context.fillStyle = color;
+        context.fillRect(0, 0, 1, 1);
+        return Array.from(context.getImageData(0, 0, 1, 1).data).slice(0, 3);
+      };
+      return { icon: rgb(getComputedStyle(node).color), background: rgb(getComputedStyle(el!).backgroundColor) };
+    });
+    const luminance = (rgb: number[]) => rgb.map(v => (v / 255 <= 0.03928 ? v / 255 / 12.92 : ((v / 255 + 0.055) / 1.055) ** 2.4))
+      .reduce((sum, v, i) => sum + v * [0.2126, 0.7152, 0.0722][i], 0);
+    const [high, low] = [luminance(colors.icon), luminance(colors.background)].sort((a, b) => b - a);
+    expect((high + 0.05) / (low + 0.05), JSON.stringify(colors)).toBeGreaterThanOrEqual(3);
+    const [red, , blue] = colors.icon;
+    expect(blue).toBeGreaterThan(red); // azul, não laranja
+    await shot(page, `checks-lido-1440-${theme}`);
+  });
+}
