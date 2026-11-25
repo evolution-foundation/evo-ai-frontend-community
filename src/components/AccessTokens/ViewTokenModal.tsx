@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -27,13 +27,18 @@ export default function ViewTokenModal({
   token,
   onCopy,
 }: ViewTokenModalProps) {
-  const [showToken, setShowToken] = useState(false);
   const { t } = useTranslation('accessTokens');
 
-  // Every value starts masked, whichever token or opening it belongs to.
-  useEffect(() => {
-    setShowToken(false);
-  }, [open, token?.id, token?.token]);
+  // A reveal belongs to one opening of one value. Comparing against the
+  // current view keeps a new value masked from its very first render.
+  const viewKey = open && token?.token ? `${token.id}:${token.token}` : null;
+  const [revealedFor, setRevealedFor] = useState<string | null>(null);
+  const [lastViewKey, setLastViewKey] = useState(viewKey);
+  if (viewKey !== lastViewKey) {
+    setLastViewKey(viewKey);
+    setRevealedFor(null);
+  }
+  const showToken = viewKey !== null && revealedFor === viewKey;
 
   if (!token) return null;
 
@@ -41,10 +46,10 @@ export default function ViewTokenModal({
     onCopy(text, label);
   };
 
-  // The auth returns the value only on create and regenerate; afterwards the
-  // examples carry a placeholder.
+  // The auth returns the value only on create and regenerate; afterwards, and
+  // while the value is masked, the examples carry a placeholder.
   const tokenValue = token.token;
-  const exampleToken = tokenValue ?? 'YOUR_ACCESS_TOKEN';
+  const exampleToken = showToken && tokenValue ? tokenValue : 'YOUR_ACCESS_TOKEN';
   const maskedToken = tokenValue ? '•'.repeat(Math.min(tokenValue.length, 40)) : '';
   const scopes = parseScopesFromAPI(token.scopes);
   // VITE_API_URL is relative ("/crm-api") when the CRM is served inside the shell.
@@ -130,7 +135,7 @@ export default function ViewTokenModal({
                   variant="ghost"
                   size="sm"
                   className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0"
-                  onClick={() => setShowToken(!showToken)}
+                  onClick={() => setRevealedFor(showToken ? null : viewKey)}
                 >
                   {showToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
@@ -145,7 +150,7 @@ export default function ViewTokenModal({
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              {t('viewModal.descriptions.tokenUsage')} <code>Api-Access-Token: {tokenValue.substring(0, 20)}...</code>
+              {t('viewModal.descriptions.tokenUsage')} <code>Api-Access-Token: {showToken ? `${tokenValue.substring(0, 20)}...` : exampleToken}</code>
             </p>
             <p className="text-xs font-medium text-yellow-700 dark:text-yellow-300">
               {t('viewModal.descriptions.shownOnce')}

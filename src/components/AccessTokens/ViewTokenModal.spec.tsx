@@ -30,12 +30,19 @@ const exampleValues = () =>
     return (block.querySelector('input') as HTMLInputElement).value;
   });
 
+const revealValue = () => {
+  const valueInput = screen.getByDisplayValue('•'.repeat(40));
+  fireEvent.click(valueInput.parentElement!.querySelector('button')!);
+};
+
 afterEach(() => vi.unstubAllEnvs());
 
 describe('ViewTokenModal usage examples', () => {
   it('resolves a relative API base against the current origin', () => {
     vi.stubEnv('VITE_API_URL', '/crm-api');
     renderModal();
+
+    revealValue();
 
     const [curl, javascript] = exampleValues();
     const url = `${window.location.origin}/crm-api/api/v1/contacts`;
@@ -63,6 +70,8 @@ describe('ViewTokenModal usage examples', () => {
   it('teaches the same header everywhere, with no placeholder host or Bearer', () => {
     vi.stubEnv('VITE_API_URL', '/crm-api');
     renderModal();
+
+    revealValue();
 
     expect(screen.getByText(/^Api-Access-Token: a{20}\.\.\.$/)).toBeInTheDocument();
     exampleValues().forEach(value => {
@@ -111,6 +120,32 @@ describe('ViewTokenModal token value', () => {
       expect(value).toContain('YOUR_ACCESS_TOKEN');
       expect(value).not.toContain('undefined');
     });
+  });
+
+  it('keeps the value out of the examples and the header hint while it is masked', () => {
+    vi.stubEnv('VITE_API_URL', '/crm-api');
+    renderModal();
+
+    expect(screen.getByText('Api-Access-Token: YOUR_ACCESS_TOKEN')).toBeInTheDocument();
+    exampleValues().forEach(value => {
+      expect(value).toContain('YOUR_ACCESS_TOKEN');
+      expect(value).not.toContain('a'.repeat(8));
+    });
+  });
+
+  it('never renders a newly shown value unmasked, not even for one commit', () => {
+    const { rerender } = render(<ViewTokenModal open onOpenChange={vi.fn()} token={TOKEN} onCopy={vi.fn()} />);
+    revealValue();
+
+    const observer = new MutationObserver(() => {});
+    observer.observe(document.body, { attributes: true, attributeOldValue: true, subtree: true });
+    const next = { ...TOKEN, id: 'other-id', token: 'b'.repeat(64) };
+    rerender(<ViewTokenModal open onOpenChange={vi.fn()} token={next} onCopy={vi.fn()} />);
+    const records = observer.takeRecords();
+    observer.disconnect();
+
+    expect(records.some(record => record.oldValue === next.token)).toBe(false);
+    expect(screen.queryByDisplayValue(next.token)).toBeNull();
   });
 
   it('masks the value again when another token is shown', () => {
