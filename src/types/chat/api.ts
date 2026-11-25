@@ -200,6 +200,13 @@ export interface MessageReaction {
   at: number;
 }
 
+/** Contato recebido por vCard; `phones` vem mascarado (`*`) com `mask_contact_pii`. */
+export interface SharedContact {
+  name: string;
+  phones: string[];
+  organization: string | null;
+}
+
 export interface MessageContentAttributes extends Record<string, unknown> {
   sender_name?: string;
   media_type?: 'image' | 'video' | 'audio' | 'file' | 'sticker' | 'location' | 'contact';
@@ -207,6 +214,7 @@ export interface MessageContentAttributes extends Record<string, unknown> {
   in_reply_to_external_id?: string;
   is_reaction?: boolean;
   reactions?: MessageReaction[];
+  shared_contacts?: SharedContact[];
   is_unsupported?: boolean;
   deleted?: boolean;
   external_created_at?: number;

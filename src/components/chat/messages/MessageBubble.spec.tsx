@@ -1,7 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { toast } from 'sonner';
 import MessageBubble from './MessageBubble';
 import type { Message } from '@/types/chat/api';
+
+vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 vi.mock('@/hooks/useLanguage', async () => {
   const chat = (await import('@/i18n/locales/pt-BR/chat.json')).default;
@@ -151,5 +154,68 @@ describe('MessageBubble reactions', () => {
     expect(await screen.findByRole('menuitem', { name: 'Copiar mensagem' })).toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Reagir' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Reagir' })).toBeNull();
+  });
+});
+
+describe('MessageBubble shared contacts', () => {
+  const ana = { name: 'Ana Sintética', phones: ['+55 11 90000-0001', '+551130000000'], organization: 'Clínica Exemplo' };
+  const beto = { name: 'Beto Sintético', phones: [], organization: null };
+  const contacts = (shared: unknown[], content = 'Ana Sintética, Beto Sintético') =>
+    message({ content, content_attributes: { shared_contacts: shared } as Message['content_attributes'] });
+  const writeText = vi.fn();
+  beforeEach(() => {
+    writeText.mockReset().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+  });
+
+  it('shows one card per contact with initials, name, company and phones instead of the text', () => {
+    render(<MessageBubble message={contacts([ana, beto])} isOwn={false} />);
+    const cards = screen.getAllByTestId('shared-contact');
+    expect(cards).toHaveLength(2);
+    expect(cards[0]).toHaveTextContent('AS');
+    expect(cards[0]).toHaveTextContent('Ana Sintética');
+    expect(cards[0]).toHaveTextContent('Clínica Exemplo');
+    expect(cards[0]).toHaveTextContent('+55 11 90000-0001');
+    expect(cards[0]).toHaveTextContent('+551130000000');
+    expect(cards[1]).toHaveTextContent('Beto Sintético');
+    expect(within(cards[1]).queryByRole('button')).toBeNull();
+    expect(screen.queryByText('Ana Sintética, Beto Sintético')).toBeNull();
+  });
+
+  it('copies the chosen number', async () => {
+    render(<MessageBubble message={contacts([ana])} isOwn />);
+    fireEvent.click(screen.getByRole('button', { name: 'Copiar número +551130000000' }));
+    expect(writeText).toHaveBeenCalledWith('+551130000000');
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Número copiado'));
+  });
+
+  it('warns when the number cannot be copied', async () => {
+    writeText.mockRejectedValue(new Error('denied'));
+    render(<MessageBubble message={contacts([ana])} isOwn={false} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Copiar número +551130000000' }));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('Não foi possível copiar o número.'));
+  });
+
+  it('shows a masked number without offering to copy it', () => {
+    render(<MessageBubble message={contacts([{ ...ana, phones: ['+*********0001'] }])} isOwn={false} />);
+    expect(screen.getByText('+*********0001')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Copiar número/ })).toBeNull();
+  });
+
+  it('handles a contact that only has a phone', () => {
+    render(<MessageBubble message={contacts([{ name: '', phones: ['+551130000000'], organization: null }], 'Contact')} isOwn={false} />);
+    expect(screen.getByTestId('shared-contact')).toHaveTextContent('Contato sem nome');
+    expect(screen.queryByText('Contact')).toBeNull();
+  });
+
+  it('keeps the text when there is no shared_contacts', () => {
+    render(<MessageBubble message={message({ content: 'Ana Sintética' })} isOwn={false} />);
+    expect(screen.getByText('Ana Sintética')).toBeInTheDocument();
+    expect(screen.queryByTestId('shared-contact')).toBeNull();
+  });
+
+  it('hides the card on deleted messages', () => {
+    render(<MessageBubble message={message({ content_attributes: { deleted: true, shared_contacts: [ana] } as Message['content_attributes'] })} isOwn={false} />);
+    expect(screen.queryByTestId('shared-contact')).toBeNull();
   });
 });

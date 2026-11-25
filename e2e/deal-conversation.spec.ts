@@ -45,7 +45,7 @@ const message = (id: string, content: string, type: 'incoming' | 'outgoing', min
   sender_type: type === 'incoming' ? 'contact' : 'user', source_id: `wa-${id}`, status: 'read', attachments: [],
 });
 
-async function installApi(page: Page, opts: { canUpdate?: boolean; allowed?: string[]; defaultInbox?: string | null; reactions?: unknown[] } = {}) {
+async function installApi(page: Page, opts: { canUpdate?: boolean; allowed?: string[]; defaultInbox?: string | null; reactions?: unknown[]; contacts?: unknown[] } = {}) {
   const summaries = initialSummaries();
   const deals = makeDeals(summaries);
   const state = { allowed: opts.allowed ?? ['inbox-1', 'inbox-2'], defaultInbox: opts.defaultInbox === undefined ? 'inbox-1' : opts.defaultInbox };
@@ -99,7 +99,7 @@ async function installApi(page: Page, opts: { canUpdate?: boolean; allowed?: str
     }
     if (/\/conversations\/conv-1\/messages$/.test(p)) {
       if (method === 'POST') { bodies.sendMessage = request.postDataJSON(); return json(route, ok(message('m9', (request.postDataJSON() as { content: string }).content, 'outgoing', 30)), 201); }
-      return json(route, ok([{ ...message('m1', 'Oi! Vi o convite da aula ao vivo.', 'incoming', 0), content_attributes: opts.reactions ? { reactions: opts.reactions } : {} }, message('m2', 'Olá, Maria! Que bom ter você aqui. Posso te ajudar?', 'outgoing', 5), message('m3', 'Quero entender como funciona o consignado.', 'incoming', 12)]));
+      return json(route, ok([{ ...message('m1', 'Oi! Vi o convite da aula ao vivo.', 'incoming', 0), content_attributes: opts.reactions ? { reactions: opts.reactions } : {} }, message('m2', 'Olá, Maria! Que bom ter você aqui. Posso te ajudar?', 'outgoing', 5), message('m3', 'Quero entender como funciona o consignado.', 'incoming', 12), ...(opts.contacts ? [{ ...message('m4', 'Ana Sintética, Beto Sintético', 'incoming', 14), content_attributes: { shared_contacts: opts.contacts } }, { ...message('m5', 'Carla Sintética', 'outgoing', 15), content_attributes: { shared_contacts: [{ name: 'Carla Sintética', phones: ['+*********0003'], organization: null }] } }] : [])]));
     }
     if (/\/conversations\/conv-1\/update_last_seen$/.test(p)) { calls.push('MARK_READ'); return json(route, ok({})); }
     if (/\/conversations\/conv-1$/.test(p)) return json(route, ok({ id: 'conv-1', display_id: 41, status: 'open', can_reply: true, inbox_id: 'inbox-1', inbox: { id: 'inbox-1', channel_type: 'Channel::Whatsapp', provider: 'evolution' }, messages: [], meta: { sender: { id: 'c-0', name: 'Maria Vitória' } } }));
@@ -327,5 +327,41 @@ for (const [width, name] of [[1440, 'desktop'], [390, 'celular']] as const) {
     await full.getByRole('button', { name: /rocket/i }).first().click();
     await expect(full).toBeHidden();
     await expect.poll(() => (api.bodies.reaction as { emoji: string }).emoji).toBe('🚀');
+  });
+}
+
+for (const [name, width, theme] of [['desktop', 1440, 'light'], ['celular', 390, 'light'], ['desktop-escuro', 1440, 'dark']] as const) {
+  test(`cartão de contato: mostra os cartões e copia o número (${name})`, async ({ page, context }) => {
+    test.setTimeout(90_000);
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await boot(page, width, theme, {
+      contacts: [
+        { name: 'Ana Sintética', phones: ['+55 11 90000-0001', '+551130000000'], organization: 'Clínica Exemplo' },
+        { name: 'Beto Sintético', phones: [], organization: null },
+      ],
+    });
+    await page.goto('/pipelines/pipeline-1');
+    await page.locator('[data-deal-id="deal-1"]').getByTestId('deal-conversation-action').click();
+    const drawer = page.locator('.deal-conversation-drawer');
+    const bubble = drawer.locator('[data-message-id="m4"]');
+    await expect(bubble.getByTestId('shared-contact')).toHaveCount(2);
+    await bubble.getByRole('button', { name: 'Copiar número +551130000000' }).click();
+    await expect(page.getByText('Número copiado')).toBeVisible();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('+551130000000');
+    const sent = drawer.locator('[data-message-id="m5"]');
+    await expect(sent.getByText('+*********0003')).toBeVisible();
+    await expect(sent.getByRole('button', { name: /Copiar número/ })).toHaveCount(0);
+    for (const card of await drawer.getByTestId('shared-contact').all()) {
+      const box = (await card.boundingBox())!;
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(width + 1);
+    }
+    // número numa linha só (sem quebrar no meio dos dígitos)
+    for (const phone of ['+55 11 90000-0001', '+551130000000', '+*********0003']) {
+      const lines = await drawer.getByText(phone, { exact: true }).evaluate(el => { const range = document.createRange(); range.selectNodeContents(el); return range.getClientRects().length; });
+      expect(lines).toBe(1);
+    }
+    await sent.scrollIntoViewIfNeeded();
+    await shot(page, `contato-${name}`);
   });
 }

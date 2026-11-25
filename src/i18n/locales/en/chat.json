@@ -20,6 +20,12 @@
         "copy": "Copy message",
         "delete": "Delete message"
       },
+      "sharedContact": {
+        "copy": "Copy number",
+        "copied": "Number copied",
+        "copyError": "Could not copy the number.",
+        "noName": "Unnamed contact"
+      },
       "reactions": {
         "more": "More emojis",
         "remove": "Remove my reaction",

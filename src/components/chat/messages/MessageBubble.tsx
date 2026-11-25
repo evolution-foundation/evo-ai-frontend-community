@@ -36,6 +36,7 @@ import MessageInputSelect from '@/components/chat/messages/MessageInputSelect';
 import MessageLocation from '@/components/chat/messages/MessageLocation';
 import MessageInstagramReel from '@/components/chat/messages/MessageInstagramReel';
 import MessageCarousel from '@/components/chat/messages/MessageCarousel';
+import MessageContacts from '@/components/chat/messages/MessageContacts';
 import MessageStatus from '@/components/chat/messages/MessageStatus';
 import SystemMessage from '@/components/chat/messages/SystemMessage';
 import ReplyPreview from '@/components/chat/messages/ReplyPreview';
@@ -299,8 +300,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   // sentido pra texto puro — mídia/cards/preview usam 'default' (bloco abaixo do conteúdo),
   // que é como o protótipo trata a bolha alta (LinkedIn preview).
   const hasAttachments = Boolean(message.attachments && message.attachments.length > 0);
+  const sharedContacts = isDeleted ? undefined : message.content_attributes?.shared_contacts;
+  const hasSharedContacts = Boolean(sharedContacts?.length);
   const isPlainTextContent =
     !hasAttachments &&
+    !hasSharedContacts &&
     (message.content_type === 'text' ||
       message.content_type === 'incoming_email' ||
       !message.content_type);
@@ -320,6 +324,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     isPlainTextContent || isAudioOnly ? 'tuck' : 'default';
 
   const renderMessageContent = () => {
+    // O `content` de um contato são só os nomes; o cartão o substitui.
+    if (sharedContacts?.length) return <MessageContacts contacts={sharedContacts} />;
+
     // 🎯 CORREÇÃO: Detectar attachments automaticamente
 
     if (hasAttachments) {

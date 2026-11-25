@@ -5,6 +5,7 @@ import { chatService } from '@/services/chat/chatService';
 import { extractMessagesData } from '@/utils/chat/responseHelpers';
 import { Attachment, Message, MessageSender, MessageTypeValue, MessageReaction } from '@/types/chat/api';
 import { withMyReaction } from '@/components/chat/messages/utils/reactions';
+import { keepUnmaskedContacts } from '@/components/chat/messages/utils/sharedContacts';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface MessagesState {
@@ -253,8 +254,8 @@ function messagesReducer(state: MessagesState, action: MessagesAction): Messages
 
     case 'UPDATE_MESSAGE': {
       const conversationMessages = state.messages[action.payload.conversationId] || [];
-      const newMessage = action.payload.message;
-      const existingMessage = conversationMessages.find(msg => msg.id === newMessage.id);
+      const existingMessage = conversationMessages.find(msg => msg.id === action.payload.message.id);
+      const newMessage = keepUnmaskedContacts(existingMessage, action.payload.message);
 
       // Se mensagem existe e é outgoing, preservar message_type e sender.type
       const mergedMessage: Message =

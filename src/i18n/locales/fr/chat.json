@@ -19,6 +19,12 @@
         "copy": "Copier le message",
         "delete": "Supprimer le message"
       },
+      "sharedContact": {
+        "copy": "Copier le numéro",
+        "copied": "Numéro copié",
+        "copyError": "Impossible de copier le numéro.",
+        "noName": "Contact sans nom"
+      },
       "reactions": {
         "more": "Plus d’émojis",
         "remove": "Retirer ma réaction",
