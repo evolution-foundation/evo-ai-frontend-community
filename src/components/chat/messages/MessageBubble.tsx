@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Badge } from '@evoapi/design-system/badge';
 import {
   ContextMenu,
@@ -7,6 +7,12 @@ import {
   ContextMenuItem,
   ContextMenuSeparator,
 } from '@evoapi/design-system/context-menu';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@evoapi/design-system/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@evoapi/design-system/alert-dialog';
-import { LockIcon, Reply, Copy, Trash2, AlertTriangle, Shield, Ban } from 'lucide-react';
+import { LockIcon, Reply, Copy, Trash2, AlertTriangle, Shield, Ban, ChevronDown } from 'lucide-react';
 import { Message, MESSAGE_TYPE } from '@/types/chat/api';
 import { useLanguage } from '@/hooks/useLanguage';
 import MessageText from '@/components/chat/messages/MessageText';
@@ -113,8 +119,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     onCopy?.(message);
   };
 
+  const replyChosenRef = useRef(false);
   const handleReplyMessage = () => {
+    replyChosenRef.current = true;
     onReply?.(message);
+  };
+
+  // Ao responder, o foco vai para o compositor; sem isto o menu o devolve à bolha.
+  const handleMenuCloseAutoFocus = (event: Event) => {
+    if (replyChosenRef.current) event.preventDefault();
+    replyChosenRef.current = false;
   };
 
   const handleDeleteMessage = () => {
@@ -126,40 +140,96 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     await onDelete?.(message);
   };
 
-  const renderContextMenu = (children: React.ReactNode) => {
-    // Template, Activity messages e mensagens deletadas não têm context menu
+  // Ações da mensagem: fonte única do botão direito e do botão visível na bolha.
+  // Novas ações (reagir, encaminhar) entram nesta lista.
+  // REGRA EVOLUTION: notas privadas não podem ser respondidas; mensagem em envio ou
+  // com falha ainda não existe no destino, então também não oferece "Responder".
+  const canReply =
+    Boolean(onReply) && !isPrivate && message.status !== 'failed' && message.status !== 'progress';
+  const actions = [
+    canReply && {
+      key: 'reply',
+      icon: Reply,
+      label: t('messages.messageBubble.contextMenu.reply'),
+      onSelect: handleReplyMessage,
+    },
+    {
+      key: 'copy',
+      icon: Copy,
+      label: t('messages.messageBubble.contextMenu.copy'),
+      onSelect: handleCopyMessage,
+    },
+    onDelete && {
+      key: 'delete',
+      icon: Trash2,
+      label: t('messages.messageBubble.contextMenu.delete'),
+      onSelect: handleDeleteMessage,
+      destructive: true,
+    },
+  ].filter(action => !!action);
+
+  // alignEnd: bolha própria (à direita) leva o botão do lado esquerdo dela.
+  const renderWithActions = (children: React.ReactNode, alignEnd: boolean) => {
+    // Template, Activity messages e mensagens deletadas não têm ações
     if (isTemplate || isActivity || isDeleted) {
       return children;
     }
 
-    // REGRA EVOLUTION: Mensagens privadas não podem ser respondidas
-    const canReply = !isPrivate;
-
     return (
-      <ContextMenu>
-        <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
-        <ContextMenuContent className="w-48">
-          {canReply && (
-            <ContextMenuItem onClick={handleReplyMessage} className="flex items-center gap-2">
-              <Reply className="h-4 w-4" />
-              {t('messages.messageBubble.contextMenu.reply')}
-            </ContextMenuItem>
-          )}
-          <ContextMenuItem onClick={handleCopyMessage} className="flex items-center gap-2">
-            <Copy className="h-4 w-4" />
-            {t('messages.messageBubble.contextMenu.copy')}
-          </ContextMenuItem>
-          <ContextMenuSeparator />
-          <ContextMenuItem
-            onClick={handleDeleteMessage}
-            className="flex items-center gap-2"
-            variant="destructive"
+      <div className={`group/bubble flex items-start gap-1 ${alignEnd ? 'flex-row-reverse' : ''}`}>
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <div className="min-w-0 flex-1">{children}</div>
+          </ContextMenuTrigger>
+          <ContextMenuContent
+            className="message-actions-menu w-48"
+            onCloseAutoFocus={handleMenuCloseAutoFocus}
           >
-            <Trash2 className="h-4 w-4" />
-            {t('messages.messageBubble.contextMenu.delete')}
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
+            {actions.map(({ key, icon: Icon, label, onSelect, destructive }) => (
+              <React.Fragment key={key}>
+                {destructive && <ContextMenuSeparator />}
+                <ContextMenuItem
+                  onClick={onSelect}
+                  className="flex items-center gap-2"
+                  variant={destructive ? 'destructive' : 'default'}
+                >
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </ContextMenuItem>
+              </React.Fragment>
+            ))}
+          </ContextMenuContent>
+        </ContextMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={t('messages.messageBubble.actions')}
+              title={t('messages.messageBubble.actions')}
+              className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground opacity-0 transition-opacity hover:bg-muted group-hover/bubble:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 [@media(hover:none)]:opacity-100"
+            >
+              <ChevronDown className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="message-actions-menu w-48"
+            align={alignEnd ? 'end' : 'start'}
+            onCloseAutoFocus={handleMenuCloseAutoFocus}
+          >
+            {actions.map(({ key, icon: Icon, label, onSelect, destructive }) => (
+              <DropdownMenuItem
+                key={key}
+                onSelect={onSelect}
+                className="flex items-center gap-2"
+                variant={destructive ? 'destructive' : 'default'}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     );
   };
 
@@ -344,7 +414,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     return (
       <>
         <div className="mb-1">
-          {renderContextMenu(
+          {renderWithActions(
             <div
               className={`rounded-lg px-3 py-1.5 ${isDeleted ? 'cursor-default' : 'cursor-pointer'} ${isPrivate
                 ? 'bg-orange-50 border border-orange-200 dark:bg-orange-950/20 dark:border-orange-800/50'
@@ -405,6 +475,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 <MessageStatus message={message} isOwn={false} onRetry={onRetry} variant="default" />
               )}
             </div>,
+            false,
           )}
         </div>
 
@@ -485,7 +556,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           </div>
         )}
 
-        {renderContextMenu(
+        {renderWithActions(
           <div
             className={`rounded-lg px-3 py-2 ${isDeleted ? 'cursor-default' : 'cursor-pointer'} ${
               isOwn ? 'rounded-tr-[4px]' : isThreadReply ? 'rounded-tl-md' : ''
@@ -566,6 +637,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               <MessageStatus message={message} isOwn={isOwn} onRetry={onRetry} variant="default" />
             )}
           </div>,
+          isOwn,
         )}
       </div>
 

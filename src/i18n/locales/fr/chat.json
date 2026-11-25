@@ -12,6 +12,7 @@
       "playbackErrorDescription": "Impossible de lire ce fichier audio"
     },
     "messageBubble": {
+      "actions": "Plus d'actions",
       "contextMenu": {
         "reply": "Répondre",
         "copy": "Copier le message",
@@ -97,6 +98,7 @@
       "tryAgain": "Réessayer"
     },
     "replyPreview": {
+      "cancel": "Annuler la réponse",
       "imageAttachment": "📷 Image",
       "audioAttachment": "🎵 Audio",
       "videoAttachment": "🎥 Vidéo",

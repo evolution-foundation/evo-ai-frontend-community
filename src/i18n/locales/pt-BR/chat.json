@@ -13,6 +13,7 @@
       "transcription": "Transcrição"
     },
     "messageBubble": {
+      "actions": "Mais ações",
       "contextMenu": {
         "reply": "Responder",
         "copy": "Copiar mensagem",
@@ -98,6 +99,7 @@
       "tryAgain": "Tentar novamente"
     },
     "replyPreview": {
+      "cancel": "Cancelar resposta",
       "imageAttachment": "📷 Imagem",
       "audioAttachment": "🎵 Áudio",
       "videoAttachment": "🎥 Vídeo",

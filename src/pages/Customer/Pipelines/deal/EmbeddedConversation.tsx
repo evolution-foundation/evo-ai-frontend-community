@@ -3,6 +3,7 @@ import { ExternalLink, Eye, EyeOff, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@evoapi/design-system';
 import MessageList from '@/components/chat/messages/MessageList';
+import ReplyPreview from '@/components/chat/messages/ReplyPreview';
 import chatService from '@/services/chat/chatService';
 import { extractMessagesData } from '@/utils/chat/responseHelpers';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -45,6 +46,8 @@ export default function EmbeddedConversation({ conversationId, spyDefault, showO
   const [spy, setSpy] = useState(() => spyDefault ?? readSpy());
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
+  const [replyTo, setReplyTo] = useState<Message | null>(null);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
   const idRef = useRef(conversationId);
   idRef.current = conversationId;
   const markedRef = useRef<string | null>(null);
@@ -74,6 +77,7 @@ export default function EmbeddedConversation({ conversationId, spyDefault, showO
 
   useEffect(() => {
     setConversation(null);
+    setReplyTo(null);
     markedRef.current = null;
     void load();
   }, [load]);
@@ -131,15 +135,30 @@ export default function EmbeddedConversation({ conversationId, spyDefault, showO
     const content = draft.trim();
     if (!content || sending || !canSend || !canReply) return;
     setSending(true);
+    const quoted = replyTo;
     try {
-      const sent = await chatService.sendMessage(conversationId, { content, message_type: 'outgoing', private: false });
+      const sent = await chatService.sendMessage(conversationId, {
+        content,
+        message_type: 'outgoing',
+        private: false,
+        content_attributes: quoted ? { in_reply_to: quoted.id } : undefined,
+      });
+      // Se o painel já mostra outra conversa, o envio antigo não mexe nela.
+      if (idRef.current !== conversationId) return;
       setMessages(current => mergeMessages(current, [sent]));
       setDraft('');
+      setReplyTo(current => (current === quoted ? null : current));
     } catch {
       toast.error(t('dealConversation.sendError'));
     } finally {
       setSending(false);
     }
+  };
+
+  const startReply = (message: Message) => {
+    setReplyTo(message);
+    // O menu devolve o foco ao botão ao fechar; focar o compositor depois disso.
+    window.setTimeout(() => composerRef.current?.focus(), 100);
   };
 
   const openFull = () => window.open(`/conversations/${conversationId}`, '_blank', 'noopener');
@@ -172,12 +191,16 @@ export default function EmbeddedConversation({ conversationId, spyDefault, showO
             isInitialLoading={loading}
             onLoadMore={loadMore}
             onRetryMessage={() => undefined}
-            onReplyToMessage={() => undefined}
+            onReplyToMessage={canSend && canReply ? startReply : undefined}
             onCopyMessage={message => void navigator.clipboard?.writeText(message.content || '')}
-            onDeleteMessage={async () => undefined}
           />
         )}
       </div>
+      {replyTo && canSend && canReply && (
+        <div className="deal-embedded-reply">
+          <ReplyPreview message={replyTo} isOwn={false} onCancel={() => setReplyTo(null)} />
+        </div>
+      )}
       <form className="deal-embedded-composer" onSubmit={event => { event.preventDefault(); void send(); }}>
         {!canSend ? (
           <p className="deal-embedded-note">{t('dealConversation.noPermissionSend')}</p>
@@ -186,6 +209,7 @@ export default function EmbeddedConversation({ conversationId, spyDefault, showO
         ) : (
           <>
             <textarea
+              ref={composerRef}
               value={draft}
               rows={2}
               aria-label={t('dealConversation.messageLabel')}

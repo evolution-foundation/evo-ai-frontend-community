@@ -62,9 +62,10 @@ interface MessageListProps {
   messageModerations?: Map<string, FacebookCommentModeration>; // Map of message_id -> moderation
   onLoadMore: () => void;
   onRetryMessage: (messageId: string) => void;
-  onReplyToMessage: (message: Message) => void;
+  /** Sem handler, a ação correspondente não aparece na bolha. */
+  onReplyToMessage?: (message: Message) => void;
   onCopyMessage: (message: Message) => void;
-  onDeleteMessage: (message: Message) => Promise<void>;
+  onDeleteMessage?: (message: Message) => Promise<void>;
 }
 
 // Helper function para normalizar timestamp de mensagens (mesma lógica do MessagesContext)

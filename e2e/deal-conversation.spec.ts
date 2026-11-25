@@ -236,3 +236,33 @@ test('mobile 390: painel de conversa em tela cheia, sem overflow', async ({ page
   await expect(page.getByRole('dialog').getByTestId('deal-conversation-action').first()).toBeVisible();
   await shot(page, 'modal-cabecalho-390-light');
 });
+
+test('responder pelo botão da bolha: o menu não cai sob o cursor e o envio leva a citação', async ({ page }) => {
+  test.setTimeout(90_000);
+  const api = await boot(page, 1440, 'light');
+  await page.goto('/pipelines/pipeline-1');
+  await page.locator('[data-deal-id="deal-1"]').getByTestId('deal-conversation-action').click();
+  const drawer = page.locator('.deal-conversation-drawer');
+  const first = drawer.getByText('Oi! Vi o convite da aula ao vivo.');
+  await first.hover();
+  const button = drawer.getByRole('button', { name: 'Mais ações' }).first();
+  const trigger = (await button.boundingBox())!;
+  await button.click();
+  const menu = page.getByRole('menu');
+  await expect(menu).toBeVisible();
+  // continua aberto (o clique que abre não escolhe item) e abaixo do botão
+  await page.waitForTimeout(400);
+  const box = (await menu.boundingBox())!;
+  expect(box.y).toBeGreaterThanOrEqual(trigger.y + trigger.height - 1);
+  expect(Math.abs(box.x - trigger.x)).toBeLessThan(4);
+  await expect(page.getByRole('menuitem', { name: 'Excluir mensagem' })).toHaveCount(0);
+  await shot(page, 'responder-menu-1440-light');
+  await page.getByRole('menuitem', { name: 'Responder' }).click();
+  await expect(drawer.getByRole('button', { name: 'Cancelar resposta' })).toBeVisible();
+  await expect(drawer.getByLabel('Mensagem')).toBeFocused();
+  await drawer.getByLabel('Mensagem').fill('Claro, Maria. Te explico.');
+  await shot(page, 'responder-citacao-1440-light');
+  await drawer.getByLabel('Mensagem').press('Enter');
+  await expect.poll(() => (api.bodies.sendMessage as { content_attributes?: unknown } | undefined)?.content_attributes).toEqual({ in_reply_to: 'm1' });
+  await expect(drawer.getByRole('button', { name: 'Cancelar resposta' })).toHaveCount(0);
+});

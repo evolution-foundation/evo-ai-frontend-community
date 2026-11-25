@@ -12,6 +12,7 @@
       "playbackErrorDescription": "Impossibile riprodurre questo file audio"
     },
     "messageBubble": {
+      "actions": "Altre azioni",
       "contextMenu": {
         "reply": "Rispondi",
         "copy": "Copia messaggio",
@@ -97,6 +98,7 @@
       "tryAgain": "Riprova"
     },
     "replyPreview": {
+      "cancel": "Annulla risposta",
       "imageAttachment": "📷 Immagine",
       "audioAttachment": "🎵 Audio",
       "videoAttachment": "🎥 Video",
