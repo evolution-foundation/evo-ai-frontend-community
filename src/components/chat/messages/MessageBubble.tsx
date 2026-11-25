@@ -13,6 +13,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@evoapi/design-system/dropdown-menu';
+import { Popover, PopoverContent, PopoverTrigger } from '@evoapi/design-system/popover';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@evoapi/design-system/alert-dialog';
-import { LockIcon, Reply, Copy, Trash2, AlertTriangle, Shield, Ban, ChevronDown } from 'lucide-react';
+import { LockIcon, Reply, Copy, Trash2, AlertTriangle, Shield, Ban, ChevronDown, SmilePlus } from 'lucide-react';
 import { Message, MESSAGE_TYPE } from '@/types/chat/api';
 import { useLanguage } from '@/hooks/useLanguage';
 import MessageText from '@/components/chat/messages/MessageText';
@@ -38,6 +39,9 @@ import MessageCarousel from '@/components/chat/messages/MessageCarousel';
 import MessageStatus from '@/components/chat/messages/MessageStatus';
 import SystemMessage from '@/components/chat/messages/SystemMessage';
 import ReplyPreview from '@/components/chat/messages/ReplyPreview';
+import MessageReactions from '@/components/chat/messages/MessageReactions';
+import ReactionPicker from '@/components/chat/messages/ReactionPicker';
+import { canReactTo, myReaction } from '@/components/chat/messages/utils/reactions';
 import { FacebookCommentModeration } from '@/types/channels/inbox';
 
 interface MessageBubbleProps {
@@ -58,6 +62,8 @@ interface MessageBubbleProps {
   onReply?: (message: Message) => void;
   onCopy?: (message: Message) => void;
   onDelete?: (message: Message) => void;
+  /** Emoji vazio remove a minha reação. */
+  onReact?: (message: Message, emoji: string) => void;
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -78,6 +84,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   onReply,
   onCopy,
   onDelete,
+  onReact,
 }) => {
   const { t } = useLanguage('chat');
   const isTemplate = message.message_type === MESSAGE_TYPE.TEMPLATE;
@@ -119,17 +126,38 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     onCopy?.(message);
   };
 
-  const replyChosenRef = useRef(false);
+  // Itens que levam o foco para outro lugar (compositor, seletor de reação).
+  const keepFocusRef = useRef(false);
   const handleReplyMessage = () => {
-    replyChosenRef.current = true;
+    keepFocusRef.current = true;
     onReply?.(message);
   };
 
-  // Ao responder, o foco vai para o compositor; sem isto o menu o devolve à bolha.
+  // Sem isto o menu, ao fechar, devolve o foco à bolha (e fecharia o seletor de reação).
   const handleMenuCloseAutoFocus = (event: Event) => {
-    if (replyChosenRef.current) event.preventDefault();
-    replyChosenRef.current = false;
+    if (keepFocusRef.current) event.preventDefault();
+    keepFocusRef.current = false;
   };
+
+  const [showReactionPicker, setShowReactionPicker] = useState(false);
+  const canReact = Boolean(onReact) && !isDeleted && canReactTo(message);
+  const currentReaction = myReaction(message.content_attributes?.reactions)?.emoji;
+  const handleReactMessage = () => {
+    keepFocusRef.current = true;
+    setShowReactionPicker(true);
+  };
+  const react = (emoji: string) => {
+    setShowReactionPicker(false);
+    onReact?.(message, emoji);
+  };
+  const renderReactions = (alignEnd: boolean) =>
+    !isDeleted && (
+      <MessageReactions
+        reactions={message.content_attributes?.reactions}
+        alignEnd={alignEnd}
+        onRemoveMine={canReact ? () => react('') : undefined}
+      />
+    );
 
   const handleDeleteMessage = () => {
     setShowDeleteDialog(true);
@@ -141,7 +169,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   };
 
   // Ações da mensagem: fonte única do botão direito e do botão visível na bolha.
-  // Novas ações (reagir, encaminhar) entram nesta lista.
+  // Novas ações (encaminhar) entram nesta lista.
   // REGRA EVOLUTION: notas privadas não podem ser respondidas; mensagem em envio ou
   // com falha ainda não existe no destino, então também não oferece "Responder".
   const canReply =
@@ -152,6 +180,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       icon: Reply,
       label: t('messages.messageBubble.contextMenu.reply'),
       onSelect: handleReplyMessage,
+    },
+    canReact && {
+      key: 'react',
+      icon: SmilePlus,
+      label: t('messages.messageBubble.contextMenu.react'),
+      onSelect: handleReactMessage,
     },
     {
       key: 'copy',
@@ -167,6 +201,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       destructive: true,
     },
   ].filter(action => !!action);
+
+  const actionButtonClass =
+    'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground opacity-0 transition-opacity hover:bg-muted group-hover/bubble:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 [@media(hover:none)]:opacity-100';
 
   // alignEnd: bolha própria (à direita) leva o botão do lado esquerdo dela.
   const renderWithActions = (children: React.ReactNode, alignEnd: boolean) => {
@@ -200,13 +237,38 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             ))}
           </ContextMenuContent>
         </ContextMenu>
+        {canReact && (
+          <Popover open={showReactionPicker} onOpenChange={setShowReactionPicker}>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                aria-label={t('messages.messageBubble.contextMenu.react')}
+                title={t('messages.messageBubble.contextMenu.react')}
+                className={actionButtonClass}
+              >
+                <SmilePlus className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="message-actions-menu w-auto border-0 bg-transparent p-0 shadow-none"
+              align={alignEnd ? 'end' : 'start'}
+              collisionPadding={8}
+              // O menu que ainda está fechando (e o painel lateral) mexem no foco; só clique
+              // fora, Esc ou a escolha fecham o seletor.
+              onFocusOutside={event => event.preventDefault()}
+              aria-label={t('messages.messageBubble.reactions.picker')}
+            >
+              <ReactionPicker current={currentReaction} onSelect={react} onClose={() => setShowReactionPicker(false)} />
+            </PopoverContent>
+          </Popover>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               type="button"
               aria-label={t('messages.messageBubble.actions')}
               title={t('messages.messageBubble.actions')}
-              className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground opacity-0 transition-opacity hover:bg-muted group-hover/bubble:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 [@media(hover:none)]:opacity-100"
+              className={actionButtonClass}
             >
               <ChevronDown className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -477,6 +539,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             </div>,
             false,
           )}
+          {renderReactions(false)}
         </div>
 
         {/* Alert Dialog para confirmação de exclusão */}
@@ -639,6 +702,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           </div>,
           isOwn,
         )}
+        {renderReactions(isOwn)}
       </div>
 
       {/* Alert Dialog para confirmação de exclusão */}

@@ -5,10 +5,12 @@ import { Button } from '@evoapi/design-system';
 import MessageList from '@/components/chat/messages/MessageList';
 import ReplyPreview from '@/components/chat/messages/ReplyPreview';
 import chatService from '@/services/chat/chatService';
+import { useMessageReaction } from '@/hooks/chat/useMessageReaction';
+import { supportsReactions, withMyReaction } from '@/components/chat/messages/utils/reactions';
 import { extractMessagesData } from '@/utils/chat/responseHelpers';
 import { useLanguage } from '@/hooks/useLanguage';
 import { usePermissions } from '@/contexts/PermissionsContext';
-import type { Conversation, Message } from '@/types/chat/api';
+import type { Conversation, Message, MessageReaction } from '@/types/chat/api';
 
 const SPY_KEY = 'evo.dealConversation.spy';
 const POLL_MS = 10000;
@@ -155,6 +157,11 @@ export default function EmbeddedConversation({ conversationId, spyDefault, showO
     }
   };
 
+  const applyReaction = useCallback((_conversationId: string, messageId: string, reaction: MessageReaction | null) => {
+    setMessages(current => current.map(message => (message.id === messageId ? withMyReaction(message, reaction) : message)));
+  }, []);
+  const reactToMessage = useMessageReaction(applyReaction);
+
   const startReply = (message: Message) => {
     setReplyTo(message);
     // O menu devolve o foco ao botão ao fechar; focar o compositor depois disso.
@@ -193,6 +200,11 @@ export default function EmbeddedConversation({ conversationId, spyDefault, showO
             onRetryMessage={() => undefined}
             onReplyToMessage={canSend && canReply ? startReply : undefined}
             onCopyMessage={message => void navigator.clipboard?.writeText(message.content || '')}
+            onReactToMessage={
+              canSend && supportsReactions(conversation)
+                ? (message, emoji) => void reactToMessage(conversationId, message, emoji)
+                : undefined
+            }
           />
         )}
       </div>

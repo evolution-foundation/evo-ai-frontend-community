@@ -22,6 +22,7 @@ import { useAppDataStore } from '@/store/appDataStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { playNotificationSound, getAudioSettings } from '@/utils/audioNotificationUtils';
 import { normalizeToUnixSeconds } from '@/utils/time/timeHelpers';
+import { isOlderThanLastMessage } from '@/components/chat/messages/utils/reactions';
 import { doesConversationMatchFilters } from '@/utils/chat/conversationMatch';
 
 interface ChatContextValue {
@@ -360,6 +361,9 @@ function useChatIntegration() {
           return;
         }
 
+        // Reação ou ✓✓ em mensagem antiga não mexe na ordem nem na prévia da conversa.
+        const keepPreview = isOlderThanLastMessage(conversation, message);
+
         const validTimestamp = normalizeToUnixSeconds(message.created_at);
         const updatedConversationBase: Conversation = {
           ...conversation,
@@ -368,27 +372,29 @@ function useChatIntegration() {
         };
 
         if (message.message_type === MESSAGE_TYPE.ACTIVITY) {
-          conversations.updateConversation(updatedConversationBase);
+          if (!keepPreview) conversations.updateConversation(updatedConversationBase);
           return;
         }
 
-        conversations.updateConversation({
-          ...updatedConversationBase,
-          last_non_activity_message: {
-            id: message.id,
-            content: message.content ?? '',
-            message_type: message.message_type,
-            created_at:
-              typeof message.created_at === 'number'
-                ? String(message.created_at)
-                : (message.created_at ?? new Date(validTimestamp * 1000).toISOString()),
-            processed_message_content:
-              (message as { processed_message_content?: string }).processed_message_content ??
-              message.content ??
-              '',
-            sender: message.sender ?? { id: '', name: '', type: 'contact' },
-          },
-        });
+        if (!keepPreview) {
+          conversations.updateConversation({
+            ...updatedConversationBase,
+            last_non_activity_message: {
+              id: message.id,
+              content: message.content ?? '',
+              message_type: message.message_type,
+              created_at:
+                typeof message.created_at === 'number'
+                  ? String(message.created_at)
+                  : (message.created_at ?? new Date(validTimestamp * 1000).toISOString()),
+              processed_message_content:
+                (message as { processed_message_content?: string }).processed_message_content ??
+                message.content ??
+                '',
+              sender: message.sender ?? { id: '', name: '', type: 'contact' },
+            },
+          });
+        }
 
         if (shouldReloadMessageForMissingImageData(message)) {
           const existingTimer = attachmentReloadTimersRef.current[conversationId];

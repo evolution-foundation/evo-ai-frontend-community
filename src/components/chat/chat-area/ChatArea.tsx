@@ -6,6 +6,9 @@ import { useChatContext } from '@/contexts/chat/ChatContext';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useConversationModerations } from '@/hooks/chat/useConversationModerations';
 import { useAppDataStore } from '@/store/appDataStore';
+import { usePermissions } from '@/contexts/PermissionsContext';
+import { useMessageReaction } from '@/hooks/chat/useMessageReaction';
+import { supportsReactions } from '../messages/utils/reactions';
 
 import { MessageCircle } from 'lucide-react';
 
@@ -159,6 +162,16 @@ const ChatArea = ({
       }
     },
     [selectedConversationId, messages],
+  );
+
+  const { can } = usePermissions();
+  const { setMyReaction } = messages;
+  const reactToMessage = useMessageReaction(setMyReaction);
+  const handleReactToMessage = useCallback(
+    (message: Message, emoji: string) => {
+      if (selectedConversationId) void reactToMessage(selectedConversationId, message, emoji);
+    },
+    [selectedConversationId, reactToMessage],
   );
 
   const handleCancelReply = useCallback(() => {
@@ -394,6 +407,11 @@ const ChatArea = ({
             onReplyToMessage={handleReplyToMessage}
             onCopyMessage={handleCopyMessage}
             onDeleteMessage={handleDeleteMessage}
+            onReactToMessage={
+              can('conversations', 'update') && supportsReactions(selectedConversation, inbox?.provider)
+                ? handleReactToMessage
+                : undefined
+            }
           />
         </>
       )}

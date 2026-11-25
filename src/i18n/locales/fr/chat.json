@@ -14,9 +14,16 @@
     "messageBubble": {
       "actions": "Plus d'actions",
       "contextMenu": {
+        "react": "Réagir",
         "reply": "Répondre",
         "copy": "Copier le message",
         "delete": "Supprimer le message"
+      },
+      "reactions": {
+        "more": "Plus d’émojis",
+        "remove": "Retirer ma réaction",
+        "picker": "Choisir une réaction",
+        "error": "Impossible de réagir. Réessayez."
       },
       "userFallback": "Utilisateur",
       "agent": {

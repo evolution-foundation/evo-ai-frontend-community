@@ -42,10 +42,10 @@ function makeDeals(summaries: Record<string, Record<string, unknown>>) {
 const message = (id: string, content: string, type: 'incoming' | 'outgoing', minutes: number) => ({
   id, content, content_attributes: {}, content_type: 'text', conversation_id: 'conv-1', created_at: 1788091200 + minutes * 60, external_source_ids: {},
   message_type: type, private: false, sender: { id: type === 'incoming' ? 'c-0' : 'owner-1', name: type === 'incoming' ? 'Maria Vitória' : 'Eduardo Nunes', type: type === 'incoming' ? 'contact' : 'user' },
-  sender_type: type === 'incoming' ? 'contact' : 'user', source_id: null, status: 'read', attachments: [],
+  sender_type: type === 'incoming' ? 'contact' : 'user', source_id: `wa-${id}`, status: 'read', attachments: [],
 });
 
-async function installApi(page: Page, opts: { canUpdate?: boolean; allowed?: string[]; defaultInbox?: string | null } = {}) {
+async function installApi(page: Page, opts: { canUpdate?: boolean; allowed?: string[]; defaultInbox?: string | null; reactions?: unknown[] } = {}) {
   const summaries = initialSummaries();
   const deals = makeDeals(summaries);
   const state = { allowed: opts.allowed ?? ['inbox-1', 'inbox-2'], defaultInbox: opts.defaultInbox === undefined ? 'inbox-1' : opts.defaultInbox };
@@ -90,12 +90,19 @@ async function installApi(page: Page, opts: { canUpdate?: boolean; allowed?: str
       }
       return json(route, ok(inboxPayload()));
     }
+    m = p.match(/\/conversations\/conv-1\/messages\/(m\d+)\/reaction$/);
+    if (m && method === 'POST') {
+      const { emoji } = request.postDataJSON() as { emoji: string };
+      bodies.reaction = { id: m[1], emoji };
+      if (emoji === '😢') return json(route, { success: false, error: { code: 'VALIDATION_ERROR', details: 'provider_failed' } }, 422);
+      return json(route, ok({ ...message(m[1], 'x', 'incoming', 0), content_attributes: { reactions: emoji ? [{ emoji, from: 'me', user_id: 'user-1', at: 1788092000 }] : [] } }));
+    }
     if (/\/conversations\/conv-1\/messages$/.test(p)) {
       if (method === 'POST') { bodies.sendMessage = request.postDataJSON(); return json(route, ok(message('m9', (request.postDataJSON() as { content: string }).content, 'outgoing', 30)), 201); }
-      return json(route, ok([message('m1', 'Oi! Vi o convite da aula ao vivo.', 'incoming', 0), message('m2', 'Olá, Maria! Que bom ter você aqui. Posso te ajudar?', 'outgoing', 5), message('m3', 'Quero entender como funciona o consignado.', 'incoming', 12)]));
+      return json(route, ok([{ ...message('m1', 'Oi! Vi o convite da aula ao vivo.', 'incoming', 0), content_attributes: opts.reactions ? { reactions: opts.reactions } : {} }, message('m2', 'Olá, Maria! Que bom ter você aqui. Posso te ajudar?', 'outgoing', 5), message('m3', 'Quero entender como funciona o consignado.', 'incoming', 12)]));
     }
     if (/\/conversations\/conv-1\/update_last_seen$/.test(p)) { calls.push('MARK_READ'); return json(route, ok({})); }
-    if (/\/conversations\/conv-1$/.test(p)) return json(route, ok({ id: 'conv-1', display_id: 41, status: 'open', can_reply: true, inbox_id: 'inbox-1', inbox: { id: 'inbox-1', channel_type: 'Channel::Whatsapp' }, messages: [], meta: { sender: { id: 'c-0', name: 'Maria Vitória' } } }));
+    if (/\/conversations\/conv-1$/.test(p)) return json(route, ok({ id: 'conv-1', display_id: 41, status: 'open', can_reply: true, inbox_id: 'inbox-1', inbox: { id: 'inbox-1', channel_type: 'Channel::Whatsapp', provider: 'evolution' }, messages: [], meta: { sender: { id: 'c-0', name: 'Maria Vitória' } } }));
     m = p.match(/\/deals\/(deal-\d+)$/);
     if (m && method === 'GET') return json(route, ok({ ...deals.find(d => d.id === m![1]), conversation_summary: summaries[m![1]] }));
     if (p.endsWith('/pipelines/pipeline-1') && method === 'GET') return json(route, ok(pipeline()));
@@ -266,3 +273,59 @@ test('responder pelo botão da bolha: o menu não cai sob o cursor e o envio lev
   await expect.poll(() => (api.bodies.sendMessage as { content_attributes?: unknown } | undefined)?.content_attributes).toEqual({ in_reply_to: 'm1' });
   await expect(drawer.getByRole('button', { name: 'Cancelar resposta' })).toHaveCount(0);
 });
+
+for (const [width, name] of [[1440, 'desktop'], [390, 'celular']] as const) {
+  test(`reagir pela bolha: seletor, chip, remover e desfazer no erro (${name})`, async ({ page }) => {
+    test.setTimeout(90_000);
+    const api = await boot(page, width, 'light', { reactions: [{ emoji: '❤️', from: 'contact', user_id: null, at: 1788091300 }] });
+    await page.goto('/pipelines/pipeline-1');
+    await page.locator('[data-deal-id="deal-1"]').getByTestId('deal-conversation-action').click();
+    const drawer = page.locator('.deal-conversation-drawer');
+    const bubble = drawer.locator('[data-message-id="m1"]');
+    await expect(bubble.getByText('❤️')).toBeVisible();
+    await bubble.getByText('Oi! Vi o convite da aula ao vivo.').hover();
+    const trigger = (await bubble.getByRole('button', { name: 'Reagir' }).boundingBox())!;
+    await bubble.getByRole('button', { name: 'Reagir' }).click();
+    const picker = page.getByRole('dialog', { name: 'Escolher reação' });
+    await expect(picker).toBeVisible();
+    await page.waitForTimeout(400);
+    const box = (await picker.boundingBox())!;
+    // o seletor não cobre o próprio botão (zoom do painel) e cabe na tela
+    expect(box.y >= trigger.y + trigger.height - 1 || box.y + box.height <= trigger.y + 1).toBe(true);
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(width + 1);
+    await shot(page, `reagir-seletor-${name}`);
+    await picker.getByRole('button', { name: '👍' }).click();
+    await expect.poll(() => api.bodies.reaction).toEqual({ id: 'm1', emoji: '👍' });
+    const mine = bubble.getByRole('button', { name: 'Remover minha reação 👍' });
+    await expect(mine).toBeVisible();
+    await shot(page, `reagir-chips-${name}`);
+    await mine.click();
+    await expect.poll(() => api.bodies.reaction).toEqual({ id: 'm1', emoji: '' });
+    await expect(mine).toHaveCount(0);
+    // pelo menu, com falha: avisa e desfaz
+    await bubble.getByRole('button', { name: 'Mais ações' }).click();
+    await page.getByRole('menuitem', { name: 'Reagir' }).click();
+    await page.getByRole('dialog', { name: 'Escolher reação' }).getByRole('button', { name: '😢' }).click();
+    await expect(page.getByText('Não foi possível reagir. Tente de novo.')).toBeVisible();
+    await expect(bubble.getByText('😢')).toHaveCount(0);
+    // seletor completo
+    await bubble.getByRole('button', { name: 'Mais ações' }).click();
+    await page.getByRole('menuitem', { name: 'Reagir' }).click();
+    await page.getByRole('button', { name: 'Mais emojis' }).click();
+    const full = page.locator('.EmojiPickerReact');
+    await expect(full).toBeVisible();
+    await page.waitForTimeout(600);
+    const fullBox = (await full.boundingBox())!;
+    expect(fullBox.x).toBeGreaterThanOrEqual(0);
+    expect(fullBox.x + fullBox.width).toBeLessThanOrEqual(width + 1);
+    await shot(page, `reagir-todos-emojis-${name}`);
+    const search = full.getByRole('textbox');
+    await search.click();
+    await search.pressSequentially('rocket');
+    await expect(search).toHaveValue('rocket');
+    await full.getByRole('button', { name: /rocket/i }).first().click();
+    await expect(full).toBeHidden();
+    await expect.poll(() => (api.bodies.reaction as { emoji: string }).emoji).toBe('🚀');
+  });
+}

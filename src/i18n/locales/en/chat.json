@@ -15,9 +15,16 @@
     "messageBubble": {
       "actions": "More actions",
       "contextMenu": {
+        "react": "React",
         "reply": "Reply",
         "copy": "Copy message",
         "delete": "Delete message"
+      },
+      "reactions": {
+        "more": "More emojis",
+        "remove": "Remove my reaction",
+        "picker": "Choose a reaction",
+        "error": "Could not react. Try again."
       },
       "userFallback": "User",
       "agent": {
