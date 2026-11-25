@@ -8,6 +8,7 @@ import { useConversationModerations } from '@/hooks/chat/useConversationModerati
 import { useAppDataStore } from '@/store/appDataStore';
 import { usePermissions } from '@/contexts/PermissionsContext';
 import { useMessageReaction } from '@/hooks/chat/useMessageReaction';
+import ForwardDialog from '../messages/ForwardDialog';
 import { supportsReactions } from '../messages/utils/reactions';
 
 import { MessageCircle } from 'lucide-react';
@@ -173,6 +174,16 @@ const ChatArea = ({
     },
     [selectedConversationId, reactToMessage],
   );
+
+  // Guarda a conversa de origem junto: trocar de conversa fecha o seletor.
+  const [forwarding, setForwarding] = useState<{ conversationId: string; message: Message } | null>(null);
+  const handleForwardMessage = useCallback(
+    (message: Message) => {
+      if (selectedConversationId) setForwarding({ conversationId: selectedConversationId, message });
+    },
+    [selectedConversationId],
+  );
+  useEffect(() => setForwarding(null), [selectedConversationId]);
 
   const handleCancelReply = useCallback(() => {
     messages.onCancelReply();
@@ -412,6 +423,11 @@ const ChatArea = ({
                 ? handleReactToMessage
                 : undefined
             }
+            onForwardMessage={
+              can('conversations', 'update') && supportsReactions(selectedConversation, inbox?.provider)
+                ? handleForwardMessage
+                : undefined
+            }
           />
         </>
       )}
@@ -442,6 +458,14 @@ const ChatArea = ({
           channelProvider={channelProvider}
         />
       </div>
+
+      {forwarding && (
+        <ForwardDialog
+          conversationId={forwarding.conversationId}
+          message={forwarding.message}
+          onClose={() => setForwarding(null)}
+        />
+      )}
     </div>
   );
 };

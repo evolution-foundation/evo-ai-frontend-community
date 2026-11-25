@@ -47,7 +47,7 @@ export interface SearchConversationResult {
   created_at: number;
   message: SearchMessageResult | null;
   contact: SearchContactResult | null;
-  inbox: Pick<Inbox, 'id' | 'name'> | null;
+  inbox: Pick<Inbox, 'id' | 'name' | 'channel_type'> | null;
   agent: SearchConversationAgent | null;
   additional_attributes: Record<string, unknown>;
 }

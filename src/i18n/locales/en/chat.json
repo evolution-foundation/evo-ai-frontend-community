@@ -12,10 +12,32 @@
       "playbackErrorDescription": "Could not play this audio file",
       "transcription": "Transcription"
     },
+    "forward": {
+      "title": "Forward message",
+      "description": "Choose up to {{max}} WhatsApp conversations.",
+      "search": "Search by name or number",
+      "searching": "Searching…",
+      "empty": "No WhatsApp conversation found.",
+      "searchError": "Could not search conversations.",
+      "selected": "{{total}} of {{max}} selected",
+      "remove": "Remove {{name}}",
+      "confirm": "Forward",
+      "sending": "Forwarding…",
+      "sent": "Forwarding to {{names}}.",
+      "errors": {
+        "invalid_target": "One of the conversations is not available. Choose another.",
+        "unsupported_channel": "You can only forward to WhatsApp conversations.",
+        "unsupported_message": "This message cannot be forwarded.",
+        "unsupported_content": "This content cannot be forwarded.",
+        "creation_failed": "Could not create the message (it may be the per-minute limit). Nothing was sent.",
+        "generic": "Could not forward. Try again."
+      }
+    },
     "messageBubble": {
       "actions": "More actions",
       "contextMenu": {
         "react": "React",
+        "forward": "Forward",
         "reply": "Reply",
         "copy": "Copy message",
         "delete": "Delete message"
@@ -32,6 +54,7 @@
         "picker": "Choose a reaction",
         "error": "Could not react. Try again."
       },
+      "forwarded": "Forwarded",
       "userFallback": "User",
       "agent": {
         "badge": "Team Member",

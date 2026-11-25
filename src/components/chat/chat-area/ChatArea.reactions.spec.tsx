@@ -17,9 +17,10 @@ vi.mock('../message-input', () => ({ MessageInput: () => null }));
 vi.mock('../typing-indicator/TypingIndicator', () => ({ default: () => null }));
 vi.mock('../banner', () => ({ Banner: () => null, ConversationNoteBanner: () => null }));
 vi.mock('../banner/PendingResponseBanner', () => ({ default: () => null }));
+vi.mock('../messages/ForwardDialog', () => ({ default: ({ conversationId, message }: { conversationId: string; message: Message }) => <div role="dialog">{conversationId}:{message.id}</div> }));
 vi.mock('../messages/MessageList', () => ({
-  default: ({ messages, onReactToMessage }: { messages: Message[]; onReactToMessage?: (m: Message, emoji: string) => void }) =>
-    onReactToMessage ? <button type="button" onClick={() => onReactToMessage(messages[0], '👍')}>reagir</button> : <p>sem reação</p>,
+  default: ({ messages, onReactToMessage, onForwardMessage }: { messages: Message[]; onReactToMessage?: (m: Message, emoji: string) => void; onForwardMessage?: (m: Message) => void }) =>
+    onReactToMessage ? <><button type="button" onClick={() => onReactToMessage(messages[0], '👍')}>reagir</button>{onForwardMessage && <button type="button" onClick={() => onForwardMessage(messages[0])}>encaminhar</button>}</> : <p>sem reação</p>,
 }));
 
 const message = { id: 'm1' } as Message;
@@ -55,5 +56,14 @@ describe('ChatArea reactions', () => {
     perms.can.mockReturnValue(false);
     render(area('evolution'));
     expect(screen.getByText('sem reação')).toBeInTheDocument();
+  });
+
+  it('opens the forward picker for that message, only where it is supported', () => {
+    const { unmount } = render(area('evolution'));
+    fireEvent.click(screen.getByRole('button', { name: 'encaminhar' }));
+    expect(screen.getByRole('dialog')).toHaveTextContent('c1:m1');
+    unmount();
+    render(area('zapi'));
+    expect(screen.queryByRole('button', { name: 'encaminhar' })).toBeNull();
   });
 });

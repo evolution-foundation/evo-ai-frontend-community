@@ -216,6 +216,9 @@ export interface MessageContentAttributes extends Record<string, unknown> {
   reactions?: MessageReaction[];
   shared_contacts?: SharedContact[];
   is_unsupported?: boolean;
+  forwarded?: boolean;
+  media_unavailable?: boolean;
+  revoked_by_contact?: boolean;
   deleted?: boolean;
   external_created_at?: number;
 }

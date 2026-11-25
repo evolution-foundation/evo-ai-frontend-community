@@ -24,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@evoapi/design-system/alert-dialog';
-import { LockIcon, Reply, Copy, Trash2, AlertTriangle, Shield, Ban, ChevronDown, SmilePlus } from 'lucide-react';
+import { LockIcon, Reply, Copy, Trash2, AlertTriangle, Shield, Ban, ChevronDown, SmilePlus, Forward } from 'lucide-react';
 import { Message, MESSAGE_TYPE } from '@/types/chat/api';
 import { useLanguage } from '@/hooks/useLanguage';
 import MessageText from '@/components/chat/messages/MessageText';
@@ -43,6 +43,7 @@ import ReplyPreview from '@/components/chat/messages/ReplyPreview';
 import MessageReactions from '@/components/chat/messages/MessageReactions';
 import ReactionPicker from '@/components/chat/messages/ReactionPicker';
 import { canReactTo, myReaction } from '@/components/chat/messages/utils/reactions';
+import { canForward } from '@/components/chat/messages/utils/forward';
 import { FacebookCommentModeration } from '@/types/channels/inbox';
 
 interface MessageBubbleProps {
@@ -65,6 +66,8 @@ interface MessageBubbleProps {
   onDelete?: (message: Message) => void;
   /** Emoji vazio remove a minha reação. */
   onReact?: (message: Message, emoji: string) => void;
+  /** Abre o seletor de destinos. */
+  onForward?: (message: Message) => void;
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -86,6 +89,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   onCopy,
   onDelete,
   onReact,
+  onForward,
 }) => {
   const { t } = useLanguage('chat');
   const isTemplate = message.message_type === MESSAGE_TYPE.TEMPLATE;
@@ -160,6 +164,19 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       />
     );
 
+  const handleForwardMessage = () => {
+    // O foco vai para o seletor de destinos.
+    keepFocusRef.current = true;
+    onForward?.(message);
+  };
+
+  const forwardedLabel = !isDeleted && message.content_attributes?.forwarded === true && (
+    <div className="mb-1 flex items-center gap-1 text-xs italic opacity-75">
+      <Forward className="h-3 w-3" aria-hidden="true" />
+      {t('messages.messageBubble.forwarded')}
+    </div>
+  );
+
   const handleDeleteMessage = () => {
     setShowDeleteDialog(true);
   };
@@ -170,7 +187,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   };
 
   // Ações da mensagem: fonte única do botão direito e do botão visível na bolha.
-  // Novas ações (encaminhar) entram nesta lista.
+  // Novas ações entram nesta lista.
   // REGRA EVOLUTION: notas privadas não podem ser respondidas; mensagem em envio ou
   // com falha ainda não existe no destino, então também não oferece "Responder".
   const canReply =
@@ -187,6 +204,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       icon: SmilePlus,
       label: t('messages.messageBubble.contextMenu.react'),
       onSelect: handleReactMessage,
+    },
+    onForward && canForward(message) && {
+      key: 'forward',
+      icon: Forward,
+      label: t('messages.messageBubble.contextMenu.forward'),
+      onSelect: handleForwardMessage,
     },
     {
       key: 'copy',
@@ -519,6 +542,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 </div>
               )}
 
+              {forwardedLabel}
+
               {hasReplyReference && !isPrivate && (
                 <ReplyPreview message={replyToMessage} isOwn={false} />
               )}
@@ -681,6 +706,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 </Badge>
               </div>
             )}
+
+            {forwardedLabel}
 
             {hasReplyReference && !isPrivate && (
               <ReplyPreview message={replyToMessage} isOwn={isOwn} />

@@ -11,10 +11,32 @@
       "playbackError": "Erreur lors de la lecture audio",
       "playbackErrorDescription": "Impossible de lire ce fichier audio"
     },
+    "forward": {
+      "title": "Transférer le message",
+      "description": "Choisissez jusqu'à {{max}} conversations WhatsApp.",
+      "search": "Rechercher par nom ou numéro",
+      "searching": "Recherche…",
+      "empty": "Aucune conversation WhatsApp trouvée.",
+      "searchError": "Impossible de rechercher les conversations.",
+      "selected": "{{total}} sur {{max}} sélectionnées",
+      "remove": "Retirer {{name}}",
+      "confirm": "Transférer",
+      "sending": "Transfert…",
+      "sent": "Transfert vers {{names}}.",
+      "errors": {
+        "invalid_target": "Une des conversations n'est pas disponible. Choisissez-en une autre.",
+        "unsupported_channel": "Le transfert n'est possible que vers des conversations WhatsApp.",
+        "unsupported_message": "Ce message ne peut pas être transféré.",
+        "unsupported_content": "Ce contenu ne peut pas être transféré.",
+        "creation_failed": "Impossible de créer l'envoi (limite par minute possible). Rien n'a été envoyé.",
+        "generic": "Impossible de transférer. Réessayez."
+      }
+    },
     "messageBubble": {
       "actions": "Plus d'actions",
       "contextMenu": {
         "react": "Réagir",
+        "forward": "Transférer",
         "reply": "Répondre",
         "copy": "Copier le message",
         "delete": "Supprimer le message"
@@ -31,6 +53,7 @@
         "picker": "Choisir une réaction",
         "error": "Impossible de réagir. Réessayez."
       },
+      "forwarded": "Transféré",
       "userFallback": "Utilisateur",
       "agent": {
         "badge": "Agent",

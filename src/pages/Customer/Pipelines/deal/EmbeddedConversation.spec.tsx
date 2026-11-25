@@ -16,14 +16,23 @@ vi.mock('@/hooks/useLanguage', async () => {
 vi.mock('@/services/chat/chatService', () => ({ default: chat }));
 vi.mock('@/contexts/PermissionsContext', () => ({ usePermissions: () => ({ can: perms.can }) }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock('@/components/chat/messages/ForwardDialog', () => ({
+  default: ({ conversationId, message, onForwarded, onClose }: { conversationId: string; message: { id: string }; onForwarded: (m: unknown[]) => void; onClose: () => void }) => (
+    <div role="dialog">
+      encaminhando {message.id} de {conversationId}
+      <button type="button" onClick={() => { onForwarded([{ id: 'f1', content: 'Cópia aqui', conversation_id: 'c1' }, { id: 'f2', content: 'Cópia alheia', conversation_id: 'c2' }]); onClose(); }}>concluir</button>
+    </div>
+  ),
+}));
 vi.mock('@/components/chat/messages/MessageList', () => ({
-  default: ({ messages, onReplyToMessage, onDeleteMessage, onReactToMessage }: { messages: Array<{ id: string; content: string; content_attributes?: { reactions?: Array<{ emoji: string; from: string }> } }>; onReplyToMessage?: (m: unknown) => void; onDeleteMessage?: unknown; onReactToMessage?: (m: unknown, emoji: string) => void }) => (
+  default: ({ messages, onReplyToMessage, onDeleteMessage, onReactToMessage, onForwardMessage }: { messages: Array<{ id: string; content: string; content_attributes?: { reactions?: Array<{ emoji: string; from: string }> } }>; onReplyToMessage?: (m: unknown) => void; onDeleteMessage?: unknown; onReactToMessage?: (m: unknown, emoji: string) => void; onForwardMessage?: (m: unknown) => void }) => (
     <ul data-testid="list" data-can-delete={String(Boolean(onDeleteMessage))}>
       {messages.map(m => (
         <li key={m.id}>
           <span>{m.content}</span>
           <span data-testid={`reactions-${m.id}`}>{m.content_attributes?.reactions?.map(r => `${r.from}:${r.emoji}`).join(' ')}</span>
           {onReactToMessage && <button type="button" onClick={() => onReactToMessage(m, '👍')}>reagir {m.id}</button>}
+          {onForwardMessage && <button type="button" onClick={() => onForwardMessage(m)}>encaminhar {m.id}</button>}
           {onReplyToMessage && <button type="button" onClick={() => onReplyToMessage(m)}>responder {m.id}</button>}
         </li>
       ))}
@@ -216,5 +225,39 @@ describe('EmbeddedConversation', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe('EmbeddedConversation forwarding', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+    perms.can.mockReturnValue(true);
+    chat.getConversation.mockResolvedValue({ id: 'c1', can_reply: false, inbox: { channel_type: 'Channel::Whatsapp', provider: 'evolution' } });
+    chat.getMessages.mockResolvedValue({ success: true, data: [{ id: 'm1', content: 'Olá!' }] });
+  });
+
+  it('opens the picker and shows only the copy that belongs to this conversation', async () => {
+    render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    fireEvent.click(await screen.findByRole('button', { name: 'encaminhar m1' }));
+    expect(screen.getByRole('dialog')).toHaveTextContent('encaminhando m1 de c1');
+    fireEvent.click(screen.getByRole('button', { name: 'concluir' }));
+    expect(screen.getByText('Cópia aqui')).toBeInTheDocument();
+    expect(screen.queryByText('Cópia alheia')).toBeNull();
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('closes the picker when the panel changes conversation', async () => {
+    const { rerender } = render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    fireEvent.click(await screen.findByRole('button', { name: 'encaminhar m1' }));
+    rerender(<EmbeddedConversation conversationId="c2" spyDefault />);
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('hides forwarding without permission', async () => {
+    perms.can.mockReturnValue(false);
+    render(<EmbeddedConversation conversationId="c1" spyDefault />);
+    await screen.findByText('Olá!');
+    expect(screen.queryByRole('button', { name: 'encaminhar m1' })).toBeNull();
   });
 });

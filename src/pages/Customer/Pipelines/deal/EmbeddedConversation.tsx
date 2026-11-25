@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { Button } from '@evoapi/design-system';
 import MessageList from '@/components/chat/messages/MessageList';
 import ReplyPreview from '@/components/chat/messages/ReplyPreview';
+import ForwardDialog from '@/components/chat/messages/ForwardDialog';
 import chatService from '@/services/chat/chatService';
 import { useMessageReaction } from '@/hooks/chat/useMessageReaction';
 import { supportsReactions, withMyReaction } from '@/components/chat/messages/utils/reactions';
@@ -49,6 +50,7 @@ export default function EmbeddedConversation({ conversationId, spyDefault, showO
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
+  const [forwarding, setForwarding] = useState<Message | null>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const idRef = useRef(conversationId);
   idRef.current = conversationId;
@@ -80,6 +82,7 @@ export default function EmbeddedConversation({ conversationId, spyDefault, showO
   useEffect(() => {
     setConversation(null);
     setReplyTo(null);
+    setForwarding(null);
     markedRef.current = null;
     void load();
   }, [load]);
@@ -162,6 +165,10 @@ export default function EmbeddedConversation({ conversationId, spyDefault, showO
   }, []);
   const reactToMessage = useMessageReaction(applyReaction);
 
+  // Só entra na lista a cópia cujo destino é a conversa aberta.
+  const showForwarded = (copies: Message[]) =>
+    setMessages(current => mergeMessages(current, copies.filter(copy => copy.conversation_id === idRef.current)));
+
   const startReply = (message: Message) => {
     setReplyTo(message);
     // O menu devolve o foco ao botão ao fechar; focar o compositor depois disso.
@@ -205,9 +212,18 @@ export default function EmbeddedConversation({ conversationId, spyDefault, showO
                 ? (message, emoji) => void reactToMessage(conversationId, message, emoji)
                 : undefined
             }
+            onForwardMessage={canSend && supportsReactions(conversation) ? setForwarding : undefined}
           />
         )}
       </div>
+      {forwarding && canSend && (
+        <ForwardDialog
+          conversationId={conversationId}
+          message={forwarding}
+          onClose={() => setForwarding(null)}
+          onForwarded={showForwarded}
+        />
+      )}
       {replyTo && canSend && canReply && (
         <div className="deal-embedded-reply">
           <ReplyPreview message={replyTo} isOwn={false} onCancel={() => setReplyTo(null)} />

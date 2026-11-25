@@ -68,6 +68,7 @@ interface MessageListProps {
   onDeleteMessage?: (message: Message) => Promise<void>;
   /** Emoji vazio remove a minha reação. */
   onReactToMessage?: (message: Message, emoji: string) => void;
+  onForwardMessage?: (message: Message) => void;
 }
 
 // Helper function para normalizar timestamp de mensagens (mesma lógica do MessagesContext)
@@ -126,6 +127,7 @@ const MessageList: React.FC<MessageListProps> = ({
   onCopyMessage,
   onDeleteMessage,
   onReactToMessage,
+  onForwardMessage,
 }) => {
   const { t } = useLanguage('chat');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -469,6 +471,7 @@ const MessageList: React.FC<MessageListProps> = ({
                           onCopy={onCopyMessage}
                           onDelete={onDeleteMessage}
                           onReact={onReactToMessage}
+                          onForward={onForwardMessage}
                         />
 
                         {/* Renderizar respostas aninhadas recursivamente */}
@@ -553,6 +556,7 @@ const MessageList: React.FC<MessageListProps> = ({
                           onCopy={onCopyMessage}
                           onDelete={onDeleteMessage}
                           onReact={onReactToMessage}
+                          onForward={onForwardMessage}
                         />
                       </div>
                     </div>
@@ -608,6 +612,7 @@ const MessageList: React.FC<MessageListProps> = ({
                     onCopy={onCopyMessage}
                     onDelete={onDeleteMessage}
                     onReact={onReactToMessage}
+                    onForward={onForwardMessage}
                   />
                 </div>
               );

@@ -219,3 +219,28 @@ describe('MessageBubble shared contacts', () => {
     expect(screen.queryByTestId('shared-contact')).toBeNull();
   });
 });
+
+describe('MessageBubble forwarding', () => {
+  it('forwards the message from the actions menu', async () => {
+    const onForward = vi.fn();
+    const target = message();
+    render(<MessageBubble message={target} isOwn={false} onForward={onForward} />);
+    openActions();
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Encaminhar' }));
+    expect(onForward).toHaveBeenCalledWith(target);
+  });
+
+  it('hides forwarding for what cannot be sent', async () => {
+    render(<MessageBubble message={message({ private: true })} isOwn onForward={vi.fn()} />);
+    openActions();
+    expect(await screen.findByRole('menuitem', { name: 'Copiar mensagem' })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Encaminhar' })).toBeNull();
+  });
+
+  it('labels a forwarded copy', () => {
+    const { rerender } = render(<MessageBubble message={message({ content_attributes: { forwarded: true } })} isOwn />);
+    expect(screen.getByText('Encaminhada')).toBeInTheDocument();
+    rerender(<MessageBubble message={message()} isOwn />);
+    expect(screen.queryByText('Encaminhada')).toBeNull();
+  });
+});

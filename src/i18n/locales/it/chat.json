@@ -11,10 +11,32 @@
       "playbackError": "Errore nella riproduzione audio",
       "playbackErrorDescription": "Impossibile riprodurre questo file audio"
     },
+    "forward": {
+      "title": "Inoltra messaggio",
+      "description": "Scegli fino a {{max}} conversazioni WhatsApp.",
+      "search": "Cerca per nome o numero",
+      "searching": "Ricerca…",
+      "empty": "Nessuna conversazione WhatsApp trovata.",
+      "searchError": "Impossibile cercare le conversazioni.",
+      "selected": "{{total}} di {{max}} selezionate",
+      "remove": "Rimuovi {{name}}",
+      "confirm": "Inoltra",
+      "sending": "Inoltro…",
+      "sent": "Inoltro a {{names}}.",
+      "errors": {
+        "invalid_target": "Una delle conversazioni non è disponibile. Scegline un'altra.",
+        "unsupported_channel": "Si può inoltrare solo a conversazioni WhatsApp.",
+        "unsupported_message": "Questo messaggio non può essere inoltrato.",
+        "unsupported_content": "Questo contenuto non può essere inoltrato.",
+        "creation_failed": "Impossibile creare l'invio (forse il limite al minuto). Non è stato inviato nulla.",
+        "generic": "Impossibile inoltrare. Riprova."
+      }
+    },
     "messageBubble": {
       "actions": "Altre azioni",
       "contextMenu": {
         "react": "Reagisci",
+        "forward": "Inoltra",
         "reply": "Rispondi",
         "copy": "Copia messaggio",
         "delete": "Elimina messaggio"
@@ -31,6 +53,7 @@
         "picker": "Scegli una reazione",
         "error": "Impossibile reagire. Riprova."
       },
+      "forwarded": "Inoltrato",
       "userFallback": "Utente",
       "agent": {
         "badge": "Agente",

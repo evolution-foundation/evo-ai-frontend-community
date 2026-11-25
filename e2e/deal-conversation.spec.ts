@@ -67,6 +67,19 @@ async function installApi(page: Page, opts: { canUpdate?: boolean; allowed?: str
     if (p.includes('/unread_count')) return json(route, ok({ count: 0 }));
     if (p.endsWith('/users')) return json(route, ok([{ id: 'owner-1', name: 'Eduardo Nunes' }]));
     if (p.endsWith('/labels')) return json(route, ok([]));
+    if (p.endsWith('/api/v1/inboxes')) return json(route, ok(inboxes));
+    if (p.endsWith('/search/conversations')) {
+      const found = ['Ana Sintética', 'Beto Sintético', 'Carla Sintética', 'Davi Sintético', 'Elis Sintética', 'Fábio Sintético']
+        .map((name, index) => ({ id: index === 0 ? 'conv-1' : `dest-${index}`, display_id: 50 + index, created_at: 1788091200, contact: { id: `d-${index}`, name, phone_number: `+55119999900${index}0` }, inbox: { id: 'inbox-1', name: 'Comercial 1', channel_type: 'Channel::Whatsapp' } }));
+      const q = (new URL(request.url()).searchParams.get('q') ?? '').toLowerCase();
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ payload: { conversations: found.filter(item => item.contact.name.toLowerCase().includes(q)) } }) });
+    }
+    if (/\/conversations\/conv-1\/messages\/m\d+\/forward$/.test(p) && method === 'POST') {
+      const { target_conversation_ids: ids } = request.postDataJSON() as { target_conversation_ids: string[] };
+      bodies.forward = ids;
+      if (ids.includes('dest-5')) return json(route, { success: false, error: { code: 'VALIDATION_ERROR', details: 'creation_failed' } }, 422);
+      return json(route, ok(ids.map((id, index) => ({ ...message(`f${index}`, 'Oi! Vi o convite da aula ao vivo.', 'outgoing', 40), conversation_id: id, content_attributes: { forwarded: true } }))), 201);
+    }
     if (p.endsWith('/available_contacts') || p.endsWith('/available_conversations')) return json(route, ok([]));
     if (/\/pipeline_items\/deal-\d+\/tasks$/.test(p)) return json(route, { success: true, data: [], meta: { pagination: { page: 1, per_page: 25, total: 0, total_pages: 1 } } });
     let m = p.match(/\/deals\/(deal-\d+)\/conversation_status$/);
@@ -327,6 +340,45 @@ for (const [width, name] of [[1440, 'desktop'], [390, 'celular']] as const) {
     await full.getByRole('button', { name: /rocket/i }).first().click();
     await expect(full).toBeHidden();
     await expect.poll(() => (api.bodies.reaction as { emoji: string }).emoji).toBe('🚀');
+  });
+}
+
+for (const [name, width, theme] of [['desktop', 1440, 'light'], ['celular', 390, 'light'], ['desktop-escuro', 1440, 'dark']] as const) {
+  test(`encaminhar pela bolha: escolhe destinos, envia e marca a cópia (${name})`, async ({ page }) => {
+    test.setTimeout(90_000);
+    const api = await boot(page, width, theme);
+    await page.goto('/pipelines/pipeline-1');
+    await page.locator('[data-deal-id="deal-1"]').getByTestId('deal-conversation-action').click();
+    const bubble = page.locator('.deal-conversation-drawer [data-message-id="m1"]');
+    await bubble.getByText('Oi! Vi o convite da aula ao vivo.').hover();
+    await bubble.getByRole('button', { name: 'Mais ações' }).click();
+    await page.getByRole('menuitem', { name: 'Encaminhar' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Encaminhar mensagem' });
+    await expect(dialog.getByRole('searchbox')).toBeFocused();
+    const check = (who: string) => dialog.getByRole('checkbox', { name: new RegExp(`^${who}`) });
+    await check('Ana').check();
+    await dialog.getByRole('searchbox').fill('fábio');
+    await expect(dialog.getByRole('checkbox')).toHaveCount(1);
+    await check('Fábio').check();
+    // falha: mostra o motivo e mantém a escolha
+    const confirm = dialog.getByRole('button', { name: 'Encaminhar', exact: true });
+    await confirm.click();
+    await expect(dialog.getByRole('alert')).toContainText('Nada foi enviado');
+    await shot(page, `encaminhar-erro-${name}`);
+    await dialog.getByRole('button', { name: 'Remover Fábio Sintético' }).click();
+    await dialog.getByRole('searchbox').fill('');
+    await check('Beto').check();
+    const box = (await dialog.boundingBox())!;
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(width + 1);
+    await shot(page, `encaminhar-seletor-${name}`);
+    await confirm.click();
+    await expect(dialog).toHaveCount(0);
+    expect(api.bodies.forward).toEqual(['conv-1', 'dest-1']);
+    await expect(page.getByText('Encaminhando para Ana Sintética, Beto Sintético.')).toBeVisible();
+    // só a cópia desta conversa aparece, marcada; o painel continua aberto
+    await expect(page.locator('.deal-conversation-drawer').getByText('Encaminhada', { exact: true })).toHaveCount(1);
+    await shot(page, `encaminhar-copia-${name}`);
   });
 }
 
