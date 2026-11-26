@@ -120,15 +120,13 @@ const MessageText: React.FC<MessageTextProps> = ({
     );
   }
 
-  // Render HTML for outgoing email template messages (content is HTML from react-email-editor)
-  // Check if content is HTML (starts with <!DOCTYPE, <html, or contains HTML tags)
-  const isHtmlContent = safeContent.trim().startsWith('<!DOCTYPE') ||
-                        safeContent.trim().startsWith('<!doctype') ||
-                        safeContent.trim().startsWith('<html') ||
-                        safeContent.trim().startsWith('<HTML') ||
-                        (safeContent.includes('<') && safeContent.includes('</') && safeContent.length > 50);
+  // Outgoing email templates are full HTML documents. Chat formatting uses fragments.
+  const isEmailDocument = /^\s*(?:<!doctype\s+html\b|<html[\s>])/i.test(safeContent);
+  const isHtmlEmail =
+    isEmailDocument ||
+    (contentType === 'incoming_email' && safeContent.includes('<') && safeContent.includes('</'));
 
-  if (isHtmlContent && !isPrivateNote) {
+  if (isHtmlEmail && !isPrivateNote) {
     const sanitizedHTML = sanitizeEmailHTML(safeContent);
     return (
       <div

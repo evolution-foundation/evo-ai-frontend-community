@@ -244,3 +244,26 @@ describe('MessageBubble forwarding', () => {
     expect(screen.queryByText('Encaminhada')).toBeNull();
   });
 });
+
+describe('MessageBubble formatted content', () => {
+  const chatText = 'Olá! Seja bem-vindo. Aqui é a equipe que vai conduzir seu atendimento.';
+  const fragment = `<p><strong>${chatText}</strong></p>`;
+
+  it('renders long formatted chat messages inside the themed bubble', () => {
+    render(<MessageBubble message={message({ content: fragment, message_type: 'outgoing' })} isOwn />);
+
+    const content = screen.getByText(chatText, { selector: 'strong' });
+    expect(content.closest('.rich-content')).toBeInTheDocument();
+    expect(content.closest('.text-primary-foreground')).toBeInTheDocument();
+    expect(content.closest('.email-html-content-wrapper')).toBeNull();
+  });
+
+  it.each([
+    { content: fragment, content_type: 'incoming_email' },
+    { content: `<!DOCTYPE html><html><body>${fragment}</body></html>` },
+  ] as Partial<Message>[])('keeps email HTML in the email wrapper', (email) => {
+    render(<MessageBubble message={message(email)} isOwn />);
+
+    expect(screen.getByText(chatText).closest('.email-html-content-wrapper')).toBeInTheDocument();
+  });
+});
